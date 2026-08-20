@@ -1,0 +1,518 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A11-modeling-data-file-details",
+  "pair_count": 46,
+  "byte_equal_count": 46,
+  "pixel_equal_count": 46,
+  "all_byte_equal": true,
+  "all_pixel_equal": true,
+  "pairs": [
+    {
+      "path": "canonical/modeling-data-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1366x768-controls-100pct.png",
+      "size": {
+        "width": 1288,
+        "height": 365
+      },
+      "before_sha256": "f2f282b5cb31211c907f4ba57e468a0b62dd3669252bf24871571911dc0e9e97",
+      "after_sha256": "f2f282b5cb31211c907f4ba57e468a0b62dd3669252bf24871571911dc0e9e97",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1366x768-details-100pct.png",
+      "size": {
+        "width": 1288,
+        "height": 629
+      },
+      "before_sha256": "4be7bbe2dab26f76ccecd429518a6e3298bc6288f9737efd97225a6932fffef5",
+      "after_sha256": "4be7bbe2dab26f76ccecd429518a6e3298bc6288f9737efd97225a6932fffef5",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1366x768-graph-100pct.png",
+      "size": {
+        "width": 1366,
+        "height": 240
+      },
+      "before_sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "after_sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1366x768-header-100pct.png",
+      "size": {
+        "width": 1366,
+        "height": 38
+      },
+      "before_sha256": "646618bebba32dfa3e6946c0ad7cb267eecf75e428e91899dd77fcafe7f4a175",
+      "after_sha256": "646618bebba32dfa3e6946c0ad7cb267eecf75e428e91899dd77fcafe7f4a175",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1366x768-navigator-100pct.png",
+      "size": {
+        "width": 1366,
+        "height": 32
+      },
+      "before_sha256": "d5587912361a0ad31e5174dbe519d8e80b219c45cb256f6c5463404d264c697f",
+      "after_sha256": "d5587912361a0ad31e5174dbe519d8e80b219c45cb256f6c5463404d264c697f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1440x900-controls-100pct.png",
+      "size": {
+        "width": 1362,
+        "height": 365
+      },
+      "before_sha256": "f30c55b6ef691752b2bdee3f7f2695baf0a7b64d0dff51359c2a3106e0379902",
+      "after_sha256": "f30c55b6ef691752b2bdee3f7f2695baf0a7b64d0dff51359c2a3106e0379902",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1440x900-details-100pct.png",
+      "size": {
+        "width": 1362,
+        "height": 629
+      },
+      "before_sha256": "52fe4e2a5baa8ea452d338d36175788ff5abfb3c772634acebfe3c07520c8386",
+      "after_sha256": "52fe4e2a5baa8ea452d338d36175788ff5abfb3c772634acebfe3c07520c8386",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1440x900-graph-100pct.png",
+      "size": {
+        "width": 1440,
+        "height": 310
+      },
+      "before_sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "after_sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1440x900-header-100pct.png",
+      "size": {
+        "width": 1440,
+        "height": 38
+      },
+      "before_sha256": "f0f4a007359158f2b30ba001ddf3cf36c24b1b70fbeecc64e16dad13b98d75ab",
+      "after_sha256": "f0f4a007359158f2b30ba001ddf3cf36c24b1b70fbeecc64e16dad13b98d75ab",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1440x900-navigator-100pct.png",
+      "size": {
+        "width": 1440,
+        "height": 32
+      },
+      "before_sha256": "5e6a6225e9ec18575b3e9b15fe0bb8bc3d57624f16e50b9dd24afdee0bdb757f",
+      "after_sha256": "5e6a6225e9ec18575b3e9b15fe0bb8bc3d57624f16e50b9dd24afdee0bdb757f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1920x1080-controls-100pct.png",
+      "size": {
+        "width": 1842,
+        "height": 365
+      },
+      "before_sha256": "dd0f3e30f32e810ecdd004f3ef9ae1f83ddb094f12a2dbc63822d7817b92b392",
+      "after_sha256": "dd0f3e30f32e810ecdd004f3ef9ae1f83ddb094f12a2dbc63822d7817b92b392",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1920x1080-details-100pct.png",
+      "size": {
+        "width": 1842,
+        "height": 629
+      },
+      "before_sha256": "b2c2a6e17bfc900056982286ea6c1da8beadcf8c5ff46428e5e8aa00643a8468",
+      "after_sha256": "b2c2a6e17bfc900056982286ea6c1da8beadcf8c5ff46428e5e8aa00643a8468",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1920x1080-graph-100pct.png",
+      "size": {
+        "width": 1920,
+        "height": 490
+      },
+      "before_sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "after_sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1920x1080-header-100pct.png",
+      "size": {
+        "width": 1920,
+        "height": 38
+      },
+      "before_sha256": "ba6708603583a592ad3e798d7834153b6b245d193e60d6b0fb21b82418ff6987",
+      "after_sha256": "ba6708603583a592ad3e798d7834153b6b245d193e60d6b0fb21b82418ff6987",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-1920x1080-navigator-100pct.png",
+      "size": {
+        "width": 1920,
+        "height": 32
+      },
+      "before_sha256": "095bd93784d969a11ae070a8e39fd033c3a19d55ce823e947d05c1e9e4746f3b",
+      "after_sha256": "095bd93784d969a11ae070a8e39fd033c3a19d55ce823e947d05c1e9e4746f3b",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-2560x1440-controls-100pct.png",
+      "size": {
+        "width": 2482,
+        "height": 365
+      },
+      "before_sha256": "99d753b7313bea732debade39f3c4141e17039d1ba353958974acfd8abcfc7e5",
+      "after_sha256": "99d753b7313bea732debade39f3c4141e17039d1ba353958974acfd8abcfc7e5",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-2560x1440-details-100pct.png",
+      "size": {
+        "width": 2482,
+        "height": 629
+      },
+      "before_sha256": "c042930b329a2d744b93c662c2bfd9d8cdeec3d67285f76c81a237ef2e514d2f",
+      "after_sha256": "c042930b329a2d744b93c662c2bfd9d8cdeec3d67285f76c81a237ef2e514d2f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-2560x1440-graph-100pct.png",
+      "size": {
+        "width": 2560,
+        "height": 850
+      },
+      "before_sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "after_sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-2560x1440-header-100pct.png",
+      "size": {
+        "width": 2560,
+        "height": 38
+      },
+      "before_sha256": "2e614e2a3e7549e4367356f01d588d33be62937b7a37c2c331e96b6f6c25ea83",
+      "after_sha256": "2e614e2a3e7549e4367356f01d588d33be62937b7a37c2c331e96b6f6c25ea83",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-2560x1440-navigator-100pct.png",
+      "size": {
+        "width": 2560,
+        "height": 32
+      },
+      "before_sha256": "b4256086d47a53fcab2b9615d8e517bd080acb117e478878e5f54ddb3ef0568f",
+      "after_sha256": "b4256086d47a53fcab2b9615d8e517bd080acb117e478878e5f54ddb3ef0568f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-3840x2160-controls-100pct.png",
+      "size": {
+        "width": 3762,
+        "height": 365
+      },
+      "before_sha256": "2da813768d9b4d4111cbb48684da4c592f9a1114f9b4738b86942e9935d8a4f2",
+      "after_sha256": "2da813768d9b4d4111cbb48684da4c592f9a1114f9b4738b86942e9935d8a4f2",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-3840x2160-details-100pct.png",
+      "size": {
+        "width": 3762,
+        "height": 629
+      },
+      "before_sha256": "57861cf9c9a7bb6cfce9c12effacd7f033f1c3d8df17bbc2cb1fcdd1989ac02d",
+      "after_sha256": "57861cf9c9a7bb6cfce9c12effacd7f033f1c3d8df17bbc2cb1fcdd1989ac02d",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-3840x2160-graph-100pct.png",
+      "size": {
+        "width": 3840,
+        "height": 1570
+      },
+      "before_sha256": "143dbc5ca8900ef17e5548db44ae9934708183046e5763baf9dc2f1eec202329",
+      "after_sha256": "143dbc5ca8900ef17e5548db44ae9934708183046e5763baf9dc2f1eec202329",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-3840x2160-header-100pct.png",
+      "size": {
+        "width": 3840,
+        "height": 38
+      },
+      "before_sha256": "b2dee1331194433bc12d822e3e50f8b8777b1a941932a3a8c94ef2aa9881caea",
+      "after_sha256": "b2dee1331194433bc12d822e3e50f8b8777b1a941932a3a8c94ef2aa9881caea",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-file-details-3840x2160-navigator-100pct.png",
+      "size": {
+        "width": 3840,
+        "height": 32
+      },
+      "before_sha256": "3f78fedbf8c58b8bad406eb7ed5416c7a94a13fad41c62d27428d43d077edd2b",
+      "after_sha256": "3f78fedbf8c58b8bad406eb7ed5416c7a94a13fad41c62d27428d43d077edd2b",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-file-details-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "e9e864c39a7acfd52598de91bbdd626bb7eda3f0cd1220e47c67daee17984e7e",
+      "after_sha256": "e9e864c39a7acfd52598de91bbdd626bb7eda3f0cd1220e47c67daee17984e7e",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-file-details-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "e444dbec38b692d6120d4b09344688291d56304f070f31d3b8e6f75931c6c546",
+      "after_sha256": "e444dbec38b692d6120d4b09344688291d56304f070f31d3b8e6f75931c6c546",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-file-details-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "d5729e5af2e69d0580dedfb33974718f66858c3c8b6eba53868d61241e022f78",
+      "after_sha256": "d5729e5af2e69d0580dedfb33974718f66858c3c8b6eba53868d61241e022f78",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-file-details-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "4603980e65e010adb845a3887db7bea4a3184f081ddbac111e2906951c20d804",
+      "after_sha256": "4603980e65e010adb845a3887db7bea4a3184f081ddbac111e2906951c20d804",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-file-details-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "ffc92eda60edc77189af7ad5179e32df547f61fe988d416b10acfe249452c617",
+      "after_sha256": "ffc92eda60edc77189af7ad5179e32df547f61fe988d416b10acfe249452c617",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-file-details-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "e9e864c39a7acfd52598de91bbdd626bb7eda3f0cd1220e47c67daee17984e7e",
+      "after_sha256": "e9e864c39a7acfd52598de91bbdd626bb7eda3f0cd1220e47c67daee17984e7e",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-file-details-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "e444dbec38b692d6120d4b09344688291d56304f070f31d3b8e6f75931c6c546",
+      "after_sha256": "e444dbec38b692d6120d4b09344688291d56304f070f31d3b8e6f75931c6c546",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-file-details-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "d5729e5af2e69d0580dedfb33974718f66858c3c8b6eba53868d61241e022f78",
+      "after_sha256": "d5729e5af2e69d0580dedfb33974718f66858c3c8b6eba53868d61241e022f78",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-file-details-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "4603980e65e010adb845a3887db7bea4a3184f081ddbac111e2906951c20d804",
+      "after_sha256": "4603980e65e010adb845a3887db7bea4a3184f081ddbac111e2906951c20d804",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-file-details-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "ffc92eda60edc77189af7ad5179e32df547f61fe988d416b10acfe249452c617",
+      "after_sha256": "ffc92eda60edc77189af7ad5179e32df547f61fe988d416b10acfe249452c617",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "states/modeling-data-file-details-open-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "3a10fb57f945797cce77b2e07ca69dd89f302b55ee93096e9c317d56b594fb0f",
+      "after_sha256": "3a10fb57f945797cce77b2e07ca69dd89f302b55ee93096e9c317d56b594fb0f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "states/modeling-data-file-details-open-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "ef7f6aa0e628811b3d73aea3db7be3d91c21ef0c65da96ebc22cdd6d2d432e6a",
+      "after_sha256": "ef7f6aa0e628811b3d73aea3db7be3d91c21ef0c65da96ebc22cdd6d2d432e6a",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "states/modeling-data-file-details-open-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "79abacf35d1ec33d1d6db961e3f0ed03e65ff2f2afbed677bff7de9b421501d9",
+      "after_sha256": "79abacf35d1ec33d1d6db961e3f0ed03e65ff2f2afbed677bff7de9b421501d9",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "states/modeling-data-file-details-open-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "511c64efb37d2884740d076b07c661cddeafd7a89365f049f88b648d30ac8d74",
+      "after_sha256": "511c64efb37d2884740d076b07c661cddeafd7a89365f049f88b648d30ac8d74",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "states/modeling-data-file-details-open-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "fde6422c851ae0a7c614d9d362d41fce22f49f61eb9169bca9a7a742c8d46d8c",
+      "after_sha256": "fde6422c851ae0a7c614d9d362d41fce22f49f61eb9169bca9a7a742c8d46d8c",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "states/modeling-data-file-details-start-context-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "137f0d63749ae3f6d34d39f2a7be2ec9b2900d8882e90bbd724bbc550f67921f",
+      "after_sha256": "137f0d63749ae3f6d34d39f2a7be2ec9b2900d8882e90bbd724bbc550f67921f",
+      "byte_equal": true,
+      "pixel_equal": true
+    }
+  ]
+}

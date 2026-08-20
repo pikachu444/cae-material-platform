@@ -6835,26 +6835,6 @@
   font-size: var(--ux-data-font-size);
 }
 
-.modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) {
-  box-sizing: border-box;
-  height: var(--ux-interactive-min-block-size);
-  display: grid;
-  grid-template-rows: auto;
-  gap: 0;
-  min-height: var(--ux-interactive-min-block-size);
-  padding-top: 0;
-  overflow: hidden;
-}
-
-.modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > summary {
-  min-height: var(--ux-interactive-min-block-size);
-  line-height: 1.2;
-}
-
-.modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > div {
-  display: none;
-}
-
 /* Task 1 mapping controls use the native compact control grammar.  These
    selectors intentionally outrank the page-wide workbench minimums without
    changing controls in Process, Fit, or Export. */
@@ -6967,14 +6947,6 @@
 .modeling-main-surface.has-data-split .modeling-data-intake {
   padding-block: var(--ux-space-1);
   padding-inline: var(--ux-pane-padding);
-}
-
-.modeling-main-surface.has-data-split .data-source-advanced:not([open]) > summary {
-  box-sizing: border-box;
-  height: var(--ux-interactive-min-block-size);
-  min-height: var(--ux-interactive-min-block-size);
-  padding-block: 0;
-  line-height: normal;
 }
 
 @container (max-width: 847px) {
@@ -7299,8 +7271,7 @@
 .data-mapping-recovery-detail > label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
-.data-provenance-group,
-.data-source-advanced > :is(summary, div) {
+.data-provenance-group {
   font-size: var(--ux-metadata-font-size);
 }
 

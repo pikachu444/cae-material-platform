@@ -1641,6 +1641,128 @@ original 상단의 일부 문맥이 잘려 보이는 상태는 M1A7에서 owner�
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A11 시작은 이 turn에서 하지 않는다.
 
+## M1A11 Data File details ownership candidate
+
+`M1A11-modeling-data-file-details`는 Local file의 단일
+`details.data-source-advanced` DOM consumer가 쓰는 CSS-1436, CSS-1437, CSS-1438, CSS-1452,
+CSS-1548만 Data stage owner로 옮긴다. 네 complete legacy rule-group과 한 metadata comma-group member의
+선언과 상대 cascade 순서를 그대로 보존했다. React, DOM, API, copy, state, token, breakpoint,
+`styles.css`, 인접 Data component, Process와 Fit은 변경하지 않았다.
+
+| Metric | M1A10 | M1A11 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,757 | 2,753 | -4 |
+| expanded global selector rows | 3,470 | 3,465 | -5 |
+| M1A Data rows | 119 | 114 | -5 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `5/5/4/1`, exact legacy residual 0, 남은 M1A 114행과 다음 router
+`M1A12-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css` 줄 수와 global rule
+count를 낮추고, 기존 #298 baseline과 #261 예외 의미를 바꾸지 않는다.
+
+### Live journey와 visual evidence
+
+[M1A11 manifest](images/issue-261-fe06-m1a11-data-file-details/manifest.json)은 Standard, browser zoom
+100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. 정확한 M1A10
+시작 commit archive와 candidate가 같은 API, `/modeling` 및 `/datasets/processing`, deterministic
+`m1a11-file-details.csv` 입력을 사용했다. normal Data, File details 접힘/keyboard focus, 펼침/raw table,
+intentional local scroll, exact Test record, graph, Data→Process→Data와 reload를 확인했다.
+[hash와 pixel 비교](images/issue-261-fe06-m1a11-data-file-details/equivalence.json)는 46/46 pair가
+byte/pixel identical이고, [runtime identity](images/issue-261-fe06-m1a11-data-file-details/runtime-identity.json)는
+다섯 viewport의 geometry와 상태가 같음을 기록한다. current guide normal 5개도
+[동일 hash](images/issue-261-fe06-m1a11-data-file-details/documentation-impact-equivalence.json)다.
+
+- 1366×768: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1366x768.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-graph-100pct.png)
+- 1440×900: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1440x900.png) / [start context](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-start-context-1440x900.png) / [expanded](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1440x900.png)
+- 1920×1080: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1920x1080.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-graph-100pct.png)
+- 2560×1440: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-2560x1440.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-graph-100pct.png)
+- 3840×2160: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-3840x2160.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-graph-100pct.png)
+
+File details는 모든 viewport에서 처음에는 34 px 높이로 접혀 있고 펼치면 raw table과 exact evidence가
+보인다. 1366에서는 펼친 details가 local Data scrollport 안에서 위쪽으로 일부 지나가지만 page clipping이
+아니며, `scrollTop 628 / clientHeight 301 / scrollHeight 1103`, `overflow-y:auto`, keyboard focus 가능한
+국소 scroll 상태다. 1440 이상도 같은 의도적 local scroll을 사용한다. 전후 page 가로 overflow와 console
+error는 0이고 선택한 `Tensile test 0001`, 저장 graph `CMP-DEMO-DP780-TEST-JSON`, session, reload가 같다.
+
+<details>
+<summary>M1A11 46개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-file-details-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-controls-100pct.png)
+- crops/modeling-data-file-details-1366x768-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-details-100pct.png)
+- crops/modeling-data-file-details-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-graph-100pct.png)
+- crops/modeling-data-file-details-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-header-100pct.png)
+- crops/modeling-data-file-details-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-navigator-100pct.png)
+- crops/modeling-data-file-details-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-controls-100pct.png)
+- crops/modeling-data-file-details-1440x900-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-details-100pct.png)
+- crops/modeling-data-file-details-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-graph-100pct.png)
+- crops/modeling-data-file-details-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-header-100pct.png)
+- crops/modeling-data-file-details-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-navigator-100pct.png)
+- crops/modeling-data-file-details-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-controls-100pct.png)
+- crops/modeling-data-file-details-1920x1080-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-details-100pct.png)
+- crops/modeling-data-file-details-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-graph-100pct.png)
+- crops/modeling-data-file-details-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-header-100pct.png)
+- crops/modeling-data-file-details-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-navigator-100pct.png)
+- crops/modeling-data-file-details-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-controls-100pct.png)
+- crops/modeling-data-file-details-2560x1440-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-details-100pct.png)
+- crops/modeling-data-file-details-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-graph-100pct.png)
+- crops/modeling-data-file-details-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-header-100pct.png)
+- crops/modeling-data-file-details-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-navigator-100pct.png)
+- crops/modeling-data-file-details-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-controls-100pct.png)
+- crops/modeling-data-file-details-3840x2160-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-details-100pct.png)
+- crops/modeling-data-file-details-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-graph-100pct.png)
+- crops/modeling-data-file-details-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-header-100pct.png)
+- crops/modeling-data-file-details-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-navigator-100pct.png)
+- originals/modeling-data-file-details-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1366x768.png)
+- originals/modeling-data-file-details-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1440x900.png)
+- originals/modeling-data-file-details-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1920x1080.png)
+- originals/modeling-data-file-details-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-2560x1440.png)
+- originals/modeling-data-file-details-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-3840x2160.png)
+- routes/datasets-processing/modeling-data-file-details-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-1366x768.png)
+- routes/datasets-processing/modeling-data-file-details-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-1440x900.png)
+- routes/datasets-processing/modeling-data-file-details-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-1920x1080.png)
+- routes/datasets-processing/modeling-data-file-details-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-2560x1440.png)
+- routes/datasets-processing/modeling-data-file-details-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-3840x2160.png)
+- states/modeling-data-file-details-open-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1366x768.png)
+- states/modeling-data-file-details-open-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1440x900.png)
+- states/modeling-data-file-details-open-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1920x1080.png)
+- states/modeling-data-file-details-open-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-2560x1440.png)
+- states/modeling-data-file-details-open-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-3840x2160.png)
+- states/modeling-data-file-details-start-context-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-start-context-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-start-context-1440x900.png)
+
+</details>
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: mapping 결정 → Save details → 접힌 File details → graph의 기존 우선순위와
+  disclosure의 metadata 계층이 그대로다. M1A11이 이를 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: exact Test Data와 Test Run을 선택하고 필요할 때 file evidence를
+  펼친 뒤 graph를 확인하는 흐름, Data→Process→Data와 reload가 그대로다. M1A11이 새 흐름을 구현한 것은
+  아니다.
+- SAP식 responsive/wide composition PASS: 1366의 intentional local scroll과 keyboard focus를
+  유지하고 1920/2560/3840에서는 details 내용의 읽기 폭과 graph 공간을 그대로 쓴다. 새 wide-screen
+  policy를 추가하지 않았으며 실제 Windows 4K 물리 가독성은 #223에 남는다.
+- Main acceptance PASS: focused Data/workspace Vitest 4 files/57 tests, production build와 bundle budget,
+  frontend guard 17/17·0 violation/15 baseline warnings, inventory 11/11·exact residual 0과
+  `2753/3465/114/446/14`, guide contract 46/46, user-guide, docs-impact, 46/46 image/hash와 5/5
+  current-guide hash, `git diff --check`가 통과했다. Main은 canonical·focused primary·alias·expanded의 다섯
+  viewport 원본, 1440 시작 맥락, 25개 header/navigator/controls/details/graph 100% crop을 원본 해상도로 직접
+  확인했다. exact Test Data/Test Run·saved graph·Data→Process→Data·reload·disclosure keyboard focus가
+  보존되고 새 clipping, overflow 또는 interaction 결함이 없다. focused 상단은 양 phase가 같은 기존
+  intentional local-scroll 상태다.
+- canonical independent read-only Balanced audit APPROVE: 첫 검토의 Important finding은 manifest가 적용 가능한
+  6개 항목만 기록하고 Q-01~Q-20 전체 checklist를 빠뜨린 metadata 누락이었다. Main이 모든 항목에 직접
+  evidence path와 비적용 topology 사유를 추가하고 focused guide evidence 1/1, docs-impact, diff check를
+  다시 통과시켰다. 같은 auditor는 correction과 exact 106-file scope, Data-only cascade, 5행/5 group,
+  inventory `2753/3465/114/446/14`·residual 0, 46 evidence pair·5 current-guide hash 및 exact journey를
+  재확인해 남은 Critical/Important/Minor finding 없이 APPROVE했다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A12 시작은 이 turn에서 하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1654,14 +1776,15 @@ original 상단의 일부 문맥이 잘려 보이는 상태는 M1A7에서 owner�
 9. M1A8 Data optional-channel 4 complete rule-group은 rolling branch commit `6aa3a3bd...`에서 이동·증거화했다.
 10. M1A9 Data mapping table 19 selector row/15 rule-group은 위 candidate에서 이동·증거화했다.
 11. M1A10 Data split frame 12 selector row/10 complete rule-group은 위 candidate에서 이동·증거화했다.
-12. 다음 `M1A11-modeling-data-component-region`은 재생성 inventory의 남은 M1A 119행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 119행을 함께 이동하지 않는다.
-13. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-14. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-15. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-16. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-17. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-18. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+12. M1A11 Data File details 5 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
+13. 다음 `M1A12-modeling-data-component-region`은 재생성 inventory의 남은 M1A 114행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 114행을 함께 이동하지 않는다.
+14. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+15. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+16. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+17. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+18. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+19. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

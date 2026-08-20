@@ -40,6 +40,10 @@ Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 �
 키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
 않습니다.
 
+Local file의 **File details**는 평소 접혀 있습니다. 펼치면 file parsing, 원본 column, Mapping Profile,
+Raw asset와 hash, specimen, exact Test Run 및 raw table을 확인할 수 있습니다. 이 상세 증거를 열거나
+접어도 선택한 Test Data와 그래프는 바뀌지 않으며, 내용이 길면 Data 설정 영역 안에서만 스크롤합니다.
+
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
 **Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는
 **Pick point**를 사용합니다. 선택 영역과 marker는 임시 상태이며 **Apply selection**을 눌러야

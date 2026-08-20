@@ -298,6 +298,24 @@ const COMPLETED_M1A10 = {
   ],
 };
 
+const COMPLETED_M1A11 = {
+  id: "M1A11-modeling-data-file-details",
+  historicalMemberIds: [
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1452",
+    "CSS-1548",
+  ],
+  exactLegacySelectors: [
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open])",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > summary",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > div",
+    ".modeling-main-surface.has-data-split .data-source-advanced:not([open]) > summary",
+    ".data-source-advanced > :is(summary, div)",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1171,6 +1189,10 @@ function makeInventory() {
       COMPLETED_M1A10.id,
       rows.filter((row) => COMPLETED_M1A10.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A11.id,
+      rows.filter((row) => COMPLETED_M1A11.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1385,6 +1407,23 @@ function makeInventory() {
             .get(COMPLETED_M1A10.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2757,
+            selectorRows: 3470,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A11.id,
+          historicalMemberIds: COMPLETED_M1A11.historicalMemberIds,
+          selectorRowsRemoved: 5,
+          touchedRuleGroups: 5,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 1,
+          exactLegacySelectors: COMPLETED_M1A11.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A11.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1392,9 +1431,9 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A11-modeling-data-component-region",
+        id: "M1A12-modeling-data-component-region",
         status: "owner-packet-required",
-        scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A11; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -1653,6 +1692,27 @@ function validateInventory(inventory) {
         || completedM1A10.actualAfter.selectorRows !== 3470
         || completedM1A10.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A10 actual delta is ${JSON.stringify(completedM1A10.actualAfter)}`);
+    }
+  }
+  const completedM1A11 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A11.id,
+  );
+  if (!completedM1A11) {
+    errors.push("completed M1A11 packet is missing");
+  } else {
+    if (completedM1A11.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A11 selectors remain in legacy CSS: ${completedM1A11.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A11.selectorRowsRemoved !== 5
+        || completedM1A11.touchedRuleGroups !== 5
+        || completedM1A11.fullyRemovedRuleGroups !== 4
+        || completedM1A11.partiallyShrunkRuleGroups !== 1) {
+      errors.push("completed M1A11 structural delta does not match the approved 5/5/4/1 packet");
+    }
+    if (completedM1A11.actualAfter.cssRuleGroups !== 2753
+        || completedM1A11.actualAfter.selectorRows !== 3465
+        || completedM1A11.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A11 actual delta is ${JSON.stringify(completedM1A11.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

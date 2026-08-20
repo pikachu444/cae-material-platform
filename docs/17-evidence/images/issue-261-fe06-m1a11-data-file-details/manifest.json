@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A11-modeling-data-file-details",
+  "implementation_base": "bf9f6195265fa18faa47bd0a636838685dd43a4d",
+  "branch": "issue-261-m1a8-modeling-data-component-region",
+  "behavior_classification": "partial: the Data File details disclosure already preserved exact file evidence and local scrolling while five historical selector rows across five legacy rule groups remained owned by layout.css",
+  "historical_selector_rows": [
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1452",
+    "CSS-1548"
+  ],
+  "owned_selectors": [
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open])",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > summary",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > div",
+    ".modeling-main-surface.has-data-split .data-source-advanced:not([open]) > summary",
+    ".data-source-advanced > :is(summary, div)"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 5,
+    "touchedRuleGroups": 5,
+    "fullyRemovedRuleGroups": 4,
+    "partiallyShrunkRuleGroups": 1,
+    "afterRuleGroups": 2753,
+    "afterSelectorRows": 3465,
+    "afterM1ARows": 114,
+    "afterHoldRows": 446,
+    "crossCssDuplicateRows": 14,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, state, token, breakpoint, styles.css, Process or Fit change. Exact Material, State, Test Data and revision selection, local Test record, graph, Data to Process to Data identity, reload recovery, collapsed disclosure, keyboard focus and intentional local scrolling remain unchanged.",
+  "live_consumer": "modeling-data-intake.tsx emits one details.data-source-advanced File details disclosure. Its five historical selector rows keep their declarations and cascade order in the Data stage owner beside the existing Data advanced-detail rules.",
+  "capture": "An exact rolling-branch start commit bf9f6195265fa18faa47bd0a636838685dd43a4d archive baseline Vite server on 127.0.0.1:5179 and the M1A11 candidate Vite server on 127.0.0.1:5177 used the same existing API through 127.0.0.1:5173. Fresh final-size browser contexts captured normal Data plus deterministic m1a11-file-details.csv collapsed and expanded states. No Docker command, reset, reseed or data deletion was run.",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "evidence_sets": {
+    "normal": "*/canonical/*.png",
+    "focusedPrimaryOriginals": "*/originals/*.png",
+    "focusedAliasOriginals": "*/routes/datasets-processing/*.png",
+    "expandedAndStartContext": "*/states/*.png",
+    "directSourcePixelCrops": "*/crops/*.png",
+    "runtimeIdentity": "runtime-identity.json",
+    "pairHashes": "equivalence.json",
+    "documentationPreservation": "documentation-impact-equivalence.json"
+  },
+  "image_pair_summary": {
+    "imagePairs": 46,
+    "byteIdenticalPairs": 46,
+    "pixelIdenticalPairs": 46,
+    "currentGuideMatches": 5
+  },
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "bf9f6195265fa18faa47bd0a636838685dd43a4d",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "7eab5bdb9257f8c97e0a8d98fc28cdd85c1cb2562d0a6faefd63bfdf8fd6ed3a",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "c893d12f81b6d27c3d1c4b85955fa7619b37ae2d0a87db1497f76d387f8c4812"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-3840x2160.png"
+      }
+    ]
+  },
+  "qualitative_review": {
+    "reviewed_original_resolution": true,
+    "information_hierarchy": "pass: unchanged Carbon-level hierarchy keeps the mapping decision and Save details ahead of the optional File details evidence while the persistent engineering graph remains dominant",
+    "engineering_task_flow": "pass: unchanged COMSOL-style exact Test Data and Test Run to optional file evidence to graph flow retains Data to Process to Data and reload recovery",
+    "responsive_wide_screen_composition": "pass: unchanged SAP-style composition keeps the disclosure keyboard-reachable inside the intentional Data scrollport at 1366 while bounded evidence and the graph use wide viewports without page overflow",
+    "axes_newly_implemented": false,
+    "physicalReadability": "not claimed"
+  },
+  "visual_acceptance_matrix": {
+    "Q-01": "not-applicable: after/states/modeling-data-file-details-start-context-1440x900.png shows the Modeling Data Local file form and graph topology, not a long navigator tree",
+    "Q-02": "not-applicable: after/states/modeling-data-file-details-start-context-1440x900.png shows a single local-file import workflow, not a result-list surface",
+    "Q-03": "not-applicable: after/originals/modeling-data-file-details-1440x900.png is Modeling Data with Library and Local file tabs, not the Materials navigation tree",
+    "Q-04": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and contains no Fit ribbon",
+    "Q-05": "pass: after/crops/modeling-data-file-details-1366x768-graph-100pct.png and after/crops/modeling-data-file-details-3840x2160-graph-100pct.png show non-colliding axis labels, units, frame and values",
+    "Q-06": "pass: after/crops/modeling-data-file-details-1366x768-graph-100pct.png and after/crops/modeling-data-file-details-3840x2160-graph-100pct.png keep the single curve legend compact and separate from actions",
+    "Q-07": "pass: after/crops/modeling-data-file-details-1366x768-graph-100pct.png and after/crops/modeling-data-file-details-3840x2160-graph-100pct.png retain proportional glyphs and strokes without non-uniform SVG stretching; the manifest records the three intermediate originals",
+    "Q-08": "not-applicable: after/crops/modeling-data-file-details-1440x900-graph-100pct.png is an Engineering stress versus Engineering strain response, not a true-yield-stress versus plastic-strain response",
+    "Q-09": "pass: after/originals/modeling-data-file-details-1366x768.png and runtime-identity.json preserve the keyboard-operable intentional Data scrollport, while every recorded viewport has no page horizontal overflow or new clipping",
+    "Q-10": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and no Fit curve-placement topology",
+    "Q-11": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and no Fit navigator rail",
+    "Q-12": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and no Export selected-model or unit-system controls",
+    "Q-13": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and no Export setup or result columns",
+    "Q-14": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and no Export readiness state",
+    "Q-15": "pass: after/crops/modeling-data-file-details-1366x768-graph-100pct.png and after/crops/modeling-data-file-details-3840x2160-graph-100pct.png preserve the engineering curve zero anchor, data headroom, units and frame clearance; the manifest records the three intermediate originals",
+    "Q-16": "not-applicable: after/originals/modeling-data-file-details-1440x900.png has the Data stage selected and no Export native solver-card preview",
+    "Q-17": "not-applicable: after/states/modeling-data-file-details-start-context-1440x900.png is a Modeling Data local-file workflow, not an Administration Object list",
+    "Q-18": "not-applicable: after/states/modeling-data-file-details-start-context-1440x900.png is a Modeling Data local-file workflow and contains no Administration Add or saved-projection topology",
+    "Q-19": "not-applicable: after/states/modeling-data-file-details-start-context-1440x900.png is a Modeling Data local-file workflow and contains no Administration Link Type editor",
+    "Q-20": "pass: after/originals/modeling-data-file-details-1920x1080.png, after/originals/modeling-data-file-details-2560x1440.png and after/originals/modeling-data-file-details-3840x2160.png show a full-width shell, adjacent task regions, bounded evidence content and graph growth without page overflow or fabricated scaling"
+  },
+  "product_owner_review_originals": [
+    "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1920x1080.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-2560x1440.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-3840x2160.png"
+  ],
+  "product_owner_approval": {
+    "status": "authorized-for-exact-unit-commit-and-push-after-gates",
+    "scope": "The owner authorizes committing and pushing this exact M1A11 unit to the rolling branch after acceptance and audit. PR, merge, issue-state changes and M1A12 remain forbidden this turn."
+  },
+  "main_acceptance": {
+    "status": "pass",
+    "reason": "Main accepted the exact 5-row/5-rule-group Data File details ownership move on rolling-branch start commit bf9f6195265fa18faa47bd0a636838685dd43a4d. The candidate preserves every declaration and relative cascade position with zero legacy residual; keeps React, DOM, API, copy, route, state, tokens, breakpoints, styles.css, Process and Fit unchanged; and passes focused Data/workspace tests (4 files/57 tests), production build and bundle budget, frontend guard (17/17 and 0 violations/15 baseline warnings), inventory (11/11 and 2753/3465/114/446/14), guide contract (46/46), user-guide, docs-impact, evidence-hash and diff checks. Main opened the five canonical normal originals, five focused primary originals, five alias-route originals, five expanded-state originals, the full starting-context original and all 25 after 100%-pixel header/navigator/controls/details/graph crops at original resolution; before counterparts are byte-identical. All 46 evidence pairs are byte- and pixel-identical, all five canonical pairs match current guide bytes, the summary remains keyboard-focusable, expanded raw details are visible, exact Test Data selection and saved graph identity survive Data to Process to Data and reload, and no new clipping, overflow or interaction defect appears. The apparent focused top cutoff is the previously owner-accepted internal local-scroll context and is unchanged in both phases. Carbon hierarchy, COMSOL-style engineering flow and SAP-style responsive/wide composition pass as preserved behavior, not newly implemented design. Physical Windows 4K readability remains #223."
+  },
+  "independent_audit": {
+    "status": "approved",
+    "auditor": "canonical independent read-only Balanced auditor",
+    "reason": "APPROVE after one metadata correction. The initial audit found that the manifest recorded only six applicable visual-matrix rows; Main added the complete Q-01 through Q-20 checklist with direct evidence paths and screen-topology reasons for every not-applicable row, then reran the focused guide evidence test, docs-impact and diff check. The same auditor approved the correction with no remaining Critical, Important or Minor findings. The auditor independently confirmed the exact 106-file path set, Data-only DOM/cascade ownership, 5-row/5-rule-group move, 2753/3465/114/446/14 inventory with zero residual, guard baseline, 46 evidence pairs, five current-guide hashes, exact selection/graph/disclosure focus, Data to Process to Data, reload and intentional local-scroll provenance."
+  },
+  "publication": {
+    "status": "commit-and-push-authorized-after-gates",
+    "commit": null,
+    "push": null,
+    "draft_pr": null,
+    "merge": null
+  }
+}
