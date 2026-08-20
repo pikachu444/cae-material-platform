@@ -40,6 +40,11 @@ channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mappin
 접힌 **Technical details**에 둡니다. 넓은 화면에서는 목록과 작업 흐름의 가독성을 유지하면서
 그래프만 비교에 유용한 범위까지 커집니다.
 
+이 **Match file columns** 영역의 CSS 소유권 이동은
+[M1A17 live evidence](../17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/manifest.json)에
+다섯 viewport 원본, 내부 scroll-end 상태, 직접 crop과 exact journey read-back으로 기록합니다. 화면의
+문구·선택·revision·graph·복구 흐름과 좁은 화면의 의도된 내부 스크롤은 바꾸지 않습니다.
+
 Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 그래프 사이 가로 구분선은 pointer 또는
 키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
 않습니다. Local file의 긴 column mapping도 이 한 개의 키보드 스크롤 영역 안에서 이동하며, 바깥

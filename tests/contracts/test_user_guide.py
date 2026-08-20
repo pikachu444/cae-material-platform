@@ -375,7 +375,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 694
+    assert report.duplicate_image_group_count == 699
 
 
 @pytest.mark.parametrize(
@@ -515,7 +515,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
-    assert manifest["version"] == 125
+    assert manifest["version"] == 126
     assert manifest["scope"] == "issue-298-frontend-guard-297-correction"
     assert re.fullmatch(r"[0-9a-f]{40}\+issue298-worktree", current_source)
     assert manifest["source_commit"] == current_source

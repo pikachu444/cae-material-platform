@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A17-modeling-data-mapping-attention",
+  "source_sha": "ce60ce195549b49886e95c4d8edd93acc6d2ba10",
+  "before_base_url": "http://127.0.0.1:4619",
+  "after_base_url": "http://127.0.0.1:4620",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "synthetic_input": "m1a13-local-scrollport.csv",
+  "synthetic_input_bytes": 225,
+  "synthetic_input_sha256": "06dc786ad8cfb6178c85590ff52f5fac9330385e837ac8441a95a24bb163ef1b",
+  "route": "/modeling?stage=data&family=metal",
+  "viewports": [
+    {
+      "viewport": "1366x768",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 301,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 204,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 321,
+        "scrollHeight": 321,
+        "scrollTop": 0
+      },
+      "mappingAttention": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 1277,
+          "height": 74,
+          "right": 1312,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 1274,
+        "scrollWidth": 1274,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "x": 0,
+        "y": 482,
+        "width": 1366,
+        "height": 240,
+        "right": 1366,
+        "bottom": 722
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "1440x900",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0
+      },
+      "mappingAttention": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 1351,
+          "height": 74,
+          "right": 1386,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 1348,
+        "scrollWidth": 1348,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "x": 0,
+        "y": 544,
+        "width": 1440,
+        "height": 310,
+        "right": 1440,
+        "bottom": 854
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "1920x1080",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0
+      },
+      "mappingAttention": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 1831,
+          "height": 74,
+          "right": 1866,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 1828,
+        "scrollWidth": 1828,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "x": 0,
+        "y": 544,
+        "width": 1920,
+        "height": 490,
+        "right": 1920,
+        "bottom": 1034
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "2560x1440",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0
+      },
+      "mappingAttention": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 2471,
+          "height": 74,
+          "right": 2506,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 2468,
+        "scrollWidth": 2468,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "x": 0,
+        "y": 544,
+        "width": 2560,
+        "height": 850,
+        "right": 2560,
+        "bottom": 1394
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "3840x2160",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0
+      },
+      "mappingAttention": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 3751,
+          "height": 74,
+          "right": 3786,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 3748,
+        "scrollWidth": 3748,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "x": 520,
+        "y": 729,
+        "width": 2800,
+        "height": 1200,
+        "right": 3320,
+        "bottom": 1929
+      },
+      "sessionPreserved": true
+    }
+  ],
+  "metric_identity": true,
+  "console_errors": [],
+  "journey": {
+    "setup": "Select the exact governed Test Data document and its saved graph in a clean current-worktree environment.",
+    "actions": "Complete Data to Process to Data, verify reload, open Local file, select the exact Test record, load the deterministic CSV and create an invalid stress-unit/source-column mapping.",
+    "visible_outcome": "Match file columns keeps the warning, schema and channel controls readable inside the established keyboard-operable local scrollport while the last valid graph remains visible.",
+    "persistence_readback": "The exact Data session snapshot remains unchanged across the stage round trip and reload before the local invalid mapping is created.",
+    "preserved_state": "Material, State, Test Data, revision, selected Test record, graph, Data-to-Process-to-Data identity and reload recovery are unchanged."
+  },
+  "capture_diagnosis": {
+    "canonical_helper": "not applicable to the clean seed because it assumes an unrelated pre-existing Related graph",
+    "focused_capture": "the exact M1A17 journey was captured fresh before and after from the same production source, route, API and deterministic input",
+    "script_failures_before_recheck": 3,
+    "authority_scope_journey_gates_evidence_rechecked": true
+  }
+}

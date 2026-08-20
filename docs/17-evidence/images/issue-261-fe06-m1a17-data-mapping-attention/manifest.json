@@ -1,0 +1,931 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A17-modeling-data-mapping-attention",
+  "implementation_base": "ce60ce195549b49886e95c4d8edd93acc6d2ba10",
+  "branch": "issue-261-m1a8-modeling-data-component-region",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "behavior_classification": "partial: the Match file columns attention controls already behaved correctly while seventeen historical selector rows across sixteen legacy groups remained owned by layout.css",
+  "historical_selector_rows": [
+    "CSS-0967",
+    "CSS-0970",
+    "CSS-0974",
+    "CSS-0975",
+    "CSS-0982",
+    "CSS-0984",
+    "CSS-0986",
+    "CSS-0988",
+    "CSS-0999",
+    "CSS-1002",
+    "CSS-1003",
+    "CSS-1004",
+    "CSS-1416",
+    "CSS-1417",
+    "CSS-1419",
+    "CSS-1494",
+    "CSS-1502"
+  ],
+  "selectors": [
+    ".data-intake-attention",
+    ".data-intake-attention label",
+    ".data-intake-attention input",
+    ".data-intake-attention select",
+    ".data-intake-attention > strong",
+    ".data-intake-attention label select:first-of-type",
+    ".data-intake-attention > p",
+    ".data-mapping-decision .data-intake-attention",
+    ".data-mapping-decision .data-intake-attention > strong",
+    ".data-mapping-decision .data-intake-attention > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > :is(input, select)",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > select[name=\"local-data-schema\"]",
+    ".data-intake-attention :is(input, select)"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 17,
+    "touchedRuleGroups": 16,
+    "fullyRemovedRuleGroups": 7,
+    "partiallyShrunkRuleGroups": 9,
+    "afterRuleGroups": 2713,
+    "afterSelectorRows": 3397,
+    "afterM1ARows": 46,
+    "afterHoldRows": 446,
+    "crossCssDuplicateRows": 14,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, state, token, breakpoint, styles.css, Process or Fit change. Exact Material, State, Test Data and revision selection, Test record, graph, Data-to-Process-to-Data identity, reload recovery and intentional local scrolling remain unchanged.",
+  "capture": {
+    "viewports": [
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "2560x1440",
+      "3840x2160"
+    ],
+    "image_pair_summary": {
+      "imagePairs": 45,
+      "byteIdenticalPairs": 45,
+      "pixelIdenticalPairs": 45,
+      "freshFocusedPairs": 40,
+      "documentationCurrentPairs": 5
+    },
+    "equivalence": "equivalence.json",
+    "runtime_identity": "runtime-identity.json",
+    "documentation_impact": "documentation-impact-equivalence.json",
+    "physical_4k_readability": "DEFERRED_TO_223"
+  },
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1366x768.png",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png",
+      "sha256": "6262e9e9392764cbd4f9d9b6658589ee9c4b40550da345676453abda175ae0eb"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png",
+      "sha256": "973cc6fc55d26d5969006f6a25b01ff3324a3fdf1d38c9e196b271dbf8c5ed20"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-controls-100pct.png",
+      "sha256": "6cff92fcafa162be1040c67425f40384580754a672f9ba422bdfbea53bda3a2a"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png",
+      "sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-header-100pct.png",
+      "sha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-source-100pct.png",
+      "sha256": "677ed8c8cfee0c07a2b0eb3968aeeca025f3f00cbfae64043383fe99837f8433"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-attention-100pct.png",
+      "sha256": "22f0458e73df296c42067e5be28ea6625efd20abaf2b7ae8ec930dc26d5ce482"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png",
+      "sha256": "34af4539efb6bfc2087cce61c6efcec7bf5d79bfabc4fdfaef25ea8b83e309ff"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-controls-100pct.png",
+      "sha256": "9b3bb15602110fbc579aaebae4930b2bce42c669a0bfbdc0efeb06ba8d078a57"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png",
+      "sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-header-100pct.png",
+      "sha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-source-100pct.png",
+      "sha256": "daaa2a7e24733400d3ee6aa5c0e86b8aaccd6d18728918bc306b8d96526c45cf"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png",
+      "sha256": "d0694e14f6c3d7cffc3c0534d79a38068b836ca55f791993360dd2c8e2849de5"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png",
+      "sha256": "17e7bbbfa83c9557d7d122ec9c58da14e0707662f319bfae292219476a024116"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png",
+      "sha256": "88d6c8b879aeb2c08e4bb6d923c70a27c89198cf21e82217380334da4f8a0ba1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png",
+      "sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png",
+      "sha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-source-100pct.png",
+      "sha256": "6c7ba310eb0c550b7fbf408579d1fac090663ab1ec9a6b9e49edf597de5dcba1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png",
+      "sha256": "4e981586b54202b66979ca2a426b15e75985e2c1904899e09cc6120fd9da801e"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png",
+      "sha256": "7e1c8b3cd0c59d5d152ea3a4733adcc67a8c2b119616d835a36e55751393d0d2"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png",
+      "sha256": "5c9e531a61df34b5f352a69ab76236ebf9f06b24101794e5996a7eaa007de3df"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png",
+      "sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png",
+      "sha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-source-100pct.png",
+      "sha256": "2eeb25ce6b8208137d1a09d86137a37ba7c767023334e5747eb938355a20f2ce"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png",
+      "sha256": "14c98c591d4d86411c4f9a00939e75ad0e6d0bdfe02158e924d116b9da89ddbb"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png",
+      "sha256": "79c131499643455af3f2139ece43a342cc6b1633c12800f5ae9e7a237d496508"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png",
+      "sha256": "e1261a98c30cf71c6e1fcd0a4a1201cbd7c7a1457a20b6338313b2e6b3f63f0a"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png",
+      "sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png",
+      "sha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png",
+      "sha256": "c1b3ff7834b443551d1c976b7f1333f2b1b3e0a58c46b6a5bde1442d9c2eac1c"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1366x768.png",
+      "sha256": "2016bc2f2a377f6628786d3b6876377834ce3176bf2787b9ea1a7e3525c0f79e"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1440x900.png",
+      "sha256": "f0ef8097d879dad05b15508a0d1c8053c12e18b370f270873028388c7edf995f"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1920x1080.png",
+      "sha256": "3bb4ef58e55ed1ed9a17eb177124254564d2c2fa9b7fcf19dd75ef2a1eadaedd"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-2560x1440.png",
+      "sha256": "555eb68690ad023926b6f01d427c3ed6fa5a12fef6672e792c183de55aae9b59"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-3840x2160.png",
+      "sha256": "4f17bbdab0b5e5dfabbfb6ee2d7292bd909b67d384031827ca7b03d678ab23ad"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1366x768.png",
+      "sha256": "c1f121f8a9d89e792a0781807cb868ee4c18a7dcf42f082e42f72cb8b1166058"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1440x900.png",
+      "sha256": "2480142c95570e5ee4e413b26d043be6d73b61bed299d7eeeab928510c1b91ca"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1920x1080.png",
+      "sha256": "29c0fb9f4048e417f776db1ddfb24d99db0133712086ab96c682097b99ed6390"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-2560x1440.png",
+      "sha256": "9b044fce80613b94a4e63ef54d3321d8121fef4403563bae0040e49535966d4c"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-3840x2160.png",
+      "sha256": "f944cd2dccc011b363076cb858a20fb2bc23aaab714c0b3418a6f27359b18b79"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1366x768.png",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png",
+      "sha256": "6262e9e9392764cbd4f9d9b6658589ee9c4b40550da345676453abda175ae0eb"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png",
+      "sha256": "973cc6fc55d26d5969006f6a25b01ff3324a3fdf1d38c9e196b271dbf8c5ed20"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-controls-100pct.png",
+      "sha256": "6cff92fcafa162be1040c67425f40384580754a672f9ba422bdfbea53bda3a2a"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png",
+      "sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-header-100pct.png",
+      "sha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-source-100pct.png",
+      "sha256": "677ed8c8cfee0c07a2b0eb3968aeeca025f3f00cbfae64043383fe99837f8433"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-attention-100pct.png",
+      "sha256": "22f0458e73df296c42067e5be28ea6625efd20abaf2b7ae8ec930dc26d5ce482"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png",
+      "sha256": "34af4539efb6bfc2087cce61c6efcec7bf5d79bfabc4fdfaef25ea8b83e309ff"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-controls-100pct.png",
+      "sha256": "9b3bb15602110fbc579aaebae4930b2bce42c669a0bfbdc0efeb06ba8d078a57"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png",
+      "sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-header-100pct.png",
+      "sha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-source-100pct.png",
+      "sha256": "daaa2a7e24733400d3ee6aa5c0e86b8aaccd6d18728918bc306b8d96526c45cf"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png",
+      "sha256": "d0694e14f6c3d7cffc3c0534d79a38068b836ca55f791993360dd2c8e2849de5"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png",
+      "sha256": "17e7bbbfa83c9557d7d122ec9c58da14e0707662f319bfae292219476a024116"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png",
+      "sha256": "88d6c8b879aeb2c08e4bb6d923c70a27c89198cf21e82217380334da4f8a0ba1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png",
+      "sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png",
+      "sha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-source-100pct.png",
+      "sha256": "6c7ba310eb0c550b7fbf408579d1fac090663ab1ec9a6b9e49edf597de5dcba1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png",
+      "sha256": "4e981586b54202b66979ca2a426b15e75985e2c1904899e09cc6120fd9da801e"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png",
+      "sha256": "7e1c8b3cd0c59d5d152ea3a4733adcc67a8c2b119616d835a36e55751393d0d2"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png",
+      "sha256": "5c9e531a61df34b5f352a69ab76236ebf9f06b24101794e5996a7eaa007de3df"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png",
+      "sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png",
+      "sha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-source-100pct.png",
+      "sha256": "2eeb25ce6b8208137d1a09d86137a37ba7c767023334e5747eb938355a20f2ce"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png",
+      "sha256": "14c98c591d4d86411c4f9a00939e75ad0e6d0bdfe02158e924d116b9da89ddbb"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png",
+      "sha256": "79c131499643455af3f2139ece43a342cc6b1633c12800f5ae9e7a237d496508"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png",
+      "sha256": "e1261a98c30cf71c6e1fcd0a4a1201cbd7c7a1457a20b6338313b2e6b3f63f0a"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png",
+      "sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png",
+      "sha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png",
+      "sha256": "c1b3ff7834b443551d1c976b7f1333f2b1b3e0a58c46b6a5bde1442d9c2eac1c"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1366x768.png",
+      "sha256": "2016bc2f2a377f6628786d3b6876377834ce3176bf2787b9ea1a7e3525c0f79e"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1440x900.png",
+      "sha256": "f0ef8097d879dad05b15508a0d1c8053c12e18b370f270873028388c7edf995f"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1920x1080.png",
+      "sha256": "3bb4ef58e55ed1ed9a17eb177124254564d2c2fa9b7fcf19dd75ef2a1eadaedd"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-2560x1440.png",
+      "sha256": "555eb68690ad023926b6f01d427c3ed6fa5a12fef6672e792c183de55aae9b59"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-3840x2160.png",
+      "sha256": "4f17bbdab0b5e5dfabbfb6ee2d7292bd909b67d384031827ca7b03d678ab23ad"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1366x768.png",
+      "sha256": "c1f121f8a9d89e792a0781807cb868ee4c18a7dcf42f082e42f72cb8b1166058"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1440x900.png",
+      "sha256": "2480142c95570e5ee4e413b26d043be6d73b61bed299d7eeeab928510c1b91ca"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1920x1080.png",
+      "sha256": "29c0fb9f4048e417f776db1ddfb24d99db0133712086ab96c682097b99ed6390"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-2560x1440.png",
+      "sha256": "9b044fce80613b94a4e63ef54d3321d8121fef4403563bae0040e49535966d4c"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-3840x2160.png",
+      "sha256": "f944cd2dccc011b363076cb858a20fb2bc23aaab714c0b3418a6f27359b18b79"
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "ce60ce195549b49886e95c4d8edd93acc6d2ba10",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "1dc742cb16a7ce126c5589a8f9f23480f6bffb9a344924b02dbcf657e0a5f996",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "4e775a1152ccae34c1a1d043eae669c6fd9c3037058d57df6472e139c75800ef"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-3840x2160.png"
+      }
+    ]
+  },
+  "qualitative_review": {
+    "reviewed_original_resolution": true,
+    "reviewed": "five documentation-current canonical originals, five fresh focused originals, five fresh local-scroll-end states and all thirty fresh after 100%-pixel header/source/controls/attention/blocker/graph crops",
+    "information_hierarchy": "PASS: the established source, exact Test record, warning, schema/channel mapping and persistent graph hierarchy is unchanged; M1A17 did not newly implement this axis",
+    "engineering_task_flow": "PASS: the exact Data selection, Process round trip, reload and explicit mapping repair flow is unchanged; M1A17 did not newly implement this axis",
+    "responsive_wide_screen_composition": "PASS: intentional local scrolling at narrow viewports and useful graph growth at wide viewports remain unchanged; M1A17 did not newly implement this axis",
+    "axes_newly_implemented": false,
+    "introduced_clipping_overflow_interaction_defect": false,
+    "intentional_local_scroll": true,
+    "physical_readability_claimed": false
+  },
+  "visual_acceptance_matrix": {
+    "Q-01": "not-applicable: Local file intentionally replaces the Library navigator in this focused state",
+    "Q-02": "not-applicable: this is not a result-list surface",
+    "Q-03": "not-applicable: this is not the Materials navigation tree",
+    "Q-04": "not-applicable: Data is selected and no Fit ribbon is present",
+    "Q-05": "pass: graph labels, units, frame and values remain separated in every graph crop",
+    "Q-06": "pass: the exact single-curve legend remains separate from graph actions",
+    "Q-07": "pass: graph glyphs and strokes remain proportional",
+    "Q-08": "not-applicable: this is not a true-yield-stress plot",
+    "Q-09": "pass: runtime identity proves one keyboard-operable local scrollport, reachable mapping controls and zero page overflow",
+    "Q-10": "not-applicable: no Fit curve-placement topology is present",
+    "Q-11": "not-applicable: no Fit navigator rail is present",
+    "Q-12": "not-applicable: no Export controls are present",
+    "Q-13": "not-applicable: no Export setup/result columns are present",
+    "Q-14": "not-applicable: no Export readiness state is present",
+    "Q-15": "pass: graph zero anchor, headroom, units and frame clearance remain intact",
+    "Q-16": "not-applicable: no Export native preview is present",
+    "Q-17": "not-applicable: this is not an Administration Object list",
+    "Q-18": "not-applicable: this is not an Administration Add or saved-projection workflow",
+    "Q-19": "not-applicable: this is not an Administration Link Type editor",
+    "Q-20": "pass: 1920/2560/3840 retain a full-width shell, bounded local task and useful graph growth without fabricated scaling"
+  },
+  "product_owner_review_originals": [
+    "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1920x1080.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-2560x1440.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-3840x2160.png"
+  ],
+  "main_acceptance": {
+    "status": "PASS",
+    "scope": "Exactly seventeen historical Match file columns attention selector rows across sixteen groups move from layout.css to the Data-stage owner with declarations and relative cascade order preserved; seven complete groups are removed and nine shared groups are shrunk.",
+    "gates": "Inventory 16/16 plus deterministic check; frontend guard 17/17 plus actual 0 violations and 15 inherited warnings; focused Data-stage Vitest 5 files/39 tests; TypeScript/Vite production build and bundle budget; user-guide contract 46/46 and guide checker; documentation impact; 90/90 evidence hashes, 45/45 exact pairs, runtime 5/5, current-guide 5/5, production CSS 2/2; diff check.",
+    "visual_review": "PASS: Main opened all five before and after focused originals, all ten local-scroll-end states and all thirty after 100%-pixel crops at original resolution. The top movement at scroll-end is the established local scroll position, not clipping; no new overflow, interaction or wide-screen geometry defect was found.",
+    "journey": "Exact Data selection, deterministic local file, invalid mapping recovery, last valid graph, Data-to-Process-to-Data and reload/read-back remain unchanged."
+  },
+  "independent_audit": {
+    "status": "APPROVE",
+    "verification": "Canonical independent read-only Balanced auditor verified the exact 104-path candidate, 17-row/16-group/7-complete/9-partial ownership move, zero legacy residual, 2713/3397/M1A46/HOLD446/cross14 inventory, 90/90 image hashes, 45/45 exact pairs, both current CSS hashes, five-viewport originals/crops/scroll-end behavior, all recorded gates and the preserved-only #249 axes. Blocker 0, major 0, material-minor 0, advisory 0.",
+    "verdict": "APPROVE"
+  },
+  "publication": {
+    "status": "commit-and-push-authorized-after-gates",
+    "commit": null,
+    "push": null,
+    "draft_pr": null,
+    "merge": null
+  }
+}

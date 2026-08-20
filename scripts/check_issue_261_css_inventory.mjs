@@ -434,6 +434,45 @@ const COMPLETED_M1A16 = {
   ],
 };
 
+const COMPLETED_M1A17 = {
+  id: "M1A17-modeling-data-mapping-attention",
+  historicalMemberIds: [
+    "CSS-0967",
+    "CSS-0970",
+    "CSS-0974",
+    "CSS-0975",
+    "CSS-0982",
+    "CSS-0984",
+    "CSS-0986",
+    "CSS-0988",
+    "CSS-0999",
+    "CSS-1002",
+    "CSS-1003",
+    "CSS-1004",
+    "CSS-1416",
+    "CSS-1417",
+    "CSS-1419",
+    "CSS-1494",
+    "CSS-1502",
+  ],
+  exactLegacySelectors: [
+    ".data-intake-attention",
+    ".data-intake-attention label",
+    ".data-intake-attention input",
+    ".data-intake-attention select",
+    ".data-intake-attention > strong",
+    ".data-intake-attention label select:first-of-type",
+    ".data-intake-attention > p",
+    ".data-mapping-decision .data-intake-attention",
+    ".data-mapping-decision .data-intake-attention > strong",
+    ".data-mapping-decision .data-intake-attention > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > :is(input, select)",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > select[name=\"local-data-schema\"]",
+    ".data-intake-attention :is(input, select)",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1331,6 +1370,10 @@ function makeInventory() {
       COMPLETED_M1A16.id,
       rows.filter((row) => COMPLETED_M1A16.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A17.id,
+      rows.filter((row) => COMPLETED_M1A17.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1647,6 +1690,23 @@ function makeInventory() {
             .get(COMPLETED_M1A16.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2720,
+            selectorRows: 3414,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A17.id,
+          historicalMemberIds: COMPLETED_M1A17.historicalMemberIds,
+          selectorRowsRemoved: 17,
+          touchedRuleGroups: 16,
+          fullyRemovedRuleGroups: 7,
+          partiallyShrunkRuleGroups: 9,
+          exactLegacySelectors: COMPLETED_M1A17.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A17.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1654,9 +1714,9 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A17-modeling-data-component-region",
+        id: "M1A18-modeling-data-component-region",
         status: "owner-packet-required",
-        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A16; do not migrate all remaining M1A rows together.",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A17; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -2041,6 +2101,27 @@ function validateInventory(inventory) {
         || completedM1A16.actualAfter.selectorRows !== 3414
         || completedM1A16.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A16 actual delta is ${JSON.stringify(completedM1A16.actualAfter)}`);
+    }
+  }
+  const completedM1A17 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A17.id,
+  );
+  if (!completedM1A17) {
+    errors.push("completed M1A17 packet is missing");
+  } else {
+    if (completedM1A17.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A17 selectors remain in legacy CSS: ${completedM1A17.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A17.selectorRowsRemoved !== 17
+        || completedM1A17.touchedRuleGroups !== 16
+        || completedM1A17.fullyRemovedRuleGroups !== 7
+        || completedM1A17.partiallyShrunkRuleGroups !== 9) {
+      errors.push("completed M1A17 structural delta does not match the approved 17/16/7/9 packet");
+    }
+    if (completedM1A17.actualAfter.cssRuleGroups !== 2713
+        || completedM1A17.actualAfter.selectorRows !== 3397
+        || completedM1A17.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A17 actual delta is ${JSON.stringify(completedM1A17.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

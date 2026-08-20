@@ -4748,8 +4748,7 @@
   grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) minmax(190px, .65fr) auto;
 }
 
-.data-intake-row,
-.data-intake-attention {
+.data-intake-row {
   min-width: 0;
 }
 
@@ -4760,7 +4759,6 @@
 }
 
 .data-intake-row label,
-.data-intake-attention label,
 .data-mapping-resolved label {
   display: grid;
   gap: 2px;
@@ -4772,8 +4770,6 @@
 
 .data-intake-row input,
 .data-intake-row select,
-.data-intake-attention input,
-.data-intake-attention select,
 .data-mapping-resolved input,
 .data-mapping-resolved select {
   min-height: 30px;
@@ -4801,14 +4797,6 @@
   flex: 1 1 150px;
 }
 
-.data-intake-attention {
-  display: flex;
-  align-items: end;
-  gap: 8px;
-  padding-left: 8px;
-  border-left: 3px solid var(--ux-warning);
-}
-
 .data-mapping-resolved > span {
   min-width: 0;
   overflow: hidden;
@@ -4818,19 +4806,16 @@
   white-space: nowrap;
 }
 
-.data-intake-attention > strong,
 .data-mapping-resolved > strong {
   align-self: center;
   min-width: 145px;
   font-size: 12px;
 }
 
-.data-intake-attention label,
 .data-mapping-resolved label {
   grid-template-columns: minmax(130px, 1fr) minmax(72px, .45fr);
 }
 
-.data-intake-attention label select:first-of-type,
 .data-mapping-resolved label select:first-of-type {
   grid-column: 1;
 }
@@ -4866,8 +4851,7 @@
   color: var(--ux-text);
 }
 
-.data-source-evidence p,
-.data-intake-attention > p {
+.data-source-evidence p {
   margin: 4px 0;
   color: var(--ux-text-muted);
   font-size: 11.5px;
@@ -4885,26 +4869,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   align-items: end;
-}
-
-.data-mapping-decision .data-intake-attention {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-  gap: 5px;
-  min-width: 0;
-  padding: 0 0 0 8px;
-  border-left: 3px solid var(--ux-warning);
-}
-
-.data-mapping-decision .data-intake-attention > strong {
-  min-width: 0;
-}
-
-.data-mapping-decision .data-intake-attention > label {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
 }
 
 .data-mapping-recovery-row .data-mapping-blockers {
@@ -6717,41 +6681,10 @@
   grid-template-columns: 400px minmax(0, 1fr);
 }
 
-/* The content-fit Data ribbon keeps source decisions readable without
-   spending a full control row on each field.  Scope this to the real mapping
-   decision surface so the compact grammar is not applied to Library rows or
-   other stages merely because a blocker class happens to be present. */
-.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: center;
-  gap: var(--ux-space-1) var(--ux-space-2);
-  min-width: 0;
-}
-
-.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > :is(input, select) {
-  grid-column: 2;
-  box-sizing: border-box;
-  min-height: var(--ux-input-min-block-size);
-  height: var(--ux-input-min-block-size);
-  padding: var(--ux-space-1) var(--ux-space-2);
-  font-size: var(--ux-data-font-size);
-}
-
 /* Task 1 mapping controls use the native compact control grammar.  These
    selectors intentionally outrank the page-wide workbench minimums without
    changing controls in Process, Fit, or Export. */
 .modeling-main-surface.has-data-split .data-mapping-decision select[name="local-data-schema"] {
-  box-sizing: border-box;
-  height: var(--ux-input-min-block-size);
-  min-height: var(--ux-input-min-block-size);
-  padding-block: 0;
-  padding-inline: var(--ux-space-2);
-  font-size: var(--ux-data-font-size);
-  line-height: normal;
-}
-
-.modeling-main-surface.has-data-split .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > select[name="local-data-schema"] {
   box-sizing: border-box;
   height: var(--ux-input-min-block-size);
   min-height: var(--ux-input-min-block-size);
@@ -7041,7 +6974,6 @@
 }
 
 .data-intake-row label,
-.data-intake-attention label,
 .data-mapping-resolved label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
@@ -7055,7 +6987,6 @@
 }
 
 .data-intake-row :is(input, select),
-.data-intake-attention :is(input, select),
 .data-mapping-resolved :is(input, select),
 .modeling-ribbon-actions input,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),

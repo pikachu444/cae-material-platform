@@ -2414,6 +2414,140 @@ local-scroll 위치이며 clipping이 아니다. 새 page overflow, interaction 
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A17 시작은 이 turn에서 하지 않는다.
 
+## M1A17 Data Match file columns attention ownership candidate
+
+`M1A17-modeling-data-mapping-attention`은 Local file의 **Match file columns** 안에서 mapping 경고,
+schema 선택과 channel mapping control을 한 판단 단위로 묶는다. CSS-0967, CSS-0970, CSS-0974,
+CSS-0975, CSS-0982, CSS-0984, CSS-0986, CSS-0988, CSS-0999, CSS-1002~1004, CSS-1416,
+CSS-1417, CSS-1419, CSS-1494, CSS-1502의 17 historical selector row를 Data stage owner로 옮겼다.
+16개 touched group 중 7개 complete group을 제거했고 9개 shared group에서는 이 DOM consumer만 제거했다.
+선언과 moved rule의 상대 순서는 같으며 React, DOM, API, copy, state, token, breakpoint, `styles.css`,
+Process와 Fit은 변경하지 않았다.
+
+| Metric | M1A16 | M1A17 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,720 | 2,713 | -7 |
+| expanded global selector rows | 3,414 | 3,397 | -17 |
+| M1A Data rows | 63 | 46 | -17 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `17/16/7/9`, exact legacy residual 0, 남은 M1A 46행과 다음 router
+`M1A18-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css`를 8,189줄에서
+8,120줄로, global selector debt를 2,720에서 2,713으로 낮춘다. #298 baseline은 그대로 보존하고
+surviving selector의 fingerprint와 M1A17 partial-group exception만 현재 source에 맞춘다.
+
+### Live journey와 visual evidence
+
+[M1A17 manifest](images/issue-261-fe06-m1a17-data-mapping-attention/manifest.json)은 Standard, browser zoom 100%, DPR 1에서
+1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. before와 candidate는 exact
+M1A16 시작 commit `ce60ce195549b49886e95c4d8edd93acc6d2ba10`, 같은 current-worktree API,
+`/modeling?stage=data&family=metal` route와 225-byte `m1a13-local-scrollport.csv` 입력
+(SHA-256 `06dc786ad8cfb6178c85590ff52f5fac9330385e837ac8441a95a24bb163ef1b`)을 사용했다.
+clean seed에서 exact governed Test Data를 선택하고 Data→Process→Data, reload, Local file, exact Test record,
+invalid stress-unit/source-column mapping과 keyboard local-scroll end를 차례로 확인했다. invalid mapping은
+현재 exact session과 마지막 유효 graph를 바꾸지 않으며 premature preview/save action도 노출하지 않는다.
+
+[hash와 pixel 비교](images/issue-261-fe06-m1a17-data-mapping-attention/equivalence.json)는 current-guide
+documentation pair 5, fresh focused 원본 5, fresh scroll-end 5, header/source/controls/attention/blocker/graph
+fresh 100%-pixel crop 30을 합한 45 pair가 모두 PNG byte와 decoded
+pixel에서 같음을 기록한다. [runtime identity](images/issue-261-fe06-m1a17-data-mapping-attention/runtime-identity.json)는 다섯 viewport의 page
+overflow 0, blocker clipping 0, 한 개의 keyboard-operable local scrollport, graph geometry와 exact session
+preservation이 before/after에서 같음을 기록한다. [documentation impact](images/issue-261-fe06-m1a17-data-mapping-attention/documentation-impact-equivalence.json)는
+production CSS before/after hash와 변경되지 않은 current-guide 5개 hash를 기록한다. clean seed에는 unrelated
+Related graph가 없으므로 그 graph를 전제한 canonical helper는 적용하지 않았고, 이 unit의 exact journey를
+직접 fresh capture했다.
+
+<details>
+<summary>M1A17 45개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-mapping-attention-1366x768-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png)
+- crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png)
+- crops/modeling-data-mapping-attention-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-controls-100pct.png)
+- crops/modeling-data-mapping-attention-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png)
+- crops/modeling-data-mapping-attention-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-header-100pct.png)
+- crops/modeling-data-mapping-attention-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-source-100pct.png)
+- crops/modeling-data-mapping-attention-1440x900-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-attention-100pct.png)
+- crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png)
+- crops/modeling-data-mapping-attention-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-controls-100pct.png)
+- crops/modeling-data-mapping-attention-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png)
+- crops/modeling-data-mapping-attention-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-header-100pct.png)
+- crops/modeling-data-mapping-attention-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-source-100pct.png)
+- crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png)
+- crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png)
+- crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png)
+- crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png)
+- crops/modeling-data-mapping-attention-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png)
+- crops/modeling-data-mapping-attention-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-source-100pct.png)
+- crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png)
+- crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png)
+- crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png)
+- crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png)
+- crops/modeling-data-mapping-attention-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png)
+- crops/modeling-data-mapping-attention-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-source-100pct.png)
+- crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png)
+- crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png)
+- crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png)
+- crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png)
+- crops/modeling-data-mapping-attention-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png)
+- crops/modeling-data-mapping-attention-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png)
+- originals/modeling-data-mapping-attention-1366x768.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1366x768.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1366x768.png)
+- originals/modeling-data-mapping-attention-1440x900.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1440x900.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1440x900.png)
+- originals/modeling-data-mapping-attention-1920x1080.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1920x1080.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1920x1080.png)
+- originals/modeling-data-mapping-attention-2560x1440.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-2560x1440.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-2560x1440.png)
+- originals/modeling-data-mapping-attention-3840x2160.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-3840x2160.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-3840x2160.png)
+- states/modeling-data-mapping-attention-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1366x768.png)
+- states/modeling-data-mapping-attention-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1440x900.png)
+- states/modeling-data-mapping-attention-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1920x1080.png)
+- states/modeling-data-mapping-attention-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-2560x1440.png)
+- states/modeling-data-mapping-attention-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-3840x2160.png)
+
+</details>
+
+- 1366×768: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1366x768.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1366x768.png) / [attention crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png) / [graph crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png)
+- 1440×900: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1440x900.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1440x900.png) / [source crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-source-100pct.png) / [blocker crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png)
+- 1920×1080: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1920x1080.png) / [header crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png) / [graph crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png)
+- 2560×1440: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-2560x1440.png) / [controls crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png) / [attention crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png)
+- 3840×2160: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-3840x2160.png) / [source crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png) / [graph crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png)
+
+Main은 before/after 원본 10개, scroll-end 10개와 after 100%-pixel crop 30개를 원본 해상도로 열었다.
+모든 viewport에서 source, exact Test record, warning, schema/channel mapping controls와 마지막 유효 graph가
+보존된다. scroll-end에서 상단이 이동한 것은 같은 keyboard-operable 내부 local-scroll state이며 clipping이
+아니다. 새 page overflow, interaction 결함이나 wide-screen geometry 변화는 없다. 자동 4K 캡처는
+geometry만 입증하고 실제 Windows 4K 물리 가독성은 #223에 남는다.
+
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: source → exact Test record → warning → schema/channel mapping → graph의 기존
+  판단 순서가 그대로다. M1A17이 이 계층을 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: exact Data 선택, Data→Process→Data, reload, file/Test record 선택과
+  명시적 mapping 복구 흐름이 그대로다. 새 task flow를 구현하지 않았다.
+- SAP식 responsive/wide composition PASS: 좁은 viewport의 의도된 local scroll과 넓은 viewport의
+  유용한 graph 성장을 유지한다. 새 breakpoint나 wide-screen policy를 추가하지 않았다.
+- Main acceptance PASS: exact 17 selector row/16 group의 `7/9` complete/partial ownership delta와 legacy
+  residual 0을 확인했다. inventory checker contract 16/16과 `2713/3397/M1A 46/HOLD 446/cross 14`,
+  frontend guard contract 17/17 및 actual 0 violations/기존 warning 15, focused Data-stage Vitest
+  5 files/39 tests, TypeScript/Vite production build와 bundle budget, user-guide contract 46/46,
+  user-guide checker, documentation impact, 90/90 evidence image hash, 45/45 pair hash(이 중 fresh focused
+  40 pair), current-guide 5/5, production CSS 2/2, runtime preservation 5/5와 diff check가 통과했다.
+  docs-impact 첫 실행은 manifest의 required nested current-match schema 누락을 정확히 차단했고, Main이
+  production code를 건드리지 않고 documentation-current 5 pair와 schema metadata를 보완한 최종 PASS만
+  acceptance로 사용했다.
+- canonical independent read-only Balanced audit APPROVE: exact 104-path candidate, 17 approved selector row,
+  zero legacy residual, `2713/3397/M1A 46/HOLD 446/cross 14`, 90/90 evidence image hash, 45/45 pair,
+  current CSS 2/2와 focused original/scroll-end geometry를 독립 확인했다. auditor의 독립 gate도 inventory,
+  guard, production build/bundle budget, web 71 files/411 tests, guide 46 tests, docs-impact, user-guide checker와
+  diff check를 통과했다. #249 세 축은 새 구현이 아니라 기존 hierarchy/task flow/responsive composition의
+  보존으로 판정했고 physical 4K는 #223에 남긴다. blocker 0, major 0, material-minor 0, advisory 0이다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A18 시작은 이 turn에서 하지 않는다.
+
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -2434,14 +2568,16 @@ local-scroll 위치이며 clipping이 아니다. 새 page overflow, interaction 
 16. M1A15 Data intake surface 4 selector row/4 rule-group은 위 candidate에서 이동·증거화했다.
 17. M1A16 Data Local-file import controls 16 selector row/13 rule-group은 위 candidate에서
    이동·증거화했다.
-18. 다음 `M1A17-modeling-data-component-region`은 재생성 inventory의 남은 M1A 63행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 63행을 함께 이동하지 않는다.
-19. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-20. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-21. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-22. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-23. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-24. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+18. M1A17 Data Match file columns attention 17 selector row/16 rule-group은 위 candidate에서
+   이동·증거화했다.
+19. 다음 `M1A18-modeling-data-component-region`은 재생성 inventory의 남은 M1A 46행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 46행을 함께 이동하지 않는다.
+20. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+21. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+22. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+23. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+24. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+25. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지
