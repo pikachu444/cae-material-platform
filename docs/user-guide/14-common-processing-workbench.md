@@ -27,8 +27,9 @@ container를 다시 측정해 frame, SVG viewBox, axis, legend, label과 pointer
 Data의 **Library**에서는 검색과 시험 종류·조건으로 목록을 좁히고, 표에서 현재 입력 하나를
 고른 뒤 그래프를 확인하고 **Continue to Process**로 이동합니다. 다른 곡선은 **Add comparison**을
 연 경우에만 그래프에 더할 수 있으며 현재 Process 입력은 바뀌지 않습니다. **Local file**은 별도
-입력 경로이고, **Match file columns** 아래에서 잘못된 열 연결의 원인과 고칠 항목을 하나의 안내
-블록으로 해당 위치에 표시하면서 마지막 유효 그래프를 유지합니다. 이 안내는 mapping controls보다
+입력 경로이며 source 선택과 mapping 작업을 같은 local surface 안에 유지합니다. **Match file columns**
+아래에서 잘못된 열 연결의 원인과 고칠 항목을 하나의 안내 블록으로 해당 위치에 표시하면서 마지막
+유효 그래프를 유지합니다. 이 안내는 mapping controls보다
 먼저 읽을 수 있습니다. 긴 source column은 native select 안에서 줄여 보여도
 선택한 원문, keyboard focus, file unit과 modeling unit을 같은 decision table에서 유지합니다. DMA 형식에서는 제공된 경우 **Include optional tan delta
 channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mapping 영역에서 유지됩니다. 선택한 시험과 실제로 연결된 소재 자료, 다른 시험,

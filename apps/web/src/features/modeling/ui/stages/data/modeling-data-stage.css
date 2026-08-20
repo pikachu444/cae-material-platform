@@ -25,6 +25,27 @@
   min-height: 0;
 }
 
+.modeling-data-intake {
+  display: grid;
+  gap: 6px;
+  min-height: 76px;
+  padding: 7px 12px 9px;
+}
+
+.modeling-data-intake {
+  color: var(--ux-text);
+  font-size: 13px;
+}
+
+.modeling-main-surface.has-data-split .modeling-data-intake {
+  padding-block: var(--ux-space-1);
+  padding-inline: var(--ux-pane-padding);
+}
+
+.modeling-data-intake {
+  font-size: var(--ux-data-font-size);
+}
+
 .modeling-task-ribbon:has(.data-intake-local) {
   min-height: 0;
   max-height: none;

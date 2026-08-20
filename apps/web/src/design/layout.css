@@ -4748,21 +4748,9 @@
   grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) minmax(190px, .65fr) auto;
 }
 
-.modeling-data-intake {
-  display: grid;
-  gap: 6px;
-  min-height: 76px;
-  padding: 7px 12px 9px;
-}
-
 .data-intake-row,
 .data-intake-attention {
   min-width: 0;
-}
-
-.modeling-data-intake {
-  color: var(--ux-text);
-  font-size: 13px;
 }
 
 .data-intake-row {
@@ -6817,11 +6805,6 @@
   overflow-wrap: normal;
 }
 
-.modeling-main-surface.has-data-split .modeling-data-intake {
-  padding-block: var(--ux-space-1);
-  padding-inline: var(--ux-pane-padding);
-}
-
 @container (max-width: 847px) {
   .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
     min-width: 0;
@@ -7109,7 +7092,6 @@
   padding-inline: var(--ux-space-2);
 }
 
-.modeling-data-intake,
 .data-mapping-recovery-row .data-mapping-blockers {
   font-size: var(--ux-data-font-size);
 }

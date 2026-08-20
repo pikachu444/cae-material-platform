@@ -2153,6 +2153,136 @@ interaction 결함이나 wide-screen geometry 변화는 없다. 자동 4K 캡처
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A15 시작은 이 turn에서 하지 않는다.
 
+## M1A15 Data intake surface ownership candidate
+
+`M1A15-modeling-data-intake-surface`는 Data의 Library/Local file/Test Data JSON 입력을 감싸는
+`.modeling-data-intake` 바깥 surface의 grid, 간격, 최소 높이, padding, text color와 density를 한
+DOM/cascade owner로 묶는다. CSS-0966, CSS-0969, CSS-1429, CSS-1507의 4 historical selector row를
+Data stage owner로 옮겼다. 4개 touched group 중 3개 complete group을 제거했고, 공유 density group에서는
+`.modeling-data-intake` member만 제거해 `.data-mapping-recovery-row .data-mapping-blockers`를 legacy 위치에
+남겼다. 선언과 moved rule 사이의 상대 순서는 같으며 React, DOM, API, copy, state, token, breakpoint,
+`styles.css`, Process와 Fit은 변경하지 않았다.
+
+| Metric | M1A14 | M1A15 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,731 | 2,728 | -3 |
+| expanded global selector rows | 3,434 | 3,430 | -4 |
+| M1A Data rows | 83 | 79 | -4 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `4/4/3/1`, exact legacy residual 0, 남은 M1A 79행과 다음 router
+`M1A16-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css`를 8,282줄에서
+8,264줄로, global selector debt를 2,731에서 2,728로 낮췄다. #298 baseline 내용은 유지했고,
+기존 #261 예외는 같은 surviving selector의 새 줄 fingerprint로만 갱신했다.
+
+### Live journey와 visual evidence
+
+[M1A15 manifest](images/issue-261-fe06-m1a15-data-intake-surface/manifest.json)은 Standard, browser zoom
+100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. before와
+candidate는 exact M1A14 시작 commit `085eb4e0f25cb5feca6d22427aef44b4149bb512`, 같은 API,
+`/modeling?stage=data` route와 225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
+`06dc786ad8cfb6178c85590ff52f5fac9330385e837ac8441a95a24bb163ef1b`)을 사용했다. exact 복원
+session에서 `Tensile test 0001`, invalid stress unit/source-column 복구, 마지막 유효 graph와
+keyboard local-scroll end를 확인했다. exact Material/State/Test Data/revision, 선택, Data→Process→Data와
+reload/read-back contract는 그대로다.
+
+[hash와 pixel 비교](images/issue-261-fe06-m1a15-data-intake-surface/equivalence.json)는 canonical 5,
+focused intake-surface 원본 5, scroll-end 5, header/navigator/controls/source/blocker/graph 100%-pixel crop
+30을 합한 45 pair가 모두 PNG byte와 decoded pixel에서 같음을 기록한다.
+[runtime identity](images/issue-261-fe06-m1a15-data-intake-surface/runtime-identity.json)는 다섯 viewport의
+geometry, page overflow 0, keyboard local scrolling과 session identity가 before/after에서 같음을 기록한다.
+[documentation impact](images/issue-261-fe06-m1a15-data-intake-surface/documentation-impact-equivalence.json)의
+canonical 5개도 current guide와 같은 hash다. manifest에는 45개 pair의 before/after exact path와 SHA-256을
+모두 등록했다.
+
+<details>
+<summary>M1A15 45개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-intake-surface-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-blocker-100pct.png)
+- crops/modeling-data-intake-surface-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-controls-100pct.png)
+- crops/modeling-data-intake-surface-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-graph-100pct.png)
+- crops/modeling-data-intake-surface-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-header-100pct.png)
+- crops/modeling-data-intake-surface-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-navigator-100pct.png)
+- crops/modeling-data-intake-surface-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-source-100pct.png)
+- crops/modeling-data-intake-surface-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-blocker-100pct.png)
+- crops/modeling-data-intake-surface-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-controls-100pct.png)
+- crops/modeling-data-intake-surface-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-graph-100pct.png)
+- crops/modeling-data-intake-surface-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-header-100pct.png)
+- crops/modeling-data-intake-surface-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-navigator-100pct.png)
+- crops/modeling-data-intake-surface-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-source-100pct.png)
+- crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png)
+- crops/modeling-data-intake-surface-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-controls-100pct.png)
+- crops/modeling-data-intake-surface-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-graph-100pct.png)
+- crops/modeling-data-intake-surface-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-header-100pct.png)
+- crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png)
+- crops/modeling-data-intake-surface-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-source-100pct.png)
+- crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png)
+- crops/modeling-data-intake-surface-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-controls-100pct.png)
+- crops/modeling-data-intake-surface-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-graph-100pct.png)
+- crops/modeling-data-intake-surface-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-header-100pct.png)
+- crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png)
+- crops/modeling-data-intake-surface-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-source-100pct.png)
+- crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png)
+- crops/modeling-data-intake-surface-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-controls-100pct.png)
+- crops/modeling-data-intake-surface-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-graph-100pct.png)
+- crops/modeling-data-intake-surface-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-header-100pct.png)
+- crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png)
+- crops/modeling-data-intake-surface-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-source-100pct.png)
+- originals/modeling-data-intake-surface-1366x768.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-1366x768.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1366x768.png)
+- originals/modeling-data-intake-surface-1440x900.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-1440x900.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1440x900.png)
+- originals/modeling-data-intake-surface-1920x1080.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-1920x1080.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1920x1080.png)
+- originals/modeling-data-intake-surface-2560x1440.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-2560x1440.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-2560x1440.png)
+- originals/modeling-data-intake-surface-3840x2160.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-3840x2160.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-3840x2160.png)
+- states/modeling-data-intake-surface-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1366x768.png)
+- states/modeling-data-intake-surface-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1440x900.png)
+- states/modeling-data-intake-surface-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1920x1080.png)
+- states/modeling-data-intake-surface-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-2560x1440.png)
+- states/modeling-data-intake-surface-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-3840x2160.png)
+
+</details>
+
+- 1366×768: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1366x768.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1366x768.png) / [controls crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-controls-100pct.png) / [graph crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-graph-100pct.png)
+- 1440×900: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1440x900.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1440x900.png) / [source crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-source-100pct.png) / [blocker crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-blocker-100pct.png)
+- 1920×1080: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1920x1080.png) / [header crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-header-100pct.png) / [graph crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-graph-100pct.png)
+- 2560×1440: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-2560x1440.png) / [navigator crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png) / [controls crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-controls-100pct.png)
+- 3840×2160: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-3840x2160.png) / [source crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-source-100pct.png) / [graph crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-graph-100pct.png)
+
+Main은 canonical 원본 5개, focused 원본 5개, scroll-end 5개와 after 100%-pixel crop 30개를 원본
+해상도로 열었다. 모든 viewport에서 intake surface, blocker, mapping controls와 마지막 유효 graph가
+보존된다. 1366/1440 scroll-end의 상단 일부 비노출은 같은 keyboard-operable 내부 local-scroll 위치이며
+clipping이 아니다. 새 page overflow, interaction 결함이나 wide-screen geometry 변화는 없다. 자동 4K
+캡처는 geometry만 입증하고 실제 Windows 4K 물리 가독성은 #223에 남는다.
+
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: source choice → exact Test record → blocker → mapping controls → graph의 기존 판단
+  순서가 그대로다. M1A15가 이 계층을 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: invalid mapping 원인과 복구 작업, 마지막 유효 graph, 다음 Process 이동과
+  reload 회복 흐름이 그대로다. 새 task flow를 구현하지 않았다.
+- SAP식 responsive/wide composition PASS: 좁은 viewport의 의도된 local scroll과 넓은 viewport의 유용한
+  graph 성장을 모두 유지한다. 새 breakpoint나 wide-screen policy를 추가하지 않았다.
+- Main acceptance PASS: exact 4 selector row/4 group의 `3/1` complete/partial ownership delta와 legacy
+  residual 0을 확인했다. inventory checker contract 14/14와 `2728/3430/M1A 79/HOLD 446/cross 14`,
+  frontend guard contract 17/17 및 actual 0 violations/기존 warning 15, focused Data-stage Vitest
+  5 files/59 tests, TypeScript/Vite production build와 bundle budget, user-guide contract 46/46,
+  user-guide checker, documentation impact, 90/90 evidence hash, 45/45 byte·pixel pair, current-guide 5/5,
+  production CSS hash 2/2, runtime preservation 5/5와 diff check가 통과했다. 첫 guide contract는 90개
+  evidence link 누락을, 두 번째는 허용 duplicate-group 수를 잘못 올린 test 상수를 각각 정확히
+  지적했다. Main이 link 전체와 기존 count 689를 바로잡은 최종 46/46 결과만 acceptance로 사용했다.
+- canonical independent read-only Balanced audit APPROVE: exact 104-path candidate, 4개 approved selector row,
+  zero legacy residual, 남겨 둔 recovery-row blocker, `2728/3430/M1A 79/HOLD 446/cross 14`, frontend
+  guard 0/15, guide 46/46, evidence 90/90, identical pair 45/45, current-guide 5/5, CSS/runtime record와
+  원본 해상도 visual evidence를 독립 확인했다. #249 세 축은 보존됐고 physical 4K는 #223에 남는다.
+  blocker 0, major 0, material-minor 0이다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A16 시작은 이 turn에서 하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -2170,14 +2300,15 @@ interaction 결함이나 wide-screen geometry 변화는 없다. 자동 4K 캡처
 13. M1A12 Data mapping change actions 21 selector row/20 rule-group은 위 candidate에서 이동·증거화했다.
 14. M1A13 Data Local file scrollport 6 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
 15. M1A14 Data mapping blocker 4 selector row/4 rule-group은 위 candidate에서 이동·증거화했다.
-16. 다음 `M1A15-modeling-data-component-region`은 재생성 inventory의 남은 M1A 83행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 83행을 함께 이동하지 않는다.
-17. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-18. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-19. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-20. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-21. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-22. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+16. M1A15 Data intake surface 4 selector row/4 rule-group은 위 candidate에서 이동·증거화했다.
+17. 다음 `M1A16-modeling-data-component-region`은 재생성 inventory의 남은 M1A 79행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 79행을 함께 이동하지 않는다.
+18. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+19. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+20. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+21. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+22. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+23. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지
