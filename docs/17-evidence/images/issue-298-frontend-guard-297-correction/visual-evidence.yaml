@@ -1,0 +1,164 @@
+schema_version: cmp.visual-evidence.v1
+issue: 298
+title: PR 297 frontend guard regression correction
+base_sha: 5e6ebf5484d601f0487539dde8d579f4b03a4ee8
+capture_source_base_sha: ae93058d61f4a229addbcb746a50a86689639f6f
+base_refreeze:
+  upstream_change: "#299"
+  production_apps_web_tree: byte_identical_36787b25fc7f3c29b1697ad19cca4e598badc9ed
+  runtime_input_change_count: 0
+  frozen_issue_289_evidence_tree: byte_identical_641a621a42087e788d32a110a752c9efdda61938
+  reused_browser_and_viewport_evidence: true_same_route_state_input_and_source_hash
+  evidence_asset_hash_change_count: 0
+route: /administration/database
+captured_on: 2026-08-20
+capture:
+  browser_zoom_percent: 100
+  device_pixel_ratio: 1
+  density: standard
+  css_viewports: [1366x768, 1440x900, 1920x1080, 2560x1440, 3840x2160]
+  before_project: cmp-demo-test-298before
+  before_url: http://127.0.0.1:32790
+  after_project: cmp-demo-test-298after
+  after_url: http://127.0.0.1:32791
+  command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url <disposable-url> --output <phase>/originals --only-administration-database
+  source: current-worktree Docker images with real PostgreSQL 16, API, seed, and web
+  canonical_compose: rejected_without_mutation_because_cmp_local_demo_belongs_to_issue_261_m1a6_worktree
+  disposable_cleanup: pass_project_containers_volumes_images_and_network_removed
+  canonical_snapshot_preserved: pass_volume_identity_and_eight_core_counts_equal_before_after
+assets:
+  original_count: 20
+  direct_100pct_crop_count: 50
+  opened_at_original_resolution: pass_all_70_assets
+  sha256:
+    "after/crops/administration-database-1366x768-form-100pct.png": {sha256: 4a233daa43a81c1eb6764b6c59f843d831bbc856420e1724a4980ec0f02fe272, bytes: 16025}
+    "after/crops/administration-database-1366x768-header-100pct.png": {sha256: 6c030cf709227727be19c2d944afefa9c416b02a274eafbc4f8729a096bb05a9, bytes: 4543}
+    "after/crops/administration-database-1366x768-navigator-100pct.png": {sha256: b672c78ac7217fcd34b500ade204320a5a7cd6dff7ee85cc88112b762d13912a, bytes: 10701}
+    "after/crops/administration-database-1366x768-preview-100pct.png": {sha256: fbc66bb0d03e15e1d8eb67728883554d4715f576a417fbc641584972880063a8, bytes: 24659}
+    "after/crops/administration-database-1366x768-table-100pct.png": {sha256: 727a9129bc25868506cca8c340d6d3454dcfabee04534f90ae862da085ddc55e, bytes: 9823}
+    "after/crops/administration-database-1440x900-form-100pct.png": {sha256: c51986ee12d08ca3721f7c16e3032895c302242157b0d8b68663725aaa0bc018, bytes: 16565}
+    "after/crops/administration-database-1440x900-header-100pct.png": {sha256: 3aba67df554489f24734f4adc180e4c2ec55b16ba36955c5a4fcd9c64e5255c1, bytes: 4555}
+    "after/crops/administration-database-1440x900-navigator-100pct.png": {sha256: cde190f9192ffaa3353fd2e02a8b3e523c02f7f228a0fd49a32027ea8f2c289d, bytes: 11276}
+    "after/crops/administration-database-1440x900-preview-100pct.png": {sha256: c6d7d3f03cbedd933ebb28ba6dd20d7c5e12a79875cd5f9f64b7bb6092e4c229, bytes: 30141}
+    "after/crops/administration-database-1440x900-table-100pct.png": {sha256: 46f5822b2f8f1b62739069b506b830752a554299e0e9d27de30d7ed8782ef68c, bytes: 10336}
+    "after/crops/administration-database-1920x1080-form-100pct.png": {sha256: a749539e93afb0a75ff41afb255c845a32414038ecf485f1202ccb0b4763c9db, bytes: 18223}
+    "after/crops/administration-database-1920x1080-header-100pct.png": {sha256: 8bc33758df762afd4f3e729db880297965b5052c7a31c7ade6062a80bfffa6e8, bytes: 4684}
+    "after/crops/administration-database-1920x1080-navigator-100pct.png": {sha256: 63a128f3d877c66b26d0c816645e0aa82df34a584247c182686762c0ceedc959, bytes: 12132}
+    "after/crops/administration-database-1920x1080-preview-100pct.png": {sha256: a14cf6287b3abdd910dd05cd3ddfb1731f0c789a6984f170fec7e5e7a4e94d86, bytes: 37522}
+    "after/crops/administration-database-1920x1080-table-100pct.png": {sha256: 202e4ce03ea5d75615630e6550354e85305cb27866b4db9da30033043eb47e4f, bytes: 12606}
+    "after/crops/administration-database-2560x1440-form-100pct.png": {sha256: 3969b1b5330dbbec2422a8795442aa72b6c7083ed2f6ff50606edb23f59101df, bytes: 20044}
+    "after/crops/administration-database-2560x1440-header-100pct.png": {sha256: ff61fd740698578cbb6789ea4262506acf01a1d5e60efe862758ce307a19cb07, bytes: 4858}
+    "after/crops/administration-database-2560x1440-navigator-100pct.png": {sha256: 063d2b2524d184d5a1d40baeb0b2683f155fa22501424f81979ef4f0a4b03e96, bytes: 13297}
+    "after/crops/administration-database-2560x1440-preview-100pct.png": {sha256: 55392a23e9e697494ee9c1cc7466e90eba9251409fabb832605adaec77069cf7, bytes: 47056}
+    "after/crops/administration-database-2560x1440-table-100pct.png": {sha256: c82f95e2be5e4e57c97bb50af660690b91dec542b2d91d6a8fd7dfac694dcfad, bytes: 16434}
+    "after/crops/administration-database-3840x2160-form-100pct.png": {sha256: 6abb09ad0e67865a902112c964a378e1c9bc10f1d30597a81ef2ac5aa65b0b80, bytes: 23468}
+    "after/crops/administration-database-3840x2160-header-100pct.png": {sha256: 63cd93311cdd97a268c6027f861b87c0aa67a2c8648f4026a380b051dd7b346d, bytes: 5208}
+    "after/crops/administration-database-3840x2160-navigator-100pct.png": {sha256: d7d1b2cda6315d53ba8039f660b5340aedfaecfcc9c61f487687464791853204, bytes: 15470}
+    "after/crops/administration-database-3840x2160-preview-100pct.png": {sha256: 50abd6d35471dbe5efb7ac38162036b88aa5dd5b4b3f66c3a0b1061bef41967e, bytes: 50524}
+    "after/crops/administration-database-3840x2160-table-100pct.png": {sha256: a450a94981cf945ce89f9e2aed76da319526fc5dec21743ca3adccf6425db60d, bytes: 27785}
+    "after/originals/administration-database-1366x768.png": {sha256: ff882f68427d27ffb8425237b47dd833896fd6f279a9ea58abbc4d417dc286f1, bytes: 67746}
+    "after/originals/administration-database-1440x900.png": {sha256: 2ee37177767fbf3187de238d07b3903a552942c3a27b60d68d9d6e94d173bb8b, bytes: 69237}
+    "after/originals/administration-database-1920x1080.png": {sha256: 912ad26c9429c9c488f9cc667d73370e8ca72aa07d96427bf037054f9b9eecea, bytes: 72951}
+    "after/originals/administration-database-2560x1440.png": {sha256: dcf280d2ba01b4437bacec2d0bb7756add186507287c71230485b62053bd858a, bytes: 79537}
+    "after/originals/administration-database-3840x2160.png": {sha256: f96848755c86214669766bbf5c52e14fb37f6051df6dba3aa503f4b6a733672a, bytes: 98032}
+    "after/originals/administration-database-preview-1366x768.png": {sha256: 6e7896586c262fbe33a9c7969733ddae4fd239e91dadd8af5931b44690c56cf8, bytes: 77052}
+    "after/originals/administration-database-preview-1440x900.png": {sha256: 5d1d9f57a2ab4b21a3254fee8dda020c7217567b8751734615b589b166c65643, bytes: 83397}
+    "after/originals/administration-database-preview-1920x1080.png": {sha256: 224137258e6741bfe564f91192c2d748262b855d61dac0bcf3ed3a333f620056, bytes: 109022}
+    "after/originals/administration-database-preview-2560x1440.png": {sha256: e03a0b6ea7d70b573c324e0283d2b47c13e436a2390a2f27ee87fb76cfe57fb6, bytes: 122605}
+    "after/originals/administration-database-preview-3840x2160.png": {sha256: 104e6839a00ba8ddfb959902d14b6cc371f7779330bddb0527727704180c6573, bytes: 144435}
+    "before/crops/administration-database-1366x768-form-100pct.png": {sha256: 4a233daa43a81c1eb6764b6c59f843d831bbc856420e1724a4980ec0f02fe272, bytes: 16025}
+    "before/crops/administration-database-1366x768-header-100pct.png": {sha256: 6c030cf709227727be19c2d944afefa9c416b02a274eafbc4f8729a096bb05a9, bytes: 4543}
+    "before/crops/administration-database-1366x768-navigator-100pct.png": {sha256: b672c78ac7217fcd34b500ade204320a5a7cd6dff7ee85cc88112b762d13912a, bytes: 10701}
+    "before/crops/administration-database-1366x768-preview-100pct.png": {sha256: 0ae0f3ea4d7dad88a8eece5aaf5698cd136c36ef1d31ef636858e95d0d11d2a1, bytes: 25073}
+    "before/crops/administration-database-1366x768-table-100pct.png": {sha256: 727a9129bc25868506cca8c340d6d3454dcfabee04534f90ae862da085ddc55e, bytes: 9823}
+    "before/crops/administration-database-1440x900-form-100pct.png": {sha256: c51986ee12d08ca3721f7c16e3032895c302242157b0d8b68663725aaa0bc018, bytes: 16565}
+    "before/crops/administration-database-1440x900-header-100pct.png": {sha256: 3aba67df554489f24734f4adc180e4c2ec55b16ba36955c5a4fcd9c64e5255c1, bytes: 4555}
+    "before/crops/administration-database-1440x900-navigator-100pct.png": {sha256: cde190f9192ffaa3353fd2e02a8b3e523c02f7f228a0fd49a32027ea8f2c289d, bytes: 11276}
+    "before/crops/administration-database-1440x900-preview-100pct.png": {sha256: 4ffbc63ab6596b22842d364cd513bced9169a01edf529a681d93007a6de545c1, bytes: 31016}
+    "before/crops/administration-database-1440x900-table-100pct.png": {sha256: 46f5822b2f8f1b62739069b506b830752a554299e0e9d27de30d7ed8782ef68c, bytes: 10336}
+    "before/crops/administration-database-1920x1080-form-100pct.png": {sha256: a749539e93afb0a75ff41afb255c845a32414038ecf485f1202ccb0b4763c9db, bytes: 18223}
+    "before/crops/administration-database-1920x1080-header-100pct.png": {sha256: 8bc33758df762afd4f3e729db880297965b5052c7a31c7ade6062a80bfffa6e8, bytes: 4684}
+    "before/crops/administration-database-1920x1080-navigator-100pct.png": {sha256: 63a128f3d877c66b26d0c816645e0aa82df34a584247c182686762c0ceedc959, bytes: 12132}
+    "before/crops/administration-database-1920x1080-preview-100pct.png": {sha256: 142d8956511618fd382483905fbf6c5553d8542be30e4b45e4a305d097a6636e, bytes: 38619}
+    "before/crops/administration-database-1920x1080-table-100pct.png": {sha256: 202e4ce03ea5d75615630e6550354e85305cb27866b4db9da30033043eb47e4f, bytes: 12606}
+    "before/crops/administration-database-2560x1440-form-100pct.png": {sha256: 3969b1b5330dbbec2422a8795442aa72b6c7083ed2f6ff50606edb23f59101df, bytes: 20044}
+    "before/crops/administration-database-2560x1440-header-100pct.png": {sha256: ff61fd740698578cbb6789ea4262506acf01a1d5e60efe862758ce307a19cb07, bytes: 4858}
+    "before/crops/administration-database-2560x1440-navigator-100pct.png": {sha256: 063d2b2524d184d5a1d40baeb0b2683f155fa22501424f81979ef4f0a4b03e96, bytes: 13297}
+    "before/crops/administration-database-2560x1440-preview-100pct.png": {sha256: 5bf6792b54d6f399efc3b1b0f410f15cb6f75e0a5533f940234b79be4e99f906, bytes: 48469}
+    "before/crops/administration-database-2560x1440-table-100pct.png": {sha256: c82f95e2be5e4e57c97bb50af660690b91dec542b2d91d6a8fd7dfac694dcfad, bytes: 16434}
+    "before/crops/administration-database-3840x2160-form-100pct.png": {sha256: 6abb09ad0e67865a902112c964a378e1c9bc10f1d30597a81ef2ac5aa65b0b80, bytes: 23468}
+    "before/crops/administration-database-3840x2160-header-100pct.png": {sha256: 63cd93311cdd97a268c6027f861b87c0aa67a2c8648f4026a380b051dd7b346d, bytes: 5208}
+    "before/crops/administration-database-3840x2160-navigator-100pct.png": {sha256: d7d1b2cda6315d53ba8039f660b5340aedfaecfcc9c61f487687464791853204, bytes: 15470}
+    "before/crops/administration-database-3840x2160-preview-100pct.png": {sha256: fa87bcb64c97fb4ee9728f8888310a526839aa9b480aa802fab1622c9f14af0b, bytes: 51935}
+    "before/crops/administration-database-3840x2160-table-100pct.png": {sha256: a450a94981cf945ce89f9e2aed76da319526fc5dec21743ca3adccf6425db60d, bytes: 27785}
+    "before/originals/administration-database-1366x768.png": {sha256: ff882f68427d27ffb8425237b47dd833896fd6f279a9ea58abbc4d417dc286f1, bytes: 67746}
+    "before/originals/administration-database-1440x900.png": {sha256: 2ee37177767fbf3187de238d07b3903a552942c3a27b60d68d9d6e94d173bb8b, bytes: 69237}
+    "before/originals/administration-database-1920x1080.png": {sha256: 912ad26c9429c9c488f9cc667d73370e8ca72aa07d96427bf037054f9b9eecea, bytes: 72951}
+    "before/originals/administration-database-2560x1440.png": {sha256: dcf280d2ba01b4437bacec2d0bb7756add186507287c71230485b62053bd858a, bytes: 79537}
+    "before/originals/administration-database-3840x2160.png": {sha256: f96848755c86214669766bbf5c52e14fb37f6051df6dba3aa503f4b6a733672a, bytes: 98032}
+    "before/originals/administration-database-preview-1366x768.png": {sha256: 174718cf09585737db5adcaa6ec499f6a230589eb30a4d671635d691099cdd47, bytes: 77601}
+    "before/originals/administration-database-preview-1440x900.png": {sha256: 601fbb4d06aa2ec38322b506b17cfe9f3d19a17bdd8c8a1e88e8a00555bc1c65, bytes: 84478}
+    "before/originals/administration-database-preview-1920x1080.png": {sha256: 4d57507ff1755b30451424f6b3593c2d7735c6ae825335368c0371c20246730c, bytes: 110528}
+    "before/originals/administration-database-preview-2560x1440.png": {sha256: 57f47f4540d2efef5349bba2a2c6d1c7d0ef8f00a83eadd50f64724f5123c244, bytes: 123970}
+    "before/originals/administration-database-preview-3840x2160.png": {sha256: 1034dda474cbdd6de436f28e96f8fe4a7b4edb4a25ceef60069fdf69f0ba3113, bytes: 146267}
+crop_rectangles:
+  1366x768: {header: [0, 0, 1366, 50], navigator: [239, 213, 208, 529], table: [447, 213, 368, 529], form: [815, 213, 528, 529], preview: [815, 213, 528, 529]}
+  1440x900: {header: [0, 0, 1440, 50], navigator: [240, 213, 216, 661], table: [456, 213, 383, 661], form: [840, 213, 576, 661], preview: [840, 213, 576, 661]}
+  1920x1080: {header: [0, 0, 1920, 50], navigator: [320, 182, 272, 841], table: [592, 182, 528, 841], form: [1120, 182, 768, 841], preview: [1386, 182, 502, 841]}
+  2560x1440: {header: [0, 0, 2560, 50], navigator: [320, 182, 272, 1201], table: [592, 182, 1136, 1201], form: [1728, 182, 800, 1201], preview: [1728, 182, 800, 1201]}
+  3840x2160: {header: [0, 0, 3840, 50], navigator: [320, 182, 272, 1921], table: [592, 182, 2416, 1921], form: [3008, 182, 800, 1921], preview: [3008, 182, 800, 1921]}
+preview_geometry:
+  1366x768: {page_overflow_x: 0, workspace: [239, 213, 1104, 530], navigator: [239, 213, 208, 529], table: [447, 213, 368, 529], preview: [815, 213, 528, 529], mode: replaces_editor}
+  1440x900: {page_overflow_x: 0, workspace: [240, 213, 1175, 661], navigator: [240, 213, 216, 661], table: [456, 213, 383, 661], preview: [840, 213, 576, 661], mode: replaces_editor}
+  1920x1080: {page_overflow_x: 0, workspace: [320, 182, 1568, 842], navigator: [320, 182, 261.328, 841], table: [581.328, 182, 320, 841], form: [901.328, 182, 485.328, 841], preview: [1386.656, 182, 501.344, 841], mode: adjacent_fourth_pane}
+  2560x1440: {page_overflow_x: 0, workspace: [320, 182, 2208, 1202], navigator: [320, 182, 272, 1201], table: [592, 182, 336, 1201], form: [928, 182, 800, 1201], preview: [1728, 182, 800, 1201], mode: adjacent_fourth_pane}
+  3840x2160: {page_overflow_x: 0, workspace: [320, 182, 3488, 1922], navigator: [320, 182, 272, 1921], table: [592, 182, 1616, 1921], form: [2208, 182, 800, 1921], preview: [3008, 182, 800, 1921], mode: adjacent_fourth_pane}
+pixel_comparison:
+  editor_originals: {changed_pixels_each: 0, geometry_change: false}
+  preview_1366x768: {changed_pixels: 7598, total_pixels: 1049088, ratio: 0.00724248, bbox: [830, 347, 938, 725]}
+  preview_1440x900: {changed_pixels: 9448, total_pixels: 1296000, ratio: 0.00729012, bbox: [854, 347, 968, 874]}
+  preview_1920x1080: {changed_pixels: 13634, total_pixels: 2073600, ratio: 0.00657504, bbox: [1401, 316, 1556, 1023]}
+  preview_2560x1440: {changed_pixels: 15751, total_pixels: 3686400, ratio: 0.00427273, bbox: [1742, 316, 1908, 1100]}
+  preview_3840x2160: {changed_pixels: 15751, total_pixels: 8294400, ratio: 0.00189899, bbox: [3022, 316, 3188, 1100]}
+  interpretation: changes_are_confined_to_semantic_preview_label_weight_with_zero_layout_or_content_change
+design_synthesis:
+  information_hierarchy: pass_objects_exact_identity_revision_editor_and_record_preview_order_preserved
+  engineering_task_flow: pass_select_edit_preview_blocked_delete_recovery_duplicate_delete_and_readback_preserved
+  responsive_wide_screen: pass_narrow_replacement_wide_adjacent_four_panes_and_bounded_reading_widths_preserved
+visual_matrix:
+  Q01: not_applicable_bounded_short_object_navigator_fixture
+  Q02: not_applicable_three_row_object_list_fixture
+  Q03: not_applicable_materials_navigation
+  Q04: not_applicable_fit_ribbon
+  Q05: not_applicable_engineering_plot_axes
+  Q06: not_applicable_curve_legend
+  Q07: not_applicable_responsive_plot_glyphs
+  Q08: not_applicable_yield_response
+  Q09: not_applicable_no_genuine_overflow_fixture
+  Q10: not_applicable_fit_legend_collision
+  Q11: not_applicable_fit_navigator
+  Q12: not_applicable_export_selected_model
+  Q13: not_applicable_export_row_grammar
+  Q14: not_applicable_export_readiness
+  Q15: not_applicable_engineering_plot_domain
+  Q16: not_applicable_export_native_preview
+  Q17: pass_identity_first_administration_columns_and_exact_revision_reachability_preserved
+  Q18: pass_add_edit_preview_and_draft_lifecycle_surface_preserved_by_unit_and_browser_regression
+  Q19: pass_exact_link_type_cardinality_and_revision_behavior_unchanged
+  Q20: pass_full_viewport_narrow_replacement_and_wide_adjacent_composition_without_shortcuts
+verification:
+  frontend_guard: pass_zero_violations_font_216_of_216_raw_color_954_of_954_wide_media_2_of_2
+  frontend_guard_tests: pass_17
+  focused_vitest: pass_9
+  production_build_and_bundle_budget: pass
+  browser_specs: pass_2
+  five_viewport_capture: pass_10_originals_each_phase
+  physical_windows_4k_readability: deferred_to_issue_223
+review:
+  main: approve
+  balanced_independent_auditor: approve_blocker0_major0_material_minor0_actionable_finding0
+  balanced_independent_auditor_refrozen_base: approve_blocker0_major0_material_minor0_actionable_finding0
+  product_owner_geometry: pending_1920_2560_3840_original_review
+publication:
+  ready_transition: forbidden_until_product_owner_review
+  merge: forbidden_until_product_owner_review
