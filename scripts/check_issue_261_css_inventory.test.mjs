@@ -326,6 +326,34 @@ test("preserves the exact M1A9 mapping-table declarations and cascade order", ()
   assert.ok(owner.indexOf(expected) < owner.indexOf(laterGenericControlRule));
 });
 
+const M1A13_LOCAL_SCROLLPORT_RULES = `.modeling-task-ribbon:has(.data-intake-local) {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-task-ribbon:has(.data-intake-local) .modeling-data-intake,
+.modeling-task-ribbon:has(.data-intake-local) .data-intake-local {
+  max-height: none;
+  overflow: visible;
+}
+
+.data-intake-local {
+  min-width: 0;
+}
+
+.data-intake-local {
+  display: grid;
+  gap: 6px;
+  max-height: none;
+  overflow: visible;
+}
+
+.data-intake-local {
+  max-height: none;
+  overflow: visible;
+}`;
+
 test("preserves the exact M1A10 Data split-frame declarations and cascade order", () => {
   const legacy = readFileSync(
     new URL("../apps/web/src/design/layout.css", import.meta.url),
@@ -416,8 +444,34 @@ test("preserves the exact M1A10 Data split-frame declarations and cascade order"
   ]) {
     assert.equal(legacy.includes(`${selector} {`), false, `${selector} left layout.css`);
   }
+  const ownerWithoutM1A13 = owner.replace(
+    `\n\n${M1A13_LOCAL_SCROLLPORT_RULES}\n\n`,
+    "\n\n",
+  );
+  assert.notEqual(ownerWithoutM1A13, owner);
+  assert.equal(ownerWithoutM1A13.includes(expected), true);
+  assert.ok(ownerWithoutM1A13.indexOf(expected) < ownerWithoutM1A13.indexOf(".modeling-data-workspace {"));
+});
+
+test("preserves the exact M1A13 local-scrollport declarations and cascade order", () => {
+  const legacy = readFileSync(
+    new URL("../apps/web/src/design/layout.css", import.meta.url),
+    "utf8",
+  ).replace(/\r\n/g, "\n");
+  const owner = readFileSync(
+    new URL(
+      "../apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+      import.meta.url,
+    ),
+    "utf8",
+  ).replace(/\r\n/g, "\n");
+  const expected = M1A13_LOCAL_SCROLLPORT_RULES;
+
+  assert.equal(legacy.includes(".modeling-task-ribbon:has(.data-intake-local) {"), false);
+  assert.equal(/(^|\n)\.data-intake-local\s*\{/m.test(legacy), false);
   assert.equal(owner.includes(expected), true);
-  assert.ok(owner.indexOf(expected) < owner.indexOf(".modeling-data-workspace {"));
+  assert.ok(owner.indexOf(".modeling-data-ribbon-panel {\n  min-width: 0;") < owner.indexOf(expected));
+  assert.ok(owner.indexOf(expected) < owner.indexOf(".modeling-data-ribbon-panel {\n  min-height: 0;\n  overflow: hidden;"));
 });
 
 test("keeps the audit regression selectors out of the generated dead batch", () => {
@@ -564,7 +618,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A5.fullyRemovedRuleGroups, 21);
   assert.equal(completedM1A5.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A5.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A5.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -591,7 +645,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A6.fullyRemovedRuleGroups, 3);
   assert.equal(completedM1A6.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A6.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A6.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -619,7 +673,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A7.fullyRemovedRuleGroups, 3);
   assert.equal(completedM1A7.partiallyShrunkRuleGroups, 1);
   assert.deepEqual(completedM1A7.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A7.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -647,7 +701,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A8.fullyRemovedRuleGroups, 4);
   assert.equal(completedM1A8.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A8.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A8.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -690,7 +744,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A9.fullyRemovedRuleGroups, 10);
   assert.equal(completedM1A9.partiallyShrunkRuleGroups, 5);
   assert.deepEqual(completedM1A9.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A9.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -754,7 +808,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A11.fullyRemovedRuleGroups, 4);
   assert.equal(completedM1A11.partiallyShrunkRuleGroups, 1);
   assert.deepEqual(completedM1A11.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A11.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -799,7 +853,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A12.fullyRemovedRuleGroups, 15);
   assert.equal(completedM1A12.partiallyShrunkRuleGroups, 5);
   assert.deepEqual(completedM1A12.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 93);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
   for (const selector of completedM1A12.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -807,9 +861,39 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} no longer has exact legacy ownership`,
     );
   }
+  const completedM1A13 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === "M1A13-modeling-data-local-scrollport",
+  );
+  assert.ok(completedM1A13);
+  assert.deepEqual(completedM1A13.actualAfter, {
+    cssRuleGroups: 2734,
+    selectorRows: 3438,
+    crossCssDuplicateRows: 14,
+  });
+  assert.deepEqual(completedM1A13.historicalMemberIds, [
+    "CSS-0910",
+    "CSS-0911",
+    "CSS-0912",
+    "CSS-0971",
+    "CSS-0986",
+    "CSS-1007",
+  ]);
+  assert.equal(completedM1A13.selectorRowsRemoved, 6);
+  assert.equal(completedM1A13.touchedRuleGroups, 5);
+  assert.equal(completedM1A13.fullyRemovedRuleGroups, 4);
+  assert.equal(completedM1A13.partiallyShrunkRuleGroups, 1);
+  assert.deepEqual(completedM1A13.residualExactSelectorRows, []);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 87);
+  for (const selector of completedM1A13.exactLegacySelectors) {
+    assert.equal(
+      inventory.selectors.some((row) => row.selector === selector),
+      false,
+      `${selector} no longer has exact legacy ownership`,
+    );
+  }
   assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
-    id: "M1A13-modeling-data-component-region",
+    id: "M1A14-modeling-data-component-region",
     status: "owner-packet-required",
-    scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A12; do not migrate all remaining M1A rows together.",
+    scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A13; do not migrate all remaining M1A rows together.",
   });
 });

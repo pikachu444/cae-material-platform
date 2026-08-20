@@ -1891,6 +1891,133 @@ action 전체가 보이며 before/after scroll geometry와 pixel이 같다. 새 
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A13 시작은 이 turn에서 하지 않는다.
 
+## M1A13 Data Local file scrollport ownership candidate
+
+`M1A13-modeling-data-local-scrollport`는 Local file의 긴 column mapping, Save details와 File details를
+키보드로 계속 탐색하면서 persistent graph를 함께 보는 한 개의 내부 scrollport를 DOM/cascade 기준으로
+묶는다. CSS-0910, CSS-0911, CSS-0912, CSS-0971, CSS-0986, CSS-1007의 6 selector row를 Data stage
+owner로 옮겼다. 5개 touched group 중 4개 complete group을 제거했고, 공유 min-width group 한 곳에서는
+`.data-intake-local` member만 제거했다. 선언과 상대 cascade 순서는 같으며 React, DOM, API, copy, state,
+token, breakpoint, `styles.css`, Process와 Fit은 변경하지 않았다.
+
+| Metric | M1A12 | M1A13 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,738 | 2,734 | -4 |
+| expanded global selector rows | 3,444 | 3,438 | -6 |
+| M1A Data rows | 93 | 87 | -6 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `6/5/4/1`, exact legacy residual 0, 남은 M1A 87행과 다음 router
+`M1A14-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css` 줄 수와 global rule
+count를 낮추고, 기존 #298 baseline과 #261 예외 의미를 바꾸지 않는다.
+
+### Live journey와 visual evidence
+
+[M1A13 manifest](images/issue-261-fe06-m1a13-data-local-scrollport/manifest.json)은 Standard, browser zoom
+100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. exact M1A12
+시작 commit `c04bf0b67838aefbca74bdfaa5b0b6c009ec2baf` archive와 candidate는 같은 기존 API와
+`/modeling` route, 225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
+`06dc786ad8cfb6178c85590ff52f5fac9330385e837ac8441a95a24bb163ef1b`)을 사용했다. exact 복원
+session에서 `Tensile test 0001`을 유지하고, invalid stress unit/source-column mapping을 만든 뒤
+`.data-intake-local`에 focus하여 PageDown과 scroll-end 이동을 확인했다. invalid 상태에서도 마지막 유효
+graph, exact selection, Data→Process→Data와 reload 복구 contract를 그대로 보존한다.
+
+[hash와 pixel 비교](images/issue-261-fe06-m1a13-data-local-scrollport/equivalence.json)는 canonical 5,
+focused start 5, scroll-end 5, header/navigator/controls/scrollport/source/graph 100%-pixel crop 30을 합한
+45/45 pair가 byte/pixel identical임을 기록한다. [runtime identity](images/issue-261-fe06-m1a13-data-local-scrollport/runtime-identity.json)는
+1366의 local scrollport가 `301/505`, 나머지 viewport가 `363/505` client/scroll height이고 모두
+`overflow-y:auto`, `tabindex=0`, PageDown 이동 PASS임을 기록한다. 바깥 ribbon은 `321/321` 또는
+`383/383`으로 실제 overflow가 없으므로 두 번째 활성 scrollport가 아니다. [documentation impact](images/issue-261-fe06-m1a13-data-local-scrollport/documentation-impact-equivalence.json)의
+canonical 5개도 current guide와 같은 hash다.
+
+- 1366×768: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1366x768.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1366x768.png) / [scrollport crop](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-graph-100pct.png)
+- 1440×900: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1440x900.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1440x900.png) / [controls](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-controls-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-graph-100pct.png)
+- 1920×1080: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1920x1080.png) / [source](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-source-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png)
+- 2560×1440: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-2560x1440.png) / [scrollport crop](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png)
+- 3840×2160: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-3840x2160.png) / [header](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png)
+
+모든 viewport에서 page 가로·세로 overflow와 console error는 0이다. start 원본의 Match file columns 아래
+일부 행과 scroll-end 원본의 Save/File details는 같은 내부 scrollport의 서로 다른 위치이며 clipping이
+아니다. 1366 graph는 240px 높이를 유지하고 1920/2560에서는 각각 490/850px로 성장하며, 3840에서는
+2800×1200의 readable bound 안에 남는다. 자동 4K 캡처는 geometry만 입증하고 실제 Windows 4K 물리
+가독성은 #223에 남는다.
+
+<details>
+<summary>M1A13 45개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-local-scrollport-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-controls-100pct.png)
+- crops/modeling-data-local-scrollport-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-graph-100pct.png)
+- crops/modeling-data-local-scrollport-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-header-100pct.png)
+- crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png)
+- crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png)
+- crops/modeling-data-local-scrollport-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-source-100pct.png)
+- crops/modeling-data-local-scrollport-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-controls-100pct.png)
+- crops/modeling-data-local-scrollport-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-graph-100pct.png)
+- crops/modeling-data-local-scrollport-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-header-100pct.png)
+- crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png)
+- crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png)
+- crops/modeling-data-local-scrollport-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-source-100pct.png)
+- crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png)
+- crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png)
+- crops/modeling-data-local-scrollport-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-header-100pct.png)
+- crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png)
+- crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png)
+- crops/modeling-data-local-scrollport-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-source-100pct.png)
+- crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png)
+- crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png)
+- crops/modeling-data-local-scrollport-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-header-100pct.png)
+- crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png)
+- crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png)
+- crops/modeling-data-local-scrollport-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-source-100pct.png)
+- crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png)
+- crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png)
+- crops/modeling-data-local-scrollport-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png)
+- crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png)
+- crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png)
+- crops/modeling-data-local-scrollport-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-source-100pct.png)
+- originals/modeling-data-local-scrollport-1366x768.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-1366x768.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1366x768.png)
+- originals/modeling-data-local-scrollport-1440x900.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-1440x900.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1440x900.png)
+- originals/modeling-data-local-scrollport-1920x1080.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-1920x1080.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1920x1080.png)
+- originals/modeling-data-local-scrollport-2560x1440.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-2560x1440.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-2560x1440.png)
+- originals/modeling-data-local-scrollport-3840x2160.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-3840x2160.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-3840x2160.png)
+- states/modeling-data-local-scrollport-scrolled-1366x768.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-1366x768.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1366x768.png)
+- states/modeling-data-local-scrollport-scrolled-1440x900.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1440x900.png)
+- states/modeling-data-local-scrollport-scrolled-1920x1080.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-1920x1080.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1920x1080.png)
+- states/modeling-data-local-scrollport-scrolled-2560x1440.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-2560x1440.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-2560x1440.png)
+- states/modeling-data-local-scrollport-scrolled-3840x2160.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-3840x2160.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-3840x2160.png)
+
+</details>
+
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: source → Test record → Match file columns → details → graph의 기존 판단 순서가
+  그대로다. M1A13이 이 계층을 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: exact Test record의 invalid mapping을 해당 위치에서 확인·복구하고
+  마지막 유효 graph와 다음 Process 이동을 유지하는 흐름이 그대로다. M1A13이 새 흐름을 구현한 것은
+  아니다.
+- SAP식 responsive/wide composition PASS: 1366에서는 한 개의 keyboard local scroll로 task를 보존하고,
+  wide viewport에서는 task를 무작정 늘리지 않은 채 graph가 유용하게 성장한다. 새 responsive policy를
+  추가하지 않았다.
+- Main acceptance PASS: M1A13의 6 selector row/5 group이 `4/1` complete/partial delta와 exact residual
+  0으로 Data owner에 이동했다. focused Vitest 5 files/61 tests, production build와 bundle budget, frontend
+  guard 17/17·0 violation/15 baseline warnings, inventory 12/12와 `2734/3438/87/446/14`, guide contract
+  46/46, user-guide CLI, docs-impact, 45/45 before/after byte·pixel hash, current-guide 5/5 hash 및
+  `git diff --check`가 통과했다. Main은 canonical 원본 5개, focused start 원본 5개, scroll-end state 5개와
+  after 100%-pixel crop 30개를 원본 해상도로 열었다. 한 개의 keyboard local scroll 외 새 clipping,
+  page overflow 또는 interaction 결함이 없고 세 #249 축은 새 구현이 아니라 기존 동작 보존으로 PASS다.
+- canonical independent read-only Balanced audit APPROVE: 첫 검토의 비차단 문서 번호 중복만 Main이
+  바로잡았고, 같은 auditor가 exact 104-path candidate, 90/90 evidence hash, 45/45 before/after pair,
+  guide contract 46/46, user-guide/docs-impact와 `git diff --check`를 재확인했다. source CSS, inventory,
+  runtime data와 evidence image는 correction 전후 동일하며 남은 finding은 없다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A14 시작은 이 turn에서 하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1906,14 +2033,15 @@ action 전체가 보이며 before/after scroll geometry와 pixel이 같다. 새 
 11. M1A10 Data split frame 12 selector row/10 complete rule-group은 위 candidate에서 이동·증거화했다.
 12. M1A11 Data File details 5 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
 13. M1A12 Data mapping change actions 21 selector row/20 rule-group은 위 candidate에서 이동·증거화했다.
-14. 다음 `M1A13-modeling-data-component-region`은 재생성 inventory의 남은 M1A 93행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 93행을 함께 이동하지 않는다.
-15. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-16. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-17. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-18. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-19. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-20. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+14. M1A13 Data Local file scrollport 6 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
+15. 다음 `M1A14-modeling-data-component-region`은 재생성 inventory의 남은 M1A 87행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 87행을 함께 이동하지 않는다.
+16. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+17. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+18. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+19. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+20. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+21. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

@@ -4572,18 +4572,6 @@
   font-size: 11px;
 }
 
-.modeling-task-ribbon:has(.data-intake-local) {
-  min-height: 0;
-  max-height: none;
-  overflow: visible;
-}
-
-.modeling-task-ribbon:has(.data-intake-local) .modeling-data-intake,
-.modeling-task-ribbon:has(.data-intake-local) .data-intake-local {
-  max-height: none;
-  overflow: visible;
-}
-
 .modeling-main-surface:has(.modeling-data-intake) {
   grid-template-rows: minmax(0, auto) minmax(280px, 1fr);
 }
@@ -4768,7 +4756,6 @@
 }
 
 .data-intake-row,
-.data-intake-local,
 .data-intake-attention {
   min-width: 0;
 }
@@ -4815,13 +4802,6 @@
   max-width: 240px;
   min-height: 30px;
   padding: 2px;
-}
-
-.data-intake-local {
-  display: grid;
-  gap: 6px;
-  max-height: none;
-  overflow: visible;
 }
 
 .mapping-context-row {
@@ -4904,11 +4884,6 @@
   color: var(--ux-text-muted);
   font-size: 11.5px;
   line-height: 1.25;
-}
-
-.data-intake-local {
-  max-height: none;
-  overflow: visible;
 }
 
 .data-mapping-decision {

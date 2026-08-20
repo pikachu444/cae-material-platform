@@ -38,7 +38,8 @@ channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mappin
 
 Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 그래프 사이 가로 구분선은 pointer 또는
 키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
-않습니다.
+않습니다. Local file의 긴 column mapping도 이 한 개의 키보드 스크롤 영역 안에서 이동하며, 바깥
+Data ribbon과 그래프에는 별도 중첩 스크롤을 만들지 않습니다.
 
 Local file의 column 연결이 유효하면 **Save details**에서 변경 사유를 입력하고 **Update preview**로
 마지막 유효 그래프를 다시 확인한 뒤 **Save Test Data**를 실행합니다. 사유를 입력하기 전에는 preview가,

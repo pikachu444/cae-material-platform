@@ -25,6 +25,34 @@
   min-height: 0;
 }
 
+.modeling-task-ribbon:has(.data-intake-local) {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-task-ribbon:has(.data-intake-local) .modeling-data-intake,
+.modeling-task-ribbon:has(.data-intake-local) .data-intake-local {
+  max-height: none;
+  overflow: visible;
+}
+
+.data-intake-local {
+  min-width: 0;
+}
+
+.data-intake-local {
+  display: grid;
+  gap: 6px;
+  max-height: none;
+  overflow: visible;
+}
+
+.data-intake-local {
+  max-height: none;
+  overflow: visible;
+}
+
 .modeling-data-ribbon-panel {
   min-height: 0;
   overflow: hidden;
