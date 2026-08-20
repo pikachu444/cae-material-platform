@@ -74,6 +74,117 @@
   overflow: visible;
 }
 
+.modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ux-space-1) var(--ux-space-2);
+  min-width: 0;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label > :is(input, select) {
+  grid-column: 2;
+  box-sizing: border-box;
+  min-height: var(--ux-input-min-block-size);
+  height: var(--ux-input-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"] {
+  box-sizing: border-box;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  padding-block: 0;
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+}
+
+/* Data-only native controls consume the same density contract as the rest of
+   the workbench. The file selector remains native inside the shared input. */
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > label,
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  align-self: end;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"] {
+  box-sizing: border-box;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  margin: 0;
+  padding-block: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  box-sizing: border-box;
+  height: var(--ux-control-min-block-size);
+  min-height: var(--ux-control-min-block-size);
+  margin: 0;
+  padding-block: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"] {
+  padding-inline: 0;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"]::file-selector-button {
+  box-sizing: border-box;
+  height: calc(var(--ux-input-min-block-size) - 2px);
+  min-height: calc(var(--ux-input-min-block-size) - 2px);
+  margin: 0;
+  padding: 0 var(--ux-space-2);
+  border: 0;
+  border-right: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text);
+  font: inherit;
+  line-height: normal;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button:disabled {
+  border-color: var(--ux-border-strong);
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"] {
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button {
+  height: var(--ux-control-min-block-size);
+  min-height: var(--ux-control-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type="file"]::file-selector-button {
+  height: calc(var(--ux-input-min-block-size) - 2px);
+  min-height: calc(var(--ux-input-min-block-size) - 2px);
+  padding-inline: var(--ux-space-2);
+}
+
 .modeling-data-ribbon-panel {
   min-height: 0;
   overflow: hidden;

@@ -1,0 +1,407 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A16-modeling-data-local-import-controls",
+  "source_sha": "b3b99a42db048b326e025c51c7a8c4bd256a230d",
+  "before_base_url": "http://127.0.0.1:4616",
+  "after_base_url": "http://127.0.0.1:4618",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "synthetic_input": "m1a13-local-scrollport.csv",
+  "synthetic_input_bytes": 225,
+  "synthetic_input_sha256": "06dc786ad8cfb6178c85590ff52f5fac9330385e837ac8441a95a24bb163ef1b",
+  "route": "/modeling?stage=data",
+  "viewports": [
+    {
+      "viewport": "1366x768",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 301,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 204,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 321,
+        "scrollHeight": 321,
+        "scrollTop": 0,
+        "hasOverflow": false
+      },
+      "localImportControls": {
+        "box": {
+          "x": 14,
+          "y": 160,
+          "width": 1323,
+          "height": 301,
+          "right": 1337,
+          "bottom": 461
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "0px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "overflow": "hidden auto",
+          "overflowX": "hidden",
+          "overflowY": "auto",
+          "gap": "6px"
+        },
+        "clientHeight": 301,
+        "scrollHeight": 505,
+        "scrollTop": 0,
+        "tabIndex": 0
+      },
+      "mappingBlocker": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 1277,
+          "height": 74,
+          "right": 1312,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 1274,
+        "scrollWidth": 1274,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "width": 1366,
+        "height": 240
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "1440x900",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0,
+        "hasOverflow": false
+      },
+      "localImportControls": {
+        "box": {
+          "x": 14,
+          "y": 160,
+          "width": 1397,
+          "height": 363,
+          "right": 1411,
+          "bottom": 523
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "0px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "overflow": "hidden auto",
+          "overflowX": "hidden",
+          "overflowY": "auto",
+          "gap": "6px"
+        },
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "scrollTop": 0,
+        "tabIndex": 0
+      },
+      "mappingBlocker": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 1351,
+          "height": 74,
+          "right": 1386,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 1348,
+        "scrollWidth": 1348,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "width": 1440,
+        "height": 310
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "1920x1080",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0,
+        "hasOverflow": false
+      },
+      "localImportControls": {
+        "box": {
+          "x": 14,
+          "y": 160,
+          "width": 1877,
+          "height": 363,
+          "right": 1891,
+          "bottom": 523
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "0px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "overflow": "hidden auto",
+          "overflowX": "hidden",
+          "overflowY": "auto",
+          "gap": "6px"
+        },
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "scrollTop": 0,
+        "tabIndex": 0
+      },
+      "mappingBlocker": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 1831,
+          "height": 74,
+          "right": 1866,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 1828,
+        "scrollWidth": 1828,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "width": 1920,
+        "height": 490
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "2560x1440",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0,
+        "hasOverflow": false
+      },
+      "localImportControls": {
+        "box": {
+          "x": 14,
+          "y": 160,
+          "width": 2517,
+          "height": 363,
+          "right": 2531,
+          "bottom": 523
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "0px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "overflow": "hidden auto",
+          "overflowX": "hidden",
+          "overflowY": "auto",
+          "gap": "6px"
+        },
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "scrollTop": 0,
+        "tabIndex": 0
+      },
+      "mappingBlocker": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 2471,
+          "height": 74,
+          "right": 2506,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 2468,
+        "scrollWidth": 2468,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "width": 2560,
+        "height": 850
+      },
+      "sessionPreserved": true
+    },
+    {
+      "viewport": "3840x2160",
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "localScrollport": {
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "startScrollTop": 0,
+        "endScrollTop": 142,
+        "overflowX": "hidden",
+        "overflowY": "auto",
+        "tabIndex": 0,
+        "keyboardPageDownMoved": true
+      },
+      "outerRibbon": {
+        "clientHeight": 383,
+        "scrollHeight": 383,
+        "scrollTop": 0,
+        "hasOverflow": false
+      },
+      "localImportControls": {
+        "box": {
+          "x": 14,
+          "y": 160,
+          "width": 3797,
+          "height": 363,
+          "right": 3811,
+          "bottom": 523
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "0px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "overflow": "hidden auto",
+          "overflowX": "hidden",
+          "overflowY": "auto",
+          "gap": "6px"
+        },
+        "clientHeight": 363,
+        "scrollHeight": 505,
+        "scrollTop": 0,
+        "tabIndex": 0
+      },
+      "mappingBlocker": {
+        "box": {
+          "x": 35,
+          "y": 281,
+          "width": 3751,
+          "height": 74,
+          "right": 3786,
+          "bottom": 355
+        },
+        "style": {
+          "display": "grid",
+          "minWidth": "180px",
+          "minHeight": "auto",
+          "maxHeight": "none",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "gap": "3px"
+        },
+        "clientWidth": 3748,
+        "scrollWidth": 3748,
+        "clientHeight": 74,
+        "scrollHeight": 74,
+        "text": "Fix the test data mapping.Engineering stress cannot use “%”. Choose Pa, kPa, MPa, or GPa.Use a different source column for each required channel."
+      },
+      "graph": {
+        "width": 2800,
+        "height": 1200
+      },
+      "sessionPreserved": true
+    }
+  ],
+  "metric_identity": true,
+  "console_errors": [],
+  "journey": {
+    "setup": "Open the exact restored Modeling Data session, retain Tensile test 0001 and its saved graph, then open Local file.",
+    "actions": "Select the exact Test record, load the deterministic CSV, inspect the file, create an invalid stress-unit/source-column mapping, then keyboard-scroll the same local region.",
+    "visible_outcome": "The Test Run selector, native file input and Inspect file action retain their established geometry and remain reachable while the mapping blocker and last valid graph stay visible.",
+    "persistence_readback": "The exact session remains unchanged at each viewport; fresh normal captures separately verify reload/read-back against the same production source.",
+    "preserved_state": "Material, State, Test Data, revision, selected Test record, graph, Data-to-Process-to-Data identity and reload recovery are unchanged."
+  },
+  "capture_attempts": {
+    "before": "fresh canonical and focused captures on 4616",
+    "after": "fresh canonical capture on 4617 and focused confirmation on 4618",
+    "focused_confirmation_reason": "The first after focused capture exposed one RGB-level-1 pixel at 1366 scroll-end; the fresh confirmation reproduced the same bounded renderer variance and every other pair remained byte-identical.",
+    "failed_scripts": 0
+  }
+}

@@ -47,7 +47,7 @@
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 8264,
+      "baselineLines": 8189,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 2728,
+      "count": 2720,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -150,7 +150,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "831a52c6b5e6cf6361858e29aad9de0a5d4b16deb3ff959fde15f5619336a43a",
+      "fingerprint": "a26418df7a5a28351aa73726baf7563c83635f2b961ef2b5419f51ff467e8a06",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A0 removes the Data plot member from this legacy comma group while preserving the ribbon selector unchanged.",
       "ownerIssue": "#261",
@@ -168,7 +168,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "ebf01bc13de9b7db5b2f2b9bef07d7a22f3cb1e50f3bead5cca3f95a82225d01",
+      "fingerprint": "0391ca14e54beea126595d0c1aa2ca44f54c440426a6cf81425ec445194789e5",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A9, M1A14 and M1A15 remove the Data mapping-table, live blocker and intake members from this legacy density group while preserving the recovery-row blocker selector unchanged.",
       "ownerIssue": "#261",
@@ -177,16 +177,16 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "b1c0dbce8ac0ca9eed392538749a9cf607783900353445a676490a37f45d84fd",
+      "fingerprint": "2938215b58b73a80d3da789f3893e174505d14fdf2bea170f1de58ee7af9cdbc",
       "maxOccurrences": 1,
-      "reason": "FE-06 M1A11 and M1A12 remove the exact Data File details and mapping-recovery members from this legacy metadata group while preserving the remaining Data labels and evidence selectors unchanged.",
+      "reason": "FE-06 M1A9, M1A11 and M1A12 remove the mapping-table, File details and mapping-recovery members from this legacy metadata group while preserving the remaining Data labels, evidence and provenance selectors unchanged.",
       "ownerIssue": "#261",
       "removalCondition": "Remove when later bounded FE-06 units migrate the surviving metadata selectors or the exact finding disappears."
     },
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "2e3287068df690c19cddb2c012ad41aa7d5d5b63abae3c89e6ea4b0a68f3aaac",
+      "fingerprint": "9d25ba1881aefbe5638e03dac617d4b78ef7c946f80770eab01834043a06a076",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A9 removes the Data mapping-table cell members from this legacy cell-padding group while preserving the Fit candidate table selectors unchanged.",
       "ownerIssue": "#261",
@@ -195,7 +195,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "7847322e3e1be820578c3b66d1a7827a7cfe487b6f21094e3584afe2582dc0d9",
+      "fingerprint": "b037202b66d6981d41f3dfdd402d0890226c53ed5f0dcd48dd373ddd6a8435d7",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A9 removes the Data mapping-table select member from this legacy control-density group while preserving the remaining Data and Process controls unchanged.",
       "ownerIssue": "#261",
@@ -204,7 +204,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "642220714648b356a84171108ac7605dd8741d7ca9e4290f84ae9725c07949c5",
+      "fingerprint": "d27e906e52ad8d8f919340c1ae61046e8455962e0468fd18bba4bbaa8206bfb6",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A12 removes the mapping-change input and action members from this compact-container rule while preserving the deferred consequence selector unchanged.",
       "ownerIssue": "#261",
@@ -213,7 +213,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "a6663ab958d5bb288e7029e4c5493b51952b673784ebe72587fb03dcea85329a",
+      "fingerprint": "be27168b2a7a85e5c261ba8feb1d4d66727abc0795443c56a82a43da2d2012ee",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A12 removes the mapping-change action member from this compact-container row rule while preserving the deferred consequence selector unchanged.",
       "ownerIssue": "#261",
@@ -222,16 +222,61 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "b4c5c1ab64575f4ab6310fcea04001ca9a77fec4983510443d0bc229531eb72f",
+      "fingerprint": "9e568f0c7b163a9ad7a4773935898d198124e20dd62c1beb8a222b0dd3068f2f",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A12 removes the mapping-actions container from this density group while preserving the shared Data and ribbon button selectors unchanged.",
       "ownerIssue": "#261",
       "removalCondition": "Remove when later bounded FE-06 units migrate the surviving shared button selectors or the exact finding disappears."
     },
     {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "a879d50c0844289f3894f1ed25c207b509b1098a28f169a504c9fed649e4eb4d",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A16 removes the Local-file label member while preserving the mapping-attention label in this legacy group.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving mapping-attention label or the exact finding disappears."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "37687ef0ef1e61849ca3794e519e415e711285849c30fbefed3dc563108559bc",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A16 removes the Local-file input member while preserving the mapping-attention input in this legacy group.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving mapping-attention input or the exact finding disappears."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "b0702b013dcdc49afa3f30de551073e7e1d51908639cd81aa1ce1e4cb0d717c9",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A16 removes the Local-file Test Run selector while preserving the mapping-schema selector in this legacy control group.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving mapping-schema selector or the exact finding disappears."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "483f23eaa456705ec135903e167f03fb955d4f6e401f38bb694b2e23e9a897ee",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A16 removes the Local-file action member while preserving the mapping action in this legacy button group.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving mapping action or the exact finding disappears."
+    },
+    {
+      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
+      "path": "apps/web/src/design/layout.css",
+      "fingerprint": "6eafdd1ff82186054c42d71968773d256fde2e6dc8a7e58bd73b20125b6c24fe",
+      "maxOccurrences": 1,
+      "reason": "FE-06 M1A16 removes the disabled Local-file action member while preserving the prerequisite-blocked mapping action in this legacy group.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a later bounded FE-06 unit migrates the surviving prerequisite-blocked mapping action or the exact finding disappears."
+    },
+    {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "66f794c21056846e33df77f020bd74d29123231ea3ccae6876539b248d8608fa",
+      "fingerprint": "d71d6e733a97f3f70c3495d4151bf396e57a6595606980cf3fafbf06cf0cf297",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A1 moves the exact Data source-tab declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -240,7 +285,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "14292d0d7371ed5b33135d035cbf8e37e763354219062f979fc436479bf2c83e",
+      "fingerprint": "1b55293d2a0e63dcb2c51fed28c3d13930a73cf573d3c20573041be565b3f5ce",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A4 moves the exact Raw source table header declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -249,7 +294,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "a811b92447e1bd087365f4399d95a5c6b5c97e59da91891d6b408a78ecb535ba",
+      "fingerprint": "58a57ef9b8c8aa80e2d64d7cbb617c03af90fc033effcc92404748cbc7b48d5b",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A7 moves the exact Data mapping-heading declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -258,7 +303,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "cb5a02852c4a37cb5e34cd450b3bf57039dda43abe94631b9c45850b13b3bae9",
+      "fingerprint": "2f247a219b29c14ee73854ce916ee00f6fc11fe02c58606522097c200acd2d35",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A8 moves the exact Data optional-channel declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -267,7 +312,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "4f7fce4ee013af11726d42985de0436b7345cda9d724a6f5b3391ff2675cc3b3",
+      "fingerprint": "8cc38a1dddaf983ec80339ca5c10252a6de998638e296cf72c5b7e5d12b6217d",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A9 moves the exact Data mapping-table header declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -276,7 +321,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "9b1fc11989eab824644b49f02ddcf8c4e945a72ff30c1b3830daf924ba42a30d",
+      "fingerprint": "37843d213ca7533ca6a1e51353c6ed5e1f5b09653763613dd3a6afd1f623df05",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A12 moves the exact mapping-change reason label declaration into its Data owner CSS without combining ownership migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -285,7 +330,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "97e62a3587dd0abd99f30dd661bc825caffa1cc3ed65a9ca1984d70483d0657e",
+      "fingerprint": "dfe14f0bfa75d21ca2ff990ff82fcc805333ad4807f5158df44aec1473882066",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A3 moves the exact Data import-diagnostics declaration into its owner CSS without combining migration with semantic color-token normalization.",
       "ownerIssue": "#261",
@@ -294,7 +339,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "c27b0152cf11acfc1615a7c1dca0841053cc091a4261a6e374021b38c15b0c4f",
+      "fingerprint": "58a0872d82b32f9954325da4657bc5fc4c5fc4c3212281942ce3218d70460572",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A14 moves the exact Data mapping-blocker declaration into its owner CSS without combining ownership migration with semantic color-token normalization.",
       "ownerIssue": "#261",

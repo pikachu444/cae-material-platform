@@ -1,0 +1,932 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A16-modeling-data-local-import-controls",
+  "implementation_base": "b3b99a42db048b326e025c51c7a8c4bd256a230d",
+  "branch": "issue-261-m1a8-modeling-data-component-region",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "behavior_classification": "partial: the Local-file import controls already behaved correctly while sixteen historical selector rows across thirteen legacy groups remained owned by layout.css",
+  "historical_selector_rows": [
+    "CSS-1416",
+    "CSS-1418",
+    "CSS-1420",
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1439",
+    "CSS-1440",
+    "CSS-1441",
+    "CSS-1442",
+    "CSS-1443",
+    "CSS-1445",
+    "CSS-1520",
+    "CSS-1521",
+    "CSS-1522",
+    "CSS-1523"
+  ],
+  "selectors": [
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label > :is(input, select)",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name=\"local-test-run\"]",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > label",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type=\"file\"]",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type=\"file\"]::file-selector-button",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button:disabled"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 16,
+    "touchedRuleGroups": 13,
+    "fullyRemovedRuleGroups": 8,
+    "partiallyShrunkRuleGroups": 5,
+    "afterRuleGroups": 2720,
+    "afterSelectorRows": 3414,
+    "afterM1ARows": 63,
+    "afterHoldRows": 446,
+    "crossCssDuplicateRows": 14,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, state, token, breakpoint, styles.css, Process or Fit change. Exact Material, State, Test Data and revision selection, Test record, graph, Data-to-Process-to-Data identity, reload recovery and intentional local scrolling remain unchanged.",
+  "capture": {
+    "viewports": [
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "2560x1440",
+      "3840x2160"
+    ],
+    "image_pair_summary": {
+      "imagePairs": 45,
+      "byteIdenticalPairs": 44,
+      "pixelIdenticalPairs": 44,
+      "boundedRendererVariancePairs": 1,
+      "changedPixels": 1,
+      "maxChannelDelta": 1,
+      "currentGuideMatches": 5
+    },
+    "equivalence": "equivalence.json",
+    "runtime_identity": "runtime-identity.json",
+    "documentation_impact": "documentation-impact-equivalence.json",
+    "physical_4k_readability": "DEFERRED_TO_223"
+  },
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1366x768.png",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-blocker-100pct.png",
+      "sha256": "973cc6fc55d26d5969006f6a25b01ff3324a3fdf1d38c9e196b271dbf8c5ed20"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-controls-100pct.png",
+      "sha256": "6cff92fcafa162be1040c67425f40384580754a672f9ba422bdfbea53bda3a2a"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-graph-100pct.png",
+      "sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-header-100pct.png",
+      "sha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-navigator-100pct.png",
+      "sha256": "43621faff22ac568039935613c5bf4723b8214317f06be1803418ecf35fc7c7d"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-source-100pct.png",
+      "sha256": "677ed8c8cfee0c07a2b0eb3968aeeca025f3f00cbfae64043383fe99837f8433"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png",
+      "sha256": "34af4539efb6bfc2087cce61c6efcec7bf5d79bfabc4fdfaef25ea8b83e309ff"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-controls-100pct.png",
+      "sha256": "9b3bb15602110fbc579aaebae4930b2bce42c669a0bfbdc0efeb06ba8d078a57"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-graph-100pct.png",
+      "sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-header-100pct.png",
+      "sha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-navigator-100pct.png",
+      "sha256": "c4846691a9cd8bf8e43e1d7afa1db8ab5e8f7321cc797679438b7afa10263108"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-source-100pct.png",
+      "sha256": "daaa2a7e24733400d3ee6aa5c0e86b8aaccd6d18728918bc306b8d96526c45cf"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-blocker-100pct.png",
+      "sha256": "17e7bbbfa83c9557d7d122ec9c58da14e0707662f319bfae292219476a024116"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-controls-100pct.png",
+      "sha256": "88d6c8b879aeb2c08e4bb6d923c70a27c89198cf21e82217380334da4f8a0ba1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png",
+      "sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-header-100pct.png",
+      "sha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-navigator-100pct.png",
+      "sha256": "acf57be342de055b5c5e8e5e3f14c4badfeb14641eaef5c458be4f448982620a"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-source-100pct.png",
+      "sha256": "6c7ba310eb0c550b7fbf408579d1fac090663ab1ec9a6b9e49edf597de5dcba1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-blocker-100pct.png",
+      "sha256": "7e1c8b3cd0c59d5d152ea3a4733adcc67a8c2b119616d835a36e55751393d0d2"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png",
+      "sha256": "5c9e531a61df34b5f352a69ab76236ebf9f06b24101794e5996a7eaa007de3df"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-graph-100pct.png",
+      "sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-header-100pct.png",
+      "sha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png",
+      "sha256": "ee50b9f416ddefd025aab32711b8defabd2793458d9f5017e67ab0ae41099de7"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-source-100pct.png",
+      "sha256": "2eeb25ce6b8208137d1a09d86137a37ba7c767023334e5747eb938355a20f2ce"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-blocker-100pct.png",
+      "sha256": "79c131499643455af3f2139ece43a342cc6b1633c12800f5ae9e7a237d496508"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-controls-100pct.png",
+      "sha256": "e1261a98c30cf71c6e1fcd0a4a1201cbd7c7a1457a20b6338313b2e6b3f63f0a"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png",
+      "sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-header-100pct.png",
+      "sha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-navigator-100pct.png",
+      "sha256": "ea0aa78cdd4195d05e4bdb02d3d4bfa6d306b1b7945b2a2944e1ba22a8c74d95"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-source-100pct.png",
+      "sha256": "c1b3ff7834b443551d1c976b7f1333f2b1b3e0a58c46b6a5bde1442d9c2eac1c"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-1366x768.png",
+      "sha256": "2016bc2f2a377f6628786d3b6876377834ce3176bf2787b9ea1a7e3525c0f79e"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-1440x900.png",
+      "sha256": "f0ef8097d879dad05b15508a0d1c8053c12e18b370f270873028388c7edf995f"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-1920x1080.png",
+      "sha256": "3bb4ef58e55ed1ed9a17eb177124254564d2c2fa9b7fcf19dd75ef2a1eadaedd"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-2560x1440.png",
+      "sha256": "555eb68690ad023926b6f01d427c3ed6fa5a12fef6672e792c183de55aae9b59"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-3840x2160.png",
+      "sha256": "4f17bbdab0b5e5dfabbfb6ee2d7292bd909b67d384031827ca7b03d678ab23ad"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-1366x768.png",
+      "sha256": "4e26d294367d8676e1a2fe147f97f3ac2b01357966ef146a0b4b8a405ec5b518"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-1440x900.png",
+      "sha256": "2480142c95570e5ee4e413b26d043be6d73b61bed299d7eeeab928510c1b91ca"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-1920x1080.png",
+      "sha256": "29c0fb9f4048e417f776db1ddfb24d99db0133712086ab96c682097b99ed6390"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-2560x1440.png",
+      "sha256": "9b044fce80613b94a4e63ef54d3321d8121fef4403563bae0040e49535966d4c"
+    },
+    {
+      "phase": "before",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-3840x2160.png",
+      "sha256": "f944cd2dccc011b363076cb858a20fb2bc23aaab714c0b3418a6f27359b18b79"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1366x768.png",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-blocker-100pct.png",
+      "sha256": "973cc6fc55d26d5969006f6a25b01ff3324a3fdf1d38c9e196b271dbf8c5ed20"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-controls-100pct.png",
+      "sha256": "6cff92fcafa162be1040c67425f40384580754a672f9ba422bdfbea53bda3a2a"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-graph-100pct.png",
+      "sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-header-100pct.png",
+      "sha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-navigator-100pct.png",
+      "sha256": "43621faff22ac568039935613c5bf4723b8214317f06be1803418ecf35fc7c7d"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-source-100pct.png",
+      "sha256": "677ed8c8cfee0c07a2b0eb3968aeeca025f3f00cbfae64043383fe99837f8433"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png",
+      "sha256": "34af4539efb6bfc2087cce61c6efcec7bf5d79bfabc4fdfaef25ea8b83e309ff"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-controls-100pct.png",
+      "sha256": "9b3bb15602110fbc579aaebae4930b2bce42c669a0bfbdc0efeb06ba8d078a57"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-graph-100pct.png",
+      "sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-header-100pct.png",
+      "sha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-navigator-100pct.png",
+      "sha256": "c4846691a9cd8bf8e43e1d7afa1db8ab5e8f7321cc797679438b7afa10263108"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-source-100pct.png",
+      "sha256": "daaa2a7e24733400d3ee6aa5c0e86b8aaccd6d18728918bc306b8d96526c45cf"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-blocker-100pct.png",
+      "sha256": "17e7bbbfa83c9557d7d122ec9c58da14e0707662f319bfae292219476a024116"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-controls-100pct.png",
+      "sha256": "88d6c8b879aeb2c08e4bb6d923c70a27c89198cf21e82217380334da4f8a0ba1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png",
+      "sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-header-100pct.png",
+      "sha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-navigator-100pct.png",
+      "sha256": "acf57be342de055b5c5e8e5e3f14c4badfeb14641eaef5c458be4f448982620a"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-source-100pct.png",
+      "sha256": "6c7ba310eb0c550b7fbf408579d1fac090663ab1ec9a6b9e49edf597de5dcba1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-blocker-100pct.png",
+      "sha256": "7e1c8b3cd0c59d5d152ea3a4733adcc67a8c2b119616d835a36e55751393d0d2"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png",
+      "sha256": "5c9e531a61df34b5f352a69ab76236ebf9f06b24101794e5996a7eaa007de3df"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-graph-100pct.png",
+      "sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-header-100pct.png",
+      "sha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png",
+      "sha256": "ee50b9f416ddefd025aab32711b8defabd2793458d9f5017e67ab0ae41099de7"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-source-100pct.png",
+      "sha256": "2eeb25ce6b8208137d1a09d86137a37ba7c767023334e5747eb938355a20f2ce"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-blocker-100pct.png",
+      "sha256": "79c131499643455af3f2139ece43a342cc6b1633c12800f5ae9e7a237d496508"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-controls-100pct.png",
+      "sha256": "e1261a98c30cf71c6e1fcd0a4a1201cbd7c7a1457a20b6338313b2e6b3f63f0a"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png",
+      "sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-header-100pct.png",
+      "sha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-navigator-100pct.png",
+      "sha256": "ea0aa78cdd4195d05e4bdb02d3d4bfa6d306b1b7945b2a2944e1ba22a8c74d95"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "supporting",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-source-100pct.png",
+      "sha256": "c1b3ff7834b443551d1c976b7f1333f2b1b3e0a58c46b6a5bde1442d9c2eac1c"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1366x768.png",
+      "sha256": "2016bc2f2a377f6628786d3b6876377834ce3176bf2787b9ea1a7e3525c0f79e"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1440x900.png",
+      "sha256": "f0ef8097d879dad05b15508a0d1c8053c12e18b370f270873028388c7edf995f"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1920x1080.png",
+      "sha256": "3bb4ef58e55ed1ed9a17eb177124254564d2c2fa9b7fcf19dd75ef2a1eadaedd"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-2560x1440.png",
+      "sha256": "555eb68690ad023926b6f01d427c3ed6fa5a12fef6672e792c183de55aae9b59"
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "invalid-mapping-start",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-3840x2160.png",
+      "sha256": "4f17bbdab0b5e5dfabbfb6ee2d7292bd909b67d384031827ca7b03d678ab23ad"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1366x768.png",
+      "sha256": "c1f121f8a9d89e792a0781807cb868ee4c18a7dcf42f082e42f72cb8b1166058"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1440x900.png",
+      "sha256": "2480142c95570e5ee4e413b26d043be6d73b61bed299d7eeeab928510c1b91ca"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1920x1080.png",
+      "sha256": "29c0fb9f4048e417f776db1ddfb24d99db0133712086ab96c682097b99ed6390"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-2560x1440.png",
+      "sha256": "9b044fce80613b94a4e63ef54d3321d8121fef4403563bae0040e49535966d4c"
+    },
+    {
+      "phase": "after",
+      "kind": "state",
+      "state": "local-scroll-end",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-3840x2160.png",
+      "sha256": "f944cd2dccc011b363076cb858a20fb2bc23aaab714c0b3418a6f27359b18b79"
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "b3b99a42db048b326e025c51c7a8c4bd256a230d",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "1cb4a5838dca26d711440479f6bd5eca84de8326db3b992b3feb31f45ff6474b",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "572bd5428e039a3de48529a72ee7a8eff0003ceef1a0da4df34d1adbf9b975c0"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-3840x2160.png"
+      }
+    ]
+  },
+  "qualitative_review": {
+    "reviewed_original_resolution": true,
+    "reviewed": "five canonical originals, five focused Local-file originals, five focused scroll-end states, and all thirty after 100%-pixel header/navigator/controls/source/blocker/graph crops",
+    "information_hierarchy": "PASS: the established source choice, exact Test Run, native file input, Inspect file action, mapping blocker and persistent graph hierarchy is unchanged; M1A16 did not newly implement this axis",
+    "engineering_task_flow": "PASS: exact Test Run and file selection still lead to inspection, explicit mapping repair and the last valid graph without changing selection or revision; M1A16 did not newly implement this axis",
+    "responsive_wide_screen_composition": "PASS: Local-file controls remain reachable in intentional local scrolling and the graph grows usefully across 1366 through 3840 without page overflow; M1A16 did not newly implement this axis",
+    "axes_newly_implemented": false,
+    "introduced_clipping_overflow_interaction_defect": false,
+    "intentional_local_scroll": true,
+    "renderer_variance": "One RGB-level-1 pixel at (13,160) in the 1366 scroll-end state reproduced in a fresh candidate confirmation; all other 44 pairs are pixel-identical and runtime geometry is identical.",
+    "physical_readability_claimed": false
+  },
+  "visual_acceptance_matrix": {
+    "Q-01": "not-applicable: Local file replaces the Library navigator in the focused topology; five fresh normal canonical navigator states preserve the starting context",
+    "Q-02": "not-applicable: the focused state is a local-file mapping task, not a result-list surface",
+    "Q-03": "not-applicable: the focused state is Modeling Data, not the Materials navigation tree",
+    "Q-04": "not-applicable: Data is selected and no Fit ribbon is present",
+    "Q-05": "pass: graph labels, units, frame and values remain separated in all five graph crops",
+    "Q-06": "pass: the exact single-curve legend remains separate from graph actions",
+    "Q-07": "pass: graph glyphs and strokes remain proportional with no SVG stretching",
+    "Q-08": "not-applicable: this is Engineering stress versus Engineering strain, not a true-yield-stress plot",
+    "Q-09": "pass: runtime identity proves one keyboard-operable local scrollport, reachable Local-file controls and zero page overflow at all five viewports",
+    "Q-10": "not-applicable: Data is selected and no Fit curve-placement topology is present",
+    "Q-11": "not-applicable: Data is selected and no Fit navigator rail is present",
+    "Q-12": "not-applicable: no Export controls are present",
+    "Q-13": "not-applicable: no Export setup/result columns are present",
+    "Q-14": "not-applicable: no Export readiness state is present",
+    "Q-15": "pass: graph zero anchor, data headroom, units and frame clearance remain intact",
+    "Q-16": "not-applicable: no Export native preview is present",
+    "Q-17": "not-applicable: this is not an Administration Object list",
+    "Q-18": "not-applicable: this is not an Administration Add or saved-projection workflow",
+    "Q-19": "not-applicable: this is not an Administration Link Type editor",
+    "Q-20": "pass: 1920/2560/3840 originals retain the full-width shell, bounded local task and useful graph growth without page overflow or fabricated scaling"
+  },
+  "product_owner_review_originals": [
+    "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1920x1080.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-2560x1440.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-3840x2160.png"
+  ],
+  "main_acceptance": {
+    "status": "APPROVE",
+    "scope": "Exactly sixteen historical Local-file import-control selector rows across thirteen groups move from layout.css to the Data-stage owner with declarations and relative cascade order preserved; eight complete groups are removed and five shared groups are shrunk.",
+    "gates": "PASS: inventory 15/15 with 2720 rule groups, 3414 selector rows, M1A 63, HOLD 446 and cross-CSS 14; frontend guard 17/17 plus actual 0 violations/15 existing warnings; focused Data-stage Vitest 5 files/52 tests; TypeScript/Vite production build and bundle budget; user-guide contract 46/46 and checker; documentation impact; 90/90 image hashes, 2/2 production CSS hashes, canonical current-guide 5/5, runtime preservation 5/5 and diff check.",
+    "visual_review": "PASS: Main opened five canonical originals, five focused originals, five scroll-end states and all thirty after 100%-pixel crops at original resolution. No new clipping, overflow, interaction or wide-screen geometry defect was found; the one RGB-level-1 pixel variance is deterministic and geometry-neutral.",
+    "journey": "Exact restored Data session, Test Run, deterministic CSV, invalid mapping recovery, last valid graph, selection/revision, Data-to-Process-to-Data and reload/read-back remain unchanged."
+  },
+  "independent_audit": {
+    "status": "APPROVE",
+    "route": "canonical independent read-only Balanced auditor",
+    "scope": "Exact 104-path M1A16 candidate; sixteen historical selector rows across thirteen groups with 8/5 complete/partial delta and zero legacy residual.",
+    "verification": "Independent inventory checker and 15/15 regression tests, diff check, 90/90 evidence hashes, 45/45 pair hashes, 5/5 current-guide hashes, focused originals and scroll-end states. Main-recorded guard/build/Vitest/guide gates are consistent with the candidate evidence.",
+    "visual_result": "The established hierarchy, engineering task flow, reachable intentional local scrolling, graph geometry and zero page overflow are preserved. The sole 1366 scroll-end one-pixel channel-delta-1 variance at (13,160) is non-material. Physical 4K readability remains deferred to #223.",
+    "blockers": 0,
+    "major": 0,
+    "material_minor": 0
+  },
+  "publication": {
+    "status": "commit-and-push-authorized-after-gates",
+    "commit": null,
+    "push": null,
+    "draft_pr": null,
+    "merge": null
+  }
+}

@@ -27,7 +27,9 @@ container를 다시 측정해 frame, SVG viewBox, axis, legend, label과 pointer
 Data의 **Library**에서는 검색과 시험 종류·조건으로 목록을 좁히고, 표에서 현재 입력 하나를
 고른 뒤 그래프를 확인하고 **Continue to Process**로 이동합니다. 다른 곡선은 **Add comparison**을
 연 경우에만 그래프에 더할 수 있으며 현재 Process 입력은 바뀌지 않습니다. **Local file**은 별도
-입력 경로이며 source 선택과 mapping 작업을 같은 local surface 안에 유지합니다. **Match file columns**
+입력 경로이며 source 선택과 mapping 작업을 같은 local surface 안에 유지합니다. 여기서 native file
+input으로 파일을 고르고 exact **Test record**를 선택한 뒤 **Inspect file**로 내용을 읽습니다. 파일이나
+Test record를 다시 고르기 전까지 현재 exact 선택과 마지막 유효 graph는 그대로 유지됩니다. **Match file columns**
 아래에서 잘못된 열 연결의 원인과 고칠 항목을 하나의 안내 블록으로 해당 위치에 표시하면서 마지막
 유효 그래프를 유지합니다. 이 안내는 mapping controls보다
 먼저 읽을 수 있습니다. 긴 source column은 native select 안에서 줄여 보여도

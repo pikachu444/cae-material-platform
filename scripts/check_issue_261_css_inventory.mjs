@@ -402,6 +402,38 @@ const COMPLETED_M1A15 = {
   ],
 };
 
+const COMPLETED_M1A16 = {
+  id: "M1A16-modeling-data-local-import-controls",
+  historicalMemberIds: [
+    "CSS-1416",
+    "CSS-1418",
+    "CSS-1420",
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1439",
+    "CSS-1440",
+    "CSS-1441",
+    "CSS-1442",
+    "CSS-1443",
+    "CSS-1445",
+    "CSS-1520",
+    "CSS-1521",
+    "CSS-1522",
+    "CSS-1523",
+  ],
+  exactLegacySelectors: [
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label > :is(input, select)",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name=\"local-test-run\"]",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > label",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type=\"file\"]",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type=\"file\"]::file-selector-button",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button:disabled",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1295,6 +1327,10 @@ function makeInventory() {
       COMPLETED_M1A15.id,
       rows.filter((row) => COMPLETED_M1A15.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A16.id,
+      rows.filter((row) => COMPLETED_M1A16.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1594,6 +1630,23 @@ function makeInventory() {
             .get(COMPLETED_M1A15.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2728,
+            selectorRows: 3430,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A16.id,
+          historicalMemberIds: COMPLETED_M1A16.historicalMemberIds,
+          selectorRowsRemoved: 16,
+          touchedRuleGroups: 13,
+          fullyRemovedRuleGroups: 8,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A16.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A16.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1601,9 +1654,9 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A16-modeling-data-component-region",
+        id: "M1A17-modeling-data-component-region",
         status: "owner-packet-required",
-        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A15; do not migrate all remaining M1A rows together.",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A16; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -1967,6 +2020,27 @@ function validateInventory(inventory) {
         || completedM1A15.actualAfter.selectorRows !== 3430
         || completedM1A15.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A15 actual delta is ${JSON.stringify(completedM1A15.actualAfter)}`);
+    }
+  }
+  const completedM1A16 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A16.id,
+  );
+  if (!completedM1A16) {
+    errors.push("completed M1A16 packet is missing");
+  } else {
+    if (completedM1A16.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A16 selectors remain in legacy CSS: ${completedM1A16.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A16.selectorRowsRemoved !== 16
+        || completedM1A16.touchedRuleGroups !== 13
+        || completedM1A16.fullyRemovedRuleGroups !== 8
+        || completedM1A16.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A16 structural delta does not match the approved 16/13/8/5 packet");
+    }
+    if (completedM1A16.actualAfter.cssRuleGroups !== 2720
+        || completedM1A16.actualAfter.selectorRows !== 3414
+        || completedM1A16.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A16 actual delta is ${JSON.stringify(completedM1A16.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {
