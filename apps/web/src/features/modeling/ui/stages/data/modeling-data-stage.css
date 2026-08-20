@@ -1084,6 +1084,98 @@
   padding: 0;
 }
 
+.data-mapping-table {
+  min-width: 0;
+  border-top: 1px solid var(--ux-border);
+  padding-top: 6px;
+}
+
+.data-mapping-table {
+  overflow-x: auto;
+}
+
+.data-mapping-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.data-mapping-table th,
+.data-mapping-table td {
+  border-bottom: 1px solid var(--ux-border);
+  padding: 4px 5px;
+  text-align: left;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.data-mapping-table th {
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.data-mapping-table td {
+  color: var(--ux-text);
+  font-size: 13px;
+}
+
+.data-mapping-table select {
+  width: 100%;
+  min-height: 30px;
+  max-width: none;
+  font-size: 13px;
+}
+
+.data-mapping-decision .data-mapping-table select {
+  width: 100%;
+  max-width: none;
+}
+
+.data-mapping-table td:last-child {
+  max-width: 180px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select {
+  box-sizing: border-box;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  padding-block: 0;
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+  appearance: auto;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th,
+.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td {
+  padding-block: var(--ux-table-cell-padding-block);
+}
+
+.data-mapping-table table,
+.data-mapping-table td {
+  font-size: var(--ux-data-font-size);
+}
+
+.data-mapping-table th {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.data-mapping-table th,
+.data-mapping-table td {
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+}
+
+.data-mapping-table select {
+  min-height: var(--ux-input-min-block-size);
+  height: auto;
+  font-size: var(--ux-data-font-size);
+}
+
 .modeling-data-workspace .modeling-data-intake :is(
   .data-intake-row label,
   .data-intake-attention label,

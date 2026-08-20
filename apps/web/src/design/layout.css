@@ -4878,8 +4878,7 @@
 }
 
 .data-source-evidence,
-.data-provenance-group,
-.data-mapping-table {
+.data-provenance-group {
   min-width: 0;
   border-top: 1px solid var(--ux-border);
   padding-top: 6px;
@@ -4905,45 +4904,6 @@
   color: var(--ux-text-muted);
   font-size: 11.5px;
   line-height: 1.25;
-}
-
-.data-mapping-table {
-  overflow-x: auto;
-}
-
-.data-mapping-table table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  font-size: 13px;
-}
-
-.data-mapping-table th,
-.data-mapping-table td {
-  border-bottom: 1px solid var(--ux-border);
-  padding: 4px 5px;
-  text-align: left;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
-.data-mapping-table th {
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-  font-weight: 650;
-}
-
-.data-mapping-table td {
-  color: var(--ux-text);
-  font-size: 13px;
-}
-
-.data-mapping-table select {
-  width: 100%;
-  min-height: 30px;
-  max-width: none;
-  font-size: 13px;
 }
 
 .data-intake-local {
@@ -4982,11 +4942,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-}
-
-.data-mapping-decision .data-mapping-table select {
-  width: 100%;
-  max-width: none;
 }
 
 .data-mapping-decision .data-mapping-blockers {
@@ -5077,12 +5032,6 @@
 
 .data-mapping-blockers strong {
   color: var(--ux-text);
-}
-
-.data-mapping-table td:last-child {
-  max-width: 180px;
-  overflow-wrap: anywhere;
-  white-space: normal;
 }
 
 .modeling-ribbon-actions {
@@ -6981,17 +6930,6 @@
 /* Task 1 mapping controls use the native compact control grammar.  These
    selectors intentionally outrank the page-wide workbench minimums without
    changing controls in Process, Fit, or Export. */
-.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select {
-  box-sizing: border-box;
-  height: var(--ux-input-min-block-size);
-  min-height: var(--ux-input-min-block-size);
-  padding-block: 0;
-  padding-inline: var(--ux-space-2);
-  font-size: var(--ux-data-font-size);
-  line-height: normal;
-  appearance: auto;
-}
-
 .modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name="local-test-run"],
 .modeling-main-surface.has-data-split .data-mapping-decision select[name="local-data-schema"] {
   box-sizing: border-box;
@@ -7096,11 +7034,6 @@
 .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers > :is(strong, span) {
   white-space: normal;
   overflow-wrap: normal;
-}
-
-.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th,
-.modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td {
-  padding-block: var(--ux-table-cell-padding-block);
 }
 
 .modeling-main-surface.has-data-split .modeling-data-intake {
@@ -7427,8 +7360,6 @@
 }
 
 .modeling-data-intake,
-.data-mapping-table table,
-.data-mapping-table td,
 .data-mapping-blockers,
 .data-mapping-recovery-row .data-mapping-blockers {
   font-size: var(--ux-data-font-size);
@@ -7437,7 +7368,6 @@
 .data-intake-row label,
 .data-intake-attention label,
 .data-mapping-resolved label,
-.data-mapping-table th,
 .data-mapping-recovery-detail > label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
@@ -7446,8 +7376,6 @@
   font-size: var(--ux-metadata-font-size);
 }
 
-.data-mapping-table th,
-.data-mapping-table td,
 .fit-candidate-table th,
 .fit-candidate-table td {
   padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
@@ -7456,7 +7384,6 @@
 .data-intake-row :is(input, select),
 .data-intake-attention :is(input, select),
 .data-mapping-resolved :is(input, select),
-.data-mapping-table select,
 .data-mapping-recovery-detail input,
 .modeling-ribbon-actions input,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),

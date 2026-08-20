@@ -231,6 +231,43 @@ const COMPLETED_M1A8 = {
   ],
 };
 
+const COMPLETED_M1A9 = {
+  id: "M1A9-modeling-data-mapping-table",
+  historicalMemberIds: [
+    "CSS-1001",
+    "CSS-1008",
+    "CSS-1009",
+    "CSS-1010",
+    "CSS-1011",
+    "CSS-1012",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1021",
+    "CSS-1036",
+    "CSS-1461",
+    "CSS-1474",
+    "CSS-1475",
+    "CSS-1564",
+    "CSS-1565",
+    "CSS-1571",
+    "CSS-1577",
+    "CSS-1578",
+    "CSS-1584",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-table",
+    ".data-mapping-table table",
+    ".data-mapping-table th",
+    ".data-mapping-table td",
+    ".data-mapping-table select",
+    ".data-mapping-decision .data-mapping-table select",
+    ".data-mapping-table td:last-child",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1096,6 +1133,10 @@ function makeInventory() {
       COMPLETED_M1A8.id,
       rows.filter((row) => COMPLETED_M1A8.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A9.id,
+      rows.filter((row) => COMPLETED_M1A9.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1276,6 +1317,23 @@ function makeInventory() {
             .get(COMPLETED_M1A8.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2777,
+            selectorRows: 3501,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A9.id,
+          historicalMemberIds: COMPLETED_M1A9.historicalMemberIds,
+          selectorRowsRemoved: 19,
+          touchedRuleGroups: 15,
+          fullyRemovedRuleGroups: 10,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A9.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A9.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1283,7 +1341,7 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A9-modeling-data-component-region",
+        id: "M1A10-modeling-data-component-region",
         status: "owner-packet-required",
         scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
       },
@@ -1502,6 +1560,27 @@ function validateInventory(inventory) {
         || completedM1A8.actualAfter.selectorRows !== 3501
         || completedM1A8.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A8 actual delta is ${JSON.stringify(completedM1A8.actualAfter)}`);
+    }
+  }
+  const completedM1A9 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A9.id,
+  );
+  if (!completedM1A9) {
+    errors.push("completed M1A9 packet is missing");
+  } else {
+    if (completedM1A9.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A9 selectors remain in legacy CSS: ${completedM1A9.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A9.selectorRowsRemoved !== 19
+        || completedM1A9.touchedRuleGroups !== 15
+        || completedM1A9.fullyRemovedRuleGroups !== 10
+        || completedM1A9.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A9 structural delta does not match the approved 19/15/10/5 packet");
+    }
+    if (completedM1A9.actualAfter.cssRuleGroups !== 2767
+        || completedM1A9.actualAfter.selectorRows !== 3482
+        || completedM1A9.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A9 actual delta is ${JSON.stringify(completedM1A9.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

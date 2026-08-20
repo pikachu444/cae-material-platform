@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A9-modeling-data-mapping-table",
+  "implementation_base": "12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1",
+  "branch": "issue-261-m1a8-modeling-data-component-region",
+  "behavior_classification": "partial: the complete Data mapping decision table already worked while 19 historical selector rows across 15 legacy rule groups remained owned by layout.css",
+  "historical_selector_rows": [
+    "CSS-1001",
+    "CSS-1008",
+    "CSS-1009",
+    "CSS-1010",
+    "CSS-1011",
+    "CSS-1012",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1021",
+    "CSS-1036",
+    "CSS-1461",
+    "CSS-1474",
+    "CSS-1475",
+    "CSS-1564",
+    "CSS-1565",
+    "CSS-1571",
+    "CSS-1577",
+    "CSS-1578",
+    "CSS-1584"
+  ],
+  "owned_selectors": [
+    ".data-mapping-table",
+    ".data-mapping-table table",
+    ".data-mapping-table th",
+    ".data-mapping-table td",
+    ".data-mapping-table select",
+    ".data-mapping-decision .data-mapping-table select",
+    ".data-mapping-table td:last-child",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 19,
+    "touchedRuleGroups": 15,
+    "fullyRemovedRuleGroups": 10,
+    "partiallyShrunkRuleGroups": 5,
+    "afterRuleGroups": 2767,
+    "afterSelectorRows": 3482,
+    "afterM1ARows": 131,
+    "afterHoldRows": 446,
+    "crossCssDuplicateRows": 14,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, state, token, breakpoint, styles.css, Process or Fit change. Exact Material, State and Test Data revisions, long source-column selection and native focus, original and modeling units, primary graph, Data to Process to Data identity and reload recovery remain unchanged.",
+  "live_consumer": "apps/web/src/features/modeling/ui/stages/data/modeling-data-intake.tsx emits the Axis and unit mapping decision table on both Modeling Data routes. The 15 rule groups keep their declarations and original relative cascade order inside the Data stage owner, including the later existing mapping-specific nowrap and column-width rules.",
+  "capture": "An exact rolling-branch start commit 6aa3a3bde7ce10532e7b65fe6a779c17615cb40d archive baseline Vite server on 127.0.0.1:5178 and the M1A9 candidate Vite server on 127.0.0.1:5177 used the existing canonical 127.0.0.1:5173 API proxy. Fresh final-size browser contexts captured normal Data/session states plus the same deterministic m1a9-long-columns.csv mapping-table state. No Docker command, reset, reseed or data deletion was run.",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "evidence_sets": {
+    "normalAndSession": "*/canonical/*.png",
+    "focusedPrimaryOriginals": "*/originals/*.png",
+    "focusedAliasOriginals": "*/routes/datasets-processing/*.png",
+    "directSourcePixelCrops": "*/crops/*.png",
+    "runtimeIdentity": "runtime-identity.json",
+    "pairHashes": "equivalence.json",
+    "documentationPreservation": "documentation-impact-equivalence.json"
+  },
+  "image_pair_summary": {
+    "imagePairs": 46,
+    "byteIdenticalPairs": 46,
+    "pixelIdenticalPairs": 46,
+    "currentGuideMatches": 5
+  },
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1366x768.png",
+      "viewport": "1366x768",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1440x900.png",
+      "viewport": "1440x900",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-2560x1440.png",
+      "viewport": "2560x1440",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-3840x2160.png",
+      "viewport": "3840x2160",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "b2cc97da0b1cc11548b891275f086365dfd6d10cd2c3cdd826084e89de15c74c",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "44055b298895362d71792c9f66815c0f9b7619293b83dc8f4ccb25f738f9ff4a"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-3840x2160.png"
+      }
+    ]
+  },
+  "qualitative_review": {
+    "reviewed_original_resolution": true,
+    "information_hierarchy": "pass: unchanged Carbon-level hierarchy keeps Match file columns, Test type, mapping table, save details and graph in their established order",
+    "engineering_task_flow": "pass: unchanged COMSOL-style exact selection to column and unit mapping to graph to Process flow, including return and reload",
+    "responsive_wide_screen_composition": "pass: unchanged SAP-style composition keeps the four mapping controls and native focus reachable at 1366 while wide viewports allocate comparison space to the graph without page overflow or uniformly stretching form prose",
+    "axes_newly_implemented": false,
+    "physicalReadability": "not claimed"
+  },
+  "visual_acceptance_matrix": {
+    "Q-01": "not-applicable: normal fixture is a short result set",
+    "Q-02": "not-applicable: normal fixture is a short result set",
+    "Q-05": "pass",
+    "Q-06": "pass",
+    "Q-07": "pass",
+    "Q-09": "pass: the mapping table retains overflow:auto, fits every required viewport without active table or page overflow, and keeps the focused source select reachable; the pre-existing 1366 local-scroll top context is unchanged and is not introduced clipping",
+    "Q-15": "pass",
+    "Q-20": "pass"
+  },
+  "product_owner_review_originals": [
+    "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1920x1080.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-2560x1440.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-3840x2160.png"
+  ],
+  "product_owner_approval": {
+    "status": "authorized-for-exact-unit-commit-and-push-after-gates",
+    "scope": "The owner authorizes committing and pushing this exact M1A9 unit to the rolling branch after acceptance and audit. PR, merge, issue-state changes and M1A10 remain forbidden this turn."
+  },
+  "main_acceptance": {
+    "status": "pass",
+    "reason": "Main accepted the exact 19-row/15-rule-group Data mapping-table ownership move on rolling-branch start commit 6aa3a3bde7ce10532e7b65fe6a779c17615cb40d. The final packet preserves declaration and cascade order with zero legacy residual; keeps React, DOM, API, copy, state, tokens, breakpoints, styles.css, Process and Fit unchanged; passes focused Data/workspace tests, build, frontend guard, inventory, guide, docs-impact and diff gates; and preserves exact Material/State/Test Data identity, long-column selection, native focus, MPa-to-Pa mapping, Stress-strain graph, Data to Process to Data and reload behavior. Main opened all five focused before/after originals and all after 100%-pixel header, navigator, mapping, table and graph crops at original resolution. All 46 pairs are byte- and pixel-identical, the mapping table fits every required viewport without active table or page overflow, and no clipping or interaction defect was introduced. The pre-existing 1366 local-scroll/crop starting context remains unchanged. Carbon hierarchy, COMSOL-style engineering flow and SAP-style responsive/wide composition pass as preserved behavior, not newly implemented design."
+  },
+  "independent_audit": {
+    "status": "approved",
+    "auditor": "canonical independent read-only Balanced auditor",
+    "reason": "APPROVE — The auditor verified the exact 106-file path set, Data-only DOM consumer and cascade move for all 19 selector rows across 15 rule groups, deterministic 2767/3482/131/446/14 inventory with zero residuals, and independent hashes for all 46 evidence pairs, five guide images, two CSS sources and ten manifest images. Focus, units, graph, exact identity, reload and Data to Process to Data behavior remain preserved."
+  },
+  "publication": {
+    "status": "commit-and-push-authorized-after-gates",
+    "commit": null,
+    "push": null,
+    "draft_pr": null,
+    "merge": null
+  }
+}
