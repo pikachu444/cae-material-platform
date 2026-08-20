@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 issue: 167
 date: 2026-07-31
 status: completed
@@ -14,6 +14,7 @@ authority:
   manifest: docs/01-product/service-reference-manifest.yaml
   duplicate_policy: docs/01-product/service-reference-duplicates.yaml
 policy:
+  default_lifecycle: static-bundle
   normal_viewports:
     - key: 1366x768
       width: 1366
@@ -243,15 +244,20 @@ families:
     image_count: 3
   - id: ADM-DB
     domain: Administration
-    label: Database design scope and schema object navigator
+    label: Database 설계 범위와 스키마 객체 탐색
     bundle: ADM-SCHEMA-CORE
     depends_on: []
     normal:
       target_base: administration-database-normal
       state: normal
+      lifecycle: current-product-evidence
+      approved_viewports:
+        - 1920x1080
+        - 2560x1440
+        - 3840x2160
       truth_boundary: >-
-        Do not fabricate a governed editable Database or Profile resource that the current service
-        does not expose.
+        현재 서비스가 제공하는 정확한 identity/revision, 초안 작업과 인접 Record 미리보기만 표시한다.
+        게시됐거나 사용 중인 설계를 삭제 가능한 것으로 만들지 않는다.
       images: 3
     exceptions: []
     evidence_only_states:
