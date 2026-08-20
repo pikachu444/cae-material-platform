@@ -1,5 +1,19 @@
 # ADR-0020: Route Material workflows by governed class and deliver polymer viscoelasticity in two stages
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** Material revision에 class를 명시해 알맞은 workflow를 안내하되 model을 자동
+  선택하지 않습니다. polymer의 linear-Prony와 elastomer의 Ogden–Prony/LAW62는 별도 IR로 둡니다.
+- **왜 중요한가요?** 금속·polymer·elastomer의 서로 다른 물리 의미를 섞거나, linear relaxation model을
+  LAW62에 조용히 끼워 맞추는 constitutive approximation을 막기 위해서입니다.
+- **언제 읽나요?** material class, workflow 추천, viscoelastic·hyper-viscoelastic IR, Abaqus·OpenRadioss
+  exporter 또는 bulk relaxation 처리를 추가할 때 읽습니다.
+- **용어를 쉽게 말하면:** `generalized-Maxwell/Prony`는 시간에 따른 선형 relaxation을 여러 항으로
+  표현하는 model이고, `hyper-viscoelastic`은 큰 변형의 hyperelastic 거동과 시간 의존성을 함께
+  다룹니다. `not_characterized`는 필요한 물성이 측정되지 않았음을 정직하게 표시합니다.
+- **상태 표기는?** `Accepted`는 class routing과 두 단계 reference model 분리를 채택했다는 뜻입니다.
+  production 재료 분류·parameter·solver execution이 승인됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-15
 - Related: ADR-0005, ADR-0006, ADR-0018, ADR-0019; T-07, T-D01, T-D02, T-D03

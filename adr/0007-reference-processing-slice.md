@@ -1,5 +1,19 @@
 # ADR-007: Reference tensile processing 수직 기능의 불변 경계
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 하나의 정확한 normalized tensile Dataset revision을 선택하고, 관측된 strain
+  범위만 잘라 새 processed Dataset을 만듭니다. 보간·평활화·단위 변환은 하지 않습니다.
+- **왜 중요한가요?** 처리 결과를 원본처럼 덮어쓰거나 숨은 변환을 넣지 않고, 어떤 입력과 Recipe로
+  결과가 만들어졌는지 다시 확인할 수 있게 하기 위해서입니다.
+- **언제 읽나요?** 새 Processing step, Dataset 선택 방식, crop·resample·smoothing 또는 처리 결과의
+  저장·복구 동작을 추가할 때 읽습니다.
+- **용어를 쉽게 말하면:** `Selection`은 사용할 정확한 Dataset revision을 고른 기록이고, `Recipe`는
+  처리 방법과 조건의 불변 버전입니다. `committed Run`은 미리보기가 아니라 저장된 실행이며,
+  `moving head`는 나중에 바뀔 수 있는 최신 revision 포인터를 뜻합니다.
+- **상태 표기는?** `Accepted`는 이 observed-point crop 경계를 채택했다는 뜻입니다. 통계, calibration,
+  일반 processing graph나 production 처리 방법까지 구현됐다는 뜻은 아닙니다.
+
 - 상태: Accepted
 - 기준일: 2026-07-15
 

@@ -1,5 +1,19 @@
 # ADR-008: Reference two-selection Statistics/QC slice
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 서로 다른 Test Run에서 나온 normalized Dataset Selection 두 개만 고정해
+  통계를 계산합니다. point 수와 strain 값이 정확히 같을 때만 curve별 통계를 냅니다.
+- **왜 중요한가요?** 두 곡선을 몰래 보간·정렬하거나 점 하나하나를 독립 표본처럼 세어, 데이터보다
+  강한 통계 결론을 만드는 일을 막기 위해서입니다.
+- **언제 읽나요?** repeat-test QC, scalar·curve 통계, 표본 수, 곡선 정렬, confidence interval 또는
+  여러 replicate 지원을 바꿀 때 읽습니다.
+- **용어를 쉽게 말하면:** `sample unit`은 통계에서 한 표본으로 세는 대상이며 여기서는 curve의 각
+  점이 아니라 Test Run·시편 하나입니다. `pointwise`는 같은 위치의 값끼리 계산한다는 뜻이고,
+  `not_provided_reference_pair`는 두 표본만으로 confidence interval을 제시하지 않았다는 표시입니다.
+- **상태 표기는?** `Accepted`는 정확히 두 Selection을 쓰는 reference 통계 경계를 채택했다는
+  뜻입니다. 일반적인 다표본 통계나 자동 정렬 정책이 완성됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 

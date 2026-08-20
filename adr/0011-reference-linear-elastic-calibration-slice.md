@@ -1,5 +1,19 @@
 # ADR-0011: Reference linear-elastic Calibration keeps numerical execution bounded and evidence-first
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 하나의 정확한 tensile Selection과 선형탄성 IR revision을 고정해, 제한된
+  해석식으로 후보를 계산하고 성공·실패한 모든 Attempt와 진단 결과를 보존합니다.
+- **왜 중요한가요?** calibration이 원본 Dataset이나 IR을 덮어쓰지 않으면서도 같은 입력과 조건으로
+  계산을 재현할 수 있고, 수치 실패도 숨기지 않기 위해서입니다.
+- **언제 읽나요?** Calibration Plan, optimizer, objective, Attempt·Candidate 저장, diagnostics 화면 또는
+  새 model calibration을 설계할 때 읽습니다.
+- **용어를 쉽게 말하면:** `Calibration Plan`은 입력·parameter 범위·계산 규칙을 고정한 버전이고,
+  `Attempt`는 한 번의 계산 시도, `Candidate`는 그 시도에서 나온 후보 parameter입니다.
+  `diagnostics`는 관측값·예측값·오차를 담은 검토 증거입니다.
+- **상태 표기는?** `Accepted`는 이 선형탄성 reference 계산 경계를 채택했다는 뜻입니다. production
+  constitutive model·optimizer·합격 기준이나 solver validation을 승인했다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-19
 - Decision owners: Product, Scientific Software, Material Modeling

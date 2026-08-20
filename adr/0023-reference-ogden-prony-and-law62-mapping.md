@@ -1,5 +1,19 @@
 # ADR-0023: bounded Ogden–Prony IR and LAW62 mapping
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** elastomer 전용의 제한된 Ogden–Prony IR을 별도로 두고, Abaqus에는 exact
+  incompressible mapping을, OpenRadioss LAW62에는 드러난 체적 근사를 적용합니다.
+- **왜 중요한가요?** polymer linear-Prony를 finite-strain LAW62 model처럼 재사용하지 않고, 두 solver의
+  표현 차이와 OpenRadioss의 `ν=0.495` 근사를 사용자가 확인하게 하기 위해서입니다.
+- **언제 읽나요?** elastomer hyper-viscoelastic model, Ogden·Prony parameter, LAW62·Abaqus exporter,
+  preflight acknowledgement 또는 mapping status를 바꿀 때 읽습니다.
+- **용어를 쉽게 말하면:** `Ogden`은 큰 변형의 hyperelastic 응답을 나타내는 model이고, `Prony`는 시간에
+  따른 relaxation을 더합니다. `incompressible`은 체적 변화가 없다는 뜻이며, `mapping disposition`은
+  각 값이 exact·transformed·approximated·unsupported 중 무엇인지 알리는 판정입니다.
+- **상태 표기는?** `Accepted`는 제한된 비운영 Ogden–Prony mapping을 채택했다는 뜻입니다. 외부 solver
+  실행, 수치 동등성, production parameter calibration을 검증했다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 - Scope: P2 product vertical, reference/non-production

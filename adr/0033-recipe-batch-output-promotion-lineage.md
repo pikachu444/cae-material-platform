@@ -1,5 +1,13 @@
 # ADR-0033: Exact Recipe/Batch execution lineage for promoted Processing Outputs
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 성공한 Batch Attempt를 게시된 Recipe 리비전과 Processing Output 리비전을 잇는 공식 근거로 사용합니다. 승격된 모델, Neutral Material JSON, solver card와 내보내기 묶음까지 정확한 Recipe·Batch·Member·Attempt 식별자를 이어서 보존합니다.
+- **왜 중요한가요?** 현재값이나 `latest`를 따라가거나 Recipe 필드를 복사하지 않아도, 어떤 절차를 어떤 실행에서 사용해 결과를 만들었는지 재현할 수 있습니다. Recipe 기록이 없던 과거의 직접 실행 결과도 거짓 계보를 붙이지 않고 계속 읽을 수 있습니다.
+- **언제 읽나요?** Recipe 게시, Batch 실행, Processing Output 승격, 실행 계보 저장, Neutral Material JSON 또는 일괄 내보내기의 근거 표시를 다룰 때 읽습니다.
+- **용어를 쉽게 말하면:** Recipe는 재사용할 수 있게 게시한 처리 절차이고, Batch는 그 절차를 여러 입력에 실행한 작업입니다. Member는 Batch 안의 한 입력, Attempt는 그 입력에 대한 한 번의 실행이며, `exact_revision`은 바뀔 수 있는 최신본이 아니라 특정 리비전을 가리킨다는 뜻입니다.
+- **상태 표기는?** Accepted는 성공한 Batch Attempt를 정확한 계보의 기준으로 삼는 결정을 채택했다는 뜻입니다. 모든 과거 Output에 Recipe 근거가 이미 있다는 뜻이 아니며, 기존 기록을 새 계보로 다시 쓰지도 않습니다.
+
 - Status: Accepted
 - Date: 2026-07-19
 - Deciders: CMP maintainers

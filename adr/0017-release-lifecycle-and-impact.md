@@ -1,5 +1,19 @@
 # ADR-0017: Append-only Release lifecycle and downstream impact
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** Release와 package는 바꾸지 않고, 사용 가능 상태와 `superseded`·`withdrawn`
+  전환을 별도 event로 누적합니다. 종료된 Release는 조회할 수 있지만 새 사용·다운로드는 막습니다.
+- **왜 중요한가요?** 이미 전달된 결과와 audit 증거를 보존하면서도 어떤 Release를 더 이상 쓰면 안
+  되는지, 무엇으로 대체됐고 어디에서 사용됐는지 명확히 알리기 위해서입니다.
+- **언제 읽나요?** Release 상태 전환, successor 연결, download·consume 차단, usage 기록 또는 impact
+  조회를 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `lifecycle projection`은 누적 event로 계산한 현재 사용 상태입니다.
+  `superseded`는 명시한 후속 Release로 대체됐다는 뜻이고, `withdrawn`은 대체 여부와 관계없이 새
+  사용을 중단한다는 뜻입니다. 기존 package 자체는 삭제되지 않습니다.
+- **상태 표기는?** `accepted`는 append-only lifecycle 결정을 채택했다는 뜻입니다. 자동 PLM 교체,
+  solver 재실행이나 production 보관 정책이 구현됐다는 뜻은 아닙니다.
+
 - Status: accepted
 - Date: 2026-07-25
 - Scope: T-31 reference Release channel

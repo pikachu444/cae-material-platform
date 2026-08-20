@@ -1,5 +1,19 @@
 # ADR-0013: Reference Validation Template and Runner preserve evidence before verdicts
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** exact Template·IR·solver card·experimental Selection을 Validation Plan에 고정하고,
+  mock 또는 수동 실행의 deck·log·native result를 같은 불변 Result Manifest로 보존합니다.
+- **왜 중요한가요?** solver 실행 입력과 결과 증거를 먼저 고정해야 나중의 건강 상태·시험 비교 판정을
+  믿을 수 있으며, mock 성공을 실제 solver validation으로 과장하지 않을 수 있습니다.
+- **언제 읽나요?** virtual specimen Template, Validation Plan·Run, runner·HPC adapter, 수동 결과 첨부나
+  Result Manifest 형식을 추가할 때 읽습니다.
+- **용어를 쉽게 말하면:** `virtual specimen Template`은 solver 입력을 만드는 시험편·mesh·하중 틀이고,
+  `Result Manifest`는 실행 입력과 생성 파일·digest·종료 상태의 목록입니다. `reference_inline_mock`은
+  실행 경계를 시험하기 위한 합성 실행이지 실제 solver 실행이 아닙니다.
+- **상태 표기는?** `Accepted`는 판정 전에 증거를 보존하는 비운영 reference 경계를 채택했다는
+  뜻입니다. 정상 종료, mock 결과 또는 deck 생성만으로 validation pass가 됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-21
 - Decision owners: Product, CAE Domain, Scientific Software

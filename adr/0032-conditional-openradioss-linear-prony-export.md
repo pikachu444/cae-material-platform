@@ -1,5 +1,13 @@
 # ADR-0032: Conditional OpenRadioss linear-Prony export
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 조건을 만족하는 거의 비압축성·전단 전용 선형 점탄성 IR만 OpenRadioss의 `/MAT/LAW1`과 `/VISC/LPRONY` 조각으로 내보냅니다. 조건을 벗어나면 지원하지 않는 것으로 보고하며 LAW62로 바꾸거나 계수를 다시 맞추지 않습니다.
+- **왜 중요한가요?** OpenRadioss용 결과가 실제보다 더 완전한 재료 모델인 것처럼 보이지 않게 합니다. 체적 거동 부재, Poisson 비 조건, 외부 Property 설정 같은 전제와 근사를 사용자가 확인하고 동의하게 합니다.
+- **언제 읽나요?** OpenRadioss 폴리머 내보내기, 사전 조건 검사, Poisson 비와 체적 거동 판정, 솔버 Property 준비 사항을 다룰 때 읽습니다.
+- **용어를 쉽게 말하면:** LPRONY는 시간에 따른 전단 완화를 표현하는 OpenRadioss 카드이고, 전단 전용은 부피 변화 특성을 포함하지 않았다는 뜻입니다. `I_smstr`는 별도 Property에서 맞춰야 하는 솔버 설정이며, material fragment는 완전한 실행 덱이 아닌 재료 정의 조각입니다.
+- **상태 표기는?** Accepted는 이 제한적인 비운영용 내보내기 규칙을 채택했다는 뜻입니다. 솔버 실행·검증, 운영 적합성, 체적 거동 지원이 완료됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-19
 - Deciders: CMP maintainers

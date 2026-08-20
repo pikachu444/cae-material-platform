@@ -1,5 +1,19 @@
 # ADR-0022: Bounded reference Prony calibration does not select or promote automatically
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** exact processed shear-relaxation Dataset과 baseline IR을 사용해 비운영 2항
+  generalized-Maxwell 후보를 반복 계산하고, 모든 Candidate와 진단을 남기되 자동 선택·승격하지 않습니다.
+- **왜 중요한가요?** 가장 작은 objective를 곧바로 공학적으로 승인된 model로 취급하거나 기존 manual
+  IR을 덮어쓰지 않고, bounds·식별성·불확실성 부족까지 검토할 수 있게 하기 위해서입니다.
+- **언제 읽나요?** Prony Calibration Plan, optimizer·multistart, Candidate 정렬·선택, diagnostics 또는
+  linear-viscoelastic IR promotion을 바꿀 때 읽습니다.
+- **용어를 쉽게 말하면:** `Prony term`은 relaxation 크기와 시간을 나타내는 한 항이고, `multistart`는
+  여러 초기값에서 계산을 반복하는 방식입니다. `identifiability`는 data가 parameter를 구분하기에
+  충분한지를 뜻하며, 낮은 objective만으로 사람의 선택을 대신하지 않습니다.
+- **상태 표기는?** `Accepted`는 이 2항 reference calibration 경계를 채택했다는 뜻입니다. production
+  term 수·bounds·optimizer, LAW62 또는 solver execution이 승인됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 - Related: ADR-0007, ADR-0020, ADR-0021; T-23, T-24; P2 item 3

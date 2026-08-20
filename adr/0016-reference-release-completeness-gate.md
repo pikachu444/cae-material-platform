@@ -1,5 +1,19 @@
 # ADR-0016: Reference Release completeness gate and immutable package
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** exact Material lineage·IR·solver card·validation result·review를 한 package에
+  고정하고, validation과 review가 통과하며 mapping에 미지원·근사가 없을 때만 Release를 만듭니다.
+- **왜 중요한가요?** 배포 시점에 더 최신인 다른 결과를 몰래 끼워 넣지 않고, 사용자가 받은 package를
+  같은 입력과 digest로 다시 확인할 수 있게 하기 위해서입니다.
+- **언제 읽나요?** Release publish gate, manifest·package 생성, download·ETag, review·validation 연결
+  또는 Release 저장 방식을 바꿀 때 읽습니다.
+- **용어를 쉽게 말하면:** `completeness gate`는 필요한 증거가 모두 맞아야 통과하는 차단 조건이고,
+  `Release manifest`는 package에 들어간 정확한 revision과 digest 목록입니다. `ETag`는 내려받은
+  내용이 같은지 확인하는 HTTP 식별값입니다.
+- **상태 표기는?** `Accepted`는 database-backed reference Release 경계를 채택했다는 뜻입니다.
+  signed distribution, production object storage나 production solver qualification 완료를 뜻하지 않습니다.
+
 - Status: Accepted
 - Date: 2026-07-24
 - Scope: T-30 reference Release channel

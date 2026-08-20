@@ -1,5 +1,19 @@
 # ADR-006: 재료 데이터 관리 중심의 첫 제품 수직 기능
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** 첫 사용자 흐름을 Material 등록에서 물성, 중립 IR, mapping 사전 확인을 거쳐
+  OpenRadioss 선형탄성 reference solver card를 미리 보고 내려받는 과정으로 한정했습니다.
+- **왜 중요한가요?** 기반 기술만 쌓는 대신 실제 재료 관리와 CAE 활용을 끝까지 연결하면서도,
+  reference model과 card를 production 검증 결과처럼 과장하지 않기 위해서입니다.
+- **언제 읽나요?** Material·State·Property Set·IR·solver card 흐름을 바꾸거나, 첫 reference 기능이
+  지원하지 않는 model·solver·validation 범위를 판단할 때 읽습니다.
+- **용어를 쉽게 말하면:** `수직 기능`은 저장·API·화면을 한 사용자 작업으로 끝까지 연결한 작은
+  제품 단위입니다. `mapping preflight`는 card 생성 전에 옮길 수 없는 항목을 확인하는 절차이고,
+  `reference_only`는 예제 경계일 뿐 production 사용을 승인하지 않았다는 뜻입니다.
+- **상태 표기는?** `Accepted`는 이 제한된 결정을 채택했다는 뜻입니다. 실제 solver 실행이나
+  production model·card 검증이 완료됐다는 뜻은 아닙니다.
+
 - 상태: Accepted
 - 기준일: 2026-07-13
 

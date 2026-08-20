@@ -1,5 +1,19 @@
 # ADR-0024: typed Catalog genealogy pins exact revisions
 
+## 먼저 읽기
+
+- **무엇을 정했나요?** Process Definition, Material Lot, State Genealogy를 각자 stable identity와 불변
+  revision으로 관리하고, Material State에 `latest`가 아닌 정확한 Process·Lot revision을 연결합니다.
+- **왜 중요한가요?** free-text 제조 이력만으로는 검색·검증이 어렵고, 과거 State에 mutable link를
+  붙이면 이미 기록된 의미가 바뀌기 때문입니다.
+- **언제 읽나요?** 제조·열처리 Process, Lot/Batch, Material State genealogy, record link 또는 기존
+  free-text 이력의 호환성을 구현할 때 읽습니다.
+- **용어를 쉽게 말하면:** `genealogy`는 재료가 어떤 Process와 Lot을 거쳐 현재 State가 됐는지 보여
+  주는 계보입니다. `stable identity`는 같은 대상을 계속 가리키는 ID이고, `revision`은 그 대상의
+  특정 시점 내용입니다. link는 항상 특정 revision을 고정합니다.
+- **상태 표기는?** `Accepted`는 bounded typed genealogy 경계를 채택했다는 뜻입니다. lot split·merge,
+  ERP 연결이나 production genealogy qualification이 구현됐다는 뜻은 아닙니다.
+
 - Status: Accepted
 - Date: 2026-07-16
 - Scope: T-07 bounded product vertical
