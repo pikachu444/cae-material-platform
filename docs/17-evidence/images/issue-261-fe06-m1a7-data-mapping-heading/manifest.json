@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A7-modeling-data-mapping-heading",
+  "implementation_base": "b0896ed370206758d4e7b5e7a81fdac674196e85",
+  "branch": "issue-261-m1a7-modeling-data-component-region",
+  "base_refreeze": {
+    "previous_base": "963d74dd621c6885aadaff7e33281592cd4b3fa1",
+    "current_base": "bcb0910c023931e333693af1959679050804b345",
+    "incoming_change": "#304 adds plain-Korean context to adr/0001 through adr/0034 only",
+    "production_source_route_state_input": "unchanged",
+    "visual_source_and_evidence_hashes": "unchanged"
+  },
+  "post_audit_base_refreeze": {
+    "previous_base": "bcb0910c023931e333693af1959679050804b345",
+    "current_base": "b0896ed370206758d4e7b5e7a81fdac674196e85",
+    "incoming_change": "#305 adds explanatory content to contracts/README.md only",
+    "production_source_route_state_input": "unchanged",
+    "visual_source_and_evidence_hashes": "unchanged"
+  },
+  "behavior_classification": "partial: the Data mapping heading and its exact workflow already existed while four historical selector rows remained owned by layout.css",
+  "historical_selector_rows": [
+    "CSS-1019",
+    "CSS-1020",
+    "CSS-1021",
+    "CSS-1579"
+  ],
+  "owned_selectors": [
+    ".data-mapping-heading",
+    ".data-mapping-heading strong",
+    ".data-mapping-heading span"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 4,
+    "touchedRuleGroups": 4,
+    "fullyRemovedRuleGroups": 3,
+    "partiallyShrunkRuleGroups": 1,
+    "afterRuleGroups": 2781,
+    "afterSelectorRows": 3505,
+    "afterM1ARows": 154,
+    "afterHoldRows": 446,
+    "crossCssDuplicateRows": 14,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, state, token, breakpoint, styles.css, Process or Fit change. Exact Test Data and Mapping Profile revisions, selected refs, primary graph, blocked invalid mapping, Data to Process to Data identity, reload recovery and keyboard focus remain unchanged.",
+  "live_consumer": "apps/web/src/features/modeling/ui/stages/data/modeling-data-intake.tsx emits one .data-mapping-heading with the Match file columns strong descendant on both Modeling Data routes. The span descendant remains a preserved dormant contract with its later density override characterized by the inventory unit test.",
+  "capture": "The separate M1A7 worktree Vite server on 127.0.0.1:5176 used the existing canonical 127.0.0.1:5173 API proxy. Fresh final-size browser contexts captured the normal Data/session flow and the same bounded invalid-mapping input before and after the CSS-only HMR change. No Docker command, reset, reseed or data deletion was run.",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "physical_4k_readability": "DEFERRED_TO_223",
+  "evidence_sets": {
+    "normalAndSession": "*/canonical/*.png",
+    "focusedPrimaryOriginals": "*/originals/*.png",
+    "focusedAliasOriginals": "*/routes/datasets-processing/*.png",
+    "directSourcePixelCrops": "*/crops/*.png",
+    "runtimeIdentity": "runtime-identity.json",
+    "pairHashes": "equivalence.json",
+    "documentationPreservation": "documentation-impact-equivalence.json"
+  },
+  "image_pair_summary": {
+    "imagePairs": 46,
+    "byteIdenticalPairs": 46,
+    "pixelIdenticalPairs": 46,
+    "currentGuideMatches": 5
+  },
+  "images": [
+    {"phase": "before", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1366x768.png", "viewport": "1366x768", "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"},
+    {"phase": "after", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1366x768.png", "viewport": "1366x768", "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6"},
+    {"phase": "before", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1440x900.png", "viewport": "1440x900", "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"},
+    {"phase": "after", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1440x900.png", "viewport": "1440x900", "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"},
+    {"phase": "before", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1920x1080.png", "viewport": "1920x1080", "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"},
+    {"phase": "after", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1920x1080.png", "viewport": "1920x1080", "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"},
+    {"phase": "before", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-2560x1440.png", "viewport": "2560x1440", "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"},
+    {"phase": "after", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-2560x1440.png", "viewport": "2560x1440", "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"},
+    {"phase": "before", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-3840x2160.png", "viewport": "3840x2160", "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"},
+    {"phase": "after", "kind": "original", "state": "normal", "path": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-3840x2160.png", "viewport": "3840x2160", "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"}
+  ],
+  "original_pairs": [
+    {"name": "modeling-data-1366x768.png", "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6", "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6", "byte_equal": true},
+    {"name": "modeling-data-1440x900.png", "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a", "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a", "byte_equal": true},
+    {"name": "modeling-data-1920x1080.png", "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4", "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4", "byte_equal": true},
+    {"name": "modeling-data-2560x1440.png", "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0", "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0", "byte_equal": true},
+    {"name": "modeling-data-3840x2160.png", "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2", "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2", "byte_equal": true}
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "b0896ed370206758d4e7b5e7a81fdac674196e85",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "73e5d8c77130baa6b585f1901b1870753765195a63169ac95f4f1f8bb2780a8c",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "7ed6f973e4d53ba03b1c1c5260bc5a5c612b15ab9c6d5b48fc4a98af8f89162d"
+    },
+    "current_matches": [
+      {"current": "docs/user-guide/images/current/modeling-data-1366x768.png", "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1366x768.png", "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1366x768.png"},
+      {"current": "docs/user-guide/images/current/modeling-data-1440x900.png", "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1440x900.png", "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1440x900.png"},
+      {"current": "docs/user-guide/images/current/modeling-data-1920x1080.png", "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1920x1080.png", "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1920x1080.png"},
+      {"current": "docs/user-guide/images/current/modeling-data-2560x1440.png", "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-2560x1440.png", "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-2560x1440.png"},
+      {"current": "docs/user-guide/images/current/modeling-data-3840x2160.png", "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-3840x2160.png", "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-3840x2160.png"}
+    ]
+  },
+  "qualitative_review": {
+    "reviewed_original_resolution": true,
+    "information_hierarchy": "pass",
+    "engineering_task_flow": "pass by deterministic browser probe",
+    "responsive_wide_screen_composition": "pass",
+    "physicalReadability": "not claimed"
+  },
+  "visual_acceptance_matrix": {
+    "Q-01": "not-applicable: normal fixture is a short result set",
+    "Q-02": "not-applicable: normal fixture is a short result set",
+    "Q-05": "pass",
+    "Q-06": "pass",
+    "Q-07": "pass",
+    "Q-09": "pass: invalid mapping uses its existing local keyboard-scroll boundary",
+    "Q-15": "pass",
+    "Q-20": "pass"
+  },
+  "product_owner_review_originals": [
+    "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1920x1080.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-2560x1440.png",
+    "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-3840x2160.png"
+  ],
+  "product_owner_approval": {
+    "status": "approved",
+    "date": "2026-08-20",
+    "scope": "The product owner reviewed the original-resolution evidence and the follow-up diagnosis, accepted the apparent cut-off above Match file columns as an intentional internal local-scroll state rather than a CSS clipping defect, requested no recapture or product-code correction, and authorized commit, push, PR, Ready transition and squash merge for this exact M1A7 candidate."
+  },
+  "main_acceptance": {
+    "status": "pass",
+    "reason": "Exact CSS-1019/CSS-1020/CSS-1021/CSS-1579 ownership-only migration accepted on origin/main b0896ed370206758d4e7b5e7a81fdac674196e85. #305 changes contracts/README.md only; after fast-forward the declarations, cascade, production source, route/state/input and CSS/evidence hashes remain unchanged. Inventory residual is zero, affected base-metadata guards and docs checks pass, 46 of 46 image pairs remain byte- and pixel-identical, all five current-guide images match, and the earlier affected tests/build/journey evidence remains valid."
+  },
+  "independent_audit": {
+    "status": "approved",
+    "reason": "The single canonical independent Balanced auditor returned APPROVE on the original review and APPROVE again after the unrelated #305 fast-forward to b0896ed370206758d4e7b5e7a81fdac674196e85, with no findings."
+  },
+  "publication": {
+    "status": "owner-authorized-pending-pre-publish",
+    "commit": null,
+    "push": null,
+    "draft_pr": null
+  }
+}

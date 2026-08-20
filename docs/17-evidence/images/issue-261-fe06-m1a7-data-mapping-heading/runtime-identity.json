@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A7-modeling-data-mapping-heading",
+  "base_url": "http://127.0.0.1:5176",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "routes": [
+    "/modeling?stage=data&family=metal",
+    "/datasets/processing?stage=data&family=metal"
+  ],
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ],
+  "normal_data_session": {
+    "status": "pass",
+    "exact_library_selection": true,
+    "first_viewport_reload_restore": true,
+    "wide_workspace_and_graph_bounds": true,
+    "page_horizontal_overflow": false
+  },
+  "invalid_mapping_probe": {
+    "status": "pass",
+    "route_viewport_contexts_per_phase": 10,
+    "heading_count": 1,
+    "heading_text": "Match file columns",
+    "synthetic_input": "long engineering-strain and true-stress column names with a duplicate source mapping and invalid percent stress unit",
+    "exact_test_record_selected": true,
+    "premature_update_or_save_action": false,
+    "last_valid_graph_preserved": true,
+    "local_region_keyboard_focus": true,
+    "exact_session_snapshot_unchanged": true
+  },
+  "round_trip_probe": {
+    "status": "pass",
+    "test_data_label": "CMP-DEMO-DP780-TEST-JSON",
+    "test_data_revision": 1,
+    "mapping_profile_revision": 1,
+    "selected_exact_test_data_refs": 3,
+    "data_primary_graph_lines_after_return": 1,
+    "data_to_process_to_data_exact_identity": true,
+    "reload_identity": true,
+    "test_data_results_keyboard_focus": true
+  }
+}
