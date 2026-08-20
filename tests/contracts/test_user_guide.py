@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import struct
 from pathlib import Path
 
 import cmp.tools.user_guide as user_guide
@@ -13,10 +15,239 @@ from cmp.tools.user_guide import (
     _duplicate_allowances,
     _verify_document_links,
     _verify_image_inventory,
+    _verify_service_reference_manifest,
     verify_user_guide,
 )
 
 _PNG = b"\x89PNG\r\n\x1a\ncontract-test"
+
+
+def _png_with_dimensions(width: int, height: int, suffix: bytes) -> bytes:
+    return b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR" + struct.pack(">II", width, height) + suffix
+
+
+def _write_dual_lifecycle_service_reference_fixture(
+    root: Path,
+) -> tuple[Path, Path, Path, list[dict[str, object]]]:
+    source = root / "docs/00-research/ux-service-reference/reference.html"
+    source.parent.mkdir(parents=True)
+    source.write_text("<!doctype html><title>Reference</title>", encoding="utf-8")
+
+    static_root = root / "docs/17-evidence/images/issue-167-service-reference"
+    static_root.mkdir(parents=True)
+    references: list[dict[str, object]] = []
+    for ordinal in range(69):
+        image = static_root / f"legacy-{ordinal:02d}.png"
+        image_bytes = _png_with_dimensions(32, 24, f"legacy-{ordinal}".encode())
+        image.write_bytes(image_bytes)
+        measurement = static_root / f"legacy-{ordinal:02d}.measurements.json"
+        measurement.write_text("{}", encoding="utf-8")
+        references.append(
+            {
+                "id": f"legacy-{ordinal:02d}-32x24",
+                "screen": "legacy",
+                "state": "normal",
+                "viewport": {"width": 32, "height": 24, "device_scale_factor": 1},
+                "sources": {"html": source.relative_to(root).as_posix()},
+                "image": image.relative_to(root).as_posix(),
+                "measurements": measurement.relative_to(root).as_posix(),
+                "image_sha256": hashlib.sha256(image_bytes).hexdigest(),
+                "date": "2026-07-31",
+                "status": "approved",
+                "product_owner_approval": {"status": "approved", "date": "2026-07-31"},
+            }
+        )
+
+    evidence_root = root / "docs/17-evidence/images/issue-289-administration-database-workflow"
+    originals = evidence_root / "after/originals"
+    originals.mkdir(parents=True)
+    viewports: list[dict[str, object]] = []
+    evidence_manifest = evidence_root / "visual-evidence.yaml"
+    for width, height in ((1920, 1080), (2560, 1440), (3840, 2160)):
+        image = originals / f"administration-database-{width}x{height}.png"
+        image_bytes = _png_with_dimensions(width, height, f"current-{width}x{height}".encode())
+        image.write_bytes(image_bytes)
+        digest = hashlib.sha256(image_bytes).hexdigest()
+        viewports.append(
+            {
+                "viewport": f"{width}x{height}",
+                "after_editor": {
+                    "path": image.relative_to(evidence_root).as_posix(),
+                    "width": width,
+                    "height": height,
+                    "sha256": digest,
+                },
+            }
+        )
+        references.append(
+            {
+                "id": f"administration-database-normal-{width}x{height}",
+                "screen": "administration-database",
+                "state": "normal",
+                "lifecycle": "current-product-evidence",
+                "viewport": {"width": width, "height": height, "device_scale_factor": 1},
+                "evidence_manifest": evidence_manifest.relative_to(root).as_posix(),
+                "evidence_key": "after_editor",
+                "image": image.relative_to(root).as_posix(),
+                "image_sha256": digest,
+                "date": "2026-08-20",
+                "status": "approved",
+                "product_owner_approval": {"status": "approved", "date": "2026-08-20"},
+            }
+        )
+    evidence_manifest.write_text(
+        yaml.safe_dump({"schema_version": "cmp.visual-evidence.v1", "viewports": viewports}),
+        encoding="utf-8",
+    )
+
+    inventory = root / "docs/01-product/service-reference-inventory.yaml"
+    inventory.parent.mkdir(parents=True, exist_ok=True)
+    inventory.write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": 3,
+                "policy": {"default_lifecycle": "static-bundle"},
+                "families": [
+                    {
+                        "id": "ADM-DB",
+                        "normal": {
+                            "target_base": "administration-database-normal",
+                            "state": "normal",
+                            "lifecycle": "current-product-evidence",
+                            "approved_viewports": [
+                                "1920x1080",
+                                "2560x1440",
+                                "3840x2160",
+                            ],
+                            "images": 3,
+                        },
+                        "image_count": 3,
+                    }
+                ],
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    manifest = root / "docs/01-product/service-reference-manifest.yaml"
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": 3,
+                "retention": "approved-targets-only",
+                "default_lifecycle": "static-bundle",
+                "references": references,
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    return manifest, inventory, evidence_manifest, references
+
+
+def test_service_reference_manifest_accepts_strict_dual_lifecycle(tmp_path: Path) -> None:
+    _, _, _, references = _write_dual_lifecycle_service_reference_fixture(tmp_path)
+    retained_image = (
+        tmp_path / "docs/17-evidence/images/issue-167-service-reference/retained-historical.png"
+    )
+    retained_image.write_bytes(_png_with_dimensions(32, 24, b"retained-by-other-evidence"))
+
+    registered = _verify_service_reference_manifest(tmp_path)
+
+    assert len(references) == len(registered) == 72
+    assert all("measurements" in reference for reference in references[:69])
+    assert all("measurements" not in reference for reference in references[69:])
+
+
+def test_service_reference_manifest_keeps_legacy_measurements_strict(tmp_path: Path) -> None:
+    _, _, _, references = _write_dual_lifecycle_service_reference_fixture(tmp_path)
+    measurement = tmp_path / str(references[0]["measurements"])
+    measurement.unlink()
+
+    with pytest.raises(UserGuideContractError, match="measurements are missing"):
+        _verify_service_reference_manifest(tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("evidence-hash", "hash differs from visual evidence"),
+        ("evidence-path-escape", "escapes"),
+        ("fake-measurements", "must use visual evidence, not measurements"),
+    ],
+)
+def test_current_product_reference_rejects_invalid_evidence_lifecycle(
+    tmp_path: Path,
+    mutation: str,
+    message: str,
+) -> None:
+    manifest, _, evidence_manifest, references = _write_dual_lifecycle_service_reference_fixture(
+        tmp_path
+    )
+    if mutation == "evidence-hash":
+        evidence = yaml.safe_load(evidence_manifest.read_text(encoding="utf-8"))
+        evidence["viewports"][0]["after_editor"]["sha256"] = "0" * 64
+        evidence_manifest.write_text(yaml.safe_dump(evidence), encoding="utf-8")
+    elif mutation == "evidence-path-escape":
+        evidence = yaml.safe_load(evidence_manifest.read_text(encoding="utf-8"))
+        evidence["viewports"][0]["after_editor"]["path"] = "../outside.png"
+        evidence_manifest.write_text(yaml.safe_dump(evidence), encoding="utf-8")
+    else:
+        references[69]["measurements"] = (
+            "docs/17-evidence/images/issue-167-service-reference/fake.measurements.json"
+        )
+        content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+        content["references"] = references
+        manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(UserGuideContractError, match=message):
+        _verify_service_reference_manifest(tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("lifecycle-split", "current product reference targets drifted"),
+        ("target-identity", "current product reference targets drifted"),
+        ("viewport-set", "viewport contract drifted"),
+        ("evidence-declaration", "evidence declaration drifted"),
+        ("inventory-viewports", "inventory ADM-DB approved viewports drifted"),
+    ],
+)
+def test_service_reference_manifest_rejects_dual_lifecycle_contract_drift(
+    tmp_path: Path,
+    mutation: str,
+    message: str,
+) -> None:
+    manifest, inventory, _, references = _write_dual_lifecycle_service_reference_fixture(tmp_path)
+    if mutation == "lifecycle-split":
+        references[0]["lifecycle"] = "current-product-evidence"
+    elif mutation == "target-identity":
+        references[69]["id"] = "administration-database-normal-1366x768"
+    elif mutation == "viewport-set":
+        references[69]["viewport"] = {
+            "width": 1366,
+            "height": 768,
+            "device_scale_factor": 1,
+        }
+    elif mutation == "evidence-declaration":
+        references[69]["evidence_manifest"] = (
+            "docs/17-evidence/images/issue-290-unapproved/visual-evidence.yaml"
+        )
+    else:
+        content = yaml.safe_load(inventory.read_text(encoding="utf-8"))
+        content["families"][0]["normal"]["approved_viewports"][0] = "1366x768"
+        inventory.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    if mutation != "inventory-viewports":
+        content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+        content["references"] = references
+        manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(UserGuideContractError, match=message):
+        _verify_service_reference_manifest(tmp_path)
 
 
 def test_historical_evidence_to_current_duplicate_allowance_can_expire(

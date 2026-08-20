@@ -1,5 +1,6 @@
-schema_version: 2
+schema_version: 3
 retention: approved-targets-only
+default_lifecycle: static-bundle
 status_vocabulary:
   reference:
   - pending
@@ -875,63 +876,57 @@ references:
   product_owner_approval:
     status: approved
     date: 2026-07-29
-- id: administration-database-normal-1366x768
-  screen: administration-database
-  state: normal
-  viewport:
-    width: 1366
-    height: 768
-    device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/administration-schema-core.html
-    css: docs/00-research/ux-service-reference/administration-schema-core.css
-    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
-  image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.measurements.json
-  image_sha256: 9995b53dae3a9907fe95f33ad9eed0b4a96a19fe1d7e7d19f61f89249f313724
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-31
-- id: administration-database-normal-1440x900
-  screen: administration-database
-  state: normal
-  viewport:
-    width: 1440
-    height: 900
-    device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/administration-schema-core.html
-    css: docs/00-research/ux-service-reference/administration-schema-core.css
-    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
-  image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.measurements.json
-  image_sha256: 1b2491632ca17a96bbcd32efeac6d8d4cc5555b5ee43eaaa016085538828a2bf
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-31
 - id: administration-database-normal-1920x1080
   screen: administration-database
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1920
     height: 1080
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/administration-schema-core.html
-    css: docs/00-research/ux-service-reference/administration-schema-core.css
-    javascript: docs/00-research/ux-service-reference/administration-schema-core.js
-  image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json
-  image_sha256: dd5bc7fecbe53bf6e97c94e5da99e86a2085b4f4672dfe483a56b8cdd1050d7c
-  date: 2026-07-30
+  evidence_manifest: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
+  evidence_key: after_editor
+  image: docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1920x1080.png
+  image_sha256: 912ad26c9429c9c488f9cc667d73370e8ca72aa07d96427bf037054f9b9eecea
+  date: 2026-08-20
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-07-31
+    date: 2026-08-20
+- id: administration-database-normal-2560x1440
+  screen: administration-database
+  state: normal
+  lifecycle: current-product-evidence
+  viewport:
+    width: 2560
+    height: 1440
+    device_scale_factor: 1
+  evidence_manifest: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
+  evidence_key: after_editor
+  image: docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-2560x1440.png
+  image_sha256: dcf280d2ba01b4437bacec2d0bb7756add186507287c71230485b62053bd858a
+  date: 2026-08-20
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-08-20
+- id: administration-database-normal-3840x2160
+  screen: administration-database
+  state: normal
+  lifecycle: current-product-evidence
+  viewport:
+    width: 3840
+    height: 2160
+    device_scale_factor: 1
+  evidence_manifest: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
+  evidence_key: after_editor
+  image: docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-3840x2160.png
+  image_sha256: f96848755c86214669766bbf5c52e14fb37f6051df6dba3aa503f4b6a733672a
+  date: 2026-08-20
+  status: approved
+  product_owner_approval:
+    status: approved
+    date: 2026-08-20
 - id: administration-table-edit-draft-1366x768
   screen: administration-table-edit
   state: draft

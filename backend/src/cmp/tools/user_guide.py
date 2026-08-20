@@ -45,6 +45,41 @@ _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml",
 )
 _IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
+_CURRENT_PRODUCT_EVIDENCE_MANIFEST = (
+    "docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml"
+)
+_CURRENT_PRODUCT_EVIDENCE_KEY = "after_editor"
+_CURRENT_PRODUCT_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str]] = {
+    "administration-database-normal-1920x1080": (
+        "administration-database",
+        "normal",
+        1920,
+        1080,
+        "docs/17-evidence/images/issue-289-administration-database-workflow/after/"
+        "originals/administration-database-1920x1080.png",
+    ),
+    "administration-database-normal-2560x1440": (
+        "administration-database",
+        "normal",
+        2560,
+        1440,
+        "docs/17-evidence/images/issue-289-administration-database-workflow/after/"
+        "originals/administration-database-2560x1440.png",
+    ),
+    "administration-database-normal-3840x2160": (
+        "administration-database",
+        "normal",
+        3840,
+        2160,
+        "docs/17-evidence/images/issue-289-administration-database-workflow/after/"
+        "originals/administration-database-3840x2160.png",
+    ),
+}
+_CURRENT_PRODUCT_REFERENCE_VIEWPORTS = (
+    "1920x1080",
+    "2560x1440",
+    "3840x2160",
+)
 _STALE_CURRENT_PATTERNS = {
     "retired global navigation": re.compile(
         r"(?:전역|global)\s+\*\*(?:Dashboard|Models|Exports|Governance)\*\*", re.IGNORECASE
@@ -452,28 +487,222 @@ def _structured_manifest_images(project: Path) -> set[str]:
     return images
 
 
+def _verify_current_product_reference_evidence(
+    project: Path,
+    reference_id: str,
+    reference: dict[str, Any],
+    image: Path,
+    viewport: dict[str, Any],
+    expected_hash: str,
+    evidence_root: Path,
+) -> None:
+    if "sources" in reference:
+        raise UserGuideContractError(
+            f"current product reference must not claim static sources: {reference_id}"
+        )
+    if "measurements" in reference:
+        raise UserGuideContractError(
+            f"current product reference must use visual evidence, not measurements: {reference_id}"
+        )
+
+    evidence_ref = _text(
+        reference.get("evidence_manifest"),
+        f"service reference {reference_id} evidence manifest",
+    )
+    evidence = _inside(
+        project / evidence_ref,
+        evidence_root,
+        f"service reference {reference_id} evidence manifest",
+    )
+    if not evidence.is_file() or evidence.suffix.lower() not in {".yaml", ".yml"}:
+        raise UserGuideContractError(
+            f"current product reference evidence is missing or unsupported: {reference_id}"
+        )
+    evidence_manifest = _mapping(
+        yaml.safe_load(evidence.read_text(encoding="utf-8")),
+        f"service reference {reference_id} evidence manifest",
+    )
+    evidence_key = _text(
+        reference.get("evidence_key"),
+        f"service reference {reference_id} evidence key",
+    )
+    viewport_key = f"{viewport.get('width')}x{viewport.get('height')}"
+    evidence_viewports = [
+        _mapping(item, f"service reference {reference_id} evidence viewport")
+        for item in _sequence(
+            evidence_manifest.get("viewports"),
+            f"service reference {reference_id} evidence viewports",
+        )
+    ]
+    matching_viewports = [
+        item for item in evidence_viewports if item.get("viewport") == viewport_key
+    ]
+    if len(matching_viewports) != 1:
+        raise UserGuideContractError(
+            f"current product reference evidence viewport is not unique: "
+            f"{reference_id} {viewport_key}"
+        )
+    evidence_record = _mapping(
+        matching_viewports[0].get(evidence_key),
+        f"service reference {reference_id} evidence record",
+    )
+    evidence_image_ref = _text(
+        evidence_record.get("path"),
+        f"service reference {reference_id} evidence image",
+    )
+    evidence_image_path = Path(evidence_image_ref.replace("\\", "/"))
+    if evidence_image_path.is_absolute():
+        raise UserGuideContractError(
+            f"current product reference evidence image must be portable: {reference_id}"
+        )
+    evidence_image = _inside(
+        evidence.parent / evidence_image_path,
+        evidence.parent,
+        f"service reference {reference_id} evidence image",
+    )
+    if evidence_image != image:
+        raise UserGuideContractError(
+            f"current product reference image differs from visual evidence: {reference_id}"
+        )
+    if (evidence_record.get("width"), evidence_record.get("height")) != (
+        viewport.get("width"),
+        viewport.get("height"),
+    ):
+        raise UserGuideContractError(
+            f"current product reference viewport differs from visual evidence: {reference_id}"
+        )
+    evidence_hash = _text(
+        evidence_record.get("sha256"),
+        f"service reference {reference_id} evidence hash",
+    )
+    if evidence_hash != expected_hash:
+        raise UserGuideContractError(
+            f"current product reference hash differs from visual evidence: {reference_id}"
+        )
+
+
+def _verify_service_reference_inventory(project: Path) -> None:
+    inventory_path = project / "docs" / "01-product" / "service-reference-inventory.yaml"
+    inventory = _mapping(
+        yaml.safe_load(inventory_path.read_text(encoding="utf-8")),
+        "service reference inventory",
+    )
+    if inventory.get("schema_version") != 3:
+        raise UserGuideContractError("service reference inventory schema version drifted")
+    policy = _mapping(inventory.get("policy"), "service reference inventory policy")
+    if policy.get("default_lifecycle") != "static-bundle":
+        raise UserGuideContractError("service reference inventory default lifecycle drifted")
+    families = [
+        _mapping(item, f"service reference inventory family {ordinal}")
+        for ordinal, item in enumerate(
+            _sequence(inventory.get("families"), "service reference inventory families"),
+            start=1,
+        )
+    ]
+    administration_database = [family for family in families if family.get("id") == "ADM-DB"]
+    if len(administration_database) != 1:
+        raise UserGuideContractError("service reference inventory must contain one ADM-DB family")
+    family = administration_database[0]
+    normal = _mapping(family.get("normal"), "service reference inventory ADM-DB normal")
+    expected_fields = {
+        "target_base": "administration-database-normal",
+        "state": "normal",
+        "lifecycle": "current-product-evidence",
+        "images": 3,
+    }
+    if any(normal.get(key) != value for key, value in expected_fields.items()):
+        raise UserGuideContractError(
+            "service reference inventory ADM-DB lifecycle contract drifted"
+        )
+    approved_viewports = tuple(
+        _text(item, "service reference inventory ADM-DB approved viewport")
+        for item in _sequence(
+            normal.get("approved_viewports"),
+            "service reference inventory ADM-DB approved viewports",
+        )
+    )
+    if approved_viewports != _CURRENT_PRODUCT_REFERENCE_VIEWPORTS:
+        raise UserGuideContractError(
+            "service reference inventory ADM-DB approved viewports drifted"
+        )
+    if family.get("image_count") != len(_CURRENT_PRODUCT_REFERENCE_TARGETS):
+        raise UserGuideContractError("service reference inventory ADM-DB image count drifted")
+
+
 def _verify_service_reference_manifest(project: Path) -> set[str]:
+    _verify_service_reference_inventory(project)
     manifest_path = project / "docs" / "01-product" / "service-reference-manifest.yaml"
     manifest = _mapping(
         yaml.safe_load(manifest_path.read_text(encoding="utf-8")),
         "service reference manifest",
     )
+    if manifest.get("schema_version") != 3:
+        raise UserGuideContractError("service reference manifest schema version drifted")
     if manifest.get("retention") != "approved-targets-only":
         raise UserGuideContractError("service reference retention policy drifted")
-    references = _sequence(manifest.get("references"), "service references")
+    if manifest.get("default_lifecycle") != "static-bundle":
+        raise UserGuideContractError("service reference default lifecycle drifted")
+    references = [
+        _mapping(item, f"service reference {ordinal}")
+        for ordinal, item in enumerate(
+            _sequence(manifest.get("references"), "service references"), start=1
+        )
+    ]
     if len(references) != 72:
         raise UserGuideContractError("service reference manifest must contain 72 approved targets")
 
+    reference_ids = [
+        _text(reference.get("id"), f"service reference {ordinal} id")
+        for ordinal, reference in enumerate(references, start=1)
+    ]
+    if len(set(reference_ids)) != len(reference_ids):
+        duplicates = sorted(
+            reference_id for reference_id, count in Counter(reference_ids).items() if count > 1
+        )
+        raise UserGuideContractError(f"duplicate service reference ids: {duplicates}")
+    lifecycle_by_id = {
+        reference_id: reference.get("lifecycle", manifest["default_lifecycle"])
+        for reference_id, reference in zip(reference_ids, references, strict=True)
+    }
+    unsupported_lifecycles = {
+        reference_id: lifecycle
+        for reference_id, lifecycle in lifecycle_by_id.items()
+        if lifecycle not in {"static-bundle", "current-product-evidence"}
+    }
+    if unsupported_lifecycles:
+        raise UserGuideContractError(
+            f"service reference lifecycles are unsupported: {unsupported_lifecycles}"
+        )
+    current_product_ids = {
+        reference_id
+        for reference_id, lifecycle in lifecycle_by_id.items()
+        if lifecycle == "current-product-evidence"
+    }
+    expected_current_product_ids = set(_CURRENT_PRODUCT_REFERENCE_TARGETS)
+    if current_product_ids != expected_current_product_ids:
+        raise UserGuideContractError(
+            "current product reference targets drifted: "
+            f"actual={sorted(current_product_ids)}, "
+            f"expected={sorted(expected_current_product_ids)}"
+        )
+    legacy_ids = {
+        reference_id
+        for reference_id, lifecycle in lifecycle_by_id.items()
+        if lifecycle == "static-bundle"
+    }
+    if len(legacy_ids) != 69:
+        raise UserGuideContractError(
+            f"service reference manifest must contain 69 legacy targets: {len(legacy_ids)}"
+        )
+
     source_root = project / "docs" / "00-research" / "ux-service-reference"
     reference_root = project / "docs" / "17-evidence" / "images" / "issue-167-service-reference"
+    evidence_root = project / "docs" / "17-evidence" / "images"
     ids: set[str] = set()
     images: set[str] = set()
-    expected_files: set[Path] = set()
-    for ordinal, raw_reference in enumerate(references, start=1):
-        reference = _mapping(raw_reference, f"service reference {ordinal}")
-        reference_id = _text(reference.get("id"), f"service reference {ordinal} id")
-        if reference_id in ids:
-            raise UserGuideContractError(f"duplicate service reference id: {reference_id}")
+    expected_measurements: set[Path] = set()
+    for ordinal, reference in enumerate(references, start=1):
+        reference_id = reference_ids[ordinal - 1]
         ids.add(reference_id)
         if reference.get("status") != "approved":
             raise UserGuideContractError(f"service reference is not approved: {reference_id}")
@@ -484,31 +713,43 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
         if owner.get("status") != "approved":
             raise UserGuideContractError(f"service reference lacks owner approval: {reference_id}")
 
-        sources = _mapping(reference.get("sources"), f"service reference {reference_id} sources")
-        if not sources:
-            raise UserGuideContractError(f"service reference has no source: {reference_id}")
-        for source_name, raw_source in sources.items():
-            source_ref = _text(raw_source, f"service reference {reference_id} {source_name}")
-            source = _inside(
-                project / source_ref,
-                source_root,
-                f"service reference {reference_id} {source_name}",
-            )
-            if not source.is_file() or source.suffix.lower() not in {".html", ".css", ".js"}:
-                raise UserGuideContractError(
-                    "service reference source is missing or unsupported: "
-                    f"{reference_id} {source_ref}"
-                )
-
+        lifecycle = reference.get("lifecycle", manifest["default_lifecycle"])
         image_ref = _text(reference.get("image"), f"service reference {reference_id} image")
+        viewport = _mapping(reference.get("viewport"), f"service reference {reference_id} viewport")
+        if lifecycle == "current-product-evidence":
+            screen, state, width, height, expected_image_ref = _CURRENT_PRODUCT_REFERENCE_TARGETS[
+                reference_id
+            ]
+            if (reference.get("screen"), reference.get("state")) != (screen, state):
+                raise UserGuideContractError(
+                    f"current product reference identity contract drifted: {reference_id}"
+                )
+            if (
+                viewport.get("width"),
+                viewport.get("height"),
+                viewport.get("device_scale_factor"),
+            ) != (width, height, 1):
+                raise UserGuideContractError(
+                    f"current product reference viewport contract drifted: {reference_id}"
+                )
+            if image_ref != expected_image_ref:
+                raise UserGuideContractError(
+                    f"current product reference image contract drifted: {reference_id}"
+                )
+            if reference.get("evidence_manifest") != _CURRENT_PRODUCT_EVIDENCE_MANIFEST:
+                raise UserGuideContractError(
+                    f"current product reference evidence declaration drifted: {reference_id}"
+                )
+            if reference.get("evidence_key") != _CURRENT_PRODUCT_EVIDENCE_KEY:
+                raise UserGuideContractError(
+                    f"current product reference evidence key drifted: {reference_id}"
+                )
+        image_parent = reference_root if lifecycle == "static-bundle" else evidence_root
         image = _inside(
-            project / image_ref,
-            reference_root,
-            f"service reference {reference_id} image",
+            project / image_ref, image_parent, f"service reference {reference_id} image"
         )
         if not image.is_file() or image.suffix.lower() != ".png":
             raise UserGuideContractError(f"service reference image is missing: {reference_id}")
-        viewport = _mapping(reference.get("viewport"), f"service reference {reference_id} viewport")
         if _image_dimensions(image) != (viewport.get("width"), viewport.get("height")):
             raise UserGuideContractError(f"service reference viewport drifted: {reference_id}")
         expected_hash = _text(
@@ -517,29 +758,89 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
         if hashlib.sha256(image.read_bytes()).hexdigest() != expected_hash:
             raise UserGuideContractError(f"service reference hash drifted: {reference_id}")
 
-        measurement_ref = _text(
-            reference.get("measurements"), f"service reference {reference_id} measurements"
-        )
-        measurement = _inside(
-            project / measurement_ref,
-            reference_root,
-            f"service reference {reference_id} measurements",
-        )
-        if not measurement.is_file() or measurement.suffix.lower() != ".json":
-            raise UserGuideContractError(
-                f"service reference measurements are missing: {reference_id}"
+        if lifecycle == "static-bundle":
+            if "evidence_manifest" in reference or "evidence_key" in reference:
+                raise UserGuideContractError(
+                    "static service reference must not use current product evidence: "
+                    f"{reference_id}"
+                )
+            sources = _mapping(
+                reference.get("sources"), f"service reference {reference_id} sources"
             )
-        json.loads(measurement.read_text(encoding="utf-8"))
+            if not sources:
+                raise UserGuideContractError(f"service reference has no source: {reference_id}")
+            for source_name, raw_source in sources.items():
+                source_ref = _text(raw_source, f"service reference {reference_id} {source_name}")
+                source = _inside(
+                    project / source_ref,
+                    source_root,
+                    f"service reference {reference_id} {source_name}",
+                )
+                if not source.is_file() or source.suffix.lower() not in {
+                    ".html",
+                    ".css",
+                    ".js",
+                }:
+                    raise UserGuideContractError(
+                        "service reference source is missing or unsupported: "
+                        f"{reference_id} {source_ref}"
+                    )
+            measurement_ref = _text(
+                reference.get("measurements"), f"service reference {reference_id} measurements"
+            )
+            measurement = _inside(
+                project / measurement_ref,
+                reference_root,
+                f"service reference {reference_id} measurements",
+            )
+            if not measurement.is_file() or not measurement.name.endswith(".measurements.json"):
+                raise UserGuideContractError(
+                    f"service reference measurements are missing: {reference_id}"
+                )
+            json.loads(measurement.read_text(encoding="utf-8"))
+            expected_measurements.add(measurement)
+        else:
+            if image.is_relative_to(reference_root.resolve()):
+                raise UserGuideContractError(
+                    f"current product reference must not use the static bundle: {reference_id}"
+                )
+            _verify_current_product_reference_evidence(
+                project,
+                reference_id,
+                reference,
+                image,
+                viewport,
+                expected_hash,
+                evidence_root,
+            )
         images.add(_relative(image, project))
-        expected_files.update((image, measurement))
 
-    actual_files = {path for path in reference_root.iterdir() if path.is_file()}
-    if actual_files != expected_files:
-        unexpected = sorted(_relative(path, project) for path in actual_files - expected_files)
-        missing = sorted(_relative(path, project) for path in expected_files - actual_files)
+    actual_measurements = {
+        path.resolve()
+        for path in reference_root.iterdir()
+        if path.is_file() and path.name.endswith(".measurements.json")
+    }
+    if actual_measurements != expected_measurements:
+        unexpected = sorted(
+            _relative(path, project) for path in actual_measurements - expected_measurements
+        )
+        missing = sorted(
+            _relative(path, project) for path in expected_measurements - actual_measurements
+        )
         raise UserGuideContractError(
-            f"service reference directory must contain approved targets only: "
+            f"static service reference measurements must match legacy targets: "
             f"unexpected={unexpected}, missing={missing}"
+        )
+    unsupported_files = sorted(
+        _relative(path, project)
+        for path in reference_root.iterdir()
+        if path.is_file()
+        and path.suffix.lower() != ".png"
+        and not path.name.endswith(".measurements.json")
+    )
+    if unsupported_files:
+        raise UserGuideContractError(
+            f"static service reference directory contains unsupported files: {unsupported_files}"
         )
     return images
 
