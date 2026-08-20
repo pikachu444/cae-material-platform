@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Protocol
 from uuid import UUID, uuid4
 
@@ -13,6 +14,7 @@ from cmp.modules.catalog.domain.configurable import (
     CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogConflict,
+    ConfigurableCatalogDraftDeleteBlocked,
     ConfigurableCatalogNotFound,
     LayoutContent,
     SubsetContent,
@@ -149,6 +151,21 @@ class PublishRevision:
 
 
 @dataclass(frozen=True, slots=True)
+class DeleteDraft:
+    expected_current_revision_id: UUID
+
+
+class DraftDeleteResult(StrEnum):
+    DELETED = "deleted"
+    NOT_FOUND = "not_found"
+    STALE = "stale"
+    REVISED = "revised"
+    PUBLISHED = "published"
+    REFERENCED = "referenced"
+    UNSUPPORTED = "unsupported"
+
+
+@dataclass(frozen=True, slots=True)
 class ReviseTable:
     expected_current_revision_id: UUID
     content: CatalogTableContent
@@ -195,6 +212,16 @@ class ReviseSubset:
 
 
 class ConfigurableCatalogRepository(Protocol):
+    def delete_draft(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        expected_revision_id: UUID,
+    ) -> DraftDeleteResult: ...
+
     def place_table(
         self,
         *,
@@ -379,8 +406,16 @@ def _require(
     decision: AuthorizationDecision,
     permission: Permission,
 ) -> None:
+    _require_one_of(context, decision, permission)
+
+
+def _require_one_of(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    *permissions: Permission,
+) -> None:
     if (
-        decision.permission is not permission
+        decision.permission not in permissions
         or decision.principal_id != context.principal.id
         or decision.organization_id != context.organization_id
         or decision.project_id != context.project_id
@@ -417,6 +452,33 @@ class ConfigurableCatalogService:
         aggregate_type: str, store: RevisionStore[ContentT]
     ) -> RevisionService[ContentT]:
         return RevisionService(aggregate_type=aggregate_type, store=store)
+
+    def delete_draft(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        command: DeleteDraft,
+    ) -> None:
+        """Physically delete only an unused, unpublished first draft.
+
+        The repository rechecks every condition atomically at the database boundary.
+        """
+
+        _require(context, decision, Permission.CATALOG_WRITE)
+        result = self._repository.delete_draft(
+            context=context,
+            decision=decision,
+            aggregate_type=aggregate_type,
+            aggregate_id=aggregate_id,
+            expected_revision_id=command.expected_current_revision_id,
+        )
+        if result is DraftDeleteResult.DELETED:
+            return
+        if result is DraftDeleteResult.NOT_FOUND:
+            raise ConfigurableCatalogNotFound("Catalog draft was not found")
+        raise ConfigurableCatalogDraftDeleteBlocked(result.value)
 
     def create_database(
         self, context: SecurityContext, decision: AuthorizationDecision, command: CreateDatabase
@@ -707,7 +769,15 @@ class ConfigurableCatalogService:
     ) -> bool:
         """Read the append-only marker; process memory is never publication authority."""
 
-        _require(context, decision, Permission.CATALOG_READ)
+        # Mutation routes use their already-authorized write decision when they
+        # render the resulting revision.  Both decisions carry row-level read
+        # permissions, but the decision must still match this exact request.
+        _require_one_of(
+            context,
+            decision,
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
+        )
         return self._repository.is_published(
             context=context,
             decision=decision,
@@ -1116,6 +1186,21 @@ class ConfigurableCatalogService:
         _require(context, decision, Permission.CATALOG_READ)
         return self._repository.get_attribute(
             context=context, decision=decision, attribute_id=attribute_id
+        )
+
+    def get_attribute_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        attribute_id: UUID,
+        revision_id: UUID,
+    ) -> ConfigRevision[AttributeDefinitionContent]:
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_attribute_revision(
+            context=context,
+            decision=decision,
+            attribute_id=attribute_id,
+            revision_id=revision_id,
         )
 
     def get_attribute_for_write(

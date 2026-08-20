@@ -20,6 +20,7 @@ from cmp.modules.catalog.application.configurable import (
     SUBSET_AGGREGATE_TYPE,
     TABLE_AGGREGATE_TYPE,
     AttributeSnapshot,
+    ConfigRevision,
     ConfigurableCatalogService,
     CreateAttribute,
     CreateDatabase,
@@ -28,6 +29,7 @@ from cmp.modules.catalog.application.configurable import (
     CreateSubset,
     CreateTable,
     DatabaseSnapshot,
+    DeleteDraft,
     LayoutSnapshot,
     ProfileSnapshot,
     PublishRevision,
@@ -48,6 +50,7 @@ from cmp.modules.catalog.domain.configurable import (
     CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogConflict,
+    ConfigurableCatalogDraftDeleteBlocked,
     ConfigurableCatalogNotFound,
     LayoutContent,
     LayoutItem,
@@ -381,7 +384,14 @@ class AttributeRevisionResponse(RevisionMetadataResponse):
     def from_snapshot(
         cls, value: AttributeSnapshot, lifecycle: str = "draft"
     ) -> AttributeRevisionResponse:
-        revision = value.current
+        return cls.from_revision(value.current, lifecycle)
+
+    @classmethod
+    def from_revision(
+        cls,
+        revision: ConfigRevision[AttributeDefinitionContent],
+        lifecycle: str = "draft",
+    ) -> AttributeRevisionResponse:
         content = revision.content
         return cls(
             **RevisionMetadataResponse.from_record(revision.record, lifecycle).model_dump(),
@@ -430,6 +440,7 @@ class LayoutResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     layout_id: UUID
     table_id: UUID
+    table_revision_id: UUID
     revision: RevisionMetadataResponse
     name: str
     description: str | None
@@ -441,6 +452,7 @@ class LayoutResponse(BaseModel):
         return cls(
             layout_id=value.id,
             table_id=value.table_id,
+            table_revision_id=content.table_revision_id,
             revision=RevisionMetadataResponse.from_record(value.current.record, lifecycle),
             name=content.name,
             description=content.description,
@@ -460,6 +472,7 @@ class SubsetResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     subset_id: UUID
     table_id: UUID
+    table_revision_id: UUID
     revision: RevisionMetadataResponse
     name: str
     description: str | None
@@ -471,6 +484,7 @@ class SubsetResponse(BaseModel):
         return cls(
             subset_id=value.id,
             table_id=value.table_id,
+            table_revision_id=content.table_revision_id,
             revision=RevisionMetadataResponse.from_record(value.current.record, lifecycle),
             name=content.name,
             description=content.description,
@@ -514,6 +528,33 @@ def _error(context: Any, error: Exception) -> CatalogHttpError:
             code="CMP-CATALOG-0003",
             current_etag=RevisionETag.from_ref(error.current),
         )
+    if isinstance(error, ConfigurableCatalogDraftDeleteBlocked):
+        if error.reason == "stale":
+            return CatalogHttpError(
+                context=context,
+                status_code=412,
+                title="Revision precondition failed",
+                detail="The draft changed. Reload the current revision before retrying.",
+                code="CMP-CATALOG-0003",
+            )
+        details = {
+            "published": (
+                "This draft has been published and its immutable history must be preserved."
+            ),
+            "revised": "Only an unpublished first draft can be deleted.",
+            "referenced": (
+                "This draft is used by records, links, references or another definition. "
+                "Remove those dependencies before deleting the draft."
+            ),
+            "unsupported": "This Catalog resource does not support draft deletion.",
+        }
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Catalog draft deletion blocked",
+            detail=details.get(error.reason, "This Catalog draft cannot be deleted."),
+            code="CMP-CATALOG-0007",
+        )
     if isinstance(
         error, (ConfigurableCatalogConflict, RevisionConflict, RevisionKernelError, IntegrityError)
     ):
@@ -540,6 +581,7 @@ def install_configurable_catalog_api(
     security_dependency: Dependency,
     read_dependency: Dependency,
     write_dependency: Dependency,
+    schema_configuration_dependency: Dependency,
 ) -> None:
     common: dict[int | str, dict[str, Any]] = {
         401: {"description": "Authentication required."},
@@ -591,6 +633,28 @@ def install_configurable_catalog_api(
                 aggregate_type,
                 value.id,
                 value.current.record.revision_id,
+            )
+            else "draft"
+        )
+
+    def revision_lifecycle(
+        context: Any,
+        decision: Any,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        revision_id: UUID,
+    ) -> str:
+        publication_reader = getattr(required(context), "is_published", None)
+        if publication_reader is None:
+            return "draft"
+        return (
+            "published"
+            if publication_reader(
+                context,
+                decision,
+                aggregate_type,
+                aggregate_id,
+                revision_id,
             )
             else "draft"
         )
@@ -718,6 +782,35 @@ def install_configurable_catalog_api(
         except Exception as error:
             raise _error(context, error) from error
 
+    @application.delete(
+        "/api/v1/catalog/databases/{database_id}",
+        operation_id="deleteConfigurableCatalogDatabaseDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-schema"],
+    )
+    def delete_database_draft(
+        request: Request,
+        database_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_database_for_write(context, decision, database_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_draft(
+                context, decision, DATABASE_AGGREGATE_TYPE, database_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
     @application.post(
         "/api/v1/catalog/databases/{database_id}/revisions",
         operation_id="reviseConfigurableCatalogDatabase",
@@ -816,6 +909,35 @@ def install_configurable_catalog_api(
             return ProfileResponse.from_snapshot(
                 value, lifecycle(context, decision, PROFILE_AGGREGATE_TYPE, value)
             )
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.delete(
+        "/api/v1/catalog/profiles/{profile_id}",
+        operation_id="deleteConfigurableCatalogProfileDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-schema"],
+    )
+    def delete_profile_draft(
+        request: Request,
+        profile_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_profile_for_write(context, decision, profile_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_draft(
+                context, decision, PROFILE_AGGREGATE_TYPE, profile_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         except CatalogHttpError:
             raise
         except Exception as error:
@@ -933,6 +1055,35 @@ def install_configurable_catalog_api(
         except Exception as error:
             raise _error(context, error) from error
 
+    @application.delete(
+        "/api/v1/catalog/tables/{table_id}",
+        operation_id="deleteConfigurableCatalogTableDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-schema"],
+    )
+    def delete_table_draft(
+        request: Request,
+        table_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_table_for_write(context, decision, table_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_draft(
+                context, decision, TABLE_AGGREGATE_TYPE, table_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
     @application.post(
         "/api/v1/catalog/tables/{table_id}/revisions",
         operation_id="reviseConfigurableCatalogTable",
@@ -1009,6 +1160,70 @@ def install_configurable_catalog_api(
             )
             _etag(response, value.current.record)
             return AttributeResponse.from_snapshot(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.delete(
+        "/api/v1/catalog/attributes/{attribute_id}",
+        operation_id="deleteConfigurableCatalogAttributeDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-schema"],
+    )
+    def delete_attribute_draft(
+        request: Request,
+        attribute_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_attribute_for_write(context, decision, attribute_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_draft(
+                context, decision, ATTRIBUTE_AGGREGATE_TYPE, attribute_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/attributes/{attribute_id}/revisions/{revision_id}",
+        operation_id="getConfigurableCatalogAttributeRevision",
+        response_model=AttributeRevisionResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-schema"],
+    )
+    def get_attribute_revision(
+        request: Request,
+        attribute_id: UUID,
+        revision_id: UUID,
+    ) -> AttributeRevisionResponse:
+        context, decision = _scope(request)
+        try:
+            revision = required(context).get_attribute_revision(
+                context,
+                decision,
+                attribute_id,
+                revision_id,
+            )
+            return AttributeRevisionResponse.from_revision(
+                revision,
+                revision_lifecycle(
+                    context,
+                    decision,
+                    ATTRIBUTE_AGGREGATE_TYPE,
+                    attribute_id,
+                    revision_id,
+                ),
+            )
         except CatalogHttpError:
             raise
         except Exception as error:
@@ -1095,6 +1310,35 @@ def install_configurable_catalog_api(
         except Exception as error:
             raise _error(context, error) from error
 
+    @application.delete(
+        "/api/v1/catalog/layouts/{layout_id}",
+        operation_id="deleteConfigurableCatalogLayoutDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-schema"],
+    )
+    def delete_layout_draft(
+        request: Request,
+        layout_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_layout_for_write(context, decision, layout_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_draft(
+                context, decision, LAYOUT_AGGREGATE_TYPE, layout_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
     @application.post(
         "/api/v1/catalog/layouts/{layout_id}/revisions",
         operation_id="reviseConfigurableCatalogLayout",
@@ -1169,6 +1413,35 @@ def install_configurable_catalog_api(
             )
             _etag(response, value.current.record)
             return SubsetResponse.from_snapshot(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.delete(
+        "/api/v1/catalog/subsets/{subset_id}",
+        operation_id="deleteConfigurableCatalogSubsetDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-schema"],
+    )
+    def delete_subset_draft(
+        request: Request,
+        subset_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_subset_for_write(context, decision, subset_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_draft(
+                context, decision, SUBSET_AGGREGATE_TYPE, subset_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         except CatalogHttpError:
             raise
         except Exception as error:

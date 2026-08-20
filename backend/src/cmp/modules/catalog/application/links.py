@@ -12,6 +12,8 @@ from uuid import UUID, uuid4
 from cmp.modules.catalog.application.configurable import (
     ConfigRevision,
     ConfigurableCatalogRepository,
+    DeleteDraft,
+    DraftDeleteResult,
     TableSnapshot,
 )
 from cmp.modules.catalog.application.records import (
@@ -22,6 +24,7 @@ from cmp.modules.catalog.application.records import (
 from cmp.modules.catalog.domain.configurable import (
     CatalogDataCategory,
     ConfigurableCatalogConflict,
+    ConfigurableCatalogDraftDeleteBlocked,
     ConfigurableCatalogNotFound,
 )
 from cmp.modules.catalog.domain.links import (
@@ -164,6 +167,15 @@ class ReviseRecordLink:
 
 
 class CatalogLinkRepository(Protocol):
+    def delete_link_type_draft(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        link_type_id: UUID,
+        expected_revision_id: UUID,
+    ) -> DraftDeleteResult: ...
+
     def link_type_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[LinkTypeContent]: ...
@@ -311,6 +323,26 @@ class CatalogLinkService:
         aggregate_type: str, store: RevisionStore[ContentT]
     ) -> RevisionService[ContentT]:
         return RevisionService(aggregate_type=aggregate_type, store=store)
+
+    def delete_link_type_draft(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        link_type_id: UUID,
+        command: DeleteDraft,
+    ) -> None:
+        _require(context, decision, Permission.CATALOG_WRITE)
+        result = self._repository.delete_link_type_draft(
+            context=context,
+            decision=decision,
+            link_type_id=link_type_id,
+            expected_revision_id=command.expected_current_revision_id,
+        )
+        if result is DraftDeleteResult.DELETED:
+            return
+        if result is DraftDeleteResult.NOT_FOUND:
+            raise ConfigurableCatalogNotFound("Link Type draft was not found")
+        raise ConfigurableCatalogDraftDeleteBlocked(result.value)
 
     def _validate_link_type_tables(
         self,

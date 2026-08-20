@@ -111,8 +111,12 @@ PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-role-control-1366x768.png",
 )
 ADMINISTRATION_DATABASE_OUTPUTS = tuple(
-    f"administration-database-{width}x{height}.png"
+    filename
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+    for filename in (
+        f"administration-database-{width}x{height}.png",
+        f"administration-database-preview-{width}x{height}.png",
+    )
 )
 ADMINISTRATION_RECORDS_OUTPUTS = tuple(
     f"administration-records-{width}x{height}.png"
@@ -264,6 +268,11 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-database-1920x1080.png",
     "administration-database-2560x1440.png",
     "administration-database-3840x2160.png",
+    "administration-database-preview-1366x768.png",
+    "administration-database-preview-1440x900.png",
+    "administration-database-preview-1920x1080.png",
+    "administration-database-preview-2560x1440.png",
+    "administration-database-preview-3840x2160.png",
     "administration-records-1366x768.png",
     "administration-records-1440x900.png",
     "administration-records-1920x1080.png",
@@ -8679,6 +8688,7 @@ def _capture_administration_database(browser: Browser, base_url: str, output: Pa
         page.get_by_role("navigation", name="Database objects").wait_for(timeout=30_000)
         page.get_by_role("combobox", name="Current table", exact=True).wait_for(timeout=30_000)
         page.locator(".schema-property-editor .property-sheet").wait_for(timeout=30_000)
+        page.wait_for_load_state("networkidle")
         if page.get_by_role("alert").count():
             raise RuntimeError(f"Administration shows an error at {width}x{height}")
         if page.evaluate(
@@ -8692,6 +8702,21 @@ def _capture_administration_database(browser: Browser, base_url: str, output: Pa
             path_name=f"administration-database-{width}x{height}.png",
         )
         _capture(page, output / f"administration-database-{width}x{height}.png", width, height)
+        page.get_by_role("button", name="Preview datasheet", exact=True).click()
+        page.get_by_label("Adjacent datasheet preview").wait_for(timeout=30_000)
+        page.locator(".schema-preview-identity").wait_for(timeout=30_000)
+        if page.evaluate(
+            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
+        ):
+            raise RuntimeError(
+                f"Administration preview has horizontal overflow at {width}x{height}"
+            )
+        _capture(
+            page,
+            output / f"administration-database-preview-{width}x{height}.png",
+            width,
+            height,
+        )
         page.context.close()
 
 

@@ -164,6 +164,38 @@ def _unavailable(request: Request) -> IdentityHttpError:
     )
 
 
+class RequestFeatureGrantDependency:
+    """Fail closed unless the signed-in user has one product capability."""
+
+    def __init__(
+        self,
+        service: ProductAccessAdministrationService | None,
+        feature_grant: FeatureGrant,
+    ) -> None:
+        self._service = service
+        self._feature_grant = feature_grant
+
+    def __call__(self, request: Request) -> ProductAccessSummary:
+        if self._service is None:
+            raise _unavailable(request)
+        context = _context(request)
+        summary = self._service.effective(context)
+        if self._feature_grant not in summary.feature_grants:
+            raise IdentityHttpError(
+                status=403,
+                title="Product capability required",
+                detail=(
+                    "Schema configuration capability is required to permanently delete "
+                    "an unpublished Catalog draft."
+                ),
+                code="CMP-AUTHZ-0001",
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+                problem_type="urn:cmp:problem:authorization",
+            )
+        return summary
+
+
 def install_product_access_api(
     application: FastAPI,
     *,

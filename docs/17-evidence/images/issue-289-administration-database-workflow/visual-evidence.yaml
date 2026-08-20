@@ -1,0 +1,113 @@
+schema_version: cmp.visual-evidence.v1
+issue: 289
+route: /administration/database
+baseline_source: b2feb08eb40def0f8a627c34656daa393432695c
+implementation_source: b2feb08eb40def0f8a627c34656daa393432695c+issue289-worktree
+captured_at: '2026-08-20T01:07:40+09:00 through 2026-08-20T01:07:46+09:00'
+capture:
+  command: 'uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-administration-database-workflow/after/originals --only-administration-database'
+  browser: Playwright 1.62.0 bundled Chromium
+  environment: dedicated current-worktree PostgreSQL database, real current-worktree API and Vite frontend
+  fixture: seeded synthetic non-production configurable catalog and DP780 Material Record
+  browser_zoom_percent: 100
+  device_pixel_ratio: 1
+  density: standard
+  compose_boundary: canonical Compose rejected because the running cmp-local-demo project belongs to another preserved worktree; no foreign container or data was changed
+  physical_4k_readability: DEFERRED_TO_223
+baseline:
+  authority: issue-280 completed assessment originals and crops
+  copied_without_text_reuse: true
+  source_path: 'C:/SourceCodes/cae-material-platform-worktrees/issue-280-docs-inventory/.artifacts/issue-280-adm-db-decision'
+acceptance:
+  starting_behavior: partial
+  original_and_crop_review: pass
+  document_horizontal_overflow: zero_at_all_five_viewports
+  low_viewport_behavior: preview_replaces_editor_at_1366_and_1440
+  wide_viewport_behavior: preview_is_adjacent_fourth_pane_at_1920_2560_3840
+  exact_record_preview: deterministic_first_authorized_real_record_by_name_for_selected_table_with_exact_layout_and_attribute_revision_pins
+  information_hierarchy: pass
+  engineering_task_flow: pass
+  responsive_wide_screen_composition: pass
+  independent_balanced_audit: pass_blocker0_major0_minor0_corrected_candidate_approved
+  product_owner_geometry_review: pending_before_merge
+viewports:
+  - viewport: 1366x768
+    before_original: {path: before/originals/administration-database-1366x768.png, width: 1366, height: 768, sha256: 79d023ada7b4beabe289781d4cefe757954838deefbc25baf87286a57947694e}
+    before_crops:
+      header: {path: before/crops/administration-database-1366x768-header-100pct.png, width: 1366, height: 50, sha256: 6c030cf709227727be19c2d944afefa9c416b02a274eafbc4f8729a096bb05a9}
+      navigator: {path: before/crops/administration-database-1366x768-navigator-100pct.png, width: 288, height: 559, sha256: a1d3881ad85dfecf5a036dcd8192e48e8126ddf29bbf30ff28c517a3e84b03ee}
+      table: {path: before/crops/administration-database-1366x768-object-list-100pct.png, width: 288, height: 559, sha256: 2e9400cb9d38998f525cc279197ce6d385ced954b08288e23f1b284a9a15202e}
+      form: {path: before/crops/administration-database-1366x768-property-editor-100pct.png, width: 527, height: 559, sha256: 40f892265ab81a1c52aa08569b7b0abb4e674be4dab9a5a46ec6ff06e738ce1a}
+    after_editor: {path: after/originals/administration-database-1366x768.png, width: 1366, height: 768, sha256: ff882f68427d27ffb8425237b47dd833896fd6f279a9ea58abbc4d417dc286f1}
+    after_preview: {path: after/originals/administration-database-preview-1366x768.png, width: 1366, height: 768, sha256: 082cd1ee38219fb66777d7c22f06fcc6932b6653f10e3cab691554573cb53f1a}
+    after_crops:
+      header: {path: after/crops/administration-database-1366x768-header-100pct.png, width: 1366, height: 50, sha256: 3d1b129f3c7915e0f158017b05ff4177c821957bcb5afbd915158a5ab2615ca9}
+      navigator: {path: after/crops/administration-database-1366x768-navigator-100pct.png, width: 208, height: 529, sha256: 5b8e70223dc429b4f98611187ff5c74a58b6804f062365d558707d5fa91b88b8}
+      table: {path: after/crops/administration-database-1366x768-table-100pct.png, width: 368, height: 529, sha256: 0f1e2f81363c7536c2f918807ee951fa9eff04b9e023ce80fceebdc0a62ccaba}
+      form: {path: after/crops/administration-database-1366x768-form-100pct.png, width: 528, height: 529, sha256: 095795c3eb0489251b17bb83191f0b28966b3f47462e38c07bc08ff24626ce7c}
+      preview: {path: after/crops/administration-database-1366x768-preview-100pct.png, width: 528, height: 529, sha256: 9c0f7459022b633e378dd673bd824fcd9dfe7ad87b5eebbc9e265a7eb1335ad8}
+    geometry: {page_overflow_x: 0, workspace: [239, 213, 1104, 530], navigator: [239, 213, 208, 529], table: [447, 213, 368, 529], form: [815, 213, 528, 529], preview_mode: replaces_editor}
+  - viewport: 1440x900
+    before_original: {path: before/originals/administration-database-1440x900.png, width: 1440, height: 900, sha256: 3b171f1a6b9eea173601c08ea7c057c30c303024ca7c926445c5236f51e49822}
+    before_crops:
+      header: {path: before/crops/administration-database-1440x900-header-100pct.png, width: 1440, height: 50, sha256: 3aba67df554489f24734f4adc180e4c2ec55b16ba36955c5a4fcd9c64e5255c1}
+      navigator: {path: before/crops/administration-database-1440x900-navigator-100pct.png, width: 288, height: 691, sha256: c103b567e75aebe3e369daca40ce5edc36f57fa64ad00395c9375f94878190d1}
+      table: {path: before/crops/administration-database-1440x900-object-list-100pct.png, width: 288, height: 691, sha256: 2582587b9c0716c94a1495fa80e716c64d16cbfdfb8b8a63e4e840f4494df89d}
+      form: {path: before/crops/administration-database-1440x900-property-editor-100pct.png, width: 599, height: 691, sha256: f24ab622d68c4838715d26f4c4988345e637fe593d9ba279390b16bfeda56769}
+    after_editor: {path: after/originals/administration-database-1440x900.png, width: 1440, height: 900, sha256: 2ee37177767fbf3187de238d07b3903a552942c3a27b60d68d9d6e94d173bb8b}
+    after_preview: {path: after/originals/administration-database-preview-1440x900.png, width: 1440, height: 900, sha256: 601fbb4d06aa2ec38322b506b17cfe9f3d19a17bdd8c8a1e88e8a00555bc1c65}
+    after_crops:
+      header: {path: after/crops/administration-database-1440x900-header-100pct.png, width: 1440, height: 50, sha256: feebef8d03cf8eedbd1d94963aff825226163076c2f040ceeff070b24375ee66}
+      navigator: {path: after/crops/administration-database-1440x900-navigator-100pct.png, width: 216, height: 661, sha256: 280f906994753af948d729e4336c72fe7ca819be920f9164f8f68b19c6751cce}
+      table: {path: after/crops/administration-database-1440x900-table-100pct.png, width: 383, height: 661, sha256: 80cca1b4b4328e32a60bbd6e4bd00e3870f6574194c535e9a892211ad7a40863}
+      form: {path: after/crops/administration-database-1440x900-form-100pct.png, width: 576, height: 661, sha256: c0bf52d3261ec44d53077ef98f87d8afc63b48676816a0cd236597759ae1ef30}
+      preview: {path: after/crops/administration-database-1440x900-preview-100pct.png, width: 576, height: 661, sha256: 193081dfd79d4175d8607510cb81b9bf8bc88381df7d88c984df55333045e79c}
+    geometry: {page_overflow_x: 0, workspace: [240, 213, 1175, 661], navigator: [240, 213, 216, 661], table: [456, 213, 383, 661], form: [840, 213, 576, 661], preview_mode: replaces_editor}
+  - viewport: 1920x1080
+    before_original: {path: before/originals/administration-database-1920x1080.png, width: 1920, height: 1080, sha256: be4fbe565582e4493fab70c2ce4e8ab99cb4b5186aa5d038fc643c92ec0b8e13}
+    before_crops:
+      header: {path: before/crops/administration-database-1920x1080-header-100pct.png, width: 1920, height: 50, sha256: 8bc33758df762afd4f3e729db880297965b5052c7a31c7ade6062a80bfffa6e8}
+      navigator: {path: before/crops/administration-database-1920x1080-navigator-100pct.png, width: 288, height: 871, sha256: bf86ef1dbdc8e4054c375f422cfc8c77f37bb771ab744570a7f1d1ec1567f9ae}
+      table: {path: before/crops/administration-database-1920x1080-object-list-100pct.png, width: 480, height: 871, sha256: 70e1a500dcf36f615aabaabe42dc24cb988c43979116d9c8b9215f9615a27496}
+      form: {path: before/crops/administration-database-1920x1080-property-editor-100pct.png, width: 800, height: 871, sha256: c5b880aa0bb9c5df6075fdf027b6180763b583603e631ca469c6deea19463ffd}
+    after_editor: {path: after/originals/administration-database-1920x1080.png, width: 1920, height: 1080, sha256: 912ad26c9429c9c488f9cc667d73370e8ca72aa07d96427bf037054f9b9eecea}
+    after_preview: {path: after/originals/administration-database-preview-1920x1080.png, width: 1920, height: 1080, sha256: 4d57507ff1755b30451424f6b3593c2d7735c6ae825335368c0371c20246730c}
+    after_crops:
+      header: {path: after/crops/administration-database-1920x1080-header-100pct.png, width: 1920, height: 50, sha256: 50fdd0cbcb70bd635c440ebbca5a6d29a48375d757eb3b547dee52800a95e13d}
+      navigator: {path: after/crops/administration-database-1920x1080-navigator-100pct.png, width: 272, height: 841, sha256: 217b0a0006ebf00be3d62486ab1400d227c8684ed4b5794b113ad0c795ae8882}
+      table: {path: after/crops/administration-database-1920x1080-table-100pct.png, width: 528, height: 841, sha256: 6eb1f27a4899bc54846c0ab2ae5d7ef10763789f4d45e073322f77c885af1a34}
+      form: {path: after/crops/administration-database-1920x1080-form-100pct.png, width: 768, height: 841, sha256: c6546894941dbe7d4e7dfb8d16921cea5f391334e9d0602a0542766becbdcc3e}
+      preview: {path: after/crops/administration-database-1920x1080-preview-100pct.png, width: 502, height: 841, sha256: 0721c55ccce1285b2d463b6f3a2245b3332dfefccb0a607abd193c1a0aebda00}
+    geometry: {page_overflow_x: 0, workspace: [320, 182, 1568, 842], navigator: [320, 182, 261.328, 841], table: [581.328, 182, 320, 841], form: [901.328, 182, 485.328, 841], preview: [1386.656, 182, 501.344, 841], preview_mode: adjacent_fourth_pane}
+  - viewport: 2560x1440
+    before_original: {path: before/originals/administration-database-2560x1440.png, width: 2560, height: 1440, sha256: d6b72aaa943262278885ea7564fb9c60c93ad204440acf909e09c10fc4f433b3}
+    before_crops:
+      header: {path: before/crops/administration-database-2560x1440-header-100pct.png, width: 2560, height: 50, sha256: ff61fd740698578cbb6789ea4262506acf01a1d5e60efe862758ce307a19cb07}
+      navigator: {path: before/crops/administration-database-2560x1440-navigator-100pct.png, width: 288, height: 1231, sha256: 569bbe5bc01db67f74875c275debf0fd9b3e41002a00bcf5d7ff64dc23bf7883}
+      table: {path: before/crops/administration-database-2560x1440-object-list-100pct.png, width: 1120, height: 1231, sha256: 5976a57ac6f38afab6fdd90bb44179f3b1a50333b01c15fc884e9d7879f14ce6}
+      form: {path: before/crops/administration-database-2560x1440-property-editor-100pct.png, width: 800, height: 1231, sha256: 110115cbc989dce491fa840a2df241a14428f4b3c744294a59f3db102f3af9ea}
+    after_editor: {path: after/originals/administration-database-2560x1440.png, width: 2560, height: 1440, sha256: dcf280d2ba01b4437bacec2d0bb7756add186507287c71230485b62053bd858a}
+    after_preview: {path: after/originals/administration-database-preview-2560x1440.png, width: 2560, height: 1440, sha256: 57f47f4540d2efef5349bba2a2c6d1c7d0ef8f00a83eadd50f64724f5123c244}
+    after_crops:
+      header: {path: after/crops/administration-database-2560x1440-header-100pct.png, width: 2560, height: 50, sha256: b1e863b6a938cfa8d4385cd23c564514a6dc4e8cc394b6da5bd23d6a6be5494a}
+      navigator: {path: after/crops/administration-database-2560x1440-navigator-100pct.png, width: 272, height: 1201, sha256: e67bf201f4040c1a49b2d0bb23b92785968a5a70719993324ab0c13beccd7f58}
+      table: {path: after/crops/administration-database-2560x1440-table-100pct.png, width: 1136, height: 1201, sha256: b1eec2a59e2a79ad4d99acd2f8f69ebb8e126ac202709bbc650f59dc111f6939}
+      form: {path: after/crops/administration-database-2560x1440-form-100pct.png, width: 800, height: 1201, sha256: 5f5e1254a4bfdc1d2b57e0b40b72531bb75f3ac634d242e6c81a5d0510156c89}
+      preview: {path: after/crops/administration-database-2560x1440-preview-100pct.png, width: 800, height: 1201, sha256: 28531edc0b7b2b8381ccf1e9ec8b50faff7311df4650e7b05cf54463bb64bc44}
+    geometry: {page_overflow_x: 0, workspace: [320, 182, 2208, 1202], navigator: [320, 182, 272, 1201], table: [592, 182, 336, 1201], form: [928, 182, 800, 1201], preview: [1728, 182, 800, 1201], preview_mode: adjacent_fourth_pane}
+  - viewport: 3840x2160
+    before_original: {path: before/originals/administration-database-3840x2160.png, width: 3840, height: 2160, sha256: 31b3ea2badfc46d24c8a872a284edf92b85cf11612727d1f614d6cfa48fdfd50}
+    before_crops:
+      header: {path: before/crops/administration-database-3840x2160-header-100pct.png, width: 3840, height: 50, sha256: 63cd93311cdd97a268c6027f861b87c0aa67a2c8648f4026a380b051dd7b346d}
+      navigator: {path: before/crops/administration-database-3840x2160-navigator-100pct.png, width: 288, height: 1951, sha256: cc85f7f5d43f3ef1488cd43bf58bb2303a526fa4364e611933b6397a2b9d65c2}
+      table: {path: before/crops/administration-database-3840x2160-object-list-100pct.png, width: 2400, height: 1951, sha256: 8440d90813ac5673d94c22c8f115dbf33154544aede607b3af220fc6c45ae60b}
+      form: {path: before/crops/administration-database-3840x2160-property-editor-100pct.png, width: 800, height: 1951, sha256: 2c272bbcada418eac153d6335f35720eb0d28a7d3915fbbc76174431cb2e570b}
+    after_editor: {path: after/originals/administration-database-3840x2160.png, width: 3840, height: 2160, sha256: f96848755c86214669766bbf5c52e14fb37f6051df6dba3aa503f4b6a733672a}
+    after_preview: {path: after/originals/administration-database-preview-3840x2160.png, width: 3840, height: 2160, sha256: 1034dda474cbdd6de436f28e96f8fe4a7b4edb4a25ceef60069fdf69f0ba3113}
+    after_crops:
+      header: {path: after/crops/administration-database-3840x2160-header-100pct.png, width: 3840, height: 50, sha256: 4c6fd0749df51411a7fe3707a2688475c3ca4b013d0f0d3b9f232ce091470b32}
+      navigator: {path: after/crops/administration-database-3840x2160-navigator-100pct.png, width: 272, height: 1921, sha256: 86216a8f89e371e4688e3a792cc9ca94c7f4bf3fe161541b5fbe848b4fb1bcce}
+      table: {path: after/crops/administration-database-3840x2160-table-100pct.png, width: 2416, height: 1921, sha256: beb3ab38e2fc628a5903d5ef80929638ca15eb72b993abd6c10eae0ced031449}
+      form: {path: after/crops/administration-database-3840x2160-form-100pct.png, width: 800, height: 1921, sha256: 92dc1a77f97d142632584f1dc099a3623d20a1e5e32ef0355c6c40ab8bb7d70a}
+      preview: {path: after/crops/administration-database-3840x2160-preview-100pct.png, width: 800, height: 1921, sha256: 612fac3e5b64ed89d7cc2f7825807e35da1353830b9c3e02074a24535638f97d}
+    geometry: {page_overflow_x: 0, workspace: [320, 182, 3488, 1922], navigator: [320, 182, 272, 1921], table: [592, 182, 1616, 1921], form: [2208, 182, 800, 1921], preview: [3008, 182, 800, 1921], preview_mode: adjacent_fourth_pane}

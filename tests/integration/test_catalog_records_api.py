@@ -273,6 +273,7 @@ def _app(service: _Service, artifact_service: Any | None = None) -> FastAPI:
         security_dependency=security,
         read_dependency=read,
         write_dependency=write,
+        schema_configuration_dependency=security,
     )
     install_catalog_record_api(
         app,

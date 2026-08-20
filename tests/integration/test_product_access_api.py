@@ -23,6 +23,7 @@ from cmp.modules.identity_access.domain.authorization import (
     DataClassification,
     ProductAccessAssignment,
     ProductRole,
+    Role,
     RoleBinding,
     product_role_preset,
 )
@@ -296,3 +297,53 @@ def test_user_without_identity_management_cannot_list_or_create_assignments() ->
 
     assert response.status_code == 403
     assert response.json()["code"] == "CMP-AUTHZ-0001"
+
+
+def test_catalog_write_without_schema_configuration_cannot_delete_draft() -> None:
+    idp = DevelopmentTestIdp()
+    bindings = _Bindings(
+        RoleBinding(
+            id=uuid4(),
+            organization_id=ORG,
+            project_id=PROJECT,
+            subject=BindingSubject.for_group(idp.issuer, "modelers"),
+            role=Role.MATERIAL_MODELER,
+            max_classification=DataClassification.INTERNAL,
+            allow_export_controlled=False,
+            valid_from=NOW - timedelta(days=1),
+        )
+    )
+    assignments = _Assignments()
+    authorization = AuthorizationService(
+        bindings=bindings,
+        product_assignments=assignments,
+        clock=lambda: NOW,
+    )
+    app = create_app(
+        Settings(environment="test"),
+        _security(idp),
+        authorization,
+        product_access_service=ProductAccessAdministrationService(
+            authorization=authorization,
+            repository=assignments,
+            clock=lambda: NOW,
+        ),
+    )
+    token = idp.issue_user_token(
+        subject="modeler",
+        organization_id=ORG,
+        project_id=PROJECT,
+        display_name="Material Modeler",
+        groups=("modelers",),
+    )
+
+    response = _request(
+        app,
+        token,
+        "DELETE",
+        f"/api/v1/catalog/tables/{uuid4()}",
+    )
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "CMP-AUTHZ-0001"
+    assert "Schema configuration capability" in response.json()["detail"]

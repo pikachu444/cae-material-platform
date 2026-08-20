@@ -1,10 +1,13 @@
-version: 114
-verified_at: 2026-08-19
-scope: issue-260-fe05-modeling-workflow-visual-normalization
-source_commit: 4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree
+version: 115
+verified_at: 2026-08-20
+scope: issue-289-administration-database-workflow
+source_commit: b2feb08eb40def0f8a627c34656daa393432695c+issue289-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard with --only-modeling-data-session, --only-modeling-process-fit-viewports, --only-modeling-export, and --only-modeling-consistency
+capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-administration-database-workflow/after/originals --only-administration-database
 notes:
+  - "Issue #289 replaces the placeholder Database design surface with an exact-identity Administration workflow for Database, Profile, Table, Attribute, Layout, Subset and Link Type definitions. The registered five editor and five real-record preview originals preserve the established 1366×768 and 1440×900 behavior and add an adjacent fourth preview pane at 1920×1080, 2560×1440 and 3840×2160."
+  - "The primary live journey uses the real current-worktree API and dedicated PostgreSQL database: it reads exact seeded definitions, previews the DP780 synthetic record with exact Attribute and Layout revisions, proves a referenced seeded Table cannot be deleted while selection and explanation remain visible, duplicates a clean unpublished r1 Table, then physically deletes that unused draft and reads back its absence."
+  - "The issue-owned packet records five #280 before originals, twenty #280 direct before crops, ten final originals and twenty-five final direct 100%-pixel header, navigator, table, form and native record-preview crops. Main opened all final originals and crops at original resolution. Product-owner review of the 1920×1080, 2560×1440 and 3840×2160 originals remains a required pre-merge gate; automated 3840×2160 geometry does not claim physical 4K readability."
   - "Issue #260 FE-05 follows the product-owner-approved Data direction and carries the same restrained hierarchy, plain language, flat engineering grammar and wide-screen logic through Process, Fit and Export. Data follows search/filter/browser → one current input → graph → Continue to Process; Process and Fit each expose one exact calculation input; Export exposes one selected model and one clear create action. API, saved data, session v4, Data→Process→Fit→Export and Materials read-back contracts are unchanged."
   - "Current product-owner feedback and the two owner-approved Data direction images control over conflicting stale reference pixels. The issue packet records five-view before/after originals and direct header, navigator, control, graph or native-preview crops for all four stages; final product-owner review of the production originals remains pending."
   - "Related data is derived only from the selected Test Data workflow graph and groups available Technical Data, Test Data, Simulation Data and Solver Cards. CMP/demo source prefixes and empty invented categories remain off the normal surface."
@@ -98,6 +101,26 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #289 keeps the registered current editor original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-1366x768.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1366x768.png]
+  - rationale: "Issue #289 keeps the registered current Record preview original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-preview-1366x768.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-preview-1366x768.png]
+  - rationale: "Issue #289 keeps the registered current editor original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-1440x900.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1440x900.png]
+  - rationale: "Issue #289 keeps the registered current Record preview original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-preview-1440x900.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-preview-1440x900.png]
+  - rationale: "Issue #289 keeps the registered current editor original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-1920x1080.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1920x1080.png]
+  - rationale: "Issue #289 keeps the registered current Record preview original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-preview-1920x1080.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-preview-1920x1080.png]
+  - rationale: "Issue #289 keeps the registered current editor original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-2560x1440.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-2560x1440.png]
+  - rationale: "Issue #289 keeps the registered current Record preview original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-preview-2560x1440.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-preview-2560x1440.png]
+  - rationale: "Issue #289 keeps the registered current editor original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-3840x2160.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-3840x2160.png]
+  - rationale: "Issue #289 keeps the registered current Record preview original and its issue-owned acceptance original byte-identical so user-guide and review provenance remain independently addressable."
+    images: [docs/user-guide/images/current/administration-database-preview-3840x2160.png, docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-preview-3840x2160.png]
   - rationale: "Issue #261 M1A0/M1A1 crop group 1 records the complete exact-hash set for byte-identical direct 100%-pixel acceptance crops."
     images: [docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-controls-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-controls-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1366x768-controls-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1366x768-controls-100pct.png]
   - rationale: "Issue #261 M1A2 crop group 1 records the complete exact-hash set for byte-identical direct 100%-pixel acceptance crops."
@@ -448,14 +471,18 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-2560x1440-graph-axis-100pct.png
       - docs/17-evidence/images/issue-161-shared-ui-foundation/crops/before/modeling-process-3840x2160-graph-axis-100pct.png
 visual_evidence:
-  sidecar: docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml
-  geometry_measurements: docs/17-evidence/images/issue-246-source-v2-categories/after/measurements
-  routes: [/materials, '/materials/:materialId', '/materials/records/:recordId/revisions/:revisionId', /modeling, /activity, /administration/database, /administration/schema-bundles, /administration/records, /administration/access]
-  states: [normal, long, empty, invalid, blocked, failed, restored, delivered, role-aware, popup, drawer, file-input, pane-overlay, resize, collapse, reset, reload, planned, confirming, applied, stale-plan, source-reset-locked, read-back-recovery, checksum-verified, toe-quality-warning, warning-acknowledgement, exact-toe-source-evidence, dma-frequency-temperature, whole-file-rejection, corrected-retry, forming-limit-diagram, exact-governed-read-back, peer-categories, direct-category-links, source-v2-set-plan]
-  baseline_source: 3e642e8c3e96e95dd7d10b19d87e18af53db9e7c
-  current_source: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
+  sidecar: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
+  geometry_measurements: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
+  routes: [/administration/database]
+  states: [exact-revision-selection, draft-edit, duplicate-r1, hard-delete-confirmation, dependency-blocked-recovery, real-record-preview, low-viewport-pane-replacement, wide-adjacent-preview]
+  baseline_source: b2feb08eb40def0f8a627c34656daa393432695c
+  current_source: b2feb08eb40def0f8a627c34656daa393432695c+issue289-worktree
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 119
+  current_capture_count: 124
+  issue_289_current_count: 10
+  issue_289_before_original_count: 5
+  issue_289_after_original_count: 10
+  issue_289_direct_crop_count: 45
   issue_260_current_count: 29
   issue_260_before_original_count: 20
   issue_260_after_original_count: 20
@@ -501,9 +528,16 @@ visual_evidence:
   root_original_and_crop_review: pass
   physical_4k_readability: DEFERRED_TO_223
   fixture_dependent_capture_status: canonical_compose_pass
+  issue_289_fixture_dependent_capture_status: isolated_current_worktree_postgres_api_vite_pass_canonical_compose_rejected_foreign_worktree
+  issue_289_independent_read_only_review: pass_blocker0_major0_minor0_corrected_candidate_approved
+  issue_289_product_owner_review: pending_final_original_geometry
   independent_read_only_review: pass_issue260_exact_candidate_blocker0_major0_material_minor0_after_late_visual_correction
   product_owner_review: pending_issue_260_fe05_original_geometry
 capture_provenance:
+  - source_commit: b2feb08eb40def0f8a627c34656daa393432695c+issue289-worktree
+    captured_at: '2026-08-20T01:07:40+09:00 through 2026-08-20T01:07:46+09:00'
+    command: 'Dedicated current-worktree PostgreSQL database migrated through Issue #289, real current-worktree API on 127.0.0.1:8019 and Vite on 127.0.0.1:5189; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-administration-database-workflow/after/originals --only-administration-database at browser zoom 100% and DPR 1. The flow uses no mocked Administration HTTP route, verifies zero page overflow and captures the exact editor plus real Record preview at all five viewports. Canonical Compose was rejected because the running cmp-local-demo project belongs to another preserved worktree; no foreign container or data was changed.'
+    ids: [administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-database-preview-1366, administration-database-preview-1440, administration-database-preview-1920, administration-database-preview-2560, administration-database-preview-3840]
   - source_commit: 4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree
     captured_at: '2026-08-19T02:50:30+09:00 through 2026-08-19T07:00:20+09:00'
     command: 'Canonical current-source Compose with the existing database, object data and named volumes preserved and only web rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard with --only-modeling-data-session, --only-modeling-process-fit-viewports, --only-modeling-export and --only-modeling-consistency at browser zoom 100% and DPR 1. The final Data/session rerun additionally proves the optional comparison action uses the Modeling action color and Browser/Related data peer headers align while each list retains local scrolling. The exact consistency evidence proves one focused Data curve in the normal state, deliberate optional graph comparison that returns to one curve when closed, one saved Process input to Fit, exact Fit-to-Export preparation, stage round trips and no first-item/latest fallback.'
@@ -539,7 +573,7 @@ capture_provenance:
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
     command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. The routes recaptured for #206 were reassigned to the #206 source record, the five current Process method/recovery images were later refreshed and reassigned to Issue #259 FE-04D provenance, the seven current Fit candidate/recovery images were later refreshed and reassigned to FE-04E provenance, and the seven current Export preview/recovery images were later refreshed and reassigned to FE-04F provenance.'
-    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
+    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
 previous_capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08+09:00
@@ -1332,37 +1366,72 @@ captures:
     height: 900
   - id: administration-database-1366
     route: /administration/database
-    workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; Table context scopes Attributes, Layouts and Subsets while Link Types retain their source/target definition
+    workflow: exact-identity-schema-design-and-draft-commands
+    fixture: deterministic demo Administrator using the real API; seven exact definition collections, Table-scoped dependent definitions, explicit draft lifecycle and server-authorized create/edit/duplicate/delete commands
     image: images/current/administration-database-1366x768.png
     width: 1366
     height: 768
   - id: administration-database-1440
     route: /administration/database
-    workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; Table context scopes Attributes, Layouts and Subsets while Link Types retain their source/target definition
+    workflow: exact-identity-schema-design-and-draft-commands
+    fixture: deterministic demo Administrator using the real API; seven exact definition collections, Table-scoped dependent definitions, explicit draft lifecycle and server-authorized create/edit/duplicate/delete commands
     image: images/current/administration-database-1440x900.png
     width: 1440
     height: 900
   - id: administration-database-1920
     route: /administration/database
-    workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; Table context scopes Attributes, Layouts and Subsets while Link Types retain their source/target definition
+    workflow: exact-identity-schema-design-and-draft-commands
+    fixture: deterministic demo Administrator using the real API; seven exact definition collections, Table-scoped dependent definitions, explicit draft lifecycle and server-authorized create/edit/duplicate/delete commands
     image: images/current/administration-database-1920x1080.png
     width: 1920
     height: 1080
   - id: administration-database-2560
     route: /administration/database
-    workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; full shell with an elastic Database/Profile/Table semantic three-pane workgroup and bounded readable property form
+    workflow: exact-identity-schema-design-and-draft-commands
+    fixture: deterministic demo Administrator using the real API; bounded definition navigator and property editor with the central object table using the remaining full-viewport workspace
     image: images/current/administration-database-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-database-3840
     route: /administration/database
-    workflow: three-pane-table-scoped-schema-property-editor
-    fixture: deterministic demo Administrator; full shell with an elastic Database/Profile/Table semantic three-pane workgroup and bounded readable property form
+    workflow: exact-identity-schema-design-and-draft-commands
+    fixture: deterministic demo Administrator using the real API; bounded definition navigator and property editor with the central object table using the remaining full-viewport workspace
     image: images/current/administration-database-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-database-preview-1366
+    route: /administration/database
+    workflow: exact-record-datasheet-preview-replaces-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    image: images/current/administration-database-preview-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-database-preview-1440
+    route: /administration/database
+    workflow: exact-record-datasheet-preview-replaces-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    image: images/current/administration-database-preview-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-database-preview-1920
+    route: /administration/database
+    workflow: exact-record-datasheet-preview-adjacent-to-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    image: images/current/administration-database-preview-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-database-preview-2560
+    route: /administration/database
+    workflow: exact-record-datasheet-preview-adjacent-to-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    image: images/current/administration-database-preview-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-database-preview-3840
+    route: /administration/database
+    workflow: exact-record-datasheet-preview-adjacent-to-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    image: images/current/administration-database-preview-3840x2160.png
     width: 3840
     height: 2160
   - id: administration-records-1366

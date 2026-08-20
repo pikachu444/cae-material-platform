@@ -107,6 +107,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260929_098_issue210_scalar_distribution.py",
         "20260930_099_issue209_dma_fld_import.py",
         "20261001_100_issue246_source_v2.py",
+        "20261002_101_issue289_draft_delete.py",
     ]
 
 

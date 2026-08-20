@@ -353,10 +353,11 @@
     "LayoutResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["layout_id", "table_id", "revision", "name", "description", "items"],
+      "required": ["layout_id", "table_id", "table_revision_id", "revision", "name", "description", "items"],
       "properties": {
         "layout_id": {"$ref": "#/$defs/Uuid"},
         "table_id": {"$ref": "#/$defs/Uuid"},
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
         "revision": {"$ref": "#/$defs/RevisionMetadata"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
@@ -385,11 +386,12 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "subset_id", "table_id", "revision", "name", "description", "filter_definition"
+        "subset_id", "table_id", "table_revision_id", "revision", "name", "description", "filter_definition"
       ],
       "properties": {
         "subset_id": {"$ref": "#/$defs/Uuid"},
         "table_id": {"$ref": "#/$defs/Uuid"},
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
         "revision": {"$ref": "#/$defs/RevisionMetadata"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},

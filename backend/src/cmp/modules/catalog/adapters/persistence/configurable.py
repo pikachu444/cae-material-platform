@@ -24,6 +24,7 @@ from cmp.modules.catalog.application.configurable import (
     ConfigRevision,
     ConfigurableCatalogRepository,
     DatabaseSnapshot,
+    DraftDeleteResult,
     LayoutSnapshot,
     ProfileSnapshot,
     SubsetSnapshot,
@@ -530,6 +531,29 @@ class SqlAlchemyConfigurableCatalogRepository(ConfigurableCatalogRepository):
             hooks=self._hooks,
             session_binder=lambda session: self._rls.bind_authorization(session, context, decision),
         )
+
+    def delete_draft(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        expected_revision_id: UUID,
+    ) -> DraftDeleteResult:
+        with self._transaction(context, decision) as session:
+            result = session.scalar(
+                sa.text(
+                    "SELECT catalog.delete_unpublished_r1_draft("
+                    ":aggregate_type, :aggregate_id, :expected_revision_id)"
+                ),
+                {
+                    "aggregate_type": aggregate_type,
+                    "aggregate_id": aggregate_id,
+                    "expected_revision_id": expected_revision_id,
+                },
+            )
+        return DraftDeleteResult(str(result))
 
     def table_store(
         self, context: SecurityContext, decision: AuthorizationDecision

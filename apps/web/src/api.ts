@@ -200,17 +200,17 @@ import type {
   SchemaDefinitionBundleExport,
   SchemaDefinitionBundlePlan,
 } from "./types";
+import {
+  ApiError,
+  authenticatedHeaders,
+  endpoint,
+  request,
+  throwResponseError,
+} from "./shared/api/http";
+import type { ApiConfig, ApiResult } from "./shared/api/http";
 
-export interface ApiConfig {
-  baseUrl: string;
-  accessToken: string;
-}
-
-export interface ApiResult<T> {
-  data: T;
-  etag: string | null;
-  requestId?: string | null;
-}
+export { ApiError } from "./shared/api/http";
+export type { ApiConfig, ApiResult } from "./shared/api/http";
 
 export function getEffectiveProductAccess(
   config: ApiConfig,
@@ -977,42 +977,6 @@ export function inspectLocalDemoAccessToken(token: string): LocalDemoTokenSessio
   }
 }
 
-interface ProblemDocument {
-  detail?: string;
-  title?: string;
-  code?: string;
-  trace_id?: string;
-}
-
-export class ApiError extends Error {
-  readonly status: number;
-  readonly code?: string;
-  readonly traceId?: string;
-  readonly supportReference?: string;
-
-  /**
-   * FE-04G bridge used only by features/modeling/api/modeling-api.ts so the
-   * extracted client preserves shared auth, response, and error semantics.
-   * Remove in #263 when the root transport receives its final shared owner.
-   */
-  static readonly modelingTransportCompatibility = {
-    authenticatedHeaders,
-    endpoint,
-    request,
-    throwResponseError,
-  } as const;
-
-  constructor(status: number, message: string, code?: string, traceId?: string) {
-    const supportReference = [code, traceId].filter(Boolean).join(" · ") || undefined;
-    super(supportReference ? `${message} Support reference: ${supportReference}.` : message);
-    this.name = "ApiError";
-    this.status = status;
-    this.code = code;
-    this.traceId = traceId;
-    this.supportReference = supportReference;
-  }
-}
-
 export const defaultApiConfig: ApiConfig = {
   baseUrl: (import.meta.env.VITE_CMP_API_BASE_URL ?? "/api/v1").replace(/\/$/, ""),
   accessToken: "",
@@ -1050,74 +1014,10 @@ export function saveApiConfig(config: ApiConfig): void {
   window.localStorage.setItem(storageKey, JSON.stringify(config));
 }
 
-function endpoint(config: ApiConfig, path: string): string {
-  return `${config.baseUrl.replace(/\/$/, "")}${path}`;
-}
-
 function revisionPath(path: string, revisionId?: string): string {
   if (!revisionId) return path;
   const separator = path.includes("?") ? "&" : "?";
   return `${path}${separator}revision_id=${encodeURIComponent(revisionId)}`;
-}
-
-function authenticatedHeaders(config: ApiConfig, init: RequestInit, accept: string): Headers {
-  const token = config.accessToken.trim();
-  if (!token) {
-    throw new ApiError(401, "Add a bearer access token in Connection before using the catalog.");
-  }
-
-  const headers = new Headers(init.headers);
-  headers.set("Accept", accept);
-  headers.set("Authorization", `Bearer ${token}`);
-  if (init.body && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-  return headers;
-}
-
-async function throwResponseError(response: Response): Promise<never> {
-  const isJson = response.headers.get("content-type")?.includes("json");
-  let problem: ProblemDocument = {};
-  if (isJson) {
-    try {
-      problem = (await response.json()) as ProblemDocument;
-    } catch {
-      // Preserve a useful HTTP failure if a proxy sends an invalid problem body.
-    }
-  }
-  throw new ApiError(
-    response.status,
-    problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`,
-    problem.code,
-    problem.trace_id,
-  );
-}
-
-async function request<T>(
-  config: ApiConfig,
-  path: string,
-  init: RequestInit = {},
-): Promise<ApiResult<T>> {
-  const headers = authenticatedHeaders(config, init, "application/json");
-  const response = await fetch(endpoint(config, path), { ...init, headers });
-  const isJson = response.headers.get("content-type")?.includes("json");
-  const body: unknown = isJson ? await response.json() : undefined;
-
-  if (!response.ok) {
-    const problem = (body ?? {}) as ProblemDocument;
-    throw new ApiError(
-      response.status,
-      problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`,
-      problem.code,
-      problem.trace_id,
-    );
-  }
-
-  return {
-    data: body as T,
-    etag: response.headers.get("etag"),
-    requestId: response.headers.get("x-request-id"),
-  };
 }
 
 /**

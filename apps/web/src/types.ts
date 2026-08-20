@@ -3807,8 +3807,12 @@ export interface ConfigurableAttributeContent {
 export interface ConfigurableAttributeResponse {
   attribute_definition_id: string;
   table_id: string;
-  current_revision: RevisionMetadata & { content: ConfigurableAttributeContent };
+  current_revision: ConfigurableAttributeRevision;
 }
+
+export type ConfigurableAttributeRevision = RevisionMetadata & {
+  content: ConfigurableAttributeContent;
+};
 
 export interface ConfigurableLayoutItem {
   attribute_definition_id: string;
@@ -3820,6 +3824,7 @@ export interface ConfigurableLayoutItem {
 export interface ConfigurableLayoutResponse {
   layout_id: string;
   table_id: string;
+  table_revision_id: string;
   revision: RevisionMetadata;
   name: string;
   description: string | null;
@@ -3829,6 +3834,7 @@ export interface ConfigurableLayoutResponse {
 export interface ConfigurableSubsetResponse {
   subset_id: string;
   table_id: string;
+  table_revision_id: string;
   revision: RevisionMetadata;
   name: string;
   description: string | null;

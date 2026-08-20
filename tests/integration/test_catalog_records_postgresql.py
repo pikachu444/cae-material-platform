@@ -320,6 +320,7 @@ def _curve_api(
         security_dependency=security,
         read_dependency=read,
         write_dependency=write,
+        schema_configuration_dependency=security,
     )
     install_catalog_record_api(
         application,
@@ -968,7 +969,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20261001_100_issue246_source_v2"
+        assert version == "20261002_101_issue289_delete"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
