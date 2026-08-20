@@ -1,0 +1,126 @@
+{
+  "before": {
+    "ariaCurrent": "true",
+    "documentKey": "CMP-DEMO-DP780-TEST-JSON",
+    "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+    "selectedDocumentId": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+    "selectedTestDataRefs": [
+      {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      {
+        "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+        "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+        "label": "CMP-DEMO-DP780-TEST-JSON-02",
+        "revisionNo": 1
+      },
+      {
+        "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+        "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+        "label": "CMP-DEMO-DP780-TEST-JSON-03",
+        "revisionNo": 1
+      }
+    ],
+    "visibleTestDataKeys": [
+      "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    ],
+    "sessionTestData": {
+      "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+      "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+      "label": "CMP-DEMO-DP780-TEST-JSON",
+      "revisionNo": 1
+    }
+  },
+  "afterEnd": {
+    "scrollTop": 1,
+    "maxScrollTop": 2
+  },
+  "afterHome": {
+    "scrollTop": 1
+  },
+  "scrollProbeDisposition": {
+    "classification": "not-a-long-result-list",
+    "reason": "The four-row fixture produced only a 2 px scrollHeight/clientHeight difference; End and Home both remained at 1 px, so this is border/rounding behavior rather than meaningful local overflow.",
+    "Q-02": "not-applicable",
+    "Q-09": "not-applicable"
+  },
+  "processIdentity": {
+    "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+    "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+    "label": "CMP-DEMO-DP780-TEST-JSON",
+    "revisionNo": 1
+  },
+  "afterStageRoundTrip": {
+    "ariaCurrent": "true",
+    "documentKey": "CMP-DEMO-DP780-TEST-JSON",
+    "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+    "selectedDocumentId": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+    "selectedTestDataRefs": [
+      {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      {
+        "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+        "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+        "label": "CMP-DEMO-DP780-TEST-JSON-02",
+        "revisionNo": 1
+      },
+      {
+        "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+        "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+        "label": "CMP-DEMO-DP780-TEST-JSON-03",
+        "revisionNo": 1
+      }
+    ],
+    "visibleTestDataKeys": [
+      "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    ],
+    "sessionTestData": {
+      "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+      "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+      "label": "CMP-DEMO-DP780-TEST-JSON",
+      "revisionNo": 1
+    }
+  },
+  "afterReload": {
+    "ariaCurrent": "true",
+    "documentKey": "CMP-DEMO-DP780-TEST-JSON",
+    "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+    "selectedDocumentId": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+    "selectedTestDataRefs": [
+      {
+        "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+        "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+        "label": "CMP-DEMO-DP780-TEST-JSON",
+        "revisionNo": 1
+      },
+      {
+        "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+        "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+        "label": "CMP-DEMO-DP780-TEST-JSON-02",
+        "revisionNo": 1
+      },
+      {
+        "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+        "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+        "label": "CMP-DEMO-DP780-TEST-JSON-03",
+        "revisionNo": 1
+      }
+    ],
+    "visibleTestDataKeys": [
+      "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+    ],
+    "sessionTestData": {
+      "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+      "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+      "label": "CMP-DEMO-DP780-TEST-JSON",
+      "revisionNo": 1
+    }
+  }
+}
