@@ -69,8 +69,9 @@ Administration은 Database → 목록 → 속성 편집의 3단 작업 화면을
 - Activity는 User/Administrator의 요청·복구와 Reviewer 승인 작업을 역할별로 보여 줍니다.
 - Administration은 객체 탐색기, 목록, 속성 편집기를 연결합니다.
 
-승인 근거와 반응형 비교 이미지는 [UX 설계 인덱스](docs/design-index.md)에서, 공개 제품 참고자료와
-이미지 출처는 [영구 참고자료 카탈로그](docs/00-research/product-reference-source-catalog.json)에서
+승인 근거와 반응형 비교 이미지는
+[승인 자료·해시 목록](docs/01-product/service-reference-manifest.yaml)에서, 공개 제품 참고자료와 이미지
+출처는 [영구 참고자료 카탈로그](docs/00-research/product-reference-source-catalog.json)에서
 확인할 수 있습니다. 외부 제품의 화면·브랜드·내부 구조를 복사하지 않습니다.
 
 ## 5분 로컬 실행
@@ -164,7 +165,7 @@ Python 패키지는 `pyproject.toml + uv.lock`, 웹 패키지는 `package.json +
 - [사용자 가이드](docs/user-guide/index.md)
 - [관리자 가이드](docs/admin-guide/index.md)
 - [제품 방향과 UX 기준](docs/01-product/product-vision.md)
-- [UX 설계 인덱스](docs/design-index.md)
+- [문서 포털](docs/README.md)
 - [공식 제품 참고자료와 이미지 출처](docs/00-research/product-reference-source-catalog.json)
 - [요구사항](docs/02-requirements/requirements.md)
 - [현재 구현 상태](IMPLEMENTATION_STATUS.md)
