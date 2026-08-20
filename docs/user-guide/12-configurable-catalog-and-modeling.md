@@ -8,26 +8,43 @@ Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Su
 1. 우측 workspace menu에서 **Administration → Database design**을 연다. `/catalog/schema`는
    같은 Administration 화면으로 연결되는 호환 주소다.
 2. 왼쪽 **Objects**에서 Database, Profile, Table, Attribute, Layout, Subset 또는 Link Type을 고른다. 가운데 목록과
-   오른쪽 속성 화면은 같은 선택을 유지한다.
-3. **Current table**을 바꾸면 Attribute, Layout, Subset 목록이 그 Table 기준으로 즉시 바뀐다.
+   오른쪽 속성 화면은 같은 identity와 `rN` 선택을 유지한다.
+3. **Current database**를 바꾸면 Profile 목록이 그 Database 기준으로 다시 조회된다. **Current table**을
+   바꾸면 Attribute, Layout, Subset과 Record 미리보기가 해당 Table 기준으로 바뀐다.
 4. **Add Database**, **Add Profile**, **Add Table** 또는 **Add Attribute**를 누른 뒤, 표시명·참조 key·사용자에게 필요한 입력 안내만
    작성한다. 수치 Attribute는 무엇을 뜻하는 수치인지와 표준 단위를 함께 입력하고, Record reference는
    연결할 Table을 고정한다.
-5. **Add layout**은 선택한 Attribute를 현재 Attribute 순서로 datasheet Layout에 저장하고, **Add subset**은 현재
-   Table의 검색 보기를 만든다. 기존 항목을 수정하면 새 초안이 생기며, 검증을 통과한 초안만 **Publish**할 수 있다.
+5. **Add layout**은 선택한 Attribute의 exact revision과 순서를 datasheet Layout에 저장하고,
+   **Add subset**은 현재 Table의 검색 보기를 만든다. **Preview datasheet**는 서버에서 조회한 실제 Record
+   한 건을 읽기 전용으로 보여 주며 값이 없을 때 임의 예시를 만들지 않는다.
 6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
    두 Table의 현재 정의 revision이 함께 고정된다.
+7. **Duplicate**는 선택한 정의를 새 identity의 revision 1 초안으로 준비한다. 잘못 만든 초안은
+   **초안 삭제(Delete draft)**에서 확인한 뒤 영구 삭제할 수 있다. 삭제는 게시 이력이 없는 revision 1이고 Record,
+   Link, 참조 또는 다른 의존성이 전혀 없을 때만 성공한다. 서버가 사용 중인 항목을 찾으면 현재 선택과
+   원본을 그대로 두고, 무엇을 먼저 정리해야 하는지 오류로 알려 준다.
 
 Administration에서는 한 작업 묶음의 다음 주요 동작 하나만 파란색으로 강조한다. 기존 정의를
-편집할 때 **Check**와 **Save draft**는 보조 동작이고 **Publish**가 주요 동작이다. 여러 행 등록에서는
+편집할 때 **Check**와 **Save draft**는 보조 동작이다. Database design의 **Publish — Not configured**는
+의도적으로 비활성화되어 있으며, Check가 성공해도 초안은 게시되지 않는다. 여러 행 등록에서는
 검사가 끝나기 전 **Register checked rows**가 흐리게 비활성화되며, 모든 행이 유효해진 뒤에만 실행할
 수 있다. 녹색은 저장 성공 같은 상태 표시에만 사용한다.
 
-넓은 화면에서는 Database design shell이 viewport를 사용하되 Objects navigator, 정의 목록, 속성
-form으로 이루어진 작업 묶음은 가운데의 읽기 좋은 공통 범위에 남는다. 속성 form은 남는 화면 폭만큼
-늘어나지 않고, 작업 묶음 양쪽 여백은 균형을 유지한다. 같은 화면을
+넓은 화면에서는 Database design shell과 정의 목록이 viewport를 활용하고, Objects navigator와 속성
+form은 읽기 좋은 폭을 유지한다. 미리보기를 열면 1600px 이상에서는 속성 form 옆 네 번째 pane에 실제
+Record가 나타난다. 더 좁은 화면에서는 같은 오른쪽 pane을 미리보기로 바꾸며 **Close preview**로 편집기로
+돌아간다. 같은 화면을
 [2560×1440](images/current/administration-database-2560x1440.png)과
 [3840×2160](images/current/administration-database-3840x2160.png)에서도 확인할 수 있다.
+
+![실제 Record를 함께 확인하는 Database design](images/current/administration-database-preview-1920x1080.png)
+
+실제 Record 미리보기는
+[1366×768](images/current/administration-database-preview-1366x768.png),
+[1440×900](images/current/administration-database-preview-1440x900.png),
+[2560×1440](images/current/administration-database-preview-2560x1440.png),
+[3840×2160](images/current/administration-database-preview-3840x2160.png)에서도 같은 exact Table·Layout·Attribute
+revision을 유지한다.
 
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
 Record나 과거 revision을 바꾸지 않는다.

@@ -17,6 +17,7 @@ from cmp.modules.catalog.application.configurable import (
     SubsetSnapshot,
     TableSnapshot,
 )
+from cmp.modules.catalog.domain.configurable import ConfigurableCatalogDraftDeleteBlocked
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -104,6 +105,23 @@ class _Service:
         self.attribute: AttributeSnapshot | None = None
         self.layout: LayoutSnapshot | None = None
         self.subset: SubsetSnapshot | None = None
+        self.deleted: list[tuple[str, UUID, UUID]] = []
+        self.delete_block_reason: str | None = None
+
+    def delete_draft(
+        self,
+        context: Any,
+        decision: Any,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        command: Any,
+    ) -> None:
+        del context, decision
+        if self.delete_block_reason is not None:
+            raise ConfigurableCatalogDraftDeleteBlocked(self.delete_block_reason)
+        self.deleted.append((aggregate_type, aggregate_id, command.expected_current_revision_id))
+        if aggregate_type == TABLE_AGGREGATE_TYPE:
+            self.table = None
 
     def create_table(self, context: Any, decision: Any, command: Any) -> TableSnapshot:
         del context, decision
@@ -164,6 +182,18 @@ class _Service:
         del context, decision
         assert attribute_id == ATTRIBUTE and self.attribute is not None
         return self.attribute
+
+    def get_attribute_revision(
+        self,
+        context: Any,
+        decision: Any,
+        attribute_id: UUID,
+        revision_id: UUID,
+    ) -> ConfigRevision[Any]:
+        del context, decision
+        assert attribute_id == ATTRIBUTE and revision_id == ATTRIBUTE_REVISION
+        assert self.attribute is not None
+        return self.attribute.current
 
     def revise_attribute(
         self, context: Any, decision: Any, attribute_id: UUID, command: Any
@@ -251,6 +281,7 @@ def _app(service: _Service) -> FastAPI:
         security_dependency=security,
         read_dependency=read,
         write_dependency=write,
+        schema_configuration_dependency=security,
     )
     return app
 
@@ -311,6 +342,15 @@ def test_configurable_catalog_api_creates_table_and_typed_attribute() -> None:
     listed = _request(app, "GET", f"/api/v1/catalog/tables/{TABLE}/attributes")
     assert listed.status_code == 200
     assert listed.json()["items"][0]["attribute_definition_id"] == str(ATTRIBUTE)
+
+    exact = _request(
+        app,
+        "GET",
+        f"/api/v1/catalog/attributes/{ATTRIBUTE}/revisions/{ATTRIBUTE_REVISION}",
+    )
+    assert exact.status_code == 200
+    assert exact.json()["id"] == str(ATTRIBUTE_REVISION)
+    assert exact.json()["content"]["name"] == "Young's modulus"
 
 
 def test_configurable_catalog_api_requires_current_revision_etag() -> None:
@@ -438,3 +478,63 @@ def test_configurable_catalog_api_creates_revisioned_layout_and_subset() -> None
         },
     )
     assert stale.status_code == 412
+
+
+def test_configurable_catalog_api_deletes_only_with_current_revision_etag() -> None:
+    service = _Service()
+    app = _app(service)
+    created = _request(
+        app,
+        "POST",
+        "/api/v1/catalog/tables",
+        json={
+            "content": {"key": "mistake", "name": "Incorrect draft"},
+            "change_reason": "create draft for deletion",
+        },
+    )
+
+    stale = _request(
+        app,
+        "DELETE",
+        f"/api/v1/catalog/tables/{TABLE}",
+        headers={"If-Match": '"revision:1:sha256:' + "f" * 64 + '"'},
+    )
+    assert stale.status_code == 412
+    assert service.table is not None
+
+    deleted = _request(
+        app,
+        "DELETE",
+        f"/api/v1/catalog/tables/{TABLE}",
+        headers={"If-Match": created.headers["etag"]},
+    )
+    assert deleted.status_code == 204
+    assert deleted.content == b""
+    assert service.deleted == [(TABLE_AGGREGATE_TYPE, TABLE, TABLE_REVISION)]
+    assert service.table is None
+
+
+def test_configurable_catalog_api_maps_atomic_stale_delete_to_precondition_failure() -> None:
+    service = _Service()
+    app = _app(service)
+    created = _request(
+        app,
+        "POST",
+        "/api/v1/catalog/tables",
+        json={
+            "content": {"key": "racing_draft", "name": "Racing draft"},
+            "change_reason": "create a draft for the race check",
+        },
+    )
+    service.delete_block_reason = "stale"
+
+    response = _request(
+        app,
+        "DELETE",
+        f"/api/v1/catalog/tables/{TABLE}",
+        headers={"If-Match": created.headers["etag"]},
+    )
+
+    assert response.status_code == 412
+    assert response.json()["code"] == "CMP-CATALOG-0003"
+    assert service.table is not None

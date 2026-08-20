@@ -14,6 +14,8 @@ from alembic.config import Config
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
 )
+from cmp.modules.catalog.adapters.persistence.links import SqlAlchemyCatalogLinkRepository
+from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
 from cmp.modules.catalog.application.configurable import (
     ConfigurableCatalogService,
     CreateAttribute,
@@ -22,9 +24,12 @@ from cmp.modules.catalog.application.configurable import (
     CreateProfile,
     CreateSubset,
     CreateTable,
+    DeleteDraft,
     PublishRevision,
+    ReviseDatabase,
     ReviseLayout,
 )
+from cmp.modules.catalog.application.links import CatalogLinkService, CreateLinkType
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
@@ -32,10 +37,12 @@ from cmp.modules.catalog.domain.configurable import (
     CatalogProfileContent,
     CatalogTableContent,
     ConfigurableCatalogConflict,
+    ConfigurableCatalogDraftDeleteBlocked,
     LayoutContent,
     LayoutItem,
     SubsetContent,
 )
+from cmp.modules.catalog.domain.links import LinkTypeContent
 from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -75,6 +82,7 @@ TRACE = "00-000000000000000000000000000000da-00000000000000da-01"
 class Harness:
     admin_engine: Engine
     service: ConfigurableCatalogService
+    links: CatalogLinkService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -143,13 +151,17 @@ def postgres() -> Iterator[Harness]:
         rls = SqlAlchemyRlsContext()
         with sessions() as session, session.begin():
             rls.assert_application_role(session)
+        schema_repository = SqlAlchemyConfigurableCatalogRepository(
+            session_factory=sessions,
+            rls_context=rls,
+        )
         yield Harness(
             admin_engine=admin_engine,
-            service=ConfigurableCatalogService(
-                SqlAlchemyConfigurableCatalogRepository(
-                    session_factory=sessions,
-                    rls_context=rls,
-                )
+            service=ConfigurableCatalogService(schema_repository),
+            links=CatalogLinkService(
+                SqlAlchemyCatalogLinkRepository(session_factory=sessions, rls_context=rls),
+                schema_repository,
+                SqlAlchemyCatalogRecordRepository(session_factory=sessions, rls_context=rls),
             ),
         )
     finally:
@@ -490,3 +502,230 @@ def test_configurable_schema_round_trip_revision_and_typed_guards(
             == 2
         )
         assert connection.scalar(sa.text("SELECT count(*) FROM catalog.record_number_value")) == 1
+
+
+def test_only_unused_unpublished_r1_drafts_can_be_physically_deleted(
+    postgres: Harness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.CATALOG_WRITE)
+
+    clean = postgres.service.create_database(
+        context,
+        write,
+        CreateDatabase(
+            DataClassification.INTERNAL,
+            CatalogDatabaseContent("delete_clean", "Delete clean"),
+            "create a mistaken draft",
+        ),
+    )
+    with postgres.admin_engine.begin() as connection:
+        with pytest.raises(DBAPIError), connection.begin_nested():
+            connection.execute(
+                sa.text("DELETE FROM catalog.database WHERE id = :id"),
+                {"id": clean.id},
+            )
+    postgres.service.delete_draft(
+        context,
+        write,
+        "catalog.database",
+        clean.id,
+        DeleteDraft(clean.current.record.revision_id),
+    )
+    with postgres.admin_engine.connect() as connection:
+        assert connection.scalar(
+            sa.text("SELECT count(*) FROM catalog.database WHERE id = :id"),
+            {"id": clean.id},
+        ) == 0
+        assert connection.scalar(
+            sa.text("SELECT count(*) FROM catalog.database_revision WHERE aggregate_id = :id"),
+            {"id": clean.id},
+        ) == 0
+
+    published = postgres.service.create_database(
+        context,
+        write,
+        CreateDatabase(
+            DataClassification.INTERNAL,
+            CatalogDatabaseContent("delete_published", "Delete published"),
+            "create a publication fixture",
+        ),
+    )
+    postgres.service.publish_revision(
+        context,
+        write,
+        PublishRevision(
+            "catalog.database", published.id, published.current.record.revision_id
+        ),
+    )
+    with pytest.raises(ConfigurableCatalogDraftDeleteBlocked) as published_error:
+        postgres.service.delete_draft(
+            context,
+            write,
+            "catalog.database",
+            published.id,
+            DeleteDraft(published.current.record.revision_id),
+        )
+    assert published_error.value.reason == "published"
+
+    revised_r1 = postgres.service.create_database(
+        context,
+        write,
+        CreateDatabase(
+            DataClassification.INTERNAL,
+            CatalogDatabaseContent("delete_revised", "Delete revised"),
+            "create a revision fixture",
+        ),
+    )
+    revised = postgres.service.revise_database(
+        context,
+        write,
+        revised_r1.id,
+        ReviseDatabase(
+            revised_r1.current.record.revision_id,
+            CatalogDatabaseContent("delete_revised", "Delete revised r2"),
+            "create immutable revision two",
+        ),
+    )
+    with pytest.raises(ConfigurableCatalogDraftDeleteBlocked) as revised_error:
+        postgres.service.delete_draft(
+            context,
+            write,
+            "catalog.database",
+            revised.id,
+            DeleteDraft(revised.current.record.revision_id),
+        )
+    assert revised_error.value.reason == "revised"
+
+    referenced = postgres.service.create_database(
+        context,
+        write,
+        CreateDatabase(
+            DataClassification.INTERNAL,
+            CatalogDatabaseContent("delete_referenced", "Delete referenced"),
+            "create a dependency fixture",
+        ),
+    )
+    postgres.service.create_profile(
+        context,
+        write,
+        CreateProfile(
+            DataClassification.INTERNAL,
+            CatalogProfileContent(
+                referenced.id,
+                referenced.current.record.revision_id,
+                "dependent_profile",
+                "Dependent profile",
+            ),
+            "reference the database draft",
+        ),
+    )
+    with pytest.raises(ConfigurableCatalogDraftDeleteBlocked) as referenced_error:
+        postgres.service.delete_draft(
+            context,
+            write,
+            "catalog.database",
+            referenced.id,
+            DeleteDraft(referenced.current.record.revision_id),
+        )
+    assert referenced_error.value.reason == "referenced"
+
+    table = postgres.service.create_table(
+        context,
+        write,
+        CreateTable(
+            DataClassification.INTERNAL,
+            CatalogTableContent("delete_layout_table", "Delete layout table"),
+            "create a layout deletion fixture",
+        ),
+    )
+    assert (
+        postgres.service.is_published(
+            context,
+            write,
+            "catalog.configurable_table",
+            table.id,
+            table.current.record.revision_id,
+        )
+        is False
+    )
+    attribute = postgres.service.create_attribute(
+        context,
+        write,
+        CreateAttribute(
+            AttributeDefinitionContent(
+                table.id,
+                table.current.record.revision_id,
+                "delete_layout_field",
+                "Delete layout field",
+                AttributeDataType.TEXT,
+            ),
+            "create a layout field",
+        ),
+    )
+    layout = postgres.service.create_layout(
+        context,
+        write,
+        CreateLayout(
+            LayoutContent(
+                table.id,
+                table.current.record.revision_id,
+                "Mistaken layout",
+                items=(
+                    LayoutItem(
+                        attribute.id,
+                        attribute.current.record.revision_id,
+                        "General",
+                        0,
+                    ),
+                ),
+            ),
+            "create a mistaken layout",
+        ),
+    )
+    postgres.service.delete_draft(
+        context,
+        write,
+        "catalog.layout",
+        layout.id,
+        DeleteDraft(layout.current.record.revision_id),
+    )
+    with postgres.admin_engine.connect() as connection:
+        assert connection.scalar(
+            sa.text("SELECT count(*) FROM catalog.layout WHERE id = :id"),
+            {"id": layout.id},
+        ) == 0
+        assert connection.scalar(
+            sa.text("SELECT count(*) FROM catalog.layout_item WHERE layout_id = :id"),
+            {"id": layout.id},
+        ) == 0
+
+    link_type = postgres.links.create_link_type(
+        context,
+        write,
+        CreateLinkType(
+            DataClassification.INTERNAL,
+            LinkTypeContent(
+                "delete_link_type",
+                "Delete Link Type",
+                table.id,
+                table.current.record.revision_id,
+                table.id,
+                table.current.record.revision_id,
+                "relates to",
+                "is related from",
+            ),
+            "create a mistaken Link Type",
+        ),
+    )
+    postgres.links.delete_link_type_draft(
+        context,
+        write,
+        link_type.id,
+        DeleteDraft(link_type.current.record.revision_id),
+    )
+    with postgres.admin_engine.connect() as connection:
+        assert connection.scalar(
+            sa.text("SELECT count(*) FROM catalog.link_type WHERE id = :id"),
+            {"id": link_type.id},
+        ) == 0

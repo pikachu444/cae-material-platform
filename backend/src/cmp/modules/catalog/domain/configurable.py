@@ -28,6 +28,14 @@ class ConfigurableCatalogPublicationError(ConfigurableCatalogError):
     """A draft cannot cross the catalog publication boundary."""
 
 
+class ConfigurableCatalogDraftDeleteBlocked(ConfigurableCatalogError):
+    """A Catalog draft is not eligible for the narrow physical-delete exception."""
+
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(f"Catalog draft deletion is blocked: {reason}")
+
+
 class AttributeDataType(StrEnum):
     NUMBER = "number"
     INTEGER = "integer"

@@ -77,17 +77,25 @@ test("Administration uses one shared semantic button hierarchy across its three 
   const editorFooter = page.locator(".schema-property-editor .property-sheet footer");
   const check = editorFooter.getByRole("button", { name: "Check", exact: true });
   const saveDraft = editorFooter.getByRole("button", { name: "Save draft", exact: true });
-  const publish = editorFooter.getByRole("button", { name: "Publish", exact: true });
+  const publish = editorFooter.getByRole("button", {
+    name: "Publish — Not configured",
+    exact: true,
+  });
   await expect(check).toHaveClass("ux-button");
   await expect(saveDraft).toHaveClass("ux-button");
   await expect(publish).toHaveClass("ux-button primary");
+  await expect(publish).toBeDisabled();
+  await expect(publish).toHaveAttribute(
+    "title",
+    "Publication is not configured in Database design. The draft remains unchanged.",
+  );
   await expect(editorFooter.locator(".ux-button.primary")).toHaveCount(1);
   await expectSharedGeometry(check);
   await expectSharedGeometry(saveDraft);
   await expectSharedGeometry(publish);
-  await publish.focus();
-  expect(await publish.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
-  const focusStyle = await buttonStyle(publish);
+  await addTable.focus();
+  expect(await addTable.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
+  const focusStyle = await buttonStyle(addTable);
   expect(focusStyle.outlineStyle).toBe("solid");
   expect(focusStyle.outlineWidth).toBe("3px");
   await captureState(page, "database-primary-focus");

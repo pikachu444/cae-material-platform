@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.adapters.persistence.configurable import RlsContext
-from cmp.modules.catalog.application.configurable import ConfigRevision
+from cmp.modules.catalog.application.configurable import ConfigRevision, DraftDeleteResult
 from cmp.modules.catalog.application.links import (
     LINK_TYPE_AGGREGATE_TYPE,
     RECORD_LINK_AGGREGATE_TYPE,
@@ -379,6 +379,27 @@ class SqlAlchemyCatalogLinkRepository(CatalogLinkRepository):
             hooks=self._hooks,
             session_binder=lambda session: self._rls.bind_authorization(session, context, decision),
         )
+
+    def delete_link_type_draft(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        link_type_id: UUID,
+        expected_revision_id: UUID,
+    ) -> DraftDeleteResult:
+        with self._transaction(context, decision) as session:
+            result = session.scalar(
+                sa.text(
+                    "SELECT catalog.delete_unpublished_r1_draft("
+                    "'catalog.link_type', :aggregate_id, :expected_revision_id)"
+                ),
+                {
+                    "aggregate_id": link_type_id,
+                    "expected_revision_id": expected_revision_id,
+                },
+            )
+        return DraftDeleteResult(str(result))
 
     def link_type_store(
         self, context: SecurityContext, decision: AuthorizationDecision

@@ -3,7 +3,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ADMIN_COMPONENTS = (
-    ROOT / "apps/web/src/configurable-catalog-admin.tsx",
+    ROOT
+    / "apps/web/src/features/administration/database-design/database-design-workspace.tsx",
     ROOT / "apps/web/src/configurable-catalog-records.tsx",
     ROOT / "apps/web/src/product-access-center.tsx",
 )
@@ -52,7 +53,7 @@ def test_database_edit_groups_have_only_one_primary_command() -> None:
     publish_footers = [
         footer
         for footer in re.findall(r"<footer>(.*?)</footer>", source, re.DOTALL)
-        if ">Publish</button>" in footer
+        if "Publish — Not configured</button>" in footer
     ]
     assert len(publish_footers) == 7
     for footer in publish_footers:

@@ -1,0 +1,305 @@
+.catalog-schema-editor {
+  --schema-object-nav-size: clamp(13rem, 15vw, 17rem);
+  --schema-object-list-size: clamp(20rem, 27vw, 34rem);
+  --schema-property-size: clamp(26rem, 40vw, 50rem);
+  min-width: 0;
+}
+
+.catalog-schema-editor .schema-editor-header {
+  align-items: center;
+  min-height: calc(var(--ux-command-bar-height) + var(--ux-space-5));
+  padding-inline: var(--ux-pane-padding);
+}
+
+.catalog-schema-editor .schema-editor-header > div:first-child {
+  max-width: var(--ux-readable-text-max-inline-size);
+}
+
+.catalog-schema-editor .schema-command-bar {
+  align-items: center;
+}
+
+.catalog-schema-editor .schema-command-group {
+  display: grid;
+  gap: var(--ux-space-2);
+  justify-items: end;
+  min-width: 0;
+}
+
+.catalog-schema-editor .schema-delete-reason {
+  max-width: var(--ux-readable-text-max-inline-size);
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  text-align: end;
+}
+
+.catalog-schema-editor .schema-editor-grid {
+  grid-template-columns:
+    minmax(13rem, var(--schema-object-nav-size))
+    minmax(23rem, 1fr)
+    minmax(26rem, var(--schema-property-size));
+  min-height: 0;
+  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 7.5rem);
+}
+
+.catalog-schema-editor .schema-object-navigator,
+.catalog-schema-editor .schema-object-list,
+.catalog-schema-editor .schema-property-editor,
+.catalog-schema-editor .schema-record-preview {
+  min-height: 0;
+  overflow: auto;
+}
+
+.catalog-schema-editor .schema-property-editor {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.catalog-schema-editor .schema-object-navigator {
+  padding: var(--ux-pane-padding) var(--ux-space-3);
+}
+
+.catalog-schema-editor .schema-table-context {
+  margin-top: var(--ux-space-4);
+}
+
+.catalog-schema-editor .schema-list-columns,
+.catalog-schema-editor .schema-list-rows > button {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) minmax(6.5rem, 0.58fr) 2.5rem;
+  gap: var(--ux-space-2);
+  align-items: center;
+}
+
+.catalog-schema-editor .schema-list-columns {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: 0 var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: 600;
+}
+
+.catalog-schema-editor .schema-list-columns span:last-child,
+.catalog-schema-editor .schema-list-rows > button > span {
+  text-align: right;
+}
+
+.catalog-schema-editor .schema-list-rows > button {
+  min-height: var(--ux-work-row-min-block-size);
+  padding-block: var(--ux-space-2);
+}
+
+.catalog-schema-editor .schema-list-rows > button > strong,
+.catalog-schema-editor .schema-list-rows > button > small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catalog-schema-editor .schema-list-rows > button > span {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.catalog-schema-editor .schema-property-editor {
+  border-right: 0;
+}
+
+.catalog-schema-editor .schema-property-editor:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.catalog-schema-editor .property-sheet {
+  width: min(100%, 54rem);
+}
+
+.schema-link-endpoints {
+  width: min(100%, 54rem);
+  margin: var(--ux-space-4) 0 0;
+  border-top: 1px solid var(--ux-border);
+}
+
+.schema-link-endpoints > div {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.75fr) minmax(13rem, 1.25fr);
+  gap: var(--ux-space-3);
+  min-height: var(--ux-work-row-min-block-size);
+  padding: var(--ux-space-2) 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.schema-link-endpoints dt,
+.schema-link-endpoints dd {
+  margin: 0;
+  font-size: var(--ux-data-font-size);
+}
+
+.schema-link-endpoints dt {
+  color: var(--ux-text-muted);
+  font-weight: 600;
+}
+
+.catalog-schema-editor .schema-record-preview {
+  grid-column: 3;
+  grid-row: 1;
+  padding: var(--ux-pane-padding);
+  border-left: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.catalog-schema-editor .schema-editor-grid:has(.schema-record-preview) .schema-property-editor {
+  visibility: hidden;
+}
+
+.schema-record-preview > header,
+.schema-record-preview > footer,
+.schema-preview-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+  padding-bottom: var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.schema-record-preview > header p,
+.schema-record-preview > header h3,
+.schema-record-preview > footer,
+.schema-preview-identity span {
+  margin: 0;
+}
+
+.schema-record-preview > header p,
+.schema-record-preview > footer,
+.schema-preview-identity span,
+.schema-preview-fields small {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.schema-record-preview > header h3 {
+  margin-top: 3px;
+  font-size: 1rem;
+}
+
+.schema-preview-identity {
+  min-height: var(--ux-interactive-min-block-size);
+  padding-top: var(--ux-space-3);
+}
+
+.schema-preview-fields {
+  width: min(100%, 48rem);
+  margin: 0;
+}
+
+.schema-preview-fields > div {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.9fr) minmax(12rem, 1.1fr);
+  gap: var(--ux-space-4);
+  min-height: var(--ux-work-row-min-block-size);
+  padding: var(--ux-space-2) 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.schema-preview-fields dt,
+.schema-preview-fields dd {
+  margin: 0;
+  font-size: var(--ux-data-font-size);
+}
+
+.schema-preview-fields dt {
+  display: grid;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-weight: 600;
+}
+
+.schema-preview-empty {
+  margin-top: var(--ux-space-5);
+  padding-inline-start: var(--ux-space-3);
+  border-inline-start: 3px solid var(--ux-border-strong);
+}
+
+.schema-record-preview > footer {
+  justify-content: start;
+  margin-top: var(--ux-space-5);
+  padding-top: var(--ux-space-3);
+  border-top: 1px solid var(--ux-border);
+}
+
+.schema-delete-dialog {
+  width: min(32rem, calc(100vw - 2 * var(--ux-space-5)));
+  padding: 0;
+  border: 1px solid var(--ux-border-strong);
+  border-radius: var(--ux-radius-control);
+  background: var(--ux-surface);
+  color: var(--ux-text);
+  overscroll-behavior: contain;
+}
+
+.schema-delete-dialog::backdrop {
+  background: rgb(20 28 38 / 42%);
+}
+
+.schema-delete-dialog form {
+  padding: var(--ux-space-5);
+}
+
+.schema-delete-dialog h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.schema-delete-dialog p {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+  line-height: 1.5;
+}
+
+.schema-delete-dialog footer {
+  display: flex;
+  justify-content: end;
+  gap: var(--ux-space-2);
+  margin-top: var(--ux-space-5);
+  padding-top: var(--ux-space-3);
+  border-top: 1px solid var(--ux-border);
+}
+
+@media (min-width: 1600px) {
+  .catalog-schema-editor .schema-editor-grid:has(.schema-record-preview) {
+    grid-template-columns:
+      minmax(13rem, var(--schema-object-nav-size))
+      minmax(20rem, 1fr)
+      minmax(27rem, var(--schema-property-size))
+      minmax(28rem, 50rem);
+  }
+
+  .catalog-schema-editor .schema-editor-grid:has(.schema-record-preview) .schema-property-editor {
+    visibility: visible;
+  }
+
+  .catalog-schema-editor .schema-record-preview {
+    grid-column: 4;
+  }
+}
+
+@media (max-width: 1180px) {
+  .catalog-schema-editor .schema-editor-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .catalog-schema-editor .schema-command-bar {
+    justify-content: start;
+  }
+
+  .catalog-schema-editor .schema-editor-grid {
+    grid-template-columns: minmax(12rem, 15rem) minmax(18rem, 0.9fr) minmax(23rem, 1.1fr);
+    height: auto;
+    min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 10rem);
+  }
+}

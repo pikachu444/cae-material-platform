@@ -22,7 +22,11 @@ from cmp.modules.catalog.application.links import (
     WorkflowGraph,
 )
 from cmp.modules.catalog.application.records import RECORD_AGGREGATE_TYPE, RecordSnapshot
-from cmp.modules.catalog.domain.configurable import CatalogDataCategory, CatalogTableContent
+from cmp.modules.catalog.domain.configurable import (
+    CatalogDataCategory,
+    CatalogTableContent,
+    ConfigurableCatalogDraftDeleteBlocked,
+)
 from cmp.modules.catalog.domain.records import CatalogRecordContent
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -156,6 +160,21 @@ class _Service:
                 ),
             ),
         )
+        self.deleted_link_type: tuple[UUID, UUID] | None = None
+        self.delete_block_reason: str | None = None
+
+    def delete_link_type_draft(
+        self,
+        context: Any,
+        decision: Any,
+        link_type_id: UUID,
+        command: Any,
+    ) -> None:
+        del context, decision
+        if self.delete_block_reason is not None:
+            raise ConfigurableCatalogDraftDeleteBlocked(self.delete_block_reason)
+        self.deleted_link_type = (link_type_id, command.expected_current_revision_id)
+        self.link_type = None
 
     def list_tables(self, context: Any, decision: Any) -> tuple[TableSnapshot, ...]:
         del context, decision
@@ -343,6 +362,7 @@ def _app(service: _Service) -> FastAPI:
         security_dependency=security,
         read_dependency=read,
         write_dependency=write,
+        schema_configuration_dependency=security,
     )
     install_catalog_link_api(
         app,
@@ -350,6 +370,7 @@ def _app(service: _Service) -> FastAPI:
         security_dependency=security,
         read_dependency=read,
         write_dependency=write,
+        schema_configuration_dependency=security,
     )
     return app
 
@@ -464,6 +485,43 @@ async def test_latest_alias_and_missing_exact_revision_are_rejected_by_schema() 
     body["content"]["source_record_revision_id"] = "latest"
     response = await _request(app, "POST", "/api/v1/catalog/record-links", json=body)
     assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_link_type_first_draft_delete_requires_exact_etag() -> None:
+    service = _Service()
+    app = _app(service)
+    created = await _request(app, "POST", "/api/v1/catalog/link-types", json=_link_type_body())
+    assert created.status_code == 201
+
+    deleted = await _request(
+        app,
+        "DELETE",
+        f"/api/v1/catalog/link-types/{LINK_TYPE}",
+        headers={"If-Match": created.headers["etag"]},
+    )
+    assert deleted.status_code == 204
+    assert service.deleted_link_type == (LINK_TYPE, LINK_TYPE_REV)
+    assert service.link_type is None
+
+
+@pytest.mark.anyio
+async def test_link_type_atomic_stale_delete_returns_precondition_failure() -> None:
+    service = _Service()
+    app = _app(service)
+    created = await _request(app, "POST", "/api/v1/catalog/link-types", json=_link_type_body())
+    service.delete_block_reason = "stale"
+
+    response = await _request(
+        app,
+        "DELETE",
+        f"/api/v1/catalog/link-types/{LINK_TYPE}",
+        headers={"If-Match": created.headers["etag"]},
+    )
+
+    assert response.status_code == 412
+    assert response.json()["code"] == "CMP-CATALOG-0017"
+    assert service.link_type is not None
 
 
 @pytest.mark.anyio

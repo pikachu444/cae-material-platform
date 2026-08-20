@@ -1798,6 +1798,21 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Catalog read is not authorized.}
         "404": {description: No visible Database matches the identifier.}
+    delete:
+      operationId: deleteConfigurableCatalogDatabaseDraft
+      tags: [catalog-schema]
+      summary: Physically delete an unpublished and unused Database revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: database_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: Unpublished unused first draft deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Database draft matches the identifier.}
+        "409": {description: Draft was published, revised, referenced or otherwise used.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/databases/{database_id}/revisions:
     post:
       operationId: reviseConfigurableCatalogDatabase
@@ -1883,6 +1898,21 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Catalog read is not authorized.}
         "404": {description: No visible Profile matches the identifier.}
+    delete:
+      operationId: deleteConfigurableCatalogProfileDraft
+      tags: [catalog-schema]
+      summary: Physically delete an unpublished and unused Profile revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: profile_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: Unpublished unused first draft deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Profile draft matches the identifier.}
+        "409": {description: Draft was published, revised, referenced or otherwise used.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/profiles/{profile_id}/revisions:
     post:
       operationId: reviseConfigurableCatalogProfile
@@ -1966,6 +1996,21 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Catalog read is not authorized.}
         "404": {description: No visible Table matches the identifier.}
+    delete:
+      operationId: deleteConfigurableCatalogTableDraft
+      tags: [catalog-schema]
+      summary: Physically delete an unpublished and unused Table revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: Unpublished unused first draft deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Table draft matches the identifier.}
+        "409": {description: Draft has a Profile placement, Attribute, Layout, Subset, Record, Link or another reference.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/tables/{table_id}/revisions:
     post:
       operationId: reviseConfigurableCatalogTable
@@ -2034,6 +2079,22 @@ paths:
         "403": {description: Catalog write is not authorized.}
         "409": {description: Attribute key, type, Table revision or reference conflict.}
         "422": {description: Typed Attribute Definition is invalid.}
+  /api/v1/catalog/attributes/{attribute_id}:
+    delete:
+      operationId: deleteConfigurableCatalogAttributeDraft
+      tags: [catalog-schema]
+      summary: Physically delete an unpublished and unused Attribute revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: attribute_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: Unpublished unused first draft deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Attribute draft matches the identifier.}
+        "409": {description: Draft was published, revised, used by a Layout or Record, or otherwise referenced.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/attributes/{attribute_id}/revisions:
     post:
       operationId: reviseConfigurableCatalogAttribute
@@ -2100,6 +2161,40 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Catalog write is not authorized.}
         "409": {description: Table or pinned Attribute revision conflict.}
+  /api/v1/catalog/layouts/{layout_id}:
+    delete:
+      operationId: deleteConfigurableCatalogLayoutDraft
+      tags: [catalog-schema]
+      summary: Physically delete an unpublished and otherwise unused Layout revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: layout_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: First draft and its owned Layout items deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Layout draft matches the identifier.}
+        "409": {description: Draft was published, revised or externally referenced.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/attributes/{attribute_id}/revisions/{revision_id}:
+    get:
+      operationId: getConfigurableCatalogAttributeRevision
+      tags: [catalog-schema]
+      summary: Read one exact immutable Attribute Definition revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: attribute_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Exact Attribute Definition revision used by a pinned Layout or Record.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/AttributeRevision"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible exact Attribute Definition revision matches both identifiers.}
   /api/v1/catalog/layouts/{layout_id}/revisions:
     post:
       operationId: reviseConfigurableCatalogLayout
@@ -2166,6 +2261,22 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Catalog write is not authorized.}
         "409": {description: Table revision or immutable definition conflict.}
+  /api/v1/catalog/subsets/{subset_id}:
+    delete:
+      operationId: deleteConfigurableCatalogSubsetDraft
+      tags: [catalog-schema]
+      summary: Physically delete an unpublished and unused Subset revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: subset_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: Unpublished unused first draft deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Subset draft matches the identifier.}
+        "409": {description: Draft was published, revised, referenced or otherwise used.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/subsets/{subset_id}/revisions:
     post:
       operationId: reviseConfigurableCatalogSubset
@@ -2472,6 +2583,22 @@ paths:
         "403": {description: Catalog write is not authorized.}
         "409": {description: Link Type key or endpoint Table revision conflict.}
         "422": {description: Link Type request is invalid.}
+  /api/v1/catalog/link-types/{link_type_id}:
+    delete:
+      operationId: deleteCatalogLinkTypeDraft
+      tags: [catalog-links]
+      summary: Physically delete an unpublished and unused Link Type revision 1 draft.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: link_type_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      responses:
+        "204": {description: Unpublished unused first draft deleted.}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write or schema configuration is not authorized.}
+        "404": {description: No visible Link Type draft matches the identifier.}
+        "409": {description: Draft was published, revised or used by a Record Link.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/catalog/link-types/{link_type_id}/revisions:
     post:
       operationId: reviseCatalogLinkType

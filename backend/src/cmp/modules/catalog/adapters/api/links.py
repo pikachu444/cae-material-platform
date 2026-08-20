@@ -13,7 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError, _etag, _scope
 from cmp.modules.catalog.adapters.api.configurable import TableResponse
 from cmp.modules.catalog.adapters.api.records import FolderResponse, RecordResponse
-from cmp.modules.catalog.application.configurable import ConfigRevision
+from cmp.modules.catalog.application.configurable import ConfigRevision, DeleteDraft
 from cmp.modules.catalog.application.links import (
     BindDomainRevision,
     CatalogExplorerChildren,
@@ -33,6 +33,7 @@ from cmp.modules.catalog.application.links import (
 from cmp.modules.catalog.domain.configurable import (
     CatalogDataCategory,
     ConfigurableCatalogConflict,
+    ConfigurableCatalogDraftDeleteBlocked,
     ConfigurableCatalogNotFound,
 )
 from cmp.modules.catalog.domain.links import LinkCardinality, LinkTypeContent, RecordLinkContent
@@ -362,6 +363,30 @@ def _error(context: Any, error: Exception) -> CatalogHttpError:
             code="CMP-CATALOG-0017",
             current_etag=RevisionETag.from_ref(error.current),
         )
+    if isinstance(error, ConfigurableCatalogDraftDeleteBlocked):
+        if error.reason == "stale":
+            return CatalogHttpError(
+                context=context,
+                status_code=412,
+                title="Catalog link revision precondition failed",
+                detail="The Link Type draft changed. Reload the current revision before retrying.",
+                code="CMP-CATALOG-0017",
+            )
+        details = {
+            "published": "This Link Type has been published and its history must be preserved.",
+            "revised": "Only an unpublished first Link Type draft can be deleted.",
+            "referenced": (
+                "This Link Type draft is used by a Record Link or another reference. "
+                "Remove those dependencies before deleting the draft."
+            ),
+        }
+        return CatalogHttpError(
+            context=context,
+            status_code=409,
+            title="Link Type draft deletion blocked",
+            detail=details.get(error.reason, "This Link Type draft cannot be deleted."),
+            code="CMP-CATALOG-0019",
+        )
     if isinstance(
         error, (ConfigurableCatalogConflict, RevisionConflict, RevisionKernelError, IntegrityError)
     ):
@@ -390,6 +415,7 @@ def install_catalog_link_api(
     security_dependency: Dependency,
     read_dependency: Dependency,
     write_dependency: Dependency,
+    schema_configuration_dependency: Dependency,
 ) -> None:
     def required(context: Any) -> CatalogLinkService:
         if service is None:
@@ -509,6 +535,37 @@ def install_catalog_link_api(
             )
             _etag(response, value.current.record)
             return LinkTypeResponse.from_snapshot(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.delete(
+        "/api/v1/catalog/link-types/{link_type_id}",
+        operation_id="deleteCatalogLinkTypeDraft",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[
+            Depends(security_dependency),
+            Depends(write_dependency),
+            Depends(schema_configuration_dependency),
+        ],
+        tags=["catalog-links"],
+    )
+    def delete_link_type_draft(
+        request: Request,
+        link_type_id: UUID,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> Response:
+        context, decision = _scope(request)
+        try:
+            current = required(context).get_link_type_for_write(
+                context, decision, link_type_id
+            )
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            required(context).delete_link_type_draft(
+                context, decision, link_type_id, DeleteDraft(expected)
+            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         except CatalogHttpError:
             raise
         except Exception as error:

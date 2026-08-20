@@ -142,14 +142,17 @@ from cmp.modules.exporting.application.target_preview import TargetPreviewServic
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
-from cmp.modules.identity_access.adapters.api.product_access import install_product_access_api
+from cmp.modules.identity_access.adapters.api.product_access import (
+    RequestFeatureGrantDependency,
+    install_product_access_api,
+)
 from cmp.modules.identity_access.adapters.api.security import install_identity_api
 from cmp.modules.identity_access.application.authorization import (
     AuthorizationService,
     ProductAccessAdministrationService,
 )
 from cmp.modules.identity_access.application.security import SecurityContextService
-from cmp.modules.identity_access.domain.authorization import Permission
+from cmp.modules.identity_access.domain.authorization import FeatureGrant, Permission
 from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.modeling.adapters.api.calibration import install_calibration_api
@@ -373,9 +376,10 @@ def create_app(
     install_demo_identity_api(application, demo_identity)
     resolved_security = services.security
     security_dependency = install_identity_api(application, resolved_security)
+    resolved_product_access = product_access_service or services.product_access
     install_product_access_api(
         application,
-        service=product_access_service or services.product_access,
+        service=resolved_product_access,
         security_dependency=security_dependency,
         manage_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.IDENTITY_MANAGE
@@ -494,6 +498,9 @@ def create_app(
         write_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_WRITE
         ),
+        schema_configuration_dependency=RequestFeatureGrantDependency(
+            resolved_product_access, FeatureGrant.SCHEMA_CONFIGURATION
+        ),
     )
     install_schema_bundle_planner_api(
         application,
@@ -530,6 +537,9 @@ def create_app(
         ),
         write_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_WRITE
+        ),
+        schema_configuration_dependency=RequestFeatureGrantDependency(
+            resolved_product_access, FeatureGrant.SCHEMA_CONFIGURATION
         ),
     )
     resolved_testing = testing_service or build_testing_service(services, resolved_artifacts)

@@ -36,7 +36,7 @@ items:
     route: /activity
     guide: 10-navigation-and-troubleshooting.md
 administration_workspace:
-  task: Issue #159 task 2; Issue #161 semantic-button follow-up; Issue #184 semantic three-pane production transplant; Issue #208 Definition Bundle plan/apply
+  task: Issue #159 task 2; Issue #161 semantic-button follow-up; Issue #184 semantic three-pane production transplant; Issue #208 Definition Bundle plan/apply; Issue #289 Database design workflow
   routes:
     overview: /administration
     database_design: /administration/database
@@ -57,10 +57,11 @@ administration_workspace:
     states: [hover, focus-visible, disabled, aria-busy]
     route_and_command_behavior: unchanged
   database_design:
-    topology: [object-navigator, object-list, property-editor]
-    wide_allocation: flexible-object-list-with-bounded-readable-property-form
+    topology: [object-navigator, identity-revision-list, property-editor, adjacent-real-record-preview]
+    wide_allocation: flexible-object-list-with-bounded-property-form-and-preview
     objects: [Database, Profile, Table, Attribute, Layout, Subset, Link Type]
-    lifecycle: [add, edit-as-new-revision, check, publish]
+    lifecycle: [add, edit-as-new-revision, duplicate-as-r1-draft, delete-unused-unpublished-r1-draft, check, publish-not-configured]
+    delete_recovery: preserve-selection-and-explain-publication-revision-reference-or-dependency-block
   definition_bundles:
     topology: [bounded-source-pane, elastic-locally-scrollable-plan-table, bounded-detail-and-confirmation-pane]
     visible_when: Administrator
