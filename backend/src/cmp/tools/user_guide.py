@@ -87,6 +87,46 @@ _STALE_CURRENT_PATTERNS = {
     "manual connection panel": re.compile(r"Connection\s+panel", re.IGNORECASE),
     "retired T-46 screenshot": re.compile(r"t46-[^)\s]+\.png", re.IGNORECASE),
 }
+_NUMBER_ONLY_ATX_HEADING = re.compile(
+    r"^\s{0,3}#{1,6}[ \t]+(?:[A-Z][A-Z0-9]{0,7}-)?\d+(?:[.-]\d+)*[ \t]*#*[ \t]*$"
+)
+_NUMBER_ONLY_SETEXT_TITLE = re.compile(r"^\s{0,3}(?:[A-Z][A-Z0-9]{0,7}-)?\d+(?:[.-]\d+)*[ \t]*$")
+_SETEXT_UNDERLINE = re.compile(r"^\s{0,3}(?:=+|-+)[ \t]*$")
+_DOCS_PORTAL_REQUIRED_MARKERS = (
+    "## 저장소 지도",
+    "### 루트에서 찾기",
+    "### `docs/`에서 찾기",
+    "| 제품 소개와 5분 실행 | [루트 README](../README.md) |",
+    "| 저장소 작업 규칙 | [저장소 작업 지침](../AGENTS.md) |",
+    "| 현재 구현 범위 | [현재 구현 상태](../IMPLEMENTATION_STATUS.md) |",
+    "| 제품 사용과 운영 절차 | [사용자 가이드](user-guide/index.md) · "
+    "[관리자 가이드](admin-guide/index.md) |",
+    "| 작업 순서와 검증 | [현재 전달 backlog](13-delivery/backlog.md) · "
+    "[테스트 전략](14-testing/test-strategy.md) |",
+    "## 읽기 경로 세 가지",
+    "### 제품을 사용하거나 현재 동작을 확인할 때",
+    "### 일반 이슈를 구현할 때",
+    "### contract나 fixture를 확인할 때",
+    "## 권위가 충돌할 때",
+    "[contract 안내](../contracts/README.md)",
+    "[fixture manifest 안내](../fixtures/manifests/README.md)",
+)
+_CLOSED_ISSUE_157_CURRENT_MARKER = "issues/157)에서 완료"
+_STALE_ISSUE_157_GUIDANCE = re.compile(
+    r"(?:"
+    r"(?:#157|issues/157).{0,240}"
+    r"(?:남아|미해결|열려|open\b|해결되지|완료되지|진행 중|수정 중|복구 중|"
+    r"재현(?:·|/)?수정|실패(?:가|는|를|에서))"
+    r"|"
+    r"(?:남아|미해결|열려|open\b|해결되지|완료되지|진행 중|수정 중|복구 중|"
+    r"재현(?:·|/)?수정|실패(?:가|는|를|에서)).{0,240}(?:#157|issues/157)"
+    r")",
+    re.DOTALL | re.IGNORECASE,
+)
+_FIXED_QUICK_TUNNEL_URL = re.compile(
+    r"https://[a-z0-9][a-z0-9-]*\.trycloudflare\.com",
+    re.IGNORECASE,
+)
 _README_HEADINGS = (
     "## 이 플랫폼에서 하는 일",
     "## 역할별로 할 수 있는 일",
@@ -287,6 +327,38 @@ def _verify_document_links(
     for relative_document, status in classes.items():
         document = project / relative_document
         content = document.read_text(encoding="utf-8")
+        if status in {"current", "authoritative"}:
+            fenced_marker: tuple[str, int] | None = None
+            previous_line: tuple[int, str] | None = None
+            for line_number, line in enumerate(content.splitlines(), start=1):
+                fence = re.match(r"^\s*(`{3,}|~{3,})", line)
+                if fence:
+                    marker = fence.group(1)
+                    if fenced_marker is None:
+                        fenced_marker = (marker[0], len(marker))
+                    elif marker[0] == fenced_marker[0] and len(marker) >= fenced_marker[1]:
+                        fenced_marker = None
+                    previous_line = None
+                    continue
+                if fenced_marker is not None:
+                    previous_line = None
+                    continue
+                number_only_heading: tuple[int, str] | None = None
+                if _NUMBER_ONLY_ATX_HEADING.fullmatch(line):
+                    number_only_heading = (line_number, line)
+                elif (
+                    previous_line is not None
+                    and _SETEXT_UNDERLINE.fullmatch(line)
+                    and _NUMBER_ONLY_SETEXT_TITLE.fullmatch(previous_line[1])
+                ):
+                    number_only_heading = previous_line
+                if number_only_heading is not None:
+                    heading_line, heading = number_only_heading
+                    raise UserGuideContractError(
+                        f"{relative_document} contains a number-only Markdown heading "
+                        f"on line {heading_line}: {heading.strip()}"
+                    )
+                previous_line = (line_number, line) if line.strip() else None
         if status == "current":
             for label, pattern in _STALE_CURRENT_PATTERNS.items():
                 if pattern.search(content):
@@ -324,6 +396,26 @@ def _verify_document_links(
                         f"missing repository path in {relative_document}: {literal}"
                     )
     return current_images, referenced_images, local_link_count
+
+
+def _verify_repository_guidance(project: Path) -> None:
+    portal = (project / "docs" / "README.md").read_text(encoding="utf-8")
+    missing_markers = [marker for marker in _DOCS_PORTAL_REQUIRED_MARKERS if marker not in portal]
+    if missing_markers:
+        raise UserGuideContractError(
+            f"docs/README.md is missing repository map guidance: {missing_markers}"
+        )
+
+    readme = (project / "README.md").read_text(encoding="utf-8")
+    if _CLOSED_ISSUE_157_CURRENT_MARKER not in readme:
+        raise UserGuideContractError("README.md is missing the closed #157 current guidance")
+    if _STALE_ISSUE_157_GUIDANCE.search(readme):
+        raise UserGuideContractError("README.md contains stale open-issue guidance for closed #157")
+    fixed_tunnel = _FIXED_QUICK_TUNNEL_URL.search(readme)
+    if fixed_tunnel:
+        raise UserGuideContractError(
+            f"README.md must not pin a temporary Quick Tunnel URL: {fixed_tunnel.group(0)}"
+        )
 
 
 def _verify_readme(project: Path, registered_images: set[str]) -> None:
@@ -1062,6 +1154,7 @@ def verify_user_guide(root: Path) -> UserGuideReport:
             "current manifest images are unused by current documents: "
             f"{sorted(unused_registration)}"
         )
+    _verify_repository_guidance(project)
     _verify_readme(project, registered_images)
     permanent_reference_images = _verify_permanent_reference_catalog(project)
 

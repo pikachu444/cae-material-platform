@@ -12,27 +12,66 @@
 완료 보고서와 과거 캡처는 working tree에 쌓지 않습니다. Git 이력과 병합된 GitHub issue/PR이
 변경 연대기를 보존합니다.
 
-## 현재 작업 시작
+## 저장소 지도
 
-새 작업은 다음 순서로 현재 기준을 확인합니다.
+처음부터 모든 폴더를 읽지 말고, 찾는 내용에 맞는 입구에서 시작합니다.
 
-1. [저장소 작업 지침](../AGENTS.md)
-2. [현재 전달 backlog](13-delivery/backlog.md)
-3. 정확한 활성 GitHub issue
-4. [현재 구현 상태](../IMPLEMENTATION_STATUS.md)와 현재 사용자·관리자 가이드
+### 루트에서 찾기
 
-프로젝트 실행과 사용 절차는 다음 문서에서 확인합니다.
+| 찾는 내용 | 시작 위치 |
+| --- | --- |
+| 제품 소개와 5분 실행 | [루트 README](../README.md) |
+| 저장소 작업 규칙 | [저장소 작업 지침](../AGENTS.md) |
+| 개발 환경과 명령 | [DEVELOPMENT](../DEVELOPMENT.md) |
+| 현재 구현 범위 | [현재 구현 상태](../IMPLEMENTATION_STATUS.md) |
+| 제품 코드 | [웹 애플리케이션](../apps/) · [backend](../backend/) |
+| 기계 판독 contract | [contract 안내](../contracts/README.md) |
+| 비운영 예제와 입력 자료 | [fixture manifest 안내](../fixtures/manifests/README.md) · [합성 fixture 안내](../fixtures/synthetic/README.md) |
 
-- 프로젝트 개요와 실행: [루트 README](../README.md)
-- 개발 환경과 명령: [DEVELOPMENT](../DEVELOPMENT.md)
-- 사용자 가이드: [사용자 가이드](user-guide/index.md)
-- 관리자 가이드: [관리자 가이드](admin-guide/index.md)
+### `docs/`에서 찾기
 
-`apps/web` 작업은 추가로 [`apps/web/AGENTS.md`](../apps/web/AGENTS.md)를 따릅니다. 현재 구현 기준은
-[현재 구현 상태](../IMPLEMENTATION_STATUS.md)와 정확한 활성 이슈에서 확인합니다. #167의 승인 시각 기준은
-[inventory](01-product/service-reference-inventory.yaml)와
-[manifest](01-product/service-reference-manifest.yaml)에서 확인하며, 등록된 화면과 현재 제품 소유자
-지시가 충돌하면 활성 이슈의 지시가 우선합니다.
+| 찾는 내용 | 위치 |
+| --- | --- |
+| 제품 사용과 운영 절차 | [사용자 가이드](user-guide/index.md) · [관리자 가이드](admin-guide/index.md) |
+| 제품 원칙과 요구사항 | [제품과 UX](01-product/) · [요구사항](02-requirements/) |
+| contract의 의미와 경계 | [API·이벤트·작업 계약](08-contracts/api-events-jobs.md) |
+| 작업 순서와 검증 | [현재 전달 backlog](13-delivery/backlog.md) · [테스트 전략](14-testing/test-strategy.md) |
+| 저장소와 문서 관리 | [저장소 운영 문서](16-repository/) |
+| 조사·비교 입력과 이슈 증거 | [조사 자료](00-research/) · [이슈 증거](17-evidence/) — 정확한 이슈가 가리킬 때만 확인 |
+
+## 읽기 경로 세 가지
+
+### 제품을 사용하거나 현재 동작을 확인할 때
+
+1. [루트 README](../README.md)에서 제품 범위와 실행 방법을 확인합니다.
+2. [사용자 가이드](user-guide/index.md) 또는 [관리자 가이드](admin-guide/index.md)에서 하려는 작업을 찾습니다.
+3. 문서와 실제 화면이 다르면 [현재 구현 상태](../IMPLEMENTATION_STATUS.md)와 정확한 활성 이슈를 함께 확인합니다.
+
+### 일반 이슈를 구현할 때
+
+1. [저장소 작업 지침](../AGENTS.md)을 읽습니다.
+2. [현재 전달 backlog](13-delivery/backlog.md)에서 작업 순서와 선행 조건을 확인합니다.
+3. 정확한 활성 GitHub issue에서 소유 범위와 완료 조건을 확인합니다.
+4. 현재 코드와 [현재 구현 상태](../IMPLEMENTATION_STATUS.md)를 보고, `rg`로 영향받는 문단만 찾습니다.
+
+`apps/web` 작업은 추가로 [`apps/web/AGENTS.md`](../apps/web/AGENTS.md)를 따릅니다.
+
+### contract나 fixture를 확인할 때
+
+1. 정확한 이슈와 연결된 요구사항에서 확인할 동작과 ID를 먼저 찾습니다.
+2. [API·이벤트·작업 계약](08-contracts/api-events-jobs.md)과 [contract 안내](../contracts/README.md)에서 의미와 기계 판독 파일을 연결합니다.
+3. [fixture manifest 안내](../fixtures/manifests/README.md)나 [합성 fixture 안내](../fixtures/synthetic/README.md)에서 용도와 비운영 경계를 확인한 뒤, 이슈가 가리키는 원본 fixture만 엽니다.
+
+## 권위가 충돌할 때
+
+문서, 현재 코드·화면, contract·fixture, 활성 이슈의 내용이 서로 다르면 편한 쪽을 골라 진행하지
+않습니다. 변경을 멈추고 충돌한 두 경로와 문장·ID, 실제로 확인한 동작을 기록한 뒤 활성 이슈나
+제품 소유자 지시에서 해결합니다. 해결 전에는 contract를 좁히거나 fixture를 현재 정답처럼 바꾸지
+않습니다.
+
+#167의 승인 시각 기준은 [inventory](01-product/service-reference-inventory.yaml)와
+[manifest](01-product/service-reference-manifest.yaml)에서 확인합니다. 등록된 화면과 현재 제품 소유자
+지시가 충돌하면 활성 이슈의 지시가 우선하며, 같은 범위에서 관련 기준 자료도 함께 갱신합니다.
 
 ## 제품과 설계
 
