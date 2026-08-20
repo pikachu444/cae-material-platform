@@ -15,7 +15,6 @@ rules:
       - "DEVELOPMENT.md"
       - "IMPLEMENTATION_STATUS.md"
       - "docs/README.md"
-      - "docs/design-index.md"
       - "docs/user-guide/**/*.md"
       - "docs/admin-guide/**/*.md"
       - "apps/*/README.md"
