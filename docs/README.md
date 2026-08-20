@@ -26,7 +26,7 @@
 | 현재 구현 범위 | [현재 구현 상태](../IMPLEMENTATION_STATUS.md) |
 | 제품 코드 | [웹 애플리케이션](../apps/) · [backend](../backend/) |
 | 기계 판독 contract | [contract 안내](../contracts/README.md) |
-| 비운영 예제와 입력 자료 | [fixture manifest 안내](../fixtures/manifests/README.md) · [합성 fixture 안내](../fixtures/synthetic/README.md) |
+| 비운영 예제와 입력 자료 | [fixture 안내](../fixtures/README.md) |
 
 ### `docs/`에서 찾기
 
@@ -60,7 +60,7 @@
 
 1. 정확한 이슈와 연결된 요구사항에서 확인할 동작과 ID를 먼저 찾습니다.
 2. [API·이벤트·작업 계약](08-contracts/api-events-jobs.md)과 [contract 안내](../contracts/README.md)에서 의미와 기계 판독 파일을 연결합니다.
-3. [fixture manifest 안내](../fixtures/manifests/README.md)나 [합성 fixture 안내](../fixtures/synthetic/README.md)에서 용도와 비운영 경계를 확인한 뒤, 이슈가 가리키는 원본 fixture만 엽니다.
+3. [fixture 안내](../fixtures/README.md)에서 용도와 비운영 경계, 상세 문서의 읽기 순서를 확인한 뒤, 이슈가 가리키는 원본 fixture만 엽니다.
 
 ## 권위가 충돌할 때
 

@@ -109,7 +109,7 @@ _DOCS_PORTAL_REQUIRED_MARKERS = (
     "### contract나 fixture를 확인할 때",
     "## 권위가 충돌할 때",
     "[contract 안내](../contracts/README.md)",
-    "[fixture manifest 안내](../fixtures/manifests/README.md)",
+    "[fixture 안내](../fixtures/README.md)",
 )
 _CLOSED_ISSUE_157_CURRENT_MARKER = "issues/157)에서 완료"
 _STALE_ISSUE_157_GUIDANCE = re.compile(
