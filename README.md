@@ -88,10 +88,10 @@ docker compose -f deploy/compose/docker-compose.demo.yml ps --all
 <http://127.0.0.1:5173>을 엽니다. Demo session은 자동으로 준비되며 별도 API 주소나 토큰 입력은
 필요하지 않습니다. 상태는 <http://127.0.0.1:8000/api/v1/health>에서 확인합니다.
 
-현재 기준선에서는 기존 demo volume의 화면 확인은 가능하지만, **새 volume에서 전체 seed를 끝까지
-재현하는 실패**가 [#157](https://github.com/pikachu444/cae-material-platform/issues/157)에 남아 있습니다.
-위 명령이 `seed` 단계에서 멈추면 화면 기능이 없다고 단정하지 말고 해당 issue의 재현·수정 절차를
-따르십시오.
+깨끗한 새 volume의 전체 합성 데모 seed 복구는
+[#157](https://github.com/pikachu444/cae-material-platform/issues/157)에서 완료되었습니다. 연결된
+test data, selected model, review request와 solver card까지 확인하려면
+[깨끗한 전체 제품 흐름 검증](docs/user-guide/17-clean-demo-download-validation.md)을 따르십시오.
 
 처음에는 `DP780`을 검색해 재료 상세와 CAE Card를 살펴본 뒤, 필요한 경우 **Modeling → Data**에서
 시험 데이터를 등록해 보십시오.
@@ -128,11 +128,9 @@ docker logs cmp-cloudflared 2>&1 |
   Select-Object -Last 1
 ```
 
-2026-08-14 현재 확인한 주소는
-<https://tomato-empire-coleman-pricing.trycloudflare.com>입니다. Quick Tunnel 주소는 컨테이너를
-다시 만들거나 재시작하면 바뀔 수 있으므로, 접속되지 않으면 위 명령으로 현재 주소를 다시 확인합니다.
-PC, Docker Desktop, `cmp-local-demo-web`, `cmp-cloudflared`가 모두 실행 중이어야 외부에서 접속할 수
-있습니다.
+Quick Tunnel 주소는 임시 주소이므로 README에 고정하지 않습니다. 컨테이너를 다시 만들거나
+재시작하면 바뀔 수 있으므로, 접속할 때마다 위 명령으로 현재 주소를 확인합니다. PC, Docker Desktop,
+`cmp-local-demo-web`, `cmp-cloudflared`가 모두 실행 중이어야 외부에서 접속할 수 있습니다.
 
 Quick Tunnel에는 별도의 Cloudflare 접근 제한을 설정하지 않았으므로 주소를 아는 누구나 데모 화면에
 접근할 수 있습니다. 합성 데모 데이터에만 사용하고 기밀 시험 데이터나 production credential은

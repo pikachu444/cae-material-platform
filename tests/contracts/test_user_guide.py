@@ -15,6 +15,7 @@ from cmp.tools.user_guide import (
     _duplicate_allowances,
     _verify_document_links,
     _verify_image_inventory,
+    _verify_repository_guidance,
     _verify_service_reference_manifest,
     verify_user_guide,
 )
@@ -374,7 +375,76 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 489
+    assert report.duplicate_image_group_count == 515
+
+
+@pytest.mark.parametrize(
+    "heading",
+    ("# Q-08", "## T-10", "### 12.3", "Q-08\n----", "T-10\n===="),
+)
+def test_number_only_headings_are_rejected_in_current_documents(
+    tmp_path: Path, heading: str
+) -> None:
+    document = tmp_path / "current.md"
+    document.write_text(f"{heading}\n", encoding="utf-8")
+
+    with pytest.raises(UserGuideContractError, match="number-only Markdown heading"):
+        _verify_document_links(tmp_path, {"current.md": "current"})
+
+
+def test_meaningful_headings_and_fenced_examples_remain_allowed(tmp_path: Path) -> None:
+    document = tmp_path / "current.md"
+    document.write_text(
+        "# 긴 목록 스크롤 (Q-01)\n\n```markdown\n# Q-08\n\nQ-08\n----\n```\n",
+        encoding="utf-8",
+    )
+
+    assert _verify_document_links(tmp_path, {"current.md": "current"}) == (set(), set(), 0)
+
+
+def test_repository_map_and_current_readme_guidance_are_preserved() -> None:
+    _verify_repository_guidance(Path(__file__).parents[2])
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    (
+        ("missing-map", "missing repository map guidance"),
+        ("missing-157", "missing the closed #157 current guidance"),
+        ("stale-157-old", "stale open-issue guidance for closed #157"),
+        ("stale-157-reworded", "stale open-issue guidance for closed #157"),
+        ("fixed-tunnel", "must not pin a temporary Quick Tunnel URL"),
+    ),
+)
+def test_repository_guidance_rejects_narrow_documentation_drift(
+    tmp_path: Path, mutation: str, message: str
+) -> None:
+    root = Path(__file__).parents[2]
+    portal = (root / "docs/README.md").read_text(encoding="utf-8")
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    if mutation == "missing-map":
+        portal = portal.replace("## 저장소 지도", "## 문서 찾기")
+    elif mutation == "missing-157":
+        readme = readme.replace("issues/157)에서 완료", "issues/157)을 참고")
+    elif mutation == "stale-157-old":
+        readme += (
+            "\n새 volume에서 전체 seed를 끝까지\n재현하는 실패가 "
+            "[#157](https://github.com/pikachu444/cae-material-platform/issues/157)에 "
+            "남아 있습니다.\n"
+        )
+    elif mutation == "stale-157-reworded":
+        readme += (
+            "\n[#157](https://github.com/pikachu444/cae-material-platform/issues/157)은 "
+            "아직 열려 있으며 seed 문제는 미해결입니다.\n"
+        )
+    else:
+        readme += "\nhttps://temporary-demo.trycloudflare.com\n"
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs/README.md").write_text(portal, encoding="utf-8")
+    (tmp_path / "README.md").write_text(readme, encoding="utf-8")
+
+    with pytest.raises(UserGuideContractError, match=message):
+        _verify_repository_guidance(tmp_path)
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:
@@ -445,7 +515,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
-    assert manifest["version"] == 116
+    assert manifest["version"] == 117
     assert manifest["scope"] == "issue-298-frontend-guard-297-correction"
     assert re.fullmatch(r"[0-9a-f]{40}\+issue298-worktree", current_source)
     assert manifest["source_commit"] == current_source
