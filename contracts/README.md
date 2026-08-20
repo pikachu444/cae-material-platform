@@ -1,5 +1,97 @@
 # Public contract baseline
 
+## 처음 읽는 개발자를 위한 안내
+
+이 디렉터리의 **contract(계약)** 는 법률 문서가 아니라, 서로 따로 바뀔 수 있는 API,
+worker, plugin, client가 같은 요청·응답·이벤트 모양과 실패 조건을 지키도록 정한 약속입니다.
+아래 `Status`는 이 README가 다루는 작업과 현재 HTTP 계약 버전을 알려 주는 목록이지, 적힌
+기능이 모두 운영 환경에서 완성됐다는 표시는 아닙니다.
+
+### 용어를 먼저 이해하기
+
+- **OpenAPI**: REST API의 주소, HTTP 방식, 요청·응답과 인증 방법을 기계가 읽을 수 있게 적은
+  명세입니다. 이 저장소의 현재 원본은 [`http/openapi.yaml`](http/openapi.yaml)입니다.
+- **AsyncAPI**: 비동기 이벤트의 채널, 메시지 모양과 전달 규칙을 적은 명세입니다. 시작 파일은
+  [`events/asyncapi.yaml`](events/asyncapi.yaml)이고, 실제 JSON 모양은 같은 폴더의 schema가
+  더 자세히 제한합니다.
+- **JSON Schema**: JSON 문서에 어떤 필드가 필요하고 어떤 값이 허용되거나 금지되는지 검사하는
+  규칙입니다. 이름이 `*.schema.json`인 파일이 여기에 해당합니다.
+- **baseline**: 이미 받아들인 이전 OpenAPI의 호환성 기준점입니다. 현재 명세의 복사본이나
+  최신본이 아닙니다. 검사를 통과하려고
+  [`http/openapi.baseline.yaml`](http/openapi.baseline.yaml)을 현재 파일로 덮어쓰면 안 됩니다.
+- **fixture**: 계약이 받아들여야 하거나 거부해야 하는 상황을 재현하는 고정 예제 데이터입니다.
+  이 디렉터리에서는 [`examples/positive`](examples/positive)는 통과해야 하고,
+  [`examples/negative`](examples/negative)는 실패해야 합니다.
+- **generated client**: OpenAPI를 입력으로 도구가 다시 만드는 호출 코드입니다. 현재 저장소에는
+  health API만 다루는 작은 [Python client](../generated/python/cmp_api_client/client.py)가 있으며,
+  이 파일을 직접 고치지 않습니다.
+
+### 흔한 작업은 여기서 시작하기
+
+| 하려는 일 | 먼저 열 파일 | 이어서 확인할 곳 |
+| --- | --- | --- |
+| REST endpoint, 요청·응답 또는 인증 변경 | [`http/openapi.yaml`](http/openapi.yaml) | 영향받는 runtime route와 `tests/contracts/test_contracts.py` |
+| 기존 API 호환성 판단 | 현재 [`openapi.yaml`](http/openapi.yaml)과 [`openapi.baseline.yaml`](http/openapi.baseline.yaml) | 아래 Versioning policy와 호환성 검사 결과 |
+| 이벤트를 발행하거나 소비 | [`events/asyncapi.yaml`](events/asyncapi.yaml) | 해당 `events/*.schema.json`과 전달·중복 처리 규칙 |
+| Job, plugin, Dataset 같은 JSON 문서 변경 | 대상 폴더의 `*.schema.json` | 같은 의미의 positive/negative example과 실제 validator |
+| 어떤 계약 파일이 있는지 탐색 | 아래 **Files** 목록 | 해당 파일의 `$id`, version, required 필드와 관련 테스트 |
+
+짧게 읽으려면 ① 작업에 해당하는 원본 계약, ② 성공·실패 example, ③ 아래 Versioning policy,
+④ 실제 소비 코드와 검사를 차례로 봅니다. 상세한 파일 설명은 이 안내 뒤의 기존 **Files** 목록에
+그대로 남아 있습니다.
+
+### 실제로 어디서 쓰이나
+
+- [`cmp.tools.contracts`](../backend/src/cmp/tools/contracts.py)는 루트의 모든 JSON Schema 문법,
+  OpenAPI·AsyncAPI 기본 구조, 연결된 positive/negative example과 생성 client 최신성을 검사합니다.
+- [`tests/contracts/test_contracts.py`](../tests/contracts/test_contracts.py)는 OpenAPI 원본을 FastAPI가
+  내놓는 runtime OpenAPI와 대조하고, 생성 client가 재생성 결과와 같은지 확인합니다.
+- Job Spec, ArtifactAvailable event, plugin manifest는 운영 코드가 패키지에 포함된 schema 복사본을
+  읽어 검증합니다. 대표 소비자는 [Job validator](../backend/src/cmp/modules/jobs/adapters/contracts/jsonschema.py),
+  [event validator](../backend/src/cmp/modules/jobs/adapters/contracts/events_jsonschema.py),
+  [plugin validator](../backend/src/cmp/modules/plugins/adapters/contracts/jsonschema.py)입니다. 계약 테스트는
+  이 복사본이 루트의 공개 계약과 정확히 같은지 확인합니다.
+- 따라서 OpenAPI YAML이 모든 endpoint를 실행 중에 직접 만드는 것도, 모든 JSON Schema가 루트
+  경로에서 그대로 로드되는 것도 아닙니다. 계약 원본, runtime 형상과 패키지 복사본이 함께 맞아야
+  최신 상태입니다.
+
+### 계약 검사는 무엇을 확인하나
+
+저장소 루트에서 다음 명령을 실행합니다.
+
+```text
+make check-contracts
+```
+
+`make`를 사용할 수 없는 환경에서는 같은 두 검사를 직접 실행합니다.
+
+```text
+uv run cmp-check-contracts lint --root .
+uv run cmp-check-contracts compat --baseline contracts/http/openapi.baseline.yaml --current contracts/http/openapi.yaml
+```
+
+`lint`는 schema 문법, OpenAPI·AsyncAPI 기본 구조, 지정된 성공·실패 example, 생성 client 최신성을
+확인합니다. `compat`은 baseline과 비교해 endpoint·operation·response·schema·property 삭제와
+optional 필드의 required 전환을 보수적으로 막습니다. 테스트에 등록된 endpoint·component가
+runtime에도 대응하는지와 패키지 복사본까지 확인하려면
+`uv run pytest tests/contracts/test_contracts.py`도 실행합니다. OpenAPI를 의도적으로
+바꾼 뒤 생성 client만 오래됐다는 오류가 나면 원본을 다시 확인하고 `make generate-client`로
+재생성하며, 생성 파일을 손으로 맞추지 않습니다.
+
+이 검사들은 형식과 알려진 호환성 경계를 확인할 뿐, 새 동작의 제품 의미나 운영 적합성을 대신
+승인하지 않습니다.
+
+### 멈추고 권위를 확인해야 할 때
+
+- 활성 issue·requirement·ADR의 결정과 계약 또는 runtime 동작이 서로 다를 때
+- 호환성 실패를 없애기 위해 baseline을 갱신하거나 기존 필드를 조용히 지우고 싶을 때
+- 공개 계약과 패키지 schema, 생성 client 또는 runtime OpenAPI가 이유 없이 어긋날 때
+- 운영 표준·재료 모델·허용 오차처럼 아직 제품 소유자가 정하지 않은 의미가 필요할 때
+
+이 경우 한쪽을 최신이라고 추측해 맞추지 않습니다. 충돌한 경로와 검사 결과를 기록하고 권위를
+해결한 뒤 진행합니다. breaking change라면 아래 정책대로 새 major 계약, ADR과 migration 안내가
+필요합니다.
+
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
 `T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
 the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contract version
