@@ -152,12 +152,63 @@ test("preserves the exact M1A7 mapping-heading declarations and cascade order", 
 }`;
 
   assert.equal(legacy.includes(".data-mapping-heading"), false);
-  assert.equal(owner.endsWith(`${expected}\n`), true);
+  assert.equal(owner.replace(/\r\n/g, "\n").endsWith(`${expected}\n`), true);
   assert.equal(owner.match(/\.data-mapping-heading span \{/g)?.length, 2);
   assert.ok(
-    legacy.includes(`.data-mapping-table th,
+    legacy.replace(/\r\n/g, "\n").includes(`.data-mapping-table th,
 .data-mapping-recovery-detail > label,`),
   );
+});
+
+test("preserves the exact M1A8 optional-channel declarations and cascade order", () => {
+  const legacy = readFileSync(
+    new URL("../apps/web/src/design/layout.css", import.meta.url),
+    "utf8",
+  );
+  const owner = readFileSync(
+    new URL(
+      "../apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const expected = `.data-mapping-decision .data-intake-attention > label.data-optional-channel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--ux-interactive-min-block-size);
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.data-mapping-decision .data-intake-attention > label.data-optional-channel > input {
+  grid-column: auto;
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label.data-optional-channel {
+  display: flex;
+  grid-template-columns: none;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label.data-optional-channel > input {
+  grid-column: auto;
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  padding: 0;
+}`;
+  const laterGenericLabelRule = `.modeling-data-workspace .modeling-data-intake :is(
+  .data-intake-row label,`;
+
+  assert.equal(legacy.includes(".data-optional-channel"), false);
+  assert.equal(owner.includes(expected), true);
+  assert.equal(owner.match(/data-optional-channel/g)?.length, 4);
+  assert.ok(owner.indexOf(expected) < owner.indexOf(laterGenericLabelRule));
 });
 
 test("keeps the audit regression selectors out of the generated dead batch", () => {
@@ -304,7 +355,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A5.fullyRemovedRuleGroups, 21);
   assert.equal(completedM1A5.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A5.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 154);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 150);
   for (const selector of completedM1A5.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -331,7 +382,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A6.fullyRemovedRuleGroups, 3);
   assert.equal(completedM1A6.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A6.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 154);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 150);
   for (const selector of completedM1A6.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -359,7 +410,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A7.fullyRemovedRuleGroups, 3);
   assert.equal(completedM1A7.partiallyShrunkRuleGroups, 1);
   assert.deepEqual(completedM1A7.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 154);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 150);
   for (const selector of completedM1A7.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -367,8 +418,36 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} no longer has exact legacy ownership`,
     );
   }
+  const completedM1A8 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === "M1A8-modeling-data-optional-channel",
+  );
+  assert.ok(completedM1A8);
+  assert.deepEqual(completedM1A8.actualAfter, {
+    cssRuleGroups: 2777,
+    selectorRows: 3501,
+    crossCssDuplicateRows: 14,
+  });
+  assert.deepEqual(completedM1A8.historicalMemberIds, [
+    "CSS-1021",
+    "CSS-1022",
+    "CSS-1460",
+    "CSS-1461",
+  ]);
+  assert.equal(completedM1A8.selectorRowsRemoved, 4);
+  assert.equal(completedM1A8.touchedRuleGroups, 4);
+  assert.equal(completedM1A8.fullyRemovedRuleGroups, 4);
+  assert.equal(completedM1A8.partiallyShrunkRuleGroups, 0);
+  assert.deepEqual(completedM1A8.residualExactSelectorRows, []);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 150);
+  for (const selector of completedM1A8.exactLegacySelectors) {
+    assert.equal(
+      inventory.selectors.some((row) => row.selector === selector),
+      false,
+      `${selector} no longer has exact legacy ownership`,
+    );
+  }
   assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
-    id: "M1A8-modeling-data-component-region",
+    id: "M1A9-modeling-data-component-region",
     status: "owner-packet-required",
     scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
   });

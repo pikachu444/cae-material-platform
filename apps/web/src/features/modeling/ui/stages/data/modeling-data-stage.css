@@ -1053,6 +1053,37 @@
   white-space: nowrap;
 }
 
+.data-mapping-decision .data-intake-attention > label.data-optional-channel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--ux-interactive-min-block-size);
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.data-mapping-decision .data-intake-attention > label.data-optional-channel > input {
+  grid-column: auto;
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label.data-optional-channel {
+  display: flex;
+  grid-template-columns: none;
+}
+
+.modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label.data-optional-channel > input {
+  grid-column: auto;
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  padding: 0;
+}
+
 .modeling-data-workspace .modeling-data-intake :is(
   .data-intake-row label,
   .data-intake-attention label,

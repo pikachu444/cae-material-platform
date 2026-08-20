@@ -28,7 +28,8 @@ Data의 **Library**에서는 검색과 시험 종류·조건으로 목록을 좁
 고른 뒤 그래프를 확인하고 **Continue to Process**로 이동합니다. 다른 곡선은 **Add comparison**을
 연 경우에만 그래프에 더할 수 있으며 현재 Process 입력은 바뀌지 않습니다. **Local file**은 별도
 입력 경로이고, **Match file columns** 아래에서 잘못된 열 연결의 원인과 고칠 항목을 해당 위치에
-표시하면서 마지막 유효 그래프를 유지합니다. 선택한 시험과 실제로 연결된 소재 자료, 다른 시험,
+표시하면서 마지막 유효 그래프를 유지합니다. DMA 형식에서는 제공된 경우 **Include optional tan delta
+channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mapping 영역에서 유지됩니다. 선택한 시험과 실제로 연결된 소재 자료, 다른 시험,
 해석·모델 결과와 솔버 카드는 왼쪽
 **Related data**에 종류별로 나타납니다. 정확한 revision과 내부 식별 정보는 화면에 반복하지 않고
 접힌 **Technical details**에 둡니다. 넓은 화면에서는 목록과 작업 흐름의 가독성을 유지하면서

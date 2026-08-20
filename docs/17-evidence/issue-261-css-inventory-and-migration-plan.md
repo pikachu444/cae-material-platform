@@ -1252,6 +1252,141 @@ columns` 위쪽이 잘린 듯 보인 상태는 CSS clipping 결함이 아니라 
 exact M1A7 candidate의 commit, push, PR, Ready 전환과 squash merge를 승인했다. 실제 Windows 4K 물리
 가독성은 계속 #223에 남는다.
 
+## M1A8 Data optional-channel ownership candidate
+
+### Exact scope와 ownership 결과
+
+latest `origin/main@12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1`의 남은 M1A 154행에서 Local file DMA
+mapping의 **Include optional tan delta channel** label/checkbox 한 component region만 선택했다. historical
+`CSS-1021`, `CSS-1022`, `CSS-1460`, `CSS-1461` 네 complete rule-group의 선언과 상대 순서를 그대로
+`modeling-data-stage.css`로 옮겼다. live consumer는
+`apps/web/src/features/modeling/ui/stages/data/modeling-data-intake.tsx` 하나이며 두 Data route가 같은 DOM을
+사용한다.
+
+첫 배치 위치에서는 보존된 `font-size: 11.5px`와 `font-weight: 600`이 기존 후행 generic Data label
+token rule보다 늦게 적용되어 focused 화면에 1,525 text pixel 차이를 만들었다. pixel 값을 조정하지 않고
+네 rule-group 전체를 그 generic rule 앞으로 옮겨 원래 cascade를 복구했다. 최종 후보는 선언 자체와 네
+rule-group의 상대 순서를 바꾸지 않으며 React, DOM, API, copy, route, state, token, breakpoint,
+`styles.css`, 다른 Data component, Process와 Fit을 변경하지 않는다.
+
+작업 도중 main은 `28c47c5...`에서 `12e592dc...`로 전진했다. #307은 #280의 obsolete
+`docs/16-repository/repository-blueprint.md`만 삭제하고, #308은 #301의 guide checker와 `docs/README.md`,
+`fixtures/README.md`만 변경한다. 두 fast-forward 모두 production UI source와 겹치지 않았고 전후 106개
+후보·증거 파일 hash가 모두 동일했으므로 route/state/input과 image hash가 같은 캡처를 재사용했다.
+inventory·guard·documentation-impact base만 최신 SHA로 고정했다.
+
+| Metric | M1A7 | M1A8 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,781 | 2,777 | -4 |
+| expanded global selector rows | 3,505 | 3,501 | -4 |
+| M1A Data rows | 154 | 150 | -4 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `4/4/4/0`, exact legacy residual 0, 남은 M1A 150행과 다음 router
+`M1A9-modeling-data-component-region`을 고정한다. guard baseline은 latest-main source SHA, `layout.css`
+줄 수와 global rule count를 낮추고, 이동한 literal `font-weight: 600` 한 건만 #261 예외로 보존한다.
+기존 M1A0/M1A1/M1A3/M1A4/M1A7 예외의 의미와 #298 baseline 내용은 그대로다.
+
+### Live journey와 visual evidence
+
+[M1A8 manifest](images/issue-261-fe06-m1a8-data-optional-channel/manifest.json)은 Standard, browser zoom 100%,
+DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. normal Data/session과
+reload, primary/alias의 동일한 deterministic `m1a8-dma.csv` optional-channel 상태, header/navigator/
+mapping/target optional-channel/graph direct source-pixel crop을 캡처했다. 46개 before/after pair는
+[hash와 pixel 비교](images/issue-261-fe06-m1a8-data-optional-channel/equivalence.json)에서 모두 byte/pixel
+identical이고 current guide normal 5개도
+[동일 hash](images/issue-261-fe06-m1a8-data-optional-channel/documentation-impact-equivalence.json)다.
+
+- 1366×768: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1366x768.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png)
+- 1440×900: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1440x900.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png)
+- 1920×1080: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1920x1080.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png)
+- 2560×1440: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-2560x1440.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png)
+- 3840×2160: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-3840x2160.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png)
+
+<details>
+<summary>M1A8 46개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-3840x2160.png)
+- canonical/modeling-data-empty-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-empty-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-empty-1440x900.png)
+- canonical/modeling-data-invalid-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-invalid-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-invalid-1440x900.png)
+- canonical/modeling-data-invalid-scrolled-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-invalid-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-invalid-scrolled-1440x900.png)
+- canonical/modeling-session-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1366x768.png)
+- canonical/modeling-session-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1440x900.png)
+- canonical/modeling-session-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1920x1080.png)
+- crops/modeling-data-optional-channel-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-graph-100pct.png)
+- crops/modeling-data-optional-channel-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-header-100pct.png)
+- crops/modeling-data-optional-channel-1366x768-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-mapping-100pct.png)
+- crops/modeling-data-optional-channel-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png)
+- crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png)
+- crops/modeling-data-optional-channel-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-graph-100pct.png)
+- crops/modeling-data-optional-channel-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-header-100pct.png)
+- crops/modeling-data-optional-channel-1440x900-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-mapping-100pct.png)
+- crops/modeling-data-optional-channel-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png)
+- crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png)
+- crops/modeling-data-optional-channel-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-graph-100pct.png)
+- crops/modeling-data-optional-channel-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-header-100pct.png)
+- crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png)
+- crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png)
+- crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png)
+- crops/modeling-data-optional-channel-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-graph-100pct.png)
+- crops/modeling-data-optional-channel-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-header-100pct.png)
+- crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png)
+- crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png)
+- crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png)
+- crops/modeling-data-optional-channel-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-graph-100pct.png)
+- crops/modeling-data-optional-channel-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-header-100pct.png)
+- crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png)
+- crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png)
+- crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png)
+- originals/modeling-data-optional-channel-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1366x768.png)
+- originals/modeling-data-optional-channel-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1440x900.png)
+- originals/modeling-data-optional-channel-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1920x1080.png)
+- originals/modeling-data-optional-channel-2560x1440.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-2560x1440.png)
+- originals/modeling-data-optional-channel-3840x2160.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-3840x2160.png)
+- routes/datasets-processing/modeling-data-optional-channel-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-1366x768.png)
+- routes/datasets-processing/modeling-data-optional-channel-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-1440x900.png)
+- routes/datasets-processing/modeling-data-optional-channel-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-1920x1080.png)
+- routes/datasets-processing/modeling-data-optional-channel-2560x1440.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-2560x1440.png)
+- routes/datasets-processing/modeling-data-optional-channel-3840x2160.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-3840x2160.png)
+
+</details>
+
+[runtime identity](images/issue-261-fe06-m1a8-data-optional-channel/runtime-identity.json)는 exact Material/State/
+Test Data r1, optional checkbox check/uncheck와 focus, 1 graph line/legend, Data→Process→Data 및 reload read-back을
+확인한다. 모든 viewport에서 target은 local `scrollTop=0`일 때 완전히 보이고 page horizontal overflow는
+없다. 1366의 이후 mapping row가 사용하는 `overflow-y:auto`는 기존 의도된 local scroll이며 target
+clipping이 아니다. 정보 위계, 공학 작업 흐름, responsive/wide-screen composition 세 축은 새로 설계한
+것이 아니라 기존 PASS 상태를 그대로 보존했다. 자동 3840×2160은 geometry 증거일 뿐 실제 Windows 4K
+물리 가독성은 계속 #223에 남는다.
+
+### 검증 상태
+
+- `node --test scripts/check_issue_261_css_inventory.test.mjs`: 9/9 PASS. M1A8 exact packet, legacy
+  residual 0과 후행 generic label rule 앞의 cascade 순서를 고정한다.
+- `node scripts/check_issue_261_css_inventory.mjs`: PASS. 2,777 rule-groups / 3,501 selector rows /
+  M1A 150행 / cross-CSS duplicate 14행이다.
+- Data intake/workspace, Modeling workspace layout, common workbench focused Vitest: 4 files / 57 tests PASS.
+- `npm run test:frontend-guard`: 17/17 PASS. `npm run check:frontend-guard`: 0 violations, 기존 baseline
+  warning 15개만 유지한다.
+- `npm run build --workspace @cmp/web`: TypeScript, Vite production build, bundle budget PASS. Data lazy CSS
+  boundary는 유지된다.
+- `uv run pytest tests/contracts/test_user_guide.py -q`: 46/46 PASS.
+  `uv run cmp-check-user-guide --root .`: PASS; 20 guide documents, 124 current captures, 164 classified
+  Markdown files, 1,704 local links, 3,149 images, orphan 0이다.
+- `uv run cmp-check-doc-impact --root . --mode worktree`: PASS. 두 visual CSS source가 #261의 byte-identical
+  migration으로 등록됐다.
+- final evidence verifier: 46/46 before/after hash·dimension·pixel equality, current guide 5/5 hash,
+  CSS source 2/2 hash와 manifest original 10/10 hash PASS.
+- `git diff --check`: PASS. Docker는 필요하지 않아 실행하지 않았다.
+- canonical independent Balanced auditor는 실제 UI의 exact copy가 `Include optional tan delta channel`임을
+  지적했다. production source나 이미지는 바꾸지 않고 migration plan, user guide, runtime identity의 잘못된
+  명칭 세 곳만 고친 뒤 같은 auditor가 재검토해 APPROVE했다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1261,16 +1396,16 @@ exact M1A7 candidate의 commit, push, PR, Ready 전환과 squash merge를 승인
 5. M1A4 Raw source table preview 17행은 위 candidate에서 이동·검증되었다.
 6. M1A5 Library source list 29 historical row/21 complete rule-group은 위 candidate에서 이동·검증되었다.
 7. M1A6 Data curve-row label 3 complete rule-group은 PR #302, main `822f4401...`로 merge되었다.
-8. M1A7 Data mapping heading 4 historical row는 latest main에서 구현·증거화했고, Main acceptance와
-   Balanced 독립 감사 및 제품 오너의 local-scroll disposition을 통과한 exact publication candidate다.
-9. 다음 `M1A8-modeling-data-component-region`은 재생성 inventory의 남은 M1A 154행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 154행을 함께 이동하지 않는다.
-10. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-11. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-12. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-13. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-14. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-15. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+8. M1A7 Data mapping heading 4 historical row는 PR #306, main `28c47c57...`로 merge되었다.
+9. M1A8 Data optional-channel 4 complete rule-group은 위 uncommitted candidate에서 이동·증거화했다.
+10. 다음 `M1A9-modeling-data-component-region`은 재생성 inventory의 남은 M1A 150행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 150행을 함께 이동하지 않는다.
+11. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+12. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+13. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+14. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+15. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+16. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

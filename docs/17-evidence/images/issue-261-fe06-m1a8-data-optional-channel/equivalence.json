@@ -1,0 +1,518 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A8-modeling-data-optional-channel",
+  "pair_count": 46,
+  "byte_equal_count": 46,
+  "pixel_equal_count": 46,
+  "all_byte_equal": true,
+  "all_pixel_equal": true,
+  "pairs": [
+    {
+      "path": "canonical/modeling-data-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "after_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-empty-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+      "after_sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-invalid-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1",
+      "after_sha256": "265ee614efe31ba472ce5cbf2bc4b975c7e87ba408bcdddd58ac7284936e68c1",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-data-invalid-scrolled-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e",
+      "after_sha256": "5554219e311eef97e7ebba850701ac8fe9d722c9dec56ad94c7844bd14a65b5e",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-session-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "96685a283c8a6fc9600eb5e8d3cbf0753255088c6253d1af3a7d4b1c5a9c9f59",
+      "after_sha256": "96685a283c8a6fc9600eb5e8d3cbf0753255088c6253d1af3a7d4b1c5a9c9f59",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-session-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "8e6e13e0fb6028bf2c675b5cbb816a54bc520face2ab23d6827d6872699357dc",
+      "after_sha256": "8e6e13e0fb6028bf2c675b5cbb816a54bc520face2ab23d6827d6872699357dc",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "canonical/modeling-session-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "735868806d92379778470d303f49d998f16d785cf5e585c888c23134e211a39e",
+      "after_sha256": "735868806d92379778470d303f49d998f16d785cf5e585c888c23134e211a39e",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1366x768-graph-100pct.png",
+      "size": {
+        "width": 1366,
+        "height": 240
+      },
+      "before_sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "after_sha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1366x768-header-100pct.png",
+      "size": {
+        "width": 1366,
+        "height": 50
+      },
+      "before_sha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "after_sha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1366x768-mapping-100pct.png",
+      "size": {
+        "width": 1288,
+        "height": 435
+      },
+      "before_sha256": "8661be4f9a3c0984c39a13b5e594f7b0f5c04fceb08c10f95939f23553090ac7",
+      "after_sha256": "8661be4f9a3c0984c39a13b5e594f7b0f5c04fceb08c10f95939f23553090ac7",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1366x768-navigator-100pct.png",
+      "size": {
+        "width": 1366,
+        "height": 34
+      },
+      "before_sha256": "3c5c33cdd5a1d5bc92842ff28a19fc198bd1125f692f97fbd485dbec9e47a97d",
+      "after_sha256": "3c5c33cdd5a1d5bc92842ff28a19fc198bd1125f692f97fbd485dbec9e47a97d",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png",
+      "size": {
+        "width": 1277,
+        "height": 34
+      },
+      "before_sha256": "7b59f0d71cf4733ee923c382853f361611e8050353994bce7b11c8f58e778d51",
+      "after_sha256": "7b59f0d71cf4733ee923c382853f361611e8050353994bce7b11c8f58e778d51",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1440x900-graph-100pct.png",
+      "size": {
+        "width": 1440,
+        "height": 310
+      },
+      "before_sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "after_sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1440x900-header-100pct.png",
+      "size": {
+        "width": 1440,
+        "height": 50
+      },
+      "before_sha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "after_sha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1440x900-mapping-100pct.png",
+      "size": {
+        "width": 1362,
+        "height": 435
+      },
+      "before_sha256": "6596e0f2041dda98b30320dca374405b11ef740216f0b769ceb52c52cb89f7ac",
+      "after_sha256": "6596e0f2041dda98b30320dca374405b11ef740216f0b769ceb52c52cb89f7ac",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1440x900-navigator-100pct.png",
+      "size": {
+        "width": 1440,
+        "height": 34
+      },
+      "before_sha256": "686427c7f602ac450c32720b34bbbc66b57021e0fe414076a8b08d47d705f880",
+      "after_sha256": "686427c7f602ac450c32720b34bbbc66b57021e0fe414076a8b08d47d705f880",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png",
+      "size": {
+        "width": 1351,
+        "height": 34
+      },
+      "before_sha256": "4950a7d831fde29991071f5e7710d3d5976a315483566150f14dc3e0dacaeb0e",
+      "after_sha256": "4950a7d831fde29991071f5e7710d3d5976a315483566150f14dc3e0dacaeb0e",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1920x1080-graph-100pct.png",
+      "size": {
+        "width": 1920,
+        "height": 490
+      },
+      "before_sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "after_sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1920x1080-header-100pct.png",
+      "size": {
+        "width": 1920,
+        "height": 50
+      },
+      "before_sha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "after_sha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png",
+      "size": {
+        "width": 1842,
+        "height": 435
+      },
+      "before_sha256": "486d85781f1f6112b37f8a88a1c0503bbc1a1033e8aa52e85c0312af47f3fb13",
+      "after_sha256": "486d85781f1f6112b37f8a88a1c0503bbc1a1033e8aa52e85c0312af47f3fb13",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png",
+      "size": {
+        "width": 1920,
+        "height": 34
+      },
+      "before_sha256": "6110480db49d800be98a06dd43743189f1857ad8f6ba1c26db5032e64e8f5578",
+      "after_sha256": "6110480db49d800be98a06dd43743189f1857ad8f6ba1c26db5032e64e8f5578",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png",
+      "size": {
+        "width": 1831,
+        "height": 34
+      },
+      "before_sha256": "a7913d692d46a2b3d8520f51105d9a324903850cd5773bb7dbcca203c6df5d56",
+      "after_sha256": "a7913d692d46a2b3d8520f51105d9a324903850cd5773bb7dbcca203c6df5d56",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-2560x1440-graph-100pct.png",
+      "size": {
+        "width": 2560,
+        "height": 850
+      },
+      "before_sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "after_sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-2560x1440-header-100pct.png",
+      "size": {
+        "width": 2560,
+        "height": 50
+      },
+      "before_sha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "after_sha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png",
+      "size": {
+        "width": 2482,
+        "height": 435
+      },
+      "before_sha256": "5211fa73f2c1f65b9472fcc238da155728d0311f9587523286681567ea802dee",
+      "after_sha256": "5211fa73f2c1f65b9472fcc238da155728d0311f9587523286681567ea802dee",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png",
+      "size": {
+        "width": 2560,
+        "height": 34
+      },
+      "before_sha256": "f0d00e769057629e8e838204afd29a0612f2384db9df64269920a0b3aa27a396",
+      "after_sha256": "f0d00e769057629e8e838204afd29a0612f2384db9df64269920a0b3aa27a396",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png",
+      "size": {
+        "width": 2471,
+        "height": 34
+      },
+      "before_sha256": "a8f4b42a81dcf4a5a8533f539c2982f72c9253ce6d7dce22746a566305b6c715",
+      "after_sha256": "a8f4b42a81dcf4a5a8533f539c2982f72c9253ce6d7dce22746a566305b6c715",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-3840x2160-graph-100pct.png",
+      "size": {
+        "width": 2800,
+        "height": 1200
+      },
+      "before_sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "after_sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-3840x2160-header-100pct.png",
+      "size": {
+        "width": 3840,
+        "height": 50
+      },
+      "before_sha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "after_sha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png",
+      "size": {
+        "width": 3762,
+        "height": 435
+      },
+      "before_sha256": "5d12cb76404af3902b9986bc027cade52b7cd774bde726ff7423192bcea110ff",
+      "after_sha256": "5d12cb76404af3902b9986bc027cade52b7cd774bde726ff7423192bcea110ff",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png",
+      "size": {
+        "width": 3840,
+        "height": 34
+      },
+      "before_sha256": "6c12fdb7d6ca89036142babbdc680d7c251053e04ca9e4869b3027b1874a87fa",
+      "after_sha256": "6c12fdb7d6ca89036142babbdc680d7c251053e04ca9e4869b3027b1874a87fa",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png",
+      "size": {
+        "width": 3751,
+        "height": 34
+      },
+      "before_sha256": "a4077ee0ae43eaa7a85562af3ee752d4bc1173b25f4d9866db112f3aece34e35",
+      "after_sha256": "a4077ee0ae43eaa7a85562af3ee752d4bc1173b25f4d9866db112f3aece34e35",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-optional-channel-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "7708c4a210e400de61f2aae732bcd03bec1b6688a6ae2f467b5938d6d71907ea",
+      "after_sha256": "7708c4a210e400de61f2aae732bcd03bec1b6688a6ae2f467b5938d6d71907ea",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-optional-channel-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "016f0147e3b510d1cc366f919a77c10685be4e79295cb091644c8d8ecf474222",
+      "after_sha256": "016f0147e3b510d1cc366f919a77c10685be4e79295cb091644c8d8ecf474222",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-optional-channel-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "82de654eeafb9d66d6f51f51c5bf2c3e8bee5f7c8097f37bc4e59b39a4e5a274",
+      "after_sha256": "82de654eeafb9d66d6f51f51c5bf2c3e8bee5f7c8097f37bc4e59b39a4e5a274",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-optional-channel-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "a616579fa0ad23130ef52a4e806bf51461e573710905ce517798b91bfd7666be",
+      "after_sha256": "a616579fa0ad23130ef52a4e806bf51461e573710905ce517798b91bfd7666be",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "originals/modeling-data-optional-channel-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "3eaa77ba368eebd4fb5a45f47297731932865f93a3b07684bfa30765aa6bc368",
+      "after_sha256": "3eaa77ba368eebd4fb5a45f47297731932865f93a3b07684bfa30765aa6bc368",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-optional-channel-1366x768.png",
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "before_sha256": "7708c4a210e400de61f2aae732bcd03bec1b6688a6ae2f467b5938d6d71907ea",
+      "after_sha256": "7708c4a210e400de61f2aae732bcd03bec1b6688a6ae2f467b5938d6d71907ea",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-optional-channel-1440x900.png",
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "before_sha256": "016f0147e3b510d1cc366f919a77c10685be4e79295cb091644c8d8ecf474222",
+      "after_sha256": "016f0147e3b510d1cc366f919a77c10685be4e79295cb091644c8d8ecf474222",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-optional-channel-1920x1080.png",
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "before_sha256": "82de654eeafb9d66d6f51f51c5bf2c3e8bee5f7c8097f37bc4e59b39a4e5a274",
+      "after_sha256": "82de654eeafb9d66d6f51f51c5bf2c3e8bee5f7c8097f37bc4e59b39a4e5a274",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-optional-channel-2560x1440.png",
+      "size": {
+        "width": 2560,
+        "height": 1440
+      },
+      "before_sha256": "a616579fa0ad23130ef52a4e806bf51461e573710905ce517798b91bfd7666be",
+      "after_sha256": "a616579fa0ad23130ef52a4e806bf51461e573710905ce517798b91bfd7666be",
+      "byte_equal": true,
+      "pixel_equal": true
+    },
+    {
+      "path": "routes/datasets-processing/modeling-data-optional-channel-3840x2160.png",
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "before_sha256": "3eaa77ba368eebd4fb5a45f47297731932865f93a3b07684bfa30765aa6bc368",
+      "after_sha256": "3eaa77ba368eebd4fb5a45f47297731932865f93a3b07684bfa30765aa6bc368",
+      "byte_equal": true,
+      "pixel_equal": true
+    }
+  ]
+}
