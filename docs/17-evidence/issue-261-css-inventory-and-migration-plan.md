@@ -2018,6 +2018,141 @@ canonical 5개도 current guide와 같은 hash다.
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A14 시작은 이 turn에서 하지 않는다.
 
+## M1A14 Data mapping blocker ownership candidate
+
+`M1A14-modeling-data-mapping-blocker`는 Local file의 invalid column/unit mapping 원인과 고칠 항목을
+mapping controls보다 먼저 보여 주는 live blocker 한 영역을 DOM/cascade 기준으로 묶는다. CSS-1007,
+CSS-1014, CSS-1015, CSS-1511의 4 selector row를 Data stage owner로 옮겼다. 4개 touched group 중
+3개 complete group을 제거했고, 공유 density group 한 곳에서는 live `.data-mapping-blockers` member만
+제거했다. recovery-row blocker와 다른 Data/Process/Fit 규칙은 남겼다. 선언과 상대 cascade 순서는
+같으며 React, DOM, API, copy, state, token, breakpoint와 `styles.css`는 변경하지 않았다.
+
+| Metric | M1A13 | M1A14 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,734 | 2,731 | -3 |
+| expanded global selector rows | 3,438 | 3,434 | -4 |
+| M1A Data rows | 87 | 83 | -4 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `4/4/3/1`, exact legacy residual 0, 남은 M1A 83행과 다음 router
+`M1A15-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css`를 8,304줄에서
+8,282줄로, global selector debt를 2,734에서 2,731로 낮췄다. #298 baseline 내용은 유지했고,
+기존 #261 예외는 같은 surviving selector의 새 줄 fingerprint로만 갱신했다.
+
+### Live journey와 visual evidence
+
+[M1A14 manifest](images/issue-261-fe06-m1a14-data-mapping-blocker/manifest.json)은 Standard, browser zoom
+100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. exact M1A13
+시작 commit `2ee433dd80a4076bb56d6e4b897e56a29b67d3ac`과 candidate는 같은 API, `/modeling` route와
+225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
+`06dc786ad8cfb6178c85590ff52f5fac9330385e837ac8441a95a24bb163ef1b`)을 사용했다. exact 복원
+session에서 `Tensile test 0001`, invalid stress unit/source-column blocker와 마지막 유효 graph를 유지하고,
+같은 local region의 keyboard scroll-end도 확인했다. exact selection, Data→Process→Data와 reload/read-back
+contract는 그대로다.
+
+[hash와 pixel 비교](images/issue-261-fe06-m1a14-data-mapping-blocker/equivalence.json)는 canonical 5,
+focused blocker 원본 5, scroll-end 5, header/navigator/controls/source/blocker/graph 100%-pixel crop 30을
+합한 45 pair를 기록한다. canonical 5쌍을 포함한 30/45쌍은 PNG byte와 decoded pixel이 모두 같다.
+focused 원본 5쌍에는 이동 selector 밖 Test record native control의 source 좌표 `(113,224)`에서
+`FFFFFFFF` → `FFFFFFE6` 한 픽셀 raster variance가 있고, 같은 source pixel을 포함한 controls/source
+crop까지 합쳐 15/45쌍은 exact pixel-identical이 아니다. 각 variant pair는 변경 pixel 1개, 최대 channel
+delta 25이며 blocker geometry/rendering, runtime identity와 interaction은 같다.
+[runtime identity](images/issue-261-fe06-m1a14-data-mapping-blocker/runtime-identity.json)는 다섯 viewport의
+geometry, page overflow 0, keyboard local scrolling과 session identity가 before/after에서 같음을 기록한다.
+[documentation impact](images/issue-261-fe06-m1a14-data-mapping-blocker/documentation-impact-equivalence.json)의
+canonical 5개도 current guide와 같은 hash다.
+
+- 1366×768: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1366x768.png) / [blocker crop](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png)
+- 1440×900: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1440x900.png) / [scroll end](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1440x900.png) / [controls](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png)
+- 1920×1080: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1920x1080.png) / [source](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png)
+- 2560×1440: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-2560x1440.png) / [blocker crop](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png)
+- 3840×2160: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-3840x2160.png) / [navigator](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png)
+
+<details>
+<summary>M1A14 45개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png)
+- crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png)
+- crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png)
+- crops/modeling-data-mapping-blocker-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-header-100pct.png)
+- crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png)
+- crops/modeling-data-mapping-blocker-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-source-100pct.png)
+- crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png)
+- crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png)
+- crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png)
+- crops/modeling-data-mapping-blocker-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-header-100pct.png)
+- crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png)
+- crops/modeling-data-mapping-blocker-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-source-100pct.png)
+- crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png)
+- crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png)
+- crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png)
+- crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png)
+- crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png)
+- crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png)
+- crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png)
+- crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png)
+- crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png)
+- crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png)
+- crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png)
+- crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png)
+- crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png)
+- crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png)
+- crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png)
+- crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png)
+- crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png)
+- crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png)
+- originals/modeling-data-mapping-blocker-1366x768.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-1366x768.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1366x768.png)
+- originals/modeling-data-mapping-blocker-1440x900.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-1440x900.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1440x900.png)
+- originals/modeling-data-mapping-blocker-1920x1080.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-1920x1080.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1920x1080.png)
+- originals/modeling-data-mapping-blocker-2560x1440.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-2560x1440.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-2560x1440.png)
+- originals/modeling-data-mapping-blocker-3840x2160.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-3840x2160.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-3840x2160.png)
+- states/modeling-data-mapping-blocker-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1366x768.png)
+- states/modeling-data-mapping-blocker-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1440x900.png)
+- states/modeling-data-mapping-blocker-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1920x1080.png)
+- states/modeling-data-mapping-blocker-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-2560x1440.png)
+- states/modeling-data-mapping-blocker-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-3840x2160.png)
+
+</details>
+
+모든 viewport에서 blocker 문구, mapping controls와 마지막 유효 graph가 보존된다. scroll-end 원본의
+상단 일부 비노출은 M1A13에서 승인된 같은 내부 local-scroll 위치이며 clipping이 아니다. 새 page overflow,
+interaction 결함이나 wide-screen geometry 변화는 없다. 자동 4K 캡처는 geometry만 입증하고 실제 Windows
+4K 물리 가독성은 #223에 남는다.
+
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: source → exact Test record → blocker → mapping controls → graph의 기존 판단 순서가
+  그대로다. M1A14가 이 계층을 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: invalid mapping 원인과 복구 요구를 해당 위치에서 읽고 마지막 유효 graph와
+  다음 Process 이동을 유지하는 흐름이 그대로다. 새 task flow를 구현하지 않았다.
+- SAP식 responsive/wide composition PASS: 1366에서도 blocker와 작업이 보존되고 wide viewport에서는 graph가
+  유용하게 성장한다. 새 breakpoint나 wide-screen policy를 추가하지 않았다.
+- Main acceptance PASS: exact 4 selector row/4 group의 `3/1` complete/partial ownership delta와 legacy
+  residual 0을 확인했다. inventory checker contract 13/13, frontend guard contract 17/17과 actual 0
+  violations/기존 warning 15, focused Vitest 5 files/61 tests, TypeScript/Vite production build와 bundle
+  budget, corrected user-guide contract 46/46, user-guide checker, documentation impact, 90개 evidence
+  hash, exact byte/pixel 30/45 pair,
+  one-pixel native-control raster variance로 정확히 기록한 15/45 pair와 diff check가
+  통과했다. user-guide contract는 처음 45 pass/1 orphan-link metadata failure 뒤 누락된 exact evidence
+  link만 보완하고 해당 test가 통과했다. 첫 root-level Vitest 호출은 `apps/web` jsdom/include 설정을
+  우회해 `.artifacts` baseline까지 수집한 잘못된 invocation이었으며, 올바른 app cwd 재실행의
+  61/61 결과만 acceptance로 사용했다.
+- 같은 canonical `independent_auditor_terra_high` 재검토 APPROVE: 30/45 exact pair와 이동 selector 밖
+  native-control 한 픽셀 variance 15/45의 정정 기록이 정확하고, CSS scope/metric/evidence hash/runtime
+  overflow·local scroll/recovery selector 보존에 actionable finding이 없다고 확인했다.
+- 첫 independent audit는 CSS 범위·소유권과 runtime 보존은 승인했지만, 15개 focused/crop pair의 한 픽셀
+  차이를 `45/45 pixel-identical`로 기록한 metadata를 publication blocker로 지적했다. Main이 CSS나 PNG를
+  바꾸지 않고 equivalence/manifest/plan/screenshot-manifest의 exact count와 variance 설명만 바로잡았고,
+  같은 auditor가 수정본을 재검토해 APPROVE했다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A15 시작은 이 turn에서 하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -2034,14 +2169,15 @@ canonical 5개도 current guide와 같은 hash다.
 12. M1A11 Data File details 5 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
 13. M1A12 Data mapping change actions 21 selector row/20 rule-group은 위 candidate에서 이동·증거화했다.
 14. M1A13 Data Local file scrollport 6 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
-15. 다음 `M1A14-modeling-data-component-region`은 재생성 inventory의 남은 M1A 87행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 87행을 함께 이동하지 않는다.
-16. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-17. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-18. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-19. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-20. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-21. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+15. M1A14 Data mapping blocker 4 selector row/4 rule-group은 위 candidate에서 이동·증거화했다.
+16. 다음 `M1A15-modeling-data-component-region`은 재생성 inventory의 남은 M1A 83행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 83행을 함께 이동하지 않는다.
+17. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+18. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+19. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+20. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+21. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+22. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

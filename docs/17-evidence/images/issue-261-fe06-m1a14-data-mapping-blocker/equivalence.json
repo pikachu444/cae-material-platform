@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A14-modeling-data-mapping-blocker",
+  "source_sha": "2ee433dd80a4076bb56d6e4b897e56a29b67d3ac",
+  "imagePairs": 45,
+  "byteIdenticalPairs": 30,
+  "pixelIdenticalPairs": 30,
+  "singlePixelRasterVariancePairs": 15,
+  "maxChangedPixelsPerVariantPair": 1,
+  "maxChannelDelta": 25,
+  "varianceClassification": "The five focused originals contain one native Test record control raster pixel change at source coordinate (113,224), FFFFFFFF to FFFFFFE6. The same source pixel is included in the controls and source crops, yielding 15 non-identical pairs. The changed pixel is outside the migrated blocker selectors; geometry, runtime identity, blocker rendering and interaction are unchanged.",
+  "pairs": [
+    {
+      "relativePath": "canonical/modeling-data-1366x768.png",
+      "beforeSha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "afterSha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "canonical/modeling-data-1440x900.png",
+      "beforeSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "afterSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "canonical/modeling-data-1920x1080.png",
+      "beforeSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "afterSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "canonical/modeling-data-2560x1440.png",
+      "beforeSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "afterSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "canonical/modeling-data-3840x2160.png",
+      "beforeSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "afterSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png",
+      "beforeSha256": "973cc6fc55d26d5969006f6a25b01ff3324a3fdf1d38c9e196b271dbf8c5ed20",
+      "afterSha256": "973cc6fc55d26d5969006f6a25b01ff3324a3fdf1d38c9e196b271dbf8c5ed20",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png",
+      "beforeSha256": "6cff92fcafa162be1040c67425f40384580754a672f9ba422bdfbea53bda3a2a",
+      "afterSha256": "c294475667d30cf944e7f40ee1fd987a02d03204dc95808c8efaca098d219bda",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png",
+      "beforeSha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "afterSha256": "7bb104f1982274518bbe92b8d60e8fea430296c0c6183d6b51f2599399f87228",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1366x768-header-100pct.png",
+      "beforeSha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c",
+      "afterSha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png",
+      "beforeSha256": "a2383cfe6c462d7530d5f4d0bd08131c2aedf2a02ed1a29547397c7abc6967e2",
+      "afterSha256": "a2383cfe6c462d7530d5f4d0bd08131c2aedf2a02ed1a29547397c7abc6967e2",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1366x768-source-100pct.png",
+      "beforeSha256": "677ed8c8cfee0c07a2b0eb3968aeeca025f3f00cbfae64043383fe99837f8433",
+      "afterSha256": "be6097b3efe062c818c055ce3458b24e3166c7edd3866fe4a85464966ee5b40a",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png",
+      "beforeSha256": "34af4539efb6bfc2087cce61c6efcec7bf5d79bfabc4fdfaef25ea8b83e309ff",
+      "afterSha256": "34af4539efb6bfc2087cce61c6efcec7bf5d79bfabc4fdfaef25ea8b83e309ff",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png",
+      "beforeSha256": "9b3bb15602110fbc579aaebae4930b2bce42c669a0bfbdc0efeb06ba8d078a57",
+      "afterSha256": "ed9814b256fa6bafa75d8dea23cb62dedca75c3d0ba11b232ec0fbb1a6272b56",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png",
+      "beforeSha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "afterSha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1440x900-header-100pct.png",
+      "beforeSha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58",
+      "afterSha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png",
+      "beforeSha256": "f8445116594b8bdba65e460d3280793cc52a83579dbfe2403d4a3bf10154e423",
+      "afterSha256": "f8445116594b8bdba65e460d3280793cc52a83579dbfe2403d4a3bf10154e423",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1440x900-source-100pct.png",
+      "beforeSha256": "daaa2a7e24733400d3ee6aa5c0e86b8aaccd6d18728918bc306b8d96526c45cf",
+      "afterSha256": "268429d934d1b6dc68f05b7610a81ea556eff2c3b5c2459b732d790d8e424212",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png",
+      "beforeSha256": "17e7bbbfa83c9557d7d122ec9c58da14e0707662f319bfae292219476a024116",
+      "afterSha256": "17e7bbbfa83c9557d7d122ec9c58da14e0707662f319bfae292219476a024116",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png",
+      "beforeSha256": "88d6c8b879aeb2c08e4bb6d923c70a27c89198cf21e82217380334da4f8a0ba1",
+      "afterSha256": "71148ddaec5d5411ed3e08d0c604cb8cfdae23f255d643c70797f6bae081da95",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png",
+      "beforeSha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "afterSha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png",
+      "beforeSha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e",
+      "afterSha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png",
+      "beforeSha256": "272aba6c302eff94ce077d58218e75b7ff5561f2ba8fd550850d48402a3e0a0a",
+      "afterSha256": "272aba6c302eff94ce077d58218e75b7ff5561f2ba8fd550850d48402a3e0a0a",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png",
+      "beforeSha256": "6c7ba310eb0c550b7fbf408579d1fac090663ab1ec9a6b9e49edf597de5dcba1",
+      "afterSha256": "8dc68c67a674ba44badbf27e9bf30c71f7f2cbd87732eb882ba0bd2e2102e81b",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png",
+      "beforeSha256": "7e1c8b3cd0c59d5d152ea3a4733adcc67a8c2b119616d835a36e55751393d0d2",
+      "afterSha256": "7e1c8b3cd0c59d5d152ea3a4733adcc67a8c2b119616d835a36e55751393d0d2",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png",
+      "beforeSha256": "5c9e531a61df34b5f352a69ab76236ebf9f06b24101794e5996a7eaa007de3df",
+      "afterSha256": "4ae52d446868be2079c13acc3e0f323cf1c391cf75d17ccdeb2b1c1cd5c8d532",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png",
+      "beforeSha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "afterSha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png",
+      "beforeSha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc",
+      "afterSha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png",
+      "beforeSha256": "4596794edc2f6bbe95e9ed6a98ea41fb23da2f30a41b8e1f7164ac2b9a306b67",
+      "afterSha256": "4596794edc2f6bbe95e9ed6a98ea41fb23da2f30a41b8e1f7164ac2b9a306b67",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png",
+      "beforeSha256": "2eeb25ce6b8208137d1a09d86137a37ba7c767023334e5747eb938355a20f2ce",
+      "afterSha256": "8d96a7c0517a5c2e1cbf5318d4ab8533ea0f7fafd4954840df6a594ab0f88851",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png",
+      "beforeSha256": "79c131499643455af3f2139ece43a342cc6b1633c12800f5ae9e7a237d496508",
+      "afterSha256": "79c131499643455af3f2139ece43a342cc6b1633c12800f5ae9e7a237d496508",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png",
+      "beforeSha256": "e1261a98c30cf71c6e1fcd0a4a1201cbd7c7a1457a20b6338313b2e6b3f63f0a",
+      "afterSha256": "303ae234354f00252062410146828de261a29d0b18d42f691973516f4dd52439",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png",
+      "beforeSha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "afterSha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png",
+      "beforeSha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1",
+      "afterSha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png",
+      "beforeSha256": "ea75df7af49c2c4bac3b3931211a3df1bd344e340e45b02d2d3e5dad63a9a309",
+      "afterSha256": "ea75df7af49c2c4bac3b3931211a3df1bd344e340e45b02d2d3e5dad63a9a309",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png",
+      "beforeSha256": "c1b3ff7834b443551d1c976b7f1333f2b1b3e0a58c46b6a5bde1442d9c2eac1c",
+      "afterSha256": "9b8fdfa4c98314924a300029048d6cc8655cb78ee3628f2201029840445347fa",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "originals/modeling-data-mapping-blocker-1366x768.png",
+      "beforeSha256": "2016bc2f2a377f6628786d3b6876377834ce3176bf2787b9ea1a7e3525c0f79e",
+      "afterSha256": "a787defeed1714f148bececdcc78399f6a0169f26ed783c0ca7882c0c5fe210e",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "originals/modeling-data-mapping-blocker-1440x900.png",
+      "beforeSha256": "f0ef8097d879dad05b15508a0d1c8053c12e18b370f270873028388c7edf995f",
+      "afterSha256": "f0a6fc14e51e6c01a9e76690e06fe93952f086c7b2f15a1ac66faec3cc353fd4",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "originals/modeling-data-mapping-blocker-1920x1080.png",
+      "beforeSha256": "3bb4ef58e55ed1ed9a17eb177124254564d2c2fa9b7fcf19dd75ef2a1eadaedd",
+      "afterSha256": "16381900aa340a87aa1cbfec0327931dc4661e7218783faeebc10dc82e9ecab2",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "originals/modeling-data-mapping-blocker-2560x1440.png",
+      "beforeSha256": "555eb68690ad023926b6f01d427c3ed6fa5a12fef6672e792c183de55aae9b59",
+      "afterSha256": "fc9eaecb1e0ab9bb6236c4b66029e5892c709e0a2470a97d7f836577f3bc8640",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "originals/modeling-data-mapping-blocker-3840x2160.png",
+      "beforeSha256": "4f17bbdab0b5e5dfabbfb6ee2d7292bd909b67d384031827ca7b03d678ab23ad",
+      "afterSha256": "742645fb6bc1abb26a6dfcf19a0c9fa95a07e14bc6b623c924d9aec99e6f3301",
+      "byteEqual": false,
+      "pixelEqual": false
+    },
+    {
+      "relativePath": "states/modeling-data-mapping-blocker-scroll-end-1366x768.png",
+      "beforeSha256": "c1f121f8a9d89e792a0781807cb868ee4c18a7dcf42f082e42f72cb8b1166058",
+      "afterSha256": "c1f121f8a9d89e792a0781807cb868ee4c18a7dcf42f082e42f72cb8b1166058",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "states/modeling-data-mapping-blocker-scroll-end-1440x900.png",
+      "beforeSha256": "2480142c95570e5ee4e413b26d043be6d73b61bed299d7eeeab928510c1b91ca",
+      "afterSha256": "2480142c95570e5ee4e413b26d043be6d73b61bed299d7eeeab928510c1b91ca",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "states/modeling-data-mapping-blocker-scroll-end-1920x1080.png",
+      "beforeSha256": "29c0fb9f4048e417f776db1ddfb24d99db0133712086ab96c682097b99ed6390",
+      "afterSha256": "29c0fb9f4048e417f776db1ddfb24d99db0133712086ab96c682097b99ed6390",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "states/modeling-data-mapping-blocker-scroll-end-2560x1440.png",
+      "beforeSha256": "9b044fce80613b94a4e63ef54d3321d8121fef4403563bae0040e49535966d4c",
+      "afterSha256": "9b044fce80613b94a4e63ef54d3321d8121fef4403563bae0040e49535966d4c",
+      "byteEqual": true,
+      "pixelEqual": true
+    },
+    {
+      "relativePath": "states/modeling-data-mapping-blocker-scroll-end-3840x2160.png",
+      "beforeSha256": "f944cd2dccc011b363076cb858a20fb2bc23aaab714c0b3418a6f27359b18b79",
+      "afterSha256": "f944cd2dccc011b363076cb858a20fb2bc23aaab714c0b3418a6f27359b18b79",
+      "byteEqual": true,
+      "pixelEqual": true
+    }
+  ]
+}

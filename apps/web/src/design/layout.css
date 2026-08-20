@@ -4919,14 +4919,6 @@
   align-items: start;
 }
 
-.data-mapping-decision .data-mapping-blockers {
-  max-width: none;
-  gap: 3px;
-  padding: 6px 8px;
-  border-left: 3px solid var(--ux-danger);
-  background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent);
-}
-
 .data-mapping-recovery-row .data-mapping-blockers {
   min-width: 0;
   max-width: none;
@@ -4957,19 +4949,6 @@
 .data-mapping-decision .data-mapping-attention,
 .data-mapping-decision > .data-mapping-resolved {
   min-width: 0;
-}
-
-.data-mapping-blockers {
-  display: grid;
-  gap: 2px;
-  min-width: 180px;
-  max-width: 360px;
-  color: var(--ux-danger);
-  font-size: 13px;
-}
-
-.data-mapping-blockers strong {
-  color: var(--ux-text);
 }
 
 .modeling-ribbon-actions {
@@ -7131,7 +7110,6 @@
 }
 
 .modeling-data-intake,
-.data-mapping-blockers,
 .data-mapping-recovery-row .data-mapping-blockers {
   font-size: var(--ux-data-font-size);
 }
