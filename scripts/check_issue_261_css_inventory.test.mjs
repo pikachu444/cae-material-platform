@@ -254,7 +254,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A5.fullyRemovedRuleGroups, 21);
   assert.equal(completedM1A5.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A5.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 161);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 158);
   for (const selector of completedM1A5.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -262,8 +262,35 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} no longer has exact legacy ownership`,
     );
   }
+  const completedM1A6 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === "M1A6-modeling-data-curve-row-label",
+  );
+  assert.ok(completedM1A6);
+  assert.deepEqual(completedM1A6.actualAfter, {
+    cssRuleGroups: 2784,
+    selectorRows: 3509,
+    crossCssDuplicateRows: 14,
+  });
+  assert.deepEqual(completedM1A6.historicalMemberIds, [
+    "CSS-1497",
+    "CSS-1498",
+    "CSS-1499",
+  ]);
+  assert.equal(completedM1A6.selectorRowsRemoved, 3);
+  assert.equal(completedM1A6.touchedRuleGroups, 3);
+  assert.equal(completedM1A6.fullyRemovedRuleGroups, 3);
+  assert.equal(completedM1A6.partiallyShrunkRuleGroups, 0);
+  assert.deepEqual(completedM1A6.residualExactSelectorRows, []);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 158);
+  for (const selector of completedM1A6.exactLegacySelectors) {
+    assert.equal(
+      inventory.selectors.some((row) => row.selector === selector),
+      false,
+      `${selector} no longer has exact legacy ownership`,
+    );
+  }
   assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
-    id: "M1A6-modeling-data-component-region",
+    id: "M1A7-modeling-data-component-region",
     status: "owner-packet-required",
     scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
   });

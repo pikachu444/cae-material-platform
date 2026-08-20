@@ -1092,6 +1092,103 @@ registered current PNG byte stream으로 보존한 다음 다섯 쌍이다: [136
   않고 raw probe를 보존하면서 Q-02/Q-09를 not-applicable로 수정해 evidence claim만 교정했다. 같은 Balanced
   auditor의 재감사는 blocker/major/material/minor `0/0/0/0`으로 최종 `APPROVE`했다.
 
+## M1A6 Data curve-row label ownership candidate
+
+### Exact scope와 ownership 결과
+
+지정 base를 `b561da5a102001565267b1db70e452829ed92cec`로 refreeze한 뒤에도 historical selector ID와 full selector는
+승인 packet과 정확히 일치했다. `CSS-1497`–`CSS-1499`의 complete rule-group 세 개만 선언과 상대 순서를
+그대로 `layout.css`에서 `modeling-data-stage.css`의 Data tree 영역으로 옮겼다.
+
+- `.modeling-data-curve-tree .curve-row-label`
+- `.modeling-data-curve-tree .curve-row-label > span`
+- `.modeling-data-curve-tree .curve-row-label strong`
+
+React, DOM, API, copy, state, route, token, breakpoint, `styles.css`, generic curve label, Process/Fit와 인접
+M6 규칙은 바꾸지 않았다. 현재 production Data adapter는 exact historical parent
+`.modeling-data-curve-tree`를 출력하지 않는다. 따라서 이 규칙을 삭제하지 않고 Data owner로 옮겼으며,
+live evidence는 현재 Data/Process 경로의 collateral no-change를 확인한다.
+
+| Metric | M1A5 | M1A6 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,787 | 2,784 | -3 |
+| expanded global selector rows | 3,512 | 3,509 | -3 |
+| M1A Data rows | 161 | 158 | -3 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 13 | 14 | +1 from specified base |
+
+cross-CSS duplicate 증가는 이 이동이 만든 것이 아니다. 지정 base의 #297이
+`database-design.css`에 `.catalog-schema-editor` owner를 추가해 기존 `layout.css` row `CSS-0725`와
+겹친 결과다. M1A6 exact selector 세 개의 legacy residual은 0이며 새 duplicate peer는 없다. checker는
+M1A5 역사값 `2787/3512/13`을 고정하고 M1A6 실제값 `2784/3509/14`, structural delta `3/3/3/0`,
+남은 M1A 158행과 다음 router `M1A7-modeling-data-component-region`을 검사한다.
+
+### Live journey와 visual evidence
+
+[M1A6 manifest](images/issue-261-fe06-m1a6-data-curve-row-label/manifest.json)은 Standard, browser zoom
+100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. canonical normal
+원본 5쌍, focus 상태 primary 원본 5쌍, header/navigator/table/graph direct 100%-pixel crop 20쌍, 모두 30쌍은
+encoder bytes와 source pixel이 동일하다. geometry와 runtime identity JSON도 before/after가 동일하다.
+현재 guide 보존 원본도 [1366 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-1366x768.png),
+[1366 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-1366x768.png),
+[1440 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-1440x900.png),
+[1440 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-1440x900.png),
+[1920 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-1920x1080.png),
+[1920 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-1920x1080.png),
+[2560 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-2560x1440.png),
+[2560 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-2560x1440.png),
+[3840 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-3840x2160.png),
+[3840 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-3840x2160.png)이며,
+각각 등록된 `docs/user-guide/images/current/modeling-data-*`와 encoder bytes가 동일하다.
+
+1366 상태의 read-only probe는 focus 가능한 Test Data result region, exact primary row와 graph를 확인하고,
+Data→Process에서 exact curve identity 세 개와 keyboard-focus 가능한 comparison visibility control을 확인한 뒤
+Data로 돌아와 reload했다. session snapshot은 round-trip과 reload 뒤 동일했다. alias route 캡처는 동일한
+동작·geometry 보조 증거다. route 진입 직후 responsive SVG redraw timing 때문에 일부 alias encoder stream은
+비결정적이므로 pixel-equivalence 수치에는 포함하지 않았다.
+
+#249의 세 축은 모두 PASS다. 정보 계층은 Test Data table과 선택 상태가 우선이고, engineering task flow는
+Data 선택→graph→Process→Data→reload가 유지되며, responsive/wide-screen composition은 navigator를 bounded로
+두고 graph에 유효 공간을 준다. Q-05/Q-06/Q-07/Q-15/Q-20은 PASS이고, 짧은 tree/result fixture라
+Q-01/Q-02/Q-09는 not-applicable이다. 자동 3840×2160은 geometry 증거일 뿐 실제 Windows 4K 물리 가독성은
+계속 #223에 남는다. Product Owner의 1920/2560/3840 원본 승인은 아직 pending이다.
+
+<details>
+
+<summary>M1A6 exact originals and direct 100%-pixel crops</summary>
+
+- 1366x768: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1366x768.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1366x768.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-1366x768.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-1366x768.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-graph-100pct.png)
+- 1440x900: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1440x900.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1440x900.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-1440x900.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-1440x900.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-graph-100pct.png)
+- 1920x1080: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1920x1080.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1920x1080.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-1920x1080.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-1920x1080.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-graph-100pct.png)
+- 2560x1440: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-2560x1440.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-2560x1440.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-2560x1440.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-2560x1440.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-graph-100pct.png)
+- 3840x2160: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-3840x2160.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-3840x2160.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-3840x2160.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-3840x2160.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-3840x2160.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-3840x2160.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-graph-100pct.png)
+
+</details>
+
+### Validation과 publication boundary
+
+PR #300이 이전 frontend-guard 여섯 건을 해결한 뒤 candidate를
+`b561da5a102001565267b1db70e452829ed92cec`에 refreeze했다. latest-main #298 baseline과 #299 screenshot
+manifest를 그대로 유지하면서 이 M1A6의 line/rule/fingerprint와 exact-hash 항목만 더했다. 두 production
+CSS Git blob은 보존 candidate와 각각 `825338da...`, `cc34ebe0...`로 동일하고, 이전 base와 새 base 사이
+Modeling route/state/input 변경은 0개다. 모든 PNG도 safety snapshot과 byte-identical이므로 이미 original
+resolution으로 확인한 다섯 viewport evidence를 재사용했다. 30/30 before/after pair와 current guide 5/5
+hash closure, exact Data/revision, graph, focus, Data→Process→Data와 reload identity가 계속 일치한다.
+
+Main acceptance에서 inventory checker 및 contract 7/7, affected Data/Process Vitest 30/30,
+TypeScript/Vite production build와 bundle budget, frontend guard 0 violation/기존 warning 15,
+user-guide, docs-impact, `git diff --check`, exact 96-path scope를 모두 PASS했다. 재생성 inventory는 2,784
+global rule-group, 3,509 selector row, M1A 158행, HOLD 446행, cross-CSS duplicate 14행, M1A6 legacy residual
+0이다. 새 Docker/browser 실행은 하지 않았다. production source, route/state/input과 evidence hash가 모두
+동일해 기존 canonical flow와 visual evidence가 유효하기 때문이다. Balanced 독립 감사 뒤에만 승인된
+commit/push/Draft PR을 진행하고, 제품 오너의 1920/2560/3840 원본 확인 전에는 Ready/merge하지 않는다.
+
+같은 canonical `independent_auditor_terra_high`는 actual latest-base commit을 읽기 전용으로 재검사했다.
+exact 96-path scope, 세 selector rule의 verbatim 이동과 순서, #298 baseline과 #299 screenshot manifest 보존,
+inventory closure, 30 pair/5 current hash와 safety snapshot의 80 PNG blob을 모두 확인했으며
+blocker/major/material/minor `0/0/0/0`으로 `APPROVE`했다. 이 승인은 Draft publication까지만 허용하며 제품
+오너 wide-original 판정 전 Ready/merge를 허용하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1100,14 +1197,16 @@ registered current PNG byte stream으로 보존한 다음 다섯 쌍이다: [136
 4. M1A3 Data import diagnostics 7행은 published M1A3에서 이동·검증되었다.
 5. M1A4 Raw source table preview 17행은 위 candidate에서 이동·검증되었다.
 6. M1A5 Library source list 29 historical row/21 complete rule-group은 위 candidate에서 이동·검증되었다.
-7. 다음 단위 `M1A6-modeling-data-component-region`은 재생성 inventory의 남은 M1A 161행에서 한 component
-   region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 161행을 함께 이동하지 않는다.
-8. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-9. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-10. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-11. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-12. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-13. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+7. M1A6 Data curve-row label 3 complete rule-group candidate는 latest main에서 구현·Main 검증됐고 Balanced
+   독립 감사 및 Draft publication boundary만 남았다.
+8. M1A6 Draft와 제품 오너 wide-original 판정 뒤 다음 단위 `M1A7-modeling-data-component-region`은 재생성 inventory의 남은 M1A 158행에서
+   한 component region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 158행을 함께 이동하지 않는다.
+9. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+10. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+11. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+12. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+13. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+14. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

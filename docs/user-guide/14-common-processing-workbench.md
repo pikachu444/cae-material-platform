@@ -99,7 +99,9 @@ specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `
 바꿉니다. 제목 오른쪽의 짧은 가로 색상 표본은 해당 curve의 plot 색상만 나타내며 제목 앞에 기호처럼 붙지 않습니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
 짧게 표시합니다. Data는 specimen과 exact revision을 두 줄로, Process는 `Specimen 0N · rN` 한 줄로
 표시하므로 hover 없이도 현재 선택 identity를 확인할 수 있습니다. Fit은 기존 document label과
-specimen/revision 보조 줄을 유지합니다. 이 rail은 Validate, Review와
+specimen/revision 보조 줄을 유지합니다. 긴 curve 이름은 이름 줄만 말줄임표로 정리하고 exact revision과
+선택·키보드 focus 상태는 유지하므로, graph를 오가거나 화면을 다시 열어도 현재 입력을 구분할 수 있습니다.
+이 rail은 Validate, Review와
 Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 서버 metadata에 기록된 confidence band를 함께 표시합니다. 범례와 tooltip은

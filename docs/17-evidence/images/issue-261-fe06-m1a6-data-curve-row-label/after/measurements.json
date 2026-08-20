@@ -1,0 +1,217 @@
+[
+  {
+    "viewport": "1366x768",
+    "browserZoomPercent": 100,
+    "devicePixelRatio": 1,
+    "cropBoxes": {
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 50
+      },
+      "navigator": {
+        "x": 0,
+        "y": 155,
+        "width": 288,
+        "height": 567
+      },
+      "table": {
+        "x": 307,
+        "y": 160,
+        "width": 1045,
+        "height": 219
+      },
+      "graph": {
+        "x": 293,
+        "y": 390,
+        "width": 1073,
+        "height": 332
+      }
+    },
+    "workspaceBox": {
+      "x": 0,
+      "y": 122,
+      "width": 1366,
+      "height": 646
+    },
+    "plotBox": {
+      "x": 293,
+      "y": 390,
+      "width": 1073,
+      "height": 332
+    }
+  },
+  {
+    "viewport": "1440x900",
+    "browserZoomPercent": 100,
+    "devicePixelRatio": 1,
+    "cropBoxes": {
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 50
+      },
+      "navigator": {
+        "x": 0,
+        "y": 155,
+        "width": 288,
+        "height": 699
+      },
+      "table": {
+        "x": 307,
+        "y": 160,
+        "width": 1119,
+        "height": 219
+      },
+      "graph": {
+        "x": 293,
+        "y": 390,
+        "width": 1147,
+        "height": 464
+      }
+    },
+    "workspaceBox": {
+      "x": 0,
+      "y": 122,
+      "width": 1440,
+      "height": 778
+    },
+    "plotBox": {
+      "x": 293,
+      "y": 390,
+      "width": 1147,
+      "height": 464
+    }
+  },
+  {
+    "viewport": "1920x1080",
+    "browserZoomPercent": 100,
+    "devicePixelRatio": 1,
+    "cropBoxes": {
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 50
+      },
+      "navigator": {
+        "x": 0,
+        "y": 155,
+        "width": 288,
+        "height": 879
+      },
+      "table": {
+        "x": 307,
+        "y": 160,
+        "width": 1599,
+        "height": 219
+      },
+      "graph": {
+        "x": 293,
+        "y": 390,
+        "width": 1627,
+        "height": 644
+      }
+    },
+    "workspaceBox": {
+      "x": 0,
+      "y": 122,
+      "width": 1920,
+      "height": 958
+    },
+    "plotBox": {
+      "x": 293,
+      "y": 390,
+      "width": 1627,
+      "height": 644
+    }
+  },
+  {
+    "viewport": "2560x1440",
+    "browserZoomPercent": 100,
+    "devicePixelRatio": 1,
+    "cropBoxes": {
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 2560,
+        "height": 50
+      },
+      "navigator": {
+        "x": 0,
+        "y": 155,
+        "width": 288,
+        "height": 1239
+      },
+      "table": {
+        "x": 307,
+        "y": 160,
+        "width": 2239,
+        "height": 219
+      },
+      "graph": {
+        "x": 293,
+        "y": 390,
+        "width": 2267,
+        "height": 1004
+      }
+    },
+    "workspaceBox": {
+      "x": 0,
+      "y": 122,
+      "width": 2560,
+      "height": 1318
+    },
+    "plotBox": {
+      "x": 293,
+      "y": 390,
+      "width": 2267,
+      "height": 1004
+    }
+  },
+  {
+    "viewport": "3840x2160",
+    "browserZoomPercent": 100,
+    "devicePixelRatio": 1,
+    "cropBoxes": {
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 3840,
+        "height": 50
+      },
+      "navigator": {
+        "x": 0,
+        "y": 155,
+        "width": 288.015625,
+        "height": 1959
+      },
+      "table": {
+        "x": 307.015625,
+        "y": 160,
+        "width": 3518.984375,
+        "height": 219
+      },
+      "graph": {
+        "x": 666.5,
+        "y": 652,
+        "width": 2800,
+        "height": 1200
+      }
+    },
+    "workspaceBox": {
+      "x": 0,
+      "y": 122,
+      "width": 3840,
+      "height": 2038
+    },
+    "plotBox": {
+      "x": 666.5,
+      "y": 652,
+      "width": 2800,
+      "height": 1200
+    }
+  }
+]

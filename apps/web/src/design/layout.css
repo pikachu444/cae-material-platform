@@ -7218,31 +7218,6 @@
   padding-left: 5px;
 }
 
-.modeling-data-curve-tree .curve-row-label {
-  min-width: 0;
-  min-height: 42px;
-  padding-right: 0;
-  overflow: hidden;
-}
-
-.modeling-data-curve-tree .curve-row-label > span {
-  display: grid;
-  align-content: center;
-  align-items: start;
-  min-width: 0;
-  gap: 0;
-  overflow: hidden;
-  white-space: normal;
-}
-
-.modeling-data-curve-tree .curve-row-label strong {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .modeling-data-curve-tree .curve-row-label small.curve-secondary-identity {
   display: grid;
   min-width: 0;
