@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "5e6ebf5484d601f0487539dde8d579f4b03a4ee8",
+  "sourceSha": "b561da5a102001565267b1db70e452829ed92cec",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -47,7 +47,7 @@
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 8692,
+      "baselineLines": 8667,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 2787,
+      "count": 2784,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -159,7 +159,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "f843d40d6d977ab3f34b10083d8c68af2253d98266f77113b07020df0905b8f8",
+      "fingerprint": "d1b14c329cb114f5d0c29285e3d041950d6db1e818aaf2a45b835e94286d62db",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A1 moves the exact Data source-tab declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -168,7 +168,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "02f32b5aa416fe664c5d486df0fcd9f636d012b635916342e03d1e1344575c66",
+      "fingerprint": "a5cab5f77b9157505b52ce7b4fa7a1b2c7fe9e3d1bc1f8b9cdd283d3cf23aa42",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A4 moves the exact Raw source table header declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -177,7 +177,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "cdf5a974fd0be97d11b7a1d21541bdc8379531c32d28fba245c0a579f1dd0ee9",
+      "fingerprint": "037acbf273aaf9f55dd83fc17511b712c380bd7fe56d38f47447effe574ce2de",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A3 moves the exact Data import-diagnostics declaration into its owner CSS without combining migration with semantic color-token normalization.",
       "ownerIssue": "#261",
