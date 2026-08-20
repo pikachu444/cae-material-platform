@@ -31,9 +31,10 @@ Administration에서는 한 작업 묶음의 다음 주요 동작 하나만 파�
 수 있다. 녹색은 저장 성공 같은 상태 표시에만 사용한다.
 
 넓은 화면에서는 Database design shell과 정의 목록이 viewport를 활용하고, Objects navigator와 속성
-form은 읽기 좋은 폭을 유지한다. 미리보기를 열면 1600px 이상에서는 속성 form 옆 네 번째 pane에 실제
-Record가 나타난다. 더 좁은 화면에서는 같은 오른쪽 pane을 미리보기로 바꾸며 **Close preview**로 편집기로
-돌아간다. 같은 화면을
+form은 읽기 좋은 폭을 유지한다. 미리보기를 열면 Database design 작업 영역이 네 pane을 수용할 만큼
+넓을 때 속성 form 옆에 실제 Record가 나타난다. 브라우저 전체 폭이 아니라 이 feature의 가용 폭을
+기준으로 하므로, 더 좁은 작업 영역에서는 같은 오른쪽 pane을 미리보기로 바꾸며 **Close preview**로
+편집기로 돌아간다. 같은 화면을
 [2560×1440](images/current/administration-database-2560x1440.png)과
 [3840×2160](images/current/administration-database-3840x2160.png)에서도 확인할 수 있다.
 

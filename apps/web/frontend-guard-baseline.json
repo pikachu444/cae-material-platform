@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "04a8f7e7e9914b78214febb65a4339a44551c0fd",
+  "sourceSha": "5e6ebf5484d601f0487539dde8d579f4b03a4ee8",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -182,6 +182,15 @@
       "reason": "FE-06 M1A3 moves the exact Data import-diagnostics declaration into its owner CSS without combining migration with semantic color-token normalization.",
       "ownerIssue": "#261",
       "removalCondition": "Remove when the approved semantic-color unit removes the preserved fallback without changing rejected-import diagnostics."
+    },
+    {
+      "ruleId": "CMP-FE-IMPORT-DIRECTION",
+      "path": "apps/web/src/shared/catalog/configurable-definition-api.ts",
+      "fingerprint": "3bbc86adb894c86841decc2924d648afb3d237c14e5409ea2a3ecb8586c0b493",
+      "maxOccurrences": 1,
+      "reason": "Issue #298 preserves the exact PR #297 configurable catalog API boundary until FE-08C relocates its legacy catalog types.",
+      "ownerIssue": "#298",
+      "removalCondition": "Remove in #263 FE-08C when configurable catalog types move to an owned type or model module and this shared module no longer imports apps/web/src/types.ts."
     }
   ]
 }
