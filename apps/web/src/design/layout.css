@@ -4952,14 +4952,6 @@
   background: color-mix(in srgb, var(--ux-danger-soft, #fce8e8) 58%, transparent);
 }
 
-.data-mapping-recovery-row {
-  display: grid;
-  grid-template-columns: minmax(190px, .85fr) minmax(300px, 1.15fr);
-  align-items: start;
-  gap: 8px;
-  min-width: 0;
-}
-
 .data-mapping-recovery-row .data-mapping-blockers {
   min-width: 0;
   max-width: none;
@@ -4974,40 +4966,11 @@
   background: color-mix(in srgb, var(--ux-success-soft, #e9f7ef) 58%, transparent);
 }
 
-.data-mapping-recovery-detail {
-  display: grid;
-  align-content: start;
-  gap: 5px;
-  min-width: 0;
-}
-
-.data-mapping-recovery-detail > label {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-  font-weight: 650;
-}
-
-.data-mapping-recovery-detail input {
-  min-width: 0;
-  min-height: 30px;
-  font-size: 13px;
-}
-
 .data-mapping-consequence {
   margin: 0;
   color: var(--ux-text-muted);
   font-size: 11.5px;
   line-height: 1.25;
-}
-
-.data-mapping-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 7px;
-  min-height: 30px;
 }
 
 .data-mapping-actions .button {
@@ -6859,35 +6822,6 @@
   line-height: normal;
 }
 
-.modeling-main-surface.has-data-split .data-mapping-recovery-detail {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  align-content: start;
-  column-gap: var(--ux-space-2);
-  row-gap: var(--ux-space-1);
-}
-
-.modeling-main-surface.has-data-split .data-mapping-recovery-detail > label {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: center;
-  gap: var(--ux-space-1) var(--ux-space-2);
-  min-width: 0;
-}
-
-.modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input {
-  box-sizing: border-box;
-  grid-column: 2;
-  width: 100%;
-  height: var(--ux-input-min-block-size);
-  min-height: var(--ux-input-min-block-size);
-  padding: 0 var(--ux-space-2);
-  font-size: var(--ux-data-font-size);
-  line-height: normal;
-}
-
 .modeling-main-surface.has-data-split .data-mapping-consequence {
   grid-column: 1;
   grid-row: 2;
@@ -6900,14 +6834,6 @@
   overflow-wrap: normal;
 }
 
-.modeling-main-surface.has-data-split .data-mapping-actions {
-  grid-column: 2;
-  grid-row: 2;
-  align-self: center;
-  min-height: var(--ux-control-min-block-size);
-  gap: var(--ux-space-1);
-}
-
 .modeling-main-surface.has-data-split .data-mapping-actions .button {
   box-sizing: border-box;
   height: var(--ux-control-min-block-size);
@@ -6915,13 +6841,6 @@
   padding: 0 var(--ux-space-2);
   font-size: var(--ux-data-font-size);
   line-height: normal;
-}
-
-.modeling-main-surface.has-data-split .data-mapping-recovery-row {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(480px, .85fr) minmax(360px, 1.15fr);
-  column-gap: var(--ux-space-2);
-  row-gap: var(--ux-space-1);
 }
 
 .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
@@ -6950,39 +6869,16 @@
 }
 
 @container (max-width: 847px) {
-  .modeling-main-surface.has-data-split .data-mapping-recovery-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
     min-width: 0;
   }
 
-  .modeling-main-surface.has-data-split .data-mapping-recovery-detail {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input,
-  .modeling-main-surface.has-data-split .data-mapping-consequence,
-  .modeling-main-surface.has-data-split .data-mapping-actions {
+  .modeling-main-surface.has-data-split .data-mapping-consequence {
     grid-column: 1;
   }
 
-  .modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input {
-    grid-row: 2;
-  }
-
-  .modeling-main-surface.has-data-split .data-mapping-consequence,
-  .modeling-main-surface.has-data-split .data-mapping-actions {
+  .modeling-main-surface.has-data-split .data-mapping-consequence {
     grid-row: auto;
-  }
-
-  .modeling-main-surface.has-data-split .data-mapping-actions {
-    justify-content: flex-start;
   }
 }
 
@@ -7268,7 +7164,6 @@
 .data-intake-row label,
 .data-intake-attention label,
 .data-mapping-resolved label,
-.data-mapping-recovery-detail > label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
 .data-provenance-group {
@@ -7283,7 +7178,6 @@
 .data-intake-row :is(input, select),
 .data-intake-attention :is(input, select),
 .data-mapping-resolved :is(input, select),
-.data-mapping-recovery-detail input,
 .modeling-ribbon-actions input,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .processing-workbench-page select,
@@ -7312,7 +7206,6 @@
   padding-inline: var(--ux-space-2);
 }
 
-.data-mapping-actions,
 .data-mapping-actions .button,
 .modeling-ribbon-actions .button {
   min-height: var(--ux-control-min-block-size);

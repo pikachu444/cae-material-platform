@@ -316,6 +316,45 @@ const COMPLETED_M1A11 = {
   ],
 };
 
+const COMPLETED_M1A12 = {
+  id: "M1A12-modeling-data-mapping-change-actions",
+  historicalMemberIds: [
+    "CSS-1014",
+    "CSS-1017",
+    "CSS-1018",
+    "CSS-1019",
+    "CSS-1021",
+    "CSS-1439",
+    "CSS-1440",
+    "CSS-1441",
+    "CSS-1443",
+    "CSS-1445",
+    "CSS-1449",
+    "CSS-1451",
+    "CSS-1452",
+    "CSS-1453",
+    "CSS-1455",
+    "CSS-1456",
+    "CSS-1458",
+    "CSS-1459",
+    "CSS-1540",
+    "CSS-1549",
+    "CSS-1558",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-recovery-row",
+    ".data-mapping-recovery-detail",
+    ".data-mapping-recovery-detail > label",
+    ".data-mapping-recovery-detail input",
+    ".data-mapping-actions",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-detail",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-detail > label",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input",
+    ".modeling-main-surface.has-data-split .data-mapping-actions",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-row",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1193,6 +1232,10 @@ function makeInventory() {
       COMPLETED_M1A11.id,
       rows.filter((row) => COMPLETED_M1A11.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A12.id,
+      rows.filter((row) => COMPLETED_M1A12.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1424,6 +1467,23 @@ function makeInventory() {
             .get(COMPLETED_M1A11.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2753,
+            selectorRows: 3465,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A12.id,
+          historicalMemberIds: COMPLETED_M1A12.historicalMemberIds,
+          selectorRowsRemoved: 21,
+          touchedRuleGroups: 20,
+          fullyRemovedRuleGroups: 15,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A12.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A12.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1431,9 +1491,9 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A12-modeling-data-component-region",
+        id: "M1A13-modeling-data-component-region",
         status: "owner-packet-required",
-        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A11; do not migrate all remaining M1A rows together.",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A12; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -1713,6 +1773,27 @@ function validateInventory(inventory) {
         || completedM1A11.actualAfter.selectorRows !== 3465
         || completedM1A11.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A11 actual delta is ${JSON.stringify(completedM1A11.actualAfter)}`);
+    }
+  }
+  const completedM1A12 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A12.id,
+  );
+  if (!completedM1A12) {
+    errors.push("completed M1A12 packet is missing");
+  } else {
+    if (completedM1A12.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A12 selectors remain in legacy CSS: ${completedM1A12.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A12.selectorRowsRemoved !== 21
+        || completedM1A12.touchedRuleGroups !== 20
+        || completedM1A12.fullyRemovedRuleGroups !== 15
+        || completedM1A12.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A12 structural delta does not match the approved 21/20/15/5 packet");
+    }
+    if (completedM1A12.actualAfter.cssRuleGroups !== 2738
+        || completedM1A12.actualAfter.selectorRows !== 3444
+        || completedM1A12.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A12 actual delta is ${JSON.stringify(completedM1A12.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

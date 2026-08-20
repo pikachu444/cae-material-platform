@@ -40,6 +40,11 @@ Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 �
 키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
 않습니다.
 
+Local file의 column 연결이 유효하면 **Save details**에서 변경 사유를 입력하고 **Update preview**로
+마지막 유효 그래프를 다시 확인한 뒤 **Save Test Data**를 실행합니다. 사유를 입력하기 전에는 preview가,
+preview를 갱신하기 전에는 저장이 각각 비활성화됩니다. 이 순서는 현재 Test record와 그래프를 유지한 채
+mapping 변경을 명시적으로 검토하도록 합니다.
+
 Local file의 **File details**는 평소 접혀 있습니다. 펼치면 file parsing, 원본 column, Mapping Profile,
 Raw asset와 hash, specimen, exact Test Run 및 raw table을 확인할 수 있습니다. 이 상세 증거를 열거나
 접어도 선택한 Test Data와 그래프는 바뀌지 않으며, 내용이 길면 Data 설정 영역 안에서만 스크롤합니다.

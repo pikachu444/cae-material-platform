@@ -1763,6 +1763,134 @@ error는 0이고 선택한 `Tensile test 0001`, 저장 graph `CMP-DEMO-DP780-TES
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A12 시작은 이 turn에서 하지 않는다.
 
+## M1A12 Data mapping change actions ownership candidate
+
+`M1A12-modeling-data-mapping-change-actions`는 Local file에서 column mapping이 유효해진 뒤 사용하는
+`data-mapping-recovery-row is-ready`의 변경 사유, preview, 저장 동작을 하나의 DOM/cascade 영역으로
+묶는다. CSS-1014, CSS-1017~1019, CSS-1021, CSS-1439~1441, CSS-1443, CSS-1445,
+CSS-1449, CSS-1451~1453, CSS-1455~1456, CSS-1458~1459, CSS-1540, CSS-1549, CSS-1558의
+21 selector 행을 Data stage owner로 옮겼다. 20개 touched group 중 15개 complete group을 제거했고,
+blocker·consequence·공유 button member가 남는 5개 group은 해당 member만 그대로 보존했다. 선언과 상대
+cascade 순서는 같으며 React, DOM, API, copy, state, token, breakpoint, `styles.css`, Process와 Fit은
+변경하지 않았다.
+
+| Metric | M1A11 | M1A12 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,753 | 2,738 | -15 |
+| expanded global selector rows | 3,465 | 3,444 | -21 |
+| M1A Data rows | 114 | 93 | -21 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `21/20/15/5`, exact legacy residual 0, 남은 M1A 93행과 다음 router
+`M1A13-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css` 줄 수와 global rule
+count를 낮추고, 기존 #298 baseline과 #261 예외 의미를 바꾸지 않는다.
+
+### Live journey와 visual evidence
+
+[M1A12 manifest](images/issue-261-fe06-m1a12-data-mapping-change-actions/manifest.json)은 Standard,
+browser zoom 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을
+기록한다. exact M1A11 시작 commit `7a836e9129c06d86314bf3219fa1d063f6293946` archive와 candidate는
+같은 API, `/modeling`, `/datasets/processing` 및 156-byte `m1a11-file-details.csv` 입력(SHA-256
+`37bf7bbfd01ac61fdd83ef6cbbf3801f7d5552f2c83c3682fcd4b03660eb5fc5`)을 사용했다. 변경 사유의
+keyboard focus, reason 전 preview 차단, preview 전 저장 차단, exact `Tensile test 0001`, saved graph
+`CMP-DEMO-DP780-TEST-JSON`, Data→Process→Data와 reload 복구를 확인했다.
+[hash와 pixel 비교](images/issue-261-fe06-m1a12-data-mapping-change-actions/equivalence.json)는 46/46
+pair가 byte/pixel identical이고, [runtime identity](images/issue-261-fe06-m1a12-data-mapping-change-actions/runtime-identity.json)는
+다섯 viewport의 geometry와 상태가 같음을 기록한다. fresh normal pair 확인 뒤 재사용한 current-guide normal
+5개도 [동일 hash](images/issue-261-fe06-m1a12-data-mapping-change-actions/documentation-impact-equivalence.json)다.
+
+- 1366×768: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1366x768.png) / [actions](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png)
+- 1440×900: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1440x900.png) / [focus](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1440x900.png) / [start context](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-start-context-1440x900.png)
+- 1920×1080: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1920x1080.png) / [controls](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png)
+- 2560×1440: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-2560x1440.png) / [focus](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png)
+- 3840×2160: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-3840x2160.png) / [focus](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png)
+
+모든 viewport에서 page 가로 overflow와 console error는 0이고, reason input의 focus ring과 두 action이
+보인다. 1366의 얕은 graph와 1440 starting-context에서 action 일부가 divider 아래로 지나간 모습은 기존
+Data 설정 scrollport의 의도된 local-scroll 상태다. focused primary 원본에서는 같은 viewport에서도
+action 전체가 보이며 before/after scroll geometry와 pixel이 같다. 새 clipping, overflow 또는 interaction
+결함은 없다.
+
+<details>
+<summary>M1A12 46개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png)
+- crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png)
+- crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png)
+- crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png)
+- crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png)
+- crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png)
+- crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png)
+- crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png)
+- crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png)
+- crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png)
+- crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png)
+- crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png)
+- crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png)
+- crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png)
+- crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png)
+- crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png)
+- crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png)
+- crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png)
+- crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png)
+- crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png)
+- crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png)
+- crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png)
+- crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png)
+- crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png)
+- crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png)
+- originals/modeling-data-mapping-change-actions-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1366x768.png)
+- originals/modeling-data-mapping-change-actions-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1440x900.png)
+- originals/modeling-data-mapping-change-actions-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1920x1080.png)
+- originals/modeling-data-mapping-change-actions-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-2560x1440.png)
+- originals/modeling-data-mapping-change-actions-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-3840x2160.png)
+- routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png)
+- routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png)
+- routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png)
+- routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png)
+- routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png)
+- states/modeling-data-mapping-change-actions-reason-focus-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1366x768.png)
+- states/modeling-data-mapping-change-actions-reason-focus-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1440x900.png)
+- states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png)
+- states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png)
+- states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png)
+- states/modeling-data-mapping-change-actions-start-context-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-start-context-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-start-context-1440x900.png)
+
+</details>
+
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: Match file columns 결정 → Save details의 reason/preview/save → graph의 기존
+  우선순위가 그대로다. M1A12가 이 계층을 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: exact local Test record의 mapping을 확인하고 사유를 남겨 preview한 뒤
+  저장하며, graph와 Data→Process→Data/reload identity를 유지하는 흐름이 그대로다. M1A12가 새 흐름을
+  구현한 것은 아니다.
+- SAP식 responsive/wide composition PASS: 1366의 keyboard-operable local scroll과 1920/2560/3840의
+  bounded task + growing graph 구성을 그대로 유지한다. 새 wide-screen policy를 추가하지 않았으며 실제
+  Windows 4K 물리 가독성은 #223에 남는다.
+- Main acceptance PASS: M1A12의 21 selector row/20 group이 선언과 상대 순서를 그대로 Data owner로
+  이동했고 exact legacy residual은 0이다. focused Data/workspace Vitest 4 files/57 tests, production build와
+  bundle budget, frontend guard 17/17 및 0 violation/15 baseline warnings, inventory 11/11과
+  `2738/3444/93/446/14`, guide contract 46/46, user-guide, docs-impact, 46/46 before/after byte·pixel hash,
+  current-guide 5/5 hash와 `git diff --check`가 통과했다. Main은 다섯 focused original과 after의
+  header/navigator/controls/actions/graph 100%-pixel crop 25개, alias와 focus/start-context 상태를 원본
+  해상도로 열었다. 의도된 Data local scroll 외에 새 clipping, overflow 또는 interaction 결함이 없다.
+- canonical independent read-only Balanced audit APPROVE: Critical/Important/Minor finding은 모두 0건이다.
+  감사자는 exact 106-path candidate, Data-only DOM/cascade ownership, 21행/20 group의 `15/5` structural
+  delta와 residual 0, inventory `2738/3444/93/446/14`, guard·guide·docs-impact, 46 evidence pair와
+  current-guide 5/5 hash를 독립 확인했다. 다섯 viewport 원본과 action 및 4K
+  header/navigator/controls/graph crop에서 의도된 local scroll 외 새 clipping·overflow·interaction 결함이
+  없고 exact revision/selection/graph/reason-preview-save/Data→Process→Data/reload와 #249 세 축이 보존됨을
+  확인했다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A13 시작은 이 turn에서 하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1777,14 +1905,15 @@ error는 0이고 선택한 `Tensile test 0001`, 저장 graph `CMP-DEMO-DP780-TES
 10. M1A9 Data mapping table 19 selector row/15 rule-group은 위 candidate에서 이동·증거화했다.
 11. M1A10 Data split frame 12 selector row/10 complete rule-group은 위 candidate에서 이동·증거화했다.
 12. M1A11 Data File details 5 selector row/5 rule-group은 위 candidate에서 이동·증거화했다.
-13. 다음 `M1A12-modeling-data-component-region`은 재생성 inventory의 남은 M1A 114행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 114행을 함께 이동하지 않는다.
-14. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-15. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-16. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-17. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-18. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-19. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+13. M1A12 Data mapping change actions 21 selector row/20 rule-group은 위 candidate에서 이동·증거화했다.
+14. 다음 `M1A13-modeling-data-component-region`은 재생성 inventory의 남은 M1A 93행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 93행을 함께 이동하지 않는다.
+15. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+16. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+17. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+18. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+19. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+20. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지
