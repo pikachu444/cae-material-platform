@@ -1,13 +1,13 @@
 version: 115
 verified_at: 2026-08-20
 scope: issue-289-administration-database-workflow
-source_commit: 5688cb436b4d33b08cad509f45154d8666c55503+d926d14ff6a5b390e1819c061db75143b86b5b96+issue289-integrated-worktree
+source_commit: a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-administration-database-workflow/after/originals --only-administration-database
 notes:
   - "Issue #289 replaces the placeholder Database design surface with an exact-identity Administration workflow for Database, Profile, Table, Attribute, Layout, Subset and Link Type definitions. The registered five editor and five real-record preview originals preserve the established 1366×768 and 1440×900 behavior and add an adjacent fourth preview pane at 1920×1080, 2560×1440 and 3840×2160."
   - "The primary live journey uses the real current-worktree API and dedicated PostgreSQL database: it reads exact seeded definitions, previews the DP780 synthetic record with exact Attribute and Layout revisions, proves a referenced seeded Table cannot be deleted while selection and explanation remain visible, duplicates a clean unpublished r1 Table, then physically deletes that unused draft and reads back its absence."
-  - "The issue-owned packet records five #280 before originals, twenty #280 direct before crops, ten final originals and twenty-five final direct 100%-pixel header, navigator, table, form and native record-preview crops. Main opened all final originals and crops at original resolution. Product-owner review of the 1920×1080, 2560×1440 and 3840×2160 originals remains a required pre-merge gate; automated 3840×2160 geometry does not claim physical 4K readability."
+  - "The issue-owned packet records five #280 before originals, twenty #280 direct before crops, ten final originals and twenty-five final direct 100%-pixel header, navigator, table, form and native record-preview crops. Main opened all final originals and crops at original resolution. The Product Owner approved the reviewed 1920×1080, 2560×1440 and 3840×2160 originals at original resolution on 2026-08-20; automated 3840×2160 geometry does not claim physical 4K readability."
   - "Issue #261 M1A5 moves only the 29 historical Library source-list selector rows in 21 complete rule groups, including the full-selector-proven historical HOLD row. Current guide PNGs and workflow copy remain unchanged; the packet records both Data routes at five viewports, exact revision identity, unchanged focusable local-scroll ownership, Process/reload recovery, direct crops and byte/pixel equivalence. The four-row fixture is not claimed as long-result overflow acceptance: its 2 px border/rounding difference makes Q-02/Q-09 not applicable. The Product Owner approved the reviewed primary-route 1920x1080, 2560x1440 and 3840x2160 originals at original resolution on 2026-08-20. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Issue #261 M1A4 moves only the Raw source table preview CSS owner. The current guide PNGs and workflow copy remain unchanged; the issue packet records primary/alias five-viewport before/after originals, direct header/controls/raw-table/graph crops, exact DP780 Test Data/Test Run pins, reload recovery, local scroll interactions and source-pixel equivalence. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Issue #260 FE-05 follows the product-owner-approved Data direction and carries the same restrained hierarchy, plain language, flat engineering grammar and wide-screen logic through Process, Fit and Export. Data follows search/filter/browser → one current input → graph → Continue to Process; Process and Fit each expose one exact calculation input; Export exposes one selected model and one clear create action. API, saved data, session v4, Data→Process→Fit→Export and Materials read-back contracts are unchanged."
@@ -712,7 +712,7 @@ visual_evidence:
   routes: [/administration/database]
   states: [exact-revision-selection, draft-edit, duplicate-r1, hard-delete-confirmation, dependency-blocked-recovery, real-record-preview, low-viewport-pane-replacement, wide-adjacent-preview]
   baseline_source: b2feb08eb40def0f8a627c34656daa393432695c
-  current_source: b2feb08eb40def0f8a627c34656daa393432695c+issue289-worktree
+  current_source: a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree
   evidence_artifacts_are_not_current_captures: true
   current_capture_count: 124
   issue_289_current_count: 10
@@ -766,13 +766,14 @@ visual_evidence:
   fixture_dependent_capture_status: canonical_compose_pass
   issue_289_fixture_dependent_capture_status: isolated_current_worktree_postgres_api_vite_pass_canonical_compose_rejected_foreign_worktree
   issue_289_independent_read_only_review: pass_blocker0_major0_minor0_corrected_candidate_approved
-  issue_289_product_owner_review: pending_final_original_geometry
+  issue_289_integration_visual_equivalence: pass_9_of_10_sha256_identical_1366_preview_five_pixels_max_channel_delta_1_no_visible_change
+  issue_289_product_owner_review: pass_1920_2560_3840_original_geometry_2026_08_20
   independent_read_only_review: pass_issue260_exact_candidate_blocker0_major0_material_minor0_after_late_visual_correction
   product_owner_review: pending_issue_260_fe05_original_geometry
 capture_provenance:
-  - source_commit: b2feb08eb40def0f8a627c34656daa393432695c+issue289-worktree
-    captured_at: '2026-08-20T01:07:40+09:00 through 2026-08-20T01:07:46+09:00'
-    command: 'Dedicated current-worktree PostgreSQL database migrated through Issue #289, real current-worktree API on 127.0.0.1:8019 and Vite on 127.0.0.1:5189; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-administration-database-workflow/after/originals --only-administration-database at browser zoom 100% and DPR 1. The flow uses no mocked Administration HTTP route, verifies zero page overflow and captures the exact editor plus real Record preview at all five viewports. Canonical Compose was rejected because the running cmp-local-demo project belongs to another preserved worktree; no foreign container or data was changed.'
+  - source_commit: a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree
+    captured_at: '2026-08-20T10:01:07+09:00 through 2026-08-20T10:01:14+09:00'
+    command: 'Latest-main integration verification on a disposable PostgreSQL 16 database with the real integrated API on 127.0.0.1:8019 and Vite on 127.0.0.1:5189; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-integration-a20808bf/originals --only-administration-database at browser zoom 100% and DPR 1. Both live browser specs passed. Nine captures were byte-identical to the registered owner-approved originals; the 1366 preview differed only in five antialiased pixels with maximum one-channel delta 1 and no visible or layout change. The registered originals were retained. Canonical Compose remained rejected because the running cmp-local-demo project belongs to another preserved checkout; no foreign container or data was changed.'
     ids: [administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-database-preview-1366, administration-database-preview-1440, administration-database-preview-1920, administration-database-preview-2560, administration-database-preview-3840]
   - source_commit: 4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree
     captured_at: '2026-08-19T02:50:30+09:00 through 2026-08-19T07:00:20+09:00'

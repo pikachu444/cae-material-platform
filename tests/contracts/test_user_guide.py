@@ -143,7 +143,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 400
+    assert report.duplicate_image_group_count == 465
 
 
 def test_incoming_integration_package_is_reference_not_authoritative() -> None:

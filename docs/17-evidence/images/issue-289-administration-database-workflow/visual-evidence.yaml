@@ -29,7 +29,17 @@ acceptance:
   engineering_task_flow: pass
   responsive_wide_screen_composition: pass
   independent_balanced_audit: pass_blocker0_major0_minor0_corrected_candidate_approved
-  product_owner_geometry_review: pending_before_merge
+  product_owner_geometry_review: pass_owner_approved_1920_2560_3840_originals_2026_08_20
+integration_verification:
+  required_main: 5688cb436b4d33b08cad509f45154d8666c55503
+  integrated_head: a20808bfa933a68abb25aae3c1553b5d21c6358c
+  captured_at: '2026-08-20T10:01:07+09:00 through 2026-08-20T10:01:14+09:00'
+  output: '.artifacts/issue-289-integration-a20808bf/originals'
+  live_browser_specs: 2_passed
+  exact_sha256_matches: 9_of_10
+  renderer_noise: '1366 preview only: five pixels at x1325..1327/y116..117, maximum one-channel delta 1; no visible or layout change'
+  original_and_direct_crop_review: pass_no_visible_change
+  registered_owner_approved_originals_replaced: false
 viewports:
   - viewport: 1366x768
     before_original: {path: before/originals/administration-database-1366x768.png, width: 1366, height: 768, sha256: 79d023ada7b4beabe289781d4cefe757954838deefbc25baf87286a57947694e}

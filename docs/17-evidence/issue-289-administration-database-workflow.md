@@ -30,17 +30,30 @@ Administration Database design feature, shared frontend transport 추출, 그 �
   네 번째 pane으로 나란히 보인다. navigator는 compact bound, form과 미리보기는 최대 800px의 읽기 폭을
   유지하고 중앙 목록이 남은 공간을 사용하며, 다섯 viewport 모두 page horizontal overflow가 0이다.
 - 자동화한 3840×2160 CSS viewport는 geometry 근거이며 실제 Windows 4K 물리 가독성을 주장하지 않는다.
-- 최종 product-owner 1920×1080, 2560×1440, 3840×2160 original geometry 승인은 PR merge 전 별도 필수 gate다.
+- Product Owner는 2026-08-20에 1920×1080, 2560×1440, 3840×2160 원본을 원해상도로 검토하고
+  최종 geometry를 승인했다.
 
 ## 검증
 
-- 프런트엔드: Vitest 71 files / 410 tests, frontend guard 17 tests, production build와 bundle budget 통과.
-- 서버/마이그레이션: #289 PostgreSQL/API/migration 대상 23 tests 통과.
+- 프런트엔드: 최신 main 통합 후 Vitest 71 files / 411 tests, frontend guard 17 tests, production build와
+  bundle budget 통과.
+- 서버/마이그레이션: 격리 PostgreSQL 16에서 영향 PostgreSQL/API/migration 대상 28 tests 통과.
 - 브라우저: 실제 current-worktree API/PostgreSQL/Vite에서 primary journey와 button semantics 2 specs 통과.
 - 정적/계약: Ruff, issue-owned backend mypy, backend architecture 29 tests, OpenAPI lint/compatibility,
   계약·가이드 150 tests, user-guide/doc-impact, git diff check 통과.
 - canonical Compose는 다른 보존 worktree가 사용 중이라 preflight에서 거부되었고 변경하지 않았다.
   전용 current-worktree PostgreSQL/API/Vite로 live evidence를 만들었다.
+
+## 최신 main 통합 재검증
+
+`origin/main`의 PR #295 merge `5688cb436b4d33b08cad509f45154d8666c55503`을 후보 보존 커밋 위에
+통합했다. 공통 변경 경로는 screenshot manifest 하나였고, #261 M1A3/M1A4/M1A5 provenance와 #280의
+한국어 우선 Q-01~Q-20/Q-20 명칭을 #289 기록과 함께 유지했다. 통합 헤드
+`a20808bfa933a68abb25aae3c1553b5d21c6358c`에서 실제 API/PostgreSQL/Vite 브라우저 흐름 2개를 다시
+통과하고 다섯 viewport editor/preview 10개를 별도 임시 경로에 재캡처했다. 9개는 승인 원본과
+SHA-256까지 같았고, 1366 preview는 우측 링크 안티앨리어싱 5픽셀의 한 채널 값만 1 달랐다. 두 원본과
+등록된 직접 crop을 원해상도로 다시 열어 가시 결과·레이아웃·텍스트가 같음을 확인했으며 승인 원본은
+교체하지 않았다.
 
 ## 기존 #280 근거
 
@@ -133,11 +146,12 @@ Main Q1–Q20은 모두 통과했다.
 17. Q17 좁은 화면: 1366×768/1440×900에서 preview가 editor를 대체하고 list revision 열이 잘리지 않는다.
 18. Q18 넓은 화면: 1920/2560/3840에서 bounded navigator/form과 elastic list/preview가 공존한다.
 19. Q19 #249: information hierarchy, engineering task flow, responsive/wide-screen composition 세 축이 통과한다.
-20. Q20 전달 경계: tests/docs/evidence는 현재 후보와 일치하며 commit·push·PR·merge는 수행하지 않았다.
+20. Q20 전달 경계: tests/docs/evidence는 최신 main 통합 후보와 일치하며 원격 출판 상태는 issue/PR에서
+    별도로 추적한다.
 
 첫 독립 Balanced 읽기 전용 감사에서는 blocker 1건과 major 3건을 찾았다. DELETE API에
 `schema_configuration`을 서버에서도 강제하고, 원자 삭제 시점의 stale 경쟁을 412로 보존하고, Layout이
 고정한 과거 Attribute revision을 exact endpoint로 읽으며, 2560/3840 미리보기를 800px 읽기 폭으로 제한해
 네 건을 수정했다. 같은 감사자의 재검토는 blocker 0, major 0, minor 0, `approve`로 통과했고 #249의
-정보 계층·엔지니어링 작업 흐름·반응형/와이드 구성 세 축도 모두 통과했다. 제품 책임자의 최종
-wide-original 시각 승인은 아직 대기 중이며, 승인 전에는 merge할 수 없다.
+정보 계층·엔지니어링 작업 흐름·반응형/와이드 구성 세 축도 모두 통과했다. 제품 책임자는 2026-08-20에
+검토한 1920×1080, 2560×1440, 3840×2160 원본을 최종 승인했다.
