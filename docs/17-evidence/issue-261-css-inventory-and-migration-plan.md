@@ -1512,6 +1512,135 @@ Engineering stress focus outline, MPa→Pa unit mapping, Save details와 exact S
 - 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
   M1A10 시작은 이 turn에서 하지 않는다.
 
+## M1A10 Data split-frame ownership candidate
+
+### Exact scope와 ownership 결과
+
+rolling branch 시작점 `5c1e2dd463fb6bc83ae6d84599064d674bb2dce4`의 남은 M1A 131행에서
+`ModelingWorkspaceLayout`이 `modeling-data-workspace.tsx`의 `dataLayoutMode`를 받을 때만 렌더링하는
+**Data 설정 ribbon → 가로 resize divider → persistent graph** 한 component region을 선택했다.
+historical `CSS-1431`~`CSS-1442` 12 selector row가 속한 10 complete rule-group의 선언과 상대 순서를
+그대로 `modeling-data-stage.css`의 Data owner 시작 영역으로 옮겼다.
+
+범위는 `.modeling-main-surface.has-data-split`, `.modeling-data-split`, 두
+`.modeling-data-ribbon-panel` group, ribbon/scrollable direct child, persistent plot direct child,
+divider 기본·hover·focus·active group이다. 기존 Data owner의 후행 content-fit/compact size와 component
+override보다 앞에 두어 원래 `layout.css` → Data owner cascade를 유지했다. React, DOM, API, copy, route,
+state, token, breakpoint, `styles.css`, 다른 Data component, Process와 Fit은 변경하지 않았다.
+
+| Metric | M1A9 | M1A10 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,767 | 2,757 | -10 |
+| expanded global selector rows | 3,482 | 3,470 | -12 |
+| M1A Data rows | 131 | 119 | -12 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `12/10/10/0`, exact legacy residual 0, 남은 M1A 119행과 다음 router
+`M1A11-modeling-data-component-region`을 고정한다. guard baseline은 `layout.css` 줄 수와 global rule
+count를 낮추고, 이동으로 줄 번호만 달라진 latest-main #298 baseline과 기존 Data owner 예외의 내용은
+그대로 보존한다.
+
+### Live journey와 visual evidence
+
+[M1A10 manifest](images/issue-261-fe06-m1a10-data-split-frame/manifest.json)은 Standard, browser zoom
+100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. 시작 commit의
+exact archive baseline과 candidate가 같은 API proxy, route, deterministic `m1a10-split-frame.csv` 입력과
+최종 viewport 크기를 사용했다. primary `/modeling`과 alias `/datasets/processing`에서 exact Test record
+`Tensile test 0001`, graph `DP780 · Tensile test 0001`, divider keyboard focus/ArrowUp resize,
+Data→Process→Data, reload 복구를 확인했다. 등록된 current normal 5쌍과 버리지 않고 별도 state로 보존한
+fresh live normal 5쌍을 포함한 46개 before/after pair는
+[hash와 pixel 비교](images/issue-261-fe06-m1a10-data-split-frame/equivalence.json)에서 모두 byte/pixel
+identical이고 [runtime geometry](images/issue-261-fe06-m1a10-data-split-frame/runtime-identity.json)도 같다.
+current guide PNG는 바꾸지 않았고 canonical normal 5쌍이 모두 그 등록 원본과 같다는 사실을
+[documentation impact](images/issue-261-fe06-m1a10-data-split-frame/documentation-impact-equivalence.json)에
+그대로 기록했다.
+
+- 1366×768: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1366x768.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-graph-100pct.png)
+- 1440×900: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1440x900.png) / [local scroll](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-local-scroll-1440x900.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-graph-100pct.png)
+- 1920×1080: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1920x1080.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-graph-100pct.png)
+- 2560×1440: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-2560x1440.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-graph-100pct.png)
+- 3840×2160: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-3840x2160.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-graph-100pct.png)
+
+각 viewport의 header/navigator/controls/divider/graph direct 100%-pixel crop과 primary/alias original은
+manifest 및 equivalence의 46개 exact path로 닫힌다. 측정 대상 ribbon은 `scrollTop=0`이며 focused
+original 상단의 일부 문맥이 잘려 보이는 상태는 M1A7에서 owner가 승인한 기존 내부 local-scroll
+문맥과 전후 픽셀이 같다. 별도 1440 state가 이 국소 scroll 표현을 분리해 기록하므로 page clipping과
+구분할 수 있다. 전후 모두 page 가로 overflow가 없고 graph와 divider focus가 보인다.
+
+<details>
+<summary>M1A10 46개 before/after 원본·crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-split-frame-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-controls-100pct.png)
+- crops/modeling-data-split-frame-1366x768-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-divider-100pct.png)
+- crops/modeling-data-split-frame-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-graph-100pct.png)
+- crops/modeling-data-split-frame-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-header-100pct.png)
+- crops/modeling-data-split-frame-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-navigator-100pct.png)
+- crops/modeling-data-split-frame-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-controls-100pct.png)
+- crops/modeling-data-split-frame-1440x900-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-divider-100pct.png)
+- crops/modeling-data-split-frame-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-graph-100pct.png)
+- crops/modeling-data-split-frame-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-header-100pct.png)
+- crops/modeling-data-split-frame-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-navigator-100pct.png)
+- crops/modeling-data-split-frame-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-controls-100pct.png)
+- crops/modeling-data-split-frame-1920x1080-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-divider-100pct.png)
+- crops/modeling-data-split-frame-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-graph-100pct.png)
+- crops/modeling-data-split-frame-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-header-100pct.png)
+- crops/modeling-data-split-frame-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png)
+- crops/modeling-data-split-frame-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-controls-100pct.png)
+- crops/modeling-data-split-frame-2560x1440-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-divider-100pct.png)
+- crops/modeling-data-split-frame-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-graph-100pct.png)
+- crops/modeling-data-split-frame-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-header-100pct.png)
+- crops/modeling-data-split-frame-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png)
+- crops/modeling-data-split-frame-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-controls-100pct.png)
+- crops/modeling-data-split-frame-3840x2160-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-divider-100pct.png)
+- crops/modeling-data-split-frame-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-graph-100pct.png)
+- crops/modeling-data-split-frame-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-header-100pct.png)
+- crops/modeling-data-split-frame-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png)
+- originals/modeling-data-split-frame-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1366x768.png)
+- originals/modeling-data-split-frame-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1440x900.png)
+- originals/modeling-data-split-frame-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1920x1080.png)
+- originals/modeling-data-split-frame-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-2560x1440.png)
+- originals/modeling-data-split-frame-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-3840x2160.png)
+- routes/datasets-processing/modeling-data-split-frame-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-1366x768.png)
+- routes/datasets-processing/modeling-data-split-frame-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-1440x900.png)
+- routes/datasets-processing/modeling-data-split-frame-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-1920x1080.png)
+- routes/datasets-processing/modeling-data-split-frame-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-2560x1440.png)
+- routes/datasets-processing/modeling-data-split-frame-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-3840x2160.png)
+- states/modeling-data-split-frame-live-normal-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-1366x768.png)
+- states/modeling-data-split-frame-live-normal-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-1440x900.png)
+- states/modeling-data-split-frame-live-normal-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-1920x1080.png)
+- states/modeling-data-split-frame-live-normal-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-2560x1440.png)
+- states/modeling-data-split-frame-live-normal-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-3840x2160.png)
+- states/modeling-data-split-frame-local-scroll-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-local-scroll-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-local-scroll-1440x900.png)
+
+</details>
+### 보존 판정과 실행 gate
+
+- Carbon 정보 계층 PASS: 설정 ribbon → 조절 가능한 divider → 주 graph의 기존 우선순위가 그대로다.
+  M1A10이 이 계층을 새로 설계한 것은 아니다.
+- COMSOL식 engineering flow PASS: exact Test Data 선택, local mapping, graph, Data→Process→Data와 reload가
+  그대로다. M1A10이 이 흐름을 새로 구현한 것은 아니다.
+- SAP식 responsive/wide composition PASS: 1366에서 설정과 divider focus가 도달 가능하고,
+  1920/2560/3840에서는 form을 무의미하게 늘리지 않으면서 graph가 비교 폭을 사용한다. M1A10이 새
+  wide-screen policy를 추가한 것은 아니며 실제 Windows 4K 물리 가독성은 #223에 남는다.
+- Main acceptance PASS: focused Data/workspace Vitest 4 files/57 tests, production build와 bundle budget,
+  frontend guard 17/17·0 violation/15 baseline warnings, inventory 11/11·exact residual 0, guide contract
+  46/46, user-guide, docs-impact, 46/46 image/hash와 5/5 current-guide hash, `git diff --check`가 통과했다.
+  Main은 다섯 canonical normal, 다섯 focused original, after의 header/navigator/controls/divider/graph
+  100%-pixel crop 25개와 local-scroll state를 원본 해상도로 열었다. route와 before counterpart는 동일
+  hash로 닫았고 새 clipping, overflow 또는 interaction 결함이 없다.
+- canonical independent Balanced auditor APPROVE: exact 106-file path set, Data-only DOM/cascade owner,
+  12행/10 complete group, inventory `2757/3470/119/446/14`와 residual 0, guard baseline, 46 evidence
+  pair·5 current-guide canonical hash, exact selection·graph·divider focus/resize·reload·Data→Process→Data와
+  local-scroll provenance를 독립 확인했고 Critical/Important/Minor finding이 없었다.
+- 이 rolling-branch unit은 owner 지시에 따라 exact commit/push만 허용된다. PR, merge, issue 상태 변경과
+  M1A11 시작은 이 turn에서 하지 않는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1524,14 +1653,15 @@ Engineering stress focus outline, MPa→Pa unit mapping, Save details와 exact S
 8. M1A7 Data mapping heading 4 historical row는 PR #306, main `28c47c57...`로 merge되었다.
 9. M1A8 Data optional-channel 4 complete rule-group은 rolling branch commit `6aa3a3bd...`에서 이동·증거화했다.
 10. M1A9 Data mapping table 19 selector row/15 rule-group은 위 candidate에서 이동·증거화했다.
-11. 다음 `M1A10-modeling-data-component-region`은 재생성 inventory의 남은 M1A 131행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 131행을 함께 이동하지 않는다.
-12. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-13. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-14. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-15. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-16. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-17. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+11. M1A10 Data split frame 12 selector row/10 complete rule-group은 위 candidate에서 이동·증거화했다.
+12. 다음 `M1A11-modeling-data-component-region`은 재생성 inventory의 남은 M1A 119행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 119행을 함께 이동하지 않는다.
+13. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+14. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+15. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+16. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+17. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+18. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지

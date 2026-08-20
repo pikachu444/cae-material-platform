@@ -36,6 +36,10 @@ channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mappin
 접힌 **Technical details**에 둡니다. 넓은 화면에서는 목록과 작업 흐름의 가독성을 유지하면서
 그래프만 비교에 유용한 범위까지 커집니다.
 
+Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 그래프 사이 가로 구분선은 pointer 또는
+키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
+않습니다.
+
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
 **Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는
 **Pick point**를 사용합니다. 선택 영역과 marker는 임시 상태이며 **Apply selection**을 눌러야
