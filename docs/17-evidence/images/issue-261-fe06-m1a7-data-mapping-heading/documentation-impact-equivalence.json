@@ -1,0 +1,57 @@
+{
+  "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+  "issue": "#261",
+  "source_sha": "b0896ed370206758d4e7b5e7a81fdac674196e85",
+  "classification": "behavior-preserving-css-migration",
+  "visual_files": [
+    "apps/web/src/design/layout.css",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+  ],
+  "visual_file_sha256": {
+    "apps/web/src/design/layout.css": "73e5d8c77130baa6b585f1901b1870753765195a63169ac95f4f1f8bb2780a8c",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "7ed6f973e4d53ba03b1c1c5260bc5a5c612b15ab9c6d5b48fc4a98af8f89162d"
+  },
+  "current_matches": [
+    {
+      "viewport": "1366x768",
+      "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1366x768.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1366x768.png",
+      "sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "viewport": "1440x900",
+      "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1440x900.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "viewport": "1920x1080",
+      "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1920x1080.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "viewport": "2560x1440",
+      "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-2560x1440.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "viewport": "3840x2160",
+      "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-3840x2160.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "all_current_matches": true
+}

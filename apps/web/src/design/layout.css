@@ -4974,31 +4974,6 @@
   border-left: 3px solid var(--ux-warning);
 }
 
-.data-mapping-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  min-width: 0;
-  min-height: 22px;
-  padding-bottom: 3px;
-  border-bottom: 1px solid var(--ux-border);
-  gap: 8px;
-}
-
-.data-mapping-heading strong {
-  color: var(--ux-text);
-  font-size: 13px;
-  font-weight: 650;
-}
-
-.data-mapping-heading span {
-  overflow: hidden;
-  color: var(--ux-danger);
-  font-size: 11.5px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .data-mapping-decision .data-intake-attention > strong {
   min-width: 0;
 }
@@ -7494,7 +7469,6 @@
 .data-intake-attention label,
 .data-mapping-resolved label,
 .data-mapping-table th,
-.data-mapping-heading span,
 .data-mapping-recovery-detail > label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),

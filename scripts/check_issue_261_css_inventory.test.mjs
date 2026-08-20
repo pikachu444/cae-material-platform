@@ -110,6 +110,56 @@ test("recognizes the production examples that invalidated the first audit", () =
   assert.equal(materials.producerTokens.has("has-linked-response"), true);
 });
 
+test("preserves the exact M1A7 mapping-heading declarations and cascade order", () => {
+  const legacy = readFileSync(
+    new URL("../apps/web/src/design/layout.css", import.meta.url),
+    "utf8",
+  );
+  const owner = readFileSync(
+    new URL(
+      "../apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const expected = `.data-mapping-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 22px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--ux-border);
+  gap: 8px;
+}
+
+.data-mapping-heading strong {
+  color: var(--ux-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.data-mapping-heading span {
+  overflow: hidden;
+  color: var(--ux-danger);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-mapping-heading span {
+  font-size: var(--ux-metadata-font-size);
+}`;
+
+  assert.equal(legacy.includes(".data-mapping-heading"), false);
+  assert.equal(owner.endsWith(`${expected}\n`), true);
+  assert.equal(owner.match(/\.data-mapping-heading span \{/g)?.length, 2);
+  assert.ok(
+    legacy.includes(`.data-mapping-table th,
+.data-mapping-recovery-detail > label,`),
+  );
+});
+
 test("keeps the audit regression selectors out of the generated dead batch", () => {
   const inventory = JSON.parse(readFileSync(
     new URL("../docs/17-evidence/issue-261-css-selector-inventory.json", import.meta.url),
@@ -254,7 +304,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A5.fullyRemovedRuleGroups, 21);
   assert.equal(completedM1A5.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A5.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 158);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 154);
   for (const selector of completedM1A5.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -281,7 +331,7 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   assert.equal(completedM1A6.fullyRemovedRuleGroups, 3);
   assert.equal(completedM1A6.partiallyShrunkRuleGroups, 0);
   assert.deepEqual(completedM1A6.residualExactSelectorRows, []);
-  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 158);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 154);
   for (const selector of completedM1A6.exactLegacySelectors) {
     assert.equal(
       inventory.selectors.some((row) => row.selector === selector),
@@ -289,8 +339,36 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} no longer has exact legacy ownership`,
     );
   }
+  const completedM1A7 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === "M1A7-modeling-data-mapping-heading",
+  );
+  assert.ok(completedM1A7);
+  assert.deepEqual(completedM1A7.actualAfter, {
+    cssRuleGroups: 2781,
+    selectorRows: 3505,
+    crossCssDuplicateRows: 14,
+  });
+  assert.deepEqual(completedM1A7.historicalMemberIds, [
+    "CSS-1019",
+    "CSS-1020",
+    "CSS-1021",
+    "CSS-1579",
+  ]);
+  assert.equal(completedM1A7.selectorRowsRemoved, 4);
+  assert.equal(completedM1A7.touchedRuleGroups, 4);
+  assert.equal(completedM1A7.fullyRemovedRuleGroups, 3);
+  assert.equal(completedM1A7.partiallyShrunkRuleGroups, 1);
+  assert.deepEqual(completedM1A7.residualExactSelectorRows, []);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 154);
+  for (const selector of completedM1A7.exactLegacySelectors) {
+    assert.equal(
+      inventory.selectors.some((row) => row.selector === selector),
+      false,
+      `${selector} no longer has exact legacy ownership`,
+    );
+  }
   assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
-    id: "M1A7-modeling-data-component-region",
+    id: "M1A8-modeling-data-component-region",
     status: "owner-packet-required",
     scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
   });

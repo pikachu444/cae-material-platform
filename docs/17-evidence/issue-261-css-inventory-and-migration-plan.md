@@ -1189,6 +1189,69 @@ inventory closure, 30 pair/5 current hash와 safety snapshot의 80 PNG blob을 �
 blocker/major/material/minor `0/0/0/0`으로 `APPROVE`했다. 이 승인은 Draft publication까지만 허용하며 제품
 오너 wide-original 판정 전 Ready/merge를 허용하지 않는다.
 
+## M1A7 Data mapping heading ownership candidate
+
+### Exact scope와 ownership 결과
+
+latest `origin/main@b0896ed370206758d4e7b5e7a81fdac674196e85`에서 남은 M1A 158행을 다시 분류해,
+Local file의 **Match file columns** 헤더 한 component region만 선택했다. historical `CSS-1019`,
+`CSS-1020`, `CSS-1021`은 complete rule-group이고 `CSS-1579`는 후행 metadata density comma-group의
+`.data-mapping-heading span` member다. 네 selector row의 선언을 그대로 Data stage owner CSS로 옮겼으며,
+기본 `span` 선언 뒤에 density override가 오던 상대 cascade도 유지했다.
+
+React, DOM, API, copy, route, state, token, breakpoint, `styles.css`, 다른 Data component, Process와 Fit은
+바꾸지 않았다. live consumer는 `modeling-data-intake.tsx`의 단일 heading이며, 현재 DOM에는 `strong`
+descendant만 있다. `span`은 삭제하지 않고 dormant descendant contract와 후행 density override를 checker
+characterization으로 보존했다. 새 제품 판단은 필요하지 않다.
+
+후보 작성 중 main은 `963d74dd...`에서 `bcb0910c...`, 이어 `b0896ed3...`로 전진했다. #304는
+`adr/0001`~`adr/0034`의 한국어 설명만, #305는 `contracts/README.md` 설명만 추가했다. 두 번의
+fast-forward 뒤 production source, route/state/input, 두 CSS hash와 92개 evidence hash가 모두 그대로여서
+캡처를 재사용했고, inventory·guard·documentation-impact base metadata만 최신 SHA로 다시 고정했다.
+
+| Metric | M1A6 | M1A7 | Delta |
+| --- | ---: | ---: | ---: |
+| global rule-groups / guard debt | 2,784 | 2,781 | -3 |
+| expanded global selector rows | 3,509 | 3,505 | -4 |
+| M1A Data rows | 158 | 154 | -4 |
+| HOLD rows | 446 | 446 | 0 |
+| cross-CSS duplicate rows | 14 | 14 | 0 |
+
+checker는 structural delta `4/4/3/1`, exact legacy residual 0, 남은 M1A 154행과 다음 router
+`M1A8-modeling-data-component-region`을 고정한다. guard baseline은 latest-main source SHA, 줄 수와 global
+rule count를 내리고, 이동한 literal `font-weight: 650` 한 건만 #261 예외로 보존했다. 다른 기존 예외와
+#298 baseline 내용은 유지했다.
+
+### Live journey와 visual evidence
+
+[M1A7 manifest](images/issue-261-fe06-m1a7-data-mapping-heading/manifest.json)은 Standard, browser zoom 100%,
+DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. normal Data/session과
+reload 흐름, primary와 `/datasets/processing` alias의 동일한 long invalid-mapping 상태, 적용 가능한
+header/navigator/mapping/target-heading/graph direct source-pixel crop을 캡처했다. 46개 before/after pair는
+[hash와 pixel 비교](images/issue-261-fe06-m1a7-data-mapping-heading/equivalence.json)에서 모두 byte/pixel
+identical이고 current guide normal 5개도 [동일 hash](images/issue-261-fe06-m1a7-data-mapping-heading/documentation-impact-equivalence.json)다.
+
+current guide 보존 원본은 [1366 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1366x768.png), [1366 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1366x768.png), [1440 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1440x900.png), [1440 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1440x900.png), [1920 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1920x1080.png), [1920 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1920x1080.png), [2560 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-2560x1440.png), [2560 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-2560x1440.png), [3840 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-3840x2160.png), [3840 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-3840x2160.png)다.
+
+canonical 상태 증거는 [empty before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-empty-1440x900.png), [empty after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-empty-1440x900.png), [invalid before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-invalid-1440x900.png), [invalid after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-invalid-1440x900.png), [invalid scrolled before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-invalid-scrolled-1440x900.png), [invalid scrolled after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-invalid-scrolled-1440x900.png), [session 1366 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1366x768.png), [session 1366 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1366x768.png), [session 1440 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1440x900.png), [session 1440 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1440x900.png), [session 1920 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1920x1080.png), [session 1920 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1920x1080.png)다.
+
+- 1366×768: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-1366x768.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1366x768.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-1366x768.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-1366x768.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-graph-100pct.png)
+- 1440×900: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-1440x900.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1440x900.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-1440x900.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-1440x900.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-graph-100pct.png)
+- 1920×1080: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-1920x1080.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1920x1080.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-1920x1080.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-1920x1080.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-graph-100pct.png)
+- 2560×1440: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-2560x1440.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-2560x1440.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-2560x1440.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-2560x1440.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-graph-100pct.png)
+- 3840×2160: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-3840x2160.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-3840x2160.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-3840x2160.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-3840x2160.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-graph-100pct.png)
+
+[runtime identity](images/issue-261-fe06-m1a7-data-mapping-heading/runtime-identity.json)는 exact Test Data r1,
+Mapping Profile r1, selected exact refs 3개, invalid mapping의 blocked update/save, 마지막 유효 graph,
+keyboard-focus 가능한 local region과 Test Data results, Data→Process→Data, reload read-back을 확인한다.
+정보 계층과 engineering task flow는 유지되고, navigator는 readable bound를 지키며 wide 화면의 유효 공간은
+graph에 배분된다. 자동 3840×2160은 geometry 증거일 뿐 실제 Windows 4K 물리 가독성은 계속 #223에 남는다.
+제품 오너는 2026-08-20에 1920×1080, 2560×1440, 3840×2160 원본과 후속 진단을 검토했다. `Match file
+columns` 위쪽이 잘린 듯 보인 상태는 CSS clipping 결함이 아니라 기존 내부 local-scroll 상태로 승인했고,
+재캡처나 제품 코드 교정을 요구하지 않았다. 모든 gate와 publication 독립 감사에 이상이 없다는 조건으로 이
+exact M1A7 candidate의 commit, push, PR, Ready 전환과 squash merge를 승인했다. 실제 Windows 4K 물리
+가독성은 계속 #223에 남는다.
+
 ## 이후 migration 순서
 
 1. M1A0 Data same-selector 12행은 commit `e9cad946...`에서 이동·검증되었다.
@@ -1197,16 +1260,17 @@ blocker/major/material/minor `0/0/0/0`으로 `APPROVE`했다. 이 승인은 Draf
 4. M1A3 Data import diagnostics 7행은 published M1A3에서 이동·검증되었다.
 5. M1A4 Raw source table preview 17행은 위 candidate에서 이동·검증되었다.
 6. M1A5 Library source list 29 historical row/21 complete rule-group은 위 candidate에서 이동·검증되었다.
-7. M1A6 Data curve-row label 3 complete rule-group candidate는 latest main에서 구현·Main 검증됐고 Balanced
-   독립 감사 및 Draft publication boundary만 남았다.
-8. M1A6 Draft와 제품 오너 wide-original 판정 뒤 다음 단위 `M1A7-modeling-data-component-region`은 재생성 inventory의 남은 M1A 158행에서
-   한 component region만 새 owner packet으로 선택한다. owner 승인을 받기 전에는 전체 158행을 함께 이동하지 않는다.
-9. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-10. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-11. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-12. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-13. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-14. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+7. M1A6 Data curve-row label 3 complete rule-group은 PR #302, main `822f4401...`로 merge되었다.
+8. M1A7 Data mapping heading 4 historical row는 latest main에서 구현·증거화했고, Main acceptance와
+   Balanced 독립 감사 및 제품 오너의 local-scroll disposition을 통과한 exact publication candidate다.
+9. 다음 `M1A8-modeling-data-component-region`은 재생성 inventory의 남은 M1A 154행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 154행을 함께 이동하지 않는다.
+10. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+11. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+12. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+13. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+14. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+15. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지
