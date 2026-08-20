@@ -212,6 +212,65 @@ describe("Modeling data intake", () => {
     expect(onLayoutModeChange).toHaveBeenCalledWith("compact");
   });
 
+  it("keeps an exact historical pinned revision visibly selected after a newer revision exists", () => {
+    const historicalRevisionId = "revision-historical-1";
+    const currentRevisionId = "revision-current-2";
+    const document = {
+      test_data_document_id: "document-1",
+      current_revision: { ...revision, id: currentRevisionId, revision_no: 2 },
+      document_key: "DP780-TENSILE-1",
+      material_maker: "CMP Demo",
+      material_grade: "DP780",
+      lot_batch: null,
+      test_date: "2026-07-18",
+      operator: "Tester",
+      laboratory: "Lab",
+      method: "tensile",
+      specimen_id: "S-1",
+      point_count: 3,
+      canonical_artifact_id: "canonical-1",
+      canonical_sha256: "a".repeat(64),
+      normalized_artifact_id: "normalized-1",
+      normalized_sha256: "b".repeat(64),
+      channels: [],
+    };
+
+    const { container } = render(
+      <ModelingDataIntake
+        config={{ baseUrl: "/api/v1", accessToken: "" }}
+        documents={[document] as never}
+        selectedTestDataRefs={[{
+          id: document.test_data_document_id,
+          revisionId: historicalRevisionId,
+          label: document.document_key,
+          revisionNo: 1,
+        }]}
+        selectedDocumentId={document.test_data_document_id}
+        processingMappingProfileText="{}"
+        onSelectDocument={() => undefined}
+        onPreviewDocument={() => undefined}
+        onImported={() => undefined}
+      />,
+    );
+
+    const historicalButton = screen.getByRole("button", {
+      name: "Specimen 01, earlier saved version",
+    });
+    const historicalArticle = historicalButton.closest("article");
+    expect(historicalArticle).toBeTruthy();
+    expect(historicalArticle?.classList.contains("active")).toBe(true);
+    expect(historicalArticle?.classList.contains("historical")).toBe(true);
+    expect(historicalButton.getAttribute("aria-current")).toBe("true");
+    expect(historicalButton.getAttribute("data-revision-id")).toBe(historicalRevisionId);
+
+    const currentButton = container.querySelector<HTMLButtonElement>(
+      `.data-library-row[data-revision-id="${currentRevisionId}"]`,
+    );
+    expect(currentButton).toBeTruthy();
+    expect(currentButton?.getAttribute("aria-current")).toBeNull();
+    expect(currentButton?.closest("article")?.classList.contains("active")).toBe(false);
+  });
+
   it("keeps exact observed-curve hydration alive across semantically identical reload churn", async () => {
     const document = {
       test_data_document_id: "document-1",

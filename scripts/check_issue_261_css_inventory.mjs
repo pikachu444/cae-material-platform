@@ -141,6 +141,65 @@ const COMPLETED_M1A4 = {
   ],
 };
 
+const COMPLETED_M1A5 = {
+  id: "M1A5-modeling-data-library-source-list",
+  historicalMemberIds: [
+    "CSS-0910",
+    "CSS-1016",
+    "CSS-1017",
+    "CSS-1018",
+    "CSS-1019",
+    "CSS-1020",
+    "CSS-1021",
+    "CSS-1022",
+    "CSS-1023",
+    "CSS-1024",
+    "CSS-1025",
+    "CSS-1513",
+    "CSS-1517",
+    "CSS-1518",
+    "CSS-1519",
+    "CSS-1520",
+    "CSS-1521",
+    "CSS-1522",
+    "CSS-1523",
+    "CSS-1524",
+    "CSS-1525",
+    "CSS-1526",
+    "CSS-1595",
+    "CSS-1596",
+    "CSS-1597",
+    "CSS-1598",
+    "CSS-1599",
+    "CSS-1600",
+    "CSS-1601",
+  ],
+  exactLegacySelectors: [
+    ".modeling-task-ribbon:has(.data-library-list)",
+    ".data-library-list",
+    ".data-library-scroll-shell",
+    ".data-library-list:focus-visible",
+    ".data-library-list article",
+    ".data-library-list article.active",
+    ".data-library-row",
+    ".data-library-row span",
+    ".data-library-row small",
+    ".data-library-row:hover",
+    ".data-library-row:focus-visible",
+    ".data-library-pane",
+    ".data-library-pane .data-library-scroll-shell",
+    ".data-library-pane .data-library-list",
+    ".data-library-pane .data-library-row",
+    ".data-library-pane .data-library-row > strong",
+    ".data-library-pane .data-library-warning",
+    ".data-library-pane .data-library-row > span",
+    ".data-library-pane .data-library-row > small:not(.data-library-warning)",
+    ".data-library-row :is(strong, td)",
+    ".data-library-pane .data-library-row > :is(span, small)",
+    ".data-library-row :is(span, small)",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -990,6 +1049,10 @@ function makeInventory() {
       COMPLETED_M1A4.id,
       rows.filter((row) => COMPLETED_M1A4.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A5.id,
+      rows.filter((row) => COMPLETED_M1A5.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1102,6 +1165,23 @@ function makeInventory() {
             .get(COMPLETED_M1A4.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2808,
+            selectorRows: 3541,
+            crossCssDuplicateRows: 13,
+          },
+        },
+        {
+          id: COMPLETED_M1A5.id,
+          historicalMemberIds: COMPLETED_M1A5.historicalMemberIds,
+          selectorRowsRemoved: 29,
+          touchedRuleGroups: 21,
+          fullyRemovedRuleGroups: 21,
+          partiallyShrunkRuleGroups: 0,
+          exactLegacySelectors: COMPLETED_M1A5.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A5.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1109,7 +1189,7 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A5-modeling-data-component-region",
+        id: "M1A6-modeling-data-component-region",
         status: "owner-packet-required",
         scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
       },
@@ -1244,6 +1324,27 @@ function validateInventory(inventory) {
         || completedM1A4.actualAfter.selectorRows !== 3541
         || completedM1A4.actualAfter.crossCssDuplicateRows !== 13) {
       errors.push(`completed M1A4 actual delta is ${JSON.stringify(completedM1A4.actualAfter)}`);
+    }
+  }
+  const completedM1A5 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A5.id,
+  );
+  if (!completedM1A5) {
+    errors.push("completed M1A5 packet is missing");
+  } else {
+    if (completedM1A5.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A5 selectors remain in legacy CSS: ${completedM1A5.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A5.selectorRowsRemoved !== 29
+        || completedM1A5.touchedRuleGroups !== 21
+        || completedM1A5.fullyRemovedRuleGroups !== 21
+        || completedM1A5.partiallyShrunkRuleGroups !== 0) {
+      errors.push("completed M1A5 structural delta does not match the approved 29/21/21/0 packet");
+    }
+    if (completedM1A5.actualAfter.cssRuleGroups !== 2787
+        || completedM1A5.actualAfter.selectorRows !== 3512
+        || completedM1A5.actualAfter.crossCssDuplicateRows !== 13) {
+      errors.push(`completed M1A5 actual delta is ${JSON.stringify(completedM1A5.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

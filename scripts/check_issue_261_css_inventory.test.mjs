@@ -238,8 +238,32 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} no longer has exact legacy ownership`,
     );
   }
+  const completedM1A5 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === "M1A5-modeling-data-library-source-list",
+  );
+  assert.ok(completedM1A5);
+  assert.deepEqual(completedM1A5.actualAfter, {
+    cssRuleGroups: 2787,
+    selectorRows: 3512,
+    crossCssDuplicateRows: 13,
+  });
+  assert.equal(completedM1A5.historicalMemberIds.length, 29);
+  assert.ok(completedM1A5.historicalMemberIds.includes("CSS-1020"));
+  assert.equal(completedM1A5.selectorRowsRemoved, 29);
+  assert.equal(completedM1A5.touchedRuleGroups, 21);
+  assert.equal(completedM1A5.fullyRemovedRuleGroups, 21);
+  assert.equal(completedM1A5.partiallyShrunkRuleGroups, 0);
+  assert.deepEqual(completedM1A5.residualExactSelectorRows, []);
+  assert.equal(inventory.summary.byMigrationBatch["M1A-modeling-data"], 161);
+  for (const selector of completedM1A5.exactLegacySelectors) {
+    assert.equal(
+      inventory.selectors.some((row) => row.selector === selector),
+      false,
+      `${selector} no longer has exact legacy ownership`,
+    );
+  }
   assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
-    id: "M1A5-modeling-data-component-region",
+    id: "M1A6-modeling-data-component-region",
     status: "owner-packet-required",
     scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
   });

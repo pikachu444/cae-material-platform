@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "4c9ff9a9f5cb2a7eb96d01498d081f5fc1e9ba68",
+  "sourceSha": "04a8f7e7e9914b78214febb65a4339a44551c0fd",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -47,7 +47,7 @@
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 8851,
+      "baselineLines": 8692,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 2808,
+      "count": 2787,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -81,7 +81,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "scope": "apps/web/src",
-      "count": 215,
+      "count": 216,
       "reason": "Legacy styles contain literal weights before shared typography roles are fully adopted.",
       "followUpIssue": "#257",
       "removalCondition": "FE-02 defines the required roles and later route units replace the remaining literal weights."
@@ -132,7 +132,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "fd131739a3c2e95e9db65d04a85d84914087ce30e4b116474ab90933b248c915",
+      "fingerprint": "9f6e9344041579b4f1b99046a41f5e4c28a1f54e0d36d6017f3d82962cdddf6b",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A0 removes the Data-owned member from this legacy comma group while preserving the three surviving intake selectors unchanged.",
       "ownerIssue": "#261",
@@ -141,7 +141,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "f8de12fae6d68ea64e511955d0ad14d6f789cd618bbe402efa6468ef258f016b",
+      "fingerprint": "008567f6bb2fed8886bc90e9fcce424cf2cd8eaafee228e31ced2740e59b460f",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A0 removes the Data-owned member from this legacy comma group while preserving the surviving attention selector unchanged.",
       "ownerIssue": "#261",
@@ -150,7 +150,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "45f83c871929e66991277cf9877292937d61aff80c45b3ccfc8d22b7ec6a9974",
+      "fingerprint": "69ce3d868343295cc9cd2a4c1c4381f8ba2a244d87a4a9ac665ac36d44fabda0",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A0 removes the Data plot member from this legacy comma group while preserving the ribbon selector unchanged.",
       "ownerIssue": "#261",
@@ -168,7 +168,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "db1564832d3f9c19be71beb59c69384ea663fd51ff41d0b6c7670a8f992be681",
+      "fingerprint": "02f32b5aa416fe664c5d486df0fcd9f636d012b635916342e03d1e1344575c66",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A4 moves the exact Raw source table header declaration into its owner CSS without combining migration with semantic typography normalization.",
       "ownerIssue": "#261",
@@ -177,7 +177,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
-      "fingerprint": "414afb2f8ccde30a9eb8c651d12c9c30f69c01084501f859427d22625a074504",
+      "fingerprint": "cdf5a974fd0be97d11b7a1d21541bdc8379531c32d28fba245c0a579f1dd0ee9",
       "maxOccurrences": 1,
       "reason": "FE-06 M1A3 moves the exact Data import-diagnostics declaration into its owner CSS without combining migration with semantic color-token normalization.",
       "ownerIssue": "#261",
