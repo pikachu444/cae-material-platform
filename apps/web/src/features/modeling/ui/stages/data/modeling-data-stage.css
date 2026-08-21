@@ -2222,3 +2222,61 @@
 .data-mapping-heading span {
   font-size: var(--ux-metadata-font-size);
 }
+
+.modeling-task-ribbon:has(.modeling-data-intake) {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-main-surface:has(.modeling-data-intake) {
+  grid-template-rows: minmax(0, auto) minmax(280px, 1fr);
+}
+
+.data-mapping-recovery-row .data-mapping-blockers {
+  min-width: 0;
+  max-width: none;
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.data-mapping-recovery-row .data-mapping-blockers.is-ready {
+  border-left-color: var(--ux-success);
+  background: color-mix(in srgb, var(--ux-success-soft, #e9f7ef) 58%, transparent);
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
+  box-sizing: border-box;
+  min-width: 480px;
+  min-height: 0;
+  max-width: none;
+  max-height: calc(var(--ux-interactive-min-block-size) * 2);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  gap: 0;
+  color: var(--ux-danger);
+  font-size: var(--ux-data-font-size);
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+.modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers > :is(strong, span) {
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+@container (max-width: 847px) {
+  .modeling-main-surface.has-data-split .data-mapping-recovery-row .data-mapping-blockers {
+    min-width: 0;
+  }
+}
+
+.data-mapping-recovery-row .data-mapping-blockers {
+  font-size: var(--ux-data-font-size);
+}
+
+.modeling-main-surface:has(.modeling-data-intake) {
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+}

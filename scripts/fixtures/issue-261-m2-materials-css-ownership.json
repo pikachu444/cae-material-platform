@@ -1,0 +1,1699 @@
+{
+  "version": "issue-261-m2-materials-css-ownership.v4",
+  "baselineSha": "4d53d95ce926b96b84e47f9d942127f0853d8ed2",
+  "ids": {
+    "materials": [
+      "CSS-0016",
+      "CSS-0021",
+      "CSS-0022",
+      "CSS-0024",
+      "CSS-0025",
+      "CSS-0027",
+      "CSS-0028",
+      "CSS-0029",
+      "CSS-0031",
+      "CSS-0044",
+      "CSS-0049",
+      "CSS-0051",
+      "CSS-0053",
+      "CSS-0054",
+      "CSS-0055",
+      "CSS-0056",
+      "CSS-0058",
+      "CSS-0060",
+      "CSS-0062",
+      "CSS-0072",
+      "CSS-0073",
+      "CSS-0075",
+      "CSS-0076",
+      "CSS-0077",
+      "CSS-0078",
+      "CSS-0079",
+      "CSS-0080",
+      "CSS-0081",
+      "CSS-0082",
+      "CSS-0086",
+      "CSS-0087",
+      "CSS-0097",
+      "CSS-0098",
+      "CSS-0099",
+      "CSS-0100",
+      "CSS-0101",
+      "CSS-0102",
+      "CSS-0103",
+      "CSS-0104",
+      "CSS-0105",
+      "CSS-0106",
+      "CSS-0107",
+      "CSS-0110",
+      "CSS-0111",
+      "CSS-0112",
+      "CSS-0113",
+      "CSS-0114",
+      "CSS-0119",
+      "CSS-0120",
+      "CSS-0121",
+      "CSS-0122",
+      "CSS-0123",
+      "CSS-0124",
+      "CSS-0125",
+      "CSS-0126",
+      "CSS-0129",
+      "CSS-0130",
+      "CSS-0131",
+      "CSS-0132",
+      "CSS-0133",
+      "CSS-0134",
+      "CSS-0135",
+      "CSS-0136",
+      "CSS-0137",
+      "CSS-0139",
+      "CSS-0141",
+      "CSS-0143",
+      "CSS-0144",
+      "CSS-0145",
+      "CSS-0147",
+      "CSS-0148",
+      "CSS-0149",
+      "CSS-0150",
+      "CSS-0152",
+      "CSS-0153",
+      "CSS-0154",
+      "CSS-0156",
+      "CSS-0157",
+      "CSS-0158",
+      "CSS-0159",
+      "CSS-0160",
+      "CSS-0161",
+      "CSS-0163",
+      "CSS-0164",
+      "CSS-0165",
+      "CSS-0166",
+      "CSS-0167",
+      "CSS-0168",
+      "CSS-0170",
+      "CSS-0171",
+      "CSS-0172",
+      "CSS-0173",
+      "CSS-0174",
+      "CSS-0175",
+      "CSS-0176",
+      "CSS-0182",
+      "CSS-0183",
+      "CSS-0184",
+      "CSS-0187",
+      "CSS-0188",
+      "CSS-0189",
+      "CSS-0190",
+      "CSS-0191",
+      "CSS-0192",
+      "CSS-0193",
+      "CSS-0194",
+      "CSS-0195",
+      "CSS-0196",
+      "CSS-0198",
+      "CSS-0200",
+      "CSS-0202",
+      "CSS-0204",
+      "CSS-0205",
+      "CSS-0206",
+      "CSS-0209",
+      "CSS-0210",
+      "CSS-0211",
+      "CSS-0212",
+      "CSS-0216",
+      "CSS-0217",
+      "CSS-0218",
+      "CSS-0220",
+      "CSS-0221",
+      "CSS-0228",
+      "CSS-0229",
+      "CSS-0230",
+      "CSS-0231",
+      "CSS-0232",
+      "CSS-0233",
+      "CSS-0234",
+      "CSS-0235",
+      "CSS-0236",
+      "CSS-0237",
+      "CSS-0238",
+      "CSS-0239",
+      "CSS-0240",
+      "CSS-0241",
+      "CSS-0242",
+      "CSS-0243",
+      "CSS-0244",
+      "CSS-0245",
+      "CSS-0246",
+      "CSS-0247",
+      "CSS-0248",
+      "CSS-0249",
+      "CSS-0250",
+      "CSS-0251",
+      "CSS-0252",
+      "CSS-0253",
+      "CSS-0254",
+      "CSS-0255",
+      "CSS-0256",
+      "CSS-0257",
+      "CSS-0258",
+      "CSS-0259",
+      "CSS-0260",
+      "CSS-0261",
+      "CSS-0262",
+      "CSS-0263",
+      "CSS-0264",
+      "CSS-0267",
+      "CSS-0268",
+      "CSS-0269",
+      "CSS-0270",
+      "CSS-0271",
+      "CSS-0272",
+      "CSS-0273",
+      "CSS-0274",
+      "CSS-0275",
+      "CSS-0276",
+      "CSS-0277",
+      "CSS-0278",
+      "CSS-0280",
+      "CSS-0281",
+      "CSS-0282",
+      "CSS-0283",
+      "CSS-0284",
+      "CSS-0285",
+      "CSS-0286",
+      "CSS-0287",
+      "CSS-0288",
+      "CSS-0289",
+      "CSS-0290",
+      "CSS-0296",
+      "CSS-0297",
+      "CSS-0298",
+      "CSS-0299",
+      "CSS-0300",
+      "CSS-0301",
+      "CSS-0302",
+      "CSS-0303",
+      "CSS-0305",
+      "CSS-0306",
+      "CSS-0307",
+      "CSS-0308",
+      "CSS-0309",
+      "CSS-0311",
+      "CSS-0316",
+      "CSS-0321",
+      "CSS-0331",
+      "CSS-0332",
+      "CSS-0516",
+      "CSS-0517",
+      "CSS-0518",
+      "CSS-0519",
+      "CSS-0520",
+      "CSS-0521",
+      "CSS-0522",
+      "CSS-0523",
+      "CSS-0524",
+      "CSS-0525",
+      "CSS-0526",
+      "CSS-0527",
+      "CSS-0528",
+      "CSS-0529",
+      "CSS-0530",
+      "CSS-0531",
+      "CSS-0532",
+      "CSS-0533",
+      "CSS-0535",
+      "CSS-0536",
+      "CSS-0537",
+      "CSS-0538",
+      "CSS-0539",
+      "CSS-0540",
+      "CSS-0541",
+      "CSS-0542",
+      "CSS-0543",
+      "CSS-0544",
+      "CSS-0545",
+      "CSS-0546",
+      "CSS-0547",
+      "CSS-0548",
+      "CSS-0549",
+      "CSS-0552",
+      "CSS-0554",
+      "CSS-0555",
+      "CSS-0584",
+      "CSS-0585",
+      "CSS-0586",
+      "CSS-0587",
+      "CSS-0588",
+      "CSS-0589",
+      "CSS-1361",
+      "CSS-1362",
+      "CSS-1363",
+      "CSS-1364",
+      "CSS-1365",
+      "CSS-1366",
+      "CSS-1367",
+      "CSS-1368",
+      "CSS-1371",
+      "CSS-1372",
+      "CSS-1374",
+      "CSS-1375",
+      "CSS-1376",
+      "CSS-1385"
+    ],
+    "activity": [
+      "CSS-0214",
+      "CSS-0224",
+      "CSS-0226",
+      "CSS-0325",
+      "CSS-0326",
+      "CSS-0327",
+      "CSS-0328",
+      "CSS-0329",
+      "CSS-0330",
+      "CSS-0333",
+      "CSS-0335",
+      "CSS-0336",
+      "CSS-0337",
+      "CSS-0338",
+      "CSS-0339",
+      "CSS-0340",
+      "CSS-0341",
+      "CSS-0342",
+      "CSS-0343",
+      "CSS-0344",
+      "CSS-0345",
+      "CSS-0346",
+      "CSS-0347",
+      "CSS-0348",
+      "CSS-0349",
+      "CSS-0350",
+      "CSS-0351",
+      "CSS-0352",
+      "CSS-0353",
+      "CSS-0354",
+      "CSS-0355",
+      "CSS-0356",
+      "CSS-0357",
+      "CSS-0358",
+      "CSS-0359",
+      "CSS-0360",
+      "CSS-0361",
+      "CSS-0362",
+      "CSS-0363",
+      "CSS-0364",
+      "CSS-0365",
+      "CSS-0366",
+      "CSS-0367",
+      "CSS-0368",
+      "CSS-0369",
+      "CSS-0370",
+      "CSS-0371",
+      "CSS-0372",
+      "CSS-0373",
+      "CSS-0374",
+      "CSS-0375",
+      "CSS-0376",
+      "CSS-0377",
+      "CSS-0378",
+      "CSS-0379",
+      "CSS-0380",
+      "CSS-0381",
+      "CSS-0382",
+      "CSS-0383",
+      "CSS-0389",
+      "CSS-0390",
+      "CSS-0391",
+      "CSS-0392",
+      "CSS-0393",
+      "CSS-0396",
+      "CSS-0398",
+      "CSS-0399",
+      "CSS-0400",
+      "CSS-0401",
+      "CSS-0402",
+      "CSS-0403",
+      "CSS-0404",
+      "CSS-0405",
+      "CSS-0406",
+      "CSS-0408",
+      "CSS-1382"
+    ],
+    "modeling": [
+      "CSS-2331"
+    ],
+    "m4": [
+      "CSS-0083",
+      "CSS-0084",
+      "CSS-0085",
+      "CSS-0088",
+      "CSS-0091",
+      "CSS-0092",
+      "CSS-0093",
+      "CSS-0094",
+      "CSS-0095",
+      "CSS-0096",
+      "CSS-0322",
+      "CSS-0323",
+      "CSS-0324"
+    ],
+    "hold": [
+      "CSS-0002",
+      "CSS-0005",
+      "CSS-0006",
+      "CSS-0023",
+      "CSS-0026",
+      "CSS-0030",
+      "CSS-0063",
+      "CSS-0213",
+      "CSS-0215",
+      "CSS-0219",
+      "CSS-0223",
+      "CSS-0265",
+      "CSS-0291",
+      "CSS-0294",
+      "CSS-0295",
+      "CSS-1369",
+      "CSS-1373",
+      "CSS-1383",
+      "CSS-1384",
+      "CSS-1819",
+      "CSS-1820",
+      "CSS-1821",
+      "CSS-1822",
+      "CSS-1882",
+      "CSS-2176",
+      "CSS-3185",
+      "CSS-3187",
+      "CSS-3188",
+      "CSS-3189",
+      "CSS-3190",
+      "CSS-3191",
+      "CSS-3192",
+      "CSS-3194",
+      "CSS-3195",
+      "CSS-3213",
+      "CSS-0034",
+      "CSS-0035",
+      "CSS-0045",
+      "CSS-0046",
+      "CSS-0047",
+      "CSS-0048",
+      "CSS-0050",
+      "CSS-0052",
+      "CSS-0128",
+      "CSS-0222",
+      "CSS-0225",
+      "CSS-0385",
+      "CSS-0386",
+      "CSS-0387",
+      "CSS-0388",
+      "CSS-1351",
+      "CSS-1352",
+      "CSS-1357",
+      "CSS-1370",
+      "CSS-1377",
+      "CSS-1381",
+      "CSS-1912",
+      "CSS-2375"
+    ]
+  },
+  "mixedGroups": [
+    {
+      "source": "layout.css",
+      "rule": 21,
+      "moved": [
+        "CSS-0021",
+        "CSS-0022"
+      ],
+      "residual": [
+        "CSS-0023"
+      ],
+      "signature": "f1e3181e7c657ac11a5552243343113a4591e2a4e1bcaa0c1987bed76f5697c1"
+    },
+    {
+      "source": "layout.css",
+      "rule": 24,
+      "moved": [
+        "CSS-0024",
+        "CSS-0025"
+      ],
+      "residual": [
+        "CSS-0026"
+      ],
+      "signature": "a8c7c6dff877406697f61b576059d60bae2379fe806e695f1b89a2d312f1fbb6"
+    },
+    {
+      "source": "layout.css",
+      "rule": 29,
+      "moved": [
+        "CSS-0029"
+      ],
+      "residual": [
+        "CSS-0030"
+      ],
+      "signature": "978e39771fe5593cb16493e1251e958f7cc93fc3c994ef1612bbed33bba9defe"
+    },
+    {
+      "source": "layout.css",
+      "rule": 44,
+      "moved": [
+        "CSS-0044"
+      ],
+      "residual": [
+        "CSS-0045",
+        "CSS-0046"
+      ],
+      "signature": "160f8b448b1283664ccf6c29f7e1434e19e8a4e221830ba7d065913063d0c7f1"
+    },
+    {
+      "source": "layout.css",
+      "rule": 47,
+      "moved": [
+        "CSS-0049"
+      ],
+      "residual": [
+        "CSS-0047",
+        "CSS-0048"
+      ],
+      "signature": "369769a881c81a3e181d47732352ae3a000473746bc1ae4dd00575e75af5dfc0"
+    },
+    {
+      "source": "layout.css",
+      "rule": 51,
+      "moved": [
+        "CSS-0051"
+      ],
+      "residual": [
+        "CSS-0052"
+      ],
+      "signature": "78dfe052231cafe6945d38babb6a3c076af9f09bc35fa8b94d50e069accd0dfb"
+    },
+    {
+      "source": "layout.css",
+      "rule": 60,
+      "moved": [
+        "CSS-0060",
+        "CSS-0062"
+      ],
+      "residual": [
+        "CSS-0061",
+        "CSS-0063"
+      ],
+      "signature": "4c69788beb7349400e52a9a4a036be9e387d146e053f67bcd270193de043dee4"
+    },
+    {
+      "source": "layout.css",
+      "rule": 73,
+      "moved": [
+        "CSS-0073"
+      ],
+      "residual": [
+        "CSS-0074"
+      ],
+      "signature": "b03c4f866a0ebf3f0d1368d386b08a11dc158760339e9be81bd5a112033c044a"
+    },
+    {
+      "source": "layout.css",
+      "rule": 137,
+      "moved": [
+        "CSS-0137"
+      ],
+      "residual": [
+        "CSS-0138"
+      ],
+      "signature": "b1e7e483e65cc942848acdcee8c0fab32c1e4d915b1825f047d3aa2d0e78ca11"
+    },
+    {
+      "source": "layout.css",
+      "rule": 139,
+      "moved": [
+        "CSS-0139"
+      ],
+      "residual": [
+        "CSS-0140"
+      ],
+      "signature": "eeb1fa4d86b98162d5c84a1f75a14a3aabd31263d9d7fa15cbb498b78106f4ec"
+    },
+    {
+      "source": "layout.css",
+      "rule": 181,
+      "moved": [
+        "CSS-0182"
+      ],
+      "residual": [
+        "CSS-0181"
+      ],
+      "signature": "ec8e70b86eeb7bdc6717851d26c304596107efcf24363f528243e56ad02fe392"
+    },
+    {
+      "source": "layout.css",
+      "rule": 199,
+      "moved": [
+        "CSS-0200"
+      ],
+      "residual": [
+        "CSS-0199"
+      ],
+      "signature": "ef36d7d3ef28794c9c414d79e87722d004f94a7c554654f2df426a9780f4d44b"
+    },
+    {
+      "source": "layout.css",
+      "rule": 201,
+      "moved": [
+        "CSS-0202"
+      ],
+      "residual": [
+        "CSS-0201"
+      ],
+      "signature": "f33352dcab9c2d14dd7d16eaef817a01f39dc4bdb7408a79acdd63d7fe3315fa"
+    },
+    {
+      "source": "layout.css",
+      "rule": 203,
+      "moved": [
+        "CSS-0204"
+      ],
+      "residual": [
+        "CSS-0203"
+      ],
+      "signature": "5cbab15835bee04b7797f61766b8513c04b0d24d5da9ae17266be89d8369b4a0"
+    },
+    {
+      "source": "layout.css",
+      "rule": 212,
+      "moved": [
+        "CSS-0212"
+      ],
+      "residual": [
+        "CSS-0213",
+        "CSS-0214"
+      ],
+      "signature": "df3b8209a3ced248cace54e6873951b6c17b031f3d5ce5abf16b0a79c64d62c9"
+    },
+    {
+      "source": "layout.css",
+      "rule": 218,
+      "moved": [
+        "CSS-0218"
+      ],
+      "residual": [
+        "CSS-0219"
+      ],
+      "signature": "cff21f522f18048c8d18a65634a96a48324d17fa935ed9725c66fa9bb92c2eb4"
+    },
+    {
+      "source": "layout.css",
+      "rule": 316,
+      "moved": [
+        "CSS-0316"
+      ],
+      "residual": [
+        "CSS-0317"
+      ],
+      "signature": "28cc0911e4b139f5871d7afb0a0e778e3591021782dbe21c966b42d83606d2d0"
+    },
+    {
+      "source": "layout.css",
+      "rule": 549,
+      "moved": [
+        "CSS-0549"
+      ],
+      "residual": [
+        "CSS-0550"
+      ],
+      "signature": "b557f47c7cae845928207b7f321be415f96ee99e34951f9860e9f53b867a31cf"
+    },
+    {
+      "source": "layout.css",
+      "rule": 552,
+      "moved": [
+        "CSS-0552"
+      ],
+      "residual": [
+        "CSS-0553"
+      ],
+      "signature": "e3184872c72da46c68097b0a9c68ab60bad359c5d089ade0ef15d03ec16c74e2"
+    },
+    {
+      "source": "layout.css",
+      "rule": 1367,
+      "moved": [
+        "CSS-1367",
+        "CSS-1368"
+      ],
+      "residual": [
+        "CSS-1369"
+      ],
+      "signature": "54f9ce6331a8272f0dcd978cf2da62b96f78a59921e5e59d2745c6e340520fd8"
+    },
+    {
+      "source": "layout.css",
+      "rule": 1370,
+      "moved": [
+        "CSS-1371",
+        "CSS-1372",
+        "CSS-1374",
+        "CSS-1375"
+      ],
+      "residual": [
+        "CSS-1370",
+        "CSS-1373"
+      ],
+      "signature": "d4a479309d1a7093012060873206861b89796a894e2ca9be9a81ecfdc4c147a1"
+    },
+    {
+      "source": "layout.css",
+      "rule": 1376,
+      "moved": [
+        "CSS-1376"
+      ],
+      "residual": [
+        "CSS-1377"
+      ],
+      "signature": "26e019611f53522128857e28ca881b6d89817646989e32f99423e8f07b79d3dd"
+    }
+  ],
+  "expected": {
+    "materialsRows": 257,
+    "materialsRuleGroups": 221,
+    "materialsFullGroups": 199,
+    "materialsMixedGroups": 22,
+    "activityRows": 76,
+    "modelingRows": 1,
+    "m4Rows": 13,
+    "holdRows": 58,
+    "exhaustiveRows": 405,
+    "postLegacyRows": 3117,
+    "postLegacyRuleGroups": 2500,
+    "postLayoutRows": 1445,
+    "postLayoutRuleGroups": 1118,
+    "stylesRows": 1672,
+    "stylesRuleGroups": 1382,
+    "postBuckets": {
+      "HOLD-owner-or-cross-feature-split": 504,
+      "M1A-modeling-data": 23,
+      "M1B-modeling-process": 151,
+      "M1C-modeling-fit": 98,
+      "M1D-modeling-export": 271,
+      "M1E-modeling-shell-and-family": 717,
+      "M2-materials": 0,
+      "M3A-administration": 382,
+      "M3B-activity": 124,
+      "M4-shared-cleanup": 314,
+      "M6-zero-consumer-removal-candidate": 533
+    }
+  },
+  "importOrder": [
+    "apps/web/src/styles.css",
+    "apps/web/src/design/tokens.css",
+    "apps/web/src/design/typography.css",
+    "apps/web/src/design/primitives.css",
+    "apps/web/src/design/layout.css",
+    "apps/web/src/features/materials/ui/materials.css",
+    "apps/web/src/design/shell.css"
+  ],
+  "materialsSourcePath": "apps/web/src/features/materials/ui/materials.css",
+  "legacyLayoutPath": "apps/web/src/design/layout.css",
+  "sourceExpectations": {
+    "apps/web/src/features/materials/ui/materials.css": {
+      "bytes": 29819,
+      "sha256": "4da1a8483ae6cf448a025e19d28d7aa0622d04f999b4d4b7e126386861c4226e"
+    },
+    "apps/web/src/design/layout.css": {
+      "bytes": 176914,
+      "sha256": "04e367a926d8e2167695b820b2166882b79a5e5d45e2453c437e272040a5a81a"
+    },
+    "apps/web/src/styles.css": {
+      "bytes": 174831,
+      "sha256": "38f41916e06a80fc08e849d2a3e2792cd57b23f045f1d1d50685737c9400e831"
+    }
+  },
+  "externalTargets": {
+    "TARGET-0181": {
+      "targetKey": ".card-preview-header",
+      "property": "color",
+      "internal": ["CSS-0303"],
+      "external": ["CSS-1912"],
+      "acceptedDisjointness": "moved Materials selector and held generic review token do not share a selector"
+    },
+    "TARGET-0201": {
+      "targetKey": ".mapping-status",
+      "property": "color",
+      "internal": ["CSS-0316"],
+      "external": ["CSS-2375", "CSS-2331"],
+      "acceptedDisjointness": "Materials delivery mapping selector remains scoped; generic cross-feature and Modeling target-preview rules stay outside M2"
+    }
+  },
+  "overrides": {
+    "activity-specific": [
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 212,
+        "selectorIndex": 3,
+        "selector": ".activity-shell",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 222,
+        "selectorIndex": 3,
+        "selector": ".activity-content",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 325,
+        "selectorIndex": 1,
+        "selector": ".activity-evidence-list",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 326,
+        "selectorIndex": 1,
+        "selector": ".activity-list",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 327,
+        "selectorIndex": 1,
+        "selector": ".activity-empty-state",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 328,
+        "selectorIndex": 1,
+        "selector": ".activity-empty-state > div",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 329,
+        "selectorIndex": 1,
+        "selector": ".activity-empty-state p",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 330,
+        "selectorIndex": 1,
+        "selector": ".activity-list li",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 333,
+        "selectorIndex": 1,
+        "selector": ".activity-list li > span",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 335,
+        "selectorIndex": 1,
+        "selector": ".activity-heading",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 335,
+        "selectorIndex": 2,
+        "selector": ".activity-section-heading",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 335,
+        "selectorIndex": 3,
+        "selector": ".activity-context-line",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 335,
+        "selectorIndex": 4,
+        "selector": ".activity-queue-error",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 340,
+        "selectorIndex": 1,
+        "selector": ".activity-heading-line",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 341,
+        "selectorIndex": 1,
+        "selector": ".activity-role-context",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 342,
+        "selectorIndex": 1,
+        "selector": ".activity-heading-actions",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 343,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-status",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 343,
+        "selectorIndex": 2,
+        "selector": ".activity-section-count",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 345,
+        "selectorIndex": 1,
+        "selector": ".activity-saved-views",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 346,
+        "selectorIndex": 1,
+        "selector": ".activity-saved-views .activity-saved-view",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 347,
+        "selectorIndex": 1,
+        "selector": ".activity-saved-views .activity-saved-view:hover",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 347,
+        "selectorIndex": 2,
+        "selector": ".activity-saved-views .activity-saved-view:focus-visible",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 349,
+        "selectorIndex": 1,
+        "selector": ".activity-saved-views .activity-saved-view.is-active",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 350,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-region",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 351,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-scroll-shell",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 352,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-scroll",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 353,
+        "selectorIndex": 1,
+        "selector": ".activity-heading h1",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 353,
+        "selectorIndex": 2,
+        "selector": ".activity-section-heading h2",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 355,
+        "selectorIndex": 1,
+        "selector": ".activity-heading p",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 355,
+        "selectorIndex": 2,
+        "selector": ".activity-section-heading p",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 355,
+        "selectorIndex": 3,
+        "selector": ".activity-empty-line",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 355,
+        "selectorIndex": 4,
+        "selector": ".activity-row-state",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 359,
+        "selectorIndex": 1,
+        "selector": ".activity-section",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 362,
+        "selectorIndex": 1,
+        "selector": ".activity-section-heading > div",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 363,
+        "selectorIndex": 1,
+        "selector": ".activity-table",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 364,
+        "selectorIndex": 1,
+        "selector": ".activity-table thead",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 365,
+        "selectorIndex": 1,
+        "selector": ".activity-table th",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 366,
+        "selectorIndex": 1,
+        "selector": ".activity-column-task",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 367,
+        "selectorIndex": 1,
+        "selector": ".activity-column-reason",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 368,
+        "selectorIndex": 1,
+        "selector": ".activity-column-status",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 369,
+        "selectorIndex": 1,
+        "selector": ".activity-column-updated",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 370,
+        "selectorIndex": 1,
+        "selector": ".activity-column-action",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 371,
+        "selectorIndex": 1,
+        "selector": ".activity-table th:last-child",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 372,
+        "selectorIndex": 1,
+        "selector": ".activity-table td",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 373,
+        "selectorIndex": 1,
+        "selector": ".activity-table tr:hover > td",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 374,
+        "selectorIndex": 1,
+        "selector": ".activity-cell-task",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 374,
+        "selectorIndex": 2,
+        "selector": ".activity-cell-reason",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 374,
+        "selectorIndex": 3,
+        "selector": ".activity-cell-status",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 374,
+        "selectorIndex": 4,
+        "selector": ".activity-cell-updated",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 378,
+        "selectorIndex": 1,
+        "selector": ".activity-cell-task strong",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 379,
+        "selectorIndex": 1,
+        "selector": ".activity-table .activity-cell-reason",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 380,
+        "selectorIndex": 1,
+        "selector": ".activity-table .activity-cell-status",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 381,
+        "selectorIndex": 1,
+        "selector": ".activity-table .activity-cell-status strong",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 382,
+        "selectorIndex": 1,
+        "selector": ".activity-table .activity-cell-updated",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 383,
+        "selectorIndex": 1,
+        "selector": ".activity-cell-action",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 389,
+        "selectorIndex": 1,
+        "selector": ".activity-decision-row > td",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 390,
+        "selectorIndex": 1,
+        "selector": ".activity-decision-panel",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 392,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-loading",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 393,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-loading span",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 396,
+        "selectorIndex": 1,
+        "selector": ".activity-queue-loading span",
+        "atContext": [
+          "@media (prefers-reduced-motion: reduce)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 399,
+        "selectorIndex": 1,
+        "selector": ".activity-review-form",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 400,
+        "selectorIndex": 1,
+        "selector": ".activity-review-form label",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 401,
+        "selectorIndex": 1,
+        "selector": ".activity-review-form textarea",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 402,
+        "selectorIndex": 1,
+        "selector": ".activity-review-form p",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 403,
+        "selectorIndex": 1,
+        "selector": ".activity-review-form > div",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 408,
+        "selectorIndex": 1,
+        "selector": ".activity-advanced",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1381,
+        "selectorIndex": 2,
+        "selector": ".activity-content",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      }
+    ],
+    "modeling-specific": [
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 629,
+        "selectorIndex": 1,
+        "selector": ".modeling-target-preview .export-mapping-status.approximated",
+        "atContext": [
+          "@media (min-width: 1101px)"
+        ]
+      }
+    ],
+    "shared-pane-split-layout": [
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 83,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-shell",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 84,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-shell[data-scroll-y=\"true\"]",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 85,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-shell[data-scroll-x=\"true\"]",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 88,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-rail",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 91,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-thumb",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 92,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-rail-y .materials-scroll-thumb",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 93,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-rail-x .materials-scroll-thumb",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 94,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-rail:hover .materials-scroll-thumb",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 95,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-rail:focus-visible",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 96,
+        "selectorIndex": 1,
+        "selector": ".materials-scroll-corner",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 322,
+        "selectorIndex": 1,
+        "selector": ".evidence-grid",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 323,
+        "selectorIndex": 1,
+        "selector": ".evidence-grid dt",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 324,
+        "selectorIndex": 1,
+        "selector": ".evidence-grid dd",
+        "atContext": []
+      }
+    ],
+    "legacy-cross-feature": [
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 2,
+        "selectorIndex": 1,
+        "selector": ".exact-domain-page",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 5,
+        "selectorIndex": 1,
+        "selector": ".exact-domain-section",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 6,
+        "selectorIndex": 1,
+        "selector": ".exact-domain-section .evidence-grid",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 21,
+        "selectorIndex": 3,
+        "selector": ".card-preview-header",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 29,
+        "selectorIndex": 2,
+        "selector": ".card-preview-header > div > p:last-child",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 34,
+        "selectorIndex": 1,
+        "selector": ".materials-workspace",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 35,
+        "selectorIndex": 1,
+        "selector": ".materials-workspace-panel",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 44,
+        "selectorIndex": 2,
+        "selector": ".materials-results",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 44,
+        "selectorIndex": 3,
+        "selector": ".materials-selection",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 60,
+        "selectorIndex": 4,
+        "selector": ".card-action-row",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 128,
+        "selectorIndex": 1,
+        "selector": ".materials-left-pane",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 212,
+        "selectorIndex": 2,
+        "selector": ".card-preview-shell",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 218,
+        "selectorIndex": 2,
+        "selector": ".card-preview-header h1",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 222,
+        "selectorIndex": 1,
+        "selector": ".material-tab-panel",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 222,
+        "selectorIndex": 2,
+        "selector": ".card-preview-content",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 225,
+        "selectorIndex": 1,
+        "selector": ".material-detail-shell > .material-tab-panel",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 291,
+        "selectorIndex": 1,
+        "selector": ".card-preview-actions",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 294,
+        "selectorIndex": 1,
+        "selector": ".card-preview-actions > h2",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 295,
+        "selectorIndex": 1,
+        "selector": ".card-preview-actions > h3",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 385,
+        "selectorIndex": 1,
+        "selector": ".materials-context-overlay",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 386,
+        "selectorIndex": 1,
+        "selector": ".materials-context-overlay > header",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 387,
+        "selectorIndex": 1,
+        "selector": ".materials-context-overlay > header h2",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 388,
+        "selectorIndex": 1,
+        "selector": ".materials-context-overlay-content",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1351,
+        "selectorIndex": 1,
+        "selector": ".materials-workspace.context-visible .materials-selection",
+        "atContext": [
+          "@media (max-width: 1390px) and (min-width: 1181px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1352,
+        "selectorIndex": 1,
+        "selector": ".materials-workspace",
+        "atContext": [
+          "@media (max-width: 1180px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1357,
+        "selectorIndex": 1,
+        "selector": ".materials-workspace.filters-visible.context-visible .materials-selection",
+        "atContext": [
+          "@media (max-width: 1180px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1367,
+        "selectorIndex": 3,
+        "selector": ".card-preview-header",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1370,
+        "selectorIndex": 1,
+        "selector": ".materials-workspace",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1370,
+        "selectorIndex": 4,
+        "selector": ".card-preview-content",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1376,
+        "selectorIndex": 2,
+        "selector": ".materials-results",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1381,
+        "selectorIndex": 1,
+        "selector": ".material-tab-panel",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/design/layout.css",
+        "ruleIndex": 1384,
+        "selectorIndex": 1,
+        "selector": ".card-preview-actions",
+        "atContext": [
+          "@media (max-width: 760px)"
+        ]
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 117,
+        "selectorIndex": 1,
+        "selector": ".module-material-grid",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 118,
+        "selectorIndex": 1,
+        "selector": ".module-material-card",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 119,
+        "selectorIndex": 1,
+        "selector": ".module-material-card h3",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 120,
+        "selectorIndex": 1,
+        "selector": ".module-material-card p",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 180,
+        "selectorIndex": 1,
+        "selector": ".material-class-chip",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 210,
+        "selectorIndex": 1,
+        "selector": ".revision-chip.review",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 474,
+        "selectorIndex": 1,
+        "selector": ".export-native-preview-shell > .materials-scroll-shell",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 673,
+        "selectorIndex": 1,
+        "selector": ".mapping-status.approximated",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1483,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-links",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1485,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-heading",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1486,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-heading > div",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1487,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-node-list",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1488,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-node-list a",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1489,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-node-list a:hover",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1489,
+        "selectorIndex": 2,
+        "selector": ".domain-workflow-node-list a:focus-visible",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1492,
+        "selectorIndex": 1,
+        "selector": ".domain-workflow-node-list span",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1492,
+        "selectorIndex": 2,
+        "selector": ".domain-workflow-node-list small",
+        "atContext": []
+      },
+      {
+        "path": "apps/web/src/styles.css",
+        "ruleIndex": 1511,
+        "selectorIndex": 1,
+        "selector": ".reference-elastoplastic-workbench.embedded .neutral-solver-export > .domain-workflow-links",
+        "atContext": []
+      }
+    ]
+  }
+}
