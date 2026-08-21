@@ -4748,37 +4748,6 @@
   grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) minmax(190px, .65fr) auto;
 }
 
-.data-intake-row {
-  min-width: 0;
-}
-
-.data-intake-row {
-  display: flex;
-  align-items: end;
-  gap: 10px;
-}
-
-.data-intake-row label {
-  display: grid;
-  gap: 2px;
-  min-width: 150px;
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-  font-weight: 650;
-}
-
-.data-intake-row input,
-.data-intake-row select {
-  min-height: 30px;
-  font-size: 13px;
-}
-
-.data-intake-row p {
-  margin: 0 0 6px;
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-}
-
 .compact-file-picker input {
   max-width: 240px;
   min-height: 30px;
@@ -4792,12 +4761,6 @@
 
 .mapping-context-row label {
   flex: 1 1 150px;
-}
-
-.data-intake-message {
-  margin: 0;
-  color: var(--ux-success);
-  font-size: 11px;
 }
 
 .data-intake-message.error {
@@ -6946,7 +6909,6 @@
   font-size: var(--ux-data-font-size);
 }
 
-.data-intake-row label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
 .data-provenance-group {
@@ -6958,7 +6920,6 @@
   padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
 }
 
-.data-intake-row :is(input, select),
 .modeling-ribbon-actions input,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .processing-workbench-page select,

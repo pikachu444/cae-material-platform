@@ -1,10 +1,11 @@
-version: 128
+version: 129
 verified_at: 2026-08-21
 scope: issue-309-modeling-data-axis-overlap
 source_commit: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1+issue309-worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: native Python Playwright 1.62 task-local resolved-mapping drill using scripts.capture_current_product helpers against canonical current-worktree Compose at http://127.0.0.1:5173
 notes:
+  - 'Issue #261 M1A19 moves only nine historical selector rows across eight legacy rule groups for the Data intake field-row grammar from layout.css to the Data stage owner. The packet records five documentation-current canonical pairs, five fresh resolved-intake originals and twenty direct 100%-pixel header, source, controls and graph crops; all 30/30 before/after pairs are byte- and pixel-identical. React, DOM, API, copy, state, token, breakpoint, the merged #309 plot/test contract, Process, Fit and Export remain unchanged. Exact Test Data/revision, Update preview, graph, reload and Data-to-Process-to-Data read-back pass at all five viewports; automated 3840x2160 geometry does not claim physical 4K readability and #223 remains the physical gate.'
   - 'Issue #261 M1A18 moves only ten historical selector rows for the Data resolved-mapping action region from layout.css to the Data stage owner. After merging #309, the packet freshly records five documentation-current canonical pairs, five resolved-mapping originals, five stable states and twenty-five direct 100%-pixel header, source, controls, resolved-action and graph crops; all 40/40 before/after pairs are byte- and pixel-identical. React, DOM, API, copy, state, token, breakpoint, the merged #309 plot/test contract, Process, Fit and Export remain unchanged. The compact state does not require internal scrolling, while the established local-scroll contract remains; automated 3840x2160 geometry does not claim physical 4K readability and #223 remains the physical gate.'
   - "Issue #309 corrects only the Modeling Data resolved-mapping review graph at a short rendered SVG height. The production plot reads the ResizeObserver-measured SVG height and uses the existing two-interval short-frame density below 180 px; normal Data, Process, Fit and Export calculations, CSS, routes, copy, API, persistence and exact revision/session contracts remain unchanged."
   - "The issue packet contains ten five-viewport before/after originals and thirty direct 100%-pixel header, controls and graph crops. At 1366x768 the actual SVG remains 1348x133 while seven adjacent y-tick collisions become zero; y-tick/title/frame and page-overflow counts are zero. At 1440x900, 1920x1080, 2560x1440 and 3840x2160 the full originals and graph crops are byte-identical before/after, and every header/control crop is byte-identical. Main opened all forty PNG assets at original resolution. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the physical gate."
@@ -1459,6 +1460,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1440x900.png
@@ -1511,6 +1514,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1920x1080.png
@@ -1563,6 +1568,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-2560x1440.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-2560x1440.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-2560x1440.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-2560x1440.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-2560x1440.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-2560x1440.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-2560x1440.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-2560x1440.png
@@ -1615,6 +1622,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-3840x2160.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-3840x2160.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-3840x2160.png
@@ -1656,6 +1665,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-graph-100pct.png
@@ -1682,6 +1693,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-graph-100pct.png
@@ -1707,6 +1720,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-graph-100pct.png
@@ -1787,6 +1802,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-graph-100pct.png
@@ -1811,6 +1828,8 @@ allowed_duplicate_groups:
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-1366x768.png
       - docs/user-guide/images/current/modeling-data-1366x768.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
@@ -1821,6 +1840,8 @@ allowed_duplicate_groups:
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-graph-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png
@@ -1907,6 +1928,86 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/originals/modeling-data-mapping-resolved-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/states/modeling-data-mapping-resolved-scroll-end-3840x2160.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-controls-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-header-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-source-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-source-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-controls-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-header-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-source-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-source-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-controls-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-header-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-source-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-source-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-controls-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-header-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-source-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-source-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-controls-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-header-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-source-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-source-100pct.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-1366x768.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-1440x900.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-1920x1080.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-2560x1440.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-2560x1440.png
+  - rationale: 'Issue #261 M1A19 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-3840x2160.png
+      - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-3840x2160.png
 visual_evidence:
   sidecar: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml
   geometry_measurements: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/measurements.json

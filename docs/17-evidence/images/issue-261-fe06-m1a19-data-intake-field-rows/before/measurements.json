@@ -1,0 +1,1133 @@
+{
+  "phase": "before",
+  "route": "/modeling?stage=data&family=metal",
+  "browserZoomPercent": 100,
+  "devicePixelRatio": 1,
+  "density": "standard",
+  "syntheticInput": "m1a19-data-intake.csv",
+  "capturePrecondition": "fresh isolated demo has no Catalog related-data binding; M1A19 bounded intake/graph journey excludes that unrelated optional section",
+  "viewports": [
+    {
+      "viewport": "1366x768",
+      "pageOverflow": {
+        "horizontal": false,
+        "vertical": false
+      },
+      "session": {
+        "selectedTestDataRefs": [
+          {
+            "id": "36320434-8f9e-4fe3-a06d-3970cd2142fd",
+            "revisionId": "d0b61a06-5599-49de-888c-f50ce30a8b64",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd"
+        ],
+        "visibleTestDataKeys": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd:d0b61a06-5599-49de-888c-f50ce30a8b64"
+        ]
+      },
+      "intakeRows": [
+        {
+          "className": "data-intake-row data-import-file-row",
+          "text": "Choose data file\nm1a19-data-intake.csv",
+          "box": {
+            "x": 24,
+            "y": 170,
+            "width": 1288,
+            "height": 32
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "0px",
+            "height": "30px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row data-import-context-row",
+          "text": "Test record\nChoose a Test record\nTensile test 0001\nTensile test 0002\nTensile test 0003\nTensile test 0005\nTensile test 0006\nTensile test 0007\nTensile test 0008\nTensile test 0009\nTensile test 6798",
+          "box": {
+            "x": 24,
+            "y": 208,
+            "width": 1288,
+            "height": 40
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "40px",
+            "height": "40px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row mapping-context-row",
+          "text": "",
+          "box": {
+            "x": 24,
+            "y": 345.78125,
+            "width": 1288,
+            "height": 71
+          },
+          "style": {
+            "display": "grid",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "2px",
+            "minWidth": "150px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "32px",
+            "height": "32px",
+            "fontSize": "13px"
+          }
+        }
+      ],
+      "dataIntakeMessage": [
+        {
+          "text": "More than one approved mapping matches. Choose the intended profile.",
+          "color": "rgb(23, 107, 69)",
+          "fontSize": "11px",
+          "margin": "0px"
+        }
+      ],
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 482,
+          "width": 1366,
+          "height": 240,
+          "right": 1366,
+          "bottom": 722
+        },
+        "axisLabels": [
+          "Engineering strain [1]",
+          "Engineering stress [MPa]"
+        ],
+        "yTicks": {
+          "values": [
+            {
+              "text": "500",
+              "x": 59.515625,
+              "y": 547.0625,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 564.0625
+            },
+            {
+              "text": "250",
+              "x": 59.515625,
+              "y": 564.640625,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 581.640625
+            },
+            {
+              "text": "0",
+              "x": 73.828125,
+              "y": 582.21875,
+              "width": 7.171875,
+              "height": 17,
+              "right": 81,
+              "bottom": 599.21875
+            }
+          ],
+          "collisions": []
+        }
+      },
+      "split": {
+        "ribbon": {
+          "x": 0,
+          "y": 155,
+          "width": 1366,
+          "height": 322,
+          "right": 1366,
+          "bottom": 477
+        },
+        "divider": {
+          "x": 0,
+          "y": 477,
+          "width": 1366,
+          "height": 5,
+          "right": 1366,
+          "bottom": 482
+        },
+        "plotPanel": {
+          "x": 0,
+          "y": 482,
+          "width": 1366,
+          "height": 240,
+          "right": 1366,
+          "bottom": 722
+        },
+        "plotMinHeight": "240px"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "1440x900",
+      "pageOverflow": {
+        "horizontal": false,
+        "vertical": false
+      },
+      "session": {
+        "selectedTestDataRefs": [
+          {
+            "id": "36320434-8f9e-4fe3-a06d-3970cd2142fd",
+            "revisionId": "d0b61a06-5599-49de-888c-f50ce30a8b64",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd"
+        ],
+        "visibleTestDataKeys": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd:d0b61a06-5599-49de-888c-f50ce30a8b64"
+        ]
+      },
+      "intakeRows": [
+        {
+          "className": "data-intake-row data-import-file-row",
+          "text": "Choose data file\nm1a19-data-intake.csv",
+          "box": {
+            "x": 24,
+            "y": 170,
+            "width": 1362,
+            "height": 32
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "0px",
+            "height": "30px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row data-import-context-row",
+          "text": "Test record\nChoose a Test record\nTensile test 0001\nTensile test 0002\nTensile test 0003\nTensile test 0005\nTensile test 0006\nTensile test 0007\nTensile test 0008\nTensile test 0009\nTensile test 6798",
+          "box": {
+            "x": 24,
+            "y": 208,
+            "width": 1362,
+            "height": 40
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "40px",
+            "height": "40px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row mapping-context-row",
+          "text": "",
+          "box": {
+            "x": 24,
+            "y": 345.78125,
+            "width": 1362,
+            "height": 71
+          },
+          "style": {
+            "display": "grid",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "2px",
+            "minWidth": "150px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "32px",
+            "height": "32px",
+            "fontSize": "13px"
+          }
+        }
+      ],
+      "dataIntakeMessage": [],
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "width": 1440,
+          "height": 310,
+          "right": 1440,
+          "bottom": 854
+        },
+        "axisLabels": [
+          "Engineering strain [1]",
+          "Engineering stress [MPa]"
+        ],
+        "yTicks": {
+          "values": [
+            {
+              "text": "700",
+              "x": 59.515625,
+              "y": 595,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 612
+            },
+            {
+              "text": "600",
+              "x": 59.515625,
+              "y": 612.03125,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 629.03125
+            },
+            {
+              "text": "500",
+              "x": 59.515625,
+              "y": 629.0625,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 646.0625
+            },
+            {
+              "text": "400",
+              "x": 58.515625,
+              "y": 646.09375,
+              "width": 22.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 663.09375
+            },
+            {
+              "text": "300",
+              "x": 59.515625,
+              "y": 663.125,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 680.125
+            },
+            {
+              "text": "200",
+              "x": 59.515625,
+              "y": 680.15625,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 697.15625
+            },
+            {
+              "text": "100",
+              "x": 59.515625,
+              "y": 697.1875,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 714.1875
+            },
+            {
+              "text": "0",
+              "x": 73.828125,
+              "y": 714.21875,
+              "width": 7.171875,
+              "height": 17,
+              "right": 81,
+              "bottom": 731.21875
+            }
+          ],
+          "collisions": []
+        }
+      },
+      "split": {
+        "ribbon": {
+          "x": 0,
+          "y": 155,
+          "width": 1440,
+          "height": 384,
+          "right": 1440,
+          "bottom": 539
+        },
+        "divider": {
+          "x": 0,
+          "y": 539,
+          "width": 1440,
+          "height": 5,
+          "right": 1440,
+          "bottom": 544
+        },
+        "plotPanel": {
+          "x": 0,
+          "y": 544,
+          "width": 1440,
+          "height": 310,
+          "right": 1440,
+          "bottom": 854
+        },
+        "plotMinHeight": "240px"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "1920x1080",
+      "pageOverflow": {
+        "horizontal": false,
+        "vertical": false
+      },
+      "session": {
+        "selectedTestDataRefs": [
+          {
+            "id": "36320434-8f9e-4fe3-a06d-3970cd2142fd",
+            "revisionId": "d0b61a06-5599-49de-888c-f50ce30a8b64",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd"
+        ],
+        "visibleTestDataKeys": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd:d0b61a06-5599-49de-888c-f50ce30a8b64"
+        ]
+      },
+      "intakeRows": [
+        {
+          "className": "data-intake-row data-import-file-row",
+          "text": "Choose data file\nm1a19-data-intake.csv",
+          "box": {
+            "x": 24,
+            "y": 170,
+            "width": 1842,
+            "height": 32
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "0px",
+            "height": "30px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row data-import-context-row",
+          "text": "Test record\nChoose a Test record\nTensile test 0001\nTensile test 0002\nTensile test 0003\nTensile test 0005\nTensile test 0006\nTensile test 0007\nTensile test 0008\nTensile test 0009\nTensile test 6798",
+          "box": {
+            "x": 24,
+            "y": 208,
+            "width": 1842,
+            "height": 40
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "40px",
+            "height": "40px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row mapping-context-row",
+          "text": "",
+          "box": {
+            "x": 24,
+            "y": 345.78125,
+            "width": 1842,
+            "height": 71
+          },
+          "style": {
+            "display": "grid",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "2px",
+            "minWidth": "150px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "32px",
+            "height": "32px",
+            "fontSize": "13px"
+          }
+        }
+      ],
+      "dataIntakeMessage": [],
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "width": 1920,
+          "height": 490,
+          "right": 1920,
+          "bottom": 1034
+        },
+        "axisLabels": [
+          "Engineering strain [1]",
+          "Engineering stress [MPa]"
+        ],
+        "yTicks": {
+          "values": [
+            {
+              "text": "700",
+              "x": 59.515625,
+              "y": 595,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 612
+            },
+            {
+              "text": "600",
+              "x": 59.515625,
+              "y": 637.7455444335938,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 654.7455444335938
+            },
+            {
+              "text": "500",
+              "x": 59.515625,
+              "y": 680.4910888671875,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 697.4910888671875
+            },
+            {
+              "text": "400",
+              "x": 58.515625,
+              "y": 723.236572265625,
+              "width": 22.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 740.236572265625
+            },
+            {
+              "text": "300",
+              "x": 59.515625,
+              "y": 765.982177734375,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 782.982177734375
+            },
+            {
+              "text": "200",
+              "x": 59.515625,
+              "y": 808.7276611328125,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 825.7276611328125
+            },
+            {
+              "text": "100",
+              "x": 59.515625,
+              "y": 851.4732055664062,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 868.4732055664062
+            },
+            {
+              "text": "0",
+              "x": 73.828125,
+              "y": 894.21875,
+              "width": 7.171875,
+              "height": 17,
+              "right": 81,
+              "bottom": 911.21875
+            }
+          ],
+          "collisions": []
+        }
+      },
+      "split": {
+        "ribbon": {
+          "x": 0,
+          "y": 155,
+          "width": 1920,
+          "height": 384,
+          "right": 1920,
+          "bottom": 539
+        },
+        "divider": {
+          "x": 0,
+          "y": 539,
+          "width": 1920,
+          "height": 5,
+          "right": 1920,
+          "bottom": 544
+        },
+        "plotPanel": {
+          "x": 0,
+          "y": 544,
+          "width": 1920,
+          "height": 490,
+          "right": 1920,
+          "bottom": 1034
+        },
+        "plotMinHeight": "240px"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "2560x1440",
+      "pageOverflow": {
+        "horizontal": false,
+        "vertical": false
+      },
+      "session": {
+        "selectedTestDataRefs": [
+          {
+            "id": "36320434-8f9e-4fe3-a06d-3970cd2142fd",
+            "revisionId": "d0b61a06-5599-49de-888c-f50ce30a8b64",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd"
+        ],
+        "visibleTestDataKeys": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd:d0b61a06-5599-49de-888c-f50ce30a8b64"
+        ]
+      },
+      "intakeRows": [
+        {
+          "className": "data-intake-row data-import-file-row",
+          "text": "Choose data file\nm1a19-data-intake.csv",
+          "box": {
+            "x": 24,
+            "y": 170,
+            "width": 2482,
+            "height": 32
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "0px",
+            "height": "30px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row data-import-context-row",
+          "text": "Test record\nChoose a Test record\nTensile test 0001\nTensile test 0002\nTensile test 0003\nTensile test 0005\nTensile test 0006\nTensile test 0007\nTensile test 0008\nTensile test 0009\nTensile test 6798",
+          "box": {
+            "x": 24,
+            "y": 208,
+            "width": 2482,
+            "height": 40
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "40px",
+            "height": "40px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row mapping-context-row",
+          "text": "",
+          "box": {
+            "x": 24,
+            "y": 345.78125,
+            "width": 2482,
+            "height": 71
+          },
+          "style": {
+            "display": "grid",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "2px",
+            "minWidth": "150px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "32px",
+            "height": "32px",
+            "fontSize": "13px"
+          }
+        }
+      ],
+      "dataIntakeMessage": [],
+      "graph": {
+        "box": {
+          "x": 0,
+          "y": 544,
+          "width": 2560,
+          "height": 850,
+          "right": 2560,
+          "bottom": 1394
+        },
+        "axisLabels": [
+          "Engineering strain [1]",
+          "Engineering stress [MPa]"
+        ],
+        "yTicks": {
+          "values": [
+            {
+              "text": "700",
+              "x": 59.515625,
+              "y": 595,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 612
+            },
+            {
+              "text": "600",
+              "x": 59.515625,
+              "y": 689.1741333007812,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 706.1741333007812
+            },
+            {
+              "text": "500",
+              "x": 59.515625,
+              "y": 783.3482055664062,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 800.3482055664062
+            },
+            {
+              "text": "400",
+              "x": 58.515625,
+              "y": 877.5223388671875,
+              "width": 22.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 894.5223388671875
+            },
+            {
+              "text": "300",
+              "x": 59.515625,
+              "y": 971.6964111328125,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 988.6964111328125
+            },
+            {
+              "text": "200",
+              "x": 59.515625,
+              "y": 1065.87060546875,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 1082.87060546875
+            },
+            {
+              "text": "100",
+              "x": 59.515625,
+              "y": 1160.044677734375,
+              "width": 21.484375,
+              "height": 17,
+              "right": 81,
+              "bottom": 1177.044677734375
+            },
+            {
+              "text": "0",
+              "x": 73.828125,
+              "y": 1254.21875,
+              "width": 7.171875,
+              "height": 17,
+              "right": 81,
+              "bottom": 1271.21875
+            }
+          ],
+          "collisions": []
+        }
+      },
+      "split": {
+        "ribbon": {
+          "x": 0,
+          "y": 155,
+          "width": 2560,
+          "height": 384,
+          "right": 2560,
+          "bottom": 539
+        },
+        "divider": {
+          "x": 0,
+          "y": 539,
+          "width": 2560,
+          "height": 5,
+          "right": 2560,
+          "bottom": 544
+        },
+        "plotPanel": {
+          "x": 0,
+          "y": 544,
+          "width": 2560,
+          "height": 850,
+          "right": 2560,
+          "bottom": 1394
+        },
+        "plotMinHeight": "240px"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "3840x2160",
+      "pageOverflow": {
+        "horizontal": false,
+        "vertical": false
+      },
+      "session": {
+        "selectedTestDataRefs": [
+          {
+            "id": "36320434-8f9e-4fe3-a06d-3970cd2142fd",
+            "revisionId": "d0b61a06-5599-49de-888c-f50ce30a8b64",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd"
+        ],
+        "visibleTestDataKeys": [
+          "36320434-8f9e-4fe3-a06d-3970cd2142fd:d0b61a06-5599-49de-888c-f50ce30a8b64"
+        ]
+      },
+      "intakeRows": [
+        {
+          "className": "data-intake-row data-import-file-row",
+          "text": "Choose data file\nm1a19-data-intake.csv",
+          "box": {
+            "x": 24,
+            "y": 170,
+            "width": 3762,
+            "height": 32
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "0px",
+            "height": "30px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row data-import-context-row",
+          "text": "Test record\nChoose a Test record\nTensile test 0001\nTensile test 0002\nTensile test 0003\nTensile test 0005\nTensile test 0006\nTensile test 0007\nTensile test 0008\nTensile test 0009\nTensile test 6798",
+          "box": {
+            "x": 24,
+            "y": 208,
+            "width": 3762,
+            "height": 40
+          },
+          "style": {
+            "display": "flex",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "5px 10px",
+            "minWidth": "0px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "40px",
+            "height": "40px",
+            "fontSize": "14px"
+          }
+        },
+        {
+          "className": "data-intake-row mapping-context-row",
+          "text": "",
+          "box": {
+            "x": 24,
+            "y": 345.78125,
+            "width": 3762,
+            "height": 71
+          },
+          "style": {
+            "display": "grid",
+            "alignItems": "end",
+            "gap": "10px",
+            "minWidth": "0px"
+          },
+          "labelStyle": {
+            "display": "grid",
+            "gap": "2px",
+            "minWidth": "150px",
+            "color": "rgb(93, 104, 116)",
+            "fontSize": "13px",
+            "fontWeight": "500"
+          },
+          "controlStyle": {
+            "minHeight": "32px",
+            "height": "32px",
+            "fontSize": "13px"
+          }
+        }
+      ],
+      "dataIntakeMessage": [],
+      "graph": {
+        "box": {
+          "x": 520,
+          "y": 729,
+          "width": 2800,
+          "height": 1200,
+          "right": 3320,
+          "bottom": 1929
+        },
+        "axisLabels": [
+          "Engineering strain [1]",
+          "Engineering stress [MPa]"
+        ],
+        "yTicks": {
+          "values": [
+            {
+              "text": "700",
+              "x": 579.515625,
+              "y": 780,
+              "width": 21.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 797
+            },
+            {
+              "text": "600",
+              "x": 579.515625,
+              "y": 924.174072265625,
+              "width": 21.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 941.174072265625
+            },
+            {
+              "text": "500",
+              "x": 579.515625,
+              "y": 1068.34814453125,
+              "width": 21.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 1085.34814453125
+            },
+            {
+              "text": "400",
+              "x": 578.515625,
+              "y": 1212.5223388671875,
+              "width": 22.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 1229.5223388671875
+            },
+            {
+              "text": "300",
+              "x": 579.515625,
+              "y": 1356.6964111328125,
+              "width": 21.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 1373.6964111328125
+            },
+            {
+              "text": "200",
+              "x": 579.515625,
+              "y": 1500.87060546875,
+              "width": 21.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 1517.87060546875
+            },
+            {
+              "text": "100",
+              "x": 579.515625,
+              "y": 1645.044677734375,
+              "width": 21.484375,
+              "height": 17,
+              "right": 601,
+              "bottom": 1662.044677734375
+            },
+            {
+              "text": "0",
+              "x": 593.828125,
+              "y": 1789.21875,
+              "width": 7.171875,
+              "height": 17,
+              "right": 601,
+              "bottom": 1806.21875
+            }
+          ],
+          "collisions": []
+        }
+      },
+      "split": {
+        "ribbon": {
+          "x": 0,
+          "y": 155,
+          "width": 3840,
+          "height": 384,
+          "right": 3840,
+          "bottom": 539
+        },
+        "divider": {
+          "x": 0,
+          "y": 539,
+          "width": 3840,
+          "height": 5,
+          "right": 3840,
+          "bottom": 544
+        },
+        "plotPanel": {
+          "x": 0,
+          "y": 544,
+          "width": 3840,
+          "height": 1570,
+          "right": 3840,
+          "bottom": 2114
+        },
+        "plotMinHeight": "240px"
+      },
+      "consoleErrors": []
+    }
+  ]
+}
