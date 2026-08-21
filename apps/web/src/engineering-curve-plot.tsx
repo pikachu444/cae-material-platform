@@ -248,12 +248,24 @@ function reviewTickIntervals(size: number, targetSpacing: number): number {
   return Math.min(8, Math.max(5, Math.round(size / targetSpacing)));
 }
 
+function responsiveYAxisTickIntervals(height: number): number {
+  return height < 180 ? 2 : 5;
+}
+
+function reviewYAxisTickIntervals(height: number): number {
+  // Data review keeps nice engineering values while following the shared
+  // short-frame density when the rendered SVG is too short for five intervals.
+  return responsiveYAxisTickIntervals(height) === 2
+    ? 2
+    : reviewTickIntervals(height, 220);
+}
+
 export function responsiveYAxisTicks(
   minimum: number,
   maximum: number,
   height: number,
 ): number[] {
-  return axisTicks(minimum, maximum, height < 180 ? 2 : 5);
+  return axisTicks(minimum, maximum, responsiveYAxisTickIntervals(height));
 }
 
 function displayScale(unit: string, values: number[]): { divisor: number; label: string } {
@@ -1108,7 +1120,7 @@ export function EngineeringCurvePlot({
       ? readableAxisTicks(bounds.xMin, bounds.xMax, reviewTickIntervals(effectiveWidth, 400))
       : axisTicks(bounds.xMin, bounds.xMax, 5);
   const yTicks = reviewOnly
-    ? readableAxisTicks(bounds.yMin, bounds.yMax, reviewTickIntervals(effectiveHeight, 220))
+    ? readableAxisTicks(bounds.yMin, bounds.yMax, reviewYAxisTickIntervals(effectiveHeight))
     : responsiveYAxisTicks(bounds.yMin, bounds.yMax, effectiveHeight);
   const extrapolationPlotStart = model.extrapolationStart === undefined
     ? undefined

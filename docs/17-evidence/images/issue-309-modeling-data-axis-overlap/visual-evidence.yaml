@@ -1,0 +1,119 @@
+schema_version: cmp.visual-evidence.v1
+issue: 309
+title: Modeling Data low-viewport review-axis overlap correction
+base_sha: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1
+route: /modeling?stage=data&family=metal
+state: Local file > approved resolved mapping > Columns ready
+captured_on: 2026-08-21
+capture:
+  browser_zoom_percent: 100
+  device_pixel_ratio: 1
+  density: standard
+  css_viewports: [1366x768, 1440x900, 1920x1080, 2560x1440, 3840x2160]
+  url: http://127.0.0.1:5173
+  source: canonical current-worktree Compose with preserved PostgreSQL and object data
+  command: native Python Playwright 1.62 task-local resolved-mapping drill using scripts.capture_current_product helpers
+  physical_4k_readability: deferred_to_issue_223
+journey:
+  setup: three exact DP780 Test Data revisions with one current selected document and a bounded synthetic engineering strain/stress CSV
+  actions: Data_to_Process_to_Data_then_reload_invalid_mapping_repair_exact_profile_select_Update_preview
+  visible_outcome: Columns_ready_resolved_mapping_review_and_persistent_engineering_graph
+  readback: exact_Test_Data_revision_session_selection_and_current_document_preserved
+  recovery: invalid_mapping_blocks_preview_then_corrected_mapping_restores_Update_preview_and_focus
+measurements:
+  before: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/measurements.json
+  after: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/measurements.json
+assets:
+  original_count: 10
+  direct_100pct_crop_count: 30
+  opened_at_original_resolution: pass_all_40_png_assets
+  before_originals:
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/originals/modeling-data-mapping-resolved-1366x768.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/originals/modeling-data-mapping-resolved-1440x900.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/originals/modeling-data-mapping-resolved-1920x1080.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/originals/modeling-data-mapping-resolved-2560x1440.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/originals/modeling-data-mapping-resolved-3840x2160.png
+  after_originals:
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-1366x768.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-1440x900.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-1920x1080.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-2560x1440.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-3840x2160.png
+  before_crops:
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1366x768-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1440x900-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1920x1080-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-2560x1440-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png
+  after_crops:
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1366x768-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1440x900-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1920x1080-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-2560x1440-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png
+    - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png
+comparison:
+  1366x768: actual_svg_1348x133_ticks_8_to_3_adjacent_collisions_7_to_0
+  1440x900: full_original_and_graph_crop_sha256_identical
+  1920x1080: full_original_and_graph_crop_sha256_identical
+  2560x1440: full_original_and_graph_crop_sha256_identical
+  3840x2160: full_original_and_graph_crop_sha256_identical
+  header_and_controls: all_ten_before_after_pairs_sha256_identical
+  geometry: svg_dimensions_unchanged_all_viewports_zero_title_frame_and_page_overflow_after
+design_synthesis:
+  information_hierarchy: pass_mapping_decisions_remain_above_dominant_review_graph_and_only_colliding_axis_detail_changes
+  engineering_task_flow: pass_exact_Data_Process_Data_reload_invalid_mapping_repair_Update_preview_sequence_and_focus_preserved
+  responsive_wide_screen: pass_actual_svg_height_drives_short_frame_density_and_1440_to_3840_pixels_remain_unchanged
+visual_matrix:
+  Q01: not_applicable_short_curve_navigator_fixture_has_no_long_tree_overflow
+  Q02: not_applicable_resolved_local_mapping_has_no_long_result_list
+  Q03: not_applicable_Materials_navigation_is_outside_scope
+  Q04: not_applicable_Fit_ribbon_is_unchanged
+  Q05: pass_zero_tick_title_frame_collision_at_all_five_viewports
+  Q06: not_applicable_single_review_curve_has_no_multi_curve_legend
+  Q07: pass_actual_rendered_svg_viewBox_remeasured_without_zoom_transform_or_nonuniform_stretch
+  Q08: not_applicable_engineering_input_preview_is_not_true_yield_response
+  Q09: not_applicable_no_genuine_overflow_fixture
+  Q10: not_applicable_Fit_legend_is_unchanged
+  Q11: not_applicable_Fit_navigator_is_unchanged
+  Q12: not_applicable_Export_selected_model_is_unchanged
+  Q13: not_applicable_Export_row_grammar_is_unchanged
+  Q14: not_applicable_Export_readiness_is_unchanged
+  Q15: pass_zero_anchor_headroom_units_and_curve_frame_clearances_preserved
+  Q16: not_applicable_Export_native_preview_is_unchanged
+  Q17: not_applicable_Administration_lists_are_unchanged
+  Q18: not_applicable_Administration_editing_is_unchanged
+  Q19: not_applicable_Administration_links_are_unchanged
+  Q20: pass_full_viewport_shell_bounded_3840_graph_and_zero_overflow_without_responsive_shortcuts
+verification:
+  focused_vitest: pass_24
+  full_web_vitest: pass_71_files_412_tests
+  frontend_guard_tests: pass_17
+  live_five_viewport_before_after: pass
+  exact_session_and_recovery: pass
+  production_build_and_bundle_budget: pass
+  user_guide: pass_20_guides_124_current_captures_zero_orphans
+  docs_impact: pass_worktree_mode_50_changed_files_1_visual_source
+  pre_publish: required_before_commit
+review:
+  main: approve_visual_geometry_and_contract_preservation
+  balanced_independent_auditor: required_before_commit
