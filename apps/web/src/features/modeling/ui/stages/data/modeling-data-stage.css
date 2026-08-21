@@ -294,6 +294,58 @@
   font-size: var(--ux-data-font-size);
 }
 
+.data-mapping-resolved label {
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  color: var(--ux-text-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.data-mapping-resolved input,
+.data-mapping-resolved select {
+  min-height: 30px;
+  font-size: 13px;
+}
+
+.data-mapping-resolved > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-mapping-resolved > strong {
+  align-self: center;
+  min-width: 145px;
+  font-size: 12px;
+}
+
+.data-mapping-resolved label {
+  grid-template-columns: minmax(130px, 1fr) minmax(72px, .45fr);
+}
+
+.data-mapping-resolved label select:first-of-type {
+  grid-column: 1;
+}
+
+.data-mapping-decision > .data-mapping-resolved {
+  min-width: 0;
+}
+
+.data-mapping-resolved label {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.data-mapping-resolved :is(input, select) {
+  min-height: var(--ux-input-min-block-size);
+  height: auto;
+  font-size: var(--ux-data-font-size);
+}
+
 .modeling-data-ribbon-panel {
   min-height: 0;
   overflow: hidden;

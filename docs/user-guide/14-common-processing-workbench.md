@@ -47,6 +47,11 @@ channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mappin
 다섯 viewport 원본, 내부 scroll-end 상태, 직접 crop과 exact journey read-back으로 기록합니다. 화면의
 문구·선택·revision·graph·복구 흐름과 좁은 화면의 의도된 내부 스크롤은 바꾸지 않습니다.
 
+유효한 column 연결 뒤 표시되는 **Columns ready · Change mapping · Update preview** 영역의 CSS 소유권
+이동은 [M1A18 live evidence](../17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/manifest.json)에
+다섯 viewport 원본, 안정 상태, 직접 crop과 exact journey read-back으로 기록합니다. 이 compact 상태는
+내부 스크롤이 필요하지 않지만, Local file 영역의 기존 keyboard scroll 계약은 그대로 유지합니다.
+
 Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 그래프 사이 가로 구분선은 pointer 또는
 키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
 않습니다. Local file의 긴 column mapping도 이 한 개의 키보드 스크롤 영역 안에서 이동하며, 바깥

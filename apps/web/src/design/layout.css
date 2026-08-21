@@ -4758,8 +4758,7 @@
   gap: 10px;
 }
 
-.data-intake-row label,
-.data-mapping-resolved label {
+.data-intake-row label {
   display: grid;
   gap: 2px;
   min-width: 150px;
@@ -4769,9 +4768,7 @@
 }
 
 .data-intake-row input,
-.data-intake-row select,
-.data-mapping-resolved input,
-.data-mapping-resolved select {
+.data-intake-row select {
   min-height: 30px;
   font-size: 13px;
 }
@@ -4795,29 +4792,6 @@
 
 .mapping-context-row label {
   flex: 1 1 150px;
-}
-
-.data-mapping-resolved > span {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.data-mapping-resolved > strong {
-  align-self: center;
-  min-width: 145px;
-  font-size: 12px;
-}
-
-.data-mapping-resolved label {
-  grid-template-columns: minmax(130px, 1fr) minmax(72px, .45fr);
-}
-
-.data-mapping-resolved label select:first-of-type {
-  grid-column: 1;
 }
 
 .data-intake-message {
@@ -4898,8 +4872,7 @@
   font-size: 13px;
 }
 
-.data-mapping-decision .data-mapping-attention,
-.data-mapping-decision > .data-mapping-resolved {
+.data-mapping-decision .data-mapping-attention {
   min-width: 0;
 }
 
@@ -6974,7 +6947,6 @@
 }
 
 .data-intake-row label,
-.data-mapping-resolved label,
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
 .data-provenance-group {
@@ -6987,7 +6959,6 @@
 }
 
 .data-intake-row :is(input, select),
-.data-mapping-resolved :is(input, select),
 .modeling-ribbon-actions input,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .processing-workbench-page select,
