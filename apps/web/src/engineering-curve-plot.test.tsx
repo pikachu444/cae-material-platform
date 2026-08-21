@@ -100,6 +100,38 @@ describe("EngineeringCurvePlot", () => {
     expect(responsiveYAxisTicks(0, 10, 207)).toHaveLength(6);
   });
 
+  it("keeps Data review y-axis values separate at the rendered 1366 graph height", () => {
+    let callback: ResizeObserverCallback | undefined;
+    class ResizeObserverMock {
+      constructor(next: ResizeObserverCallback) { callback = next; }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={preview}
+        activeStage={activeStage}
+        baseStage={baseStage}
+        width={1348}
+        height={133}
+        observedCurves={[{ id: "doc-1:r1", label: "Specimen 01 · r1", preview }]}
+        reviewOnly
+      />,
+    );
+
+    act(() => {
+      callback?.([{ contentRect: { width: 1348, height: 133 } } as ResizeObserverEntry], {} as ResizeObserver);
+    });
+
+    const yTickLabels = [...container.querySelectorAll<SVGTextElement>(".chart-tick")]
+      .filter((label) => label.getAttribute("x") === "72")
+      .map((label) => ({ text: label.textContent, y: Number(label.getAttribute("y")) }));
+    expect(yTickLabels.map((label) => label.text)).toEqual(["0", "200"]);
+    expect(yTickLabels[0].y - yTickLabels[1].y).toBeGreaterThan(24);
+  });
+
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
