@@ -523,6 +523,22 @@ const COMPLETED_M1A19 = {
   ],
 };
 
+const COMPLETED_M1A20 = {
+  id: "M1A20-modeling-data-mapping-decision-frame",
+  historicalMemberIds: [
+    "CSS-0977",
+    "CSS-0978",
+    "CSS-1388",
+    "CSS-1389",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-decision",
+    ".data-mapping-decision .mapping-context-row",
+    ".modeling-main-surface:has(.data-intake-local) .data-source-decision-grid",
+    ".modeling-main-surface.has-data-split .data-mapping-decision select[name=\"local-data-schema\"]",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1432,6 +1448,10 @@ function makeInventory() {
       COMPLETED_M1A19.id,
       rows.filter((row) => COMPLETED_M1A19.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A20.id,
+      rows.filter((row) => COMPLETED_M1A20.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1799,6 +1819,23 @@ function makeInventory() {
             .get(COMPLETED_M1A19.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2703,
+            selectorRows: 3378,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A20.id,
+          historicalMemberIds: COMPLETED_M1A20.historicalMemberIds,
+          selectorRowsRemoved: 4,
+          touchedRuleGroups: 4,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 0,
+          exactLegacySelectors: COMPLETED_M1A20.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A20.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1806,9 +1843,9 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A20-modeling-data-component-region",
+        id: "M1A21-modeling-data-component-region",
         status: "owner-packet-required",
-        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A19; do not migrate all remaining M1A rows together.",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A20; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -2256,6 +2293,27 @@ function validateInventory(inventory) {
         || completedM1A19.actualAfter.selectorRows !== 3378
         || completedM1A19.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A19 actual delta is ${JSON.stringify(completedM1A19.actualAfter)}`);
+    }
+  }
+  const completedM1A20 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A20.id,
+  );
+  if (!completedM1A20) {
+    errors.push("completed M1A20 packet is missing");
+  } else {
+    if (completedM1A20.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A20 selectors remain in legacy CSS: ${completedM1A20.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A20.selectorRowsRemoved !== 4
+        || completedM1A20.touchedRuleGroups !== 4
+        || completedM1A20.fullyRemovedRuleGroups !== 4
+        || completedM1A20.partiallyShrunkRuleGroups !== 0) {
+      errors.push("completed M1A20 structural delta does not match the approved 4/4/4/0 packet");
+    }
+    if (completedM1A20.actualAfter.cssRuleGroups !== 2699
+        || completedM1A20.actualAfter.selectorRows !== 3374
+        || completedM1A20.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A20 actual delta is ${JSON.stringify(completedM1A20.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

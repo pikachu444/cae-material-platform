@@ -341,6 +341,36 @@
   font-size: var(--ux-data-font-size);
 }
 
+.data-mapping-decision {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.data-mapping-decision .mapping-context-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  align-items: end;
+}
+
+.modeling-main-surface:has(.data-intake-local) .data-source-decision-grid {
+  grid-template-columns: 400px minmax(0, 1fr);
+}
+
+/* Task 1 mapping controls use the native compact control grammar.  These
+   selectors intentionally outrank the page-wide workbench minimums without
+   changing controls in Process, Fit, or Export. */
+.modeling-main-surface.has-data-split .data-mapping-decision select[name="local-data-schema"] {
+  box-sizing: border-box;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
+  padding-block: 0;
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+}
+
 .data-mapping-resolved label {
   display: grid;
   gap: 2px;

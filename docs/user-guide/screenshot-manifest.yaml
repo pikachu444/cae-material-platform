@@ -5,6 +5,7 @@ source_commit: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1+issue309-worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: native Python Playwright 1.62 task-local resolved-mapping drill using scripts.capture_current_product helpers against canonical current-worktree Compose at http://127.0.0.1:5173
 notes:
+  - 'Issue #261 M1A20 moves only CSS-0977, CSS-0978, CSS-1388 and CSS-1389, the four complete Match file columns decision-frame rule groups, from layout.css to the Data stage owner. The packet records five documentation-current canonical pairs, five fresh focused originals and twenty-five direct 100%-pixel header, navigator, controls, Save details and graph crops; all 35/35 before/after pairs are byte- and pixel-identical. React, DOM, API, copy, state, token, breakpoint, the merged #309 graph contract, Process, Fit and Export remain unchanged. Exact Test Data/revision, Test type focus, Update preview, reload and Data-to-Process-to-Data read-back pass at all five viewports; the 1366 Data internal scroll is intentional and automated 3840x2160 geometry does not claim physical 4K readability.'
   - 'Issue #261 M1A19 moves only nine historical selector rows across eight legacy rule groups for the Data intake field-row grammar from layout.css to the Data stage owner. The packet records five documentation-current canonical pairs, five fresh resolved-intake originals and twenty direct 100%-pixel header, source, controls and graph crops; all 30/30 before/after pairs are byte- and pixel-identical. React, DOM, API, copy, state, token, breakpoint, the merged #309 plot/test contract, Process, Fit and Export remain unchanged. Exact Test Data/revision, Update preview, graph, reload and Data-to-Process-to-Data read-back pass at all five viewports; automated 3840x2160 geometry does not claim physical 4K readability and #223 remains the physical gate.'
   - 'Issue #261 M1A18 moves only ten historical selector rows for the Data resolved-mapping action region from layout.css to the Data stage owner. After merging #309, the packet freshly records five documentation-current canonical pairs, five resolved-mapping originals, five stable states and twenty-five direct 100%-pixel header, source, controls, resolved-action and graph crops; all 40/40 before/after pairs are byte- and pixel-identical. React, DOM, API, copy, state, token, breakpoint, the merged #309 plot/test contract, Process, Fit and Export remain unchanged. The compact state does not require internal scrolling, while the established local-scroll contract remains; automated 3840x2160 geometry does not claim physical 4K readability and #223 remains the physical gate.'
   - "Issue #309 corrects only the Modeling Data resolved-mapping review graph at a short rendered SVG height. The production plot reads the ResizeObserver-measured SVG height and uses the existing two-interval short-frame density below 180 px; normal Data, Process, Fit and Export calculations, CSS, routes, copy, API, persistence and exact revision/session contracts remain unchanged."
@@ -916,25 +917,25 @@ allowed_duplicate_groups:
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-mapping-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-mapping-100pct.png]
   - rationale: "Issue #261 deterministic before/after and route-equivalent evidence through M1A12 records unchanged source pixels for bounded CSS ownership moves."
-    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png]
+    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-navigator-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-mapping-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-mapping-100pct.png]
   - rationale: "Issue #261 deterministic before/after and route-equivalent evidence through M1A12 records unchanged source pixels for bounded CSS ownership moves."
-    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png]
+    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-navigator-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png]
   - rationale: "Issue #261 deterministic before/after and route-equivalent evidence through M1A12 records unchanged source pixels for bounded CSS ownership moves."
-    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png]
+    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-navigator-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png]
   - rationale: "Issue #261 deterministic before/after and route-equivalent evidence through M1A12 records unchanged source pixels for bounded CSS ownership moves."
-    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png]
+    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-navigator-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move. Issue #261 M1A9 adds the complete exact-hash paths for its bounded before/after and route-equivalent evidence. Issue #261 M1A13 adds its exact-hash evidence paths. Issue #261 M1A14 adds its exact-hash evidence paths. Issue #261 M1A15 adds its exact-hash evidence paths. Issue #261 M1A16 adds its exact-hash evidence paths. Issue #261 M1A17 adds its exact-hash evidence paths."
@@ -942,7 +943,7 @@ allowed_duplicate_groups:
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png]
   - rationale: "Issue #261 deterministic before/after and route-equivalent evidence through M1A12 records unchanged source pixels for bounded CSS ownership moves."
-    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png]
+    images: [docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-navigator-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-navigator-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
     images: [docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png, docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png]
   - rationale: "Issue #261 M1A8 deterministic before/after and route-equivalent evidence records unchanged source pixels for the exact CSS ownership move."
@@ -1485,6 +1486,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1440x900.png
       - docs/user-guide/images/current/modeling-data-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1440x900.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-1920x1080.png
@@ -1539,6 +1542,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1920x1080.png
       - docs/user-guide/images/current/modeling-data-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1920x1080.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-2560x1440.png
@@ -1593,6 +1598,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-2560x1440.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-2560x1440.png
       - docs/user-guide/images/current/modeling-data-2560x1440.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-2560x1440.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-2560x1440.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-data-3840x2160.png
@@ -1647,6 +1654,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-3840x2160.png
       - docs/user-guide/images/current/modeling-data-3840x2160.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-3840x2160.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-3840x2160.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-graph-100pct.png
@@ -1677,6 +1686,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-graph-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-graph-100pct.png
@@ -1702,6 +1713,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-graph-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-graph-100pct.png
@@ -1732,6 +1745,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-graph-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-header-100pct.png
@@ -1746,6 +1761,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-header-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-header-100pct.png
@@ -1760,6 +1777,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-header-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-header-100pct.png
@@ -1774,6 +1793,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-header-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-header-100pct.png
@@ -1788,6 +1809,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-header-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png
@@ -1810,6 +1833,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/before/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-graph-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png
@@ -1824,6 +1849,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-header-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-header-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1366x768.png
@@ -1832,6 +1859,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-1366x768.png
       - docs/user-guide/images/current/modeling-data-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1366x768.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png
@@ -1842,6 +1871,8 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-graph-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-graph-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-graph-100pct.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png
@@ -2008,6 +2039,66 @@ allowed_duplicate_groups:
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-3840x2160.png
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-3840x2160.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1366x768.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-controls-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-controls-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-save-details-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-save-details-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1920x1080.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-controls-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-save-details-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-save-details-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-controls-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-3840x2160.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-3840x2160.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-controls-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-controls-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-2560x1440.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-2560x1440.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-save-details-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-save-details-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1440x900.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-save-details-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-save-details-100pct.png
+  - rationale: 'Issue #261 M1A20 retains this byte-identical before/after ownership-migration pair at its exact evidence lifecycle path.'
+    images:
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-save-details-100pct.png
+      - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-save-details-100pct.png
 visual_evidence:
   sidecar: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml
   geometry_measurements: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/measurements.json

@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A20-modeling-data-mapping-decision-frame",
+  "source_sha": "58757f29892fc7f1c45bcb899ca71107f2f99a51",
+  "imagePairs": 35,
+  "byteIdenticalPairs": 35,
+  "pixelIdenticalPairs": 35,
+  "pairs": [
+    {
+      "relativePath": "canonical/modeling-data-1366x768.png",
+      "beforeSha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716",
+      "afterSha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "canonical/modeling-data-1440x900.png",
+      "beforeSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "afterSha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "canonical/modeling-data-1920x1080.png",
+      "beforeSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "afterSha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "canonical/modeling-data-2560x1440.png",
+      "beforeSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "afterSha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "canonical/modeling-data-3840x2160.png",
+      "beforeSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "afterSha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1366x768-controls-100pct.png",
+      "beforeSha256": "8797038a65d5755f386bcee38569c949192eb902e94c1c9186a4d6566881d599",
+      "afterSha256": "8797038a65d5755f386bcee38569c949192eb902e94c1c9186a4d6566881d599",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1366x768-graph-100pct.png",
+      "beforeSha256": "e671e20ce71473f4b507ee7838bb9d70f5962b4db5fa6f27c9c6b8c21084176c",
+      "afterSha256": "e671e20ce71473f4b507ee7838bb9d70f5962b4db5fa6f27c9c6b8c21084176c",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1366x768-header-100pct.png",
+      "beforeSha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c",
+      "afterSha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1366x768-navigator-100pct.png",
+      "beforeSha256": "3c5c33cdd5a1d5bc92842ff28a19fc198bd1125f692f97fbd485dbec9e47a97d",
+      "afterSha256": "3c5c33cdd5a1d5bc92842ff28a19fc198bd1125f692f97fbd485dbec9e47a97d",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1366x768-save-details-100pct.png",
+      "beforeSha256": "f80e6de03a6ef45d78d26ebfab55b73d5c6339755d5eda1efd5e9fa2a1f97727",
+      "afterSha256": "f80e6de03a6ef45d78d26ebfab55b73d5c6339755d5eda1efd5e9fa2a1f97727",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1440x900-controls-100pct.png",
+      "beforeSha256": "2922d44b236119bf380e3d2e4e0aaea44e3f741c68cf6bea30e5ad4cb7b0414e",
+      "afterSha256": "2922d44b236119bf380e3d2e4e0aaea44e3f741c68cf6bea30e5ad4cb7b0414e",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1440x900-graph-100pct.png",
+      "beforeSha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "afterSha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1440x900-header-100pct.png",
+      "beforeSha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58",
+      "afterSha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1440x900-navigator-100pct.png",
+      "beforeSha256": "686427c7f602ac450c32720b34bbbc66b57021e0fe414076a8b08d47d705f880",
+      "afterSha256": "686427c7f602ac450c32720b34bbbc66b57021e0fe414076a8b08d47d705f880",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1440x900-save-details-100pct.png",
+      "beforeSha256": "724e1ec333dd72e177446deae3732ac27a781213e6ddb689b10184e744fcba35",
+      "afterSha256": "724e1ec333dd72e177446deae3732ac27a781213e6ddb689b10184e744fcba35",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1920x1080-controls-100pct.png",
+      "beforeSha256": "3ef88813c804b7f82fb13162fb58e7c928098349b0829e54fa3fcab8f9bdefca",
+      "afterSha256": "3ef88813c804b7f82fb13162fb58e7c928098349b0829e54fa3fcab8f9bdefca",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1920x1080-graph-100pct.png",
+      "beforeSha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "afterSha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1920x1080-header-100pct.png",
+      "beforeSha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e",
+      "afterSha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1920x1080-navigator-100pct.png",
+      "beforeSha256": "6110480db49d800be98a06dd43743189f1857ad8f6ba1c26db5032e64e8f5578",
+      "afterSha256": "6110480db49d800be98a06dd43743189f1857ad8f6ba1c26db5032e64e8f5578",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-1920x1080-save-details-100pct.png",
+      "beforeSha256": "eb82bba7e917dfbf538cae803206ceee705d67b37c007291e4ca4b275a5bbd50",
+      "afterSha256": "eb82bba7e917dfbf538cae803206ceee705d67b37c007291e4ca4b275a5bbd50",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-2560x1440-controls-100pct.png",
+      "beforeSha256": "c962976051cbb40c670db821d36b21c1c7bdb5688382c48102ed9d242810f93b",
+      "afterSha256": "c962976051cbb40c670db821d36b21c1c7bdb5688382c48102ed9d242810f93b",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-2560x1440-graph-100pct.png",
+      "beforeSha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "afterSha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-2560x1440-header-100pct.png",
+      "beforeSha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc",
+      "afterSha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-2560x1440-navigator-100pct.png",
+      "beforeSha256": "f0d00e769057629e8e838204afd29a0612f2384db9df64269920a0b3aa27a396",
+      "afterSha256": "f0d00e769057629e8e838204afd29a0612f2384db9df64269920a0b3aa27a396",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-2560x1440-save-details-100pct.png",
+      "beforeSha256": "eeba6b0ae8367e279fdbc4b738bb3c4a537f4cf0826bf6a0c57add8a05e3fa78",
+      "afterSha256": "eeba6b0ae8367e279fdbc4b738bb3c4a537f4cf0826bf6a0c57add8a05e3fa78",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-3840x2160-controls-100pct.png",
+      "beforeSha256": "673a70441a833d937661a720fdf17f209d05f0d5a38c5cd5676d65ac639b5241",
+      "afterSha256": "673a70441a833d937661a720fdf17f209d05f0d5a38c5cd5676d65ac639b5241",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-3840x2160-graph-100pct.png",
+      "beforeSha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "afterSha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-3840x2160-header-100pct.png",
+      "beforeSha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1",
+      "afterSha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-3840x2160-navigator-100pct.png",
+      "beforeSha256": "6c12fdb7d6ca89036142babbdc680d7c251053e04ca9e4869b3027b1874a87fa",
+      "afterSha256": "6c12fdb7d6ca89036142babbdc680d7c251053e04ca9e4869b3027b1874a87fa",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "crops/modeling-data-decision-3840x2160-save-details-100pct.png",
+      "beforeSha256": "514b130becae9d2ad7e05f49f726614231fe27e583eda0b109b3f852800f3491",
+      "afterSha256": "514b130becae9d2ad7e05f49f726614231fe27e583eda0b109b3f852800f3491",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "originals/modeling-data-decision-1366x768.png",
+      "beforeSha256": "1752873c81752cd9aa4b767824575e1039953458112b1a996ec64553bc73a0b4",
+      "afterSha256": "1752873c81752cd9aa4b767824575e1039953458112b1a996ec64553bc73a0b4",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "originals/modeling-data-decision-1440x900.png",
+      "beforeSha256": "edee988291609601050c2e8f679946808a832a18d5179f6251da933c347408b7",
+      "afterSha256": "edee988291609601050c2e8f679946808a832a18d5179f6251da933c347408b7",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "originals/modeling-data-decision-1920x1080.png",
+      "beforeSha256": "59296e29ea1241688f0b7e54a029296430bf148481d9f9a16113c577df3567da",
+      "afterSha256": "59296e29ea1241688f0b7e54a029296430bf148481d9f9a16113c577df3567da",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "originals/modeling-data-decision-2560x1440.png",
+      "beforeSha256": "e808cc165f0f249727a26cb73719772d85efe985cebeadbc377a8fffad20abb2",
+      "afterSha256": "e808cc165f0f249727a26cb73719772d85efe985cebeadbc377a8fffad20abb2",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    },
+    {
+      "relativePath": "originals/modeling-data-decision-3840x2160.png",
+      "beforeSha256": "ab78fc28d992e738f49fd37451cffa2c07ad4d91aeac0ccf3902c24c53b252b8",
+      "afterSha256": "ab78fc28d992e738f49fd37451cffa2c07ad4d91aeac0ccf3902c24c53b252b8",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "differenceBox": null
+    }
+  ]
+}

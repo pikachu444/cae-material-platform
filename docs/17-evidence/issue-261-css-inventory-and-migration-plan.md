@@ -2744,6 +2744,106 @@ exact Library selection/revision과 saved graph, local mapping, Update preview, 
   `6/2` complete/partial 이동, legacy residual 0, 60/60 image hash·dimension과 30/30 pair, runtime 5/5,
   #309 graph 가독성, #249 세 축 및 M1A20 router를 독립 재확인했다. publication blocker는 0건이다.
 
+## M1A20 Match file columns decision-frame ownership
+
+`M1A20-modeling-data-mapping-decision-frame`은 sole DOM producer `modeling-data-intake.tsx`가 소비하는
+**Match file columns** 결정 프레임 한 component region만 고정한다. 시작 inventory의 남은 M1A 27행
+가운데 historical `CSS-0977`, `CSS-0978`, `CSS-1388`, `CSS-1389` 네 selector row/네 complete
+rule-group만 `layout.css`에서 `modeling-data-stage.css`로 선언과 내부 순서를 그대로 옮겼다. legacy
+residual은 0이고 새 inventory는 2,699 rule-group/3,374 selector row/M1A 23행/HOLD 446행이다.
+
+이 unit은 CSS 소유권 이동이며 재설계가 아니다. React, DOM, API, copy, state, token, breakpoint,
+`styles.css`, Process, Fit, Export를 바꾸지 않는다. exact Material/State/Test Data/revision, Test record,
+Mapping change reason, Test type focus, Update preview, saved/temporary graph, invalidation, reload 복구와
+Data→Process→Data read-back 및 #309 y-axis 가독성 계약을 그대로 보존한다.
+
+### M1A20 five-viewport evidence
+
+- [evidence manifest](images/issue-261-fe06-m1a20-data-mapping-decision-frame/manifest.json) /
+  [35-pair CSS ownership equivalence](images/issue-261-fe06-m1a20-data-mapping-decision-frame/equivalence.json) /
+  [runtime identity](images/issue-261-fe06-m1a20-data-mapping-decision-frame/runtime-identity.json) /
+  [documentation impact](images/issue-261-fe06-m1a20-data-mapping-decision-frame/documentation-impact-equivalence.json)
+
+<details>
+<summary>M1A20 35개 before/after canonical·원본·100% crop pair 경로</summary>
+
+- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1366x768.png)
+- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1440x900.png)
+- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1920x1080.png)
+- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-2560x1440.png)
+- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-3840x2160.png)
+- crops/modeling-data-decision-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-controls-100pct.png)
+- crops/modeling-data-decision-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-graph-100pct.png)
+- crops/modeling-data-decision-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-header-100pct.png)
+- crops/modeling-data-decision-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-navigator-100pct.png)
+- crops/modeling-data-decision-1366x768-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-save-details-100pct.png)
+- crops/modeling-data-decision-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-controls-100pct.png)
+- crops/modeling-data-decision-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-graph-100pct.png)
+- crops/modeling-data-decision-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-header-100pct.png)
+- crops/modeling-data-decision-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-navigator-100pct.png)
+- crops/modeling-data-decision-1440x900-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-save-details-100pct.png)
+- crops/modeling-data-decision-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-controls-100pct.png)
+- crops/modeling-data-decision-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-graph-100pct.png)
+- crops/modeling-data-decision-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-header-100pct.png)
+- crops/modeling-data-decision-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png)
+- crops/modeling-data-decision-1920x1080-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-save-details-100pct.png)
+- crops/modeling-data-decision-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-controls-100pct.png)
+- crops/modeling-data-decision-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-graph-100pct.png)
+- crops/modeling-data-decision-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-header-100pct.png)
+- crops/modeling-data-decision-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-navigator-100pct.png)
+- crops/modeling-data-decision-2560x1440-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-save-details-100pct.png)
+- crops/modeling-data-decision-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-controls-100pct.png)
+- crops/modeling-data-decision-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-graph-100pct.png)
+- crops/modeling-data-decision-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-header-100pct.png)
+- crops/modeling-data-decision-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-navigator-100pct.png)
+- crops/modeling-data-decision-3840x2160-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-save-details-100pct.png)
+- originals/modeling-data-decision-1366x768.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1366x768.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1366x768.png)
+- originals/modeling-data-decision-1440x900.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1440x900.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1440x900.png)
+- originals/modeling-data-decision-1920x1080.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1920x1080.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1920x1080.png)
+- originals/modeling-data-decision-2560x1440.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-2560x1440.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-2560x1440.png)
+- originals/modeling-data-decision-3840x2160.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-3840x2160.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-3840x2160.png)
+
+</details>
+
+- 1366×768: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1366x768.png) /
+  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-controls-100pct.png) /
+  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-graph-100pct.png)
+- 1440×900: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1440x900.png) /
+  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-controls-100pct.png) /
+  [Save details 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-save-details-100pct.png)
+- 1920×1080: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1920x1080.png) /
+  [navigator 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png) /
+  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-graph-100pct.png)
+- 2560×1440: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-2560x1440.png) /
+  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-controls-100pct.png) /
+  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-graph-100pct.png)
+- 3840×2160: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-3840x2160.png) /
+  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-controls-100pct.png) /
+  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-graph-100pct.png)
+
+documentation-current canonical 5쌍, focused original 5쌍과 direct 100%-pixel crop 25쌍, 총 35쌍은
+byte·pixel 모두 동일하고 runtime measurement도 동일하다. 모든 viewport에서 page overflow, graph y-tick
+collision과 console error는 0이다. 1366의 Data 설정 내부 스크롤은 의도된 local scroll이며 live clipping이
+아니다. 1366은 읽을 수 있는 y tick 3개, 나머지 화면은 8개를 유지하며 실제 Windows 4K 물리 가독성은
+#223에 남는다.
+
+- Carbon 정보 계층 PASS(보존): Local file → Match file columns → focused Test type → mapped channels →
+  Save details → graph 순서가 명확하다. M1A20이 새 hierarchy를 설계했다는 주장은 하지 않는다.
+- COMSOL식 engineering flow PASS(보존): exact Data 선택, explicit mapping decision, Update preview,
+  readable graph, reload recovery와 Data→Process→Data가 동일하다. 새 task flow는 없다.
+- SAP식 responsive/wide composition PASS(보존): 1366은 내부 scroll과 compact graph를 쓰고,
+  1440/1920/2560/3840은 plot 공간만 유용하게 성장한다. page clipping, glyph distortion, route별 patch가 없다.
+- Main acceptance PASS: exact 4 selector row/4 complete rule-group의 ownership delta와 legacy residual 0을
+  확인했다. focused Data/graph Vitest 39/39, production build와 bundle budget, frontend guard actual 0 및
+  contract 17/17, inventory contract 19/19, user-guide contract 46/46와 checker, docs-impact, 70/70 image
+  hash·dimension, 35/35 byte/pixel pair, runtime 5/5와 `git diff --check`가 통과했다. Main은 focused
+  before/after 원본·100% crop 60개를 원본 해상도로 직접 열어 #249 세 축, #309 graph 가독성과 exact
+  journey 보존을 PASS로 판정했다.
+- canonical independent read-only Balanced audit APPROVE: exact 4 selector row/4 complete rule-group 이동과
+  legacy residual 0, 70/70 PNG hash·dimension, 35/35 pair, runtime 5/5, 의도된 1366 내부 scroll, #309 graph
+  가독성, #249 세 축과 남은 M1A 23행/다음 M1A21 router를 독립 재확인했다. publication blocker와 correction
+  요구는 0건이다.
+
 
 ## 이후 migration 순서
 
@@ -2769,14 +2869,16 @@ exact Library selection/revision과 saved graph, local mapping, Update preview, 
    `38617251...`에서 이동·증거화했다.
 19. M1A18 Data resolved-mapping action 10 selector row/9 rule-group은 위 candidate에서 이동·증거화했다.
 20. M1A19 Data intake field-row grammar 9 selector row/8 rule-group은 위 candidate에서 이동·증거화했다.
-21. 다음 `M1A20-modeling-data-component-region`은 재생성 inventory의 남은 M1A 27행에서 한 component
-   region만 새 owner packet으로 선택한다. 전체 27행을 함께 이동하지 않는다.
-22. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
-23. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
-24. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
-25. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
-26. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
-27. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
+21. M1A20 Match file columns decision frame 4 selector row/4 complete rule-group은 위 candidate에서
+   이동·증거화했다.
+22. 다음 `M1A21-modeling-data-component-region`은 재생성 inventory의 남은 M1A 23행에서 한 component
+   region만 새 owner packet으로 선택한다. 전체 23행을 함께 이동하지 않는다.
+23. M1B Process, M1C Fit, M1D Export, M1E Modeling shell/family를 각각 분리한다.
+24. M2 Materials를 search/tree/detail/card state와 함께 옮긴다.
+25. M3A Administration과 M3B Activity를 서로 다른 owner file로 옮긴다.
+26. feature가 빠진 뒤 M4 shared shell/token/primitive/layout을 정리한다.
+27. 마지막 M6에서만 live zero-consumer를 증명한 dead selector를 제거한다.
+28. HOLD 446행은 consumer가 둘 이상이거나 owner가 불명확하므로 owner split 전에는 이동하거나
    복제하지 않는다.
 
 각 unit은 전 unit의 inventory JSON을 새 source에서 재생성하고 감소한 guard baseline을 다시 올리지
