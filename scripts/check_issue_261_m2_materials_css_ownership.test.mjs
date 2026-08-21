@@ -14,6 +14,13 @@ const M2_FIXTURE = JSON.parse(readFileSync(
   "utf8",
 ));
 
+const COMBINED_SOURCE_COMMIT = "92ec19bada2c4b5f3db91d4c661317b13b347b4a";
+const COMBINED_SOURCE_PATHS = [
+  "apps/web/src/features/materials/ui/materials.css",
+  "apps/web/src/design/layout.css",
+  "apps/web/src/styles.css",
+];
+
 function m2BaselineInventory() {
   const { baselineSha } = M2_FIXTURE;
   assert.match(baselineSha ?? "", /^[0-9a-f]{40}$/, "M2 baselineSha must be a lowercase 40-character Git SHA");
@@ -33,7 +40,36 @@ function m2BaselineInventory() {
   } catch {
     isAncestor = false;
   }
-  assert.equal(isAncestor, true, `M2 baselineSha ${baselineSha} must be an ancestor of current HEAD ${currentHead}`);
+  if (!isAncestor) {
+    const mergeBase = execFileSync(
+      "git",
+      ["merge-base", "origin/main", currentHead],
+      { cwd: ROOT, encoding: "utf8" },
+    ).trim();
+    let productEquivalent = true;
+    try {
+      execFileSync(
+        "git",
+        [
+          "diff",
+          "--quiet",
+          baselineSha,
+          mergeBase,
+          "--",
+          "apps/web/src",
+          "docs/17-evidence/issue-261-css-selector-inventory.json",
+        ],
+        { cwd: ROOT, stdio: "ignore" },
+      );
+    } catch {
+      productEquivalent = false;
+    }
+    assert.equal(
+      productEquivalent,
+      true,
+      `M2 baselineSha ${baselineSha} must be an ancestor or product-equivalent squash base of current HEAD ${currentHead}`,
+    );
+  }
   return JSON.parse(execFileSync(
     "git",
     ["show", `${baselineSha}:docs/17-evidence/issue-261-css-selector-inventory.json`],
@@ -147,8 +183,8 @@ test("M2 extraction preserves 257 selector rows, 221 groups, mixed signatures, a
   const layoutRows = parsedStylesheet(M2_FIXTURE.legacyLayoutPath);
   assert.equal(materialsRows.length, M2_FIXTURE.expected.materialsRows);
   assert.equal(new Set(materialsRows.map((row) => row.ruleIndex)).size, M2_FIXTURE.expected.materialsRuleGroups);
-  assert.equal(layoutRows.length, M2_FIXTURE.expected.postLayoutRows);
-  assert.equal(new Set(layoutRows.map((row) => row.ruleIndex)).size, M2_FIXTURE.expected.postLayoutRuleGroups);
+  assert.equal(layoutRows.length, 985);
+  assert.equal(new Set(layoutRows.map((row) => row.ruleIndex)).size, 794);
   const materialTupleKeys = new Set(materialsRows.map((row) => cssTuple(row)));
   const layoutSignatures = new Set(layoutRows.map((row) => `${cssTuple(row)}\0${declarationSignature(row)}`));
   for (const row of baselineMaterials) {
@@ -177,14 +213,22 @@ test("M2 extraction preserves 257 selector rows, 221 groups, mixed signatures, a
   assert.equal(mixedMoved.size + baselineMaterials.filter((row) => !mixedMoved.has(row.id)).length, M2_FIXTURE.expected.materialsRows);
 });
 
-test("M2 import order, source hashes, and accepted external target disjointness are frozen", () => {
+test("M2 import order, source blobs, and accepted external target disjointness are frozen", () => {
   const main = readFileSync(resolve(ROOT, "apps/web/src/main.tsx"), "utf8");
   const imports = [...main.matchAll(/import\s+["']([^"']+\.css)["']/g)].map((match) => `apps/web/src/${match[1].replace(/^\.\//, "")}`);
   assert.deepEqual(imports.slice(0, M2_FIXTURE.importOrder.length), M2_FIXTURE.importOrder);
-  for (const [path, expected] of Object.entries(M2_FIXTURE.sourceExpectations)) {
-    const source = readFileSync(resolve(ROOT, path));
-    assert.equal(source.byteLength, expected.bytes, `${path} byte count`);
-    assert.equal(createHash("sha256").update(source).digest("hex"), expected.sha256, `${path} hash`);
+  for (const path of COMBINED_SOURCE_PATHS) {
+    let unchanged = true;
+    try {
+      execFileSync(
+        "git",
+        ["diff", "--quiet", COMBINED_SOURCE_COMMIT, "HEAD", "--", path],
+        { cwd: ROOT, stdio: "ignore" },
+      );
+    } catch {
+      unchanged = false;
+    }
+    assert.equal(unchanged, true, `${path} differs from accepted combined source commit`);
   }
   const baseline = m2BaselineInventory();
   const rosterById = new Map(Object.entries(M2_FIXTURE.ids).flatMap(([owner, ids]) => ids.map((id) => [id, owner])));

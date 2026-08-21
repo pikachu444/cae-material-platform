@@ -327,3 +327,22 @@ Cards는 왼쪽 **Related data**에서 종류별로 확인합니다. revision, �
 | Wide 3840×2160 | ![Data 3840](images/current/modeling-data-3840x2160.png) |
 | Empty new session 1440×900 | ![Data empty](images/current/modeling-data-empty-1440x900.png) |
 | Invalid runtime CSV 1440×900 | ![Data invalid](images/current/modeling-data-invalid-1440x900.png) |
+
+### Issue #261 M2 Materials CSS evidence provenance
+
+The Materials ownership extraction is recorded in
+[`Issue #261 M2 evidence`](../17-evidence/issue-261-m2-materials-css-ownership.md). Its before
+and after search/detail/card originals, direct 100%-pixel crops, exact-revision recovery journey,
+and #249 three-axis review are linked from the evidence packet. The paired captures are pixel-identical.
+No user-facing Materials copy or workflow contract is changed by this provenance entry.
+
+### Issue #261 B4 combined CSS ownership evidence provenance
+
+The completed combined batch is recorded in
+[`Issue #261 B4 evidence`](../17-evidence/issue-261-b4-css-ownership-integration.md) and its
+[`structured image manifest`](../17-evidence/issue-261-b4-css-ownership-integration-manifest.json).
+It retains the exact Browse → Filters → detail → download/Start Modeling journey, settled M2
+Materials contract evidence, and the five CSS viewport originals at browser zoom 100%. Main
+original-resolution review passed the Carbon hierarchy, COMSOL engineering flow and SAP responsive
+logic checks. Physical Windows 4K readability remains the #223 gate; no Materials URL, revision,
+download or fail-closed contract is changed by this provenance entry.

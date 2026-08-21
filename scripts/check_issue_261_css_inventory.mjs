@@ -24,6 +24,97 @@ const LEGACY_CSS = [
   "apps/web/src/design/layout.css",
 ];
 
+const FROZEN_BASE = "4d53d95ce926b96b84e47f9d942127f0853d8ed2";
+const B1_SOURCE = "a26649ec9d7e689cf773ccad9dedfcb985d9ea62";
+const M2_SOURCE = "be5538ec57efdd65f4104fffa733f134b3d42d87";
+const M3_SOURCE = "dfc3bf00b5aafac2ac466d662f07ee4be88421eb";
+const M2_FIXTURE = JSON.parse(readFileSync(
+  join(ROOT, "scripts", "fixtures", "issue-261-m2-materials-css-ownership.json"),
+  "utf8",
+));
+
+function historicalInventory(sourceSha) {
+  return JSON.parse(execFileSync(
+    "git",
+    ["show", `${sourceSha}:docs/17-evidence/issue-261-css-selector-inventory.json`],
+    { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+  ));
+}
+
+function selectorDescriptor(row) {
+  return [
+    row.source?.path ?? row.path,
+    normalizeSpace(row.selector),
+    (row.source?.atContext ?? row.atContext ?? []).join(" | "),
+    row.declarations?.signatureSha256 ?? row.declarationSignature ?? "",
+  ].join("\0");
+}
+
+function m2ResidualBatches() {
+  const baseline = historicalInventory(FROZEN_BASE);
+  const byId = new Map(baseline.selectors.map((row) => [row.id, row]));
+  const byDescriptor = new Map();
+  for (const [batch, ids] of [["M4-shared-cleanup", M2_FIXTURE.ids.m4], ["HOLD-owner-or-cross-feature-split", M2_FIXTURE.ids.hold]]) {
+    for (const id of ids) {
+      const row = byId.get(id);
+      if (!row) continue;
+      byDescriptor.set(selectorDescriptor(row), batch);
+    }
+  }
+  return byDescriptor;
+}
+
+const M2_RESIDUAL_BATCHES = m2ResidualBatches();
+
+const OWNERSHIP_CHECKPOINTS = [
+  {
+    unit: "B1-modeling-stage-css-ownership",
+    sourceCommit: B1_SOURCE,
+    frozenBase: FROZEN_BASE,
+    evidence: "docs/17-evidence/issue-261-b1-modeling-stage-css-ownership.md",
+    disposition: "APPROVE",
+    standalone: {
+      selectorRows: 2869,
+      cssRuleGroups: 2332,
+      crossCssDuplicateRows: 7,
+      movedRows: 505,
+      deferredRows: 38,
+      normalizationPeers: 7,
+    },
+  },
+  {
+    unit: "M2-materials-css-ownership",
+    sourceCommit: M2_SOURCE,
+    frozenBase: FROZEN_BASE,
+    evidence: "docs/17-evidence/issue-261-m2-materials-css-ownership.md",
+    disposition: "APPROVE",
+    standalone: {
+      selectorRows: M2_FIXTURE.expected.postLegacyRows,
+      cssRuleGroups: M2_FIXTURE.expected.postLegacyRuleGroups,
+      movedRows: M2_FIXTURE.expected.materialsRows,
+      movedGroups: M2_FIXTURE.expected.materialsRuleGroups,
+      fullGroups: M2_FIXTURE.expected.materialsFullGroups,
+      partialGroups: M2_FIXTURE.expected.materialsMixedGroups,
+    },
+  },
+  {
+    unit: "M3-governance-css-ownership",
+    sourceCommit: M3_SOURCE,
+    frozenBase: FROZEN_BASE,
+    evidence: "docs/17-evidence/issue-261-m3-css-ownership-governance.json",
+    disposition: "APPROVE",
+    standalone: {
+      selectorRows: 2868,
+      cssRuleGroups: 2343,
+      movedOwnerRows: 505,
+      retainedPeerRows: 1,
+      movedTargetRows: 506,
+      fullGroups: 356,
+      partialGroups: 21,
+    },
+  },
+];
+
 const COMPLETED_M1A0 = {
   id: "M1A0-modeling-data-same-selector-overlap",
   historicalMemberIds: [
@@ -716,7 +807,7 @@ function parseDeclarations(body) {
   return declarations;
 }
 
-function parseCss(path, source, loadRank) {
+export function parseCss(path, source, loadRank) {
   const clean = stripCommentsPreserveLines(source);
   const rules = [];
   const stack = [];
@@ -1241,6 +1332,11 @@ function makeInventory() {
       },
     };
   });
+
+  for (const row of rows) {
+    const residualBatch = M2_RESIDUAL_BATCHES.get(selectorDescriptor(row));
+    if (residualBatch) row.owner.migrationBatch = residualBatch;
+  }
 
   const wideContextFeature = new Set(
     rows
@@ -1836,12 +1932,36 @@ function makeInventory() {
             .get(COMPLETED_M1A20.id)
             .map((row) => row.id),
           actualAfter: {
-            cssRuleGroups: cssRuleGroupCount,
-            selectorRows: rows.length,
-            crossCssDuplicateRows: flagCounts.crossCssDuplicate,
+            cssRuleGroups: 2699,
+            selectorRows: 3374,
+            crossCssDuplicateRows: 14,
           },
         },
       ],
+      checkpoints: OWNERSHIP_CHECKPOINTS,
+      combinedB4: {
+        unit: "B4-combined-css-ownership-integration",
+        sourceCommit: sourceSha,
+        frozenBase: FROZEN_BASE,
+        status: "MAIN-REQUIRED",
+        liveAcceptance: "pending Main live acceptance",
+        handoffs: ["B1-modeling-stage-css-ownership", "M2-materials-css-ownership", "M3-governance-css-ownership"],
+        current: {
+          selectorRows: rows.length,
+          cssRuleGroups: cssRuleGroupCount,
+          crossCssDuplicateRows: flagCounts.crossCssDuplicate,
+          byMigrationBatch: countBy(rows, (row) => row.owner.migrationBatch),
+        },
+        residualRouting: {
+          "M1A-modeling-data": 9,
+          "M1B-modeling-process": 29,
+          "M1E-modeling-shell-and-family": 717,
+          "HOLD-owner-or-cross-feature-split": 504,
+          "M4-shared-cleanup": 314,
+          "M6-zero-consumer-removal-candidate": 533,
+        },
+        note: "Combined source inventory only; no live DOM, viewport, or product-owner acceptance is asserted here.",
+      },
       nextBoundedUnit: {
         id: "M1A21-modeling-data-component-region",
         status: "owner-packet-required",
@@ -2316,6 +2436,35 @@ function validateInventory(inventory) {
       errors.push(`completed M1A20 actual delta is ${JSON.stringify(completedM1A20.actualAfter)}`);
     }
   }
+  const checkpointByUnit = new Map((inventory.migrationPlan.checkpoints ?? []).map((checkpoint) => [checkpoint.unit, checkpoint]));
+  for (const checkpoint of OWNERSHIP_CHECKPOINTS) {
+    const actual = checkpointByUnit.get(checkpoint.unit);
+    if (!actual) errors.push(`ownership checkpoint ${checkpoint.unit} is missing`);
+    else if (actual.sourceCommit !== checkpoint.sourceCommit || actual.frozenBase !== FROZEN_BASE || actual.disposition !== "APPROVE") {
+      errors.push(`ownership checkpoint ${checkpoint.unit} provenance/disposition changed`);
+    }
+  }
+  const combined = inventory.migrationPlan.combinedB4;
+  if (!combined || combined.frozenBase !== FROZEN_BASE || combined.status !== "MAIN-REQUIRED") {
+    errors.push("combined B4 checkpoint is missing or claims live acceptance");
+  } else {
+    const expectedResiduals = {
+      "M1A-modeling-data": 9,
+      "M1B-modeling-process": 29,
+      "M1E-modeling-shell-and-family": 717,
+      "HOLD-owner-or-cross-feature-split": 504,
+      "M4-shared-cleanup": 314,
+      "M6-zero-consumer-removal-candidate": 533,
+    };
+    for (const [batch, count] of Object.entries(expectedResiduals)) {
+      if (combined.current.byMigrationBatch[batch] !== count || combined.residualRouting[batch] !== count) {
+        errors.push(`combined B4 residual ${batch} is ${combined.current.byMigrationBatch[batch] ?? "missing"}/${combined.residualRouting[batch] ?? "missing"}, expected ${count}`);
+      }
+    }
+    if (combined.current.selectorRows !== 2106 || combined.current.cssRuleGroups !== 1777 || combined.current.crossCssDuplicateRows !== 6) {
+      errors.push(`combined B4 current totals are ${JSON.stringify(combined.current)}`);
+    }
+  }
   for (const group of inventory.cascadeGroups.exactSelector) {
     const members = group.memberIds.map((id) => rowById.get(id));
     if (members.some((member) => !member)) errors.push(`${group.id} references a missing selector`);
@@ -2376,6 +2525,10 @@ export function reconcileInventorySourceSha(currentText, renderedText) {
     return null;
   }
   if (!isAncestorCommit(current.sourceSha, rendered.sourceSha)) return null;
+  if (current.migrationPlan?.combinedB4?.sourceCommit !== current.sourceSha
+      || rendered.migrationPlan?.combinedB4?.sourceCommit !== rendered.sourceSha) {
+    return null;
+  }
 
   const sourceShaFields = [...currentText.matchAll(
     /("sourceSha"\s*:\s*")([0-9a-f]{40})(")/g,
@@ -2383,11 +2536,27 @@ export function reconcileInventorySourceSha(currentText, renderedText) {
   if (sourceShaFields.length !== 1 || sourceShaFields[0][2] !== current.sourceSha) {
     return null;
   }
-  const [field] = sourceShaFields;
-  const replacement = `${field[1]}${rendered.sourceSha}${field[3]}`;
-  return `${currentText.slice(0, field.index)}${replacement}${currentText.slice(
-    field.index + field[0].length,
-  )}`;
+  const combinedOffset = currentText.indexOf('"combinedB4"');
+  if (combinedOffset < 0) return null;
+  const combinedFields = [...currentText.slice(combinedOffset).matchAll(
+    /("sourceCommit"\s*:\s*")([0-9a-f]{40})(")/g,
+  )];
+  if (combinedFields.length !== 1 || combinedFields[0][2] !== current.sourceSha) {
+    return null;
+  }
+
+  const replacements = [
+    sourceShaFields[0],
+    { ...combinedFields[0], index: combinedOffset + combinedFields[0].index },
+  ].sort((left, right) => right.index - left.index);
+  let reconciled = currentText;
+  for (const field of replacements) {
+    const replacement = `${field[1]}${rendered.sourceSha}${field[3]}`;
+    reconciled = `${reconciled.slice(0, field.index)}${replacement}${reconciled.slice(
+      field.index + field[0].length,
+    )}`;
+  }
+  return reconciled;
 }
 
 export function inventoryMatchesRendered(currentText, renderedText) {

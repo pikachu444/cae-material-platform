@@ -1,0 +1,789 @@
+[
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1366,
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1366,
+    "documentScrollWidth": 1366,
+    "enabledPrimaryActions": 0,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 702,
+      "height": 579,
+      "right": 296,
+      "width": 287,
+      "x": 9,
+      "y": 123
+    },
+    "route": "materials",
+    "url": "http://127.0.0.1:32778/materials?table=bc4912e9-80c1-4d74-a5e6-62abef906d94&selected=b7c1f0bd-ec9b-41f5-a7fd-70350fab6d66",
+    "viewport": "1366x768",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 702,
+      "height": 610,
+      "right": 1358,
+      "width": 1350,
+      "x": 8,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1440,
+    "documentScrollWidth": 1440,
+    "enabledPrimaryActions": 0,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 834,
+      "height": 711,
+      "right": 296,
+      "width": 287,
+      "x": 9,
+      "y": 123
+    },
+    "route": "materials",
+    "url": "http://127.0.0.1:32778/materials?table=bc4912e9-80c1-4d74-a5e6-62abef906d94&selected=b7c1f0bd-ec9b-41f5-a7fd-70350fab6d66",
+    "viewport": "1440x900",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 834,
+      "height": 742,
+      "right": 1432,
+      "width": 1424,
+      "x": 8,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1920,
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1920,
+    "documentScrollWidth": 1920,
+    "enabledPrimaryActions": 0,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1014,
+      "height": 891,
+      "right": 296,
+      "width": 287,
+      "x": 9,
+      "y": 123
+    },
+    "route": "materials",
+    "url": "http://127.0.0.1:32778/materials?table=bc4912e9-80c1-4d74-a5e6-62abef906d94&selected=b7c1f0bd-ec9b-41f5-a7fd-70350fab6d66",
+    "viewport": "1920x1080",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 1014,
+      "height": 922,
+      "right": 1912,
+      "width": 1904,
+      "x": 8,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 2560,
+      "width": 2560,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 2560,
+    "documentScrollWidth": 2560,
+    "enabledPrimaryActions": 0,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1374,
+      "height": 1251,
+      "right": 295.984375,
+      "width": 286.984375,
+      "x": 9,
+      "y": 123
+    },
+    "route": "materials",
+    "url": "http://127.0.0.1:32778/materials?table=bc4912e9-80c1-4d74-a5e6-62abef906d94&selected=b7c1f0bd-ec9b-41f5-a7fd-70350fab6d66",
+    "viewport": "2560x1440",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 1374,
+      "height": 1282,
+      "right": 2552,
+      "width": 2544,
+      "x": 8,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 3840,
+      "width": 3840,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 3840,
+    "documentScrollWidth": 3840,
+    "enabledPrimaryActions": 0,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 2094,
+      "height": 1971,
+      "right": 296,
+      "width": 287,
+      "x": 9,
+      "y": 123
+    },
+    "route": "materials",
+    "url": "http://127.0.0.1:32778/materials?table=bc4912e9-80c1-4d74-a5e6-62abef906d94&selected=b7c1f0bd-ec9b-41f5-a7fd-70350fab6d66",
+    "viewport": "3840x2160",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 2094,
+      "height": 2002,
+      "right": 3832,
+      "width": 3824,
+      "x": 8,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1366,
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1366,
+    "documentScrollWidth": 1366,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 49,
+      "height": 49,
+      "right": 415.859375,
+      "width": 237.640625,
+      "x": 178.21875,
+      "y": 0
+    },
+    "route": "activity",
+    "url": "http://127.0.0.1:32778/activity",
+    "viewport": "1366x768",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 742,
+      "height": 650,
+      "right": 1366,
+      "width": 1366,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1440,
+    "documentScrollWidth": 1440,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 49,
+      "height": 49,
+      "right": 415.859375,
+      "width": 237.640625,
+      "x": 178.21875,
+      "y": 0
+    },
+    "route": "activity",
+    "url": "http://127.0.0.1:32778/activity",
+    "viewport": "1440x900",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 874,
+      "height": 782,
+      "right": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1920,
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1920,
+    "documentScrollWidth": 1920,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 49,
+      "height": 49,
+      "right": 415.859375,
+      "width": 237.640625,
+      "x": 178.21875,
+      "y": 0
+    },
+    "route": "activity",
+    "url": "http://127.0.0.1:32778/activity",
+    "viewport": "1920x1080",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 1054,
+      "height": 962,
+      "right": 1920,
+      "width": 1920,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 2560,
+      "width": 2560,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 2560,
+    "documentScrollWidth": 2560,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 49,
+      "height": 49,
+      "right": 415.859375,
+      "width": 237.640625,
+      "x": 178.21875,
+      "y": 0
+    },
+    "route": "activity",
+    "url": "http://127.0.0.1:32778/activity",
+    "viewport": "2560x1440",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 1414,
+      "height": 1322,
+      "right": 2560,
+      "width": 2560,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 3840,
+      "width": 3840,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 3840,
+    "documentScrollWidth": 3840,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 49,
+      "height": 49,
+      "right": 415.859375,
+      "width": 237.640625,
+      "x": 178.21875,
+      "y": 0
+    },
+    "route": "activity",
+    "url": "http://127.0.0.1:32778/activity",
+    "viewport": "3840x2160",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 2134,
+      "height": 2042,
+      "right": 3840,
+      "width": 3840,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1366,
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1366,
+    "documentScrollWidth": 1366,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 767,
+      "height": 675,
+      "right": 216,
+      "width": 216,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-database",
+    "url": "http://127.0.0.1:32778/administration/database",
+    "viewport": "1366x768",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 1,
+    "workspace": {
+      "bottom": 743,
+      "height": 530,
+      "right": 1342.78125,
+      "width": 1103.5625,
+      "x": 239.21875,
+      "y": 213
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1440,
+    "documentScrollWidth": 1440,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 899,
+      "height": 807,
+      "right": 216,
+      "width": 216,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-database",
+    "url": "http://127.0.0.1:32778/administration/database",
+    "viewport": "1440x900",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 1,
+    "workspace": {
+      "bottom": 875,
+      "height": 662,
+      "right": 1415.53125,
+      "width": 1175.0625,
+      "x": 240.46875,
+      "y": 213
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1920,
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1920,
+    "documentScrollWidth": 1920,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1054,
+      "height": 962,
+      "right": 288,
+      "width": 288,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-database",
+    "url": "http://127.0.0.1:32778/administration/database",
+    "viewport": "1920x1080",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 1,
+    "workspace": {
+      "bottom": 1024,
+      "height": 842,
+      "right": 1888,
+      "width": 1568,
+      "x": 320,
+      "y": 182
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 2560,
+      "width": 2560,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 2560,
+    "documentScrollWidth": 2560,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1414,
+      "height": 1322,
+      "right": 288,
+      "width": 288,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-database",
+    "url": "http://127.0.0.1:32778/administration/database",
+    "viewport": "2560x1440",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 1,
+    "workspace": {
+      "bottom": 1384,
+      "height": 1202,
+      "right": 2528,
+      "width": 2208,
+      "x": 320,
+      "y": 182
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 3840,
+      "width": 3840,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 3840,
+    "documentScrollWidth": 3840,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 2134,
+      "height": 2042,
+      "right": 288,
+      "width": 288,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-database",
+    "url": "http://127.0.0.1:32778/administration/database",
+    "viewport": "3840x2160",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 1,
+    "workspace": {
+      "bottom": 2104,
+      "height": 1922,
+      "right": 3808,
+      "width": 3488,
+      "x": 320,
+      "y": 182
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1366,
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1366,
+    "documentScrollWidth": 1366,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1422.421875,
+      "height": 1330.421875,
+      "right": 216,
+      "width": 216,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-access",
+    "url": "http://127.0.0.1:32778/administration/access",
+    "viewport": "1366x768",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 742,
+      "height": 650,
+      "right": 1366,
+      "width": 1366,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1440,
+    "documentScrollWidth": 1440,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1422.421875,
+      "height": 1330.421875,
+      "right": 216,
+      "width": 216,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-access",
+    "url": "http://127.0.0.1:32778/administration/access",
+    "viewport": "1440x900",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 874,
+      "height": 782,
+      "right": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 1920,
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 1920,
+    "documentScrollWidth": 1920,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1405.421875,
+      "height": 1313.421875,
+      "right": 288,
+      "width": 288,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-access",
+    "url": "http://127.0.0.1:32778/administration/access",
+    "viewport": "1920x1080",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 1054,
+      "height": 962,
+      "right": 1920,
+      "width": 1920,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 2560,
+      "width": 2560,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 2560,
+    "documentScrollWidth": 2560,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 1414,
+      "height": 1322,
+      "right": 288,
+      "width": 288,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-access",
+    "url": "http://127.0.0.1:32778/administration/access",
+    "viewport": "2560x1440",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 1414,
+      "height": 1322,
+      "right": 2560,
+      "width": 2560,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "applicationCommand": null,
+    "applicationMenu": {
+      "bottom": 50,
+      "height": 50,
+      "right": 3840,
+      "width": 3840,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFontSize": "16px",
+    "consoleErrors": [],
+    "densityTier": null,
+    "documentClientWidth": 3840,
+    "documentScrollWidth": 3840,
+    "enabledPrimaryActions": 1,
+    "horizontalOverflow": 0,
+    "navigator": {
+      "bottom": 2134,
+      "height": 2042,
+      "right": 288,
+      "width": 288,
+      "x": 0,
+      "y": 92
+    },
+    "route": "administration-access",
+    "url": "http://127.0.0.1:32778/administration/access",
+    "viewport": "3840x2160",
+    "visibleAlerts": [],
+    "visibleDisabledButtons": 0,
+    "workspace": {
+      "bottom": 2134,
+      "height": 2042,
+      "right": 3840,
+      "width": 3840,
+      "x": 0,
+      "y": 92
+    }
+  },
+  {
+    "candidateId": "candidate-1",
+    "horizontalOverflow": 0,
+    "route": "activity-compatibility",
+    "url": "http://127.0.0.1:32778/jobs-reviews?candidate_id=candidate-1",
+    "viewport": "1440x900"
+  }
+]
