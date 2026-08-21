@@ -375,7 +375,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 699
+    assert report.duplicate_image_group_count == 714
 
 
 @pytest.mark.parametrize(
@@ -511,18 +511,24 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
 
     current_source = manifest["source_commit"]
     capture_source = manifest["visual_evidence"]["capture_source"]
+    issue298_source = "ae93058d61f4a229addbcb746a50a86689639f6f+issue298-worktree"
     issue289_source = "a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree"
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
-    assert manifest["version"] == 126
-    assert manifest["scope"] == "issue-298-frontend-guard-297-correction"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue298-worktree", current_source)
+    assert manifest["version"] == 127
+    assert manifest["scope"] == "issue-309-modeling-data-axis-overlap"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", current_source)
     assert manifest["source_commit"] == current_source
-    assert capture_source == "ae93058d61f4a229addbcb746a50a86689639f6f+issue298-worktree"
+    assert capture_source == current_source
     assert manifest["visual_evidence"]["baseline_source"] == current_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == current_source
-    assert "--only-administration-database" in manifest["capture_command"]
+    assert manifest["visual_evidence"]["sidecar"] == (
+        "docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml"
+    )
+    assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
+    assert "native Python Playwright 1.62" in manifest["capture_command"]
+    assert "resolved-mapping" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -532,6 +538,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         capture_source,
+        issue298_source,
         issue289_source,
         issue260_source,
         fe04d_source,
@@ -568,8 +575,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-schema-bundle-1440",
     }
     new_issue_253_captures = {"demo-session-recovery-1440"}
+    new_issue_309_captures = {"modeling-data-1366"}
     new_issue_260_captures = {
-        "modeling-data-1366",
         "modeling-data-1440",
         "modeling-data-1920",
         "modeling-data-2560",
@@ -695,13 +702,23 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "--only-modeling-export" in issue_260_provenance["command"]
     assert "--only-modeling-consistency" in issue_260_provenance["command"]
     assert new_issue_260_captures == set(issue_260_provenance["ids"])
-    issue_298_provenance = next(
+    issue_309_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
         if provenance["source_commit"] == capture_source
     )
+    assert "native Python Playwright 1.62" in issue_309_provenance["command"]
+    assert "Data to Process to Data" in issue_309_provenance["command"]
+    assert new_issue_309_captures == set(issue_309_provenance["ids"])
+    issue_298_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == issue298_source
+    )
     assert "--only-administration-database" in issue_298_provenance["command"]
-    assert issue_298_provenance["refrozen_base_commit"] == current_source.split("+")[0]
+    assert issue_298_provenance["refrozen_base_commit"] == (
+        "5e6ebf5484d601f0487539dde8d579f4b03a4ee8"
+    )
     assert new_issue_289_only_captures == set(issue_298_provenance["ids"])
     issue_289_provenance = next(
         provenance

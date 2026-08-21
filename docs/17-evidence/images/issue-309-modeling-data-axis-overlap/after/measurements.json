@@ -1,0 +1,815 @@
+{
+  "route": "/modeling?stage=data&family=metal",
+  "state": "Local file > approved resolved mapping > Columns ready",
+  "browserZoomPercent": 100,
+  "devicePixelRatio": 1,
+  "density": "standard",
+  "syntheticInput": "issue-309-mapping-resolved.csv",
+  "viewports": [
+    {
+      "viewport": "1366x768",
+      "articleBox": {
+        "x": 0,
+        "y": 482,
+        "width": 1366,
+        "height": 240,
+        "right": 1366,
+        "bottom": 722
+      },
+      "frameBox": {
+        "x": 9,
+        "y": 519,
+        "width": 1348,
+        "height": 157,
+        "right": 1357,
+        "bottom": 676
+      },
+      "svgBox": {
+        "x": 9,
+        "y": 519,
+        "width": 1348,
+        "height": 133,
+        "right": 1357,
+        "bottom": 652
+      },
+      "viewBox": "0 0 1348 133",
+      "yTickLabels": [
+        "500",
+        "250",
+        "0"
+      ],
+      "yTickBoxes": [
+        {
+          "x": 59.515625,
+          "y": 549.2857055664062,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 566.2857055664062
+        },
+        {
+          "x": 59.515625,
+          "y": 569.6428833007812,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 586.6428833007812
+        },
+        {
+          "x": 73.828125,
+          "y": 590,
+          "width": 7.171875,
+          "height": 17,
+          "right": 81,
+          "bottom": 607
+        }
+      ],
+      "yTickCollisions": [],
+      "axisLabels": [
+        {
+          "text": "Engineering strain [1]",
+          "box": {
+            "x": 643.8828125,
+            "y": 630,
+            "width": 134.234375,
+            "height": 17,
+            "right": 778.1171875,
+            "bottom": 647
+          }
+        },
+        {
+          "text": "Engineering stress [MPa]",
+          "box": {
+            "x": 10,
+            "y": 494.2578125,
+            "width": 17,
+            "height": 154.484375,
+            "right": 27,
+            "bottom": 648.7421875
+          }
+        }
+      ],
+      "yTickTitleCollisions": [],
+      "yTickFrameOverflow": [],
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "sessionPreserved": true,
+      "exactSession": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          },
+          {
+            "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+            "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+            "label": "CMP-DEMO-DP780-TEST-JSON-02",
+            "revisionNo": 1
+          },
+          {
+            "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+            "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+            "label": "CMP-DEMO-DP780-TEST-JSON-03",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      },
+      "focusReachable": true,
+      "localScroll": {
+        "top": 0,
+        "clientHeight": 280,
+        "scrollHeight": 280,
+        "overflowY": "auto"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "1440x900",
+      "articleBox": {
+        "x": 0,
+        "y": 544,
+        "width": 1440,
+        "height": 310,
+        "right": 1440,
+        "bottom": 854
+      },
+      "frameBox": {
+        "x": 9,
+        "y": 581,
+        "width": 1422,
+        "height": 219.21875,
+        "right": 1431,
+        "bottom": 800.21875
+      },
+      "svgBox": {
+        "x": 9,
+        "y": 581,
+        "width": 1422,
+        "height": 195.21875,
+        "right": 1431,
+        "bottom": 776.21875
+      },
+      "viewBox": "0 0 1422 195.21875",
+      "yTickLabels": [
+        "700",
+        "600",
+        "500",
+        "400",
+        "300",
+        "200",
+        "100",
+        "0"
+      ],
+      "yTickBoxes": [
+        {
+          "x": 59.515625,
+          "y": 595,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 612
+        },
+        {
+          "x": 59.515625,
+          "y": 612.03125,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 629.03125
+        },
+        {
+          "x": 59.515625,
+          "y": 629.0625,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 646.0625
+        },
+        {
+          "x": 58.515625,
+          "y": 646.09375,
+          "width": 22.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 663.09375
+        },
+        {
+          "x": 59.515625,
+          "y": 663.125,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 680.125
+        },
+        {
+          "x": 59.515625,
+          "y": 680.15625,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 697.15625
+        },
+        {
+          "x": 59.515625,
+          "y": 697.1875,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 714.1875
+        },
+        {
+          "x": 73.828125,
+          "y": 714.21875,
+          "width": 7.171875,
+          "height": 17,
+          "right": 81,
+          "bottom": 731.21875
+        }
+      ],
+      "yTickCollisions": [],
+      "axisLabels": [
+        {
+          "text": "Engineering strain [1]",
+          "box": {
+            "x": 680.8828125,
+            "y": 754.21875,
+            "width": 134.234375,
+            "height": 17,
+            "right": 815.1171875,
+            "bottom": 771.21875
+          }
+        },
+        {
+          "text": "Engineering stress [MPa]",
+          "box": {
+            "x": 10,
+            "y": 587.3671875,
+            "width": 17,
+            "height": 154.484375,
+            "right": 27,
+            "bottom": 741.8515625
+          }
+        }
+      ],
+      "yTickTitleCollisions": [],
+      "yTickFrameOverflow": [],
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "sessionPreserved": true,
+      "exactSession": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          },
+          {
+            "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+            "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+            "label": "CMP-DEMO-DP780-TEST-JSON-02",
+            "revisionNo": 1
+          },
+          {
+            "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+            "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+            "label": "CMP-DEMO-DP780-TEST-JSON-03",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      },
+      "focusReachable": true,
+      "localScroll": {
+        "top": 0,
+        "clientHeight": 363,
+        "scrollHeight": 363,
+        "overflowY": "auto"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "1920x1080",
+      "articleBox": {
+        "x": 0,
+        "y": 544,
+        "width": 1920,
+        "height": 490,
+        "right": 1920,
+        "bottom": 1034
+      },
+      "frameBox": {
+        "x": 9,
+        "y": 581,
+        "width": 1902,
+        "height": 399.21875,
+        "right": 1911,
+        "bottom": 980.21875
+      },
+      "svgBox": {
+        "x": 9,
+        "y": 581,
+        "width": 1902,
+        "height": 375.21875,
+        "right": 1911,
+        "bottom": 956.21875
+      },
+      "viewBox": "0 0 1902 375.21875",
+      "yTickLabels": [
+        "700",
+        "600",
+        "500",
+        "400",
+        "300",
+        "200",
+        "100",
+        "0"
+      ],
+      "yTickBoxes": [
+        {
+          "x": 59.515625,
+          "y": 595,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 612
+        },
+        {
+          "x": 59.515625,
+          "y": 637.7455444335938,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 654.7455444335938
+        },
+        {
+          "x": 59.515625,
+          "y": 680.4910888671875,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 697.4910888671875
+        },
+        {
+          "x": 58.515625,
+          "y": 723.236572265625,
+          "width": 22.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 740.236572265625
+        },
+        {
+          "x": 59.515625,
+          "y": 765.982177734375,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 782.982177734375
+        },
+        {
+          "x": 59.515625,
+          "y": 808.7276611328125,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 825.7276611328125
+        },
+        {
+          "x": 59.515625,
+          "y": 851.4732055664062,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 868.4732055664062
+        },
+        {
+          "x": 73.828125,
+          "y": 894.21875,
+          "width": 7.171875,
+          "height": 17,
+          "right": 81,
+          "bottom": 911.21875
+        }
+      ],
+      "yTickCollisions": [],
+      "axisLabels": [
+        {
+          "text": "Engineering strain [1]",
+          "box": {
+            "x": 920.8828125,
+            "y": 934.21875,
+            "width": 134.234375,
+            "height": 17,
+            "right": 1055.1171875,
+            "bottom": 951.21875
+          }
+        },
+        {
+          "text": "Engineering stress [MPa]",
+          "box": {
+            "x": 10,
+            "y": 677.3671875,
+            "width": 17,
+            "height": 154.484375,
+            "right": 27,
+            "bottom": 831.8515625
+          }
+        }
+      ],
+      "yTickTitleCollisions": [],
+      "yTickFrameOverflow": [],
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "sessionPreserved": true,
+      "exactSession": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          },
+          {
+            "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+            "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+            "label": "CMP-DEMO-DP780-TEST-JSON-02",
+            "revisionNo": 1
+          },
+          {
+            "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+            "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+            "label": "CMP-DEMO-DP780-TEST-JSON-03",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      },
+      "focusReachable": true,
+      "localScroll": {
+        "top": 0,
+        "clientHeight": 363,
+        "scrollHeight": 363,
+        "overflowY": "auto"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "2560x1440",
+      "articleBox": {
+        "x": 0,
+        "y": 544,
+        "width": 2560,
+        "height": 850,
+        "right": 2560,
+        "bottom": 1394
+      },
+      "frameBox": {
+        "x": 9,
+        "y": 581,
+        "width": 2542,
+        "height": 759.21875,
+        "right": 2551,
+        "bottom": 1340.21875
+      },
+      "svgBox": {
+        "x": 9,
+        "y": 581,
+        "width": 2542,
+        "height": 735.21875,
+        "right": 2551,
+        "bottom": 1316.21875
+      },
+      "viewBox": "0 0 2542 735.21875",
+      "yTickLabels": [
+        "700",
+        "600",
+        "500",
+        "400",
+        "300",
+        "200",
+        "100",
+        "0"
+      ],
+      "yTickBoxes": [
+        {
+          "x": 59.515625,
+          "y": 595,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 612
+        },
+        {
+          "x": 59.515625,
+          "y": 689.1741333007812,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 706.1741333007812
+        },
+        {
+          "x": 59.515625,
+          "y": 783.3482055664062,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 800.3482055664062
+        },
+        {
+          "x": 58.515625,
+          "y": 877.5223388671875,
+          "width": 22.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 894.5223388671875
+        },
+        {
+          "x": 59.515625,
+          "y": 971.6964111328125,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 988.6964111328125
+        },
+        {
+          "x": 59.515625,
+          "y": 1065.87060546875,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 1082.87060546875
+        },
+        {
+          "x": 59.515625,
+          "y": 1160.044677734375,
+          "width": 21.484375,
+          "height": 17,
+          "right": 81,
+          "bottom": 1177.044677734375
+        },
+        {
+          "x": 73.828125,
+          "y": 1254.21875,
+          "width": 7.171875,
+          "height": 17,
+          "right": 81,
+          "bottom": 1271.21875
+        }
+      ],
+      "yTickCollisions": [],
+      "axisLabels": [
+        {
+          "text": "Engineering strain [1]",
+          "box": {
+            "x": 1240.8828125,
+            "y": 1294.21875,
+            "width": 134.234375,
+            "height": 17,
+            "right": 1375.1171875,
+            "bottom": 1311.21875
+          }
+        },
+        {
+          "text": "Engineering stress [MPa]",
+          "box": {
+            "x": 10,
+            "y": 857.3671875,
+            "width": 17,
+            "height": 154.484375,
+            "right": 27,
+            "bottom": 1011.8515625
+          }
+        }
+      ],
+      "yTickTitleCollisions": [],
+      "yTickFrameOverflow": [],
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "sessionPreserved": true,
+      "exactSession": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          },
+          {
+            "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+            "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+            "label": "CMP-DEMO-DP780-TEST-JSON-02",
+            "revisionNo": 1
+          },
+          {
+            "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+            "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+            "label": "CMP-DEMO-DP780-TEST-JSON-03",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      },
+      "focusReachable": true,
+      "localScroll": {
+        "top": 0,
+        "clientHeight": 363,
+        "scrollHeight": 363,
+        "overflowY": "auto"
+      },
+      "consoleErrors": []
+    },
+    {
+      "viewport": "3840x2160",
+      "articleBox": {
+        "x": 520,
+        "y": 729,
+        "width": 2800,
+        "height": 1200,
+        "right": 3320,
+        "bottom": 1929
+      },
+      "frameBox": {
+        "x": 529,
+        "y": 766,
+        "width": 2782,
+        "height": 1109.21875,
+        "right": 3311,
+        "bottom": 1875.21875
+      },
+      "svgBox": {
+        "x": 529,
+        "y": 766,
+        "width": 2782,
+        "height": 1085.21875,
+        "right": 3311,
+        "bottom": 1851.21875
+      },
+      "viewBox": "0 0 2782 1085.21875",
+      "yTickLabels": [
+        "700",
+        "600",
+        "500",
+        "400",
+        "300",
+        "200",
+        "100",
+        "0"
+      ],
+      "yTickBoxes": [
+        {
+          "x": 579.515625,
+          "y": 780,
+          "width": 21.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 797
+        },
+        {
+          "x": 579.515625,
+          "y": 924.174072265625,
+          "width": 21.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 941.174072265625
+        },
+        {
+          "x": 579.515625,
+          "y": 1068.34814453125,
+          "width": 21.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 1085.34814453125
+        },
+        {
+          "x": 578.515625,
+          "y": 1212.5223388671875,
+          "width": 22.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 1229.5223388671875
+        },
+        {
+          "x": 579.515625,
+          "y": 1356.6964111328125,
+          "width": 21.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 1373.6964111328125
+        },
+        {
+          "x": 579.515625,
+          "y": 1500.87060546875,
+          "width": 21.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 1517.87060546875
+        },
+        {
+          "x": 579.515625,
+          "y": 1645.044677734375,
+          "width": 21.484375,
+          "height": 17,
+          "right": 601,
+          "bottom": 1662.044677734375
+        },
+        {
+          "x": 593.828125,
+          "y": 1789.21875,
+          "width": 7.171875,
+          "height": 17,
+          "right": 601,
+          "bottom": 1806.21875
+        }
+      ],
+      "yTickCollisions": [],
+      "axisLabels": [
+        {
+          "text": "Engineering strain [1]",
+          "box": {
+            "x": 1880.8828125,
+            "y": 1829.21875,
+            "width": 134.234375,
+            "height": 17,
+            "right": 2015.1171875,
+            "bottom": 1846.21875
+          }
+        },
+        {
+          "text": "Engineering stress [MPa]",
+          "box": {
+            "x": 530,
+            "y": 1217.3671875,
+            "width": 17,
+            "height": 154.484375,
+            "right": 547,
+            "bottom": 1371.8515625
+          }
+        }
+      ],
+      "yTickTitleCollisions": [],
+      "yTickFrameOverflow": [],
+      "pageHorizontalOverflow": false,
+      "pageVerticalOverflow": false,
+      "sessionPreserved": true,
+      "exactSession": {
+        "selectedTestDataRefs": [
+          {
+            "id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+            "revisionId": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+            "label": "CMP-DEMO-DP780-TEST-JSON",
+            "revisionNo": 1
+          },
+          {
+            "id": "f67fd271-ead6-4fa2-a32e-7b528a226e6f",
+            "revisionId": "9558056b-1fc1-4b94-890d-0180a8c1d172",
+            "label": "CMP-DEMO-DP780-TEST-JSON-02",
+            "revisionNo": 1
+          },
+          {
+            "id": "fcf7fd63-3d85-4894-9e1b-474548337847",
+            "revisionId": "cc342ea7-36ef-4199-9c8d-2fdfe312074d",
+            "label": "CMP-DEMO-DP780-TEST-JSON-03",
+            "revisionNo": 1
+          }
+        ],
+        "selectedDocumentIds": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc"
+        ],
+        "visibleTestDataKeys": [
+          "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc:d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2"
+        ]
+      },
+      "focusReachable": true,
+      "localScroll": {
+        "top": 0,
+        "clientHeight": 363,
+        "scrollHeight": 363,
+        "overflowY": "auto"
+      },
+      "consoleErrors": []
+    }
+  ]
+}

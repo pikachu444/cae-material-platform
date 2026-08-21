@@ -23,6 +23,8 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 배치는 같은 브라우저에서 route 이동과 reload 뒤에도 유지되며 표시 밀도 reset과는 별개입니다.
 Data/Process/Fit graph는 Navigator, ribbon, candidate evidence pane 또는 표시 밀도가 바뀔 때 실제
 container를 다시 측정해 frame, SVG viewBox, axis, legend, label과 pointer hit region을 함께 갱신합니다.
+Data의 열 연결을 검토하는 짧은 graph에서는 실제 SVG 높이에 맞춰 y축 눈금 수를 줄입니다. 1366×768에서도
+눈금값·축 제목·frame이 겹치지 않으며, 더 큰 화면에서는 기존 engineering 눈금 간격을 유지합니다.
 
 Data의 **Library**에서는 검색과 시험 종류·조건으로 목록을 좁히고, 표에서 현재 입력 하나를
 고른 뒤 그래프를 확인하고 **Continue to Process**로 이동합니다. 다른 곡선은 **Add comparison**을
