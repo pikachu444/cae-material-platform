@@ -1,0 +1,597 @@
+/* Issue #261 owns Process stage-specific CSS; shared rules remain in the design layer. */
+
+.processing-input-card {
+  min-width: 0;
+}
+
+.processing-input-card label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.processing-input-card select {
+  width: 100%;
+}
+
+.processing-curve {
+  width: 100%;
+  min-height: 250px;
+  border-radius: 12px;
+  background: linear-gradient(#fbfdfd, #f1f7f7);
+  border: 1px solid var(--line);
+}
+
+.processing-curve.interactive {
+  min-height: 420px;
+  touch-action: none;
+  user-select: none;
+}
+
+.processing-curve.interactive.is-panning {
+  cursor: grabbing;
+}
+
+.curve-line.processed {
+  stroke: #e56734;
+}
+
+.curve-legend i.processed {
+  background: #e56734;
+}
+
+.processing-output-card {
+  min-width: 0;
+}
+
+.processing-output-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.processing-output-list article {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.processing-output-list article > div {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.processing-output-list small {
+  color: var(--muted);
+}
+
+.processing-output-list code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.72rem;
+  color: #246e6b;
+}
+
+.processing-curve.interactive:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.modeling-task-ribbon:has(.process-stage-options) {
+  position: relative;
+  z-index: 3;
+  min-height: 126px;
+  /* Process is a content-sized ribbon.  A fixed cap lets the save/action
+     rows paint into the persistent graph when a notice or manual controls
+     are present; the parent grid will give the graph the remaining height. */
+  max-height: none;
+  overflow: visible;
+}
+
+.modeling-task-ribbon:has(.process-stage-options .process-saved-results[open]) {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.process-stage-options {
+  display: grid;
+  gap: 3px;
+  padding: 2px 9px;
+  min-height: 118px;
+  border: 0;
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+.process-band-heading,
+.process-band-controls,
+.process-band-save,
+.process-band-status {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.process-band-heading {
+  justify-content: space-between;
+  min-height: 28px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.process-band-heading > div:first-child,
+.process-band-source,
+.process-band-result {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.process-band-heading strong,
+.process-band-source strong,
+.process-band-result strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.process-band-source span,
+.process-band-result span,
+.process-band-result small {
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-source {
+  margin-left: auto;
+  max-width: 32%;
+}
+
+.process-band-groups {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(250px, .65fr);
+  grid-template-areas:
+    "calculation result"
+    "save save";
+  align-items: stretch;
+  min-width: 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.process-band-group {
+  display: grid;
+  grid-area: calculation;
+  min-width: 0;
+  align-content: start;
+  gap: 3px;
+  padding: 4px 8px 5px;
+}
+
+.process-band-group + .process-band-group {
+  border-left: 1px solid var(--ux-border);
+}
+
+.process-band-preview {
+  grid-area: result;
+}
+
+.process-band-save-result {
+  grid-area: save;
+  border-top: 1px solid var(--ux-border);
+  border-left: 0;
+}
+
+.process-band-group > h3 {
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+
+.process-band-controls {
+  align-items: stretch;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.process-band-controls > .guided-step-options {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.25fr) minmax(180px, .75fr) minmax(140px, .6fr);
+  align-items: end;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 5px 8px;
+  overflow: hidden;
+}
+
+.process-band-controls .option-hint {
+  display: none;
+}
+
+.process-band-controls > .guided-step-options.elastic-modulus-options {
+  display: grid;
+  grid-template-columns: minmax(150px, .8fr) minmax(205px, 1.2fr);
+  grid-template-areas:
+    "method range"
+    "manual manual";
+  align-items: start;
+  flex: 1 1 auto;
+  gap: 5px 8px;
+  overflow: visible;
+}
+
+.process-band-controls .elastic-modulus-method {
+  display: grid;
+  grid-area: method;
+  min-width: 0;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.process-band-controls .elastic-modulus-range {
+  grid-area: range;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+}
+
+.process-band-controls .elastic-modulus-range label,
+.process-band-controls .elastic-modulus-manual-row label {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-controls .elastic-modulus-range input,
+.process-band-controls .elastic-modulus-method select {
+  width: 100%;
+  min-width: 0;
+}
+
+.process-band-controls .elastic-modulus-manual-row {
+  grid-area: manual;
+  display: grid;
+  grid-template-columns: minmax(145px, 1fr) minmax(96px, .42fr) minmax(190px, 1.25fr);
+  gap: 4px 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.process-band-controls .elastic-modulus-manual-row :is(input, select) {
+  width: 100%;
+  min-width: 0;
+}
+
+.process-band-controls > .guided-step-options.toe-compensation-options {
+  grid-template-columns: minmax(180px, .92fr) minmax(205px, 1.08fr) minmax(120px, .62fr) minmax(145px, .76fr);
+  align-items: end;
+  overflow: hidden;
+}
+
+.process-band-controls .toe-estimation-range {
+  gap: var(--ux-space-1);
+}
+
+.process-band-controls :is(input, select, button) {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+  padding-block: 0;
+  line-height: 1.2;
+}
+
+.process-band-controls :is(input, select) {
+  padding-inline: 6px;
+  font-size: 13px;
+}
+
+.process-band-controls input[type="range"] {
+  height: 28px;
+  padding: 0;
+}
+
+.process-band-save {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.1fr) minmax(185px, 1.3fr) max-content;
+  align-items: end;
+  min-width: 0;
+  gap: 6px;
+}
+
+.process-band-save > label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-save input {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 28px;
+  height: 28px;
+  padding-block: 0;
+  padding-inline: 6px;
+  line-height: 1.2;
+  font-size: 13px;
+}
+
+.process-band-result {
+  align-content: start;
+  min-width: 0;
+  gap: 2px;
+}
+
+.process-band-result strong {
+  color: var(--ux-success, #176b55);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.process-band-result small {
+  max-width: 34rem;
+  line-height: 14px;
+  overflow-wrap: anywhere;
+}
+
+.process-save-blocked {
+  color: var(--ux-warning) !important;
+}
+
+.process-save-blocked {
+  grid-column: 1 / -1;
+  line-height: 1.35;
+}
+
+.process-band-status {
+  justify-content: space-between;
+  min-height: 20px;
+  border-top: 1px solid var(--ux-border);
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.process-band-status > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+  padding: 5px 9px;
+  line-height: 16px;
+}
+
+.process-saved-results {
+  border-top: 1px solid var(--ux-border);
+  padding-top: 3px;
+}
+
+.process-saved-results[open] {
+  position: relative;
+  z-index: 1;
+  background: var(--ux-surface);
+}
+
+.process-saved-results > summary {
+  cursor: pointer;
+  color: var(--ux-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.process-comparison-region {
+  display: block;
+  max-height: 124px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-top: 4px;
+}
+
+.process-comparison-row {
+  min-width: 0;
+  font-size: 11px;
+}
+
+.process-comparison-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.process-comparison-table th,
+.process-comparison-table td {
+  min-width: 0;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--ux-border);
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.process-comparison-table th {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.process-comparison-table th:nth-child(1),
+.process-comparison-table td:nth-child(1) { width: 22%; }
+
+.process-comparison-table th:nth-child(2),
+.process-comparison-table td:nth-child(2) { width: 16%; }
+
+.process-comparison-table th:nth-child(3),
+.process-comparison-table td:nth-child(3) { width: 13%; }
+
+.process-comparison-table th:nth-child(4),
+.process-comparison-table td:nth-child(4) { width: 15%; }
+
+.process-comparison-table th:nth-child(5),
+.process-comparison-table td:nth-child(5) { width: 9%; }
+
+.process-comparison-table th:nth-child(6),
+.process-comparison-table td:nth-child(6) { width: 10%; }
+
+.process-comparison-table th:nth-child(7),
+.process-comparison-table td:nth-child(7) { width: 15%; }
+
+.process-comparison-table td:last-child {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.process-comparison-table td:nth-child(4) {
+  color: var(--ux-success, #176b55);
+  font-variant-numeric: tabular-nums;
+}
+
+.process-comparison-table td:nth-child(5),
+.process-comparison-table td:nth-child(6) {
+  font-variant-numeric: tabular-nums;
+}
+
+.process-comparison-table td:nth-child(6) {
+  color: var(--ux-text-muted);
+}
+
+.process-comparison-row > div,
+.process-comparison-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persistent-modeling-plot .processing-curve.interactive {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.persistent-modeling-plot .processing-curve .chart-tick {
+  font-size: 12px;
+}
+
+.persistent-modeling-plot .processing-curve .chart-axis-label {
+  font-size: 12px;
+}
+
+@media (max-height: 800px) {
+  .persistent-modeling-plot .processing-curve.interactive {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+@media (max-height: 800px) {
+  .persistent-modeling-plot .processing-curve .chart-tick,
+  .persistent-modeling-plot .processing-curve .chart-axis-label { font-size: 12px; }
+}
+
+.modeling-workspace-stage-process .curve-row-label {
+  padding-right: 4px;
+}
+
+.process-stage-options {
+  container-type: inline-size;
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-1) var(--ux-pane-padding);
+}
+
+.process-band-heading,
+.process-band-controls,
+.process-band-save,
+.process-band-status {
+  gap: var(--ux-space-2);
+}
+
+.process-band-heading {
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.process-band-group {
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-1) var(--ux-space-2) var(--ux-space-2);
+}
+
+.process-band-group > h3,
+.process-band-source span,
+.process-band-result span,
+.process-band-result small,
+.process-band-controls :is(label, .elastic-modulus-method),
+.process-band-save > label,
+.process-band-status {
+  font-size: var(--ux-metadata-font-size);
+}
+
+.process-band-result strong {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.modeling-main-surface:has(> .modeling-task-ribbon .process-stage-options) {
+  grid-template-rows:
+    fit-content(calc(100% - var(--ux-plot-allocated-min-block-size)))
+    minmax(var(--ux-plot-allocated-min-block-size), 1fr);
+}
+
+.modeling-workspace-stage-process .persistent-modeling-plot {
+  min-height: var(--ux-plot-allocated-min-block-size);
+  padding: var(--ux-space-2);
+  gap: var(--ux-space-1) var(--ux-space-2);
+}
+
+.persistent-modeling-plot .processing-curve :is(.chart-tick, .chart-axis-label) {
+  font-size: var(--ux-plot-label-font-size);
+}
+
+.distribution-fit-action {
+  min-height: var(--ux-input-min-block-size);
+  white-space: nowrap;
+}
+
+.distribution-fit-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.distribution-fit-line {
+  stroke-width: 2;
+  opacity: .84;
+}
+
+.distribution-fit-line.normal { stroke: #245ea8; }
+
+.distribution-fit-line.lognormal { stroke: #087f73; }
+
+.distribution-fit-line.weibull { stroke: #a45a13; }

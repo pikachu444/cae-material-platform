@@ -33,6 +33,15 @@ _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-221-high-dpi-decision/measurements.json",
     "docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json",
     "docs/17-evidence/images/issue-260-fe05-modeling-data/manifest.json",
+    "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/manifest.json",
+    "docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/manifest.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-manifest.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-01.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-02.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-03.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-04.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-05.json",
+    "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-06.json",
 )
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (

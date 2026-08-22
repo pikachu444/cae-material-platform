@@ -2979,3 +2979,40 @@ powershell -NoProfile -NonInteractive -Command '$root = git rev-parse --show-top
 | Toolchain diagnostic | repository 요구 uv `0.12.5`와 현재 실행기가 일치한다. Node `24.18.0`/npm `11.13.0`은 요구 `24.19.0`/`11.17.0`보다 낮아 `npm ci` engine warning은 남지만 production build와 해당 검사는 통과했다. |
 
 Commit, push, GitHub comment, PR, ready transition, merge와 issue close는 모두 수행하지 않는다.
+
+## B4 combined CSS ownership integration checkpoint
+
+This bounded checkpoint integrates the three approved historical ownership handoffs into the
+frozen-base inventory without changing production CSS, TSX, DOM, API, copy, state, or revision
+contracts. The frozen source base is `4d53d95ce926b96b84e47f9d942127f0853d8ed2`; the independently
+accepted source production tree is `92ec19bada2c4b5f3db91d4c661317b13b347b4a`. After PR #311 merged,
+the exact production meaning was replayed from `main@fa417118cf77989d617024e68a4730d828d790df`
+as `59224efb39a8c2a325f0b3bfdcba4a6d76584cbc` on
+`issue-261-css-ownership-integration-publication`.
+
+- B1 (`a26649ec9d7e689cf773ccad9dedfcb985d9ea62`) remains the standalone Modeling Data → Process → Fit → Export handoff: 505 owner moves, 38 deferred rows, seven normalization peers, and APPROVE disposition. Evidence: [`B1 evidence`](issue-261-b1-modeling-stage-css-ownership.md).
+- M2 (`be5538ec57efdd65f4104fffa733f134b3d42d87`) remains the standalone Materials handoff: 257 moved rows / 221 target groups, 199 complete and 22 partial groups, and APPROVE disposition. Evidence: [`M2 evidence`](issue-261-m2-materials-css-ownership.md).
+- M3 (`dfc3bf00b5aafac2ac466d662f07ee4be88421eb`) remains the standalone governance handoff: 505 owner rows plus one retained peer, 506 target rows / 377 groups, 356 complete and 21 partial groups, and APPROVE disposition. Evidence: [`M3 governance evidence`](issue-261-m3-css-ownership-governance.json).
+
+The regenerated combined inventory reports 2,106 selector rows / 1,777 rule groups: `styles.css`
+1,121 / 983 and `layout.css` 985 / 794. The six residual routes remain explicit and are not silently
+closed: M1A 9, M1B 29, M1E 717, HOLD 504 (446 proven historical HOLD plus 58 M2-frozen rows),
+M4 314 (301 existing plus 13 M2-frozen rows), and M6 533. The only mixed residual remains
+`.card-preview-shell`; no moved ownership tuple overlaps another handoff.
+
+The completed B4 batch is recorded in [`B4 combined evidence`](issue-261-b4-css-ownership-integration.md)
+and its retained image/measurement directory and structured manifest. The single fresh-build → seed
+twice → live-capture → E2E → cleanup batch used isolated project `cmp-demo-test-261b4`, browser zoom
+100%, and all five CSS viewports. It produced 207 valid PNG and 8 JSON artifacts; E2E and Main
+live/browser/original-resolution visual acceptance are **PASS**. Main accepted Carbon hierarchy,
+COMSOL engineering task flow, and SAP responsive/wide-screen logic with no clipping, overflow or
+unreachable action. The exact Materials, Modeling, Administration and Activity user-impact journeys
+preserve URL/revision/download/session/recovery contracts.
+
+The combined record preserves exact-hash reuse from Administration access (6/6), Materials contract
+(15/16), and Modeling (93/104); remaining differences are dynamic output identity/capture data, not
+a new UI design. The fixture/helper N/A boundaries are causal and documented in the report, with
+settled replacement coverage passing. Actual Windows 4K physical readability remains deferred to
+#223. PR #311 is merged as `fa417118cf77989d617024e68a4730d828d790df`; the publication replay
+retains this coherent batch without another five-viewport run. The issue stays open while M1E, M4,
+M6 and HOLD continue through their registered follow-up units.

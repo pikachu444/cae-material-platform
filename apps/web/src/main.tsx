@@ -8,7 +8,10 @@ import "./design/tokens.css";
 import "./design/typography.css";
 import "./design/primitives.css";
 import "./design/layout.css";
+import "./features/materials/ui/materials.css";
 import "./design/shell.css";
+import "./features/administration/ui/administration.css";
+import "./features/activity/ui/activity.css";
 
 // Apply the browser-local, product-wide preference before React creates the
 // first shell frame. This prevents a Compact/Standard/Large flash on reload.

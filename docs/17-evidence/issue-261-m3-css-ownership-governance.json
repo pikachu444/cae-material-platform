@@ -1,0 +1,447 @@
+{
+  "issue": "#261",
+  "unit": "FE-06/M3 governance CSS ownership",
+  "frozenBase": "4d53d95ce926b96b84e47f9d942127f0853d8ed2",
+  "status": "PASS",
+  "roster": {
+    "targetRows": 506,
+    "targetGroups": 377,
+    "fullyRemovedGroups": 356,
+    "partiallyShrunkGroups": 21,
+    "administrationRows": 381,
+    "activityRows": 124
+  },
+  "scope": {
+    "administration": {
+      "migrationBatch": "M3A-administration",
+      "legacySelectorRows": 382,
+      "ownerSelectorRows": 381,
+      "ownerRuleGroups": 275,
+      "deduplication": {
+        "selector": "CSS-0725",
+        "reason": "database-design.css owns the peer; no duplicate owner tuple is added"
+      }
+    },
+    "activity": {
+      "migrationBatch": "M3B-activity-expanded",
+      "legacySelectorRows": 124,
+      "ownerSelectorRows": 124,
+      "ownerRuleGroups": 102
+    },
+    "combinedLegacyRemoval": {
+      "selectorRows": 506,
+      "ruleGroups": 377,
+      "ownerTuples": 505
+    },
+    "forbiddenResidual": {
+      "M4": [
+        "CSS-0013",
+        "CSS-0014"
+      ],
+      "HOLD": [
+        "CSS-0334",
+        "CSS-0384",
+        "CSS-0407"
+      ],
+      "M6": [
+        "CSS-0397"
+      ],
+      "HOLDRowsUnchanged": 446
+    }
+  },
+  "ownerFiles": {
+    "administration": {
+      "path": "apps/web/src/features/administration/ui/administration.css",
+      "rows": 381,
+      "groups": 275
+    },
+    "activity": {
+      "path": "apps/web/src/features/activity/ui/activity.css",
+      "rows": 124,
+      "groups": 102
+    }
+  },
+  "legacyPostState": {
+    "selectorRows": 2868,
+    "cssRuleGroups": 2343,
+    "bySourceFile": {
+      "apps/web/src/styles.css": {
+        "rows": 1431,
+        "groups": 1214
+      },
+      "apps/web/src/design/layout.css": {
+        "rows": 1437,
+        "groups": 1129
+      }
+    },
+    "m2ResidualRows": 329,
+    "holdResidualRows": 446,
+    "crossCssDuplicateRows": 13
+  },
+  "cascadeOracle": {
+    "targetSelectorIds": 506,
+    "targetPropertyCount": 1638,
+    "targetPropertyRows": 302,
+    "targetPropertyGroups": 245,
+    "exactSelectorRows": 152,
+    "exactSelectorGroups": 66,
+    "unknownIds": 0
+  },
+  "flags": {
+    "administrationRawColorRows": 38,
+    "administrationLiteralFontWeightRows": 40,
+    "activityRawColorRows": 20,
+    "activityLiteralFontWeightRows": 10
+  },
+  "evidence": {
+    "manifest": "docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/manifest.json",
+    "cssViewports": [
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "2560x1440",
+      "3840x2160"
+    ],
+    "browserZoomPercent": 100,
+    "deviceScaleFactor": 1,
+    "beforeOriginals": 34,
+    "afterOriginals": 34,
+    "after100PercentCrops": 50,
+    "exactBeforeAfterByteIdentity": {
+      "pairs": 34,
+      "equal": 34
+    },
+    "liveDom": "PASS",
+    "browserEvidence": "PASS",
+    "physicalReadability": "DEFERRED_TO_223"
+  },
+  "documentationImpact": {
+    "status": "DEFERRED_STACKED_HISTORY",
+    "gate": "uv run cmp-check-doc-impact --root . --mode worktree",
+    "mergeBase": "fa75a13646a3457eda554dcde59e8c62116dd81e",
+    "historicalManifestCount": 21,
+    "historicalVisualFiles": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "currentTaskVisualFiles": [
+      "apps/web/src/styles.css",
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/administration/ui/administration.css",
+      "apps/web/src/features/activity/ui/activity.css"
+    ],
+    "nonCssVisualChange": {
+      "path": "apps/web/src/main.tsx",
+      "change": "two side-effect imports for the Activity and Administration owner CSS"
+    },
+    "reason": "The strict loader requires exactly one current CSS proof and identical visual-file sets across unchanged historical proofs. The stacked worktree contains 21 historical M1 manifests for the narrower layout/modeling CSS set, while this task adds Activity and Administration CSS plus two main.tsx side-effect imports that a CSS proof cannot represent. Historical manifests, current guide PNGs, and live evidence remain unchanged; combined regeneration/publication is deferred to the PR311 integration decision.",
+    "liveEvidencePreserved": {
+      "beforeOriginals": 34,
+      "afterOriginals": 34,
+      "byteIdenticalPairs": 34,
+      "browserEvidence": "PASS"
+    }
+  },
+  "geometry": {
+    "administration": {
+      "page": [
+        {
+          "viewport": "1366x768",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "1440x900",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "1920x1080",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "2560x1440",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "3840x2160",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        }
+      ],
+      "workspace": [
+        {
+          "viewport": "1366x768",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "1440x900",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "1920x1080",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "2560x1440",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        },
+        {
+          "viewport": "3840x2160",
+          "horizontalOverflow": false,
+          "verticalOverflow": false,
+          "editorVisible": true,
+          "previewVisible": true,
+          "exactRevisionVisible": true
+        }
+      ]
+    },
+    "activity": {
+      "page": [
+        {
+          "viewport": "1366x768",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "1440x900",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "1920x1080",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "2560x1440",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "3840x2160",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        }
+      ],
+      "workspace": [
+        {
+          "viewport": "1366x768",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "1440x900",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "1920x1080",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "2560x1440",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        },
+        {
+          "viewport": "3840x2160",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true
+        }
+      ],
+      "local": [
+        {
+          "viewport": "1366x768",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true,
+          "intendedLocalVerticalScroll": true,
+          "verticalScroll": "INTENDED"
+        },
+        {
+          "viewport": "1440x900",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true,
+          "intendedLocalVerticalScroll": true,
+          "verticalScroll": "INTENDED"
+        },
+        {
+          "viewport": "1920x1080",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true,
+          "intendedLocalVerticalScroll": true,
+          "verticalScroll": "INTENDED"
+        },
+        {
+          "viewport": "2560x1440",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true,
+          "intendedLocalVerticalScroll": false,
+          "verticalScroll": "NONE"
+        },
+        {
+          "viewport": "3840x2160",
+          "horizontalOverflow": false,
+          "statusVisible": true,
+          "tableVisible": true,
+          "intendedLocalVerticalScroll": false,
+          "verticalScroll": "NONE"
+        }
+      ]
+    }
+  },
+  "designSynthesis": {
+    "informationHierarchy": "PASS",
+    "engineeringTaskFlow": "PASS",
+    "responsiveWideComposition": "PASS",
+    "classification": "behavior-preserving CSS ownership; not a redesign"
+  },
+  "testDispositions": [
+    {
+      "name": "full Vitest transient review-request-action race",
+      "disposition": "NONBLOCKING",
+      "detail": "411/412 full-suite transient race; isolated rerun 8/8 PASS. User review action value is unchanged."
+    },
+    {
+      "name": "disposable review E2E",
+      "disposition": "NONBLOCKING",
+      "detail": "Clean-seed run lacks the Neutral Material prerequisite. Fixture setup issue, not CSS-caused; no product code changes."
+    },
+    {
+      "name": "Administration database workflow",
+      "disposition": "NONBLOCKING",
+      "detail": "Current fixture expected reference-steel, while preview selected the exact Abaqus record. Fixture/reference mismatch, not CSS-caused; no product code changes."
+    },
+    {
+      "name": "button semantics and schema bundle Administration E2Es",
+      "disposition": "PASS",
+      "detail": "Button semantics and schema-bundle Administration journeys pass."
+    },
+    {
+      "name": "npm audit",
+      "disposition": "N/A",
+      "detail": "Pre-existing advisory; outside this CSS ownership correction."
+    },
+    {
+      "name": "Node version",
+      "disposition": "N/A",
+      "detail": "Minor version mismatch; outside this CSS ownership correction."
+    }
+  ],
+  "ownerFilesAndResiduals": {
+    "css0725": "M3A legacy 382 / owner 381 because the database-design peer owns CSS-0725; no duplicate tuple.",
+    "activity": "M3B expanded owner rows 124.",
+    "combined": "Legacy remove 506 selector rows across 377 rule groups; owner tuples 505.",
+    "forbidden": {
+      "M4": [
+        "CSS-0013",
+        "CSS-0014"
+      ],
+      "HOLD": [
+        "CSS-0334",
+        "CSS-0384",
+        "CSS-0407"
+      ],
+      "M6": [
+        "CSS-0397"
+      ],
+      "holdRowsUnchanged": 446
+    }
+  },
+  "preserved": {
+    "exactMaterialsPeers": [
+      "CSS-0212",
+      "CSS-0213",
+      "CSS-0222",
+      "CSS-0223",
+      "CSS-1381"
+    ],
+    "reducedMotion": "CSS-0396 remains under @media (prefers-reduced-motion: reduce) in Activity owner CSS.",
+    "maxWidth": "CSS-1382 remains under @media (max-width: 760px) in Activity owner CSS.",
+    "mixedSplitResidual": [
+      "CSS-2470",
+      "CSS-2471",
+      "CSS-2472",
+      "CSS-2473",
+      "CSS-2474",
+      "CSS-2475",
+      "CSS-2476",
+      "CSS-2477"
+    ],
+    "forbiddenResidual": [
+      "CSS-0013",
+      "CSS-0014",
+      "CSS-0334",
+      "CSS-0384",
+      "CSS-0407",
+      "CSS-0397"
+    ],
+    "css0725Peer": "apps/web/src/features/administration/database-design/database-design.css"
+  },
+  "routeState": {
+    "administration": [
+      "/administration/database",
+      "/administration/schema-bundles",
+      "/administration/records",
+      "/administration/access"
+    ],
+    "activity": [
+      "/activity",
+      "/jobs-reviews"
+    ],
+    "note": "Routes and states are source-inventory evidence; live DOM/cascade behavior is recorded above from Main acceptance."
+  },
+  "runtimeBoundary": {
+    "liveDom": "PASS",
+    "browserEvidence": "PASS",
+    "physicalReadability": "DEFERRED_TO_223"
+  }
+}

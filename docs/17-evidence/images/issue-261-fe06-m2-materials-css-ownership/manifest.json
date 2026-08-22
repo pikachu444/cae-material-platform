@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M2-materials-css-ownership",
+  "implementation_base": "4d53d95ce926b96b84e47f9d942127f0853d8ed2",
+  "branch": "issue-261-b2-materials-css-ownership",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "images": [
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1366x768.png", "kind": "original", "phase": "before", "viewport": "1366x768", "state": "normal", "sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1440x900.png", "kind": "original", "phase": "before", "viewport": "1440x900", "state": "normal", "sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1920x1080.png", "kind": "original", "phase": "before", "viewport": "1920x1080", "state": "normal", "sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-2560x1440.png", "kind": "original", "phase": "before", "viewport": "2560x1440", "state": "normal", "sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-3840x2160.png", "kind": "original", "phase": "before", "viewport": "3840x2160", "state": "normal", "sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1366x768.png", "kind": "original", "phase": "after", "viewport": "1366x768", "state": "normal", "sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1440x900.png", "kind": "original", "phase": "after", "viewport": "1440x900", "state": "normal", "sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1920x1080.png", "kind": "original", "phase": "after", "viewport": "1920x1080", "state": "normal", "sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-2560x1440.png", "kind": "original", "phase": "after", "viewport": "2560x1440", "state": "normal", "sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80" },
+    { "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-3840x2160.png", "kind": "original", "phase": "after", "viewport": "3840x2160", "state": "normal", "sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb" }
+  ],
+  "original_pairs": [
+    { "name": "materials-search-1366x768.png", "before_sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2", "after_sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2", "byte_equal": true },
+    { "name": "materials-search-1440x900.png", "before_sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825", "after_sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825", "byte_equal": true },
+    { "name": "materials-search-1920x1080.png", "before_sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6", "after_sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6", "byte_equal": true },
+    { "name": "materials-search-2560x1440.png", "before_sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80", "after_sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80", "byte_equal": true },
+    { "name": "materials-search-3840x2160.png", "before_sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb", "after_sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb", "byte_equal": true }
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "4d53d95ce926b96b84e47f9d942127f0853d8ed2",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/materials/ui/materials.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "04e367a926d8e2167695b820b2166882b79a5e5d45e2453c437e272040a5a81a",
+      "apps/web/src/features/materials/ui/materials.css": "4da1a8483ae6cf448a025e19d28d7aa0622d04f999b4d4b7e126386861c4226e"
+    },
+    "current_matches": [
+      { "current": "docs/user-guide/images/current/materials-search-1366x768.png", "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1366x768.png", "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1366x768.png" },
+      { "current": "docs/user-guide/images/current/materials-search-1440x900.png", "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1440x900.png", "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1440x900.png" },
+      { "current": "docs/user-guide/images/current/materials-search-1920x1080.png", "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1920x1080.png", "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1920x1080.png" },
+      { "current": "docs/user-guide/images/current/materials-search-2560x1440.png", "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-2560x1440.png", "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-2560x1440.png" },
+      { "current": "docs/user-guide/images/current/materials-search-3840x2160.png", "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-3840x2160.png", "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-3840x2160.png" }
+    ]
+  }
+}

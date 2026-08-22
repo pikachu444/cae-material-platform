@@ -1,0 +1,62 @@
+{
+  "Activity live five-viewport capture": 13,
+  "Administration access live five-viewport capture": 6,
+  "Administration database live five-viewport capture": 10,
+  "Administration records live five-viewport capture": 5,
+  "Materials Browse/Search/Detail five-viewport capture": 15,
+  "Modeling exact-stage five-viewport capture": 104,
+  "activityCompatibilityQueryPreserved": true,
+  "administrationObjectStates": 5,
+  "baseUrl": "http://127.0.0.1:32778",
+  "deferredGates": {
+    "capture_current_product.py --only-materials": {
+      "exactMismatch": "helper expects Search materials on initial /materials; product correctly opens Browse",
+      "freshDisposableProject": "cmp-demo-test-261b4ui",
+      "liveProof": "Browse tree, DP780 exact r1, no alert, no horizontal overflow",
+      "replacementCoverage": "combined Browse -> Filters -> exact detail five-viewport journey",
+      "status": "N/A_STALE_HELPER_DEFAULT"
+    },
+    "live demo CAE Card table": {
+      "cssOwnershipCausality": "none",
+      "replacementCoverage": "issue-261 M2 exact card preview/download five-viewport fixture in this batch",
+      "status": "N/A_NO_LIVE_SEED_CARD"
+    },
+    "review-publication-recovery.spec.ts": {
+      "cssOwnershipCausality": "none",
+      "exactFailure": "clean-demo exact Neutral Material record: received undefined",
+      "failureBoundary": "API setup before UI interaction",
+      "freshDisposableProject": "cmp-demo-test-261b4diag",
+      "missingFixture": "CMP-DEMO-DP780-NEUTRAL with neutral_material binding",
+      "replacementCoverage": [
+        "issue-261 M2 exact URL/revision/download/fail-closed recovery journey",
+        "Modeling exact session/revision stage journey",
+        "Activity recovery and role-state captures"
+      ],
+      "status": "DEFERRED_OUT_OF_SCOPE_FIXTURE_MISMATCH"
+    }
+  },
+  "e2eStatus": "PASS",
+  "liveMetricRecords": 21,
+  "order": [
+    "fresh build",
+    "seed twice",
+    "live five-viewport captures",
+    "E2E contracts",
+    "cleanup"
+  ],
+  "project": "cmp-demo-test-261b4",
+  "specs": [
+    "e2e/issue-261-m2-materials-css-ownership.spec.ts",
+    "e2e/schema-definition-bundle-administration.spec.ts",
+    "e2e/administration-button-semantics.spec.ts",
+    "e2e/administration-database-workflow.spec.ts"
+  ],
+  "status": "PASS",
+  "viewportBatch": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ]
+}

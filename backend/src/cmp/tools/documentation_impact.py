@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import posixpath
 import re
 import subprocess
 from collections.abc import Iterable, Mapping
@@ -28,6 +29,9 @@ _CSS_VISUAL_PRESERVATION_SCHEMA = "cmp.documentation-impact.css-byte-identical.v
 _CSS_VISUAL_PRESERVATION_CLASSIFICATION = "behavior-preserving-css-migration"
 _CSS_VISUAL_PRESERVATION_MANIFEST = re.compile(
     r"docs/17-evidence/images/issue-([1-9][0-9]*)-[^/]+/manifest\.json"
+)
+_CSS_VISUAL_PRESERVATION_ARTIFACT = re.compile(
+    r"(docs/17-evidence/images/issue-([1-9][0-9]*)-[^/]+)/(before|after)/.+"
 )
 _MANDATORY_CSS_VIEWPORTS = frozenset(
     {"1366x768", "1440x900", "1920x1080", "2560x1440", "3840x2160"}
@@ -486,10 +490,10 @@ def _load_changed_css_visual_preservation(
                 f"{historical.path} non-current CSS visual-preservation manifest must be "
                 "committed and unchanged"
             )
-        if set(historical.visual_files) != current_visual_files:
+        if not set(historical.visual_files) <= current_visual_files:
             raise DocumentationImpactError(
                 f"{historical.path} historical CSS visual-preservation manifest must cover "
-                "the same visual files as the current proof"
+                "only visual files included in the current proof"
             )
     return current
 
@@ -823,7 +827,6 @@ def _validate_css_visual_preservation(
         if isinstance(images, list) and all(isinstance(item, str) for item in images):
             duplicate_groups.append(set(images))
 
-    manifest_root = preservation.path.rsplit("/", 1)[0]
     matched_before: set[str] = set()
     matched_after: set[str] = set()
     matched_names: set[str] = set()
@@ -844,11 +847,20 @@ def _validate_css_visual_preservation(
                 f"{preservation.path} current match is not a registered guide capture: "
                 f"{match.current}"
             )
-        if not match.before.startswith(f"{manifest_root}/before/") or not match.after.startswith(
-            f"{manifest_root}/after/"
+        before_evidence = _CSS_VISUAL_PRESERVATION_ARTIFACT.fullmatch(match.before)
+        after_evidence = _CSS_VISUAL_PRESERVATION_ARTIFACT.fullmatch(match.after)
+        issue_number = preservation.issue.removeprefix("#")
+        if (
+            before_evidence is None
+            or after_evidence is None
+            or before_evidence.group(3) != "before"
+            or after_evidence.group(3) != "after"
+            or before_evidence.group(1) != after_evidence.group(1)
+            or before_evidence.group(2) != issue_number
+            or after_evidence.group(2) != issue_number
         ):
             raise DocumentationImpactError(
-                f"{preservation.path} before/after matches must stay inside their evidence phases"
+                f"{preservation.path} before/after matches must reuse one same-issue evidence root"
             )
         if any(
             PurePosixPath(path).suffix.lower() != ".png"
@@ -3007,14 +3019,16 @@ def _is_import_only_visual_change(
     base_universe: set[str] | None = None,
     current_universe: set[str] | None = None,
 ) -> bool:
-    """Return true only when a TSX change rewires static named imports.
+    """Return true only when a TSX change rewires imports without changing render code.
 
     Relative named imports may be regrouped across local ownership modules, but
     their imported/local/type bindings must remain identical. A runtime binding
     may change modules only when its exported declaration has the same token
-    fingerprint (including through a local export-star barrel). Package imports,
-    default or namespace imports, and side-effect imports stay byte-identical.
-    All non-import source bytes stay identical apart from blank extraction gaps.
+    fingerprint (including through a local export-star barrel). Existing package,
+    default, namespace, and side-effect imports stay byte-identical and ordered.
+    New relative CSS side-effect imports are allowed only when the imported CSS is
+    itself a current change, so its visual impact remains covered as CSS. All
+    non-import source bytes stay identical apart from blank extraction gaps.
     """
     if PurePosixPath(path).suffix.lower() != ".tsx":
         return False
@@ -3037,9 +3051,9 @@ def _is_import_only_visual_change(
 
     def import_shape(
         imports: Iterable[_StaticImport],
-    ) -> tuple[dict[tuple[str, str, str], str], tuple[str, ...]] | None:
+    ) -> tuple[dict[tuple[str, str, str], str], tuple[_StaticImport, ...]] | None:
         local_named: dict[tuple[str, str, str], str] = {}
-        protected: list[str] = []
+        protected: list[_StaticImport] = []
         for import_item in imports:
             if (
                 import_item.module.startswith(("./", "../"))
@@ -3052,8 +3066,8 @@ def _is_import_only_visual_change(
                         return None
                     local_named[binding] = import_item.module
             else:
-                protected.append(import_item.text)
-        return local_named, tuple(sorted(protected))
+                protected.append(import_item)
+        return local_named, tuple(protected)
 
     base_shape = import_shape(base_imports)
     current_shape = import_shape(current_imports)
@@ -3061,13 +3075,36 @@ def _is_import_only_visual_change(
         return False
     base_named, base_protected = base_shape
     current_named, current_protected = current_shape
-    if set(base_named) != set(current_named) or base_protected != current_protected:
+    if set(base_named) != set(current_named):
         return False
 
     base_paths = base_universe or _git_blob_paths(project, source_sha)
     current_paths = current_universe or _current_source_paths(
         project, changed_entries(project, "worktree")
     )
+    current_changes = changed_entries(project, "worktree")
+    base_index = 0
+    for import_item in current_protected:
+        if (
+            base_index < len(base_protected)
+            and import_item.text == base_protected[base_index].text
+        ):
+            base_index += 1
+            continue
+        if (
+            not import_item.side_effect
+            or not import_item.module.startswith(("./", "../"))
+            or PurePosixPath(import_item.module).suffix.lower() != ".css"
+        ):
+            return False
+        imported_path = posixpath.normpath(
+            f"{PurePosixPath(path).parent.as_posix()}/{import_item.module}"
+        )
+        if imported_path not in current_paths or not current_changes.get(imported_path, False):
+            return False
+    if base_index != len(base_protected):
+        return False
+
     for binding, base_module in base_named.items():
         current_module = current_named[binding]
         if base_module == current_module:

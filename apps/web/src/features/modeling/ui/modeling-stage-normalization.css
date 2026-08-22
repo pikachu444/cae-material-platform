@@ -355,19 +355,9 @@
   background: var(--ux-surface);
 }
 
-.modeling-target-preview .export-divider {
-  width: 1px;
-  min-width: 1px;
-  background: var(--ux-border-strong);
-}
-
 .modeling-target-preview :is(.export-properties, .export-main, .export-result) {
   border-radius: 0;
   box-shadow: none;
-}
-
-.modeling-target-preview .export-properties {
-  background: var(--ux-surface);
 }
 
 .modeling-target-preview .export-main > .export-preview-heading {
@@ -375,19 +365,6 @@
   width: min(calc(100% - var(--ux-space-5)), 2000px);
   margin-inline: auto;
   padding-inline: 0;
-}
-
-.modeling-target-preview .export-native-preview-shell {
-  display: flex;
-  justify-content: center;
-  min-width: 0;
-  margin-inline: var(--ux-space-3);
-}
-
-.modeling-target-preview .export-native-preview-shell
-  > .modeling-target-preview-native-scroll-shell {
-  width: min(100%, 2000px);
-  max-width: 2000px;
 }
 
 .modeling-target-preview .export-native-preview-shell
@@ -407,26 +384,8 @@
   border-radius: 0;
 }
 
-.modeling-target-preview .export-context-heading {
-  justify-content: flex-start;
-}
-
 .modeling-target-preview .export-check .ux-notice {
   background: var(--ux-surface-subtle);
-}
-
-.modeling-target-preview .export-mapping-row {
-  background: var(--ux-surface);
-}
-
-@media (min-width: 1101px) {
-  .modeling-target-preview .export-workspace-grid {
-    grid-template-columns:
-      minmax(280px, var(--ux-navigator-default-inline-size))
-      1px
-      minmax(0, 1fr)
-      minmax(300px, 360px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

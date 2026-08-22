@@ -5,9 +5,17 @@ from pathlib import Path
 _ROOT = Path(__file__).parents[2]
 _TOKENS = (_ROOT / "apps/web/src/design/tokens.css").read_text(encoding="utf-8")
 _LAYOUT = (_ROOT / "apps/web/src/design/layout.css").read_text(encoding="utf-8")
-_ACTIVITY = _LAYOUT.split(".activity-shell", 1)[1].split(
-    "/* Search-first Modeling shell", 1
-)[0]
+_ACTIVITY_OWNER = (_ROOT / "apps/web/src/features/activity/ui/activity.css").read_text(
+    encoding="utf-8"
+)
+_ACTIVITY_SHARED_SELECTOR = ".activity-cell-action .ux-button {"
+assert _ACTIVITY_SHARED_SELECTOR in _LAYOUT
+_ACTIVITY_SHARED_RULE = (
+    _ACTIVITY_SHARED_SELECTOR
+    + _LAYOUT.split(_ACTIVITY_SHARED_SELECTOR, 1)[1].split("}", 1)[0]
+    + "}"
+)
+_ACTIVITY = _ACTIVITY_OWNER + "\n" + _ACTIVITY_SHARED_RULE
 _MARKUP = (_ROOT / "apps/web/src/material-library.tsx").read_text(encoding="utf-8")
 
 

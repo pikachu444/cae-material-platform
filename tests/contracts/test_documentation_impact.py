@@ -12,6 +12,7 @@ from cmp.tools.documentation_impact import (
     DocumentationImpactException,
     _find_declarations,
     _identifier_occurrences,
+    _is_import_only_visual_change,
     _nonblank_lines,
     _parse_name_status,
     _parse_name_status_entries,
@@ -1066,6 +1067,50 @@ def test_byte_identical_css_migration_selects_sole_current_hash_proof_after_m1a0
     assert report.visual_preservation_issue == "#261"
 
 
+def test_byte_identical_css_migration_reuses_historical_evidence_for_combined_superset(
+    tmp_path: Path,
+) -> None:
+    fixture = _css_visual_preservation_fixture(tmp_path)
+    project = Path(fixture["project"])
+    first_manifest = Path(fixture["manifest"])
+    third_visual = "apps/web/src/features/activity/ui/activity.css"
+    third_path = project / third_visual
+    third_path.parent.mkdir(parents=True, exist_ok=True)
+    third_path.write_text(".activity { display: grid; }\n", encoding="utf-8")
+    _git(project, "add", ".")
+    _git(project, "commit", "-m", "record first CSS migration")
+    first_commit = _git(project, "rev-parse", "HEAD")
+
+    visual_files = (*fixture["visual_files"], third_visual)
+    for index, path in enumerate(visual_files):
+        target = project / path
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + f".combined-{index} {{ min-height: {index + 1}px; }}\n",
+            encoding="utf-8",
+        )
+
+    combined = json.loads(first_manifest.read_text(encoding="utf-8"))
+    combined["implementation_base"] = first_commit
+    combined["documentation_impact"]["source_sha"] = first_commit
+    combined["documentation_impact"]["visual_files"] = list(visual_files)
+    combined["documentation_impact"]["visual_file_sha256"] = {
+        path: hashlib.sha256((project / path).read_bytes()).hexdigest()
+        for path in visual_files
+    }
+    combined_manifest = (
+        project
+        / "docs/17-evidence/images/issue-261-css-proof-combined/manifest.json"
+    )
+    combined_manifest.parent.mkdir(parents=True, exist_ok=True)
+    combined_manifest.write_text(json.dumps(combined, indent=2) + "\n", encoding="utf-8")
+
+    report = verify_documentation_impact(project, "worktree")
+
+    assert report.byte_identical_visual_files == tuple(sorted(visual_files))
+    assert report.visual_preservation_issue == "#261"
+
+
 def test_byte_identical_css_migration_rejects_two_current_hash_proofs(tmp_path: Path) -> None:
     fixture = _css_visual_preservation_fixture(tmp_path)
     current_manifest = _add_followup_css_visual_preservation(fixture)
@@ -1210,6 +1255,38 @@ def test_import_only_relative_named_rewire_does_not_require_visual_evidence(
 
     assert report.visual_files == ()
     assert report.exempted_visual_files == ()
+
+
+def test_import_only_added_side_effect_css_is_attributed_to_changed_css(
+    tmp_path: Path,
+) -> None:
+    source_root = tmp_path / "apps/web/src"
+    source_root.mkdir(parents=True)
+    view = source_root / "view.tsx"
+    view.write_text(
+        'import "./base.css";\nexport const View = () => <div />;\n',
+        encoding="utf-8",
+    )
+    (source_root / "base.css").write_text(".base { display: block; }\n", encoding="utf-8")
+    owner = source_root / "owner.css"
+    owner.write_text(".owner { display: block; }\n", encoding="utf-8")
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "branch", "-M", "feature")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", base_sha)
+
+    view.write_text(
+        'import "./base.css";\nimport "./owner.css";\n'
+        "export const View = () => <div />;\n",
+        encoding="utf-8",
+    )
+    owner.write_text(".owner { display: grid; }\n", encoding="utf-8")
+
+    assert _is_import_only_visual_change(tmp_path, base_sha, "apps/web/src/view.tsx")
 
 
 def test_import_only_rewire_rejects_non_import_source_change(tmp_path: Path) -> None:

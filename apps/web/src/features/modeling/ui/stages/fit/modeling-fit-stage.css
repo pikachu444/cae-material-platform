@@ -1,0 +1,254 @@
+/* Issue #261 owns Fit stage-specific CSS; shared rules remain in the design layer. */
+
+.recipe-library-summary {
+  align-items: center;
+  background: #eaf4f0;
+  border: 1px solid #bdd8ce;
+  border-radius: 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.55rem 0.65rem;
+}
+
+.recipe-library-summary.draft {
+  background: #f5f1e8;
+  border-color: #dfd2b7;
+}
+
+.recipe-library-summary > span {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.recipe-library-summary strong {
+  color: #245e4b;
+  font-size: 0.7rem;
+  text-transform: capitalize;
+}
+
+.recipe-library-summary small {
+  color: var(--muted);
+  font-size: 0.63rem;
+}
+
+.curve-line.engineering-fit {
+  stroke-dasharray: 7 4;
+  stroke-width: 2;
+}
+
+.shift-factor-chart .shift-fit-line {
+  fill: none;
+  stroke: #0d8079;
+  stroke-width: 2;
+}
+
+.hyperelastic-response-plot .fitted-curve {
+  fill: none;
+  stroke-width: 2.2;
+}
+
+.elastomer-fit-stage {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.elastomer-fit-stage .engineering-diagnostics {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .elastomer-fit-stage {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .elastomer-fit-stage {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fit-context-source { max-width: min(42vw, 420px); }
+
+.fit-surface-state { color: var(--ux-text) !important; font-weight: 650; }
+
+.modeling-task-ribbon:has(.fit-stage-options) {
+  min-height: 122px;
+  max-height: none;
+  overflow: hidden;
+  border-bottom: 2px solid var(--ux-border);
+}
+
+.fit-stage-options .candidate-evidence-heading,
+.fit-stage-options > .workspace-inspector-heading {
+  display: none;
+}
+
+.fit-stage-options .candidate-check-grid {
+  position: relative;
+  height: 68px;
+  grid-template-columns: repeat(2, minmax(82px, 1fr));
+  gap: 6px;
+  padding-left: 145px;
+}
+
+.fit-stage-options .candidate-check-grid legend {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+.fit-stage-options .candidate-check-grid label {
+  min-height: 21px;
+  padding: 4px 8px;
+}
+
+.fit-stage-options > .guided-step-options { display: grid; grid-template-columns: minmax(250px, 1.2fr) minmax(150px, .72fr) minmax(170px, .8fr) minmax(145px, .68fr) minmax(170px, .8fr); align-items: end; gap: 5px 8px; }
+
+.fit-stage-options .guided-range-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+
+.fit-stage-options .guided-range-row label { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
+
+.fit-stage-options .option-hint { display: none; }
+
+.fit-stage-options .slider-option { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
+
+.fit-heading-actions { display: flex; align-items: center; min-width: 0; gap: 6px; white-space: nowrap; }
+
+.fit-stage-options > .guided-step-options { grid-template-columns: minmax(210px, 1.4fr) minmax(120px, .75fr) minmax(150px, .9fr) minmax(120px, .7fr) minmax(120px, .7fr) minmax(160px, .9fr); gap: 4px 7px; }
+
+.fit-stage-options .fit-control-group { display: grid; min-width: 0; min-height: 50px; margin: 0; padding: 2px 4px 4px; border: 0; border-left: 1px solid var(--ux-border); }
+
+.fit-stage-options .fit-control-group:first-child { border-left: 0; }
+
+.fit-stage-options .fit-control-group legend { padding: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
+
+.fit-stage-options .candidate-check-grid { position: static; height: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 5px; padding-left: 4px; }
+
+.fit-stage-options .candidate-check-grid legend { position: static; transform: none; }
+
+.fit-stage-options .candidate-check-grid label { min-height: 18px; padding: 1px 2px; font-size: 10px; }
+
+.fit-stage-options .fit-control-group > label { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 10px; }
+
+.fit-stage-options .graph-interaction-group > div { display: flex; flex-wrap: wrap; gap: 3px; align-content: start; }
+
+.fit-stage-options .graph-interaction-group button { min-height: 21px; padding: 2px 5px; font-size: 10px; }
+
+.fit-stage-options > .advanced-workflow-settings { display: none; }
+
+.fit-candidate-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.fit-candidate-table {
+  width: 100%;
+  min-width: 840px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: var(--ux-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fit-candidate-table th,
+.fit-candidate-table td {
+  padding: 5px 7px;
+  border-bottom: 1px solid var(--ux-border);
+  text-align: left;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.fit-candidate-table thead th {
+  color: var(--ux-text-muted);
+  background: var(--ux-surface-subtle);
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.fit-candidate-table th:nth-child(1) { width: 92px; }
+
+.fit-candidate-table th:nth-child(2) { width: 140px; }
+
+.fit-candidate-table th:nth-child(3) { width: 128px; min-width: 128px; }
+
+.fit-candidate-table th:nth-child(4) { width: 150px; }
+
+.fit-candidate-table th:nth-child(5) { width: 150px; min-width: 150px; }
+
+.fit-candidate-table th:nth-child(6) { width: 105px; }
+
+.fit-candidate-table th:nth-child(7) { width: 120px; min-width: 120px; }
+
+.fit-candidate-table th:nth-child(8) { width: 110px; min-width: 110px; }
+
+.fit-candidate-table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.fit-candidate-table tbody th,
+.fit-candidate-table tbody td:nth-child(4) {
+  display: table-cell;
+}
+
+.fit-candidate-table tbody :is(th, td:nth-child(4)) strong,
+.fit-candidate-table tbody :is(th, td:nth-child(4)) small {
+  display: block;
+}
+
+.fit-candidate-table tbody small {
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.fit-candidate-table button {
+  min-height: 26px;
+  padding: 3px 8px;
+  border: 1px solid var(--ux-border-strong);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-text);
+  background: var(--ux-surface);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+
+.fit-candidate-table button:hover,
+.fit-candidate-table button[aria-pressed="true"] {
+  border-color: var(--ux-accent);
+  color: var(--ux-accent-strong);
+  background: var(--ux-accent-soft);
+}
+
+.selected-parameter-inspector .fit-candidate-table {
+  margin-bottom: var(--ux-space-2);
+}
+
+.fit-candidate-table th,
+.fit-candidate-table td {
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+}
+
+.fit-candidate-table {
+  font-size: var(--ux-data-font-size);
+}
+
+.fit-candidate-table thead th,
+.fit-candidate-table tbody small {
+  font-size: var(--ux-table-heading-font-size);
+}
+
+.fit-candidate-table button {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+}

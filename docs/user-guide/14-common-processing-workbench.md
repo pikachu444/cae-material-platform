@@ -611,3 +611,21 @@ Polymer relaxation/DMA와 Elastomer multi-mode/holdout graph/task 흐름도 T-89
 
 내부 API와 자료형의 소유 위치는 Modeling 기능 아래로 정리됐습니다. 화면, 버튼 순서, HTTP 요청,
 exact revision 연결, 새로고침 복원, 저장 결과와 Solver Card 형식은 기존과 같습니다.
+
+Data, Process, Fit, Export 화면의 스타일도 각 stage 소유 파일로 정리됐습니다. 사용자가 보는 작업
+순서와 저장·복구 동작은 바뀌지 않습니다. exact Test Data와 Mapping Profile을 선택한 뒤 Process 결과를
+저장하고, Fit 후보를 명시적으로 선택·저장한 다음 Export check와 Solver Card 생성을 진행하는 기존
+경로가 그대로 유지됩니다. 이 정리는 화면 재설계가 아니며 shared shell, M1E 경계와 다른 기능의
+스타일에는 영향을 주지 않습니다.
+
+### Issue #261 B4 combined CSS ownership evidence provenance
+
+The completed combined ownership batch is recorded in
+[`Issue #261 B4 evidence`](../17-evidence/issue-261-b4-css-ownership-integration.md) and its
+[`structured image manifest`](../17-evidence/issue-261-b4-css-ownership-integration-manifest.json).
+It preserves the exact Data → Process → Fit → Export session, Administration plan → confirm →
+apply/read-back, and Activity error/recovery journeys across five CSS viewports at browser zoom
+100%. Main original-resolution review passed the Carbon hierarchy, COMSOL engineering flow and SAP
+responsive logic checks; 207 PNG and 8 JSON artifacts remain retained as task evidence. Physical
+Windows 4K readability remains the #223 gate, and no user-facing workflow or exact-revision contract
+is changed by this provenance entry.
