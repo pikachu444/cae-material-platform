@@ -2369,25 +2369,6 @@
 .fit-candidate-status.blocked,
 .fit-candidate-warning { color: var(--ux-warning); }
 
-.selected-candidate-parameters {
-  margin-top: var(--ux-space-2);
-  border-top: 1px solid var(--ux-border);
-}
-
-.selected-parameter-inspector {
-  margin: var(--ux-space-2) 0;
-  border-top: 1px solid var(--ux-border);
-  border-bottom: 1px solid var(--ux-border);
-}
-
-.selected-parameter-inspector > summary {
-  padding: var(--ux-space-2) 0;
-  color: var(--ux-text-muted);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 750;
-}
-
 .modeling-data-advanced {
   order: 10;
 }
@@ -4147,10 +4128,6 @@
   box-shadow: var(--ux-shadow-overlay);
 }
 
-.selected-parameter-inspector > summary {
-  font-size: var(--ux-table-heading-font-size);
-}
-
 .application-shell main.processing-workbench-page .fit-evidence-drawer {
   grid-template-rows: var(--ux-interactive-min-block-size) minmax(0, 1fr);
 }
@@ -4180,32 +4157,6 @@
 
 .application-shell main.processing-workbench-page .fit-evidence-body {
   padding: var(--ux-pane-padding);
-}
-
-/* Distribution analysis is an explicit, optional workspace sheet. The
-   underlying Process workspace stays mounted and keeps its engineering state;
-   opening analysis does not resize the graph or create a parallel route. */
-.modeling-context-actions .modeling-analysis-trigger {
-  min-height: var(--ux-interactive-min-block-size);
-  padding-inline: var(--ux-space-2);
-  font-size: var(--ux-data-font-size);
-  font-weight: 650;
-}
-
-.modeling-workspace-shell.has-distribution-analysis {
-  position: relative;
-  isolation: isolate;
-}
-
-.distribution-analysis-sheet {
-  position: absolute;
-  z-index: 9;
-  inset: 0;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  border: 1px solid var(--ux-border-strong);
-  background: var(--ux-surface);
 }
 
 .distribution-analysis-sheet .scalar-distribution-workbench {
@@ -4870,7 +4821,6 @@
   border-top: 2px solid var(--ux-text);
 }
 .distribution-plot-legend .empirical i { border-top-style: dashed; border-top-width: 3px; }
-.distribution-plot-legend .normal i { border-color: #245ea8; }
 .distribution-plot-legend .lognormal i { border-color: #087f73; }
 .distribution-plot-legend .weibull i { border-color: #a45a13; }
 

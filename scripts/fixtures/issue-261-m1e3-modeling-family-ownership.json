@@ -1,0 +1,57 @@
+{
+  "version": "issue-261-m1e3-modeling-family-ownership.v1",
+  "baseSha": "7e198e58d400cfbb54a1da9006c1e084bdf3ec09",
+  "frozenInventory": {
+    "path": "docs/17-evidence/issue-261-css-selector-inventory.json",
+    "sha256": "e894bc387cb26ee669afb02ec6e625d88c7684f5a030f330c5e6e75ed45e57f7"
+  },
+  "tupleSchema": ["id", "source.path", "ruleIndex", "selectorIndex", "selector", "atContext", "declarations.signatureSha256"],
+  "targetTupleSha256": "ad02e6533379a27e7219c62763abe2369a6a2b7e36d4b9ee2c10780171485854",
+  "aggregate": {
+    "targetRows": 151,
+    "targetGroups": 139,
+    "fullGroupRemovals": 130,
+    "mixedGroupShrinks": 9,
+    "residualBefore": {"selectorRows": 1772, "cssRuleGroups": 1473, "m1eRows": 383, "m1eGroups": 327, "crossCssDuplicateRows": 7},
+    "expectedAfter": {"selectorRows": 1621, "cssRuleGroups": 1343, "m1eRows": 232, "m1eGroups": 188, "crossCssDuplicateRows": 6},
+    "excluded": {"crossRouteRows": 62, "crossRouteGroups": 52, "coreRows": 170, "coreGroups": 136}
+  },
+  "moves": [
+    {
+      "name": "modeling engineering curve plot",
+      "target": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "importers": ["apps/web/src/engineering-curve-plot.tsx"],
+      "rows": 33,
+      "groups": 32,
+      "ids": ["CSS-0307", "CSS-0308", "CSS-0309", "CSS-0696", "CSS-0707", "CSS-0708", "CSS-0709", "CSS-0834", "CSS-1013", "CSS-1016", "CSS-1017", "CSS-1018", "CSS-1019", "CSS-1020", "CSS-1365", "CSS-1375", "CSS-1376", "CSS-1377", "CSS-1378", "CSS-1379", "CSS-1387", "CSS-1388", "CSS-1389", "CSS-1390", "CSS-1391", "CSS-1422", "CSS-1423", "CSS-1426", "CSS-1427", "CSS-1429", "CSS-1430", "CSS-1431", "CSS-1432"]
+    },
+    {
+      "name": "modeling calibration workbenches",
+      "target": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "importers": ["apps/web/src/reference-calibration-workbench.tsx", "apps/web/src/reference-ogden-calibration-workbench.tsx", "apps/web/src/reference-validation-workbench.tsx", "apps/web/src/reference-voce-calibration-workbench.tsx"],
+      "rows": 22,
+      "groups": 20,
+      "ids": ["CSS-0925", "CSS-0963", "CSS-0964", "CSS-0985", "CSS-0991", "CSS-0993", "CSS-0996", "CSS-0997", "CSS-1006", "CSS-1007", "CSS-1008", "CSS-1009", "CSS-1010", "CSS-1011", "CSS-1012", "CSS-1172", "CSS-1173", "CSS-1175", "CSS-1176", "CSS-1217", "CSS-1219", "CSS-1220"]
+    },
+    {
+      "name": "modeling export delivery workbenches",
+      "target": "apps/web/src/features/modeling/ui/modeling-export-delivery-workbenches.css",
+      "importers": ["apps/web/src/modeling-stage-shell.tsx"],
+      "importOrder": ["./features/modeling/ui/stages/export/modeling-export-stage.css", "./features/modeling/ui/modeling-export-delivery-workbenches.css", "./features/modeling/ui/modeling-stage-normalization.css"],
+      "rows": 70,
+      "groups": 63,
+      "ids": ["CSS-1027", "CSS-1028", "CSS-1029", "CSS-1030", "CSS-1031", "CSS-1035", "CSS-1036", "CSS-1037", "CSS-1040", "CSS-1041", "CSS-1043", "CSS-1044", "CSS-1045", "CSS-1046", "CSS-1047", "CSS-1048", "CSS-1049", "CSS-1050", "CSS-1051", "CSS-1052", "CSS-1057", "CSS-1058", "CSS-1059", "CSS-1060", "CSS-1061", "CSS-1062", "CSS-1063", "CSS-1064", "CSS-1065", "CSS-1066", "CSS-1067", "CSS-1068", "CSS-1069", "CSS-1070", "CSS-1071", "CSS-1072", "CSS-1073", "CSS-1074", "CSS-1075", "CSS-1079", "CSS-1080", "CSS-1081", "CSS-1090", "CSS-1105", "CSS-1106", "CSS-1107", "CSS-1108", "CSS-1109", "CSS-1110", "CSS-1111", "CSS-1112", "CSS-1158", "CSS-1159", "CSS-1160", "CSS-1161", "CSS-1162", "CSS-1163", "CSS-1164", "CSS-1697", "CSS-1698", "CSS-1699", "CSS-1700", "CSS-1703", "CSS-1704", "CSS-1709", "CSS-1710", "CSS-1711", "CSS-1712", "CSS-1713", "CSS-1715"]
+    },
+    {
+      "name": "modeling viscoelastic workbenches",
+      "target": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "importers": ["apps/web/src/reference-linear-viscoelastic-workbench.tsx", "apps/web/src/reference-ogden-prony-workbench.tsx", "apps/web/src/reference-shear-relaxation-workflow.tsx", "apps/web/src/viscoelastic-master-workbench.tsx"],
+      "rows": 26,
+      "groups": 24,
+      "ids": ["CSS-0876", "CSS-1716", "CSS-1717", "CSS-1718", "CSS-1729", "CSS-1732", "CSS-1733", "CSS-1734", "CSS-1743", "CSS-1745", "CSS-1746", "CSS-1747", "CSS-1749", "CSS-1750", "CSS-1752", "CSS-1754", "CSS-1755", "CSS-1756", "CSS-1757", "CSS-1758", "CSS-1760", "CSS-1761", "CSS-1763", "CSS-1764", "CSS-1765", "CSS-1772"]
+    }
+  ],
+  "preservedPeers": ["CSS-0873", "CSS-0874", "CSS-0875", "CSS-0924", "CSS-1104", "CSS-1171", "CSS-1174", "CSS-1177", "CSS-1218", "CSS-1701", "CSS-1702", "CSS-1748", "CSS-1753"],
+  "crossRouteComplement": {"rows": 62, "groups": 52},
+  "coreComplement": {"rows": 170, "groups": 136}
+}

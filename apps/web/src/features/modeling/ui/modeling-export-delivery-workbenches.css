@@ -1,0 +1,439 @@
+.workflow-stack {
+display: grid;
+  gap: 0.75rem;
+}
+
+.workflow-step {
+display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid #d3e5e1;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 78%);
+}
+
+.workflow-step > strong {
+color: #244a52;
+  font-size: 0.86rem;
+}
+
+.workflow-step > small {
+color: #587279;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.statistics-result {
+display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid #c9dbd7;
+  border-radius: 7px;
+  background: #f9fdfc;
+}
+
+.statistics-definition-list {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+.statistics-definition-list div {
+grid-template-columns: 1fr;
+  gap: 0.2rem;
+  padding: 0.45rem;
+  border: 1px solid #dce9e4;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.mapping-report {
+display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  border: 1px solid #c5deda;
+  border-radius: 7px;
+  background: #f9fdfc;
+}
+
+.mapping-report-heading strong {
+color: #28525b;
+  font-size: 0.82rem;
+}
+
+.mapping-report > small {
+color: #698088;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+}
+
+.reviewed-delivery {
+border: 1px solid #8cbcb5;
+  background: linear-gradient(180deg, #f4fbf9 0%, #ffffff 38%);
+  box-shadow: 0 12px 30px rgb(25 79 75 / 9%);
+}
+
+.delivery-progress {
+display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0.4rem 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+
+
+.delivery-progress li {
+position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.08rem 0.45rem;
+  align-items: center;
+  padding: 0.65rem 0.7rem;
+  border-top: 1px solid #c9dedb;
+  border-bottom: 1px solid #c9dedb;
+  background: #f5f8f8;
+}
+
+.delivery-progress li:first-child {
+border-left: 1px solid #c9dedb;
+  border-radius: 8px 0 0 8px;
+}
+
+.delivery-progress li:last-child {
+border-right: 1px solid #c9dedb;
+  border-radius: 0 8px 8px 0;
+}
+
+.delivery-progress li > span {
+grid-row: 1 / span 2;
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #dce8e6;
+  color: #58716f;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.delivery-progress li strong,
+.delivery-progress li small {
+min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delivery-progress li strong {
+color: #345753;
+  font-size: 0.72rem;
+}
+
+
+.delivery-progress li small {
+color: #728582;
+  font-size: 0.64rem;
+}
+
+.delivery-evidence {
+display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid #d5e5e2;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.delivery-evidence-heading {
+display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.delivery-evidence-heading > div {
+display: grid;
+  gap: 0.18rem;
+}
+
+.delivery-evidence-heading small {
+color: #657d79;
+  text-transform: capitalize;
+}
+
+.delivery-evidence dl {
+display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+}
+
+
+.delivery-evidence dl > div {
+display: grid;
+  gap: 0.14rem;
+  padding: 0.55rem;
+  border-radius: 6px;
+  background: #f5f8f8;
+}
+
+.delivery-evidence dt {
+color: #69817d;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.delivery-evidence dd {
+min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #2d4d49;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.69rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delivery-warnings {
+margin: 0;
+  padding: 0.6rem 0.8rem 0.6rem 1.7rem;
+  border: 1px solid #efd8a3;
+  border-radius: 6px;
+  background: #fff9e8;
+  color: #72591f;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 760px) {
+  .delivery-progress,
+  .delivery-evidence dl {
+  grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .delivery-progress li,
+  .delivery-progress li:first-child,
+  .delivery-progress li:last-child {
+  border: 1px solid #c9dedb;
+      border-radius: 6px;
+  }
+}
+
+
+.mapping-list {
+display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mapping-list li {
+display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  padding-top: 0.55rem;
+  border-top: 1px solid #e1ecea;
+}
+
+.mapping-list li div {
+display: grid;
+  gap: 0.16rem;
+}
+
+.mapping-list strong {
+color: #36535b;
+  font-size: 0.76rem;
+  text-transform: capitalize;
+}
+
+.mapping-list small {
+color: #668087;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.mapping-status.missing,
+.mapping-status.stale,
+.mapping-status.not-supported {
+border-color: #e6b3a8;
+  color: #923b2b;
+  background: #fff2ee;
+}
+
+
+.target-delivery-action {
+display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.mapping-scroll {
+scrollbar-gutter: stable; overflow: auto;
+}
+
+.mapping-sheet {
+min-width: 0;
+}
+
+.mapping-scroll {
+max-height: 290px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+
+.mapping-scroll table {
+width: 100%; border-collapse: collapse; font-size: 0.72rem;
+}
+
+.mapping-scroll th,
+.mapping-scroll td {
+padding: 0.48rem 0.35rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line);
+}
+
+
+.mapping-scroll thead th {
+color: var(--muted); font-size: 0.67rem; font-weight: 650;
+}
+
+.mapping-scroll tbody th {
+font-weight: 650;
+}
+
+.reference-elastoplastic-workbench {
+display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #bbcadf;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgb(239 246 255 / 92%),
+    rgb(251 253 255 / 96%)
+  );
+}
+
+.elastoplastic-workflow-stack .workflow-step {
+border-color: #d2dfef;
+  background: rgb(255 255 255 / 90%);
+}
+
+.acknowledgement-row {
+display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  padding: 0.75rem;
+  border: 1px solid #e0c48b;
+  border-radius: 6px;
+  color: #60491d;
+  background: #fff9e9;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.acknowledgement-row input {
+width: auto;
+  margin-top: 0.15rem;
+}
+
+
+.transformation-facts {
+display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.transformation-facts span {
+padding: 0.55rem 0.65rem;
+  border: 1px solid #d9e3ef;
+  border-radius: 5px;
+  color: #3d536d;
+  background: #f7faff;
+  font-size: 0.76rem;
+}
+
+.curve-origin-legend {
+display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #526d6a;
+  font-size: 0.75rem;
+}
+
+.embedded-delivery-heading {
+align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.embedded-delivery-heading h3 {
+font-size: 0.95rem;
+  margin: 0.08rem 0 0;
+}
+
+.reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack {
+align-items: start;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 300px minmax(560px, 1fr);
+}
+
+
+.reference-elastoplastic-workbench.embedded .workflow-toolbar {
+grid-column: 1 / -1;
+}
+
+.reference-elastoplastic-workbench.embedded .transformation-facts {
+font-size: 0.68rem;
+}
+
+.reference-elastoplastic-workbench.embedded .workflow-step {
+border-radius: 8px;
+  padding: 0.7rem;
+}
+
+.delivery-readonly-field {
+background: #f1f5f4;
+  border: 1px solid #d7e0df;
+  border-radius: 6px;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+}
+
+.delivery-readonly-field span {
+color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.delivery-readonly-field strong {
+font-size: 0.78rem;
+}
+
+
+.delivery-readonly-field small {
+color: var(--muted);
+  font-size: 0.6rem;
+}
+
+.mapping-status-legend {
+border-top: 1px solid #dde5e4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+}
+
+@media (max-width: 1100px) {
+  .reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack {
+  grid-template-columns: 1fr;
+  }
+}

@@ -641,3 +641,17 @@ apply/read-back, and Activity error/recovery journeys across five CSS viewports 
 responsive logic checks; 207 PNG and 8 JSON artifacts remain retained as task evidence. Physical
 Windows 4K readability remains the #223 gate, and no user-facing workflow or exact-revision contract
 is changed by this provenance entry.
+
+### Issue #261 M1E3 Modeling family CSS ownership provenance
+
+The constitutive/reference-family styles used by engineering curves, calibration, Export delivery,
+elastoplastic preview, viscoelasticity and elastomer comparison now live with their Modeling
+producers. This changes stylesheet ownership only. The exact Test Data → Process → Fit → explicit
+saved model → Export journey, selected-model identity, acknowledgement, solver preview, recovery and
+route aliases remain unchanged.
+
+The [M1E3 evidence](../17-evidence/issue-261-m1e3-modeling-family-ownership.md) registers frozen-base
+and current Product/Storybook states at browser zoom 100%, including all five CSS viewports, direct
+100%-pixel crops, generated bundle provenance, and reload read-back. No current-guide PNG is replaced
+because the move is behavior-preserving. Automated 3840×2160 proves geometry only; physical Windows
+4K readability remains the #223 gate.

@@ -4,6 +4,9 @@
 }
 
 .icon-button {
+  border: 0;
+  color: inherit;
+  background: transparent;
   width: 30px;
   height: 30px;
   border-radius: 5px;
@@ -290,4 +293,143 @@
 
 .elastomer-baseline-editor {
   margin: 0;
+}
+
+
+.polymer-step-options .engineering-callout {
+border-color: #bfd9e5;
+  background: linear-gradient(135deg, #f5fbfd, #eef7fa);
+}
+
+.prony-count-grid {
+grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.prony-candidate-evidence {
+display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #d8e1e4;
+}
+
+.prony-selected-term.header {
+border-top: 0;
+  background: #f5f8f9;
+  color: #587078;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.curve-line.prony-observed {
+stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.curve-line.prony-candidate {
+stroke-width: 1.5;
+  opacity: 0.74;
+}
+
+
+.curve-line.prony-selected {
+stroke-width: 3;
+  stroke-dasharray: 8 3;
+}
+
+.master-curve-workbench.compact .selection-grid {
+grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-height: 180px;
+  overflow: auto;
+}
+
+.master-curve-result-grid {
+display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(420px, 1.3fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.reference-linear-viscoelastic-workbench.embedded {
+display: grid;
+  gap: 14px;
+}
+
+.reference-linear-viscoelastic-workbench.embedded
+  .viscoelastic-result.embedded {
+display: grid;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.reference-linear-viscoelastic-workbench.embedded
+  .viscoelastic-result.embedded
+  > .viscoelastic-facts {
+display: none;
+}
+
+
+@media (max-width: 1280px) {
+  .prony-count-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .master-curve-workbench.compact .selection-grid,
+  .master-curve-result-grid {
+  grid-template-columns: 1fr;
+  }
+}
+
+.modeling-elastomer-workspace {
+min-height: min(760px, calc(100vh - 190px));
+  padding: 12px;
+  border: 1px solid #d6e0df;
+  border-radius: 10px;
+  background: #f5f8f7;
+}
+
+.modeling-elastomer-workspace .family-modeling-panel {
+gap: 10px;
+}
+
+.modeling-elastomer-workspace .family-modeling-heading {
+display: none;
+}
+
+.modeling-elastomer-workspace .family-context-bar {
+padding: 10px;
+}
+
+
+.elastomer-baseline-editor > summary,
+.elastomer-recovery-tools > summary {
+font-size: 0.72rem;
+}
+
+.ogden-calibration-workbench > .inline-action {
+margin: -5px 2px 0;
+  justify-content: space-between;
+}
+
+.elastomer-recovery-tools .workflow-step {
+margin: 0;
+}
+
+.ogden-calibration-workbench .statistics-result {
+display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d8e3e2;
+  border-radius: 9px;
+  background: #fafcfc;
+}
+
+.elastomer-prony-overlay .form-hint {
+margin: 0;
 }
