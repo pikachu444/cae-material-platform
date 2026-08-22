@@ -1,0 +1,957 @@
+{
+  "baseAuthority": "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals",
+  "browserZoomPercent": 100,
+  "counts": {
+    "aliases": 4,
+    "crops": 80,
+    "originals": 20
+  },
+  "devicePixelRatio": 1,
+  "files": [
+    {
+      "category": "alias",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/alias/modeling-data-alias-1440x900.png",
+      "sha256": "b02c28da6c6f88f0377f141175b34553b0b00e33c20b72d6fbebc8513af8860e",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "alias",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/alias/modeling-export-alias-1440x900.png",
+      "sha256": "fa9797e515ac71a4e949756b91dde92525ba141a990854241ca33d7a4ce45b1b",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "alias",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/alias/modeling-fit-alias-1440x900.png",
+      "sha256": "51865371f2bab96c18a4226310bf11c25beb6140df0be44065c6e45c9b343a3e",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "alias",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/alias/modeling-process-alias-1440x900.png",
+      "sha256": "083f903a4e67b6c1e4a638fba5d41b6b28fbd0bf042f29aabfe2d3fb87d65d4e",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 219,
+      "path": "after/crops/modeling-data-1366x768-controls-100pct.png",
+      "sha256": "480ec47ec962d45a5f3c76ef2fd28ab1f248fff5631442c70be86080184cbf7b",
+      "viewport": "1366x768",
+      "width": 1045
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 332,
+      "path": "after/crops/modeling-data-1366x768-graph-100pct.png",
+      "sha256": "bfa9acbbd4fbb9c436d3351b616e7e9aea704946b1d16a71f4660c40d9702adb",
+      "viewport": "1366x768",
+      "width": 1073
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-data-1366x768-header-100pct.png",
+      "sha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 567,
+      "path": "after/crops/modeling-data-1366x768-navigator-100pct.png",
+      "sha256": "af1a195341239a2801e85e4ebe90d7dbdee7d91e24e6827d039cf55252a535ff",
+      "viewport": "1366x768",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 219,
+      "path": "after/crops/modeling-data-1440x900-controls-100pct.png",
+      "sha256": "af8b986843b06bc8c6f3fd4c6b285cfd1f19cba10211b42e2902ce77d41287d0",
+      "viewport": "1440x900",
+      "width": 1119
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 464,
+      "path": "after/crops/modeling-data-1440x900-graph-100pct.png",
+      "sha256": "576d2cf86bd7f612822ae71a031daddff0bc32f086b80f6e25584f831d1a3a7f",
+      "viewport": "1440x900",
+      "width": 1147
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-data-1440x900-header-100pct.png",
+      "sha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 699,
+      "path": "after/crops/modeling-data-1440x900-navigator-100pct.png",
+      "sha256": "606c66a781c80a4e5093bc95ec7d61189c8a62a00a2c2d9600c6f26f1a3ccb66",
+      "viewport": "1440x900",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 219,
+      "path": "after/crops/modeling-data-1920x1080-controls-100pct.png",
+      "sha256": "de86b2940cfdd695f83be2ff40eb9490694091ca7f3477f562cb184f29e86e6d",
+      "viewport": "1920x1080",
+      "width": 1599
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 644,
+      "path": "after/crops/modeling-data-1920x1080-graph-100pct.png",
+      "sha256": "18b22a52e16e58163b0a64e990eb66ec162fcca66a4f4065902550cf606b8795",
+      "viewport": "1920x1080",
+      "width": 1627
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-data-1920x1080-header-100pct.png",
+      "sha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 879,
+      "path": "after/crops/modeling-data-1920x1080-navigator-100pct.png",
+      "sha256": "7fa3d42d6382c0ea2ef5bdd35caf5d2fec8c072617b7761b51ab6facab76c243",
+      "viewport": "1920x1080",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 219,
+      "path": "after/crops/modeling-data-2560x1440-controls-100pct.png",
+      "sha256": "9ee368a928fa1b244050f3829f6026e68552d45472e473c3e20719f5a0a43e67",
+      "viewport": "2560x1440",
+      "width": 2239
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1004,
+      "path": "after/crops/modeling-data-2560x1440-graph-100pct.png",
+      "sha256": "a0c757a094154ec670603c87f6120357feee6b5cf12b474cadf57c474a59df0e",
+      "viewport": "2560x1440",
+      "width": 2267
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-data-2560x1440-header-100pct.png",
+      "sha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 1239,
+      "path": "after/crops/modeling-data-2560x1440-navigator-100pct.png",
+      "sha256": "e0174f6807b9d61668191d21b322ff99ab1726e04f419378b0b60e9f5d88a7d9",
+      "viewport": "2560x1440",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 219,
+      "path": "after/crops/modeling-data-3840x2160-controls-100pct.png",
+      "sha256": "f48d1dcb2533d47e1e18231deee4aefae4f024bcce5f4cbab25d9ca43de22a4e",
+      "viewport": "3840x2160",
+      "width": 3519
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1200,
+      "path": "after/crops/modeling-data-3840x2160-graph-100pct.png",
+      "sha256": "e5b73ce3681327d86d96223e557f4440d3518264a76b8d2c63d9438e21430df2",
+      "viewport": "3840x2160",
+      "width": 2801
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-data-3840x2160-header-100pct.png",
+      "sha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 1959,
+      "path": "after/crops/modeling-data-3840x2160-navigator-100pct.png",
+      "sha256": "219d581c0db10e94775795fcbf13c2075b019529bd7726f4e7045044f7757c5d",
+      "viewport": "3840x2160",
+      "width": 289
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 600,
+      "path": "after/crops/modeling-export-1366x768-controls-100pct.png",
+      "sha256": "2058ec60e1ee732b48fb1ec69d1af1914d8c4cfb81b327d90061112568647837",
+      "viewport": "1366x768",
+      "width": 360
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 537,
+      "path": "after/crops/modeling-export-1366x768-graph-100pct.png",
+      "sha256": "f07df1b1bcdf7c90ab9daf1453380bc93ce7aa35367646bf8d1a5c9a92f04b45",
+      "viewport": "1366x768",
+      "width": 689
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-export-1366x768-header-100pct.png",
+      "sha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 600,
+      "path": "after/crops/modeling-export-1366x768-navigator-100pct.png",
+      "sha256": "afa41c12459b10652b6c210696d9ed8f83baa33f926c0fc25034afa73311afc8",
+      "viewport": "1366x768",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 732,
+      "path": "after/crops/modeling-export-1440x900-controls-100pct.png",
+      "sha256": "75507a27088840961c70c543da10910aa4c374d6d020d21db27a52ea3ac751a9",
+      "viewport": "1440x900",
+      "width": 360
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 669,
+      "path": "after/crops/modeling-export-1440x900-graph-100pct.png",
+      "sha256": "272665426f54a002f6b6321f1ff539cd38c0f3e92239d522481c884e3dd0a044",
+      "viewport": "1440x900",
+      "width": 763
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-export-1440x900-header-100pct.png",
+      "sha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 732,
+      "path": "after/crops/modeling-export-1440x900-navigator-100pct.png",
+      "sha256": "290f234af3bde1d125183dae7b65be1f745062f54febafa749437c99a2e093f7",
+      "viewport": "1440x900",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 912,
+      "path": "after/crops/modeling-export-1920x1080-controls-100pct.png",
+      "sha256": "019f377852a19bb87412df90654e3007572b43fa207e7589de2f1cfe04b5437c",
+      "viewport": "1920x1080",
+      "width": 360
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 849,
+      "path": "after/crops/modeling-export-1920x1080-graph-100pct.png",
+      "sha256": "104f84dd7c8cf98ec19b16726bf15e4a9d17e7ccf578d20da429bed921ea5b5d",
+      "viewport": "1920x1080",
+      "width": 1243
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-export-1920x1080-header-100pct.png",
+      "sha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 912,
+      "path": "after/crops/modeling-export-1920x1080-navigator-100pct.png",
+      "sha256": "d260fd7cac584caa0f904f7aa4a383545f2fea097c9a9e9ec8506eaaa970a78d",
+      "viewport": "1920x1080",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 1272,
+      "path": "after/crops/modeling-export-2560x1440-controls-100pct.png",
+      "sha256": "85f80b73109811f6e16733e00c0375446e829f04570d9f76bb0c502ff95bed2d",
+      "viewport": "2560x1440",
+      "width": 360
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1209,
+      "path": "after/crops/modeling-export-2560x1440-graph-100pct.png",
+      "sha256": "5838eec637ab19a8f5f13e9160833566260a0c39f0e7048bfb7e652bed245b54",
+      "viewport": "2560x1440",
+      "width": 1883
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-export-2560x1440-header-100pct.png",
+      "sha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 1272,
+      "path": "after/crops/modeling-export-2560x1440-navigator-100pct.png",
+      "sha256": "144de30006e849b3bfa6284fc16a639eed0aaa02eaf6efbda66f3c0a3d4393d2",
+      "viewport": "2560x1440",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 1992,
+      "path": "after/crops/modeling-export-3840x2160-controls-100pct.png",
+      "sha256": "7a33d4f25a239e61db5fedb0231fe39f82f8482c7420eb8e948a8755f65e7e3c",
+      "viewport": "3840x2160",
+      "width": 360
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1929,
+      "path": "after/crops/modeling-export-3840x2160-graph-100pct.png",
+      "sha256": "291baefb4904d9c5accea41c935e416d56e01e748cc13f3eea24ab9920bd0d2e",
+      "viewport": "3840x2160",
+      "width": 3163
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-export-3840x2160-header-100pct.png",
+      "sha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 1992,
+      "path": "after/crops/modeling-export-3840x2160-navigator-100pct.png",
+      "sha256": "d8df856b58112dd374390b7062de5e9ece1200928c7c86483250f90c9c0166c0",
+      "viewport": "3840x2160",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 180,
+      "path": "after/crops/modeling-fit-1366x768-controls-100pct.png",
+      "sha256": "5e087e5ee47a9439b2cb4a5821125c5058b68fad0355fba27d03bf10739449f0",
+      "viewport": "1366x768",
+      "width": 1073
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 451,
+      "path": "after/crops/modeling-fit-1366x768-graph-100pct.png",
+      "sha256": "acab35921df668c0ea229cbda1a3f59ce5cce2853d5bbd5cedbaf60c7020ba93",
+      "viewport": "1366x768",
+      "width": 1073
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-fit-1366x768-header-100pct.png",
+      "sha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 632,
+      "path": "after/crops/modeling-fit-1366x768-navigator-100pct.png",
+      "sha256": "aa28ab17a1559d263f1a0d73261d9767a90f92b6f7f29255de18a4c5e81da025",
+      "viewport": "1366x768",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 180,
+      "path": "after/crops/modeling-fit-1440x900-controls-100pct.png",
+      "sha256": "7a9b9a836f72e298308ec28697e97a873dbaee3c765c3e3be29c59e7c58cb773",
+      "viewport": "1440x900",
+      "width": 1147
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 583,
+      "path": "after/crops/modeling-fit-1440x900-graph-100pct.png",
+      "sha256": "2923424206ca55f4b96907ebd4939c1ac42b9f1db5f23d956b480ff096a44a01",
+      "viewport": "1440x900",
+      "width": 1147
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-fit-1440x900-header-100pct.png",
+      "sha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 764,
+      "path": "after/crops/modeling-fit-1440x900-navigator-100pct.png",
+      "sha256": "49d44bf87e823f6d65917aacbaf4c04cc790e12dc6e25643efc01b0e34df0c56",
+      "viewport": "1440x900",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 180,
+      "path": "after/crops/modeling-fit-1920x1080-controls-100pct.png",
+      "sha256": "3413c7c499668f6ce8d296f60cc5b7ed4ba4850ca3f84042f52af3fb53ec1f7f",
+      "viewport": "1920x1080",
+      "width": 1627
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 763,
+      "path": "after/crops/modeling-fit-1920x1080-graph-100pct.png",
+      "sha256": "c148199a4eeb35b4130db1c944694904b13cf93f4073960a5993ff925d0a3f3c",
+      "viewport": "1920x1080",
+      "width": 1627
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-fit-1920x1080-header-100pct.png",
+      "sha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 944,
+      "path": "after/crops/modeling-fit-1920x1080-navigator-100pct.png",
+      "sha256": "d7793047671a0084acb5cda397ab0626b1c187507541ebc0f4b00ea46f0e754d",
+      "viewport": "1920x1080",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 180,
+      "path": "after/crops/modeling-fit-2560x1440-controls-100pct.png",
+      "sha256": "d598f2993e61cc6b9329d412ffbc3c73ee06a5044a71d317d62cd566cc7bb9b6",
+      "viewport": "2560x1440",
+      "width": 2101
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1123,
+      "path": "after/crops/modeling-fit-2560x1440-graph-100pct.png",
+      "sha256": "409bf9557eb3e0c092480d6cbd40ab2354686ba1dbf86b4ce583fe899c4db3e4",
+      "viewport": "2560x1440",
+      "width": 2267
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-fit-2560x1440-header-100pct.png",
+      "sha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 1304,
+      "path": "after/crops/modeling-fit-2560x1440-navigator-100pct.png",
+      "sha256": "5669258a819db10f2765329e672ae8dbf64dd42b52a406f01c98732f965d04eb",
+      "viewport": "2560x1440",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 180,
+      "path": "after/crops/modeling-fit-3840x2160-controls-100pct.png",
+      "sha256": "c2aabaf199db72027073f5beb8634197072478752d83bf42b0e65e57b634d652",
+      "viewport": "3840x2160",
+      "width": 2101
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1281,
+      "path": "after/crops/modeling-fit-3840x2160-graph-100pct.png",
+      "sha256": "203ac0ebf3357f37a579a641c98944509625c17e7700083b963ab5fd63c8ddff",
+      "viewport": "3840x2160",
+      "width": 2401
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-fit-3840x2160-header-100pct.png",
+      "sha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 2024,
+      "path": "after/crops/modeling-fit-3840x2160-navigator-100pct.png",
+      "sha256": "bb1c299956b22f57eb935117315fe0b351f280b348817ce78b51958b80cda823",
+      "viewport": "3840x2160",
+      "width": 289
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 291,
+      "path": "after/crops/modeling-process-1366x768-controls-100pct.png",
+      "sha256": "1e9af1d33e66dbdb851f623b5930f30cc78c316278ed5bf81962fa7da1e1ad6b",
+      "viewport": "1366x768",
+      "width": 1058
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 340,
+      "path": "after/crops/modeling-process-1366x768-graph-100pct.png",
+      "sha256": "69c5f3e1e64d2df79e6248ab37fae0305253d4568a85119c89c3cc2c92774992",
+      "viewport": "1366x768",
+      "width": 1073
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-process-1366x768-header-100pct.png",
+      "sha256": "2e471a99d568bf718b9dc411e2e9c68a1b2ab1a9c67c45b85a990c8960ce5ed6",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 632,
+      "path": "after/crops/modeling-process-1366x768-navigator-100pct.png",
+      "sha256": "3a310259c883c71f2697624402a1b4f5664f47cc27245e6d806bf2541ddf035e",
+      "viewport": "1366x768",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 291,
+      "path": "after/crops/modeling-process-1440x900-controls-100pct.png",
+      "sha256": "ece4a05c4a40f1a48b02e1cf8a6d8256c51736d6d13561d6387366e3bd97685c",
+      "viewport": "1440x900",
+      "width": 1132
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 472,
+      "path": "after/crops/modeling-process-1440x900-graph-100pct.png",
+      "sha256": "97bcf6ba074dd616655bef0f3f3a608540bf66d4e1e5095a4ffd9899d750f151",
+      "viewport": "1440x900",
+      "width": 1147
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-process-1440x900-header-100pct.png",
+      "sha256": "948140dcc5a01c9264efad835c7ba1f56c1fd381c4e5ad003d45e01d6b8ffe56",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 764,
+      "path": "after/crops/modeling-process-1440x900-navigator-100pct.png",
+      "sha256": "7db067671121eacdef11af2b5fdbe50105890ffc238d13943d691221f4e8b18a",
+      "viewport": "1440x900",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 291,
+      "path": "after/crops/modeling-process-1920x1080-controls-100pct.png",
+      "sha256": "83cb815630f3ea57ba7b36ae3dfbee6050cfcc6423f2af1b3eec1a6fee1e9afa",
+      "viewport": "1920x1080",
+      "width": 1612
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 652,
+      "path": "after/crops/modeling-process-1920x1080-graph-100pct.png",
+      "sha256": "cf61ff5c618129ba0a1ea83a028647a634d1d07138800fc3a70a47d21b08f10a",
+      "viewport": "1920x1080",
+      "width": 1627
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-process-1920x1080-header-100pct.png",
+      "sha256": "53982ceec55fd9cb0a3867b1237c5115f7a4a66e20542d5b6b6db1b80b590d34",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 944,
+      "path": "after/crops/modeling-process-1920x1080-navigator-100pct.png",
+      "sha256": "2dc15c9cbc0a3fd6f1b8fcc5bb94c135aba9775bba29d50e9d8052a15a732d1e",
+      "viewport": "1920x1080",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 291,
+      "path": "after/crops/modeling-process-2560x1440-controls-100pct.png",
+      "sha256": "a05f7e333c63804b61f1a22d18be8c38b26e6053d92682a49ebd48e684199d14",
+      "viewport": "2560x1440",
+      "width": 1900
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1012,
+      "path": "after/crops/modeling-process-2560x1440-graph-100pct.png",
+      "sha256": "7a596838691105006770fde858f3513667716f48f6080041ecd1d284d2e76f11",
+      "viewport": "2560x1440",
+      "width": 2267
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-process-2560x1440-header-100pct.png",
+      "sha256": "7b43341e067cc165c4d8b50186138b2979f400dc8776b041bb90c2c3a0291319",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 1304,
+      "path": "after/crops/modeling-process-2560x1440-navigator-100pct.png",
+      "sha256": "04a595df56515371d4d38a12e26626816b703a4a3dcb1601d0d80674941c1b29",
+      "viewport": "2560x1440",
+      "width": 288
+    },
+    {
+      "category": "crop",
+      "cropKind": "controls",
+      "height": 291,
+      "path": "after/crops/modeling-process-3840x2160-controls-100pct.png",
+      "sha256": "80987214a19d69eba1a06a4bcc5cb7040ef912c44241439bafea322d693d4a8b",
+      "viewport": "3840x2160",
+      "width": 1900
+    },
+    {
+      "category": "crop",
+      "cropKind": "graph",
+      "height": 1280,
+      "path": "after/crops/modeling-process-3840x2160-graph-100pct.png",
+      "sha256": "52b40b085f3071508c7c31ae66ba89088f6295eb266eaeb4b9f4c7a31a5197cc",
+      "viewport": "3840x2160",
+      "width": 2401
+    },
+    {
+      "category": "crop",
+      "cropKind": "header",
+      "height": 50,
+      "path": "after/crops/modeling-process-3840x2160-header-100pct.png",
+      "sha256": "c79041e1ac05d3b30dffd3512ee2908c9ab14c3436c8456efb6e4333b04af631",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "crop",
+      "cropKind": "navigator",
+      "height": 2024,
+      "path": "after/crops/modeling-process-3840x2160-navigator-100pct.png",
+      "sha256": "8399a78c302ab977cd5f6efe8d4036882500eb67c8469f48a0ae1c2d1c0e6de7",
+      "viewport": "3840x2160",
+      "width": 289
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 768,
+      "path": "after/originals/modeling-data-1366x768.png",
+      "sha256": "6f4153ee1d1882026c97046e5df1871f206a578c7b4dd499541d770b9abc515d",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/originals/modeling-data-1440x900.png",
+      "sha256": "b24d30cbea7282c151caf036751bbae0804e0a45f53604bd99531e083735afa6",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1080,
+      "path": "after/originals/modeling-data-1920x1080.png",
+      "sha256": "43463f3785549eb75ed226e9189a97e94a5ea54eac1f3b893835874fcfa7f92c",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1440,
+      "path": "after/originals/modeling-data-2560x1440.png",
+      "sha256": "9f65bb0c632092b17a16c0701604d85c18e3b6aa44e4f95024d432ddc4ec9186",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 2160,
+      "path": "after/originals/modeling-data-3840x2160.png",
+      "sha256": "b650d20e92bd06623b15f1c0693919af6a35c62f704ebc3e5d3afeff10fba0de",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 768,
+      "path": "after/originals/modeling-export-1366x768.png",
+      "sha256": "0bfa8af027172775d2d8a7e38ebb4dabc1562e51df30282d777002773774a4e5",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/originals/modeling-export-1440x900.png",
+      "sha256": "6884b5fde6a5b3d2cbb7162121c83cf2260bf57286d684c913ca9783070da385",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1080,
+      "path": "after/originals/modeling-export-1920x1080.png",
+      "sha256": "4e4342f724f56bf70788708ebdaff5ac214b117db67d57c2771dab9ff3727895",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1440,
+      "path": "after/originals/modeling-export-2560x1440.png",
+      "sha256": "928f5a70972b747af91a334884059addeae5f1b3e30f50bd9d25f989755b6315",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 2160,
+      "path": "after/originals/modeling-export-3840x2160.png",
+      "sha256": "5b06c33e89cdc91de4619df6069402121f32bedd740e68c67e73042bfed415df",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 768,
+      "path": "after/originals/modeling-fit-1366x768.png",
+      "sha256": "36723a953962912688452228697953d2d1c371c8880743814dc1c9e2ea60e004",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/originals/modeling-fit-1440x900.png",
+      "sha256": "caf77bb039c3c17eb2cbf20e5d194bf1770e4455eaf9ea37759c8dd1dfb56a23",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1080,
+      "path": "after/originals/modeling-fit-1920x1080.png",
+      "sha256": "83e498da1623b862177f60fd7168d81831b734d919e9032c29cecbf388ac697d",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1440,
+      "path": "after/originals/modeling-fit-2560x1440.png",
+      "sha256": "97d6172422433cb88ba1d744ae8df549f1f06cae967efebc6f37b0addadc3d5a",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 2160,
+      "path": "after/originals/modeling-fit-3840x2160.png",
+      "sha256": "b4f2e8efbd7c1469c887001a1367f13a8181b9efe77a38556b85003419ebc92c",
+      "viewport": "3840x2160",
+      "width": 3840
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 768,
+      "path": "after/originals/modeling-process-1366x768.png",
+      "sha256": "d7b495a93d25c7c9756d97bc3486fa86eaa50e55092d00661b86de0ddaf06a13",
+      "viewport": "1366x768",
+      "width": 1366
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 900,
+      "path": "after/originals/modeling-process-1440x900.png",
+      "sha256": "f5d1e67645623be8f80cb1a21110ef59d0f60718f252bf6ef18b410433a50951",
+      "viewport": "1440x900",
+      "width": 1440
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1080,
+      "path": "after/originals/modeling-process-1920x1080.png",
+      "sha256": "7232803b47ea548625f119d9ce8c5a6059faab713f13b9a02eb50694412e88f8",
+      "viewport": "1920x1080",
+      "width": 1920
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 1440,
+      "path": "after/originals/modeling-process-2560x1440.png",
+      "sha256": "bfa0df54f1b0ba2afc48d52efe520fe20e27255a8aa4ca9854480f25e104d794",
+      "viewport": "2560x1440",
+      "width": 2560
+    },
+    {
+      "category": "original",
+      "cropKind": null,
+      "height": 2160,
+      "path": "after/originals/modeling-process-3840x2160.png",
+      "sha256": "a55b75d0c606095ec857c5a6e710e566bad95ddfa4a8bb5a92f1d4242dcc40c6",
+      "viewport": "3840x2160",
+      "width": 3840
+    }
+  ],
+  "issue": 261,
+  "unit": "M1E Modeling ownership integration",
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ]
+}

@@ -22,6 +22,15 @@ describe("ModelingStageShell", () => {
     const change = vi.fn();
     render(<ModelingStageShell session={session} activeStage="process" onStageChange={change} />);
 
+    const stageNav = screen.getByRole("navigation", { name: "Modeling workflow stages" });
+    const stageButtons = [...stageNav.querySelectorAll("button")];
+    expect(stageButtons.map((button) => button.querySelector("strong")?.textContent)).toEqual([
+      "Data",
+      "Process",
+      "Fit",
+      "Export",
+    ]);
+    expect(stageButtons.every((button) => button.type === "button" && !button.disabled)).toBe(true);
     expect(screen.getByRole("button", { name: /Data.*Test data ready.*Test Data selected/i })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Fit.*Choose a model.*Select a model/i })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Validate|Review/ })).toBeNull();

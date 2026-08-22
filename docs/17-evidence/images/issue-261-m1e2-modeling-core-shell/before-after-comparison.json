@@ -1,0 +1,429 @@
+{
+  "version": "issue-261-m1e2-modeling-core-shell-evidence.v4",
+  "baseSha": "60cca28cc24bd7b734925b732b0b090a6534387f",
+  "beforeReconstruction": {
+    "legacySelectorRows": 1873,
+    "legacyRuleGroups": 1568,
+    "priorM1ERows": 233,
+    "priorM1EGroups": 209,
+    "description": "frozen base plus only the four previously accepted M1E owner moves"
+  },
+  "capture": {
+    "browserZoomPercent": 100,
+    "deviceScaleFactor": 1,
+    "visualViewportScale": 1,
+    "physical4kReadability": "deferred to issue #223"
+  },
+  "correction": {
+    "id": "M1E2-production-stage-shell-compact-boundary",
+    "reviewDisposition": "resolves independent-review clipping finding",
+    "routes": [
+      "/modeling?stage=data",
+      "/datasets/processing?stage=data"
+    ],
+    "correctedViewportWidths": [
+      900,
+      861,
+      860
+    ],
+    "preservedRelocationRows": 101,
+    "preservedRelocationGroups": 95,
+    "expectedOutcome": "all Data/Process/Fit/Export buttons visible, within shell bounds, and reachable in the two-row compact navigator",
+    "passingRecords": 6,
+    "expectedPassingRecords": 6
+  },
+  "normalization": {
+    "computedAndBounds": "exact JSON comparison",
+    "matchedDeclarations": "source URL and rule order ignored; CRLF/LF and CSSOM-equivalent border-image initial/none canonicalized; the two registered compact declarations are stripped from their existing responsive owner row before exact source replay",
+    "nativeControlRaster": "three full-state deltas accepted only at the exact measured bounding boxes of the native Test type/Condition select glyph; computed geometry and normalized declarations remain exact"
+  },
+  "areas": {
+    "product": {
+      "imagePairs": 119,
+      "pixelIdenticalPairs": 98,
+      "intentionalCorrectionPairs": 18,
+      "boundedNativeControlRasterVariancePairs": 3,
+      "unexpectedChangedPairs": 0,
+      "requiredFiveViewportPairs": 50,
+      "requiredFiveViewportPixelIdenticalPairs": 49,
+      "requiredFiveViewportGeometryPassPairs": 50,
+      "recordPairs": 31,
+      "zeroErrorAfterRecords": 31,
+      "intentionalComputedBoundsDriftRecords": 6,
+      "unaffectedComputedBoundsDriftRecords": 0,
+      "normalizedRelocationDeclarationDriftRecords": 0,
+      "changedImages": [
+        {
+          "relativePath": "crops/datasets-processing-stage-data-breakpoint-860x768-graph-100pct.png",
+          "beforeSize": [
+            658,
+            332
+          ],
+          "afterSize": [
+            658,
+            298
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/datasets-processing-stage-data-breakpoint-860x768-navigator-100pct.png",
+          "beforeSize": [
+            860,
+            34
+          ],
+          "afterSize": [
+            860,
+            68
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/datasets-processing-stage-data-breakpoint-861x768-graph-100pct.png",
+          "beforeSize": [
+            659,
+            332
+          ],
+          "afterSize": [
+            659,
+            298
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/datasets-processing-stage-data-breakpoint-861x768-navigator-100pct.png",
+          "beforeSize": [
+            861,
+            34
+          ],
+          "afterSize": [
+            861,
+            68
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/datasets-processing-stage-data-breakpoint-900x768-graph-100pct.png",
+          "beforeSize": [
+            689,
+            332
+          ],
+          "afterSize": [
+            689,
+            298
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/datasets-processing-stage-data-breakpoint-900x768-navigator-100pct.png",
+          "beforeSize": [
+            900,
+            34
+          ],
+          "afterSize": [
+            900,
+            68
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/modeling-stage-data-breakpoint-860x768-graph-100pct.png",
+          "beforeSize": [
+            658,
+            332
+          ],
+          "afterSize": [
+            658,
+            298
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/modeling-stage-data-breakpoint-860x768-navigator-100pct.png",
+          "beforeSize": [
+            860,
+            34
+          ],
+          "afterSize": [
+            860,
+            68
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/modeling-stage-data-breakpoint-861x768-graph-100pct.png",
+          "beforeSize": [
+            659,
+            332
+          ],
+          "afterSize": [
+            659,
+            298
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/modeling-stage-data-breakpoint-861x768-navigator-100pct.png",
+          "beforeSize": [
+            861,
+            34
+          ],
+          "afterSize": [
+            861,
+            68
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/modeling-stage-data-breakpoint-900x768-graph-100pct.png",
+          "beforeSize": [
+            689,
+            332
+          ],
+          "afterSize": [
+            689,
+            298
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "crops/modeling-stage-data-breakpoint-900x768-navigator-100pct.png",
+          "beforeSize": [
+            900,
+            34
+          ],
+          "afterSize": [
+            900,
+            68
+          ],
+          "changedPixels": null,
+          "changedPixelBoundingBox": null,
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/datasets-processing-stage-data-breakpoint-860x768.png",
+          "beforeSize": [
+            860,
+            768
+          ],
+          "afterSize": [
+            860,
+            768
+          ],
+          "changedPixels": 101529,
+          "changedPixelBoundingBox": [
+            0,
+            133,
+            860,
+            717
+          ],
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/datasets-processing-stage-data-breakpoint-861x768.png",
+          "beforeSize": [
+            861,
+            768
+          ],
+          "afterSize": [
+            861,
+            768
+          ],
+          "changedPixels": 102294,
+          "changedPixelBoundingBox": [
+            0,
+            133,
+            861,
+            717
+          ],
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/datasets-processing-stage-data-breakpoint-900x768.png",
+          "beforeSize": [
+            900,
+            768
+          ],
+          "afterSize": [
+            900,
+            768
+          ],
+          "changedPixels": 106302,
+          "changedPixelBoundingBox": [
+            0,
+            133,
+            900,
+            717
+          ],
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/datasets-processing-stage-data-breakpoint-901x768.png",
+          "beforeSize": [
+            901,
+            768
+          ],
+          "afterSize": [
+            901,
+            768
+          ],
+          "changedPixels": 72,
+          "changedPixelBoundingBox": [
+            155,
+            268,
+            170,
+            278
+          ],
+          "pixelIdentical": false,
+          "classification": "bounded-native-select-raster-variance"
+        },
+        {
+          "relativePath": "states/datasets-processing-stage-data-normal-1920x1080.png",
+          "beforeSize": [
+            1920,
+            1080
+          ],
+          "afterSize": [
+            1920,
+            1080
+          ],
+          "changedPixels": 81,
+          "changedPixelBoundingBox": [
+            164,
+            271,
+            180,
+            278
+          ],
+          "pixelIdentical": false,
+          "classification": "bounded-native-select-raster-variance"
+        },
+        {
+          "relativePath": "states/modeling-stage-data-breakpoint-860x768.png",
+          "beforeSize": [
+            860,
+            768
+          ],
+          "afterSize": [
+            860,
+            768
+          ],
+          "changedPixels": 101529,
+          "changedPixelBoundingBox": [
+            0,
+            133,
+            860,
+            717
+          ],
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/modeling-stage-data-breakpoint-861x768.png",
+          "beforeSize": [
+            861,
+            768
+          ],
+          "afterSize": [
+            861,
+            768
+          ],
+          "changedPixels": 102294,
+          "changedPixelBoundingBox": [
+            0,
+            133,
+            861,
+            717
+          ],
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/modeling-stage-data-breakpoint-900x768.png",
+          "beforeSize": [
+            900,
+            768
+          ],
+          "afterSize": [
+            900,
+            768
+          ],
+          "changedPixels": 106302,
+          "changedPixelBoundingBox": [
+            0,
+            133,
+            900,
+            717
+          ],
+          "pixelIdentical": false,
+          "classification": "intentional-compact-stage-correction"
+        },
+        {
+          "relativePath": "states/modeling-stage-data-breakpoint-901x768.png",
+          "beforeSize": [
+            901,
+            768
+          ],
+          "afterSize": [
+            901,
+            768
+          ],
+          "changedPixels": 72,
+          "changedPixelBoundingBox": [
+            155,
+            268,
+            170,
+            278
+          ],
+          "pixelIdentical": false,
+          "classification": "bounded-native-select-raster-variance"
+        }
+      ]
+    },
+    "storybook": {
+      "imagePairs": 15,
+      "pixelIdenticalPairs": 15,
+      "unexpectedChangedPairs": 0,
+      "recordPairs": 15,
+      "zeroErrorAfterRecords": 15,
+      "computedBoundsDriftRecords": 0,
+      "normalizedRelocationDeclarationDriftRecords": 0
+    }
+  },
+  "result": "PASS"
+}

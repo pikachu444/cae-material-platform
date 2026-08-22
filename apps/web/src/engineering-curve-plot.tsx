@@ -9,6 +9,8 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 
+import "./features/modeling/ui/modeling-engineering-curve-plot.css";
+
 import type {
   CurveChannelContract,
   CurveDeviationContract,

@@ -320,6 +320,18 @@ FE-04E current-source capture는 임시 디렉터리에서 17개 Process/Fit 상
 
 ## Export의 현재 exact-source 경계
 
+2026-08-22 Issue #261 M1E ownership 통합 검증은 작업 흐름과 화면 의미를 바꾸지 않고
+검증·engineering graph·calibration·viscoelastic 영역에 이어 공통 Modeling shell, rail, stage navigator,
+persistent graph와 workspace 배치의 CSS 생산자를 feature 소유 파일로 옮겼습니다. 이번 core-shell
+단위는 101개 selector row와 95개 전체 rule group이며, 누적 이동은 334개 row와 304개 group입니다.
+Elastoplastic, hyperelastic, Export와 reference-family 묶음은 다음 단위로 남겨 두었습니다. 현재
+1440×900 Export 이미지는 앞선 exact-source M1E 여정의 live evidence를 그대로 참조합니다. 별도
+core-shell evidence에서 Storybook 15개 pair는 모두 pixel-identical이고, Product 119개 pair 가운데
+98개도 pixel-identical입니다. 18개 pair는 900 px 이하에서 Export가 잘리지 않도록 stage navigator를
+두 줄로 보이게 한 수정이며, 나머지 3개 차이는 native select 글리프에만 한정됩니다. 두 Modeling
+경로의 860, 861, 900 px 화면에서 Data, Process, Fit, Export가 모두 보이고 선택할 수 있음을 확인했습니다.
+DOM, API, copy, exact revision과 저장·복구 상태는 바뀌지 않았습니다.
+
 Fit 검토 뒤 상단 **Export** task를 열면 current Material, Material State, Test Data, Mapping Profile,
 Processing Output pin과 `Processing Output → Material Model IR → Neutral → target preflight → native card`
 lineage를 먼저 확인합니다. Export는 Setup(왼쪽), native preview(가운데), Mapping/Fit context(오른쪽)가

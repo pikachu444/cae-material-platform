@@ -1624,6 +1624,14 @@ describe("Common Processing Workbench", () => {
     );
 
     expect(await screen.findByRole("banner", { name: "Modeling context" })).toBeTruthy();
+    const hiddenSupportDrawer = document.querySelector("details.modeling-support-drawer") as HTMLDetailsElement;
+    expect(hiddenSupportDrawer).toBeTruthy();
+    expect(hiddenSupportDrawer.querySelector(":scope > summary")?.textContent).toBe("Saved outputs");
+    fireEvent.click(hiddenSupportDrawer.querySelector(":scope > summary")!);
+    await waitFor(() => expect(hiddenSupportDrawer.open).toBe(true));
+    expect(hiddenSupportDrawer.textContent).toContain("Saved processing result");
+    fireEvent.click(hiddenSupportDrawer.querySelector(":scope > summary")!);
+    await waitFor(() => expect(hiddenSupportDrawer.open).toBe(false));
     expect(screen.queryByRole("navigation", { name: "Material Modeling steps" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Card" })).toBeNull();
     expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();

@@ -20,6 +20,7 @@ import type {
   MaterialModelResponse,
   MaterialStateResponse,
 } from "./types";
+import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {

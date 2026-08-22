@@ -30,6 +30,7 @@ import type {
   VoceHoldoutPlanResponse,
   VoceHoldoutResultResponse,
 } from "./types";
+import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b"];
 
