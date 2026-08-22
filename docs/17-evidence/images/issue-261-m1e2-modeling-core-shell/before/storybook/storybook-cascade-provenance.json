@@ -1,0 +1,4624 @@
+{
+  "baseUrl": "http://127.0.0.1:32784",
+  "captureMetadata": {
+    "browserZoomPercent": 100,
+    "deviceScaleFactor": 1,
+    "visualViewportScale": 1,
+    "phase": "before",
+    "evidenceStatus": "before-relocation Storybook provenance"
+  },
+  "stories": [
+    "foundation-modelingworkspacelayout--default",
+    "foundation-modelingworkspacelayout--ribbon-collapsed",
+    "foundation-modelingworkspacelayout--export-reclaims-navigator",
+    "governed-workflowcomponents--modeling-stage-selected-with-readiness",
+    "governed-workflowcomponents--modeling-stage-blocked"
+  ],
+  "records": [
+    {
+      "story": "foundation-modelingworkspacelayout--default",
+      "viewport": [
+        1440,
+        900
+      ],
+      "snapshot": {
+        "text": "Curves\nObserved response\nProcessed response\n\u2039\nFit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response\n\u2039\nFit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 471,
+              "top": 0,
+              "right": 1440,
+              "bottom": 471,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "hidden"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-split-workspace",
+                "declaration": "border-block: 1px solid var(--ux-border); background: var(--ux-surface); width: 100%; min-width: 0px; display: flex; overflow: hidden; flex: 1 1 auto !important; height: auto !important; min-height: 0px !important; max-height: none !important;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response",
+            "bounds": {
+              "x": 0,
+              "y": 1,
+              "width": 288,
+              "height": 469,
+              "top": 1,
+              "right": 288,
+              "bottom": 470,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Observed response",
+            "bounds": {
+              "x": 12,
+              "y": 38.546875,
+              "width": 249,
+              "height": 23.546875,
+              "top": 38.546875,
+              "right": 261,
+              "bottom": 62.09375,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Processed response",
+            "bounds": {
+              "x": 12,
+              "y": 70.09375,
+              "width": 249,
+              "height": 23.546875,
+              "top": 70.09375,
+              "right": 261,
+              "bottom": 93.640625,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "text": "\u2039",
+            "bounds": {
+              "x": 288,
+              "y": 1,
+              "width": 6,
+              "height": 469,
+              "top": 1,
+              "right": 294,
+              "bottom": 470,
+              "left": 288
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(203, 211, 218)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider",
+                "declaration": "z-index: 4; flex: 0 0 var(--ux-splitter-inline-size); width: var(--ux-splitter-inline-size); background: var(--ux-border); cursor: col-resize; touch-action: none; position: relative;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2039",
+            "bounds": {
+              "x": 283,
+              "y": 11,
+              "width": 15,
+              "height": 26,
+              "top": 11,
+              "right": 298,
+              "bottom": 37,
+              "left": 283
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button",
+                "declaration": "width: 15px; height: 26px; padding: 0px; top: 10px; left: -5px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Fit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+            "bounds": {
+              "x": 294,
+              "y": 1,
+              "width": 1146,
+              "height": 469,
+              "top": 1,
+              "right": 1440,
+              "bottom": 470,
+              "left": 294
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Update candidates",
+            "bounds": {
+              "x": 397.328125,
+              "y": 11.5,
+              "width": 151.90625,
+              "height": 27,
+              "top": 11.5,
+              "right": 549.234375,
+              "bottom": 38.5,
+              "left": 397.328125
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2303",
+            "bounds": {
+              "x": 1402,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1430,
+              "bottom": 16,
+              "left": 1402
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--default",
+      "viewport": [
+        1181,
+        900
+      ],
+      "snapshot": {
+        "text": "Curves\nObserved response\nProcessed response\n\u2039\nFit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1181,
+          "clientWidth": 1181,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response\n\u2039\nFit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1181,
+              "height": 471,
+              "top": 0,
+              "right": 1181,
+              "bottom": 471,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "hidden"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-split-workspace",
+                "declaration": "border-block: 1px solid var(--ux-border); background: var(--ux-surface); width: 100%; min-width: 0px; display: flex; overflow: hidden; flex: 1 1 auto !important; height: auto !important; min-height: 0px !important; max-height: none !important;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response",
+            "bounds": {
+              "x": 0,
+              "y": 1,
+              "width": 288,
+              "height": 469,
+              "top": 1,
+              "right": 288,
+              "bottom": 470,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Observed response",
+            "bounds": {
+              "x": 12,
+              "y": 38.546875,
+              "width": 249,
+              "height": 23.546875,
+              "top": 38.546875,
+              "right": 261,
+              "bottom": 62.09375,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Processed response",
+            "bounds": {
+              "x": 12,
+              "y": 70.09375,
+              "width": 249,
+              "height": 23.546875,
+              "top": 70.09375,
+              "right": 261,
+              "bottom": 93.640625,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "text": "\u2039",
+            "bounds": {
+              "x": 288,
+              "y": 1,
+              "width": 6,
+              "height": 469,
+              "top": 1,
+              "right": 294,
+              "bottom": 470,
+              "left": 288
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(203, 211, 218)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider",
+                "declaration": "z-index: 4; flex: 0 0 var(--ux-splitter-inline-size); width: var(--ux-splitter-inline-size); background: var(--ux-border); cursor: col-resize; touch-action: none; position: relative;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2039",
+            "bounds": {
+              "x": 283,
+              "y": 11,
+              "width": 15,
+              "height": 26,
+              "top": 11,
+              "right": 298,
+              "bottom": 37,
+              "left": 283
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button",
+                "declaration": "width: 15px; height: 26px; padding: 0px; top: 10px; left: -5px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Fit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+            "bounds": {
+              "x": 294,
+              "y": 1,
+              "width": 887,
+              "height": 469,
+              "top": 1,
+              "right": 1181,
+              "bottom": 470,
+              "left": 294
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Update candidates",
+            "bounds": {
+              "x": 397.328125,
+              "y": 11.5,
+              "width": 151.90625,
+              "height": 27,
+              "top": 11.5,
+              "right": 549.234375,
+              "bottom": 38.5,
+              "left": 397.328125
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2303",
+            "bounds": {
+              "x": 1143,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1171,
+              "bottom": 16,
+              "left": 1143
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--default",
+      "viewport": [
+        1180,
+        900
+      ],
+      "snapshot": {
+        "text": "Curves\nObserved response\nProcessed response\n\u2039\nFit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1180,
+          "clientWidth": 1180,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response\n\u2039\nFit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1180,
+              "height": 471,
+              "top": 0,
+              "right": 1180,
+              "bottom": 471,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "hidden"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-split-workspace",
+                "declaration": "border-block: 1px solid var(--ux-border); background: var(--ux-surface); width: 100%; min-width: 0px; display: flex; overflow: hidden; flex: 1 1 auto !important; height: auto !important; min-height: 0px !important; max-height: none !important;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response",
+            "bounds": {
+              "x": 0,
+              "y": 1,
+              "width": 288,
+              "height": 469,
+              "top": 1,
+              "right": 288,
+              "bottom": 470,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Observed response",
+            "bounds": {
+              "x": 12,
+              "y": 38.546875,
+              "width": 249,
+              "height": 23.546875,
+              "top": 38.546875,
+              "right": 261,
+              "bottom": 62.09375,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Processed response",
+            "bounds": {
+              "x": 12,
+              "y": 70.09375,
+              "width": 249,
+              "height": 23.546875,
+              "top": 70.09375,
+              "right": 261,
+              "bottom": 93.640625,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "text": "\u2039",
+            "bounds": {
+              "x": 288,
+              "y": 1,
+              "width": 6,
+              "height": 469,
+              "top": 1,
+              "right": 294,
+              "bottom": 470,
+              "left": 288
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(203, 211, 218)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider",
+                "declaration": "z-index: 4; flex: 0 0 var(--ux-splitter-inline-size); width: var(--ux-splitter-inline-size); background: var(--ux-border); cursor: col-resize; touch-action: none; position: relative;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2039",
+            "bounds": {
+              "x": 283,
+              "y": 11,
+              "width": 15,
+              "height": 26,
+              "top": 11,
+              "right": 298,
+              "bottom": 37,
+              "left": 283
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button",
+                "declaration": "width: 15px; height: 26px; padding: 0px; top: 10px; left: -5px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Fit settings\nUpdate candidates\nPersistent graph area\n\u2303",
+            "bounds": {
+              "x": 294,
+              "y": 1,
+              "width": 886,
+              "height": 469,
+              "top": 1,
+              "right": 1180,
+              "bottom": 470,
+              "left": 294
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Update candidates",
+            "bounds": {
+              "x": 397.328125,
+              "y": 11.5,
+              "width": 151.90625,
+              "height": 27,
+              "top": 11.5,
+              "right": 549.234375,
+              "bottom": 38.5,
+              "left": 397.328125
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2303",
+            "bounds": {
+              "x": 1142,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1170,
+              "bottom": 16,
+              "left": 1142
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--ribbon-collapsed",
+      "viewport": [
+        1440,
+        900
+      ],
+      "snapshot": {
+        "text": "Curves\nObserved response\nProcessed response\n\u2039\nPersistent graph area\n\u2304",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response\n\u2039\nPersistent graph area\n\u2304",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 422,
+              "top": 0,
+              "right": 1440,
+              "bottom": 422,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "hidden"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-split-workspace",
+                "declaration": "border-block: 1px solid var(--ux-border); background: var(--ux-surface); width: 100%; min-width: 0px; display: flex; overflow: hidden; flex: 1 1 auto !important; height: auto !important; min-height: 0px !important; max-height: none !important;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response",
+            "bounds": {
+              "x": 0,
+              "y": 1,
+              "width": 288,
+              "height": 420,
+              "top": 1,
+              "right": 288,
+              "bottom": 421,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Observed response",
+            "bounds": {
+              "x": 12,
+              "y": 38.546875,
+              "width": 249,
+              "height": 23.546875,
+              "top": 38.546875,
+              "right": 261,
+              "bottom": 62.09375,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Processed response",
+            "bounds": {
+              "x": 12,
+              "y": 70.09375,
+              "width": 249,
+              "height": 23.546875,
+              "top": 70.09375,
+              "right": 261,
+              "bottom": 93.640625,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "text": "\u2039",
+            "bounds": {
+              "x": 288,
+              "y": 1,
+              "width": 6,
+              "height": 420,
+              "top": 1,
+              "right": 294,
+              "bottom": 421,
+              "left": 288
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(203, 211, 218)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider",
+                "declaration": "z-index: 4; flex: 0 0 var(--ux-splitter-inline-size); width: var(--ux-splitter-inline-size); background: var(--ux-border); cursor: col-resize; touch-action: none; position: relative;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2039",
+            "bounds": {
+              "x": 283,
+              "y": 11,
+              "width": 15,
+              "height": 26,
+              "top": 11,
+              "right": 298,
+              "bottom": 37,
+              "left": 283
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button",
+                "declaration": "width: 15px; height: 26px; padding: 0px; top: 10px; left: -5px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Persistent graph area\n\u2304",
+            "bounds": {
+              "x": 294,
+              "y": 1,
+              "width": 1146,
+              "height": 420,
+              "top": 1,
+              "right": 1440,
+              "bottom": 421,
+              "left": 294
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2304",
+            "bounds": {
+              "x": 1402,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1430,
+              "bottom": 16,
+              "left": 1402
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--ribbon-collapsed",
+      "viewport": [
+        1181,
+        900
+      ],
+      "snapshot": {
+        "text": "Curves\nObserved response\nProcessed response\n\u2039\nPersistent graph area\n\u2304",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1181,
+          "clientWidth": 1181,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response\n\u2039\nPersistent graph area\n\u2304",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1181,
+              "height": 422,
+              "top": 0,
+              "right": 1181,
+              "bottom": 422,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "hidden"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-split-workspace",
+                "declaration": "border-block: 1px solid var(--ux-border); background: var(--ux-surface); width: 100%; min-width: 0px; display: flex; overflow: hidden; flex: 1 1 auto !important; height: auto !important; min-height: 0px !important; max-height: none !important;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response",
+            "bounds": {
+              "x": 0,
+              "y": 1,
+              "width": 288,
+              "height": 420,
+              "top": 1,
+              "right": 288,
+              "bottom": 421,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Observed response",
+            "bounds": {
+              "x": 12,
+              "y": 38.546875,
+              "width": 249,
+              "height": 23.546875,
+              "top": 38.546875,
+              "right": 261,
+              "bottom": 62.09375,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Processed response",
+            "bounds": {
+              "x": 12,
+              "y": 70.09375,
+              "width": 249,
+              "height": 23.546875,
+              "top": 70.09375,
+              "right": 261,
+              "bottom": 93.640625,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "text": "\u2039",
+            "bounds": {
+              "x": 288,
+              "y": 1,
+              "width": 6,
+              "height": 420,
+              "top": 1,
+              "right": 294,
+              "bottom": 421,
+              "left": 288
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(203, 211, 218)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider",
+                "declaration": "z-index: 4; flex: 0 0 var(--ux-splitter-inline-size); width: var(--ux-splitter-inline-size); background: var(--ux-border); cursor: col-resize; touch-action: none; position: relative;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2039",
+            "bounds": {
+              "x": 283,
+              "y": 11,
+              "width": 15,
+              "height": 26,
+              "top": 11,
+              "right": 298,
+              "bottom": 37,
+              "left": 283
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button",
+                "declaration": "width: 15px; height: 26px; padding: 0px; top: 10px; left: -5px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Persistent graph area\n\u2304",
+            "bounds": {
+              "x": 294,
+              "y": 1,
+              "width": 887,
+              "height": 420,
+              "top": 1,
+              "right": 1181,
+              "bottom": 421,
+              "left": 294
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2304",
+            "bounds": {
+              "x": 1143,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1171,
+              "bottom": 16,
+              "left": 1143
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--ribbon-collapsed",
+      "viewport": [
+        1180,
+        900
+      ],
+      "snapshot": {
+        "text": "Curves\nObserved response\nProcessed response\n\u2039\nPersistent graph area\n\u2304",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1180,
+          "clientWidth": 1180,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response\n\u2039\nPersistent graph area\n\u2304",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1180,
+              "height": 422,
+              "top": 0,
+              "right": 1180,
+              "bottom": 422,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "hidden"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-split-workspace",
+                "declaration": "border-block: 1px solid var(--ux-border); background: var(--ux-surface); width: 100%; min-width: 0px; display: flex; overflow: hidden; flex: 1 1 auto !important; height: auto !important; min-height: 0px !important; max-height: none !important;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Curves\nObserved response\nProcessed response",
+            "bounds": {
+              "x": 0,
+              "y": 1,
+              "width": 288,
+              "height": 420,
+              "top": 1,
+              "right": 288,
+              "bottom": 421,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Observed response",
+            "bounds": {
+              "x": 12,
+              "y": 38.546875,
+              "width": 249,
+              "height": 23.546875,
+              "top": 38.546875,
+              "right": 261,
+              "bottom": 62.09375,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Processed response",
+            "bounds": {
+              "x": 12,
+              "y": 70.09375,
+              "width": 249,
+              "height": 23.546875,
+              "top": 70.09375,
+              "right": 261,
+              "bottom": 93.640625,
+              "left": 12
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "13px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": "separator",
+            "text": "\u2039",
+            "bounds": {
+              "x": 288,
+              "y": 1,
+              "width": 6,
+              "height": 420,
+              "top": 1,
+              "right": 294,
+              "bottom": 421,
+              "left": 288
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(203, 211, 218)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider",
+                "declaration": "z-index: 4; flex: 0 0 var(--ux-splitter-inline-size); width: var(--ux-splitter-inline-size); background: var(--ux-border); cursor: col-resize; touch-action: none; position: relative;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2039",
+            "bounds": {
+              "x": 283,
+              "y": 11,
+              "width": 15,
+              "height": 26,
+              "top": 11,
+              "right": 298,
+              "bottom": 37,
+              "left": 283
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button",
+                "declaration": "width: 15px; height: 26px; padding: 0px; top: 10px; left: -5px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "role": null,
+            "text": "Persistent graph area\n\u2304",
+            "bounds": {
+              "x": 294,
+              "y": 1,
+              "width": 886,
+              "height": 420,
+              "top": 1,
+              "right": 1180,
+              "bottom": 421,
+              "left": 294
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2304",
+            "bounds": {
+              "x": 1142,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1170,
+              "bottom": 16,
+              "left": 1142
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--export-reclaims-navigator",
+      "viewport": [
+        1440,
+        900
+      ],
+      "snapshot": {
+        "text": "Fit settings\nUpdate candidates\nPersistent graph area\nDelivery evidence stays below the plot.\n\u2303",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Update candidates",
+            "bounds": {
+              "x": 103.328125,
+              "y": 11.5,
+              "width": 151.90625,
+              "height": 27,
+              "top": 11.5,
+              "right": 255.234375,
+              "bottom": 38.5,
+              "left": 103.328125
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2303",
+            "bounds": {
+              "x": 1402,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1430,
+              "bottom": 16,
+              "left": 1402
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--export-reclaims-navigator",
+      "viewport": [
+        1181,
+        900
+      ],
+      "snapshot": {
+        "text": "Fit settings\nUpdate candidates\nPersistent graph area\nDelivery evidence stays below the plot.\n\u2303",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1181,
+          "clientWidth": 1181,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Update candidates",
+            "bounds": {
+              "x": 103.328125,
+              "y": 11.5,
+              "width": 151.90625,
+              "height": 27,
+              "top": 11.5,
+              "right": 255.234375,
+              "bottom": 38.5,
+              "left": 103.328125
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2303",
+            "bounds": {
+              "x": 1143,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1171,
+              "bottom": 16,
+              "left": 1143
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "foundation-modelingworkspacelayout--export-reclaims-navigator",
+      "viewport": [
+        1180,
+        900
+      ],
+      "snapshot": {
+        "text": "Fit settings\nUpdate candidates\nPersistent graph area\nDelivery evidence stays below the plot.\n\u2303",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1180,
+          "clientWidth": 1180,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Update candidates",
+            "bounds": {
+              "x": 103.328125,
+              "y": 11.5,
+              "width": 151.90625,
+              "height": 27,
+              "top": 11.5,
+              "right": 255.234375,
+              "bottom": 38.5,
+              "left": 103.328125
+            },
+            "computed": {
+              "display": "block",
+              "visibility": "visible",
+              "color": "rgb(0, 0, 0)",
+              "backgroundColor": "rgb(240, 240, 240)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "\u2303",
+            "bounds": {
+              "x": 1142,
+              "y": 0,
+              "width": 28,
+              "height": 16,
+              "top": 0,
+              "right": 1170,
+              "bottom": 16,
+              "left": 1142
+            },
+            "computed": {
+              "display": "grid",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "gap": "normal",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-pane-divider > button, .modeling-ribbon-control",
+                "declaration": "z-index: 5; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); color: var(--ux-text-muted); cursor: pointer; border-radius: 2px; place-items: center; display: grid; position: absolute;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-ribbon-control",
+                "declaration": "width: 28px; height: 16px; padding: 0px; top: -1px; right: 10px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "governed-workflowcomponents--modeling-stage-selected-with-readiness",
+      "viewport": [
+        1440,
+        900
+      ],
+      "snapshot": {
+        "text": "Data\nProcess\nFit\nExport",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Data",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 360,
+              "bottom": 27,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Process",
+            "bounds": {
+              "x": 360,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 720,
+              "bottom": 27,
+              "left": 360
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Fit",
+            "bounds": {
+              "x": 720,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 1080,
+              "bottom": 27,
+              "left": 720
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(234, 242, 252)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:hover, .modeling-stage-shell button.active",
+                "declaration": "background: var(--ux-accent-soft); color: var(--ux-text);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button.active",
+                "declaration": "box-shadow: inset 0 -2px 0 var(--ux-accent);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(3)",
+                "declaration": "border-right: 0px;",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Export",
+            "bounds": {
+              "x": 1080,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 1440,
+              "bottom": 27,
+              "left": 1080
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:last-child",
+                "declaration": "border-right: 0px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "governed-workflowcomponents--modeling-stage-selected-with-readiness",
+      "viewport": [
+        901,
+        768
+      ],
+      "snapshot": {
+        "text": "Data\nProcess\nFit\nExport",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 901,
+          "clientWidth": 901,
+          "scrollHeight": 768,
+          "clientHeight": 768
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Data",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 225.25,
+              "bottom": 27,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Process",
+            "bounds": {
+              "x": 225.25,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 450.5,
+              "bottom": 27,
+              "left": 225.25
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Fit",
+            "bounds": {
+              "x": 450.5,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 675.75,
+              "bottom": 27,
+              "left": 450.5
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(234, 242, 252)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:hover, .modeling-stage-shell button.active",
+                "declaration": "background: var(--ux-accent-soft); color: var(--ux-text);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button.active",
+                "declaration": "box-shadow: inset 0 -2px 0 var(--ux-accent);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(3)",
+                "declaration": "border-right: 0px;",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Export",
+            "bounds": {
+              "x": 675.75,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 901,
+              "bottom": 27,
+              "left": 675.75
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:last-child",
+                "declaration": "border-right: 0px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "governed-workflowcomponents--modeling-stage-selected-with-readiness",
+      "viewport": [
+        900,
+        768
+      ],
+      "snapshot": {
+        "text": "Data\nProcess\nFit\nExport",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 900,
+          "clientWidth": 900,
+          "scrollHeight": 768,
+          "clientHeight": 768
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Data",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 300,
+              "height": 28,
+              "top": 0,
+              "right": 300,
+              "bottom": 28,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Process",
+            "bounds": {
+              "x": 300,
+              "y": 0,
+              "width": 300,
+              "height": 28,
+              "top": 0,
+              "right": 600,
+              "bottom": 28,
+              "left": 300
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Fit",
+            "bounds": {
+              "x": 600,
+              "y": 0,
+              "width": 300,
+              "height": 28,
+              "top": 0,
+              "right": 900,
+              "bottom": 28,
+              "left": 600
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(234, 242, 252)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:hover, .modeling-stage-shell button.active",
+                "declaration": "background: var(--ux-accent-soft); color: var(--ux-text);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button.active",
+                "declaration": "box-shadow: inset 0 -2px 0 var(--ux-accent);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(3)",
+                "declaration": "border-right: 0px;",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Export",
+            "bounds": {
+              "x": 0,
+              "y": 28,
+              "width": 300,
+              "height": 27,
+              "top": 28,
+              "right": 300,
+              "bottom": 55,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:last-child",
+                "declaration": "border-right: 0px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "governed-workflowcomponents--modeling-stage-blocked",
+      "viewport": [
+        1440,
+        900
+      ],
+      "snapshot": {
+        "text": "Data\nProcess\nFit\nExport",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "scrollHeight": 900,
+          "clientHeight": 900
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Data",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 360,
+              "bottom": 27,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Process",
+            "bounds": {
+              "x": 360,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 720,
+              "bottom": 27,
+              "left": 360
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Fit",
+            "bounds": {
+              "x": 720,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 1080,
+              "bottom": 27,
+              "left": 720
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(3)",
+                "declaration": "border-right: 0px;",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Export",
+            "bounds": {
+              "x": 1080,
+              "y": 0,
+              "width": 360,
+              "height": 27,
+              "top": 0,
+              "right": 1440,
+              "bottom": 27,
+              "left": 1080
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(234, 242, 252)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:last-child",
+                "declaration": "border-right: 0px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:hover, .modeling-stage-shell button.active",
+                "declaration": "background: var(--ux-accent-soft); color: var(--ux-text);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button.active",
+                "declaration": "box-shadow: inset 0 -2px 0 var(--ux-accent);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "governed-workflowcomponents--modeling-stage-blocked",
+      "viewport": [
+        901,
+        768
+      ],
+      "snapshot": {
+        "text": "Data\nProcess\nFit\nExport",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 901,
+          "clientWidth": 901,
+          "scrollHeight": 768,
+          "clientHeight": 768
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Data",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 225.25,
+              "bottom": 27,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Process",
+            "bounds": {
+              "x": 225.25,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 450.5,
+              "bottom": 27,
+              "left": 225.25
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Fit",
+            "bounds": {
+              "x": 450.5,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 675.75,
+              "bottom": 27,
+              "left": 450.5
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(3)",
+                "declaration": "border-right: 0px;",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Export",
+            "bounds": {
+              "x": 675.75,
+              "y": 0,
+              "width": 225.25,
+              "height": 27,
+              "top": 0,
+              "right": 901,
+              "bottom": 27,
+              "left": 675.75
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(234, 242, 252)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:last-child",
+                "declaration": "border-right: 0px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:hover, .modeling-stage-shell button.active",
+                "declaration": "background: var(--ux-accent-soft); color: var(--ux-text);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button.active",
+                "declaration": "box-shadow: inset 0 -2px 0 var(--ux-accent);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "story": "governed-workflowcomponents--modeling-stage-blocked",
+      "viewport": [
+        900,
+        768
+      ],
+      "snapshot": {
+        "text": "Data\nProcess\nFit\nExport",
+        "overflow": {
+          "body": "visible",
+          "bodyX": "visible",
+          "bodyY": "visible",
+          "scrollWidth": 900,
+          "clientWidth": 900,
+          "scrollHeight": 768,
+          "clientHeight": 768
+        },
+        "elements": [
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Data",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 300,
+              "height": 28,
+              "top": 0,
+              "right": 300,
+              "bottom": 28,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Process",
+            "bounds": {
+              "x": 300,
+              "y": 0,
+              "width": 300,
+              "height": 28,
+              "top": 0,
+              "right": 600,
+              "bottom": 28,
+              "left": 300
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Fit",
+            "bounds": {
+              "x": 600,
+              "y": 0,
+              "width": 300,
+              "height": 28,
+              "top": 0,
+              "right": 900,
+              "bottom": 28,
+              "left": 600
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(93, 104, 116)",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(3)",
+                "declaration": "border-right: 0px;",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:nth-child(-n+3)",
+                "declaration": "border-bottom: 1px solid var(--ux-border);",
+                "atContext": [
+                  "(width <= 900px)"
+                ],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "text": "Export",
+            "bounds": {
+              "x": 0,
+              "y": 28,
+              "width": 300,
+              "height": 27,
+              "top": 28,
+              "right": 300,
+              "bottom": 55,
+              "left": 0
+            },
+            "computed": {
+              "display": "flex",
+              "visibility": "visible",
+              "color": "rgb(23, 33, 43)",
+              "backgroundColor": "rgb(234, 242, 252)",
+              "fontSize": "16px",
+              "gap": "5px",
+              "overflow": "visible"
+            },
+            "matchedRules": [
+              {
+                "selector": "*",
+                "declaration": "box-sizing: border-box;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button, input, textarea, select",
+                "declaration": "font: inherit;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": "button",
+                "declaration": "cursor: pointer;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "border-top: 0px; border-bottom: 0px; border-left: 0px; border-image: initial; border-right: 1px solid var(--ux-border); min-width: 0px; color: var(--ux-text-muted); text-align: left; background: 0px 0px; border-radius: 0px; gap: 6px; padding: 4px 8px; display: flex;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:last-child",
+                "declaration": "border-right: 0px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button:hover, .modeling-stage-shell button.active",
+                "declaration": "background: var(--ux-accent-soft); color: var(--ux-text);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button.active",
+                "declaration": "box-shadow: inset 0 -2px 0 var(--ux-accent);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "justify-content: center; align-items: center; gap: 4px; min-height: 27px; padding: 3px 8px;",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              },
+              {
+                "selector": ".modeling-stage-shell button",
+                "declaration": "gap: var(--ux-space-1); padding: var(--ux-space-1) var(--ux-space-2);",
+                "atContext": [],
+                "sourceUrl": "http://127.0.0.1:32784/assets/iframe-Clyemc01.css"
+              }
+            ]
+          }
+        ]
+      },
+      "pageErrors": [],
+      "consoleErrors": []
+    }
+  ]
+}

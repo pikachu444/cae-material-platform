@@ -1,0 +1,293 @@
+.curve-plot polyline.prediction-line {
+  stroke: #287d78;
+  stroke-dasharray: 7 4;
+}
+
+.icon-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  color: #5f747b;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.icon-button:hover {
+  color: #203f48;
+  background: #edf3f3;
+}
+
+.reference-linear-viscoelastic-workbench {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #c9c1df;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgb(249 246 255 / 94%),
+    rgb(253 252 255 / 98%)
+  );
+}
+
+.viscoelastic-form,
+.viscoelastic-result {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  border: 1px solid #e1dbef;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 92%);
+}
+
+.viscoelastic-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.prony-term-table {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.prony-term-row {
+  display: grid;
+  grid-template-columns: 50px repeat(3, minmax(90px, 1fr)) 34px;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.prony-term-row input {
+  min-width: 0;
+}
+
+.prony-term-header {
+  padding: 0 0.25rem;
+  color: #695f80;
+  font-size: 0.74rem;
+}
+
+.viscoelastic-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.viscoelastic-facts span {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.65rem;
+  border: 1px solid #e6e0f0;
+  border-radius: 6px;
+  background: #fbfaff;
+}
+
+.viscoelastic-facts small,
+.relaxation-chart small {
+  color: #756b89;
+}
+
+.relaxation-chart {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.75rem;
+  border-radius: 7px;
+  background: #f8f6fc;
+}
+
+.relaxation-chart > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.relaxation-chart svg {
+  width: 100%;
+  min-height: 150px;
+  overflow: visible;
+}
+
+.relaxation-chart line {
+  stroke: #cfc7dd;
+  stroke-width: 1;
+}
+
+.relaxation-chart path {
+  fill: none;
+  stroke: #6850a3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.chart-range {
+  display: flex;
+  justify-content: space-between;
+  color: #594c70;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 780px) {
+  .viscoelastic-facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+  .prony-term-row {
+      grid-template-columns: 32px repeat(3, minmax(70px, 1fr)) 30px;
+    }
+
+}
+
+.master-curve-workbench {
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, #397c8d 35%, var(--line));
+  border-radius: 8px;
+  background: linear-gradient(
+    145deg,
+    rgb(249 253 253 / 96%),
+    rgb(250 248 253 / 96%)
+  );
+}
+
+.selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.55rem;
+}
+
+.selection-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem;
+  border: 1px solid #d9d5e2;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.selection-card:has(input:checked) {
+  border-color: #397c8d;
+  box-shadow: 0 0 0 2px rgb(57 124 141 / 12%);
+}
+
+.selection-card input {
+  margin-top: 0.18rem;
+}
+
+.selection-card span,
+.selection-card small {
+  display: block;
+}
+
+.selection-card small {
+  margin-top: 0.2rem;
+  color: #6b5d78;
+  font-size: 0.7rem;
+}
+
+.viscoelastic-master-plot .replicate-curve-line {
+  fill: none;
+  stroke: #7a879f;
+  stroke-width: 1.5;
+  opacity: 0.65;
+}
+
+.viscoelastic-master-plot .master-curve-line {
+  fill: none;
+  stroke: #8c4c75;
+  stroke-width: 4;
+}
+
+.master-curve-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  color: #66566f;
+  font-size: 0.7rem;
+}
+
+.master-curve-legend span::before {
+  display: inline-block;
+  width: 1rem;
+  height: 0.2rem;
+  margin-right: 0.28rem;
+  vertical-align: middle;
+  background: #7a879f;
+  content: "";
+}
+
+.master-curve-legend .master-key::before {
+  height: 0.28rem;
+  background: #8c4c75;
+}
+
+.polymer-temperature-shift-inspector .master-curve-workbench {
+  padding: 12px;
+}
+
+.master-curve-workbench.compact .selection-card {
+  padding: 8px;
+}
+
+.shift-factor-chart {
+  padding: 10px;
+  border: 1px solid #dce6e8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.shift-factor-chart h5 {
+  margin: 2px 0 8px;
+}
+
+.shift-factor-chart svg {
+  width: 100%;
+  height: auto;
+}
+
+.shift-factor-chart text {
+  fill: #5f747a;
+  font-size: 9px;
+}
+
+.shift-factor-chart circle {
+  fill: #e56734;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.reference-linear-viscoelastic-workbench.embedded .reviewed-delivery-summary {
+  margin: 0;
+}
+
+.modeling-elastomer-workspace .reference-linear-viscoelastic-workbench {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #d9e3e2;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.modeling-elastomer-workspace .elastomer-workbench-heading,
+.modeling-elastomer-workspace .elastomer-baseline-editor {
+  display: none;
+}
+
+.elastomer-workbench-heading {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dfe7e6;
+}
+
+.elastomer-workbench-heading h4 {
+  margin: 2px 0 4px;
+  font-size: 1.08rem;
+}
+
+.elastomer-baseline-editor {
+  margin: 0;
+}

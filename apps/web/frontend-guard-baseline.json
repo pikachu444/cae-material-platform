@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "fa417118cf77989d617024e68a4730d828d790df",
+  "sourceSha": "60cca28cc24bd7b734925b732b0b090a6534387f",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -40,14 +40,14 @@
     },
     {
       "path": "apps/web/src/styles.css",
-      "baselineLines": 6312,
+      "baselineLines": 5263,
       "responsibilities": ["legacy cross-feature selectors", "legacy responsive composition"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero consumers."
     },
     {
       "path": "apps/web/src/design/layout.css",
-      "baselineLines": 5437,
+      "baselineLines": 4942,
       "responsibilities": ["shared layout", "legacy route-specific layout selectors"],
       "followUpIssue": "#261",
       "removalCondition": "FE-06 separates shared layout primitives from feature-owned responsive composition."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 1777,
+      "count": 1473,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -897,24 +897,6 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "0158b5dcdcf3fdec1e7e3c9967755a09727915842a0e9657145e103df080834e",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "05ee1f9bb0f99623132fbcb9999a24d7a0b9c427b6a3fe5b29a95f9e21e09f73",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "11a105a59fe3876cd6327c5164dc67073f0aa1acd536b1358e9a4dec955b43f9",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
@@ -942,15 +924,6 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "1c6589956e1d54c10532500dd1e878ff0190878d4ee7e3747520690ade9b53dd",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "2ce6d902eb001aef271411eeaa69670bda84508dddd8d85f26ea538e9d12f08f",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
@@ -960,124 +933,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "2e50d57c43fad8b7ed296cf3787be3dc19e4147169fc0fe247ab3012a0450f7f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "30f38d832b46ad09d27c546503c32c80cf855d7b6fe9cd4f4c66d40f2e1d6f71",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "3341275b3050b6c5ec2d4a914f9d244b9e540b89a7fbb6c3957a82783b308d65",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "3e96af07b0e1fe7818660cb58b11ec4da47cab3cca05bd97e6d089f14fa32334",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "3f111d2fc52b27a255755f79ba80a7020ca534928db39efe69095d3632205df2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "3fdeca77d2edf221e4fa3c52aa37a72b66b0e366f7f28c366d16dc10ee354e9a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "4042a23b1ae48121986e0dbf89fda3fc3ce1ee873acbab189b97da5880ddfa1d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "49dffc6fe75f281252f62cda9e380c4139d6538e3ec6e71cb9b7d3ee6bef2634",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "4c81f5bdd3696698e1d040e6e7c4b588f5fcb64fc4ddcc81981a20f1efcc723a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "4e52fda30beaaa42a3afc928b0441be84fc321d9936b2a9c224cf9e400ef4031",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "59433110c31b63e4ea832dacaca422f0b0e3009594cb647a639c549e007886bb",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "5d6a2f9a49d05806fdebf106eaf02c2c623d708752806c8bbbc541bef15086d2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "5eca5bb03f2aafb1deace968a7c17ee03d80d8a8fb54fc6d6605a045b27d4672",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "5fbe8c521c933225a773c73f08c50e9a4e867c7bb0578ce54b86eea3620ac84c",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1113,25 +969,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "84707858358e7ad47a9b9a0adbb07e7bcb99723939c8a402b5155367dabd7a6e",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "850c3e11e924a31ee35f07afef2f56552b1b6e1c4119d41cb7253287fcc0cfc4",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "881c77c3b296f609f1d9e291be44b1115117cd66ce2a124adb68841514e35789",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1167,24 +1005,6 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "9616991c959b0135a387443f3d1bbd573a4809fff2bf787ff1ecf91476485f6c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "9c7ea60a151e22b3ae4ba58919fa3ca20bb0a9c1b38760bd780ed458336478c3",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "9ce3f9a9e32320998ca18b24508226fd31b07f02c519c7e20754d39e28aefae4",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
@@ -1203,43 +1023,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "a3127ef65821d66ad4faef0482d3f1956c2af2dad4d780a118b454985c8c511e",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "a975612ab133d2af81dfde1a66b5293faf2dfb17f57a9baa370907f14709ab2f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "ad321181756a9a1770c855cdb1bdd814838f49e747c4e287c3a12a7f7edcf78e",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "adf14ac7fe2bba67118240d151a78e2dfbeacecc30815fd1876c57a11bdd4622",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "b46cf17781c22b1d8cdf76e0d4d4434cb5c61f0280ef5360a2b4abeb4f9e3ba2",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1257,24 +1041,6 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "c05fc59c77787cbc2d599ced298b16e0187d241820b04c8b9788523a2f641ca1",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "c2df2105bba74daf11ac97cd1bc075f058b2aa1b021cd517c720938298dd6cd2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "c535626cb7d17bf2a2133fe11490c1b73a0a8fe2b3810e20785a4821f757ae80",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
@@ -1284,61 +1050,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "cf05cd6f357292091ad3cc560254979c7dc38310fd1ba669d3e16746d688116d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "dda2ecc5ee5a60a7f82f6e6299b9802ea3df3c75ae8e88ed9e46263bebcd6428",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "dde96bc3661db9fd716b37a7aaa24e9450cfe15aec9e779fe684053bfd895804",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "e9773a782b1c8ad705aa7aa63ca24cf8d71ad2da5deac4f30500294147a52652",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "ede14788e311f39961d00f993768613cacdc3d1b5e1d4be2d5e50ac1e14c4a2f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "f6f1caaeeb781a2126bd225ef1e8620c12660e30454b5b352bcf91a0ba9b1aa4",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "feab1ff3cf4f734c973bc4cc65f91766f18e770b082799d4ab3b9220b20baea2",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1356,52 +1068,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "1b418499fdd2fe0bac780d89ecbbe7927f81ecca14b2922a63f5c21494ea1c0f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
       "fingerprint": "1faee8ea3bd7441675c72fc86333f4dbe9a4cc0fc5583271c903dea973bf29d4",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "216c16e4b146e5661fd64f0d2fcfaed87ef5dab711c029b52e8a425e4449f38b",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "2da51a7e486afb34d601e6d70ea0fcad7215830995c4741dd940ea3e29f3615d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "2e422f1246bc11a2139236caf80e0025d936fbb43d20d0cbc3515d9e657cc8e8",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "2ec84a60e71cb631ad7f1c619a3d075cb9034fc2c4133282c23289207812e3c8",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1419,34 +1086,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "34a29d784c5af8dd22af92ca6a6d6be0cc4711ad1066974da1c3d4eb6f891642",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
       "fingerprint": "3d2b346f75e801ea70f8b74c0c1b01e3138670aa3afb63f9b8a2b1165d3b55cb",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "3e906d291603343e86c5a06ee266a11ff98761db79651c39840ef44630bbffda",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "4b59fb7194f567e87ef822d95c4f4fd9cf9b937666b4ed090721d269500dff8e",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1464,34 +1104,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "6217ca301263f9e4b8de9589d1b048361c5619b7258b1f034cc9060d628877c2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
       "fingerprint": "693db07389a5ce228f24576c5211229bb7ace135687b4ec10e84d8b454367dd2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "6975e93c4b5b26319cd7d67523fbd3182e343d70c4a31b7036b36397382399b1",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "711aa86addea4cbc24051097261edbdabeb45b108d8eb0812e0d322b9f2e53ab",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -1509,124 +1122,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "a26be756822cd756e19c5ba12ba57f55bfc0691bc3e08eb26f7d2f5fdc0e546c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "b0837726d095c6e66c4fb2ea6a38504754fbb4b4903853203e58d66050fae820",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "b258a2d36dedf9dff6d95006753691ed86f55de61f4243484a729487c2afa49b",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
       "fingerprint": "b2bf3cddc0d3fe7a7c777431f8efb5bc83085a145dece0af7fb26cbfd116573e",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "b52a36ad10992142a1eff8595e98ef597ffc5091c69aa6846cb894a41a29de8f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "c718d9739b0756117b643cc65cc813e3d46edf27689cb4399e3b136ec5fea979",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "d704b80b2242faa17bdce375f5fe171ac33b304b1cde3319aeb868b6e34dfeed",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "dcd3d7bc9bb42bc722eebb6ae1918c0dca6f9beddf4b09a2e527da4f7ed42248",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "de31cd289bf592f58c72036fb430d322c61c78455c70d31c84e1156fe113465a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "e19453a3f1cd5cfab70c709c71f51d8024e69a754234c9d09f0bb738c96dadb9",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "e4bcf2a6c1da3a0ba0f1d0cc874b8ef06451d4764b3049a950160c7042077d37",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "f33b3c21db52fb8fcd151a13358f6b69ea7a23a1675b84a4bb8023e0bc2f2f8a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "f97237d68a98c1a874b187342dd0f350ae1c77717f309982233012c46e06f9bc",
-      "maxOccurrences": 1,
-      "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "faee6c2d86ab117db077c0563ece37c05f09a642da26dd6ead8affbcaae69e3d",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
@@ -3260,6 +2756,1473 @@
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
       "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    }
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "2216e98f94082e8e660ebf5f230a4caffb562702af8e66605f804c9d2fbd234e",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "84cfed7b76850aae18889cd48cb54b2b14f6279f99dab7a7c3d674a66319edd0",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "ff58b19187903884adc0cab4a65b0e9d066337362365660fdfdbb36336c88b69",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "10e6a053f545139754f9286fa985db2eb356513cb71c1d141c0dfdda019a3951",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "4fec957765b4c7e3ab779fb1a2e0722d1e008bcef7a28170af6bda76fea11342",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "52e6e89149bc5f9dcc011543e77d5b1edfba54ac8e661e25d4de9723ced761d8",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "8b363703bec16844ff1ebce9338a2de907abf92afb5195a21cdd546d0c10ac78",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "900342d372bc3e14410a4c173641ac9ea9ac036cd5a024e2457f768333086c4c",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-FONT-WEIGHT",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "f70268d2d7f75604d1249459bffc31a8a1e926a52138207047793ab4b6b5cab6",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "0298db2c7c809fe7d702cc35eec75a65a74c7b8dbe9abffebf4a569cc97b17f9",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "0de0f38b611a21428d6dc31cf5901a5b829f1180dec33fe8f5eb087c3d1f835a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "0df5254855e47476b1fe2cd6c5587cfd287d99aa9812086987db563df75e9617",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "1259a015ed2e7819466387b164ca1a00675809f81b6eee4fa2c665766c0ff854",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "165a4283989b01ff6b8b71f62f0ce862a31af1ca894de5701078f6ce8da2a82e",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "1f28c7d02aa310e438e459273e7e93d17e0333cf1b6c9f0b84ad7168bcdc9dbb",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "1f39d71a4b2e3ca0d223495648af5a0e1f318ed73fa9427126a8e1de51a30ea2",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "21769a5719872ccb13f4986ce0ec4ce3509d584b411c4d9c3db3ff7477f5df80",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "2179301dcf0b8133ac1577b66f5dc0b81d47ba1ca9e97a537e6ce862eb3083ed",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "226044f4dcfc41f42ca05ebe5d95c4eec634e800bf86c9a112f17972aea1e537",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "2518dfce2e29e7ea7b84a1eec2d95977e824f993ca08329f08a431635b3d806a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "2557238fc7e76bfa2154dfc0eb9e08f4eab8349c56e1f4691115afc55078d922",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "29026bc09d819679329227409c0dd6ea0ac6e5d26c7184019514451bd765efe7",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "32650de6d981c2f6ca7913745bba730927ff50278b5731e1165bc72f6c1f7b39",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "3ca718dab9aa8317f3c87f75fc2db89b18a14876bd3f892c7cc362078fd36d58",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "3cdf26c2b35fd0760f9ed667152fd9d1a8cb95e8d5c8c2c3069366e7326125d2",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "441b51ca96ca0828e9705dc37424e329a0dcd340e516c764dfee40959290e71e",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "477853ce5486f8c15fd89928ae85cc4c4f4c9c0f91db8e5f9e2dd7d00856b3e1",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "4f9df86daada1b35f0453d2f8d14e8f6edb861684f24644f3e4a24a0d05124b2",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "556b65a6a4eaa27a519cd61f0f37501c51abcf9c752fa1b09534d043a3421ae7",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "5794d3aad3621e3ec433938f9e90dfd786f29ac899ac4e2008e19f062cdccd48",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "589e60a3a7234373e1d88d12e15d6884dd64963e5b85f3bb5017863a36e4ac74",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "6cba6818d6b2571562861f376d205a47d13b806141af340af30503366725cb7b",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "70a230506409c9c5f7a044379df5fa9433dd0f5be88d44fad3bc2ba6c39a4f13",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "7895015b652a724a5226a13549f7aab1afd10e9b8d3cdc8aef410b101c0bd3be",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "87ad73f2a6b42e4e70606b924c86a09a50eac05817a954a8dcb36a80c7b99ccb",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "885255de06ca88fce393db6362dee86063156552fb45748ad27d9e30a4b87515",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "953a93fcb3675e86e4d9819af409e6a118c41901e82f471ea0a60a1b4766529f",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "957597ea14090306d1a779fb8df89b5379fe5b7f4b7b223294e00dddf9d0f145",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "98a9012bda95e89d2252dca5e57e8558b4c99e574b7314ce93d6955f72667c75",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "9a29f4cf4d017911f0bd2fe0c9da4bc440f6773a78b031f7de4c3c3e21e3e255",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "9f283eec103de2dd0394134973ba2aa3534ac1a7efde9e3abeb5aa3b52c603fd",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "a47052587bcfaf91c3e7aa560912b3ca961b86bc37bc54419eb5f1c8885316dc",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "add346acf919872f154f0318acd469cd702aeb929e95d1e7c720742c199ae0d2",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "af3710e72187b514cb57115789a6cacea1301acf90c6962a3284a7217989e75b",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "b0b58d993c00f34b36b49d3cc066a770d5439292e1037db1ba42907c1d643262",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "b12169d234660b0091a8aa45702333218704155107938473cc4210bd61fe294f",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "b40e9fe07368e779d49beb073396506baf033be5bedcc3e31b5d9e7ded17d18b",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "b57947eb2519a886b8bb7844cb4f0f5c0b8087a6a5006401ae4ccbcac1b70845",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "b721179387c22adb4404f205468a86a60b7e8865ea500b6c8559135b784eb26a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "c071054127d6afd3f833d7cfe273f7f5f6100188c8f28454a15d7fb49a8ed5cc",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "cb3dbc7a7181fe4a481ea0d8af059f26a1d0b58dee504d41e7b1e8a8c9965c95",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "ce18ad226fc1bf9bd0f8e6dc973311e9a26880f38c2432883eb6f8b0c59a88ea",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "ce202b134a9837039fbe46fbc83da850b539ca82dd42108e128b7fbb7c29ea1f",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "cecee72befade134eabbe752ee8122f2dfc4fd42d4b4b4dea3e6e93d22f07a2e",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "d051bd5bb0d12353084de489012c1757d67d3208f6a4a025dd48cbea7107cacf",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "d378c728de5f13d0d974f627270c1a01013db96df949181a9a4933511ffd058c",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "d482fa4ac03ef237990948a92a67b7d8189703b4d58ce3f981e4361c7880f18b",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "d52308a6bd27b61bde28b40cabe7eb4cda0050256655b50b16bd4388e5dc179a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "d708db8d7bd07617c16c94f0d5fbb4895f159990bbbf783a99c471b63891b134",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "e4b4bf3d6bb5db1e68da5f302e9b52885e9d3c30613f50795db4c141cf8c1ee6",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "e8695ac7645eae6454357058a0ed66890ac0e6b404ef8a7ad358f13669c526b1",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "eaacbf1ac5408f9d4bdc89beb2a72ca9ce1620952b03d6489a789c8164ca3336",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "ed1bf21ef7e9f59651aed86ea6c22cc8b9f0ae3e8a0ffc2c5282a66ce5d38b63",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "f88036293c59fa3c1ea6b87083df425bb136441938bcd432ad422085aa269b65",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "f9fe623a58e9b784bd43ac2e781a27f8842058c3efe08b54f45a19028c0a2fae",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "fa632b76cfa54ef0582663039ddc7c7b1b446696a4f584608f1d07d3638e4034",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "fingerprint": "ff6b98a8b23fa0195ab208ca84ba437eb0a9c4717553166539e378f2a85a0151",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "04245ce55266c9de9560e9ab293bb7caa26a8720216e6a105d89b4e6f184c616",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "04bd21dbbaede9e4a4183688d8e68c257500051a1b7aa543a1894c8205d05014",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "06e53a59f14f9f239c9caa92280e77e26f5f71a81134d4c3bf76833da172e5f0",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "0d27c5b390e8c06fea5c9fa6a245b52ba3d9274318dc7c867c3e4a6397b409de",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "121d4b98fec0343a9dc887939cfa91655d538da656328deb553b90916ba07d08",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "1532275e46d3bba80bb42ac2d95507640b48d0d98c6964dd55678da871ba77e8",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "161ad14870a4ac505f90f13cc9b358a5c8d9a86f3ccee9f07fb82de9d830ac41",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "192e053bde9c16a3034bb75e0a5e94e3f6dbf78240067af35c5eef2281710cb9",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "1b6ac7a11e7de85806425a1012f90d6559af6b49cc2fa9e597f3816838963307",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "1ca71d20a66ecf67ad856cb9596c6ea5ab52db999aa1fccbba382cc6bafd054c",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "208f59995e51afc64013a53f3498b26fd499f229dee246664153ee9bd4f34c1b",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "220b9afca1bffefdc9c81a7704173dafc34dc7f06fe9fa2d70a4ef889f374c0a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "27ab96df1f0147f6c207938a25e55c349f4778dcfc75aecdc24918156c6571db",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "2853593839b675efaf22bd2a59954d45c7e3943a3830f85ad47738798b7cc32e",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "2864632c5ef8130cbf9117a7fa9f0c0f4f534b29995b9dc7f09319d3b6544fc5",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "31d6a134ee7098ca241b509f09741aa3a264a27b523cd2b2a10d48d32ef793bd",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "3947c8be56a10a1a8827061407863bf4ccea87bffdd4db8f87dda35587dbfb98",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "44b11b59640bd4edeba2a99c9b8064977aa05cf2ee5dfd7563cecb59c156fd19",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "593c1fbcd005a954544af1080dc1eae6d434f533fcdf242427d15ca0a66cdbe0",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "5c6ba9edce0717a5094acf9329d59ccb9f8958a3bc6b4686bc8f422e6a220161",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "5c90be422b08bdbc4e427d3fbd1ec16e69bfde3b0b597f01b1fd4b3ab3bbe8f0",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "6d36907c8dac9cfc074e83b4045a515ffce05e57e364e216f53ca550dd81d2f8",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "82ed308d32f2252edea9b5ac840aa664e43305db31cb781e498dc5b0da5cb1c2",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "8d2ca3bcefbb615892cf9a7a5653e0949a94bca7a9830542ac2c597759ad0880",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "908cf527bdb9fd5b69126f328b1798acda801b1c767ddd3f5170ea0453eeb980",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "9d88bc18e95cde085f6e9b106c1a1296a774cf71b9afae1cd895101883eed8a9",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "9f202eaf693d01cbc4495ed297b969424059dc383a88c7e533edd6f6eee3bfa8",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "a205679e2e61c4c195c25024c6ccb1b10d93682a078c05d02a869b1c3a2bc978",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "c7b15a46bf2df28ca5a76dc57d31dbcf8bfe97fc226f403e27744634f902be10",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "c7dd9bf38c4407f7bc005442414f98fa7ea2a2818add9249f33590862935afce",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "e2ae858518bd27cabdeb77d3bf1676a3c9aa871109cb0bcce8e0e3c89c5d20d9",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "e5c2ed9e53e763355b00f80a2e11cce457fec0da166b61e7604799ffd3dcc54c",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "ec17ce447d859b8fd22b5d7d9082359c21707c7f758f430abc6c627d8d47cfd5",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "fingerprint": "f528e511112dd7031a804be5a42058821718b739e29ade0029708f4392d24b70",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "053cad4efb9a233ce6db99a5157db1f40141034af194b761077edb678762537a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "08f97efc19d742f749a2ed680e2989afd47cc37ee31c0e288a2f6d7f2053776c",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "16b842518ddf86e37849f730b7ae53e15adf2460d6c710cab4d505e2dc8ddd11",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "1a7c9c4219c8522f388814f067ed6c6cc4fc6232167c24d670f004265c745271",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "22f8789708f10f486267f2edf985763e870675561b67d24330e0f5f85d8caf23",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "25d73a99a69722a40bc82244ae601e7418ae49b216f10223f8a732258d714119",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "30ec30d2d408acc3995012fc0d774b272fab0ac0b7c69171ee662bf08f1b7e23",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "317eedcb89541ced186200a6ef0eb6a595824689662bacaa4339028af24e44d6",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "42615a16a4c501bec96404e53ef5edf73a785f7b225e41556737621dfe7ffd99",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "46f41f9b8326d5f8b4d6d238fc23df7d7d9a0ac43ac48eaae4cb8f1fe0142692",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "5643b88fed7946aa073068651a620463b6653fd04cad2c65fbd38b0e72df09d6",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "5cec49a92b04754110bf4072a476310f995e2f9ec51ccc3980a29dde7c956beb",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "60ed6be87e7c1c4f5339cd6f535b6d692eda16649b537bce930987a4eaa87225",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "61c086cfbbeb2933b63936454faa184b85236bcecf0aeb0b04065eeb10774560",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "6866fedd7c3ed60ff74726a59e3bdca6a2f0b77e307c256d1a7cab7e69b891af",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "6b64072b2998363e771b461740720fddbac1768293ec77f6f58130b93a45a102",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "6c29d42bef4004fbe0105c7efa8ac2a9d6ab7c9279f82b90cfe52e13f2b3f2cb",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "6e140f64137898c6f54c0f8087febe907499ca06fec7563d9e12215a29b78616",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "729e12076f080cc0cb7ff5966aa7a62b35c40f38703fe24083c7ac6b084fbf0c",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "74f1d38e223d7e65ebcdeaf442d59967afe3873ab1e8ee0b7be5daff75ae850a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "761cc256687288b485a16d350ed74691a6cf8795aed17e1c039e60e6ff1c1ea0",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "90e2105de611c02d7e42ec7aa9e7d663c93336d4233d615c1ca5170696c76cd4",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "976911d1d8ea996902549326da7b322f09a63773a9984df550dee3444d8178e6",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "a8c4ec8f024ee8cf5d9852733a243b7cd2bf33bad6ce8a2eda2c68eb0e68fdf7",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "aea66fae4026fae9effbbd1ac85eafce2cde9a2da8e52cdd66618b5d47a00e42",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "bfbcb7f06523de9513ada9a8e4b5733ca495ddc875b45a41255873f251bde250",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "c284bc3b9bef3c050914fc0b9ae0a513a3de7d02bc63ad6e33d3d7e64914b754",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "c757715d4a0eb827b8d45e8e8f98da0ba010c1739d105e4da6f347eb9462bcaa",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "c8b92ebd66028a669a9668d4c30a3fa8550234d91e4b21f1f66219b4281ac219",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "ce6df13bb31b313ec456797b53906c5b0bfb21dfe601a337da14658af7d5ae47",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "cf36a7e7b0652f9b8b90e135efc765aac491134fad4e82fff3dc9c097104f392",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "d7a04af9a24ca26fe00ef97dd96117756c865272a64e2adc5ced873f5b3ede06",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "d9772d35bf14c086a3096b07546dec20e859ef65e8e9750ab449b080f7e87920",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "dc525cd3d69bda9b4a764922be2b170fdbef8bcc404fed2ef8c32a2e3b2af50f",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "e210c4d615cf61cc414177afbd8fa749030595bb32732dc2f3dacf1ade13516a",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "fingerprint": "ef648556a495b042dee7cbd1e67eae7791ded662d49a95b958f8d01c8fb55172",
+      "maxOccurrences": 1,
+      "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+    },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "653544bcdb5829424e595b818a129f6dc269e799027b347353550a7eda4df945",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "2e5a2e6b8e19d4d131d92532d675b4f7a4d99568080adc8a42a67b9ee6d5c712",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "6f7485b96b7c40999e7e2f56f2d51736b9148ec7f65dc5cdc9eb437579d8d056",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "46798a465b221fefc64578358980aed763a2228fc0a01cf78965d03dbee1c5bb",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "5a8724de85a264cc01929800ce252cd4bfa2fe93a3ac3ade635dc2ec16a28a1e",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-FONT-WEIGHT",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "4d4916cc5b3d74acda8870be690be3289565179304e4a2aba61016867184b50b",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "d6e135edd3aea90227830876b2d06dd6f53dab7c7a178f7919de3e0391c62ea0",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "1d7064b30af3b2c38bb381a7bbf181e51f2d070505510a1c348a3fa6390ab799",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "142d0202c5b23c36031f6ea9798423a185ec52b30f6c5a34e63164f5153b0654",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "0429c472840679849649b2bf6ec688b7d99d8b4fd3ad57343ea293b4fc0486f8",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-FONT-WEIGHT",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "1357ed7f089f28fde84d3be501a0cb332660c3fdea03f1a429dee0bdf6644e0c",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "d0dcec6e03810378d30fdc700e5568f4687ec1347f21ce55a731d368b6ffbb41",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "f170107b8a09e0cd31c29baae5b573ee633362effa91492d66df8f5d414011a0",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "c8e0875652dead83036bc140a43524574a72cfe3dee5f5b66017e050f01ab5a8",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "7b95cffc990cd32d8feec5adfc11aa079bb964488a289c00c44d364f2575b831",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "ae3fc1639341295a7648a3fb5f0b4e7fc257854af7df91eef8b11fb8af922a84",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "fd8cb053d0cf40ad667fb296841d07285f852b6c76dd4fb6d4d6791fe0dd18a0",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-FONT-WEIGHT",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "6926b34e7c0ca264e1d4d05f7d1a4b326b59a8246eb7da0e4d91fe0f5f1a3544",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "5043c8d019e86ac06415dff59a037b0ebc6f18a888c33b61f031f568c7a57bd2",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "2cd37417decb55301e013de3e2def9f11a06ee20a2284b5b72663177396a4d25",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "2e60287192008216e2f27d4916a580a1dc760c597ecb9ed9acb8a482279220c2",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-FONT-WEIGHT",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "a0e4887bb97ed36f591436b86034fc25aff2bb93f63c48f1480289198ab4b543",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "59d4b02ceaf7872d3e9d7b34303b734ba83fc38d7e3a2bdf87255279ff1118c4",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "de1f5e847fa912e11279390316395d01a79605499a82146b55a757d5a983bdc7",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-RAW-COLOR",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "1c2d29ab2b1a1c6c29336fb045f3b6b05a90079f93fefa978257b4f119009bf4",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      },
+      {
+        "ruleId": "CMP-FE-FONT-WEIGHT",
+        "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+        "fingerprint": "4dc3b781d225540a1f1bf1cd37c6115f4b7e99e57023adf8c120570439917846",
+        "maxOccurrences": 1,
+        "reason": "Issue #261 M1E relocates this pre-existing declaration unchanged from frozen base 60cca28cc24bd7b734925b732b0b090a6534387f into its exact Modeling owner; this exception preserves existing debt without authorizing new styling.",
+        "ownerIssue": "#261",
+        "removalCondition": "Remove only in a bounded semantic-normalization unit after the exact preserved declaration disappears without changing the approved Modeling behavior or geometry."
+      }
   ]
 }

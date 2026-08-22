@@ -1,0 +1,1740 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1E2-modeling-core-shell-ownership-evidence",
+  "comparison": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before-after-comparison.json",
+  "artifacts": [
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-advanced-open-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-860x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-861x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-1366x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-1920x1080.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-2560x1440.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-3840x2160.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-reload-resume-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-selected-pressed-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-stage-hover-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-advanced-open-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-860x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-861x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-1366x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-1920x1080.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-2560x1440.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-3840x2160.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-reload-resume-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-selected-pressed-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-stage-hover-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-fit-candidate-parameters-dock-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--default-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--default-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--default-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-blocked-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-blocked-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-blocked-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-controls-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-graph-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-header-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-navigator-100pct.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-advanced-open-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-860x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-861x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-1366x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-1920x1080.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-2560x1440.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-3840x2160.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-reload-resume-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-selected-pressed-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-stage-hover-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-advanced-open-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-860x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-861x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-1366x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-1920x1080.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-2560x1440.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-3840x2160.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-reload-resume-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-selected-pressed-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-stage-hover-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-fit-candidate-parameters-dock-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--default-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--default-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--default-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1180x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1181x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-blocked-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-blocked-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-blocked-901x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-1440x900.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-900x768.png"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-901x768.png"
+    }
+  ],
+  "allowed_duplicate_groups": [
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-fit-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-process-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-data-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-process-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-fit-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-process-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-data-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-process-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-fit-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-process-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-data-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-process-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-fit-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-process-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-data-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-process-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-fit-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-process-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-data-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-process-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1180x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1180x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-1181x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-1181x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-860x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-860x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-861x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-861x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-900x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-900x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-header-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-breakpoint-901x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-901x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-901x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-901x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1366x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1366x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1440x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1440x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1440x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1440x900-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-1920x1080-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-1920x1080-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-2560x1440-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-2560x1440-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/datasets-processing-stage-data-normal-3840x2160-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-3840x2160-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-normal-3840x2160-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-3840x2160-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1180x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1180x900-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-breakpoint-1181x900-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-1181x900-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1366x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1366x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-1920x1080-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-1920x1080-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-controls-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-controls-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/crops/modeling-stage-data-normal-2560x1440-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-normal-2560x1440-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-advanced-open-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-advanced-open-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-advanced-open-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-advanced-open-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-1180x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-1180x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-1181x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-1181x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-860x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-860x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-861x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-861x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-900x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-900x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-breakpoint-901x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-901x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-1366x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-reload-resume-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-selected-pressed-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-stage-hover-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-reload-resume-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-selected-pressed-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-stage-hover-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-reload-resume-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-selected-pressed-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-stage-hover-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-reload-resume-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-selected-pressed-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-stage-hover-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-2560x1440.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/datasets-processing-stage-data-normal-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-normal-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-1180x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-1180x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-breakpoint-1181x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-1181x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-1366x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-data-normal-2560x1440.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-normal-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/product/states/modeling-stage-fit-candidate-parameters-dock-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-fit-candidate-parameters-dock-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--default-1180x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--default-1180x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--default-1181x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--default-1181x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--default-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--default-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1180x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1180x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1181x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1181x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--export-reclaims-navigator-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1180x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1180x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1181x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1181x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/foundation-modelingworkspacelayout--ribbon-collapsed-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-blocked-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-blocked-900x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-blocked-900x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-blocked-901x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-blocked-901x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-900x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-900x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/after/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-901x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/storybook/governed-workflowcomponents--modeling-stage-selected-with-readiness-901x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-860x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-860x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-861x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-861x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-graph-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-graph-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/datasets-processing-stage-data-breakpoint-900x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/crops/modeling-stage-data-breakpoint-900x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-860x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-860x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-861x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-861x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-900x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-900x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #261 M1E2 exact-hash provenance across sequential before/after phases and equivalent Modeling routes; the compact-stage correction is registered only where the final bytes remain equal.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/datasets-processing-stage-data-breakpoint-901x768.png",
+        "docs/17-evidence/images/issue-261-m1e2-modeling-core-shell/before/product/states/modeling-stage-data-breakpoint-901x768.png"
+      ]
+    }
+  ]
+}

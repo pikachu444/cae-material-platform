@@ -1,0 +1,10 @@
+{
+  "baseUrl": "http://127.0.0.1:32779",
+  "browserZoomPercent": 100,
+  "captureHelper": "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/capture_modeling_stage_ownership.py",
+  "devicePixelRatio": 1,
+  "projectName": "cmp-demo-test-m1e261i",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+  "viewport": "1440x900",
+  "visualViewportScale": 1
+}

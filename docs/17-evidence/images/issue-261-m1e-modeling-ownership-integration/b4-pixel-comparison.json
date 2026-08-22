@@ -1,0 +1,247 @@
+[
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-data-1366x768.png",
+    "rgbRms": 0.0,
+    "size": [
+      1366,
+      768
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-data-1440x900.png",
+    "rgbRms": 0.0,
+    "size": [
+      1440,
+      900
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-data-1920x1080.png",
+    "rgbRms": 0.0,
+    "size": [
+      1920,
+      1080
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-data-2560x1440.png",
+    "rgbRms": 0.0,
+    "size": [
+      2560,
+      1440
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-data-3840x2160.png",
+    "rgbRms": 0.0,
+    "size": [
+      3840,
+      2160
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.00404828,
+    "diffBounds": [
+      541,
+      246,
+      977,
+      278
+    ],
+    "name": "modeling-export-1366x768.png",
+    "rgbRms": 6.9656,
+    "size": [
+      1366,
+      768
+    ],
+    "status": "pixel-different"
+  },
+  {
+    "changedPixelRatio": 0.00345833,
+    "diffBounds": [
+      541,
+      246,
+      1034,
+      278
+    ],
+    "name": "modeling-export-1440x900.png",
+    "rgbRms": 6.4059,
+    "size": [
+      1440,
+      900
+    ],
+    "status": "pixel-different"
+  },
+  {
+    "changedPixelRatio": 0.00224296,
+    "diffBounds": [
+      542,
+      246,
+      1034,
+      278
+    ],
+    "name": "modeling-export-1920x1080.png",
+    "rgbRms": 5.1826,
+    "size": [
+      1920,
+      1080
+    ],
+    "status": "pixel-different"
+  },
+  {
+    "changedPixelRatio": 0.00118273,
+    "diffBounds": [
+      541,
+      246,
+      1034,
+      278
+    ],
+    "name": "modeling-export-2560x1440.png",
+    "rgbRms": 3.8097,
+    "size": [
+      2560,
+      1440
+    ],
+    "status": "pixel-different"
+  },
+  {
+    "changedPixelRatio": 0.00055399,
+    "diffBounds": [
+      1123,
+      246,
+      1615,
+      278
+    ],
+    "name": "modeling-export-3840x2160.png",
+    "rgbRms": 2.5761,
+    "size": [
+      3840,
+      2160
+    ],
+    "status": "pixel-different"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-fit-1366x768.png",
+    "rgbRms": 0.0,
+    "size": [
+      1366,
+      768
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-fit-1440x900.png",
+    "rgbRms": 0.0,
+    "size": [
+      1440,
+      900
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-fit-1920x1080.png",
+    "rgbRms": 0.0,
+    "size": [
+      1920,
+      1080
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-fit-2560x1440.png",
+    "rgbRms": 0.0,
+    "size": [
+      2560,
+      1440
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-fit-3840x2160.png",
+    "rgbRms": 0.0,
+    "size": [
+      3840,
+      2160
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-process-1366x768.png",
+    "rgbRms": 0.0,
+    "size": [
+      1366,
+      768
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-process-1440x900.png",
+    "rgbRms": 0.0,
+    "size": [
+      1440,
+      900
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-process-1920x1080.png",
+    "rgbRms": 0.0,
+    "size": [
+      1920,
+      1080
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-process-2560x1440.png",
+    "rgbRms": 0.0,
+    "size": [
+      2560,
+      1440
+    ],
+    "status": "pixel-identical"
+  },
+  {
+    "changedPixelRatio": 0.0,
+    "diffBounds": null,
+    "name": "modeling-process-3840x2160.png",
+    "rgbRms": 0.0,
+    "size": [
+      3840,
+      2160
+    ],
+    "status": "pixel-identical"
+  }
+]

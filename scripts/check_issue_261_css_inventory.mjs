@@ -1955,7 +1955,7 @@ function makeInventory() {
         residualRouting: {
           "M1A-modeling-data": 9,
           "M1B-modeling-process": 29,
-          "M1E-modeling-shell-and-family": 717,
+          "M1E-modeling-shell-and-family": 383,
           "HOLD-owner-or-cross-feature-split": 504,
           "M4-shared-cleanup": 314,
           "M6-zero-consumer-removal-candidate": 533,
@@ -2451,7 +2451,7 @@ function validateInventory(inventory) {
     const expectedResiduals = {
       "M1A-modeling-data": 9,
       "M1B-modeling-process": 29,
-      "M1E-modeling-shell-and-family": 717,
+      "M1E-modeling-shell-and-family": 383,
       "HOLD-owner-or-cross-feature-split": 504,
       "M4-shared-cleanup": 314,
       "M6-zero-consumer-removal-candidate": 533,
@@ -2461,7 +2461,7 @@ function validateInventory(inventory) {
         errors.push(`combined B4 residual ${batch} is ${combined.current.byMigrationBatch[batch] ?? "missing"}/${combined.residualRouting[batch] ?? "missing"}, expected ${count}`);
       }
     }
-    if (combined.current.selectorRows !== 2106 || combined.current.cssRuleGroups !== 1777 || combined.current.crossCssDuplicateRows !== 6) {
+    if (combined.current.selectorRows !== 1772 || combined.current.cssRuleGroups !== 1473 || combined.current.crossCssDuplicateRows !== 10) {
       errors.push(`combined B4 current totals are ${JSON.stringify(combined.current)}`);
     }
   }

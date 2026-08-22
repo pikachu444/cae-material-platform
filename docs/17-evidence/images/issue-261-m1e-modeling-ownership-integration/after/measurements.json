@@ -1,0 +1,5279 @@
+[
+  {
+    "activeStage": "Data",
+    "exactContext": {
+      "mappingProfile": {
+        "id": "fb11dfb6-6d3d-439a-96ed-ae5e310f0f67",
+        "revisionId": "038807df-7320-4878-8497-71c0e1f4affd",
+        "revisionNo": 1
+      },
+      "selectedTestDataRefs": [
+        {
+          "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+          "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+          "revisionNo": 1
+        },
+        {
+          "id": "6247c720-9842-430c-aa06-8b821f21a374",
+          "revisionId": "7d15b073-123f-4ee6-a5d3-6b84be03f6fc",
+          "revisionNo": 1
+        },
+        {
+          "id": "f905a2a7-ada7-4f25-89c5-587ef690beb0",
+          "revisionId": "5f2b85e5-563e-4d6f-81c7-ffeac0852de7",
+          "revisionNo": 1
+        }
+      ],
+      "testData": {
+        "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+        "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+        "revisionNo": 1
+      }
+    },
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "data",
+    "surface": "canonical",
+    "viewport": "1366x768",
+    "workspace": {
+      "height": 646,
+      "width": 1366,
+      "x": 0,
+      "y": 122
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Process",
+    "drawableRatio": 0.6943150046598322,
+    "fitClusterHeight": 0,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 0,
+    "fitClusterWidth": 0,
+    "fitEvidenceTrigger": null,
+    "fitGroups": [],
+    "fitHeaderSource": null,
+    "fitHeaderState": null,
+    "fitInput": null,
+    "fitPlotHeading": {
+      "box": null,
+      "clientHeight": 0,
+      "clientWidth": 0,
+      "count": 0,
+      "display": "",
+      "scrollHeight": 0,
+      "scrollWidth": 0,
+      "text": ""
+    },
+    "fitRemoveStep": null,
+    "fitRibbon": null,
+    "fitStepCount": 0,
+    "fitTopActions": [
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "fitTopActionsContainer": null,
+    "horizontalAxisBox": {
+      "bottom": 707,
+      "height": 0,
+      "left": 382,
+      "right": 1127,
+      "top": 707,
+      "width": 745
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 732.0625,
+    "legendBox": {
+      "bottom": 732.0625,
+      "height": 253.0625,
+      "left": 1155,
+      "right": 1339,
+      "top": 479,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": 8,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 767,
+    "plotFrameBox": {
+      "bottom": 759,
+      "height": 290,
+      "left": 302,
+      "right": 1357,
+      "top": 469,
+      "width": 1055
+    },
+    "processClusterHeight": 634,
+    "processClusterLeft": 0,
+    "processClusterTop": 134,
+    "processClusterWidth": 1366,
+    "processControls": [
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 317,
+          "right": 590.265625,
+          "top": 221,
+          "width": 273.265625
+        },
+        "clientHeight": 38,
+        "clientWidth": 271,
+        "height": 40,
+        "label": "Evaluation method",
+        "scrollHeight": 38,
+        "scrollWidth": 271,
+        "whiteSpace": "pre"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 598.265625,
+          "right": 801.21875,
+          "top": 221,
+          "width": 202.953125
+        },
+        "clientHeight": 38,
+        "clientWidth": 201,
+        "height": 40,
+        "label": "Elastic range start",
+        "scrollHeight": 38,
+        "scrollWidth": 201,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 805.21875,
+          "right": 1008.1875,
+          "top": 221,
+          "width": 202.96875
+        },
+        "clientHeight": 38,
+        "clientWidth": 201,
+        "height": 40,
+        "label": "Elastic range end",
+        "scrollHeight": 38,
+        "scrollWidth": 201,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 318,
+          "right": 655.21875,
+          "top": 319,
+          "width": 337.21875
+        },
+        "clientHeight": 38,
+        "clientWidth": 335,
+        "height": 40,
+        "label": "Process result name",
+        "scrollHeight": 38,
+        "scrollWidth": 335,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 665.21875,
+          "right": 1171.046875,
+          "top": 319,
+          "width": 505.828125
+        },
+        "clientHeight": 38,
+        "clientWidth": 504,
+        "height": 40,
+        "label": "Reason for saving Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 504,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 1181.046875,
+          "right": 1327,
+          "top": 319,
+          "width": 145.953125
+        },
+        "clientHeight": 38,
+        "clientWidth": 144,
+        "height": 40,
+        "label": "Save Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 144,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "processPanel": {
+      "bottom": 426,
+      "height": 291,
+      "left": 293,
+      "right": 1351,
+      "top": 135,
+      "width": 1058
+    },
+    "processRibbon": {
+      "bottom": 427,
+      "height": 292,
+      "left": 293,
+      "right": 1366,
+      "top": 135,
+      "width": 1073
+    },
+    "processRowClipped": false,
+    "processRows": [
+      {
+        "clipped": false,
+        "text": "Tensile test 0001"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0002"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0003"
+      }
+    ],
+    "railWidth": 288,
+    "ribbonHeight": 292,
+    "saveBand": {
+      "bottom": 359,
+      "height": 58,
+      "left": 318,
+      "right": 1327,
+      "top": 301,
+      "width": 1009
+    },
+    "stage": "process",
+    "surface": "canonical",
+    "svgBottom": 759,
+    "svgBox": {
+      "bottom": 759,
+      "height": 290,
+      "left": 302,
+      "right": 1357,
+      "top": 469,
+      "width": 1055
+    },
+    "svgHeight": 290,
+    "svgWidth": 1055,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 963.46875,
+          "right": 1048.765625,
+          "top": 54.5,
+          "width": 85.296875
+        },
+        "clientHeight": 38,
+        "clientWidth": 83,
+        "height": 40,
+        "label": "Advanced",
+        "scrollHeight": 38,
+        "scrollWidth": 83,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1058.765625,
+          "right": 1214.765625,
+          "top": 54.5,
+          "width": 156
+        },
+        "clientHeight": 38,
+        "clientWidth": 154,
+        "height": 40,
+        "label": "Distribution analysis",
+        "scrollHeight": 38,
+        "scrollWidth": 154,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1224.765625,
+          "right": 1356,
+          "top": 54.5,
+          "width": 131.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 129,
+        "height": 40,
+        "label": "Preview changes",
+        "scrollHeight": 38,
+        "scrollWidth": 129,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "viewport": "1366x768",
+    "viewportHeight": 768,
+    "workspace": {
+      "height": 634,
+      "width": 1366,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 634,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 1366,
+    "xAxisLabelBottom": 754,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Fit",
+    "drawableRatio": 0.6943150046598322,
+    "fitClusterHeight": 634,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 134,
+    "fitClusterWidth": 1366,
+    "fitEvidenceTrigger": {
+      "bottom": 314,
+      "height": 17,
+      "left": 1244.140625,
+      "right": 1358,
+      "top": 297,
+      "width": 113.859375
+    },
+    "fitGroups": [
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 293,
+          "right": 539.390625,
+          "top": 169,
+          "width": 246.390625
+        },
+        "controls": [
+          {
+            "bottom": 208.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 303,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 316,
+            "tagName": "input",
+            "top": 195.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 208.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 419.6875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 432.6875,
+            "tagName": "input",
+            "top": 195.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 235.09375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 303,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 316,
+            "tagName": "input",
+            "top": 222.09375,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 235.09375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 419.6875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 432.6875,
+            "tagName": "input",
+            "top": 222.09375,
+            "width": 13,
+            "widthStyle": "13px"
+          }
+        ],
+        "gridTemplateColumns": "repeat(2, minmax(0px, 1fr))",
+        "label": "Candidate models",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 539.390625,
+          "right": 690.40625,
+          "top": 169,
+          "width": 151.015625
+        },
+        "controls": [
+          {
+            "bottom": 254,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 549.390625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 612.390625,
+            "tagName": "input",
+            "top": 214,
+            "width": 63,
+            "widthStyle": "63px"
+          },
+          {
+            "bottom": 254,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 616.390625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 679.40625,
+            "tagName": "input",
+            "top": 214,
+            "width": 63.015625,
+            "widthStyle": "63.0156px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Fit range",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 690.40625,
+          "right": 849.359375,
+          "top": 169,
+          "width": 158.953125
+        },
+        "controls": [
+          {
+            "bottom": 257.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 700.40625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 766.875,
+            "tagName": "select",
+            "top": 217.109375,
+            "width": 66.46875,
+            "widthStyle": "66.4688px"
+          },
+          {
+            "bottom": 257.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 771.875,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 838.359375,
+            "tagName": "select",
+            "top": 217.109375,
+            "width": 66.484375,
+            "widthStyle": "66.4844px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Preview blend",
+        "paired": {
+          "box": {
+            "bottom": 257.109375,
+            "height": 62.109375,
+            "left": 700.40625,
+            "right": 838.359375,
+            "top": 195,
+            "width": 137.953125
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 257.109375,
+                "height": 62.109375,
+                "left": 700.40625,
+                "right": 766.875,
+                "top": 195,
+                "width": 66.46875
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "66.4688px"
+            },
+            {
+              "box": {
+                "bottom": 257.109375,
+                "height": 62.109375,
+                "left": 771.875,
+                "right": 838.359375,
+                "top": 195,
+                "width": 66.484375
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "66.4844px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "137.953px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 849.359375,
+          "right": 1016.28125,
+          "top": 169,
+          "width": 166.921875
+        },
+        "controls": [
+          {
+            "bottom": 234.1875,
+            "boxSizing": "border-box",
+            "height": 37.1875,
+            "left": 859.359375,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 973.8125,
+            "tagName": "input",
+            "top": 197,
+            "width": 114.453125,
+            "widthStyle": "114.453px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Blend ratio",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1016.28125,
+          "right": 1183.1875,
+          "top": 169,
+          "width": 166.90625
+        },
+        "controls": [
+          {
+            "bottom": 274.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1026.28125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1096.734375,
+            "tagName": "input",
+            "top": 234.109375,
+            "width": 70.453125,
+            "widthStyle": "70.4531px"
+          },
+          {
+            "bottom": 274.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1101.734375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1172.1875,
+            "tagName": "input",
+            "top": 234.109375,
+            "width": 70.453125,
+            "widthStyle": "70.4531px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Output range",
+        "paired": {
+          "box": {
+            "bottom": 274.109375,
+            "height": 79.109375,
+            "left": 1026.28125,
+            "right": 1172.1875,
+            "top": 195,
+            "width": 145.90625
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 274.109375,
+                "height": 79.109375,
+                "left": 1026.28125,
+                "right": 1096.734375,
+                "top": 195,
+                "width": 70.453125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "70.4531px"
+            },
+            {
+              "box": {
+                "bottom": 274.109375,
+                "height": 79.109375,
+                "left": 1101.734375,
+                "right": 1172.1875,
+                "top": 195,
+                "width": 70.453125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "70.4531px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "145.906px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1183.1875,
+          "right": 1365.984375,
+          "top": 169,
+          "width": 182.796875
+        },
+        "controls": [
+          {
+            "bottom": 225,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 1193.1875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1272.578125,
+            "tagName": "button",
+            "top": 195,
+            "width": 79.390625,
+            "widthStyle": "79.3906px"
+          },
+          {
+            "bottom": 225,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 1276.578125,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1355.984375,
+            "tagName": "button",
+            "top": 195,
+            "width": 79.40625,
+            "widthStyle": "79.4062px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Graph selection",
+        "paired": null
+      }
+    ],
+    "fitHeaderSource": {
+      "bottom": 83,
+      "height": 17,
+      "left": 139.90625,
+      "right": 290.59375,
+      "top": 66,
+      "width": 150.6875
+    },
+    "fitHeaderState": {
+      "bottom": 83,
+      "height": 17,
+      "left": 298.59375,
+      "right": 412.109375,
+      "top": 66,
+      "width": 113.515625
+    },
+    "fitInput": {
+      "box": {
+        "bottom": 230,
+        "top": 169
+      },
+      "clipped": false,
+      "text": "DP780 / Tensile test 0001Saved Process result",
+      "visible": true
+    },
+    "fitPlotHeading": {
+      "box": {
+        "bottom": 346.375,
+        "height": 18.75,
+        "left": 302,
+        "right": 440.796875,
+        "top": 327.625,
+        "width": 138.796875
+      },
+      "clientHeight": 19,
+      "clientWidth": 139,
+      "count": 1,
+      "display": "block",
+      "scrollHeight": 19,
+      "scrollWidth": 139,
+      "text": "Hardening response"
+    },
+    "fitRemoveStep": {
+      "bottom": 161.5,
+      "height": 20,
+      "left": 1269.859375,
+      "right": 1356,
+      "top": 141.5,
+      "width": 86.140625
+    },
+    "fitRibbon": {
+      "bottom": 316,
+      "height": 181,
+      "left": 293,
+      "right": 1366,
+      "top": 135,
+      "width": 1073
+    },
+    "fitStepCount": 4,
+    "fitTopActions": [
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 979.578125,
+          "right": 1060.21875,
+          "top": 57.5,
+          "width": 80.640625
+        },
+        "clientHeight": 32,
+        "clientWidth": 79,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Advanced",
+        "scrollHeight": 32,
+        "scrollWidth": 79,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1082.21875,
+          "right": 1205.5,
+          "top": 57.5,
+          "width": 123.28125
+        },
+        "clientHeight": 32,
+        "clientWidth": 121,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Preview changes",
+        "scrollHeight": 32,
+        "scrollWidth": 121,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(36, 94, 168)",
+        "borderColor": "rgb(36, 94, 168)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1215.5,
+          "right": 1356,
+          "top": 57.5,
+          "width": 140.5
+        },
+        "clientHeight": 32,
+        "clientWidth": 139,
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Save fit & continue",
+        "scrollHeight": 32,
+        "scrollWidth": 139,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "fitTopActionsContainer": {
+      "bottom": 91.5,
+      "height": 34,
+      "left": 979.578125,
+      "right": 1356,
+      "top": 57.5,
+      "width": 376.421875
+    },
+    "horizontalAxisBox": {
+      "bottom": 686.25,
+      "height": 0,
+      "left": 382,
+      "right": 1127,
+      "top": 686.25,
+      "width": 745
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 673.53125,
+    "legendBox": {
+      "bottom": 673.53125,
+      "height": 305.53125,
+      "left": 1155,
+      "right": 1339,
+      "top": 368,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": null,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 767,
+    "plotFrameBox": {
+      "bottom": 738.25,
+      "height": 380.25,
+      "left": 302,
+      "right": 1357,
+      "top": 358,
+      "width": 1055
+    },
+    "processClusterHeight": 0,
+    "processClusterLeft": 0,
+    "processClusterTop": 0,
+    "processClusterWidth": 0,
+    "processControls": [],
+    "processPanel": null,
+    "processRibbon": null,
+    "processRowClipped": false,
+    "processRows": [],
+    "railWidth": 288,
+    "ribbonHeight": 181,
+    "saveBand": null,
+    "stage": "fit",
+    "surface": "canonical",
+    "svgBottom": 738.25,
+    "svgBox": {
+      "bottom": 738.25,
+      "height": 380.25,
+      "left": 302,
+      "right": 1357,
+      "top": 358,
+      "width": 1055
+    },
+    "svgHeight": 380.25,
+    "svgWidth": 1055,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "viewport": "1366x768",
+    "viewportHeight": 768,
+    "workspace": {
+      "height": 634,
+      "width": 1366,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 634,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 1366,
+    "xAxisLabelBottom": 733.25,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Export",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "export",
+    "surface": "canonical",
+    "viewport": "1366x768",
+    "workspace": {
+      "height": 600,
+      "width": 1366,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Data",
+    "exactContext": {
+      "mappingProfile": {
+        "id": "fb11dfb6-6d3d-439a-96ed-ae5e310f0f67",
+        "revisionId": "038807df-7320-4878-8497-71c0e1f4affd",
+        "revisionNo": 1
+      },
+      "selectedTestDataRefs": [
+        {
+          "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+          "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+          "revisionNo": 1
+        },
+        {
+          "id": "6247c720-9842-430c-aa06-8b821f21a374",
+          "revisionId": "7d15b073-123f-4ee6-a5d3-6b84be03f6fc",
+          "revisionNo": 1
+        },
+        {
+          "id": "f905a2a7-ada7-4f25-89c5-587ef690beb0",
+          "revisionId": "5f2b85e5-563e-4d6f-81c7-ffeac0852de7",
+          "revisionNo": 1
+        }
+      ],
+      "testData": {
+        "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+        "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+        "revisionNo": 1
+      }
+    },
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "data",
+    "surface": "canonical",
+    "viewport": "1440x900",
+    "workspace": {
+      "height": 778,
+      "width": 1440,
+      "x": 0,
+      "y": 122
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Process",
+    "drawableRatio": 0.7140366172624237,
+    "fitClusterHeight": 0,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 0,
+    "fitClusterWidth": 0,
+    "fitEvidenceTrigger": null,
+    "fitGroups": [],
+    "fitHeaderSource": null,
+    "fitHeaderState": null,
+    "fitInput": null,
+    "fitPlotHeading": {
+      "box": null,
+      "clientHeight": 0,
+      "clientWidth": 0,
+      "count": 0,
+      "display": "",
+      "scrollHeight": 0,
+      "scrollWidth": 0,
+      "text": ""
+    },
+    "fitRemoveStep": null,
+    "fitRibbon": null,
+    "fitStepCount": 0,
+    "fitTopActions": [
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "fitTopActionsContainer": null,
+    "horizontalAxisBox": {
+      "bottom": 839,
+      "height": 0,
+      "left": 382,
+      "right": 1201,
+      "top": 839,
+      "width": 819
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 732.0625,
+    "legendBox": {
+      "bottom": 732.0625,
+      "height": 253.0625,
+      "left": 1229,
+      "right": 1413,
+      "top": 479,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": 8,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 899,
+    "plotFrameBox": {
+      "bottom": 891,
+      "height": 422,
+      "left": 302,
+      "right": 1431,
+      "top": 469,
+      "width": 1129
+    },
+    "processClusterHeight": 766,
+    "processClusterLeft": 0,
+    "processClusterTop": 134,
+    "processClusterWidth": 1440,
+    "processControls": [
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 317,
+          "right": 610.703125,
+          "top": 221,
+          "width": 293.703125
+        },
+        "clientHeight": 38,
+        "clientWidth": 292,
+        "height": 40,
+        "label": "Evaluation method",
+        "scrollHeight": 38,
+        "scrollWidth": 292,
+        "whiteSpace": "pre"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 618.703125,
+          "right": 836.984375,
+          "top": 221,
+          "width": 218.28125
+        },
+        "clientHeight": 38,
+        "clientWidth": 216,
+        "height": 40,
+        "label": "Elastic range start",
+        "scrollHeight": 38,
+        "scrollWidth": 216,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 840.984375,
+          "right": 1059.28125,
+          "top": 221,
+          "width": 218.296875
+        },
+        "clientHeight": 38,
+        "clientWidth": 216,
+        "height": 40,
+        "label": "Elastic range end",
+        "scrollHeight": 38,
+        "scrollWidth": 216,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 318,
+          "right": 684.8125,
+          "top": 319,
+          "width": 366.8125
+        },
+        "clientHeight": 38,
+        "clientWidth": 365,
+        "height": 40,
+        "label": "Process result name",
+        "scrollHeight": 38,
+        "scrollWidth": 365,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 694.8125,
+          "right": 1245.046875,
+          "top": 319,
+          "width": 550.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 548,
+        "height": 40,
+        "label": "Reason for saving Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 548,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 1255.046875,
+          "right": 1401,
+          "top": 319,
+          "width": 145.953125
+        },
+        "clientHeight": 38,
+        "clientWidth": 144,
+        "height": 40,
+        "label": "Save Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 144,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "processPanel": {
+      "bottom": 426,
+      "height": 291,
+      "left": 293,
+      "right": 1425,
+      "top": 135,
+      "width": 1132
+    },
+    "processRibbon": {
+      "bottom": 427,
+      "height": 292,
+      "left": 293,
+      "right": 1440,
+      "top": 135,
+      "width": 1147
+    },
+    "processRowClipped": false,
+    "processRows": [
+      {
+        "clipped": false,
+        "text": "Tensile test 0001"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0002"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0003"
+      }
+    ],
+    "railWidth": 288,
+    "ribbonHeight": 292,
+    "saveBand": {
+      "bottom": 359,
+      "height": 58,
+      "left": 318,
+      "right": 1401,
+      "top": 301,
+      "width": 1083
+    },
+    "stage": "process",
+    "surface": "canonical",
+    "svgBottom": 891,
+    "svgBox": {
+      "bottom": 891,
+      "height": 422,
+      "left": 302,
+      "right": 1431,
+      "top": 469,
+      "width": 1129
+    },
+    "svgHeight": 422,
+    "svgWidth": 1129,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1037.46875,
+          "right": 1122.765625,
+          "top": 54.5,
+          "width": 85.296875
+        },
+        "clientHeight": 38,
+        "clientWidth": 83,
+        "height": 40,
+        "label": "Advanced",
+        "scrollHeight": 38,
+        "scrollWidth": 83,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1132.765625,
+          "right": 1288.765625,
+          "top": 54.5,
+          "width": 156
+        },
+        "clientHeight": 38,
+        "clientWidth": 154,
+        "height": 40,
+        "label": "Distribution analysis",
+        "scrollHeight": 38,
+        "scrollWidth": 154,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1298.765625,
+          "right": 1430,
+          "top": 54.5,
+          "width": 131.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 129,
+        "height": 40,
+        "label": "Preview changes",
+        "scrollHeight": 38,
+        "scrollWidth": 129,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "viewport": "1440x900",
+    "viewportHeight": 900,
+    "workspace": {
+      "height": 766,
+      "width": 1440,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 766,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 1440,
+    "xAxisLabelBottom": 886,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Fit",
+    "drawableRatio": 0.7140366172624237,
+    "fitClusterHeight": 766,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 134,
+    "fitClusterWidth": 1440,
+    "fitEvidenceTrigger": {
+      "bottom": 314,
+      "height": 17,
+      "left": 1318.140625,
+      "right": 1432,
+      "top": 297,
+      "width": 113.859375
+    },
+    "fitGroups": [
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 293,
+          "right": 556.375,
+          "top": 169,
+          "width": 263.375
+        },
+        "controls": [
+          {
+            "bottom": 208.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 303,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 316,
+            "tagName": "input",
+            "top": 195.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 208.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 428.1875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 441.1875,
+            "tagName": "input",
+            "top": 195.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 227.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 303,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 316,
+            "tagName": "input",
+            "top": 214.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 227.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 428.1875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 441.1875,
+            "tagName": "input",
+            "top": 214.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          }
+        ],
+        "gridTemplateColumns": "repeat(2, minmax(0px, 1fr))",
+        "label": "Candidate models",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 556.375,
+          "right": 717.8125,
+          "top": 169,
+          "width": 161.4375
+        },
+        "controls": [
+          {
+            "bottom": 254,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 566.375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 634.59375,
+            "tagName": "input",
+            "top": 214,
+            "width": 68.21875,
+            "widthStyle": "68.2188px"
+          },
+          {
+            "bottom": 254,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 638.59375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 706.8125,
+            "tagName": "input",
+            "top": 214,
+            "width": 68.21875,
+            "widthStyle": "68.2188px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Fit range",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 717.8125,
+          "right": 887.734375,
+          "top": 169,
+          "width": 169.921875
+        },
+        "controls": [
+          {
+            "bottom": 257.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 727.8125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 799.765625,
+            "tagName": "select",
+            "top": 217.109375,
+            "width": 71.953125,
+            "widthStyle": "71.9531px"
+          },
+          {
+            "bottom": 257.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 804.765625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 876.734375,
+            "tagName": "select",
+            "top": 217.109375,
+            "width": 71.96875,
+            "widthStyle": "71.9688px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Preview blend",
+        "paired": {
+          "box": {
+            "bottom": 257.109375,
+            "height": 62.109375,
+            "left": 727.8125,
+            "right": 876.734375,
+            "top": 195,
+            "width": 148.921875
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 257.109375,
+                "height": 62.109375,
+                "left": 727.8125,
+                "right": 799.765625,
+                "top": 195,
+                "width": 71.953125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "71.9531px"
+            },
+            {
+              "box": {
+                "bottom": 257.109375,
+                "height": 62.109375,
+                "left": 804.765625,
+                "right": 876.734375,
+                "top": 195,
+                "width": 71.96875
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "71.9688px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "148.922px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 887.734375,
+          "right": 1066.15625,
+          "top": 169,
+          "width": 178.421875
+        },
+        "controls": [
+          {
+            "bottom": 234.1875,
+            "boxSizing": "border-box",
+            "height": 37.1875,
+            "left": 897.734375,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1023.6875,
+            "tagName": "input",
+            "top": 197,
+            "width": 125.953125,
+            "widthStyle": "125.953px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Blend ratio",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1066.15625,
+          "right": 1244.578125,
+          "top": 169,
+          "width": 178.421875
+        },
+        "controls": [
+          {
+            "bottom": 274.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1076.15625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1152.359375,
+            "tagName": "input",
+            "top": 234.109375,
+            "width": 76.203125,
+            "widthStyle": "76.2031px"
+          },
+          {
+            "bottom": 274.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1157.359375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1233.578125,
+            "tagName": "input",
+            "top": 234.109375,
+            "width": 76.21875,
+            "widthStyle": "76.2188px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Output range",
+        "paired": {
+          "box": {
+            "bottom": 274.109375,
+            "height": 79.109375,
+            "left": 1076.15625,
+            "right": 1233.578125,
+            "top": 195,
+            "width": 157.421875
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 274.109375,
+                "height": 79.109375,
+                "left": 1076.15625,
+                "right": 1152.359375,
+                "top": 195,
+                "width": 76.203125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "76.2031px"
+            },
+            {
+              "box": {
+                "bottom": 274.109375,
+                "height": 79.109375,
+                "left": 1157.359375,
+                "right": 1233.578125,
+                "top": 195,
+                "width": 76.21875
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "76.2188px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "157.422px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1244.578125,
+          "right": 1439.984375,
+          "top": 169,
+          "width": 195.40625
+        },
+        "controls": [
+          {
+            "bottom": 225,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 1254.578125,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1340.28125,
+            "tagName": "button",
+            "top": 195,
+            "width": 85.703125,
+            "widthStyle": "85.7031px"
+          },
+          {
+            "bottom": 225,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 1344.28125,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1429.984375,
+            "tagName": "button",
+            "top": 195,
+            "width": 85.703125,
+            "widthStyle": "85.7031px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Graph selection",
+        "paired": null
+      }
+    ],
+    "fitHeaderSource": {
+      "bottom": 83,
+      "height": 17,
+      "left": 139.90625,
+      "right": 290.59375,
+      "top": 66,
+      "width": 150.6875
+    },
+    "fitHeaderState": {
+      "bottom": 83,
+      "height": 17,
+      "left": 298.59375,
+      "right": 412.109375,
+      "top": 66,
+      "width": 113.515625
+    },
+    "fitInput": {
+      "box": {
+        "bottom": 230,
+        "top": 169
+      },
+      "clipped": false,
+      "text": "DP780 / Tensile test 0001Saved Process result",
+      "visible": true
+    },
+    "fitPlotHeading": {
+      "box": {
+        "bottom": 346.375,
+        "height": 18.75,
+        "left": 302,
+        "right": 440.796875,
+        "top": 327.625,
+        "width": 138.796875
+      },
+      "clientHeight": 19,
+      "clientWidth": 139,
+      "count": 1,
+      "display": "block",
+      "scrollHeight": 19,
+      "scrollWidth": 139,
+      "text": "Hardening response"
+    },
+    "fitRemoveStep": {
+      "bottom": 161.5,
+      "height": 20,
+      "left": 1343.859375,
+      "right": 1430,
+      "top": 141.5,
+      "width": 86.140625
+    },
+    "fitRibbon": {
+      "bottom": 316,
+      "height": 181,
+      "left": 293,
+      "right": 1440,
+      "top": 135,
+      "width": 1147
+    },
+    "fitStepCount": 4,
+    "fitTopActions": [
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1053.578125,
+          "right": 1134.21875,
+          "top": 57.5,
+          "width": 80.640625
+        },
+        "clientHeight": 32,
+        "clientWidth": 79,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Advanced",
+        "scrollHeight": 32,
+        "scrollWidth": 79,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1156.21875,
+          "right": 1279.5,
+          "top": 57.5,
+          "width": 123.28125
+        },
+        "clientHeight": 32,
+        "clientWidth": 121,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Preview changes",
+        "scrollHeight": 32,
+        "scrollWidth": 121,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(36, 94, 168)",
+        "borderColor": "rgb(36, 94, 168)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1289.5,
+          "right": 1430,
+          "top": 57.5,
+          "width": 140.5
+        },
+        "clientHeight": 32,
+        "clientWidth": 139,
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Save fit & continue",
+        "scrollHeight": 32,
+        "scrollWidth": 139,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "fitTopActionsContainer": {
+      "bottom": 91.5,
+      "height": 34,
+      "left": 1053.578125,
+      "right": 1430,
+      "top": 57.5,
+      "width": 376.421875
+    },
+    "horizontalAxisBox": {
+      "bottom": 818.25,
+      "height": 0,
+      "left": 382,
+      "right": 1201,
+      "top": 818.25,
+      "width": 819
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 673.53125,
+    "legendBox": {
+      "bottom": 673.53125,
+      "height": 305.53125,
+      "left": 1229,
+      "right": 1413,
+      "top": 368,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": null,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 899,
+    "plotFrameBox": {
+      "bottom": 870.25,
+      "height": 512.25,
+      "left": 302,
+      "right": 1431,
+      "top": 358,
+      "width": 1129
+    },
+    "processClusterHeight": 0,
+    "processClusterLeft": 0,
+    "processClusterTop": 0,
+    "processClusterWidth": 0,
+    "processControls": [],
+    "processPanel": null,
+    "processRibbon": null,
+    "processRowClipped": false,
+    "processRows": [],
+    "railWidth": 288,
+    "ribbonHeight": 181,
+    "saveBand": null,
+    "stage": "fit",
+    "surface": "canonical",
+    "svgBottom": 870.25,
+    "svgBox": {
+      "bottom": 870.25,
+      "height": 512.25,
+      "left": 302,
+      "right": 1431,
+      "top": 358,
+      "width": 1129
+    },
+    "svgHeight": 512.25,
+    "svgWidth": 1129,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "viewport": "1440x900",
+    "viewportHeight": 900,
+    "workspace": {
+      "height": 766,
+      "width": 1440,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 766,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 1440,
+    "xAxisLabelBottom": 865.25,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Export",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "export",
+    "surface": "canonical",
+    "viewport": "1440x900",
+    "workspace": {
+      "height": 732,
+      "width": 1440,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Data",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "data",
+    "surface": "canonical",
+    "url": "http://127.0.0.1:32779/datasets/processing?stage=data&family=metal",
+    "viewport": "1440x900",
+    "workspace": {
+      "height": 778,
+      "width": 1440,
+      "x": 0,
+      "y": 122
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Process",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "process",
+    "surface": "canonical",
+    "url": "http://127.0.0.1:32779/datasets/processing?stage=process&family=metal",
+    "viewport": "1440x900",
+    "workspace": {
+      "height": 766,
+      "width": 1440,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Fit",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "fit",
+    "surface": "canonical",
+    "url": "http://127.0.0.1:32779/datasets/processing?stage=fit&family=metal",
+    "viewport": "1440x900",
+    "workspace": {
+      "height": 766,
+      "width": 1440,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Export",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "export",
+    "surface": "existing-alias-prerequisite-recovery",
+    "url": "http://127.0.0.1:32779/datasets/processing?stage=export&family=metal",
+    "viewport": "1440x900",
+    "workspace": {
+      "height": 732,
+      "width": 1440,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Data",
+    "exactContext": {
+      "mappingProfile": {
+        "id": "fb11dfb6-6d3d-439a-96ed-ae5e310f0f67",
+        "revisionId": "038807df-7320-4878-8497-71c0e1f4affd",
+        "revisionNo": 1
+      },
+      "selectedTestDataRefs": [
+        {
+          "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+          "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+          "revisionNo": 1
+        },
+        {
+          "id": "6247c720-9842-430c-aa06-8b821f21a374",
+          "revisionId": "7d15b073-123f-4ee6-a5d3-6b84be03f6fc",
+          "revisionNo": 1
+        },
+        {
+          "id": "f905a2a7-ada7-4f25-89c5-587ef690beb0",
+          "revisionId": "5f2b85e5-563e-4d6f-81c7-ffeac0852de7",
+          "revisionNo": 1
+        }
+      ],
+      "testData": {
+        "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+        "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+        "revisionNo": 1
+      }
+    },
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "data",
+    "surface": "canonical",
+    "viewport": "1920x1080",
+    "workspace": {
+      "height": 958,
+      "width": 1920,
+      "x": 0,
+      "y": 122
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Process",
+    "drawableRatio": 0.7984019668100799,
+    "fitClusterHeight": 0,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 0,
+    "fitClusterWidth": 0,
+    "fitEvidenceTrigger": null,
+    "fitGroups": [],
+    "fitHeaderSource": null,
+    "fitHeaderState": null,
+    "fitInput": null,
+    "fitPlotHeading": {
+      "box": null,
+      "clientHeight": 0,
+      "clientWidth": 0,
+      "count": 0,
+      "display": "",
+      "scrollHeight": 0,
+      "scrollWidth": 0,
+      "text": ""
+    },
+    "fitRemoveStep": null,
+    "fitRibbon": null,
+    "fitStepCount": 0,
+    "fitTopActions": [
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "fitTopActionsContainer": null,
+    "horizontalAxisBox": {
+      "bottom": 1019,
+      "height": 0,
+      "left": 382,
+      "right": 1681,
+      "top": 1019,
+      "width": 1299
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 732.0625,
+    "legendBox": {
+      "bottom": 732.0625,
+      "height": 253.0625,
+      "left": 1709,
+      "right": 1893,
+      "top": 479,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": 8,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 1079,
+    "plotFrameBox": {
+      "bottom": 1071,
+      "height": 602,
+      "left": 302,
+      "right": 1911,
+      "top": 469,
+      "width": 1609
+    },
+    "processClusterHeight": 946,
+    "processClusterLeft": 0,
+    "processClusterTop": 134,
+    "processClusterWidth": 1920,
+    "processControls": [
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 317,
+          "right": 743.28125,
+          "top": 221,
+          "width": 426.28125
+        },
+        "clientHeight": 38,
+        "clientWidth": 424,
+        "height": 40,
+        "label": "Evaluation method",
+        "scrollHeight": 38,
+        "scrollWidth": 424,
+        "whiteSpace": "pre"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 751.28125,
+          "right": 1068.984375,
+          "top": 221,
+          "width": 317.703125
+        },
+        "clientHeight": 38,
+        "clientWidth": 316,
+        "height": 40,
+        "label": "Elastic range start",
+        "scrollHeight": 38,
+        "scrollWidth": 316,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 1072.984375,
+          "right": 1390.703125,
+          "top": 221,
+          "width": 317.71875
+        },
+        "clientHeight": 38,
+        "clientWidth": 316,
+        "height": 40,
+        "label": "Elastic range end",
+        "scrollHeight": 38,
+        "scrollWidth": 316,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 318,
+          "right": 876.8125,
+          "top": 319,
+          "width": 558.8125
+        },
+        "clientHeight": 38,
+        "clientWidth": 557,
+        "height": 40,
+        "label": "Process result name",
+        "scrollHeight": 38,
+        "scrollWidth": 557,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 886.8125,
+          "right": 1725.046875,
+          "top": 319,
+          "width": 838.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 836,
+        "height": 40,
+        "label": "Reason for saving Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 836,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 1735.046875,
+          "right": 1881,
+          "top": 319,
+          "width": 145.953125
+        },
+        "clientHeight": 38,
+        "clientWidth": 144,
+        "height": 40,
+        "label": "Save Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 144,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "processPanel": {
+      "bottom": 426,
+      "height": 291,
+      "left": 293,
+      "right": 1905,
+      "top": 135,
+      "width": 1612
+    },
+    "processRibbon": {
+      "bottom": 427,
+      "height": 292,
+      "left": 293,
+      "right": 1920,
+      "top": 135,
+      "width": 1627
+    },
+    "processRowClipped": false,
+    "processRows": [
+      {
+        "clipped": false,
+        "text": "Tensile test 0001"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0002"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0003"
+      }
+    ],
+    "railWidth": 288,
+    "ribbonHeight": 292,
+    "saveBand": {
+      "bottom": 359,
+      "height": 58,
+      "left": 318,
+      "right": 1881,
+      "top": 301,
+      "width": 1563
+    },
+    "stage": "process",
+    "surface": "canonical",
+    "svgBottom": 1071,
+    "svgBox": {
+      "bottom": 1071,
+      "height": 602,
+      "left": 302,
+      "right": 1911,
+      "top": 469,
+      "width": 1609
+    },
+    "svgHeight": 602,
+    "svgWidth": 1609,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1517.46875,
+          "right": 1602.765625,
+          "top": 54.5,
+          "width": 85.296875
+        },
+        "clientHeight": 38,
+        "clientWidth": 83,
+        "height": 40,
+        "label": "Advanced",
+        "scrollHeight": 38,
+        "scrollWidth": 83,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1612.765625,
+          "right": 1768.765625,
+          "top": 54.5,
+          "width": 156
+        },
+        "clientHeight": 38,
+        "clientWidth": 154,
+        "height": 40,
+        "label": "Distribution analysis",
+        "scrollHeight": 38,
+        "scrollWidth": 154,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 1778.765625,
+          "right": 1910,
+          "top": 54.5,
+          "width": 131.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 129,
+        "height": 40,
+        "label": "Preview changes",
+        "scrollHeight": 38,
+        "scrollWidth": 129,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "viewport": "1920x1080",
+    "viewportHeight": 1080,
+    "workspace": {
+      "height": 946,
+      "width": 1920,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 946,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 1920,
+    "xAxisLabelBottom": 1066,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Fit",
+    "drawableRatio": 0.7984019668100799,
+    "fitClusterHeight": 946,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 134,
+    "fitClusterWidth": 1920,
+    "fitEvidenceTrigger": {
+      "bottom": 314,
+      "height": 17,
+      "left": 1798.140625,
+      "right": 1912,
+      "top": 297,
+      "width": 113.859375
+    },
+    "fitGroups": [
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 293,
+          "right": 729.765625,
+          "top": 169,
+          "width": 436.765625
+        },
+        "controls": [
+          {
+            "bottom": 210.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 303,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 316,
+            "tagName": "input",
+            "top": 197.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 210.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 514.875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 527.875,
+            "tagName": "input",
+            "top": 197.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 229.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 303,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 316,
+            "tagName": "input",
+            "top": 216.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 229.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 514.875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 527.875,
+            "tagName": "input",
+            "top": 216.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          }
+        ],
+        "gridTemplateColumns": "repeat(2, minmax(0px, 1fr))",
+        "label": "Candidate models",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 729.765625,
+          "right": 948.15625,
+          "top": 169,
+          "width": 218.390625
+        },
+        "controls": [
+          {
+            "bottom": 256,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 739.765625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 836.453125,
+            "tagName": "input",
+            "top": 216,
+            "width": 96.6875,
+            "widthStyle": "96.6875px"
+          },
+          {
+            "bottom": 256,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 840.453125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 937.15625,
+            "tagName": "input",
+            "top": 216,
+            "width": 96.703125,
+            "widthStyle": "96.7031px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Fit range",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 948.15625,
+          "right": 1166.546875,
+          "top": 169,
+          "width": 218.390625
+        },
+        "controls": [
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 958.15625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1054.34375,
+            "tagName": "select",
+            "top": 219.109375,
+            "width": 96.1875,
+            "widthStyle": "96.1875px"
+          },
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1059.34375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1155.546875,
+            "tagName": "select",
+            "top": 219.109375,
+            "width": 96.203125,
+            "widthStyle": "96.2031px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Preview blend",
+        "paired": {
+          "box": {
+            "bottom": 259.109375,
+            "height": 62.109375,
+            "left": 958.15625,
+            "right": 1155.546875,
+            "top": 197,
+            "width": 197.390625
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 958.15625,
+                "right": 1054.34375,
+                "top": 197,
+                "width": 96.1875
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "96.1875px"
+            },
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1059.34375,
+                "right": 1155.546875,
+                "top": 197,
+                "width": 96.203125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "96.2031px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "197.391px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1166.546875,
+          "right": 1406.78125,
+          "top": 169,
+          "width": 240.234375
+        },
+        "controls": [
+          {
+            "bottom": 236.1875,
+            "boxSizing": "border-box",
+            "height": 37.1875,
+            "left": 1176.546875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1364.3125,
+            "tagName": "input",
+            "top": 199,
+            "width": 187.765625,
+            "widthStyle": "187.766px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Blend ratio",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1406.78125,
+          "right": 1647,
+          "top": 169,
+          "width": 240.21875
+        },
+        "controls": [
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1416.78125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1523.890625,
+            "tagName": "input",
+            "top": 219.109375,
+            "width": 107.109375,
+            "widthStyle": "107.109px"
+          },
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1528.890625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1636,
+            "tagName": "input",
+            "top": 219.109375,
+            "width": 107.109375,
+            "widthStyle": "107.109px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Output range",
+        "paired": {
+          "box": {
+            "bottom": 259.109375,
+            "height": 62.109375,
+            "left": 1416.78125,
+            "right": 1636,
+            "top": 197,
+            "width": 219.21875
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1416.78125,
+                "right": 1523.890625,
+                "top": 197,
+                "width": 107.109375
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "107.109px"
+            },
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1528.890625,
+                "right": 1636,
+                "top": 197,
+                "width": 107.109375
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "107.109px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "219.219px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1647,
+          "right": 1920,
+          "top": 169,
+          "width": 273
+        },
+        "controls": [
+          {
+            "bottom": 227,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 1657,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1781.5,
+            "tagName": "button",
+            "top": 197,
+            "width": 124.5,
+            "widthStyle": "124.5px"
+          },
+          {
+            "bottom": 227,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 1785.5,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1910,
+            "tagName": "button",
+            "top": 197,
+            "width": 124.5,
+            "widthStyle": "124.5px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Graph selection",
+        "paired": null
+      }
+    ],
+    "fitHeaderSource": {
+      "bottom": 83,
+      "height": 17,
+      "left": 139.90625,
+      "right": 290.59375,
+      "top": 66,
+      "width": 150.6875
+    },
+    "fitHeaderState": {
+      "bottom": 83,
+      "height": 17,
+      "left": 298.59375,
+      "right": 412.109375,
+      "top": 66,
+      "width": 113.515625
+    },
+    "fitInput": {
+      "box": {
+        "bottom": 230,
+        "top": 169
+      },
+      "clipped": false,
+      "text": "DP780 / Tensile test 0001Saved Process result",
+      "visible": true
+    },
+    "fitPlotHeading": {
+      "box": {
+        "bottom": 346.375,
+        "height": 18.75,
+        "left": 302,
+        "right": 440.796875,
+        "top": 327.625,
+        "width": 138.796875
+      },
+      "clientHeight": 19,
+      "clientWidth": 139,
+      "count": 1,
+      "display": "block",
+      "scrollHeight": 19,
+      "scrollWidth": 139,
+      "text": "Hardening response"
+    },
+    "fitRemoveStep": {
+      "bottom": 161.5,
+      "height": 20,
+      "left": 1823.859375,
+      "right": 1910,
+      "top": 141.5,
+      "width": 86.140625
+    },
+    "fitRibbon": {
+      "bottom": 316,
+      "height": 181,
+      "left": 293,
+      "right": 1920,
+      "top": 135,
+      "width": 1627
+    },
+    "fitStepCount": 4,
+    "fitTopActions": [
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1533.578125,
+          "right": 1614.21875,
+          "top": 57.5,
+          "width": 80.640625
+        },
+        "clientHeight": 32,
+        "clientWidth": 79,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Advanced",
+        "scrollHeight": 32,
+        "scrollWidth": 79,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1636.21875,
+          "right": 1759.5,
+          "top": 57.5,
+          "width": 123.28125
+        },
+        "clientHeight": 32,
+        "clientWidth": 121,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Preview changes",
+        "scrollHeight": 32,
+        "scrollWidth": 121,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(36, 94, 168)",
+        "borderColor": "rgb(36, 94, 168)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 1769.5,
+          "right": 1910,
+          "top": 57.5,
+          "width": 140.5
+        },
+        "clientHeight": 32,
+        "clientWidth": 139,
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Save fit & continue",
+        "scrollHeight": 32,
+        "scrollWidth": 139,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "fitTopActionsContainer": {
+      "bottom": 91.5,
+      "height": 34,
+      "left": 1533.578125,
+      "right": 1910,
+      "top": 57.5,
+      "width": 376.421875
+    },
+    "horizontalAxisBox": {
+      "bottom": 998.25,
+      "height": 0,
+      "left": 382,
+      "right": 1681,
+      "top": 998.25,
+      "width": 1299
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 673.53125,
+    "legendBox": {
+      "bottom": 673.53125,
+      "height": 305.53125,
+      "left": 1709,
+      "right": 1893,
+      "top": 368,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": null,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 1079,
+    "plotFrameBox": {
+      "bottom": 1050.25,
+      "height": 692.25,
+      "left": 302,
+      "right": 1911,
+      "top": 358,
+      "width": 1609
+    },
+    "processClusterHeight": 0,
+    "processClusterLeft": 0,
+    "processClusterTop": 0,
+    "processClusterWidth": 0,
+    "processControls": [],
+    "processPanel": null,
+    "processRibbon": null,
+    "processRowClipped": false,
+    "processRows": [],
+    "railWidth": 288,
+    "ribbonHeight": 181,
+    "saveBand": null,
+    "stage": "fit",
+    "surface": "canonical",
+    "svgBottom": 1050.25,
+    "svgBox": {
+      "bottom": 1050.25,
+      "height": 692.25,
+      "left": 302,
+      "right": 1911,
+      "top": 358,
+      "width": 1609
+    },
+    "svgHeight": 692.25,
+    "svgWidth": 1609,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "viewport": "1920x1080",
+    "viewportHeight": 1080,
+    "workspace": {
+      "height": 946,
+      "width": 1920,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 946,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 1920,
+    "xAxisLabelBottom": 1045.25,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Export",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "export",
+    "surface": "canonical",
+    "viewport": "1920x1080",
+    "workspace": {
+      "height": 912,
+      "width": 1920,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Data",
+    "exactContext": {
+      "mappingProfile": {
+        "id": "fb11dfb6-6d3d-439a-96ed-ae5e310f0f67",
+        "revisionId": "038807df-7320-4878-8497-71c0e1f4affd",
+        "revisionNo": 1
+      },
+      "selectedTestDataRefs": [
+        {
+          "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+          "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+          "revisionNo": 1
+        },
+        {
+          "id": "6247c720-9842-430c-aa06-8b821f21a374",
+          "revisionId": "7d15b073-123f-4ee6-a5d3-6b84be03f6fc",
+          "revisionNo": 1
+        },
+        {
+          "id": "f905a2a7-ada7-4f25-89c5-587ef690beb0",
+          "revisionId": "5f2b85e5-563e-4d6f-81c7-ffeac0852de7",
+          "revisionNo": 1
+        }
+      ],
+      "testData": {
+        "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+        "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+        "revisionNo": 1
+      }
+    },
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "data",
+    "surface": "canonical",
+    "viewport": "2560x1440",
+    "workspace": {
+      "height": 1318,
+      "width": 2560,
+      "x": 0,
+      "y": 122
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Process",
+    "drawableRatio": 0.855315394794883,
+    "fitClusterHeight": 0,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 0,
+    "fitClusterWidth": 0,
+    "fitEvidenceTrigger": null,
+    "fitGroups": [],
+    "fitHeaderSource": null,
+    "fitHeaderState": null,
+    "fitInput": null,
+    "fitPlotHeading": {
+      "box": null,
+      "clientHeight": 0,
+      "clientWidth": 0,
+      "count": 0,
+      "display": "",
+      "scrollHeight": 0,
+      "scrollWidth": 0,
+      "text": ""
+    },
+    "fitRemoveStep": null,
+    "fitRibbon": null,
+    "fitStepCount": 0,
+    "fitTopActions": [
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "fitTopActionsContainer": null,
+    "horizontalAxisBox": {
+      "bottom": 1379,
+      "height": 0,
+      "left": 382,
+      "right": 2321,
+      "top": 1379,
+      "width": 1939
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 732.0625,
+    "legendBox": {
+      "bottom": 732.0625,
+      "height": 253.0625,
+      "left": 2349,
+      "right": 2533,
+      "top": 479,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": 8,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 1439,
+    "plotFrameBox": {
+      "bottom": 1431,
+      "height": 962,
+      "left": 302,
+      "right": 2551,
+      "top": 469,
+      "width": 2249
+    },
+    "processClusterHeight": 1306,
+    "processClusterLeft": 0,
+    "processClusterTop": 134,
+    "processClusterWidth": 2560,
+    "processControls": [
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 493,
+          "right": 998.8125,
+          "top": 221,
+          "width": 505.8125
+        },
+        "clientHeight": 38,
+        "clientWidth": 504,
+        "height": 40,
+        "label": "Evaluation method",
+        "scrollHeight": 38,
+        "scrollWidth": 504,
+        "whiteSpace": "pre"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 1006.8125,
+          "right": 1384.1875,
+          "top": 221,
+          "width": 377.375
+        },
+        "clientHeight": 38,
+        "clientWidth": 375,
+        "height": 40,
+        "label": "Elastic range start",
+        "scrollHeight": 38,
+        "scrollWidth": 375,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 1388.1875,
+          "right": 1765.5625,
+          "top": 221,
+          "width": 377.375
+        },
+        "clientHeight": 38,
+        "clientWidth": 375,
+        "height": 40,
+        "label": "Elastic range end",
+        "scrollHeight": 38,
+        "scrollWidth": 375,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 494,
+          "right": 1168.015625,
+          "top": 319,
+          "width": 674.015625
+        },
+        "clientHeight": 38,
+        "clientWidth": 672,
+        "height": 40,
+        "label": "Process result name",
+        "scrollHeight": 38,
+        "scrollWidth": 672,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 1178.015625,
+          "right": 2189.046875,
+          "top": 319,
+          "width": 1011.03125
+        },
+        "clientHeight": 38,
+        "clientWidth": 1009,
+        "height": 40,
+        "label": "Reason for saving Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 1009,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 2199.046875,
+          "right": 2345,
+          "top": 319,
+          "width": 145.953125
+        },
+        "clientHeight": 38,
+        "clientWidth": 144,
+        "height": 40,
+        "label": "Save Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 144,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "processPanel": {
+      "bottom": 426,
+      "height": 291,
+      "left": 469,
+      "right": 2369,
+      "top": 135,
+      "width": 1900
+    },
+    "processRibbon": {
+      "bottom": 427,
+      "height": 292,
+      "left": 293,
+      "right": 2560,
+      "top": 135,
+      "width": 2267
+    },
+    "processRowClipped": false,
+    "processRows": [
+      {
+        "clipped": false,
+        "text": "Tensile test 0001"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0002"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0003"
+      }
+    ],
+    "railWidth": 288,
+    "ribbonHeight": 292,
+    "saveBand": {
+      "bottom": 359,
+      "height": 58,
+      "left": 494,
+      "right": 2345,
+      "top": 301,
+      "width": 1851
+    },
+    "stage": "process",
+    "surface": "canonical",
+    "svgBottom": 1431,
+    "svgBox": {
+      "bottom": 1431,
+      "height": 962,
+      "left": 302,
+      "right": 2551,
+      "top": 469,
+      "width": 2249
+    },
+    "svgHeight": 962,
+    "svgWidth": 2249,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 2157.46875,
+          "right": 2242.765625,
+          "top": 54.5,
+          "width": 85.296875
+        },
+        "clientHeight": 38,
+        "clientWidth": 83,
+        "height": 40,
+        "label": "Advanced",
+        "scrollHeight": 38,
+        "scrollWidth": 83,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 2252.765625,
+          "right": 2408.765625,
+          "top": 54.5,
+          "width": 156
+        },
+        "clientHeight": 38,
+        "clientWidth": 154,
+        "height": 40,
+        "label": "Distribution analysis",
+        "scrollHeight": 38,
+        "scrollWidth": 154,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 2418.765625,
+          "right": 2550,
+          "top": 54.5,
+          "width": 131.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 129,
+        "height": 40,
+        "label": "Preview changes",
+        "scrollHeight": 38,
+        "scrollWidth": 129,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "viewport": "2560x1440",
+    "viewportHeight": 1440,
+    "workspace": {
+      "height": 1306,
+      "width": 2560,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 1306,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 2560,
+    "xAxisLabelBottom": 1426,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Fit",
+    "drawableRatio": 0.855315394794883,
+    "fitClusterHeight": 1306,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 134,
+    "fitClusterWidth": 2560,
+    "fitEvidenceTrigger": {
+      "bottom": 314,
+      "height": 17,
+      "left": 2354.640625,
+      "right": 2468.5,
+      "top": 297,
+      "width": 113.859375
+    },
+    "fitGroups": [
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 376.5,
+          "right": 940.25,
+          "top": 169,
+          "width": 563.75
+        },
+        "controls": [
+          {
+            "bottom": 210.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 386.5,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 399.5,
+            "tagName": "input",
+            "top": 197.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 210.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 661.875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 674.875,
+            "tagName": "input",
+            "top": 197.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 229.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 386.5,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 399.5,
+            "tagName": "input",
+            "top": 216.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 229.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 661.875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 674.875,
+            "tagName": "input",
+            "top": 216.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          }
+        ],
+        "gridTemplateColumns": "repeat(2, minmax(0px, 1fr))",
+        "label": "Candidate models",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 940.25,
+          "right": 1222.125,
+          "top": 169,
+          "width": 281.875
+        },
+        "controls": [
+          {
+            "bottom": 256,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 950.25,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1078.6875,
+            "tagName": "input",
+            "top": 216,
+            "width": 128.4375,
+            "widthStyle": "128.438px"
+          },
+          {
+            "bottom": 256,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1082.6875,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1211.125,
+            "tagName": "input",
+            "top": 216,
+            "width": 128.4375,
+            "widthStyle": "128.438px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Fit range",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1222.125,
+          "right": 1504.015625,
+          "top": 169,
+          "width": 281.890625
+        },
+        "controls": [
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1232.125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1360.0625,
+            "tagName": "select",
+            "top": 219.109375,
+            "width": 127.9375,
+            "widthStyle": "127.938px"
+          },
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1365.0625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1493.015625,
+            "tagName": "select",
+            "top": 219.109375,
+            "width": 127.953125,
+            "widthStyle": "127.953px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Preview blend",
+        "paired": {
+          "box": {
+            "bottom": 259.109375,
+            "height": 62.109375,
+            "left": 1232.125,
+            "right": 1493.015625,
+            "top": 197,
+            "width": 260.890625
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1232.125,
+                "right": 1360.0625,
+                "top": 197,
+                "width": 127.9375
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "127.938px"
+            },
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1365.0625,
+                "right": 1493.015625,
+                "top": 197,
+                "width": 127.953125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "127.953px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "260.891px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1504.015625,
+          "right": 1814.078125,
+          "top": 169,
+          "width": 310.0625
+        },
+        "controls": [
+          {
+            "bottom": 236.1875,
+            "boxSizing": "border-box",
+            "height": 37.1875,
+            "left": 1514.015625,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1771.609375,
+            "tagName": "input",
+            "top": 199,
+            "width": 257.59375,
+            "widthStyle": "257.594px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Blend ratio",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1814.078125,
+          "right": 2124.140625,
+          "top": 169,
+          "width": 310.0625
+        },
+        "controls": [
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1824.078125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1966.109375,
+            "tagName": "input",
+            "top": 219.109375,
+            "width": 142.03125,
+            "widthStyle": "142.031px"
+          },
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1971.109375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 2113.140625,
+            "tagName": "input",
+            "top": 219.109375,
+            "width": 142.03125,
+            "widthStyle": "142.031px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Output range",
+        "paired": {
+          "box": {
+            "bottom": 259.109375,
+            "height": 62.109375,
+            "left": 1824.078125,
+            "right": 2113.140625,
+            "top": 197,
+            "width": 289.0625
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1824.078125,
+                "right": 1966.109375,
+                "top": 197,
+                "width": 142.03125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "142.031px"
+            },
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1971.109375,
+                "right": 2113.140625,
+                "top": 197,
+                "width": 142.03125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "142.031px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "289.062px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 2124.140625,
+          "right": 2476.5,
+          "top": 169,
+          "width": 352.359375
+        },
+        "controls": [
+          {
+            "bottom": 227,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 2134.140625,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 2298.3125,
+            "tagName": "button",
+            "top": 197,
+            "width": 164.171875,
+            "widthStyle": "164.172px"
+          },
+          {
+            "bottom": 227,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 2302.3125,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 2466.5,
+            "tagName": "button",
+            "top": 197,
+            "width": 164.1875,
+            "widthStyle": "164.188px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Graph selection",
+        "paired": null
+      }
+    ],
+    "fitHeaderSource": {
+      "bottom": 83,
+      "height": 17,
+      "left": 139.90625,
+      "right": 290.59375,
+      "top": 66,
+      "width": 150.6875
+    },
+    "fitHeaderState": {
+      "bottom": 83,
+      "height": 17,
+      "left": 298.59375,
+      "right": 412.109375,
+      "top": 66,
+      "width": 113.515625
+    },
+    "fitInput": {
+      "box": {
+        "bottom": 230,
+        "top": 169
+      },
+      "clipped": false,
+      "text": "DP780 / Tensile test 0001Saved Process result",
+      "visible": true
+    },
+    "fitPlotHeading": {
+      "box": {
+        "bottom": 346.375,
+        "height": 18.75,
+        "left": 302,
+        "right": 440.796875,
+        "top": 327.625,
+        "width": 138.796875
+      },
+      "clientHeight": 19,
+      "clientWidth": 139,
+      "count": 1,
+      "display": "block",
+      "scrollHeight": 19,
+      "scrollWidth": 139,
+      "text": "Hardening response"
+    },
+    "fitRemoveStep": {
+      "bottom": 161.5,
+      "height": 20,
+      "left": 2380.359375,
+      "right": 2466.5,
+      "top": 141.5,
+      "width": 86.140625
+    },
+    "fitRibbon": {
+      "bottom": 316,
+      "height": 181,
+      "left": 293,
+      "right": 2560,
+      "top": 135,
+      "width": 2267
+    },
+    "fitStepCount": 4,
+    "fitTopActions": [
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 2173.578125,
+          "right": 2254.21875,
+          "top": 57.5,
+          "width": 80.640625
+        },
+        "clientHeight": 32,
+        "clientWidth": 79,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Advanced",
+        "scrollHeight": 32,
+        "scrollWidth": 79,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 2276.21875,
+          "right": 2399.5,
+          "top": 57.5,
+          "width": 123.28125
+        },
+        "clientHeight": 32,
+        "clientWidth": 121,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Preview changes",
+        "scrollHeight": 32,
+        "scrollWidth": 121,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(36, 94, 168)",
+        "borderColor": "rgb(36, 94, 168)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 2409.5,
+          "right": 2550,
+          "top": 57.5,
+          "width": 140.5
+        },
+        "clientHeight": 32,
+        "clientWidth": 139,
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Save fit & continue",
+        "scrollHeight": 32,
+        "scrollWidth": 139,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "fitTopActionsContainer": {
+      "bottom": 91.5,
+      "height": 34,
+      "left": 2173.578125,
+      "right": 2550,
+      "top": 57.5,
+      "width": 376.421875
+    },
+    "horizontalAxisBox": {
+      "bottom": 1358.25,
+      "height": 0,
+      "left": 382,
+      "right": 2321,
+      "top": 1358.25,
+      "width": 1939
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 673.53125,
+    "legendBox": {
+      "bottom": 673.53125,
+      "height": 305.53125,
+      "left": 2349,
+      "right": 2533,
+      "top": 368,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": null,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 1439,
+    "plotFrameBox": {
+      "bottom": 1410.25,
+      "height": 1052.25,
+      "left": 302,
+      "right": 2551,
+      "top": 358,
+      "width": 2249
+    },
+    "processClusterHeight": 0,
+    "processClusterLeft": 0,
+    "processClusterTop": 0,
+    "processClusterWidth": 0,
+    "processControls": [],
+    "processPanel": null,
+    "processRibbon": null,
+    "processRowClipped": false,
+    "processRows": [],
+    "railWidth": 288,
+    "ribbonHeight": 181,
+    "saveBand": null,
+    "stage": "fit",
+    "surface": "canonical",
+    "svgBottom": 1410.25,
+    "svgBox": {
+      "bottom": 1410.25,
+      "height": 1052.25,
+      "left": 302,
+      "right": 2551,
+      "top": 358,
+      "width": 2249
+    },
+    "svgHeight": 1052.25,
+    "svgWidth": 2249,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "viewport": "2560x1440",
+    "viewportHeight": 1440,
+    "workspace": {
+      "height": 1306,
+      "width": 2560,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 1306,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 2560,
+    "xAxisLabelBottom": 1405.25,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Export",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "export",
+    "surface": "canonical",
+    "viewport": "2560x1440",
+    "workspace": {
+      "height": 1272,
+      "width": 2560,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Data",
+    "exactContext": {
+      "mappingProfile": {
+        "id": "fb11dfb6-6d3d-439a-96ed-ae5e310f0f67",
+        "revisionId": "038807df-7320-4878-8497-71c0e1f4affd",
+        "revisionNo": 1
+      },
+      "selectedTestDataRefs": [
+        {
+          "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+          "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+          "revisionNo": 1
+        },
+        {
+          "id": "6247c720-9842-430c-aa06-8b821f21a374",
+          "revisionId": "7d15b073-123f-4ee6-a5d3-6b84be03f6fc",
+          "revisionNo": 1
+        },
+        {
+          "id": "f905a2a7-ada7-4f25-89c5-587ef690beb0",
+          "revisionId": "5f2b85e5-563e-4d6f-81c7-ffeac0852de7",
+          "revisionNo": 1
+        }
+      ],
+      "testData": {
+        "id": "d862ff72-5d85-4747-b982-8d0098311abf",
+        "revisionId": "ad9f8471-39b3-4911-a84d-c986a5209cbb",
+        "revisionNo": 1
+      }
+    },
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "data",
+    "surface": "canonical",
+    "viewport": "3840x2160",
+    "workspace": {
+      "height": 2038,
+      "width": 3840,
+      "x": 0,
+      "y": 122
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  },
+  {
+    "activeStage": "Process",
+    "drawableRatio": 0.8633333333333333,
+    "fitClusterHeight": 0,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 0,
+    "fitClusterWidth": 0,
+    "fitEvidenceTrigger": null,
+    "fitGroups": [],
+    "fitHeaderSource": null,
+    "fitHeaderState": null,
+    "fitInput": null,
+    "fitPlotHeading": {
+      "box": null,
+      "clientHeight": 0,
+      "clientWidth": 0,
+      "count": 0,
+      "display": "",
+      "scrollHeight": 0,
+      "scrollWidth": 0,
+      "text": ""
+    },
+    "fitRemoveStep": null,
+    "fitRibbon": null,
+    "fitStepCount": 0,
+    "fitTopActions": [
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "backgroundColor": "",
+        "borderColor": "",
+        "borderRadius": "",
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "color": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "fitTopActionsContainer": null,
+    "horizontalAxisBox": {
+      "bottom": 1873,
+      "height": 0,
+      "left": 955.5,
+      "right": 3027.5,
+      "top": 1873,
+      "width": 2072
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 958.0625,
+    "legendBox": {
+      "bottom": 958.0625,
+      "height": 253.0625,
+      "left": 3055.5,
+      "right": 3239.5,
+      "top": 705,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": 8,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 1933,
+    "plotFrameBox": {
+      "bottom": 1925,
+      "height": 1230,
+      "left": 875.5,
+      "right": 3257.5,
+      "top": 695,
+      "width": 2382
+    },
+    "processClusterHeight": 2026,
+    "processClusterLeft": 0,
+    "processClusterTop": 134,
+    "processClusterWidth": 3840,
+    "processControls": [
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 1133,
+          "right": 1638.8125,
+          "top": 221,
+          "width": 505.8125
+        },
+        "clientHeight": 38,
+        "clientWidth": 504,
+        "height": 40,
+        "label": "Evaluation method",
+        "scrollHeight": 38,
+        "scrollWidth": 504,
+        "whiteSpace": "pre"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 1646.8125,
+          "right": 2024.1875,
+          "top": 221,
+          "width": 377.375
+        },
+        "clientHeight": 38,
+        "clientWidth": 375,
+        "height": 40,
+        "label": "Elastic range start",
+        "scrollHeight": 38,
+        "scrollWidth": 375,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 261,
+          "height": 40,
+          "left": 2028.1875,
+          "right": 2405.5625,
+          "top": 221,
+          "width": 377.375
+        },
+        "clientHeight": 38,
+        "clientWidth": 375,
+        "height": 40,
+        "label": "Elastic range end",
+        "scrollHeight": 38,
+        "scrollWidth": 375,
+        "whiteSpace": "normal"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 1134,
+          "right": 1808.015625,
+          "top": 319,
+          "width": 674.015625
+        },
+        "clientHeight": 38,
+        "clientWidth": 672,
+        "height": 40,
+        "label": "Process result name",
+        "scrollHeight": 38,
+        "scrollWidth": 672,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 1818.015625,
+          "right": 2829.046875,
+          "top": 319,
+          "width": 1011.03125
+        },
+        "clientHeight": 38,
+        "clientWidth": 1009,
+        "height": 40,
+        "label": "Reason for saving Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 1009,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 359,
+          "height": 40,
+          "left": 2839.046875,
+          "right": 2985,
+          "top": 319,
+          "width": 145.953125
+        },
+        "clientHeight": 38,
+        "clientWidth": 144,
+        "height": 40,
+        "label": "Save Process result",
+        "scrollHeight": 38,
+        "scrollWidth": 144,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "processPanel": {
+      "bottom": 426,
+      "height": 291,
+      "left": 1109,
+      "right": 3009,
+      "top": 135,
+      "width": 1900
+    },
+    "processRibbon": {
+      "bottom": 427,
+      "height": 292,
+      "left": 293.015625,
+      "right": 3840,
+      "top": 135,
+      "width": 3546.984375
+    },
+    "processRowClipped": false,
+    "processRows": [
+      {
+        "clipped": false,
+        "text": "Tensile test 0001"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0002"
+      },
+      {
+        "clipped": false,
+        "text": "Tensile test 0003"
+      }
+    ],
+    "railWidth": 288.015625,
+    "ribbonHeight": 292,
+    "saveBand": {
+      "bottom": 359,
+      "height": 58,
+      "left": 1134,
+      "right": 2985,
+      "top": 301,
+      "width": 1851
+    },
+    "stage": "process",
+    "surface": "canonical",
+    "svgBottom": 1925,
+    "svgBox": {
+      "bottom": 1925,
+      "height": 1230,
+      "left": 875.5,
+      "right": 3257.5,
+      "top": 695,
+      "width": 2382
+    },
+    "svgHeight": 1230,
+    "svgWidth": 2382,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 3437.46875,
+          "right": 3522.765625,
+          "top": 54.5,
+          "width": 85.296875
+        },
+        "clientHeight": 38,
+        "clientWidth": 83,
+        "height": 40,
+        "label": "Advanced",
+        "scrollHeight": 38,
+        "scrollWidth": 83,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 3532.765625,
+          "right": 3688.765625,
+          "top": 54.5,
+          "width": 156
+        },
+        "clientHeight": 38,
+        "clientWidth": 154,
+        "height": 40,
+        "label": "Distribution analysis",
+        "scrollHeight": 38,
+        "scrollWidth": 154,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "box": {
+          "bottom": 94.5,
+          "height": 40,
+          "left": 3698.765625,
+          "right": 3830,
+          "top": 54.5,
+          "width": 131.234375
+        },
+        "clientHeight": 38,
+        "clientWidth": 129,
+        "height": 40,
+        "label": "Preview changes",
+        "scrollHeight": 38,
+        "scrollWidth": 129,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "viewport": "3840x2160",
+    "viewportHeight": 2160,
+    "workspace": {
+      "height": 2026,
+      "width": 3840,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 2026,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 3840,
+    "xAxisLabelBottom": 1920,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Fit",
+    "drawableRatio": 0.8633333333333333,
+    "fitClusterHeight": 2026,
+    "fitClusterLeft": 0,
+    "fitClusterTop": 134,
+    "fitClusterWidth": 3840,
+    "fitEvidenceTrigger": {
+      "bottom": 314,
+      "height": 17,
+      "left": 2994.640625,
+      "right": 3108.5,
+      "top": 297,
+      "width": 113.859375
+    },
+    "fitGroups": [
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1016.5,
+          "right": 1580.25,
+          "top": 169,
+          "width": 563.75
+        },
+        "controls": [
+          {
+            "bottom": 210.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 1026.5,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1039.5,
+            "tagName": "input",
+            "top": 197.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 210.640625,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 1301.875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1314.875,
+            "tagName": "input",
+            "top": 197.640625,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 229.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 1026.5,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1039.5,
+            "tagName": "input",
+            "top": 216.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          },
+          {
+            "bottom": 229.9375,
+            "boxSizing": "border-box",
+            "height": 13,
+            "left": 1301.875,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 1314.875,
+            "tagName": "input",
+            "top": 216.9375,
+            "width": 13,
+            "widthStyle": "13px"
+          }
+        ],
+        "gridTemplateColumns": "repeat(2, minmax(0px, 1fr))",
+        "label": "Candidate models",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1580.25,
+          "right": 1862.125,
+          "top": 169,
+          "width": 281.875
+        },
+        "controls": [
+          {
+            "bottom": 256,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1590.25,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1718.6875,
+            "tagName": "input",
+            "top": 216,
+            "width": 128.4375,
+            "widthStyle": "128.438px"
+          },
+          {
+            "bottom": 256,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1722.6875,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 1851.125,
+            "tagName": "input",
+            "top": 216,
+            "width": 128.4375,
+            "widthStyle": "128.438px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Fit range",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 1862.125,
+          "right": 2144.015625,
+          "top": 169,
+          "width": 281.890625
+        },
+        "controls": [
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 1872.125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 2000.0625,
+            "tagName": "select",
+            "top": 219.109375,
+            "width": 127.9375,
+            "widthStyle": "127.938px"
+          },
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 2005.0625,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 2133.015625,
+            "tagName": "select",
+            "top": 219.109375,
+            "width": 127.953125,
+            "widthStyle": "127.953px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Preview blend",
+        "paired": {
+          "box": {
+            "bottom": 259.109375,
+            "height": 62.109375,
+            "left": 1872.125,
+            "right": 2133.015625,
+            "top": 197,
+            "width": 260.890625
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 1872.125,
+                "right": 2000.0625,
+                "top": 197,
+                "width": 127.9375
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "127.938px"
+            },
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 2005.0625,
+                "right": 2133.015625,
+                "top": 197,
+                "width": 127.953125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "127.953px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "260.891px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 2144.015625,
+          "right": 2454.078125,
+          "top": 169,
+          "width": 310.0625
+        },
+        "controls": [
+          {
+            "bottom": 236.1875,
+            "boxSizing": "border-box",
+            "height": 37.1875,
+            "left": 2154.015625,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 2411.609375,
+            "tagName": "input",
+            "top": 199,
+            "width": 257.59375,
+            "widthStyle": "257.594px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Blend ratio",
+        "paired": null
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 2454.078125,
+          "right": 2764.140625,
+          "top": 169,
+          "width": 310.0625
+        },
+        "controls": [
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 2464.078125,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 2606.109375,
+            "tagName": "input",
+            "top": 219.109375,
+            "width": 142.03125,
+            "widthStyle": "142.031px"
+          },
+          {
+            "bottom": 259.109375,
+            "boxSizing": "border-box",
+            "height": 40,
+            "left": 2611.109375,
+            "maxWidth": "100%",
+            "minWidth": "0px",
+            "right": 2753.140625,
+            "tagName": "input",
+            "top": 219.109375,
+            "width": 142.03125,
+            "widthStyle": "142.031px"
+          }
+        ],
+        "gridTemplateColumns": "1fr 1fr",
+        "label": "Output range",
+        "paired": {
+          "box": {
+            "bottom": 259.109375,
+            "height": 62.109375,
+            "left": 2464.078125,
+            "right": 2753.140625,
+            "top": 197,
+            "width": 289.0625
+          },
+          "display": "flex",
+          "labels": [
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 2464.078125,
+                "right": 2606.109375,
+                "top": 197,
+                "width": 142.03125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "142.031px"
+            },
+            {
+              "box": {
+                "bottom": 259.109375,
+                "height": 62.109375,
+                "left": 2611.109375,
+                "right": 2753.140625,
+                "top": 197,
+                "width": 142.03125
+              },
+              "contain": "none",
+              "flex": "1 1 0px",
+              "maxWidth": "none",
+              "minWidth": "0px",
+              "overflow": "hidden",
+              "widthStyle": "142.031px"
+            }
+          ],
+          "maxWidth": "100%",
+          "minWidth": "0px",
+          "overflow": "hidden",
+          "widthStyle": "289.062px"
+        }
+      },
+      {
+        "box": {
+          "bottom": 315,
+          "height": 146,
+          "left": 2764.140625,
+          "right": 3116.5,
+          "top": 169,
+          "width": 352.359375
+        },
+        "controls": [
+          {
+            "bottom": 227,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 2774.140625,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 2938.3125,
+            "tagName": "button",
+            "top": 197,
+            "width": 164.171875,
+            "widthStyle": "164.172px"
+          },
+          {
+            "bottom": 227,
+            "boxSizing": "border-box",
+            "height": 30,
+            "left": 2942.3125,
+            "maxWidth": "none",
+            "minWidth": "0px",
+            "right": 3106.5,
+            "tagName": "button",
+            "top": 197,
+            "width": 164.1875,
+            "widthStyle": "164.188px"
+          }
+        ],
+        "gridTemplateColumns": "none",
+        "label": "Graph selection",
+        "paired": null
+      }
+    ],
+    "fitHeaderSource": {
+      "bottom": 83,
+      "height": 17,
+      "left": 139.90625,
+      "right": 290.59375,
+      "top": 66,
+      "width": 150.6875
+    },
+    "fitHeaderState": {
+      "bottom": 83,
+      "height": 17,
+      "left": 298.59375,
+      "right": 412.109375,
+      "top": 66,
+      "width": 113.515625
+    },
+    "fitInput": {
+      "box": {
+        "bottom": 230,
+        "top": 169
+      },
+      "clipped": false,
+      "text": "DP780 / Tensile test 0001Saved Process result",
+      "visible": true
+    },
+    "fitPlotHeading": {
+      "box": {
+        "bottom": 627.875,
+        "height": 18.75,
+        "left": 875.5,
+        "right": 1014.296875,
+        "top": 609.125,
+        "width": 138.796875
+      },
+      "clientHeight": 19,
+      "clientWidth": 139,
+      "count": 1,
+      "display": "block",
+      "scrollHeight": 19,
+      "scrollWidth": 139,
+      "text": "Hardening response"
+    },
+    "fitRemoveStep": {
+      "bottom": 161.5,
+      "height": 20,
+      "left": 3020.359375,
+      "right": 3106.5,
+      "top": 141.5,
+      "width": 86.140625
+    },
+    "fitRibbon": {
+      "bottom": 316,
+      "height": 181,
+      "left": 293.015625,
+      "right": 3840,
+      "top": 135,
+      "width": 3546.984375
+    },
+    "fitStepCount": 4,
+    "fitTopActions": [
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 3453.578125,
+          "right": 3534.21875,
+          "top": 57.5,
+          "width": 80.640625
+        },
+        "clientHeight": 32,
+        "clientWidth": 79,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Advanced",
+        "scrollHeight": 32,
+        "scrollWidth": 79,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(249, 251, 251)",
+        "borderColor": "rgb(168, 190, 194)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 3556.21875,
+          "right": 3679.5,
+          "top": 57.5,
+          "width": 123.28125
+        },
+        "clientHeight": 32,
+        "clientWidth": 121,
+        "color": "rgb(35, 72, 82)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Preview changes",
+        "scrollHeight": 32,
+        "scrollWidth": 121,
+        "whiteSpace": "nowrap"
+      },
+      {
+        "backgroundColor": "rgb(36, 94, 168)",
+        "borderColor": "rgb(36, 94, 168)",
+        "borderRadius": "0px",
+        "box": {
+          "bottom": 91.5,
+          "height": 34,
+          "left": 3689.5,
+          "right": 3830,
+          "top": 57.5,
+          "width": 140.5
+        },
+        "clientHeight": 32,
+        "clientWidth": 139,
+        "color": "rgb(255, 255, 255)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "height": 34,
+        "label": "Save fit & continue",
+        "scrollHeight": 32,
+        "scrollWidth": 139,
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "fitTopActionsContainer": {
+      "bottom": 91.5,
+      "height": 34,
+      "left": 3453.578125,
+      "right": 3830,
+      "top": 57.5,
+      "width": 376.421875
+    },
+    "horizontalAxisBox": {
+      "bottom": 1796.75,
+      "height": 0,
+      "left": 955.5,
+      "right": 3027.5,
+      "top": 1796.75,
+      "width": 2072
+    },
+    "lastXTickWithinSvg": true,
+    "legendAfterPlotAxis": true,
+    "legendAxisLabelOverlap": false,
+    "legendAxisOverlap": false,
+    "legendBottom": 955.03125,
+    "legendBox": {
+      "bottom": 955.03125,
+      "height": 305.53125,
+      "left": 3055.5,
+      "right": 3239.5,
+      "top": 649.5,
+      "width": 184
+    },
+    "legendCurveSegmentOverlap": false,
+    "legendExtrapolationBoundaryOverlap": false,
+    "legendExtrapolationLabelOverlap": false,
+    "legendInPlot": true,
+    "legendOutsideSvg": false,
+    "legendStateOverlayOverlap": false,
+    "legendTickOverlap": false,
+    "methodRangeGap": null,
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "plotBottom": 1877.5,
+    "plotFrameBox": {
+      "bottom": 1848.75,
+      "height": 1209.25,
+      "left": 875.5,
+      "right": 3257.5,
+      "top": 639.5,
+      "width": 2382
+    },
+    "processClusterHeight": 0,
+    "processClusterLeft": 0,
+    "processClusterTop": 0,
+    "processClusterWidth": 0,
+    "processControls": [],
+    "processPanel": null,
+    "processRibbon": null,
+    "processRowClipped": false,
+    "processRows": [],
+    "railWidth": 288.015625,
+    "ribbonHeight": 181,
+    "saveBand": null,
+    "stage": "fit",
+    "surface": "canonical",
+    "svgBottom": 1848.75,
+    "svgBox": {
+      "bottom": 1848.75,
+      "height": 1209.25,
+      "left": 875.5,
+      "right": 3257.5,
+      "top": 639.5,
+      "width": 2382
+    },
+    "svgHeight": 1209.25,
+    "svgWidth": 2382,
+    "toeMode": false,
+    "topActions": [
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      },
+      {
+        "box": null,
+        "clientHeight": 0,
+        "clientWidth": 0,
+        "height": 0,
+        "label": "",
+        "scrollHeight": 0,
+        "scrollWidth": 0,
+        "whiteSpace": ""
+      }
+    ],
+    "viewport": "3840x2160",
+    "viewportHeight": 2160,
+    "workspace": {
+      "height": 2026,
+      "width": 3840,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceHeight": 2026,
+    "workspaceLeft": 0,
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false,
+    "workspaceTop": 134,
+    "workspaceWidth": 3840,
+    "xAxisLabelBottom": 1843.75,
+    "xTickCount": 6,
+    "xTicksWithinSvg": true
+  },
+  {
+    "activeStage": "Export",
+    "pageOverflowX": false,
+    "pageOverflowY": false,
+    "stage": "export",
+    "surface": "canonical",
+    "viewport": "3840x2160",
+    "workspace": {
+      "height": 1992,
+      "width": 3840,
+      "x": 0,
+      "y": 134
+    },
+    "workspaceOverflow": "hidden/hidden",
+    "workspaceOverflowX": false,
+    "workspaceOverflowY": false
+  }
+]

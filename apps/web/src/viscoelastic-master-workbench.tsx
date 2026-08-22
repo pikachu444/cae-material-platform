@@ -15,6 +15,7 @@ import type {
   ViscoelasticMasterPreviewResponse,
   ViscoelasticShiftMethod,
 } from "./types";
+import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError

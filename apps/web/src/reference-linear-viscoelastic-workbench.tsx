@@ -21,6 +21,7 @@ import type {
   PropertySetResponse,
 } from "./types";
 import { listCommonProcessingOutputs, type CommonProcessingOutputResponse } from "./features/modeling";
+import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 
 interface EditableTerm {
   gRatio: string;

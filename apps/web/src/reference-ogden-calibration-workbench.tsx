@@ -39,6 +39,7 @@ import type {
   TestRunResponse,
 } from "./types";
 import { NeutralHyperelasticExport } from "./neutral-hyperelastic-export";
+import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
 const MODE_BY_SCHEMA: Partial<Record<GovernedDatasetResponse["data_schema"], OgdenTestMode>> = {
   monotonic_tension: "uniaxial_tension",

@@ -42,6 +42,8 @@ _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-04.json",
     "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-05.json",
     "docs/17-evidence/issue-261-b4-css-ownership-integration-duplicates-06.json",
+    "docs/17-evidence/issue-261-m1e-modeling-ownership-integration-duplicates-01.json",
+    "docs/17-evidence/issue-261-m1e2-modeling-core-shell-manifest.json",
 )
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (

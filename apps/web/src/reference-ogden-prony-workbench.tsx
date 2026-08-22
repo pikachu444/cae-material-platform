@@ -19,6 +19,7 @@ import type {
 } from "./types";
 import { OgdenScientificProfilePanel } from "./scientific-profile-panel";
 import { ReferenceOgdenCalibrationWorkbench } from "./reference-ogden-calibration-workbench";
+import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 
 interface EditableTerm {
   ratio: string;

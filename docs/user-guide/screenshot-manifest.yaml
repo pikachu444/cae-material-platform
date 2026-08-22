@@ -1,10 +1,11 @@
-version: 129
-verified_at: 2026-08-21
-scope: issue-309-modeling-data-axis-overlap
-source_commit: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1+issue309-worktree
+version: 130
+verified_at: 2026-08-22
+scope: issue-261-m1e2-modeling-core-shell-ownership
+source_commit: 60cca28cc24bd7b734925b732b0b090a6534387f+issue261-m1e2-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: native Python Playwright 1.62 task-local resolved-mapping drill using scripts.capture_current_product helpers against canonical current-worktree Compose at http://127.0.0.1:5173
+capture_command: current-product guide capture plus task-local issue-261 M1E2 Product and Storybook before/after evidence against an isolated current-worktree Compose project and a temporary frozen-base reconstruction at browser zoom 100% and DPR 1
 notes:
+  - "Issue #261 M1E2 moves the frozen 101-row/95-group common Modeling core-shell roster into its feature owner without DOM, API, copy, state or exact-revision change. The independent-review correction is explicit outside the relocation counts and gives the production stage shell two rows at 900px and below so Data, Process, Fit and Export remain visible and reachable. The structured evidence manifest registers 268 original-resolution PNGs: 119 Product and 15 Storybook before/after pairs. Product has 98 pixel-identical pairs, 18 intentional compact-navigator pairs, three bounded native-select glyph raster variances and zero unexpected changes; Storybook is 15/15 pixel-identical. All unaffected computed bounds and normalized relocation declarations have zero drift. Main opened every PNG at original resolution and reopened all changed pairs after correction. Automated 3840x2160 geometry does not claim physical Windows 4K readability; #223 remains the physical gate."
   - "Issue #261 B1 moves the corrected 505 Modeling selector rows plus seven proven normalization peers into Data, Process, Fit and Export owner CSS without changing React, DOM, API, copy, state or exact revision contracts. One cumulative batch retains twenty five-viewport originals, eighty direct 100%-pixel crops and four 1440x900 compatibility-alias captures; no current guide PNG changes. Main opened every canonical original at source resolution and found no clipping, horizontal overflow, unreachable controls or cascade regression. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the physical gate."
   - "Issue #261 M2 historical Materials ownership evidence is retained under docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership and its evidence report. The exact before/after originals, direct crops and five-viewport matrix remain independently addressable; this entry does not promote task evidence to a current-product reference."
   - "Issue #261 M3 historical governance ownership evidence is retained under docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership and its structured manifest. Administration and Activity originals/crops remain independently addressable at the recorded CSS viewports; physical 4K readability remains deferred to #223 and no B4 live acceptance is claimed."
@@ -659,8 +660,8 @@ allowed_duplicate_groups:
     images: [docs/user-guide/images/current/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-3840x2160.png]
   - rationale: "Issue #260 keeps the registered current Export 1366x768 original and its issue-owned candidate original byte-identical."
     images: [docs/user-guide/images/current/modeling-export-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1366x768.png]
-  - rationale: "Issue #260 keeps the registered current Export 1440x900 original and its issue-owned candidate original byte-identical."
-    images: [docs/user-guide/images/current/modeling-export-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1440x900.png]
+  - rationale: "Issue #261 M1E refreshes the registered current Export 1440x900 original from the ownership-integration live run; the evidence and current-guide copies remain byte-identical without representing a new design."
+    images: [docs/user-guide/images/current/modeling-export-1440x900.png, docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-export-1440x900.png]
   - rationale: "Issue #260 keeps the registered current Export 1920x1080 original and its issue-owned candidate original byte-identical."
     images: [docs/user-guide/images/current/modeling-export-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1920x1080.png]
   - rationale: "Issue #260 keeps the registered current Export 2560x1440 original and its issue-owned candidate original byte-identical."
@@ -3102,7 +3103,7 @@ captures:
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
-    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
+    comparison_evidence: docs/17-evidence/issue-261-m1e-modeling-ownership-integration.md
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
     workflow: one-selected-model solver-card setup, native preview, mapping review and atomic delivery

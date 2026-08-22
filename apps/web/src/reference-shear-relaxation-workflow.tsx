@@ -39,6 +39,7 @@ import type {
 } from "./types";
 import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
+import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 
 function message(error: unknown): string {
   return error instanceof ApiError
