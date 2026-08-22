@@ -3016,3 +3016,21 @@ settled replacement coverage passing. Actual Windows 4K physical readability rem
 #223. PR #311 is merged as `fa417118cf77989d617024e68a4730d828d790df`; the publication replay
 retains this coherent batch without another five-viewport run. The issue stays open while M1E, M4,
 M6 and HOLD continue through their registered follow-up units.
+
+## M1E3 Modeling constitutive/reference-family ownership checkpoint
+
+Starting from merged PR #313 at `7e198e58d400cfbb54a1da9006c1e084bdf3ec09`, the independent
+requirements audit froze exactly 151 Modeling-exclusive M1E rows / 139 touched source groups with
+digest `ad02e6533379a27e7219c62763abe2369a6a2b7e36d4b9ee2c10780171485854`.
+The implementation moves 55 / 52 engineering-curve/calibration rows/groups, 70 / 63
+Export/delivery/elastoplastic rows/groups, and 26 / 24 viscoelastic/elastomer rows/groups into the
+actual producer-owned CSS modules. It removes 130 complete legacy groups, shrinks nine mixed groups,
+preserves all 13 non-M1E peers, and property-unions `CSS-0876 .icon-button` into its existing owner
+without a duplicate selector.
+
+The regenerated residual is exactly 1,621 rows / 1,343 groups. M1E is 232 / 188 and the cross-CSS
+duplicate count is six. The 170 / 136 common core workbench/stage complement and 62 / 52
+cross-route-consumed complement remain explicitly excluded and unchanged. The [M1E3 evidence](issue-261-m1e3-modeling-family-ownership.md)
+records source, built-bundle, Product/Storybook and five-viewport acceptance. Issue #261 remains open;
+the coherent 170 / 136 common core complement is the next ownership-audit candidate, while the
+cross-route complement stays routed to its actual producers.

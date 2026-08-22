@@ -1828,14 +1828,14 @@ test("preserves standalone B1/M2/M3 checkpoints and records the combined B4 hand
     partialGroups: 21,
   });
   assert.deepEqual(inventory.migrationPlan.combinedB4.current, {
-    selectorRows: 1772,
-    cssRuleGroups: 1473,
-    crossCssDuplicateRows: 7,
+    selectorRows: 1621,
+    cssRuleGroups: 1343,
+    crossCssDuplicateRows: 6,
     byMigrationBatch: {
       "HOLD-owner-or-cross-feature-split": 504,
       "M1A-modeling-data": 9,
       "M1B-modeling-process": 29,
-      "M1E-modeling-shell-and-family": 383,
+      "M1E-modeling-shell-and-family": 232,
       "M4-shared-cleanup": 314,
       "M6-zero-consumer-removal-candidate": 533,
     },

@@ -1,10 +1,11 @@
-version: 130
+version: 131
 verified_at: 2026-08-22
-scope: issue-261-m1e2-modeling-core-shell-ownership
-source_commit: 60cca28cc24bd7b734925b732b0b090a6534387f+issue261-m1e2-worktree
+scope: issue-261-m1e3-modeling-family-ownership
+source_commit: 7e198e58d400cfbb54a1da9006c1e084bdf3ec09+issue261-m1e3-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: current-product guide capture plus task-local issue-261 M1E2 Product and Storybook before/after evidence against an isolated current-worktree Compose project and a temporary frozen-base reconstruction at browser zoom 100% and DPR 1
+capture_command: task-local issue-261 M1E3 Product and Storybook before/after evidence against isolated disposable repository Compose projects and a temporary frozen-base reconstruction at browser zoom 100% and DPR 1; no current-guide PNG replacement
 notes:
+  - "Issue #261 M1E3 moves the independently frozen 151-row/139-group Modeling-exclusive constitutive/reference-family roster into engineering-curve, calibration, Export/delivery/elastoplastic and viscoelastic/elastomer producer owners without changing React, DOM, API, copy, route, state or exact-revision contracts. The structured evidence contains 43 Product and 5 Storybook records, 220 before/after image pairs, 187 pixel-identical pairs, 33 generated-identity-only pairs, and zero geometry/text or pixel failures. Main opened every after-state original at source resolution and reviewed direct 100%-pixel family/Export/4K crops. No current-guide PNG changes because the effective UI is preserved. Automated 3840x2160 geometry does not claim physical Windows 4K readability; #223 remains the physical gate."
   - "Issue #261 M1E2 moves the frozen 101-row/95-group common Modeling core-shell roster into its feature owner without DOM, API, copy, state or exact-revision change. The independent-review correction is explicit outside the relocation counts and gives the production stage shell two rows at 900px and below so Data, Process, Fit and Export remain visible and reachable. The structured evidence manifest registers 268 original-resolution PNGs: 119 Product and 15 Storybook before/after pairs. Product has 98 pixel-identical pairs, 18 intentional compact-navigator pairs, three bounded native-select glyph raster variances and zero unexpected changes; Storybook is 15/15 pixel-identical. All unaffected computed bounds and normalized relocation declarations have zero drift. Main opened every PNG at original resolution and reopened all changed pairs after correction. Automated 3840x2160 geometry does not claim physical Windows 4K readability; #223 remains the physical gate."
   - "Issue #261 B1 moves the corrected 505 Modeling selector rows plus seven proven normalization peers into Data, Process, Fit and Export owner CSS without changing React, DOM, API, copy, state or exact revision contracts. One cumulative batch retains twenty five-viewport originals, eighty direct 100%-pixel crops and four 1440x900 compatibility-alias captures; no current guide PNG changes. Main opened every canonical original at source resolution and found no clipping, horizontal overflow, unreachable controls or cascade regression. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the physical gate."
   - "Issue #261 M2 historical Materials ownership evidence is retained under docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership and its evidence report. The exact before/after originals, direct crops and five-viewport matrix remain independently addressable; this entry does not promote task evidence to a current-product reference."
@@ -128,6 +129,16 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1366x768."
+    images: [docs/user-guide/images/current/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1366x768.png]
+  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1440x900."
+    images: [docs/user-guide/images/current/modeling-fit-1440x900.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1440x900.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1440x900.png]
+  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1920x1080."
+    images: [docs/user-guide/images/current/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1920x1080.png]
+  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 2560x1440."
+    images: [docs/user-guide/images/current/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-2560x1440.png]
+  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 3840x2160."
+    images: [docs/user-guide/images/current/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-3840x2160.png]
   - rationale: "Issue #298 keeps the unchanged editor current image and both issue-owned before/after evidence originals independently addressable from the #289 accepted source."
     images: [docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1366x768.png, docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1366x768.png, docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1366x768.png, docs/user-guide/images/current/administration-database-1366x768.png]
   - rationale: "Issue #298 keeps the unchanged editor current image and both issue-owned before/after evidence originals independently addressable from the #289 accepted source."
@@ -2293,6 +2304,23 @@ allowed_duplicate_groups:
   - rationale: "Issue #261 M3 preserves this byte-identical before/after original while keeping both evidence paths independently addressable."
     images: [docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/originals/administration-records-3840x2160.png, docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/before/originals/administration-records-3840x2160.png]
 visual_evidence:
+  issue_261_m1e3_report: docs/17-evidence/issue-261-m1e3-modeling-family-ownership.md
+  issue_261_m1e3_before_after: docs/17-evidence/images/issue-261-m1e3-modeling-family-ownership/before-after-comparison.json
+  issue_261_m1e3_before_provenance: docs/17-evidence/images/issue-261-m1e3-modeling-family-ownership/before/cascade-provenance.json
+  issue_261_m1e3_after_provenance: docs/17-evidence/images/issue-261-m1e3-modeling-family-ownership/after/cascade-provenance.json
+  issue_261_m1e3_artifacts_are_not_current_captures: true
+  issue_261_m1e3_product_records: 43
+  issue_261_m1e3_storybook_records: 5
+  issue_261_m1e3_image_pairs: 220
+  issue_261_m1e3_pixel_exact_pairs: 187
+  issue_261_m1e3_identity_only_pairs: 33
+  issue_261_m1e3_behavior_preserving_pairs: 220
+  issue_261_m1e3_geometry_text_failures: 0
+  issue_261_m1e3_pixel_failures: 0
+  issue_261_m1e3_css_viewports: [1366x768, 1440x900, 1920x1080, 2560x1440, 3840x2160]
+  issue_261_m1e3_browser_zoom_percent: 100
+  issue_261_m1e3_device_pixel_ratio: 1
+  issue_261_m1e3_physical_4k_readability: DEFERRED_TO_223
   sidecar: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml
   geometry_measurements: docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/measurements.json
   routes: ['/modeling?stage=data&family=metal']

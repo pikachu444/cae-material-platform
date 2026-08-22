@@ -1,0 +1,169 @@
+{
+  "implementation_base": "7e198e58d400cfbb54a1da9006c1e084bdf3ec09",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "7e198e58d400cfbb54a1da9006c1e084bdf3ec09",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "apps/web/src/features/modeling/ui/modeling-export-delivery-workbenches.css",
+      "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "apps/web/src/styles.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "277fc4924dc87897c71161f355281a6b1184f6c1938149edd0191bc084fa253f",
+      "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css": "2cf795fdbb2547f8aee84b7f95d9f5599eb911ebfddf4217d6acc2d8e541b96d",
+      "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css": "22a8ac45292cb7089e126b76607a08f4e5aae1c8bac06dd1cd379a8267a3e2f5",
+      "apps/web/src/features/modeling/ui/modeling-export-delivery-workbenches.css": "ba6d367443327676bd4c58397d3c6b573cc46e559be036499fe870e94c73ce75",
+      "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css": "2788c20ec06bfe184cdff927ffba520f79301bd84a16c48a444fc282fe5e8991",
+      "apps/web/src/styles.css": "0fa44cc6e68dec038e366900ba1f3329aba9d34d6ef8d17308da827a1dbf8c5c"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-fit-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-fit-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-fit-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-fit-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-fit-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-3840x2160.png"
+      }
+    ]
+  },
+  "original_pairs": [
+    {
+      "name": "modeling-fit-1366x768.png",
+      "before_sha256": "36723a953962912688452228697953d2d1c371c8880743814dc1c9e2ea60e004",
+      "after_sha256": "36723a953962912688452228697953d2d1c371c8880743814dc1c9e2ea60e004",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-fit-1440x900.png",
+      "before_sha256": "caf77bb039c3c17eb2cbf20e5d194bf1770e4455eaf9ea37759c8dd1dfb56a23",
+      "after_sha256": "caf77bb039c3c17eb2cbf20e5d194bf1770e4455eaf9ea37759c8dd1dfb56a23",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-fit-1920x1080.png",
+      "before_sha256": "83e498da1623b862177f60fd7168d81831b734d919e9032c29cecbf388ac697d",
+      "after_sha256": "83e498da1623b862177f60fd7168d81831b734d919e9032c29cecbf388ac697d",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-fit-2560x1440.png",
+      "before_sha256": "5194234b2b446e496ccb8a372c5ae6a9d3a81dacdb4ab2c7df614dabbbe8f3df",
+      "after_sha256": "5194234b2b446e496ccb8a372c5ae6a9d3a81dacdb4ab2c7df614dabbbe8f3df",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-fit-3840x2160.png",
+      "before_sha256": "7d9a55d66aae96f8b6d31857bcb867a66c0c934bcf4d81efe4e00a535bd911a3",
+      "after_sha256": "7d9a55d66aae96f8b6d31857bcb867a66c0c934bcf4d81efe4e00a535bd911a3",
+      "byte_equal": true
+    }
+  ],
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1366x768.png",
+      "viewport": "1366x768",
+      "sha256": "36723a953962912688452228697953d2d1c371c8880743814dc1c9e2ea60e004"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1366x768.png",
+      "viewport": "1366x768",
+      "sha256": "36723a953962912688452228697953d2d1c371c8880743814dc1c9e2ea60e004"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1440x900.png",
+      "viewport": "1440x900",
+      "sha256": "caf77bb039c3c17eb2cbf20e5d194bf1770e4455eaf9ea37759c8dd1dfb56a23"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1440x900.png",
+      "viewport": "1440x900",
+      "sha256": "caf77bb039c3c17eb2cbf20e5d194bf1770e4455eaf9ea37759c8dd1dfb56a23"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "83e498da1623b862177f60fd7168d81831b734d919e9032c29cecbf388ac697d"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "83e498da1623b862177f60fd7168d81831b734d919e9032c29cecbf388ac697d"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-2560x1440.png",
+      "viewport": "2560x1440",
+      "sha256": "5194234b2b446e496ccb8a372c5ae6a9d3a81dacdb4ab2c7df614dabbbe8f3df"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-2560x1440.png",
+      "viewport": "2560x1440",
+      "sha256": "5194234b2b446e496ccb8a372c5ae6a9d3a81dacdb4ab2c7df614dabbbe8f3df"
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-3840x2160.png",
+      "viewport": "3840x2160",
+      "sha256": "7d9a55d66aae96f8b6d31857bcb867a66c0c934bcf4d81efe4e00a535bd911a3"
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "path": "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-3840x2160.png",
+      "viewport": "3840x2160",
+      "sha256": "7d9a55d66aae96f8b6d31857bcb867a66c0c934bcf4d81efe4e00a535bd911a3"
+    }
+  ]
+}
