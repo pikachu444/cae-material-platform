@@ -71,8 +71,8 @@
       "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
     ],
     "visual_file_sha256": {
-      "apps/web/src/design/layout.css": "a8d61c6a210c8cc6d4897d75dfbfb4965d2318e8c922a086fd68091c6b14b014",
-      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "0c2a1a678294f3176f4222b76b66a9d9876e69ef1d2c2fe2d0bd69573ff3d013"
+      "apps/web/src/design/layout.css": "74ec43598eec7c48d3907293d01c7360649c38d7154170e79b4c53d6973249d6",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "71ab543536a841abbb09529c0b761fef72dbf31b60e157d70bba5951a421c408"
     },
     "current_matches": [
       {
