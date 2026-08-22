@@ -1,0 +1,69 @@
+{
+  "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+  "issue": "#261",
+  "source_sha": "bf9f6195265fa18faa47bd0a636838685dd43a4d",
+  "classification": "behavior-preserving-css-migration",
+  "visual_files": [
+    "apps/web/src/design/layout.css",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+  ],
+  "baseline_visual_file_sha256": {
+    "apps/web/src/design/layout.css": "7d402bd36640d0e7fff8c84ec8177b0a6ef05397bd0950815d7fbca43df2b48a",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "93fbbf5468fef653bc0d2e838ae4d84867fe4fdd448baf45bc3f6ed79c6db380"
+  },
+  "visual_file_sha256": {
+    "apps/web/src/design/layout.css": "7eab5bdb9257f8c97e0a8d98fc28cdd85c1cb2562d0a6faefd63bfdf8fd6ed3a",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "c893d12f81b6d27c3d1c4b85955fa7619b37ae2d0a87db1497f76d387f8c4812"
+  },
+  "current_guide_assets_changed": false,
+  "current_matches": [
+    {
+      "viewport": "1366x768",
+      "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1366x768.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1366x768.png",
+      "current_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "evidence_sha256": "cfbe3a9390e3e91123454a7f61849e979a151be3008e3ddeb4955372d15a70f6",
+      "byte_equal": true
+    },
+    {
+      "viewport": "1440x900",
+      "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1440x900.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1440x900.png",
+      "current_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "evidence_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "viewport": "1920x1080",
+      "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1920x1080.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1920x1080.png",
+      "current_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "evidence_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "viewport": "2560x1440",
+      "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-2560x1440.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-2560x1440.png",
+      "current_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "evidence_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "viewport": "3840x2160",
+      "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+      "before": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-3840x2160.png",
+      "after": "docs/17-evidence/images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-3840x2160.png",
+      "current_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "evidence_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ],
+  "current_match_count": 5,
+  "all_current_matches": true,
+  "note": "Current guide PNGs remain unchanged. The exact M1A10 start commit archive and the M1A11 candidate use the same API, routes, deterministic local Test Data input and runtime state; all 46 retained evidence pairs match exactly."
+}

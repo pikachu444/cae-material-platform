@@ -29,12 +29,52 @@ Data의 열 연결을 검토하는 짧은 graph에서는 실제 SVG 높이에 �
 Data의 **Library**에서는 검색과 시험 종류·조건으로 목록을 좁히고, 표에서 현재 입력 하나를
 고른 뒤 그래프를 확인하고 **Continue to Process**로 이동합니다. 다른 곡선은 **Add comparison**을
 연 경우에만 그래프에 더할 수 있으며 현재 Process 입력은 바뀌지 않습니다. **Local file**은 별도
-입력 경로이고, **Match file columns** 아래에서 잘못된 열 연결의 원인과 고칠 항목을 해당 위치에
-표시하면서 마지막 유효 그래프를 유지합니다. 선택한 시험과 실제로 연결된 소재 자료, 다른 시험,
+입력 경로이며 source 선택과 mapping 작업을 같은 local surface 안에 유지합니다. 여기서 native file
+input으로 파일을 고르고 exact **Test record**를 선택한 뒤 **Inspect file**로 내용을 읽습니다. 파일이나
+Test record를 다시 고르기 전까지 현재 exact 선택과 마지막 유효 graph는 그대로 유지됩니다. **Match file columns**
+아래에서 잘못된 열 연결의 원인과 고칠 항목을 하나의 안내 블록으로 해당 위치에 표시하면서 마지막
+유효 그래프를 유지합니다. 이 안내는 mapping controls보다
+먼저 읽을 수 있습니다. 긴 source column은 native select 안에서 줄여 보여도
+선택한 원문, keyboard focus, file unit과 modeling unit을 같은 decision table에서 유지합니다. DMA 형식에서는 제공된 경우 **Include optional tan delta
+channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mapping 영역에서 유지됩니다. 선택한 시험과 실제로 연결된 소재 자료, 다른 시험,
 해석·모델 결과와 솔버 카드는 왼쪽
 **Related data**에 종류별로 나타납니다. 정확한 revision과 내부 식별 정보는 화면에 반복하지 않고
 접힌 **Technical details**에 둡니다. 넓은 화면에서는 목록과 작업 흐름의 가독성을 유지하면서
 그래프만 비교에 유용한 범위까지 커집니다.
+
+이 **Match file columns** 영역의 CSS 소유권 이동은
+[M1A17 live evidence](../17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/manifest.json)에
+다섯 viewport 원본, 내부 scroll-end 상태, 직접 crop과 exact journey read-back으로 기록합니다. 화면의
+문구·선택·revision·graph·복구 흐름과 좁은 화면의 의도된 내부 스크롤은 바꾸지 않습니다.
+
+유효한 column 연결 뒤 표시되는 **Columns ready · Change mapping · Update preview** 영역의 CSS 소유권
+이동은 [M1A18 live evidence](../17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/manifest.json)에
+다섯 viewport 원본, 안정 상태, 직접 crop과 exact journey read-back으로 기록합니다. 이 compact 상태는
+내부 스크롤이 필요하지 않지만, Local file 영역의 기존 keyboard scroll 계약은 그대로 유지합니다.
+
+**Choose data file · Test record · Save details · JSON result**에 공통으로 쓰이는 Data intake field-row의
+CSS 소유권 이동은 [M1A19 live evidence](../17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/manifest.json)에
+다섯 viewport 원본과 header/source/controls/graph 직접 crop으로 기록합니다. 정확한 Test Data와 revision,
+Update preview, graph, reload 복구와 Data→Process→Data 흐름은 바꾸지 않습니다.
+
+**Match file columns** 결정 프레임의 CSS 소유권 이동은
+[M1A20 live evidence](../17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/manifest.json)에
+다섯 viewport 원본과 header/navigator/controls/Save details/graph 100% crop으로 기록합니다. 1366 화면의
+Data 설정 내부 스크롤, Test type focus, 정확한 선택·revision, #309 graph와 Process 왕복은 그대로 유지합니다.
+
+Data 설정이 길어지면 위 설정 영역만 스크롤합니다. 설정과 그래프 사이 가로 구분선은 pointer 또는
+키보드로 높이를 조절할 수 있으며, 이때도 선택한 Test Data, 현재 그래프와 exact revision은 바뀌지
+않습니다. Local file의 긴 column mapping도 이 한 개의 키보드 스크롤 영역 안에서 이동하며, 바깥
+Data ribbon과 그래프에는 별도 중첩 스크롤을 만들지 않습니다.
+
+Local file의 column 연결이 유효하면 **Save details**에서 변경 사유를 입력하고 **Update preview**로
+마지막 유효 그래프를 다시 확인한 뒤 **Save Test Data**를 실행합니다. 사유를 입력하기 전에는 preview가,
+preview를 갱신하기 전에는 저장이 각각 비활성화됩니다. 이 순서는 현재 Test record와 그래프를 유지한 채
+mapping 변경을 명시적으로 검토하도록 합니다.
+
+Local file의 **File details**는 평소 접혀 있습니다. 펼치면 file parsing, 원본 column, Mapping Profile,
+Raw asset와 hash, specimen, exact Test Run 및 raw table을 확인할 수 있습니다. 이 상세 증거를 열거나
+접어도 선택한 Test Data와 그래프는 바뀌지 않으며, 내용이 길면 Data 설정 영역 안에서만 스크롤합니다.
 
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
 **Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는

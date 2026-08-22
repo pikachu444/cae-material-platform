@@ -1,0 +1,943 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A20-modeling-data-mapping-decision-frame",
+  "implementation_base": "58757f29892fc7f1c45bcb899ca71107f2f99a51",
+  "branch": "issue-261-m1a8-modeling-data-component-region",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "behavior_classification": "partial: Match file columns behavior and the #309 responsive graph contract were complete while four historical selector rows in four complete legacy rule groups remained owned by layout.css",
+  "historical_selector_rows": [
+    "CSS-0977",
+    "CSS-0978",
+    "CSS-1388",
+    "CSS-1389"
+  ],
+  "selectors": [
+    ".data-mapping-decision",
+    ".data-mapping-decision .mapping-context-row",
+    ".modeling-main-surface:has(.data-intake-local) .data-source-decision-grid",
+    ".modeling-main-surface.has-data-split .data-mapping-decision select[name=\"local-data-schema\"]"
+  ],
+  "structural_delta": {
+    "selectorRowsRemoved": 4,
+    "touchedRuleGroups": 4,
+    "fullyRemovedRuleGroups": 4,
+    "partiallyShrunkRuleGroups": 0,
+    "afterRuleGroups": 2699,
+    "afterSelectorRows": 3374,
+    "afterM1ARows": 23,
+    "afterHoldRows": 446,
+    "crossCssDuplicateRows": 14,
+    "legacyResidual": 0
+  },
+  "preserved_contract": "No React, DOM, API, copy, route, state, token, breakpoint, styles.css, Process, Fit or Export change. The merged #309 graph contract is retained unchanged. Exact Material, State, Test Data and revision selection, Test record, mapping decision, graph context, invalidation, restore, keyboard/focus, recovery, Data-to-Process-to-Data identity and reload read-back remain unchanged.",
+  "capture": {
+    "viewports": [
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "2560x1440",
+      "3840x2160"
+    ],
+    "image_pair_summary": {
+      "imagePairs": 35,
+      "byteIdenticalPairs": 35,
+      "pixelIdenticalPairs": 35,
+      "freshFocusedPairs": 30,
+      "reusedCanonicalPairs": 5
+    },
+    "equivalence": "equivalence.json",
+    "runtime_identity": "runtime-identity.json",
+    "documentation_impact": "documentation-impact-equivalence.json",
+    "before_measurements": "before/measurements.json",
+    "after_measurements": "after/measurements.json",
+    "physical_4k_readability": "DEFERRED_TO_223"
+  },
+  "design_synthesis": {
+    "information_hierarchy": "PASS preserved: Local file, Match file columns, focused Test type, mapped engineering channels, Save details and graph remain visibly ordered",
+    "engineering_task_flow": "PASS preserved: exact Data selection, explicit mapping decision, temporary Update preview, readable graph, reload recovery and Process round trip all pass",
+    "responsive_wide_screen_composition": "PASS preserved: five viewports have no page overflow or y-tick collision; the 1366 local scroll remains intentional while plot space grows usefully on wider screens",
+    "redesign_claim": false
+  },
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "58757f29892fc7f1c45bcb899ca71107f2f99a51",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "74ec43598eec7c48d3907293d01c7360649c38d7154170e79b4c53d6973249d6",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "71ab543536a841abbb09529c0b761fef72dbf31b60e157d70bba5951a421c408"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-3840x2160.png"
+      }
+    ]
+  },
+  "review": {
+    "main_original_resolution_review": "APPROVE",
+    "independent_balanced_audit": "APPROVE: canonical independent read-only Balanced auditor verified the exact four-selector/four-complete-group ownership move, zero legacy residual, 70 PNG hashes and dimensions, 35/35 byte/pixel-identical pairs, five runtime records, the intentional 1366 internal scroll, #309 graph readability, all three preserved #249 axes, and M1A21 with 23 remaining M1A rows; publication blockers 0"
+  },
+  "images": [
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1366x768.png",
+      "sha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1366x768.png",
+      "sha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "phase": "before",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "phase": "after",
+      "kind": "original",
+      "state": "normal",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-controls-100pct.png",
+      "sha256": "8797038a65d5755f386bcee38569c949192eb902e94c1c9186a4d6566881d599",
+      "width": 1297,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-controls-100pct.png",
+      "sha256": "8797038a65d5755f386bcee38569c949192eb902e94c1c9186a4d6566881d599",
+      "width": 1297,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-graph-100pct.png",
+      "sha256": "e671e20ce71473f4b507ee7838bb9d70f5962b4db5fa6f27c9c6b8c21084176c",
+      "width": 1366,
+      "height": 240,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-graph-100pct.png",
+      "sha256": "e671e20ce71473f4b507ee7838bb9d70f5962b4db5fa6f27c9c6b8c21084176c",
+      "width": 1366,
+      "height": 240,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-header-100pct.png",
+      "sha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c",
+      "width": 1366,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-header-100pct.png",
+      "sha256": "90b4cd9614610b4927601e192b7642c2c023723cf4b3d15a460c00cc72086d0c",
+      "width": 1366,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-navigator-100pct.png",
+      "sha256": "3c5c33cdd5a1d5bc92842ff28a19fc198bd1125f692f97fbd485dbec9e47a97d",
+      "width": 1366,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-navigator-100pct.png",
+      "sha256": "3c5c33cdd5a1d5bc92842ff28a19fc198bd1125f692f97fbd485dbec9e47a97d",
+      "width": 1366,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-save-details-100pct.png",
+      "sha256": "f80e6de03a6ef45d78d26ebfab55b73d5c6339755d5eda1efd5e9fa2a1f97727",
+      "width": 1288,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-save-details-100pct.png",
+      "sha256": "f80e6de03a6ef45d78d26ebfab55b73d5c6339755d5eda1efd5e9fa2a1f97727",
+      "width": 1288,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-controls-100pct.png",
+      "sha256": "2922d44b236119bf380e3d2e4e0aaea44e3f741c68cf6bea30e5ad4cb7b0414e",
+      "width": 1371,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-controls-100pct.png",
+      "sha256": "2922d44b236119bf380e3d2e4e0aaea44e3f741c68cf6bea30e5ad4cb7b0414e",
+      "width": 1371,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-graph-100pct.png",
+      "sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "width": 1440,
+      "height": 310,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-graph-100pct.png",
+      "sha256": "cf3cca941c1ce86d9157b19292b2393fd3560269559888f47932b934dc13e95b",
+      "width": 1440,
+      "height": 310,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-header-100pct.png",
+      "sha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58",
+      "width": 1440,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-header-100pct.png",
+      "sha256": "590c7c2f9803685fa51f8714fa5012896a26211fcc75cc890911d32dca606c58",
+      "width": 1440,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-navigator-100pct.png",
+      "sha256": "686427c7f602ac450c32720b34bbbc66b57021e0fe414076a8b08d47d705f880",
+      "width": 1440,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-navigator-100pct.png",
+      "sha256": "686427c7f602ac450c32720b34bbbc66b57021e0fe414076a8b08d47d705f880",
+      "width": 1440,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-save-details-100pct.png",
+      "sha256": "724e1ec333dd72e177446deae3732ac27a781213e6ddb689b10184e744fcba35",
+      "width": 1362,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-save-details-100pct.png",
+      "sha256": "724e1ec333dd72e177446deae3732ac27a781213e6ddb689b10184e744fcba35",
+      "width": 1362,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-controls-100pct.png",
+      "sha256": "3ef88813c804b7f82fb13162fb58e7c928098349b0829e54fa3fcab8f9bdefca",
+      "width": 1851,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-controls-100pct.png",
+      "sha256": "3ef88813c804b7f82fb13162fb58e7c928098349b0829e54fa3fcab8f9bdefca",
+      "width": 1851,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-graph-100pct.png",
+      "sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "width": 1920,
+      "height": 490,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-graph-100pct.png",
+      "sha256": "9b473f0f63e10e3aea23a89ed3ff281826d6483654de96794e3c5e5ca17d687f",
+      "width": 1920,
+      "height": 490,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-header-100pct.png",
+      "sha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e",
+      "width": 1920,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-header-100pct.png",
+      "sha256": "95877a3f2f06501800d9570e1178167ae900a85d2cbc143a3e8b3881a10d1d7e",
+      "width": 1920,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-navigator-100pct.png",
+      "sha256": "6110480db49d800be98a06dd43743189f1857ad8f6ba1c26db5032e64e8f5578",
+      "width": 1920,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png",
+      "sha256": "6110480db49d800be98a06dd43743189f1857ad8f6ba1c26db5032e64e8f5578",
+      "width": 1920,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-save-details-100pct.png",
+      "sha256": "eb82bba7e917dfbf538cae803206ceee705d67b37c007291e4ca4b275a5bbd50",
+      "width": 1842,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-save-details-100pct.png",
+      "sha256": "eb82bba7e917dfbf538cae803206ceee705d67b37c007291e4ca4b275a5bbd50",
+      "width": 1842,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-controls-100pct.png",
+      "sha256": "c962976051cbb40c670db821d36b21c1c7bdb5688382c48102ed9d242810f93b",
+      "width": 2491,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-controls-100pct.png",
+      "sha256": "c962976051cbb40c670db821d36b21c1c7bdb5688382c48102ed9d242810f93b",
+      "width": 2491,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-graph-100pct.png",
+      "sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "width": 2560,
+      "height": 850,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-graph-100pct.png",
+      "sha256": "bf8c7a0d154d1b2cf66d003665449d9827b4b5ea2b83d049b51deab6dbf7650c",
+      "width": 2560,
+      "height": 850,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-header-100pct.png",
+      "sha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc",
+      "width": 2560,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-header-100pct.png",
+      "sha256": "352ec03776b3a64f99387e96143b944310779a6e99858fd6fbd49a1ea328cfcc",
+      "width": 2560,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-navigator-100pct.png",
+      "sha256": "f0d00e769057629e8e838204afd29a0612f2384db9df64269920a0b3aa27a396",
+      "width": 2560,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-navigator-100pct.png",
+      "sha256": "f0d00e769057629e8e838204afd29a0612f2384db9df64269920a0b3aa27a396",
+      "width": 2560,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-save-details-100pct.png",
+      "sha256": "eeba6b0ae8367e279fdbc4b738bb3c4a537f4cf0826bf6a0c57add8a05e3fa78",
+      "width": 2482,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-save-details-100pct.png",
+      "sha256": "eeba6b0ae8367e279fdbc4b738bb3c4a537f4cf0826bf6a0c57add8a05e3fa78",
+      "width": 2482,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-controls-100pct.png",
+      "sha256": "673a70441a833d937661a720fdf17f209d05f0d5a38c5cd5676d65ac639b5241",
+      "width": 3771,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-controls-100pct.png",
+      "sha256": "673a70441a833d937661a720fdf17f209d05f0d5a38c5cd5676d65ac639b5241",
+      "width": 3771,
+      "height": 282,
+      "crop": "controls",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-graph-100pct.png",
+      "sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "width": 2800,
+      "height": 1200,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-graph-100pct.png",
+      "sha256": "ea39bd1753755acdca1acaf5be5b7d2db1ff5a5fe15bbbdcd685e063647bebed",
+      "width": 2800,
+      "height": 1200,
+      "crop": "graph",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-header-100pct.png",
+      "sha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1",
+      "width": 3840,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-header-100pct.png",
+      "sha256": "abc1469e5580e41ec9cb9fb9367482dcecb794f75c42e6cf8483b2b0345587f1",
+      "width": 3840,
+      "height": 180,
+      "crop": "header",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-navigator-100pct.png",
+      "sha256": "6c12fdb7d6ca89036142babbdc680d7c251053e04ca9e4869b3027b1874a87fa",
+      "width": 3840,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-navigator-100pct.png",
+      "sha256": "6c12fdb7d6ca89036142babbdc680d7c251053e04ca9e4869b3027b1874a87fa",
+      "width": 3840,
+      "height": 34,
+      "crop": "navigator",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-save-details-100pct.png",
+      "sha256": "514b130becae9d2ad7e05f49f726614231fe27e583eda0b109b3f852800f3491",
+      "width": 3762,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "after",
+      "kind": "crop",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-save-details-100pct.png",
+      "sha256": "514b130becae9d2ad7e05f49f726614231fe27e583eda0b109b3f852800f3491",
+      "width": 3762,
+      "height": 119,
+      "crop": "save-details",
+      "crop_scale": "100 percent / direct 1:1 source pixels"
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1366x768.png",
+      "sha256": "1752873c81752cd9aa4b767824575e1039953458112b1a996ec64553bc73a0b4",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1366x768",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1366x768.png",
+      "sha256": "1752873c81752cd9aa4b767824575e1039953458112b1a996ec64553bc73a0b4",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1440x900.png",
+      "sha256": "edee988291609601050c2e8f679946808a832a18d5179f6251da933c347408b7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1440x900",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1440x900.png",
+      "sha256": "edee988291609601050c2e8f679946808a832a18d5179f6251da933c347408b7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1920x1080.png",
+      "sha256": "59296e29ea1241688f0b7e54a029296430bf148481d9f9a16113c577df3567da",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "1920x1080",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1920x1080.png",
+      "sha256": "59296e29ea1241688f0b7e54a029296430bf148481d9f9a16113c577df3567da",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-2560x1440.png",
+      "sha256": "e808cc165f0f249727a26cb73719772d85efe985cebeadbc377a8fffad20abb2",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "2560x1440",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-2560x1440.png",
+      "sha256": "e808cc165f0f249727a26cb73719772d85efe985cebeadbc377a8fffad20abb2",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "phase": "before",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-3840x2160.png",
+      "sha256": "ab78fc28d992e738f49fd37451cffa2c07ad4d91aeac0ccf3902c24c53b252b8",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "phase": "after",
+      "kind": "focused-original",
+      "state": "mapping-decision-before-update-preview",
+      "viewport": "3840x2160",
+      "path": "docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-3840x2160.png",
+      "sha256": "ab78fc28d992e738f49fd37451cffa2c07ad4d91aeac0ccf3902c24c53b252b8",
+      "width": 3840,
+      "height": 2160
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "modeling-data-1366x768.png",
+      "before_sha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716",
+      "after_sha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1440x900.png",
+      "before_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "after_sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-1920x1080.png",
+      "before_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "after_sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-2560x1440.png",
+      "before_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "after_sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0",
+      "byte_equal": true
+    },
+    {
+      "name": "modeling-data-3840x2160.png",
+      "before_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "after_sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2",
+      "byte_equal": true
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": "cmp.documentation-impact.css-ownership-migration.v1",
+  "issue": "#261",
+  "unit": "M1A20-modeling-data-mapping-decision-frame",
+  "source_sha": "58757f29892fc7f1c45bcb899ca71107f2f99a51",
+  "classification": "behavior-preserving-css-ownership-migration",
+  "visual_files": [
+    "apps/web/src/design/layout.css",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css"
+  ],
+  "before_visual_file_sha256": {
+    "apps/web/src/design/layout.css": "4e01a053384d581183d0191c1e8fa23dab4692698bb1092aab0ba2d0dfdcf344",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "4a76ae6d2acc713202e9ead6b1dfd40ab5a459809d5816ef2902f115a92d0703"
+  },
+  "after_visual_file_sha256": {
+    "apps/web/src/design/layout.css": "74ec43598eec7c48d3907293d01c7360649c38d7154170e79b4c53d6973249d6",
+    "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "71ab543536a841abbb09529c0b761fef72dbf31b60e157d70bba5951a421c408"
+  },
+  "currentGuideChangedByM1A20": false,
+  "currentGuideSource": "merged #309 correction retained by the #261 rolling branch",
+  "currentGuideHashes": [
+    {
+      "path": "docs/user-guide/images/current/modeling-data-1366x768.png",
+      "sha256": "74a11fb3df7e43e31cf0095a4b405540f24407745d3aa399fc6a56ae6153b716"
+    },
+    {
+      "path": "docs/user-guide/images/current/modeling-data-1440x900.png",
+      "sha256": "7e6cbefd82847f1cc7e72febd7bf3737c151eda71e3c6cd24717f72cf54cf20a"
+    },
+    {
+      "path": "docs/user-guide/images/current/modeling-data-1920x1080.png",
+      "sha256": "2c1878bd6e7ef3da05b4467a527fffad1cf0f09e8048c7ddf4000321c4f6f8e4"
+    },
+    {
+      "path": "docs/user-guide/images/current/modeling-data-2560x1440.png",
+      "sha256": "4250d182b38a719cd6031ad2205f0486736d5c684218cd7b1f816081c620c2b0"
+    },
+    {
+      "path": "docs/user-guide/images/current/modeling-data-3840x2160.png",
+      "sha256": "221ef2309085225ca488bf953337f31d6c36eb7db5dff6a1f21a9bf655c5d7d2"
+    }
+  ],
+  "focused_equivalence": {
+    "imagePairs": 30,
+    "byteIdenticalPairs": 30,
+    "pixelIdenticalPairs": 30
+  }
+}

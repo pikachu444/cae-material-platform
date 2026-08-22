@@ -220,6 +220,325 @@ const COMPLETED_M1A7 = {
   ],
 };
 
+const COMPLETED_M1A8 = {
+  id: "M1A8-modeling-data-optional-channel",
+  historicalMemberIds: ["CSS-1021", "CSS-1022", "CSS-1460", "CSS-1461"],
+  exactLegacySelectors: [
+    ".data-mapping-decision .data-intake-attention > label.data-optional-channel",
+    ".data-mapping-decision .data-intake-attention > label.data-optional-channel > input",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label.data-optional-channel",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label.data-optional-channel > input",
+  ],
+};
+
+const COMPLETED_M1A9 = {
+  id: "M1A9-modeling-data-mapping-table",
+  historicalMemberIds: [
+    "CSS-1001",
+    "CSS-1008",
+    "CSS-1009",
+    "CSS-1010",
+    "CSS-1011",
+    "CSS-1012",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1021",
+    "CSS-1036",
+    "CSS-1461",
+    "CSS-1474",
+    "CSS-1475",
+    "CSS-1564",
+    "CSS-1565",
+    "CSS-1571",
+    "CSS-1577",
+    "CSS-1578",
+    "CSS-1584",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-table",
+    ".data-mapping-table table",
+    ".data-mapping-table th",
+    ".data-mapping-table td",
+    ".data-mapping-table select",
+    ".data-mapping-decision .data-mapping-table select",
+    ".data-mapping-table td:last-child",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table select",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table th",
+    ".modeling-main-surface.has-data-split .data-mapping-decision .data-mapping-table td",
+  ],
+};
+
+const COMPLETED_M1A10 = {
+  id: "M1A10-modeling-data-split-frame",
+  historicalMemberIds: [
+    "CSS-1431",
+    "CSS-1432",
+    "CSS-1433",
+    "CSS-1434",
+    "CSS-1435",
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1439",
+    "CSS-1440",
+    "CSS-1441",
+    "CSS-1442",
+  ],
+  exactLegacySelectors: [
+    ".modeling-main-surface.has-data-split",
+    ".modeling-data-split",
+    ".modeling-data-ribbon-panel",
+    ".modeling-data-ribbon-panel > .modeling-task-ribbon",
+    ".modeling-data-ribbon-panel > .modeling-task-ribbon-scrollable",
+    ".modeling-data-plot-panel > .persistent-modeling-plot",
+    ".modeling-data-divider",
+    ".modeling-data-divider:hover",
+    ".modeling-data-divider:focus-visible",
+    ".modeling-data-divider[data-separator=\"modeling-data-ribbon-plot-divider\"]:active",
+  ],
+};
+
+const COMPLETED_M1A11 = {
+  id: "M1A11-modeling-data-file-details",
+  historicalMemberIds: [
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1452",
+    "CSS-1548",
+  ],
+  exactLegacySelectors: [
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open])",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > summary",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-advanced:not([open]) > div",
+    ".modeling-main-surface.has-data-split .data-source-advanced:not([open]) > summary",
+    ".data-source-advanced > :is(summary, div)",
+  ],
+};
+
+const COMPLETED_M1A12 = {
+  id: "M1A12-modeling-data-mapping-change-actions",
+  historicalMemberIds: [
+    "CSS-1014",
+    "CSS-1017",
+    "CSS-1018",
+    "CSS-1019",
+    "CSS-1021",
+    "CSS-1439",
+    "CSS-1440",
+    "CSS-1441",
+    "CSS-1443",
+    "CSS-1445",
+    "CSS-1449",
+    "CSS-1451",
+    "CSS-1452",
+    "CSS-1453",
+    "CSS-1455",
+    "CSS-1456",
+    "CSS-1458",
+    "CSS-1459",
+    "CSS-1540",
+    "CSS-1549",
+    "CSS-1558",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-recovery-row",
+    ".data-mapping-recovery-detail",
+    ".data-mapping-recovery-detail > label",
+    ".data-mapping-recovery-detail input",
+    ".data-mapping-actions",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-detail",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-detail > label",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-detail > label > input",
+    ".modeling-main-surface.has-data-split .data-mapping-actions",
+    ".modeling-main-surface.has-data-split .data-mapping-recovery-row",
+  ],
+};
+
+const COMPLETED_M1A13 = {
+  id: "M1A13-modeling-data-local-scrollport",
+  historicalMemberIds: [
+    "CSS-0910",
+    "CSS-0911",
+    "CSS-0912",
+    "CSS-0971",
+    "CSS-0986",
+    "CSS-1007",
+  ],
+  exactLegacySelectors: [
+    ".modeling-task-ribbon:has(.data-intake-local)",
+    ".modeling-task-ribbon:has(.data-intake-local) .modeling-data-intake",
+    ".modeling-task-ribbon:has(.data-intake-local) .data-intake-local",
+    ".data-intake-local",
+  ],
+};
+
+const COMPLETED_M1A14 = {
+  id: "M1A14-modeling-data-mapping-blocker",
+  historicalMemberIds: [
+    "CSS-1007",
+    "CSS-1014",
+    "CSS-1015",
+    "CSS-1511",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-decision .data-mapping-blockers",
+    ".data-mapping-blockers",
+    ".data-mapping-blockers strong",
+  ],
+};
+
+const COMPLETED_M1A15 = {
+  id: "M1A15-modeling-data-intake-surface",
+  historicalMemberIds: [
+    "CSS-0966",
+    "CSS-0969",
+    "CSS-1429",
+    "CSS-1507",
+  ],
+  exactLegacySelectors: [
+    ".modeling-data-intake",
+    ".modeling-main-surface.has-data-split .modeling-data-intake",
+  ],
+};
+
+const COMPLETED_M1A16 = {
+  id: "M1A16-modeling-data-local-import-controls",
+  historicalMemberIds: [
+    "CSS-1416",
+    "CSS-1418",
+    "CSS-1420",
+    "CSS-1436",
+    "CSS-1437",
+    "CSS-1438",
+    "CSS-1439",
+    "CSS-1440",
+    "CSS-1441",
+    "CSS-1442",
+    "CSS-1443",
+    "CSS-1445",
+    "CSS-1520",
+    "CSS-1521",
+    "CSS-1522",
+    "CSS-1523",
+  ],
+  exactLegacySelectors: [
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-intake-local > .data-intake-row > label > :is(input, select)",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row select[name=\"local-test-run\"]",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > label",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type=\"file\"]",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row input[type=\"file\"]::file-selector-button",
+    ".modeling-main-surface.has-data-split .data-intake-local > .data-intake-row > button:disabled",
+  ],
+};
+
+const COMPLETED_M1A17 = {
+  id: "M1A17-modeling-data-mapping-attention",
+  historicalMemberIds: [
+    "CSS-0967",
+    "CSS-0970",
+    "CSS-0974",
+    "CSS-0975",
+    "CSS-0982",
+    "CSS-0984",
+    "CSS-0986",
+    "CSS-0988",
+    "CSS-0999",
+    "CSS-1002",
+    "CSS-1003",
+    "CSS-1004",
+    "CSS-1416",
+    "CSS-1417",
+    "CSS-1419",
+    "CSS-1494",
+    "CSS-1502",
+  ],
+  exactLegacySelectors: [
+    ".data-intake-attention",
+    ".data-intake-attention label",
+    ".data-intake-attention input",
+    ".data-intake-attention select",
+    ".data-intake-attention > strong",
+    ".data-intake-attention label select:first-of-type",
+    ".data-intake-attention > p",
+    ".data-mapping-decision .data-intake-attention",
+    ".data-mapping-decision .data-intake-attention > strong",
+    ".data-mapping-decision .data-intake-attention > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label",
+    ".modeling-main-surface:has(.data-source-decision-grid) .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > :is(input, select)",
+    ".modeling-main-surface.has-data-split .data-source-decision-grid .data-mapping-decision .data-intake-attention > label > select[name=\"local-data-schema\"]",
+    ".data-intake-attention :is(input, select)",
+  ],
+};
+
+const COMPLETED_M1A18 = {
+  id: "M1A18-modeling-data-mapping-resolved",
+  historicalMemberIds: [
+    "CSS-0969",
+    "CSS-0972",
+    "CSS-0973",
+    "CSS-0978",
+    "CSS-0979",
+    "CSS-0980",
+    "CSS-0981",
+    "CSS-0998",
+    "CSS-1479",
+    "CSS-1486",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-resolved label",
+    ".data-mapping-resolved input",
+    ".data-mapping-resolved select",
+    ".data-mapping-resolved > span",
+    ".data-mapping-resolved > strong",
+    ".data-mapping-resolved label select:first-of-type",
+    ".data-mapping-decision > .data-mapping-resolved",
+    ".data-mapping-resolved :is(input, select)",
+  ],
+};
+
+const COMPLETED_M1A19 = {
+  id: "M1A19-modeling-data-intake-field-rows",
+  historicalMemberIds: [
+    "CSS-0966",
+    "CSS-0967",
+    "CSS-0968",
+    "CSS-0969",
+    "CSS-0970",
+    "CSS-0971",
+    "CSS-0975",
+    "CSS-1470",
+    "CSS-1476",
+  ],
+  exactLegacySelectors: [
+    ".data-intake-row",
+    ".data-intake-row label",
+    ".data-intake-row input",
+    ".data-intake-row select",
+    ".data-intake-row p",
+    ".data-intake-message",
+    ".data-intake-row :is(input, select)",
+  ],
+};
+
+const COMPLETED_M1A20 = {
+  id: "M1A20-modeling-data-mapping-decision-frame",
+  historicalMemberIds: [
+    "CSS-0977",
+    "CSS-0978",
+    "CSS-1388",
+    "CSS-1389",
+  ],
+  exactLegacySelectors: [
+    ".data-mapping-decision",
+    ".data-mapping-decision .mapping-context-row",
+    ".modeling-main-surface:has(.data-intake-local) .data-source-decision-grid",
+    ".modeling-main-surface.has-data-split .data-mapping-decision select[name=\"local-data-schema\"]",
+  ],
+};
+
 const MAIN_CSS_ORDER = [
   "apps/web/src/styles.css",
   "apps/web/src/design/tokens.css",
@@ -1081,6 +1400,58 @@ function makeInventory() {
       COMPLETED_M1A7.id,
       rows.filter((row) => COMPLETED_M1A7.exactLegacySelectors.includes(row.selector)),
     ],
+    [
+      COMPLETED_M1A8.id,
+      rows.filter((row) => COMPLETED_M1A8.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A9.id,
+      rows.filter((row) => COMPLETED_M1A9.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A10.id,
+      rows.filter((row) => COMPLETED_M1A10.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A11.id,
+      rows.filter((row) => COMPLETED_M1A11.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A12.id,
+      rows.filter((row) => COMPLETED_M1A12.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A13.id,
+      rows.filter((row) => COMPLETED_M1A13.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A14.id,
+      rows.filter((row) => COMPLETED_M1A14.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A15.id,
+      rows.filter((row) => COMPLETED_M1A15.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A16.id,
+      rows.filter((row) => COMPLETED_M1A16.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A17.id,
+      rows.filter((row) => COMPLETED_M1A17.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A18.id,
+      rows.filter((row) => COMPLETED_M1A18.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A19.id,
+      rows.filter((row) => COMPLETED_M1A19.exactLegacySelectors.includes(row.selector)),
+    ],
+    [
+      COMPLETED_M1A20.id,
+      rows.filter((row) => COMPLETED_M1A20.exactLegacySelectors.includes(row.selector)),
+    ],
   ]);
   return {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
@@ -1244,6 +1615,227 @@ function makeInventory() {
             .get(COMPLETED_M1A7.id)
             .map((row) => row.id),
           actualAfter: {
+            cssRuleGroups: 2781,
+            selectorRows: 3505,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A8.id,
+          historicalMemberIds: COMPLETED_M1A8.historicalMemberIds,
+          selectorRowsRemoved: 4,
+          touchedRuleGroups: 4,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 0,
+          exactLegacySelectors: COMPLETED_M1A8.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A8.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2777,
+            selectorRows: 3501,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A9.id,
+          historicalMemberIds: COMPLETED_M1A9.historicalMemberIds,
+          selectorRowsRemoved: 19,
+          touchedRuleGroups: 15,
+          fullyRemovedRuleGroups: 10,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A9.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A9.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2767,
+            selectorRows: 3482,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A10.id,
+          historicalMemberIds: COMPLETED_M1A10.historicalMemberIds,
+          selectorRowsRemoved: 12,
+          touchedRuleGroups: 10,
+          fullyRemovedRuleGroups: 10,
+          partiallyShrunkRuleGroups: 0,
+          exactLegacySelectors: COMPLETED_M1A10.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A10.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2757,
+            selectorRows: 3470,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A11.id,
+          historicalMemberIds: COMPLETED_M1A11.historicalMemberIds,
+          selectorRowsRemoved: 5,
+          touchedRuleGroups: 5,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 1,
+          exactLegacySelectors: COMPLETED_M1A11.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A11.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2753,
+            selectorRows: 3465,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A12.id,
+          historicalMemberIds: COMPLETED_M1A12.historicalMemberIds,
+          selectorRowsRemoved: 21,
+          touchedRuleGroups: 20,
+          fullyRemovedRuleGroups: 15,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A12.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A12.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2738,
+            selectorRows: 3444,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A13.id,
+          historicalMemberIds: COMPLETED_M1A13.historicalMemberIds,
+          selectorRowsRemoved: 6,
+          touchedRuleGroups: 5,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 1,
+          exactLegacySelectors: COMPLETED_M1A13.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A13.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2734,
+            selectorRows: 3438,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A14.id,
+          historicalMemberIds: COMPLETED_M1A14.historicalMemberIds,
+          selectorRowsRemoved: 4,
+          touchedRuleGroups: 4,
+          fullyRemovedRuleGroups: 3,
+          partiallyShrunkRuleGroups: 1,
+          exactLegacySelectors: COMPLETED_M1A14.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A14.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2731,
+            selectorRows: 3434,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A15.id,
+          historicalMemberIds: COMPLETED_M1A15.historicalMemberIds,
+          selectorRowsRemoved: 4,
+          touchedRuleGroups: 4,
+          fullyRemovedRuleGroups: 3,
+          partiallyShrunkRuleGroups: 1,
+          exactLegacySelectors: COMPLETED_M1A15.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A15.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2728,
+            selectorRows: 3430,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A16.id,
+          historicalMemberIds: COMPLETED_M1A16.historicalMemberIds,
+          selectorRowsRemoved: 16,
+          touchedRuleGroups: 13,
+          fullyRemovedRuleGroups: 8,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A16.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A16.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2720,
+            selectorRows: 3414,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A17.id,
+          historicalMemberIds: COMPLETED_M1A17.historicalMemberIds,
+          selectorRowsRemoved: 17,
+          touchedRuleGroups: 16,
+          fullyRemovedRuleGroups: 7,
+          partiallyShrunkRuleGroups: 9,
+          exactLegacySelectors: COMPLETED_M1A17.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A17.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2713,
+            selectorRows: 3397,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A18.id,
+          historicalMemberIds: COMPLETED_M1A18.historicalMemberIds,
+          selectorRowsRemoved: 10,
+          touchedRuleGroups: 9,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 5,
+          exactLegacySelectors: COMPLETED_M1A18.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A18.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2709,
+            selectorRows: 3387,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A19.id,
+          historicalMemberIds: COMPLETED_M1A19.historicalMemberIds,
+          selectorRowsRemoved: 9,
+          touchedRuleGroups: 8,
+          fullyRemovedRuleGroups: 6,
+          partiallyShrunkRuleGroups: 2,
+          exactLegacySelectors: COMPLETED_M1A19.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A19.id)
+            .map((row) => row.id),
+          actualAfter: {
+            cssRuleGroups: 2703,
+            selectorRows: 3378,
+            crossCssDuplicateRows: 14,
+          },
+        },
+        {
+          id: COMPLETED_M1A20.id,
+          historicalMemberIds: COMPLETED_M1A20.historicalMemberIds,
+          selectorRowsRemoved: 4,
+          touchedRuleGroups: 4,
+          fullyRemovedRuleGroups: 4,
+          partiallyShrunkRuleGroups: 0,
+          exactLegacySelectors: COMPLETED_M1A20.exactLegacySelectors,
+          residualExactSelectorRows: completedPacketResidualRows
+            .get(COMPLETED_M1A20.id)
+            .map((row) => row.id),
+          actualAfter: {
             cssRuleGroups: cssRuleGroupCount,
             selectorRows: rows.length,
             crossCssDuplicateRows: flagCounts.crossCssDuplicate,
@@ -1251,9 +1843,9 @@ function makeInventory() {
         },
       ],
       nextBoundedUnit: {
-        id: "M1A8-modeling-data-component-region",
+        id: "M1A21-modeling-data-component-region",
         status: "owner-packet-required",
-        scope: "Select one remaining M1A Data component region from the regenerated inventory; do not migrate all remaining M1A rows together.",
+        scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A20; do not migrate all remaining M1A rows together.",
       },
     },
   };
@@ -1449,6 +2041,279 @@ function validateInventory(inventory) {
         || completedM1A7.actualAfter.selectorRows !== 3505
         || completedM1A7.actualAfter.crossCssDuplicateRows !== 14) {
       errors.push(`completed M1A7 actual delta is ${JSON.stringify(completedM1A7.actualAfter)}`);
+    }
+  }
+  const completedM1A8 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A8.id,
+  );
+  if (!completedM1A8) {
+    errors.push("completed M1A8 packet is missing");
+  } else {
+    if (completedM1A8.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A8 selectors remain in legacy CSS: ${completedM1A8.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A8.selectorRowsRemoved !== 4
+        || completedM1A8.touchedRuleGroups !== 4
+        || completedM1A8.fullyRemovedRuleGroups !== 4
+        || completedM1A8.partiallyShrunkRuleGroups !== 0) {
+      errors.push("completed M1A8 structural delta does not match the approved 4/4/4/0 packet");
+    }
+    if (completedM1A8.actualAfter.cssRuleGroups !== 2777
+        || completedM1A8.actualAfter.selectorRows !== 3501
+        || completedM1A8.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A8 actual delta is ${JSON.stringify(completedM1A8.actualAfter)}`);
+    }
+  }
+  const completedM1A9 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A9.id,
+  );
+  if (!completedM1A9) {
+    errors.push("completed M1A9 packet is missing");
+  } else {
+    if (completedM1A9.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A9 selectors remain in legacy CSS: ${completedM1A9.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A9.selectorRowsRemoved !== 19
+        || completedM1A9.touchedRuleGroups !== 15
+        || completedM1A9.fullyRemovedRuleGroups !== 10
+        || completedM1A9.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A9 structural delta does not match the approved 19/15/10/5 packet");
+    }
+    if (completedM1A9.actualAfter.cssRuleGroups !== 2767
+        || completedM1A9.actualAfter.selectorRows !== 3482
+        || completedM1A9.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A9 actual delta is ${JSON.stringify(completedM1A9.actualAfter)}`);
+    }
+  }
+  const completedM1A10 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A10.id,
+  );
+  if (!completedM1A10) {
+    errors.push("completed M1A10 packet is missing");
+  } else {
+    if (completedM1A10.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A10 selectors remain in legacy CSS: ${completedM1A10.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A10.selectorRowsRemoved !== 12
+        || completedM1A10.touchedRuleGroups !== 10
+        || completedM1A10.fullyRemovedRuleGroups !== 10
+        || completedM1A10.partiallyShrunkRuleGroups !== 0) {
+      errors.push("completed M1A10 structural delta does not match the approved 12/10/10/0 packet");
+    }
+    if (completedM1A10.actualAfter.cssRuleGroups !== 2757
+        || completedM1A10.actualAfter.selectorRows !== 3470
+        || completedM1A10.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A10 actual delta is ${JSON.stringify(completedM1A10.actualAfter)}`);
+    }
+  }
+  const completedM1A11 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A11.id,
+  );
+  if (!completedM1A11) {
+    errors.push("completed M1A11 packet is missing");
+  } else {
+    if (completedM1A11.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A11 selectors remain in legacy CSS: ${completedM1A11.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A11.selectorRowsRemoved !== 5
+        || completedM1A11.touchedRuleGroups !== 5
+        || completedM1A11.fullyRemovedRuleGroups !== 4
+        || completedM1A11.partiallyShrunkRuleGroups !== 1) {
+      errors.push("completed M1A11 structural delta does not match the approved 5/5/4/1 packet");
+    }
+    if (completedM1A11.actualAfter.cssRuleGroups !== 2753
+        || completedM1A11.actualAfter.selectorRows !== 3465
+        || completedM1A11.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A11 actual delta is ${JSON.stringify(completedM1A11.actualAfter)}`);
+    }
+  }
+  const completedM1A12 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A12.id,
+  );
+  if (!completedM1A12) {
+    errors.push("completed M1A12 packet is missing");
+  } else {
+    if (completedM1A12.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A12 selectors remain in legacy CSS: ${completedM1A12.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A12.selectorRowsRemoved !== 21
+        || completedM1A12.touchedRuleGroups !== 20
+        || completedM1A12.fullyRemovedRuleGroups !== 15
+        || completedM1A12.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A12 structural delta does not match the approved 21/20/15/5 packet");
+    }
+    if (completedM1A12.actualAfter.cssRuleGroups !== 2738
+        || completedM1A12.actualAfter.selectorRows !== 3444
+        || completedM1A12.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A12 actual delta is ${JSON.stringify(completedM1A12.actualAfter)}`);
+    }
+  }
+  const completedM1A13 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A13.id,
+  );
+  if (!completedM1A13) {
+    errors.push("completed M1A13 packet is missing");
+  } else {
+    if (completedM1A13.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A13 selectors remain in legacy CSS: ${completedM1A13.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A13.selectorRowsRemoved !== 6
+        || completedM1A13.touchedRuleGroups !== 5
+        || completedM1A13.fullyRemovedRuleGroups !== 4
+        || completedM1A13.partiallyShrunkRuleGroups !== 1) {
+      errors.push("completed M1A13 structural delta does not match the approved 6/5/4/1 packet");
+    }
+    if (completedM1A13.actualAfter.cssRuleGroups !== 2734
+        || completedM1A13.actualAfter.selectorRows !== 3438
+        || completedM1A13.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A13 actual delta is ${JSON.stringify(completedM1A13.actualAfter)}`);
+    }
+  }
+  const completedM1A14 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A14.id,
+  );
+  if (!completedM1A14) {
+    errors.push("completed M1A14 packet is missing");
+  } else {
+    if (completedM1A14.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A14 selectors remain in legacy CSS: ${completedM1A14.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A14.selectorRowsRemoved !== 4
+        || completedM1A14.touchedRuleGroups !== 4
+        || completedM1A14.fullyRemovedRuleGroups !== 3
+        || completedM1A14.partiallyShrunkRuleGroups !== 1) {
+      errors.push("completed M1A14 structural delta does not match the approved 4/4/3/1 packet");
+    }
+    if (completedM1A14.actualAfter.cssRuleGroups !== 2731
+        || completedM1A14.actualAfter.selectorRows !== 3434
+        || completedM1A14.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A14 actual delta is ${JSON.stringify(completedM1A14.actualAfter)}`);
+    }
+  }
+  const completedM1A15 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A15.id,
+  );
+  if (!completedM1A15) {
+    errors.push("completed M1A15 packet is missing");
+  } else {
+    if (completedM1A15.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A15 selectors remain in legacy CSS: ${completedM1A15.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A15.selectorRowsRemoved !== 4
+        || completedM1A15.touchedRuleGroups !== 4
+        || completedM1A15.fullyRemovedRuleGroups !== 3
+        || completedM1A15.partiallyShrunkRuleGroups !== 1) {
+      errors.push("completed M1A15 structural delta does not match the approved 4/4/3/1 packet");
+    }
+    if (completedM1A15.actualAfter.cssRuleGroups !== 2728
+        || completedM1A15.actualAfter.selectorRows !== 3430
+        || completedM1A15.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A15 actual delta is ${JSON.stringify(completedM1A15.actualAfter)}`);
+    }
+  }
+  const completedM1A16 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A16.id,
+  );
+  if (!completedM1A16) {
+    errors.push("completed M1A16 packet is missing");
+  } else {
+    if (completedM1A16.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A16 selectors remain in legacy CSS: ${completedM1A16.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A16.selectorRowsRemoved !== 16
+        || completedM1A16.touchedRuleGroups !== 13
+        || completedM1A16.fullyRemovedRuleGroups !== 8
+        || completedM1A16.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A16 structural delta does not match the approved 16/13/8/5 packet");
+    }
+    if (completedM1A16.actualAfter.cssRuleGroups !== 2720
+        || completedM1A16.actualAfter.selectorRows !== 3414
+        || completedM1A16.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A16 actual delta is ${JSON.stringify(completedM1A16.actualAfter)}`);
+    }
+  }
+  const completedM1A17 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A17.id,
+  );
+  if (!completedM1A17) {
+    errors.push("completed M1A17 packet is missing");
+  } else {
+    if (completedM1A17.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A17 selectors remain in legacy CSS: ${completedM1A17.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A17.selectorRowsRemoved !== 17
+        || completedM1A17.touchedRuleGroups !== 16
+        || completedM1A17.fullyRemovedRuleGroups !== 7
+        || completedM1A17.partiallyShrunkRuleGroups !== 9) {
+      errors.push("completed M1A17 structural delta does not match the approved 17/16/7/9 packet");
+    }
+    if (completedM1A17.actualAfter.cssRuleGroups !== 2713
+        || completedM1A17.actualAfter.selectorRows !== 3397
+        || completedM1A17.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A17 actual delta is ${JSON.stringify(completedM1A17.actualAfter)}`);
+    }
+  }
+  const completedM1A18 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A18.id,
+  );
+  if (!completedM1A18) {
+    errors.push("completed M1A18 packet is missing");
+  } else {
+    if (completedM1A18.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A18 selectors remain in legacy CSS: ${completedM1A18.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A18.selectorRowsRemoved !== 10
+        || completedM1A18.touchedRuleGroups !== 9
+        || completedM1A18.fullyRemovedRuleGroups !== 4
+        || completedM1A18.partiallyShrunkRuleGroups !== 5) {
+      errors.push("completed M1A18 structural delta does not match the approved 10/9/4/5 packet");
+    }
+    if (completedM1A18.actualAfter.cssRuleGroups !== 2709
+        || completedM1A18.actualAfter.selectorRows !== 3387
+        || completedM1A18.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A18 actual delta is ${JSON.stringify(completedM1A18.actualAfter)}`);
+    }
+  }
+  const completedM1A19 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A19.id,
+  );
+  if (!completedM1A19) {
+    errors.push("completed M1A19 packet is missing");
+  } else {
+    if (completedM1A19.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A19 selectors remain in legacy CSS: ${completedM1A19.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A19.selectorRowsRemoved !== 9
+        || completedM1A19.touchedRuleGroups !== 8
+        || completedM1A19.fullyRemovedRuleGroups !== 6
+        || completedM1A19.partiallyShrunkRuleGroups !== 2) {
+      errors.push("completed M1A19 structural delta does not match the approved 9/8/6/2 packet");
+    }
+    if (completedM1A19.actualAfter.cssRuleGroups !== 2703
+        || completedM1A19.actualAfter.selectorRows !== 3378
+        || completedM1A19.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A19 actual delta is ${JSON.stringify(completedM1A19.actualAfter)}`);
+    }
+  }
+  const completedM1A20 = inventory.migrationPlan.completedBoundedUnits.find(
+    (unit) => unit.id === COMPLETED_M1A20.id,
+  );
+  if (!completedM1A20) {
+    errors.push("completed M1A20 packet is missing");
+  } else {
+    if (completedM1A20.residualExactSelectorRows.length !== 0) {
+      errors.push(`completed M1A20 selectors remain in legacy CSS: ${completedM1A20.residualExactSelectorRows.join(", ")}`);
+    }
+    if (completedM1A20.selectorRowsRemoved !== 4
+        || completedM1A20.touchedRuleGroups !== 4
+        || completedM1A20.fullyRemovedRuleGroups !== 4
+        || completedM1A20.partiallyShrunkRuleGroups !== 0) {
+      errors.push("completed M1A20 structural delta does not match the approved 4/4/4/0 packet");
+    }
+    if (completedM1A20.actualAfter.cssRuleGroups !== 2699
+        || completedM1A20.actualAfter.selectorRows !== 3374
+        || completedM1A20.actualAfter.crossCssDuplicateRows !== 14) {
+      errors.push(`completed M1A20 actual delta is ${JSON.stringify(completedM1A20.actualAfter)}`);
     }
   }
   for (const group of inventory.cascadeGroups.exactSelector) {

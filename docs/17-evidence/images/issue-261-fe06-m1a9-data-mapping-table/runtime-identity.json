@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "M1A9-modeling-data-mapping-table",
+  "before_base_url": "http://127.0.0.1:5178",
+  "after_base_url": "http://127.0.0.1:5177",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "routes": [
+    "/modeling?stage=data&family=metal",
+    "/datasets/processing?stage=data&family=metal"
+  ],
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ],
+  "normal_data_session": {
+    "status": "pass",
+    "exact_library_selection": true,
+    "first_viewport_reload_restore": true,
+    "wide_workspace_and_graph_bounds": true,
+    "page_horizontal_overflow": false
+  },
+  "focused_mapping_table_probe": {
+    "status": "pass",
+    "route_viewport_contexts_per_phase": 10,
+    "synthetic_input": "m1a9-long-columns.csv",
+    "test_type": "monotonic_tension",
+    "focused_control": "Engineering stress source column",
+    "mapping_select_count": 4,
+    "visible_unit_mapping": "MPa to Pa",
+    "long_source_column_text_preserved": true,
+    "table_overflow_policy": "auto",
+    "active_table_horizontal_scrollbar_in_required_viewports": false,
+    "table_and_page_clipping": false,
+    "local_ribbon_scroll_top": 0,
+    "graph_visible": true,
+    "page_horizontal_overflow": false
+  },
+  "exact_identity": {
+    "material_label": "DP780 synthetic reference steel",
+    "material_revision": 1,
+    "material_id": "20c1a71b-79e9-4fa3-9417-b2f09653dd4e",
+    "material_revision_id": "748210e9-147e-4e6b-a750-a18c5ecb3541",
+    "material_state_label": "As received · synthetic reference",
+    "material_state_revision": 1,
+    "material_state_id": "5027256f-b90e-4dee-91a9-7ac3f5506d65",
+    "material_state_revision_id": "3238b55e-a8db-4fc7-bda3-72b2f048ae3b",
+    "test_data_label": "CMP-DEMO-DP780-TEST-JSON",
+    "test_data_revision": 1,
+    "test_data_id": "7a6cb6dc-efeb-46fe-9a85-99fe3988f1cc",
+    "test_data_revision_id": "d0feb6fb-ff2d-49f4-9a2d-b46ba0fdd1a2",
+    "selected_exact_test_data_refs": 3,
+    "selected_test_documents": 1,
+    "visible_test_data_keys": 1
+  },
+  "round_trip_probe": {
+    "status": "pass",
+    "data_to_process_to_data_exact_identity": true,
+    "reload_identity": true,
+    "test_data_results_keyboard_focus": true
+  }
+}
