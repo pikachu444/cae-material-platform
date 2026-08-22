@@ -1149,7 +1149,6 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
   ));
   for (const selector of [
     ".processing-workbench-page",
-    ".modeling-support-drawer",
     ".card-preview-content",
   ]) {
     const row = inventory.selectors.find((candidate) => candidate.selector === selector);
@@ -1165,6 +1164,18 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} records its producer file`,
     );
   }
+  // The support drawer is now owned by the M1E Modeling core stylesheet.  It
+  // must therefore be absent from the legacy-only inventory while remaining
+  // present in the truthful feature owner.
+  assert.equal(
+    inventory.selectors.some((candidate) => candidate.selector === ".modeling-support-drawer"),
+    false,
+    ".modeling-support-drawer is no longer a legacy selector",
+  );
+  assert.match(
+    readFileSync(new URL("../apps/web/src/features/modeling/ui/modeling-core-workbench.css", import.meta.url), "utf8"),
+    /\.modeling-support-drawer/,
+  );
   const completed = inventory.migrationPlan.completedBoundedUnits.find(
     (unit) => unit.id === "M1A0-modeling-data-same-selector-overlap",
   );
@@ -1828,14 +1839,14 @@ test("preserves standalone B1/M2/M3 checkpoints and records the combined B4 hand
     partialGroups: 21,
   });
   assert.deepEqual(inventory.migrationPlan.combinedB4.current, {
-    selectorRows: 1621,
-    cssRuleGroups: 1343,
+    selectorRows: 1449,
+    cssRuleGroups: 1231,
     crossCssDuplicateRows: 6,
     byMigrationBatch: {
       "HOLD-owner-or-cross-feature-split": 504,
       "M1A-modeling-data": 9,
       "M1B-modeling-process": 29,
-      "M1E-modeling-shell-and-family": 232,
+      "M1E-modeling-shell-and-family": 60,
       "M4-shared-cleanup": 314,
       "M6-zero-consumer-removal-candidate": 533,
     },

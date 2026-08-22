@@ -1,18 +1,19 @@
 {
-  "version": "issue-261-m1e-modeling-ownership-integration.v1",
+  "version": "issue-261-m1e-modeling-ownership-integration.v2",
   "baseSha": "60cca28cc24bd7b734925b732b0b090a6534387f",
+  "currentBaseSha": "7e5e17760c9024d03872f8627908da03bba06de8",
   "frozenInventory": {
     "path": "docs/17-evidence/issue-261-css-selector-inventory.json",
-    "sha256": "2fbce0eab7590ac16532739f9872fdb66211041b6f227dde66e3a9452c194578"
+    "sha256": "3f172e1642ab2dedf054beaa88c765ea00ef6578ffdcc893258837431b598965"
   },
   "aggregate": {
     "selectorRows": 334,
     "ruleGroups": 304,
     "residual": {
-      "selectorRows": 1772,
-      "ruleGroups": 1473,
+      "selectorRows": 1449,
+      "ruleGroups": 1231,
       "byMigrationBatch": {
-        "M1E-modeling-shell-and-family": 383,
+        "M1E-modeling-shell-and-family": 60,
         "M4-shared-cleanup": 314,
         "HOLD-owner-or-cross-feature-split": 504,
         "M6-zero-consumer-removal-candidate": 533,
@@ -1787,6 +1788,7 @@
       ],
       "expectedRows": 50,
       "expectedGroups": 46,
+      "ownerIdentityExceptions": ["CSS-1314"],
       "oracle": [
         [
           "CSS-1176",
@@ -3193,6 +3195,21 @@
     "apps/web/src/design/layout.css"
   ],
   "preservation": {
+    "supersededLegacyPresenceIds": [
+      "CSS-1120", "CSS-1153", "CSS-1161", "CSS-1349", "CSS-1350", "CSS-1352",
+      "CSS-2014", "CSS-2017", "CSS-2030", "CSS-2032"
+    ],
+    "supersededDeferralIds": [
+      "CSS-0133", "CSS-0134", "CSS-0138", "CSS-0142", "CSS-0143", "CSS-0144", "CSS-0146", "CSS-0147",
+      "CSS-0179", "CSS-0182", "CSS-0183", "CSS-0184", "CSS-0185", "CSS-0235", "CSS-0327", "CSS-0364",
+      "CSS-0366", "CSS-0368", "CSS-0372", "CSS-0373", "CSS-0374", "CSS-0379", "CSS-0393", "CSS-0404",
+      "CSS-0408", "CSS-0419", "CSS-0423", "CSS-0426", "CSS-0427", "CSS-0429", "CSS-0430", "CSS-0434",
+      "CSS-0435", "CSS-0438", "CSS-0443", "CSS-0444", "CSS-0445", "CSS-0446", "CSS-0447", "CSS-0448",
+      "CSS-0458", "CSS-0661", "CSS-0663", "CSS-0664", "CSS-0668", "CSS-0669", "CSS-0670", "CSS-0675",
+      "CSS-0698", "CSS-0700", "CSS-0702", "CSS-0703", "CSS-0705", "CSS-0706", "CSS-0707", "CSS-0708",
+      "CSS-0710", "CSS-0711", "CSS-0712", "CSS-0713", "CSS-0714", "CSS-0718", "CSS-0734", "CSS-1354",
+      "CSS-1358", "CSS-1544", "CSS-1545", "CSS-1549", "CSS-1564", "CSS-1577"
+    ],
     "excludedAndResponsive": [
       [
         "CSS-1120",
@@ -4194,6 +4211,12 @@
         "d4a479309d1a7093012060873206861b89796a894e2ca9be9a81ecfdc4c147a1"
       ]
     ]
+  },
+  "currentGuardDelta": {
+    "removedCount": 7,
+    "addedCount": 1839,
+    "removedSha256": "af0f115039c5e01faa30fcf7f62d9bf4f27a5f4ccb6f96e7c135a876f1eb07dc",
+    "addedSha256": "1af8708afa3aca5690215f2a6ebf0d29ebaa95bf045907b56bcff152b67e5771"
   },
   "guardDelta": {
     "removed": [

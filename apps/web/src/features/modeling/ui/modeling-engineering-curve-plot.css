@@ -558,3 +558,24 @@ display: grid;
 color: var(--muted);
   font-size: 0.75rem;
 }
+
+/* M1E4 frozen ownership move: layout.css#340. */
+.engineering-curve-plot-empty-svg .chart-grid {
+  stroke: color-mix(in srgb, var(--ux-border) 76%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* M1E4 frozen ownership move: layout.css#341. */
+.engineering-curve-plot-empty-svg .chart-axis {
+  stroke: var(--ux-border-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* M1E4 frozen ownership move: layout.css#342. */
+.engineering-curve-plot-empty-svg .chart-tick,
+.engineering-curve-plot-empty-svg .chart-axis-label {
+  fill: var(--ux-text-muted);
+  font-size: 12px;
+}
