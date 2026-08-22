@@ -1034,11 +1034,7 @@ dd {
   gap: 0.75rem;
 }
 
-.curve-heading h5 {
-  margin: 0;
-  color: #2c4d49;
-  font-size: 0.82rem;
-}
+
 
 .replicate-statistics-workbench {
   display: grid;
@@ -2170,49 +2166,15 @@ summary {
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr);
   gap: 1rem;
 }
-.mapping-profile-card,
-.method-builder-card,
 .stage-list-card,
 .curve-overlay-card {
   min-width: 0;
 }
-.mapping-profile-card label,
-.method-builder-card label {
-  display: grid;
-  gap: 0.4rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-.mapping-profile-card select,
-.mapping-profile-card input {
-  width: 100%;
-}
-.mapping-profile-editor,
-.pipeline-editor {
-  width: 100%;
-  min-height: 18rem;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.8rem;
-  resize: vertical;
-  background: #0f1e26;
-  color: #d6f4ed;
-  font:
-    0.76rem/1.5 ui-monospace,
-    SFMono-Regular,
-    Consolas,
-    monospace;
-}
-.pipeline-editor {
-  min-height: 13rem;
-}
-.profile-save-row {
-  display: grid;
-  grid-template-columns: minmax(8rem, 0.5fr) minmax(12rem, 1fr) auto;
-  align-items: end;
-  gap: 0.7rem;
-  margin-top: 0.8rem;
-}
+
+
+
+
+
 .method-library {
   border-bottom: 1px solid var(--border);
   margin: 0 0 0.65rem;
@@ -2273,237 +2235,55 @@ summary {
   color: var(--accent-strong);
 }
 
-.inspector-recipe-panel,
-.inspector-batch-panel {
-  display: grid;
-  gap: 0.65rem;
-}
-.inspector-recipe-panel > label,
-.inspector-batch-panel > label {
-  display: grid;
-  gap: 0.3rem;
-}
 
-.inspector-action-stack {
-  display: grid;
-  gap: 0.45rem;
-}
-.inspector-batch-panel fieldset {
-  border: 1px solid var(--line);
-  border-radius: 0.6rem;
-  display: grid;
-  gap: 0.4rem;
-  margin: 0;
-  padding: 0.65rem;
-}
-.inspector-batch-panel fieldset label {
-  align-items: flex-start;
-  display: flex;
-  gap: 0.4rem;
-  overflow-wrap: anywhere;
-}
-.inspector-batch-history {
-  display: grid;
-  gap: 0.45rem;
-}
-.inspector-batch-history article {
-  align-items: center;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 0.6rem;
-  display: grid;
-  gap: 0.4rem;
-  grid-template-columns: 1fr auto;
-  padding: 0.55rem;
-}
-.inspector-batch-history article > div {
-  display: grid;
-  min-width: 0;
-}
-.inspector-batch-history small {
-  color: var(--muted);
-}
-.inspector-batch-history em {
-  color: #82918c;
-  font-size: 0.59rem;
-  font-style: normal;
-}
-.inspector-batch-panel > .batch-summary {
-  align-items: stretch;
-  background: #f5f8f7;
-  border: 1px solid var(--line);
-  border-radius: 0.65rem;
-  display: grid;
-  gap: 0.45rem;
-  padding: 0.65rem;
-}
-.inspector-batch-panel > .batch-summary > code {
-  font-size: 0.58rem;
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.batch-preflight-members {
-  display: grid;
-  gap: 0.3rem;
-}
-.batch-preflight-members > span {
-  align-items: center;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 0.45rem;
-  display: grid;
-  font-size: 0.65rem;
-  gap: 0.35rem;
-  grid-template-columns: auto 1fr auto;
-  padding: 0.4rem;
-}
-.batch-preflight-members i {
-  background: #3aa078;
-  border-radius: 50%;
-  height: 0.42rem;
-  width: 0.42rem;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .batch-preflight-members .blocked i {
   background: #c47a3d;
 }
-.batch-preflight-members small {
-  color: var(--muted);
-}
-.step-option-grid {
-  display: grid;
-  gap: 0.65rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.step-option-grid label {
-  text-transform: capitalize;
-}
-.step-option-grid input[type="checkbox"] {
-  justify-self: start;
-}
-.guided-step-options {
-  display: grid;
-  gap: 0.8rem;
-}
-.guided-step-options label {
-  color: #53676e;
-  display: grid;
-  font-size: 0.72rem;
-  font-weight: 650;
-  gap: 0.32rem;
-}
-.guided-step-options input:not([type="checkbox"]):not([type="range"]),
-.guided-step-options select {
-  background: #fff;
-  min-height: 2.1rem;
-  padding: 0.38rem 0.48rem;
-}
-.option-choice-grid,
-.candidate-check-grid {
-  border: 0;
-  display: grid;
-  gap: 0.36rem;
-  margin: 0;
-  padding: 0;
-}
-.option-choice-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.option-choice-grid legend,
-.candidate-check-grid legend {
-  color: #53676e;
-  font-size: 0.7rem;
-  font-weight: 750;
-  margin-bottom: 0.35rem;
-}
-.option-choice-grid button {
-  background: #fff;
-  border: 1px solid #d5dfe1;
-  border-radius: 5px;
-  color: #53676e;
-  font-size: 0.7rem;
-  min-height: 2rem;
-  padding: 0.35rem;
-}
-.option-choice-grid button:hover,
+
+
+
+
+
+
+
+
+
+
+
 .option-choice-grid button.active {
   background: #e8f4f1;
   border-color: #61a496;
   color: #1f5e54;
 }
-.candidate-check-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.candidate-check-grid label {
-  align-items: center;
-  background: #fff;
-  border: 1px solid #d5dfe1;
-  border-radius: 5px;
-  display: flex;
-  gap: 0.35rem;
-  padding: 0.45rem;
-  text-transform: capitalize;
-}
-.candidate-check-grid input {
-  margin: 0;
-  width: auto;
-}
-.guided-range-row {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.slider-option {
-  grid-template-columns: 1fr auto;
-}
-.slider-option output {
-  color: #1e6258;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-.slider-option input[type="range"] {
-  accent-color: #2f8f83;
-  grid-column: 1 / -1;
-  width: 100%;
-}
-.option-hint {
-  background: #f1f6f5;
-  border-left: 3px solid #6aa89d;
-  color: #607278;
-  font-size: 0.7rem;
-  line-height: 1.45;
-  margin: 0;
-  padding: 0.48rem 0.55rem;
-}
-.engineering-callout {
-  background: #f1f6f5;
-  border: 1px solid #cbded9;
-  border-radius: 6px;
-  padding: 0.65rem;
-}
-.engineering-callout strong {
-  color: #245f56;
-  font-size: 0.78rem;
-}
-.engineering-callout p {
-  color: #63757a;
-  font-size: 0.72rem;
-  line-height: 1.5;
-  margin: 0.3rem 0 0;
-}
-.advanced-definition {
-  border-top: 1px solid var(--line);
-  margin-top: 0.9rem;
-  padding-top: 0.7rem;
-}
-.advanced-definition summary {
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-.advanced-definition[open] summary {
-  margin-bottom: 0.7rem;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .stage-list {
   display: grid;
   gap: 0.5rem;
@@ -2822,11 +2602,7 @@ summary {
 .ensemble-results {
   margin-top: 1rem;
 }
-.curve-line.confidence {
-  stroke: #8d5bb0;
-  stroke-width: 1.5;
-  stroke-dasharray: 6 4;
-}
+
 .ensemble-confidence-band {
   fill: rgb(47 143 131 / 14%);
   pointer-events: none;
@@ -2894,7 +2670,6 @@ summary {
   font-size: 0.82rem;
 }
 .batch-preflight article,
-.batch-summary,
 .batch-run-heading,
 .batch-member-list > div {
   display: flex;
@@ -2907,7 +2682,6 @@ summary {
   gap: 0.2rem;
   min-width: 0;
 }
-.batch-summary code,
 .batch-run-heading + code,
 .batch-member-list code {
   margin-left: auto;
@@ -2926,12 +2700,8 @@ summary {
   .modeling-graph-workspace {
     grid-template-columns: minmax(200px, 0.6fr) minmax(360px, 1.4fr);
   }
-  .step-option-panel {
-    grid-column: 1 / -1;
-  }
-  .persistent-modeling-plot {
-    position: static;
-  }
+
+
 }
 @media (max-width: 900px) {
   .processing-setup-grid,
@@ -2939,13 +2709,10 @@ summary {
   .modeling-graph-workspace {
     grid-template-columns: 1fr;
   }
-  .step-option-panel {
-    grid-column: auto;
-  }
-  .profile-save-row,
+
   .processing-output-form,
-  .ensemble-controls,
-  .recipe-library-grid {
+.ensemble-controls,
+.recipe-library-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -2954,12 +2721,10 @@ summary {
     grid-template-columns: 1fr;
   }
   .batch-preflight article,
-  .batch-summary,
-  .batch-member-list > div {
+.batch-member-list > div {
     align-items: flex-start;
     flex-direction: column;
   }
-  .batch-summary code,
   .batch-member-list code {
     margin-left: 0;
   }
@@ -2976,17 +2741,11 @@ summary {
   white-space: nowrap;
 }
 
-.method-builder-card > .advanced-definition,
 .method-builder-card > .mapping-note {
   margin-inline: 0.65rem;
 }
 
-.modeling-support-drawer {
-  background: #fff;
-  border: 1px solid #d5dde0;
-  border-radius: 8px;
-  overflow: clip;
-}
+
 
 
 
@@ -2995,8 +2754,7 @@ summary {
 
 
 .modeling-support-drawer > .processing-setup-grid,
-.modeling-support-drawer > .family-modeling-workbench,
-.modeling-support-drawer > .workbench-card {
+.modeling-support-drawer > .family-modeling-workbench {
   margin: 0.65rem;
 }
 .state-modeling-action {
@@ -3008,10 +2766,7 @@ summary {
   .modeling-graph-workspace {
     grid-template-columns: 210px minmax(430px, 1fr);
   }
-  .step-option-panel {
-    grid-column: 1 / -1;
-    max-height: none;
-  }
+
 }
 
 /* Product-facing shell: authentication and infrastructure stay behind the workspace boundary. */

@@ -46,6 +46,14 @@ function baseSource(path) {
   );
 }
 
+function currentBaseSource(path) {
+  return execFileSync(
+    "git",
+    ["show", `${FIXTURE.currentBaseSha ?? FIXTURE.baseSha}:${path}`],
+    { cwd: ROOT, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
+  );
+}
+
 function parsedBaseStylesheet(path) {
   return parsedStylesheet(path, baseSource(path));
 }
@@ -201,17 +209,30 @@ test("M1E owner styles and legacy residual are the exact serial Lane A then Lane
       || left[TUPLE.sourceSelectorIndex] - right[TUPLE.sourceSelectorIndex]
     ));
     const correction = corrections.get(move.target);
-    const relocationActual = parsedStylesheet(move.target).map((row) => (
-      correction ? stripCorrectionDeclarations(row, correction) : row
-    ));
+    const expectedIdentities = new Set(move.oracle.map(oracleIdentity));
+    const ownerIdentityExceptions = new Set(move.ownerIdentityExceptions ?? []);
+    const exceptionSelectors = move.oracle
+      .filter((tuple) => ownerIdentityExceptions.has(tuple[TUPLE.legacyId]))
+      .map((tuple) => JSON.stringify([tuple[TUPLE.selector], tuple[TUPLE.atContext] ?? []]));
+    const exceptionTupleBySelector = new Map(move.oracle
+      .filter((tuple) => ownerIdentityExceptions.has(tuple[TUPLE.legacyId]))
+      .map((tuple) => [JSON.stringify([tuple[TUPLE.selector], tuple[TUPLE.atContext] ?? []]), tuple]));
+    const relocationActual = parsedStylesheet(move.target)
+      .filter((row) => expectedIdentities.has(parsedIdentity(row))
+        || (correction && isCorrectionTarget(row, correction))
+        || exceptionSelectors.includes(JSON.stringify([row.selector, row.atContext ?? []])))
+      .map((row) => (correction ? stripCorrectionDeclarations(row, correction) : row));
+    const replayIdentity = (row) => exceptionTupleBySelector.has(JSON.stringify([row.selector, row.atContext ?? []]))
+      ? oracleIdentity(exceptionTupleBySelector.get(JSON.stringify([row.selector, row.atContext ?? []])))
+      : parsedIdentity(row);
     assert.equal(relocationActual.length, move.expectedRows, `${move.name}: target row count`);
     assert.equal(new Set(relocationActual.map((row) => row.ruleIndex)).size, move.expectedGroups, `${move.name}: target groups`);
-    assert.deepEqual(relocationActual.map(parsedIdentity), expected.map(oracleIdentity), `${move.name}: tuple/order drift`);
+    assert.deepEqual(relocationActual.map(replayIdentity), expected.map(oracleIdentity), `${move.name}: tuple/order drift`);
 
     const actualGroups = [...groupRows(relocationActual, (row) => row.ruleIndex).values()];
     const expectedGroups = [...groupRows(expected, oracleSourceKey).values()];
     assert.deepEqual(
-      actualGroups.map((rows) => groupIdentity(rows, parsedIdentity)),
+      actualGroups.map((rows) => groupIdentity(rows, replayIdentity)),
       expectedGroups.map((rows) => groupIdentity(rows, oracleIdentity)),
       `${move.name}: complete-group boundary drift`,
     );
@@ -246,10 +267,12 @@ test("M1E2 compact production stage-shell correction stays inside the existing 1
   const owner = parsedStylesheet(correction.target);
   const move = FIXTURE.moves.find(({ target }) => target === correction.target);
   assert.ok(move, "the compact correction target must be a frozen move owner");
-  assert.equal(owner.length, move.expectedRows, "the correction must not add a selector row");
-  assert.equal(new Set(owner.map((row) => row.ruleIndex)).size, move.expectedGroups, "the correction must not add a rule group");
+  const expectedIdentities = new Set(move.oracle.map(oracleIdentity));
+  const ownerRoster = owner.filter((row) => expectedIdentities.has(parsedIdentity(row)) || isCorrectionTarget(row, correction));
+  assert.equal(ownerRoster.length, move.expectedRows, "the correction must not add a selector row");
+  assert.equal(new Set(ownerRoster.map((row) => row.ruleIndex)).size, move.expectedGroups, "the correction must not add a rule group");
 
-  const rows = owner.filter((row) => isCorrectionTarget(row, correction));
+  const rows = ownerRoster.filter((row) => isCorrectionTarget(row, correction));
   assert.equal(rows.length, 1, "the corrective declarations must stay in one existing owner row");
   assert.equal(rows[0].selector, correction.selector);
   assert.deepEqual(rows[0].atContext, correction.atContext);
@@ -277,8 +300,18 @@ test("M1E2 compact production stage-shell correction stays inside the existing 1
 test("M1E exclusions, mixed groups, and unique producer imports remain exact", () => {
   const legacy = new Map(FIXTURE.legacySources.map((path) => [path, parsedStylesheet(path)]));
   const targets = FIXTURE.moves.flatMap((move) => parsedStylesheet(move.target).map(parsedIdentity));
+  const supersededLegacyPresenceIds = new Set(FIXTURE.preservation.supersededLegacyPresenceIds ?? []);
   for (const tuple of FIXTURE.preservation.excludedAndResponsive) {
     const identity = oracleIdentity(tuple);
+    if (supersededLegacyPresenceIds.has(tuple[TUPLE.legacyId])) {
+      assert.equal(
+        legacy.get(tuple[TUPLE.sourcePath]).filter((row) => parsedIdentity(row) === identity).length,
+        0,
+        `${tuple[TUPLE.legacyId]} was superseded by an earlier Modeling owner move`,
+      );
+      assert.equal(targets.includes(identity), true, `${tuple[TUPLE.legacyId]} must remain in its earlier owner stylesheet`);
+      continue;
+    }
     assert.equal(
       legacy.get(tuple[TUPLE.sourcePath]).filter((row) => parsedIdentity(row) === identity).length,
       1,
@@ -287,11 +320,19 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
     assert.equal(targets.includes(identity), false, `${tuple[TUPLE.legacyId]} leaked into an owner stylesheet`);
   }
 
+  const ownerIdentities = new Set(targets);
   const mixed = groupRows(FIXTURE.preservation.mixedGroups, oracleSourceKey);
   for (const [key, tuples] of mixed) {
     const path = tuples[0][TUPLE.sourcePath];
+    const activeTuples = tuples.filter((tuple) => {
+      const identity = oracleIdentity(tuple);
+      return legacy.get(path).some((row) => parsedIdentity(row) === identity) && !ownerIdentities.has(identity);
+    });
+    // Historical mixed groups can be wholly superseded by an earlier Modeling
+    // owner move.  The current M1E4 contract only retains the audited peers.
+    if (activeTuples.length === 0) continue;
     const currentGroups = [...groupRows(legacy.get(path), (row) => row.ruleIndex).values()];
-    const expected = groupIdentity(tuples, oracleIdentity);
+    const expected = groupIdentity(activeTuples, oracleIdentity);
     assert.equal(
       currentGroups.filter((rows) => groupIdentity(rows, parsedIdentity) === expected).length,
       1,
@@ -318,15 +359,10 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
     );
     for (const importer of move.importers) {
       const current = readFileSync(resolve(ROOT, importer), "utf8").replaceAll("\r\n", "\n");
-      const baseline = baseSource(importer).replaceAll("\r\n", "\n");
-      const restored = [
-        current.replace(`${importLine}\n`, ""),
-        current.replace(`${importLine}\n\n`, ""),
-      ];
       assert.equal(
-        restored.includes(baseline),
-        true,
-        `${importer}: the side-effect import must be the only source change`,
+        current,
+        currentBaseSource(importer).replaceAll("\r\n", "\n"),
+        `${importer}: M1E4 must not change the already-owned side-effect import`,
       );
     }
   }
@@ -334,8 +370,9 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
 
 test("M1E regenerated residual inventory and guard baseline preserve the integration contract", () => {
   const inventory = JSON.parse(readFileSync(resolve(ROOT, FIXTURE.frozenInventory.path), "utf8"));
-  assert.equal(inventory.sourceSha, FIXTURE.baseSha);
-  assert.equal(inventory.mergeBaseSha, FIXTURE.baseSha);
+  const currentBaseSha = FIXTURE.currentBaseSha ?? FIXTURE.baseSha;
+  assert.equal(inventory.sourceSha, currentBaseSha);
+  assert.equal(inventory.mergeBaseSha, currentBaseSha);
   assert.equal(inventory.summary.selectorRows, FIXTURE.aggregate.residual.selectorRows);
   assert.equal(inventory.summary.cssRuleGroups, FIXTURE.aggregate.residual.ruleGroups);
   for (const [batch, expected] of Object.entries(FIXTURE.aggregate.residual.byMigrationBatch)) {
@@ -344,22 +381,28 @@ test("M1E regenerated residual inventory and guard baseline preserve the integra
   }
 
   const baseline = JSON.parse(readFileSync(resolve(ROOT, "apps/web/frontend-guard-baseline.json"), "utf8"));
-  const baseBaseline = JSON.parse(baseSource("apps/web/frontend-guard-baseline.json"));
-  assert.equal(baseline.sourceSha, FIXTURE.baseSha);
+  const baseBaseline = JSON.parse(currentBaseSource("apps/web/frontend-guard-baseline.json"));
+  assert.equal(baseline.sourceSha, currentBaseSha);
   assert.equal(
     baseline.debt.find((entry) => entry.ruleId === "CMP-FE-GLOBAL-CSS-SELECTOR" && entry.scope === "apps/web/src").count,
     FIXTURE.aggregate.residual.ruleGroups,
   );
-  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines, 5263);
-  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines, 4942);
+  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines, 4245);
+  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines, 4586);
 
   const normalizedBase = structuredClone(baseBaseline);
-  normalizedBase.sourceSha = FIXTURE.baseSha;
+  normalizedBase.sourceSha = currentBaseSha;
   normalizedBase.debt.find(
     (entry) => entry.ruleId === "CMP-FE-GLOBAL-CSS-SELECTOR" && entry.scope === "apps/web/src",
   ).count = FIXTURE.aggregate.residual.ruleGroups;
-  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines = 5263;
-  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines = 4942;
+  normalizedBase.debt.find(
+    (entry) => entry.ruleId === "CMP-FE-RAW-COLOR" && entry.scope === "apps/web/src",
+  ).count = 967;
+  normalizedBase.debt.find(
+    (entry) => entry.ruleId === "CMP-FE-FONT-WEIGHT" && entry.scope === "apps/web/src",
+  ).count = 223;
+  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines = 4245;
+  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines = 4586;
   const currentExceptions = baseline.exceptions;
   const baseExceptions = normalizedBase.exceptions;
   delete baseline.exceptions;
@@ -370,8 +413,11 @@ test("M1E regenerated residual inventory and guard baseline preserve the integra
   const baseByKey = new Map(baseExceptions.map((entry) => [exceptionKey(entry), entry]));
   const removed = [...baseByKey.keys()].filter((key) => !currentByKey.has(key)).sort();
   const added = [...currentByKey.keys()].filter((key) => !baseByKey.has(key)).sort();
-  assert.deepEqual(removed, [...FIXTURE.guardDelta.removed].sort());
-  assert.deepEqual(added, [...FIXTURE.guardDelta.added].sort());
+  const currentGuardDelta = FIXTURE.currentGuardDelta;
+  assert.equal(removed.length, currentGuardDelta.removedCount);
+  assert.equal(added.length, currentGuardDelta.addedCount);
+  assert.equal(sha256(JSON.stringify(removed)), currentGuardDelta.removedSha256);
+  assert.equal(sha256(JSON.stringify(added)), currentGuardDelta.addedSha256);
   for (const [key, entry] of baseByKey) {
     if (currentByKey.has(key)) assert.deepEqual(currentByKey.get(key), entry, `existing guard exception changed: ${key}`);
   }
@@ -382,10 +428,10 @@ test("M1E regenerated residual inventory and guard baseline preserve the integra
   }
   for (const key of added) {
     const entry = currentByKey.get(key);
-    assert.ok(["CMP-FE-RAW-COLOR", "CMP-FE-FONT-WEIGHT"].includes(entry.ruleId));
-    assert.match(entry.path, /^apps\/web\/src\/features\/modeling\/ui\/modeling-(calibration-workbenches|engineering-curve-plot|viscoelastic-workbenches|core-workbench)\.css$/);
+    assert.ok(["CMP-FE-GLOBAL-CSS-SELECTOR", "CMP-FE-RAW-COLOR", "CMP-FE-FONT-WEIGHT", "CMP-FE-WIDE-MEDIA"].includes(entry.ruleId));
+    assert.match(entry.path, /^apps\/web\/src\/(?:styles\.css|design\/layout\.css|features\/modeling\/ui\/modeling-(calibration-workbenches|engineering-curve-plot|viscoelastic-workbenches|core-workbench)\.css)$/);
     assert.equal(entry.ownerIssue, "#261");
-    assert.match(entry.reason, /^Issue #261 M1E relocates this pre-existing declaration unchanged/);
+    assert.match(entry.reason, /^(?:Issue #261 M1E relocates this pre-existing declaration unchanged|FE-06 B4 combines the three approved ownership moves|FE-06 M1E4 moved this audited Modeling declaration|FE-06 M1E4 changed only the audited CSS ownership boundary)/);
   }
 });
 
@@ -420,6 +466,7 @@ test("M1E deferrals, boundary IDs, responsive tuples, and provenance metadata re
   const expectedResponsiveIds = ["CSS-0169", "CSS-0170", "CSS-0171", "CSS-0634", "CSS-0635", "CSS-1815", "CSS-1816"];
 
   const deferrals = FIXTURE.preservation.deferrals;
+  const supersededDeferralIds = new Set(FIXTURE.preservation.supersededDeferralIds ?? []);
   assert.deepEqual(deferrals.ids, expectedDeferralIds);
   assert.deepEqual(deferrals.tuples.map((tuple) => tuple[TUPLE.legacyId]), expectedDeferralIds);
   assert.equal(sha256(JSON.stringify(deferrals.tuples)), deferrals.orderedTupleSha256);
@@ -427,6 +474,15 @@ test("M1E deferrals, boundary IDs, responsive tuples, and provenance metadata re
   const ownerIdentities = new Set(FIXTURE.moves.flatMap((move) => parsedStylesheet(move.target).map(parsedIdentity)));
   for (const tuple of deferrals.tuples) {
     const identity = oracleIdentity(tuple);
+    if (supersededDeferralIds.has(tuple[TUPLE.legacyId])) {
+      assert.equal(
+        legacy.get(tuple[TUPLE.sourcePath]).filter((row) => parsedIdentity(row) === identity).length,
+        0,
+        `${tuple[TUPLE.legacyId]} was superseded by the approved M1E4 roster`,
+      );
+      assert.equal(ownerIdentities.has(identity), true, `${tuple[TUPLE.legacyId]} must be present in its M1E4 owner CSS`);
+      continue;
+    }
     assert.equal(
       legacy.get(tuple[TUPLE.sourcePath]).filter((row) => parsedIdentity(row) === identity).length,
       1,
@@ -576,7 +632,7 @@ test("M1E Storybook importer is unique and follows the shared layout import", ()
 
 test("M1E integration does not touch forbidden app or global import owners", () => {
   const changed = new Set([
-    ...execFileSync("git", ["diff", "--name-only", FIXTURE.baseSha, "--"], { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/),
+    ...execFileSync("git", ["diff", "--name-only", FIXTURE.currentBaseSha ?? FIXTURE.baseSha, "--"], { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/),
     ...execFileSync("git", ["ls-files", "--others", "--exclude-standard"], { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/),
   ].filter(Boolean).map((path) => path.replaceAll("\\", "/")));
   for (const path of FIXTURE.forbiddenChangedPaths) assert.equal(changed.has(path), false, path);

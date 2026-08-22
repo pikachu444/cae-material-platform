@@ -655,3 +655,41 @@ and current Product/Storybook states at browser zoom 100%, including all five CS
 100%-pixel crops, generated bundle provenance, and reload read-back. No current-guide PNG is replaced
 because the move is behavior-preserving. Automated 3840×2160 proves geometry only; physical Windows
 4K readability remains the #223 gate.
+
+### Issue #261 M1E4 common Modeling core/stage CSS ownership provenance
+
+공통 Modeling workbench와 stage navigator의 CSS selector 소유권은 기존
+`modeling-core-workbench.css` 및 engineering-curve plot owner에 정리됩니다. 이번 범위는
+감사된 172개 selector row/137개 rule group(공통 core 168개, plot 4개)뿐이며, DOM, 문구,
+URL, API, stage 순서, graph, exact revision, 저장·복구 상태는 바꾸지 않습니다. 실제 사용자는
+기존처럼 exact `CMP-DEMO-DP780-TEST-JSON` Test Data를 고른 뒤 Data → Process → Fit → Export를
+진행하고, 선택된 `swift + voce 50/50`, target/native preview와 reload read-back을 확인합니다.
+
+이번 결과는 [M1E4 evidence manifest](../17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/manifest.json)와
+[M1E4 evidence report](../17-evidence/issue-261-m1e4-modeling-core-stage-ownership.md)에
+최종 acceptance 기록으로 남겼습니다. 다섯 CSS viewport의 before/after 원본과 header·navigator·
+stage controls·engineering graph 100%-pixel crop을 실제 크기로 검토했고, computed-style·geometry와
+Storybook bundle도 같은 동작을 유지했습니다. 48개 비교 record와 220개 image pair에서 geometry·
+text·pixel failure는 0건입니다. 전체 924개 PNG 중 702개는 acceptance evidence이며, 첫 후보의
+회귀를 보여 주는 222개는 non-acceptance diagnostic으로 분리했습니다. 실제 cross-route/import/
+export/test-JSON consumer가 있는 60개 deferred row는 legacy owner에 그대로 남습니다.
+CSS-1618/1619 hyperelastic chart rule은 live CSSOM에서 확인한 12px cascade를 지키기 위해 원래
+`styles.css` producer/order에 유지했습니다. 자동 3840×2160은 geometry만 증명하며 physical
+Windows 4K readability는 #223 gate입니다.
+
+M1E4의 실제 acceptance 여정은 서버가 반환한 Material·State·Test Data ID와 revision을 고정한
+상태에서 Data 결과를 저장하고, Process 저장 pointer/source aggregate를 read-back한 뒤 Fit에서
+Swift와 Voce 후보를 비교해 `swift + voce 50/50`을 명시적으로 저장하는 흐름입니다. 준비된
+Material Model IR revision으로 Export check·acknowledgement·Solver Card 생성을 완료하고,
+API resource read-back, Solver Card 열기, Materials Material Detail/CAE Cards와 Materials Browse의
+동일한 exact card/target/IR/mapping/native resource/preview/download lineage까지 확인합니다.
+canonical Modeling alias와 reload 후에도 같은 run의 ID·revision·digest·resource URL·preview 및
+download hash가 보존되어야 하며 latest/first/global/다른 session fallback은 허용하지 않습니다.
+정상 네 stage와 대표 blocked/read-back 상태는 manifest의 live evidence로 기록했습니다. 나머지
+loading·error edge state는 실제 캡처로 가장하지 않고 durable source oracle로 제한했습니다.
+header·navigator·table/form·stage controls·engineering graph와 해당 native preview를 검토한 결과,
+keyboard reachability, page·console error, computed-style·geometry 및 #249의 information hierarchy,
+engineering task flow, responsive/wide-screen composition이 모두 통과했습니다.
+`EngineeringCurvePlot/EmptyCompatibleSeries` Storybook 1440×900 DPR1 before/after도 동일한 SHA-256을
+기록합니다. `CMP-DEMO-DP780-TEST-JSON-03 · r1` 정적 참조는 topology 전용이며 동작 동일성의
+근거로 사용하지 않았습니다.

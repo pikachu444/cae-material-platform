@@ -13,7 +13,7 @@
     "fullGroupRemovals": 130,
     "mixedGroupShrinks": 9,
     "residualBefore": {"selectorRows": 1772, "cssRuleGroups": 1473, "m1eRows": 383, "m1eGroups": 327, "crossCssDuplicateRows": 7},
-    "expectedAfter": {"selectorRows": 1621, "cssRuleGroups": 1343, "m1eRows": 232, "m1eGroups": 188, "crossCssDuplicateRows": 6},
+    "expectedAfter": {"selectorRows": 1449, "cssRuleGroups": 1231, "m1eRows": 60, "m1eGroups": 51, "crossCssDuplicateRows": 6},
     "excluded": {"crossRouteRows": 62, "crossRouteGroups": 52, "coreRows": 170, "coreGroups": 136}
   },
   "moves": [

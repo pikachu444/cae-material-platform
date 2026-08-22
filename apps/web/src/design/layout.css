@@ -1191,53 +1191,30 @@
   display: none;
 }
 
-.modeling-context-strip {
-  display: flex;
-  align-items: center;
-  min-height: 36px;
-  order: -3;
-  padding: 3px var(--ux-space-3);
-  border: 0;
-  border-bottom: 1px solid var(--ux-border);
-  border-radius: 0;
-  background: var(--ux-surface);
-  color: var(--ux-text);
-  box-shadow: var(--ux-shadow-none);
-}
-
-
-
-
-
-.modeling-notice-line {
-  min-height: 26px;
-  padding: 4px 8px;
-  overflow: hidden;
-  border-bottom: 1px solid var(--ux-border);
-  background: var(--ux-surface);
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 
 
 
 
 
-.modeling-stage-shell button:hover,
+
+
+
+
+
+
+
 .modeling-stage-shell button.active { background: var(--ux-accent-soft); color: var(--ux-text); }
 .modeling-stage-shell button.active { box-shadow: inset 0 -2px 0 var(--ux-accent); }
 
-.modeling-stage-shell strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.modeling-stage-shell strong { font-size: 12px; font-weight: 650; }
+
+
 
 /* UXC-04B: approved lower-reference topology. */
-.modeling-context-strip { min-height: 38px; }
 
-.modeling-work-title :is(h1, strong) { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; }
-.modeling-work-title span { min-width: 0; overflow: hidden; color: var(--ux-text-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+
+
+
 
 .modeling-context-actions .button { min-height: 26px; padding: 3px 9px; font-size: 11px; }
 .application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-advanced-menu > summary) {
@@ -1324,21 +1301,10 @@
   flex: 0 0 auto;
 }
 
-.method-builder-card {
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
+
 
 .method-builder-card > .section-heading,
-.method-library,
-.modeling-workspace-rail,
-.persistent-modeling-plot,
-.step-option-panel,
-.modeling-support-drawer {
+.method-library {
   border-color: var(--ux-border);
   border-radius: var(--ux-radius-panel);
   background: var(--ux-surface);
@@ -1904,10 +1870,7 @@
 
 }
 
-.method-builder-card {
-  border-radius: 0;
-  box-shadow: none;
-}
+
 
 .method-builder-card > .section-heading {
   min-height: 36px;
@@ -1988,114 +1951,35 @@
 /* Process controls stay in one shallow calculation group.  Manual modulus
    workup occupies a second row with the keyboard order value → unit → reason. */
 
-.toe-method-contract,
-.toe-compliance-contract {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-}
 
-.toe-method-contract strong,
-.toe-compliance-contract strong {
-  overflow: hidden;
-  color: var(--ux-text);
-  font-size: var(--ux-data-font-size);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.toe-method-contract small,
-.toe-compliance-contract small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.toe-warning-acknowledgement {
-  display: flex !important;
-  align-items: center;
-  min-width: 0;
-  min-height: var(--ux-input-min-block-size);
-  gap: var(--ux-space-1);
-  overflow: hidden;
-  color: var(--ux-warning) !important;
-  line-height: 1.25;
-  white-space: nowrap;
-}
 
-.toe-warning-acknowledgement input[type="checkbox"] {
-  flex: 0 0 14px;
-  width: 14px;
-  min-width: 14px;
-  height: 14px !important;
-  min-height: 14px !important;
-  margin: 0;
-  padding: 0;
-}
 
-.toe-warning-acknowledgement span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
-.toe-result-evidence {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-}
 
-.toe-result-evidence dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px 8px;
-  margin: 0;
-}
 
-.toe-result-evidence dl > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  min-width: 0;
-  gap: var(--ux-space-1);
-}
 
-.toe-result-evidence :is(dt, dd) {
-  overflow: hidden;
-  margin: 0;
-  line-height: 18px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.toe-result-evidence dt {
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-}
 
-.toe-result-evidence dd {
-  color: var(--ux-text);
-  font-size: var(--ux-data-font-size);
-  font-weight: 700;
-}
 
-.toe-result-warning {
-  color: var(--ux-warning) !important;
-}
 
-.toe-result-warning,
-.toe-result-clear {
-  overflow: hidden;
-  line-height: 16px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.toe-result-clear {
-  color: var(--ux-success, #176b55) !important;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Active and empty graphs are sized by their semantic plot frame. The shared
    workspace allocation owns the minimum; a child SVG must never preserve an
@@ -2121,8 +2005,8 @@
   line-height: 16px;
 }
 
-.status-current { color: var(--ux-success, #176b55); }
-.status-blocked { color: var(--ux-danger, #a33a2b); }
+
+
 
 /* The open sibling disclosure is reflowed into the ribbon so its rows and
    actions remain visible and hit-testable without covering the graph. */
@@ -2252,14 +2136,9 @@
   padding: 2px;
 }
 
-.mapping-context-row {
-  padding-top: 6px;
-  border-top: 1px solid var(--ux-border);
-}
 
-.mapping-context-row label {
-  flex: 1 1 150px;
-}
+
+
 
 .data-intake-message.error {
   color: var(--ux-danger);
@@ -2320,11 +2199,7 @@
 
 
 
-.modeling-ribbon-actions input {
-  min-width: 132px;
-  min-height: 28px;
-  font-size: 12px;
-}
+
 
 .data-stage-ribbon > div,
 .export-stage-ribbon > div {
@@ -2456,8 +2331,7 @@
   background: var(--ux-accent);
 }
 
-.modeling-pane-divider > button,
-.modeling-ribbon-control {
+.modeling-pane-divider > button {
   position: absolute;
   z-index: 5;
   display: grid;
@@ -2477,16 +2351,9 @@
   padding: 0;
 }
 
-.modeling-ribbon-control {
-  top: -1px;
-  right: 10px;
-  width: 28px;
-  height: 16px;
-  padding: 0;
-}
 
-.modeling-pane-divider > button:focus-visible,
-.modeling-ribbon-control:focus-visible {
+
+.modeling-pane-divider > button:focus-visible {
   outline: 2px solid var(--ux-focus);
   outline-offset: 2px;
 }
@@ -2499,26 +2366,6 @@
 
 
 
-.modeling-workspace-rail,
-.step-option-panel {
-  max-height: min(680px, calc(100vh - 235px));
-}
-
-.modeling-workspace-rail {
-  display: grid;
-  align-content: start;
-  grid-column: 1;
-  grid-row: 1 / 3;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-  scrollbar-width: auto;
-  scrollbar-color: var(--ux-border-strong) var(--ux-surface-subtle);
-  border-width: 1px 0 1px 1px;
-  border-radius: 0;
-  padding: 0;
-  gap: 0;
-}
 
 
 
@@ -2528,20 +2375,10 @@
 
 
 
-.persistent-modeling-plot {
-  display: grid;
-  grid-column: 2;
-  grid-row: 2;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 4px 8px;
-  width: 100%;
-  min-width: 0;
-  min-height: min(680px, calc(100vh - 235px));
-  border-radius: 0;
-  position: relative;
-  padding: 8px;
-}
+
+
+
+
 
 .persistent-modeling-plot > .section-heading {
   grid-column: 1;
@@ -2606,23 +2443,11 @@
 
 }
 
-.engineering-curve-plot-empty-svg .chart-grid {
-  stroke: color-mix(in srgb, var(--ux-border) 76%, transparent);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
 
-.engineering-curve-plot-empty-svg .chart-axis {
-  stroke: var(--ux-border-strong);
-  stroke-width: 1.2;
-  vector-effect: non-scaling-stroke;
-}
 
-.engineering-curve-plot-empty-svg .chart-tick,
-.engineering-curve-plot-empty-svg .chart-axis-label {
-  fill: var(--ux-text-muted);
-  font-size: 12px;
-}
+
+
+
 
 .engineering-curve-plot-empty-overlay .button {
   min-height: 28px;
@@ -2631,9 +2456,9 @@
 
 /* The plot consumes its grid cell. Fixed minimums created a blank band at desktop heights. */
 
-.persistent-modeling-plot { min-height: 0; height: 100%; grid-template-columns: minmax(260px, 1fr) auto auto; grid-template-rows: auto minmax(0, 1fr); }
+
 .persistent-modeling-plot > .section-heading { display: flex; align-items: center; min-width: 0; }
-.persistent-modeling-plot > .section-heading .workspace-caption { margin: 0; color: var(--ux-text); font-size: 12px; font-weight: 650; white-space: nowrap; }
+
 .persistent-modeling-plot > .section-heading h2 { display: none; }
 .application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading h2.fit-plot-heading {
   display: block;
@@ -2674,8 +2499,7 @@
   border: 0;
 }
 
-.curve-tree-group > details > article,
-.configured-step-list > button {
+.curve-tree-group > details > article {
   min-height: 26px;
   border: 0;
   border-radius: 0;
@@ -2694,7 +2518,6 @@
 
 .curve-tree-group > details > article:hover,
 .curve-tree-group > details > article.active,
-.configured-step-list > button:hover,
 .configured-step-list > button.active {
   background: var(--ux-accent-soft);
 }
@@ -2754,16 +2577,7 @@
   font-size: 10.5px;
 }
 
-.curve-row-label {
-  min-width: 0;
-  min-height: 26px;
-  padding: 3px 6px 3px 2px;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-}
+
 
 .curve-include-toggle {
   display: grid;
@@ -2780,42 +2594,17 @@
 
 
 
-.curve-visibility-toggle {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ux-text-muted);
-  cursor: pointer;
-}
 
 
 
 
 
-.curve-row-label:focus-visible,
-.curve-visibility-toggle:focus-visible,
+
 .curve-include-toggle:focus-within {
   outline: 2px solid var(--ux-focus);
   outline-offset: -2px;
 }
 
-.rail-heading,
-.configured-step-list > .rail-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 28px;
-  margin: 0;
-  padding: 0 6px;
-  border-bottom: 1px solid var(--ux-border);
-  color: var(--ux-text);
-  font-size: 12.5px;
-  font-weight: 500;
-}
 
 
 
@@ -2823,31 +2612,15 @@
 
 
 
-.rail-statistics-action label {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 58px;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-}
 
-.rail-statistics-action input,
+
+
 .rail-statistics-action .button {
   min-height: 28px;
 }
 
 
 
-.configured-step-list > button {
-  display: grid;
-  align-items: center;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 2px;
-  padding: 2px 6px;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-}
 
 
 
@@ -2855,32 +2628,14 @@
 
 
 
-.curve-row-label strong,
-.configured-step-list > button strong {
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 18px;
-}
 
-.curve-row-label small,
-.configured-step-list > button small {
-  display: none;
-}
 
-.curve-row-label strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.curve-row-label small {
-  display: inline;
-  flex: 0 0 auto;
-  margin-left: 0;
-  color: var(--ux-text-muted);
-  font-size: 11px;
-  font-weight: 400;
-}
+
+
+
+
+
 
 /* Process curve identities need to remain readable in the compact navigator
    at its persisted minimum width.  Preserve the checkbox/swatch/visibility
@@ -2890,7 +2645,6 @@
   padding-left: 6px;
 }
 
-.workspace-caption,
 .step-index {
   margin: 0;
   color: var(--ux-text-muted);
@@ -2900,9 +2654,7 @@
   text-transform: none;
 }
 
-.method-builder-card > .section-heading .workspace-caption {
-  text-transform: capitalize;
-}
+
 
 .plot-preview-state {
   color: var(--ux-text-muted);
@@ -2938,25 +2690,13 @@
   opacity: .45;
 }
 
-.step-option-panel {
-  overflow: auto;
-  padding: 8px;
-}
 
-.step-option-grid {
-  grid-template-columns: 1fr;
-}
 
-.modeling-graph-workspace.inspector-visible .guided-step-options,
-.modeling-graph-workspace.inspector-visible .step-option-grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--ux-space-2) var(--ux-space-4);
-}
 
-.modeling-graph-workspace.inspector-visible .guided-step-options > .option-hint,
-.modeling-graph-workspace.inspector-visible .guided-step-options > .engineering-callout {
-  align-self: end;
-}
+
+
+
+
 
 .processing-workbench-page .button,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]),
@@ -3382,19 +3122,9 @@
 
 
 
-.advanced-workflow-settings {
-  margin-top: var(--ux-space-4);
-  padding-top: var(--ux-space-3);
-  border-top: 1px solid var(--ux-border);
-}
 
-.advanced-workflow-settings > summary {
-  min-height: 36px;
-  color: var(--ux-accent);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
+
+
 
 
 
@@ -3457,9 +3187,7 @@
   min-height: 44px;
 }
 
-.tabular-adapter-card .advanced-definition {
-  grid-column: 1 / -1;
-}
+
 
 .material-database-page {
   width: 100%;
@@ -3749,8 +3477,7 @@
   font-size: var(--ux-data-font-size);
 }
 
-.processing-workbench-page > .method-builder-card > .section-heading,
-.modeling-context-strip {
+.processing-workbench-page > .method-builder-card > .section-heading {
   min-height: var(--ux-control-min-block-size);
 }
 
@@ -3758,21 +3485,13 @@
   flex-basis: var(--ux-control-min-block-size);
 }
 
-.modeling-context-strip {
-  flex-basis: var(--ux-control-min-block-size);
-  padding-inline: var(--ux-pane-padding);
-}
 
-.modeling-work-title :is(h1, strong),
-.persistent-modeling-plot > .section-heading .workspace-caption,
+
 .application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption,
 .application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading h2.fit-plot-heading {
   font-size: var(--ux-emphasis-font-size);
 }
 
-.modeling-work-title span,
-.modeling-notice-line,
-.modeling-stage-shell strong,
 .processing-workbench-page :is(small, .eyebrow, .option-hint, .workspace-caption, .step-index),
 .processing-workbench-page :is(label, legend, code),
 .processing-workbench-page .stage-chip-rail :is(span, strong, small),
@@ -3780,10 +3499,7 @@
   font-size: var(--ux-metadata-font-size);
 }
 
-.modeling-notice-line {
-  min-height: var(--ux-status-bar-height);
-  padding: var(--ux-space-1) var(--ux-space-2);
-}
+
 
 .application-shell:has(.processing-workbench-page) .modeling-stage-shell,
 .application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
@@ -3837,39 +3553,22 @@
 }
 
 .curve-tree-group > details > article,
-.configured-step-list > button,
 .curve-group-row,
-.curve-row-label,
-.curve-include-toggle,
-.curve-visibility-toggle {
+.curve-include-toggle {
   min-height: var(--ux-navigator-row-block-size);
 }
 
-.curve-visibility-toggle {
-  width: var(--ux-navigator-row-block-size);
-  height: var(--ux-navigator-row-block-size);
-}
 
-.curve-group-row,
-.curve-row-label strong,
-.configured-step-list > button strong,
-.rail-heading,
-.configured-step-list > .rail-title {
+
+.curve-group-row {
   font-size: var(--ux-data-font-size);
 }
 
-.curve-group-row > small,
-.curve-row-label small,
-.configured-step-list > button small,
-.rail-statistics-action label {
+.curve-group-row > small {
   font-size: var(--ux-metadata-font-size);
 }
 
-.rail-heading,
-.configured-step-list > .rail-title {
-  min-height: var(--ux-interactive-min-block-size);
-  padding-inline: var(--ux-space-2);
-}
+
 
 .data-mapping-consequence,
 .data-source-evidence :is(header, p),
@@ -3877,7 +3576,6 @@
   font-size: var(--ux-metadata-font-size);
 }
 
-.modeling-ribbon-actions input,
 .processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .processing-workbench-page select,
 .processing-workbench-page textarea {
@@ -3923,11 +3621,7 @@
 
 
 
-.persistent-modeling-plot {
-  min-height: var(--ux-plot-allocated-min-block-size);
-  padding: var(--ux-space-2);
-  gap: var(--ux-space-1) var(--ux-space-2);
-}
+
 
 /* A content-sized Process ribbon may gain a manual-input row. Bound it by the
    actual shared plot allocation so the graph remains reachable; any extra

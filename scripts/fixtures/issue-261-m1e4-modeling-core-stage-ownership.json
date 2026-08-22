@@ -1,0 +1,99 @@
+{
+  "version": "issue-261-m1e4-modeling-core-stage-ownership.v2",
+  "baseSha": "7e5e17760c9024d03872f8627908da03bba06de8",
+  "frozenInventory": {
+    "path": "docs/17-evidence/issue-261-css-selector-inventory.json",
+    "sha256": "12ec784c25de3c04c641dee984fb9c6d1f005d8ff9c12d9424594e9acf58c194"
+  },
+  "legacySources": [
+    {
+      "path": "apps/web/src/styles.css",
+      "mainImportRank": 0,
+      "sha256": "cbba51ef2fca2b5aaa11690b5432cd3ea2725b48584b3afbc965abce444ce335"
+    },
+    {
+      "path": "apps/web/src/design/layout.css",
+      "mainImportRank": 4,
+      "sha256": "aeeb1e0c8ee4696d0dfe27532dcf8240286755e82b785b63de11d1767c3ba1a8"
+    }
+  ],
+  "targetIdRanges": [
+    "CSS-0990", "CSS-1185..1186", "CSS-1189..1196", "CSS-1207..1223",
+    "CSS-1225..1239", "CSS-1241..1254", "CSS-1316", "CSS-1337", "CSS-1342",
+    "CSS-1348..1349", "CSS-1353..1354", "CSS-1360", "CSS-1362", "CSS-1366",
+    "CSS-1368", "CSS-1371", "CSS-1374", "CSS-0133..0135",
+    "CSS-0138..0142", "CSS-0161", "CSS-0164..0167", "CSS-0217", "CSS-0225..0243",
+    "CSS-0247..0248", "CSS-0279..0280", "CSS-0293", "CSS-0324", "CSS-0326",
+    "CSS-0328", "CSS-0330..0333", "CSS-0340..0343", "CSS-0345", "CSS-0347",
+    "CSS-0354", "CSS-0358", "CSS-0368", "CSS-0371..0373", "CSS-0375..0378",
+    "CSS-0380..0386", "CSS-0388", "CSS-0390", "CSS-0396..0401", "CSS-0528..0529",
+    "CSS-0541", "CSS-0594", "CSS-0596..0598", "CSS-0601..0603", "CSS-0608",
+    "CSS-0623", "CSS-0625", "CSS-0627..0628", "CSS-0630..0633", "CSS-0635..0639",
+    "CSS-0643", "CSS-0658"
+  ],
+  "plotIdRanges": ["CSS-0340..0343"],
+  "retainedPeerIdRanges": [
+    "CSS-1187..1188", "CSS-1240", "CSS-1336", "CSS-1338..1339", "CSS-1343..1344",
+    "CSS-1355..1357", "CSS-1359", "CSS-1361", "CSS-1363", "CSS-1367", "CSS-1369..1370",
+    "CSS-0136", "CSS-0162..0163", "CSS-0323", "CSS-0327", "CSS-0353", "CSS-0356..0357",
+    "CSS-0359", "CSS-0374", "CSS-0379", "CSS-0389", "CSS-0593", "CSS-0599..0600",
+    "CSS-0604..0607", "CSS-0622", "CSS-0624", "CSS-0626", "CSS-0629", "CSS-0634",
+    "CSS-0644..0646"
+  ],
+  "deferredIdRanges": [
+    "CSS-0988..0989", "CSS-1000..1001", "CSS-1064", "CSS-1087..1088", "CSS-1111..1117",
+    "CSS-1122..1123", "CSS-1160..1162", "CSS-1273..1277", "CSS-1279..1285",
+    "CSS-1317..1318", "CSS-0171", "CSS-0173..0189", "CSS-0191..0196", "CSS-0533", "CSS-1618..1619"
+  ],
+  "completeGroups": {
+    "styles.css": ["148", "347", "349", "351", "353..354", "365", "367", "369..381", "383..389", "391", "393..394", "396", "399..412", "474", "506..507", "511", "526", "532"],
+    "layout.css": ["133..134", "138..142", "161", "217", "225", "227", "229", "231..241", "243", "247..248", "279..280", "293", "326", "330", "332..333", "340..342", "345", "347", "368", "371", "375", "377", "380..381", "383", "385..386", "390", "396..398", "400", "528..529", "541", "596", "608", "628", "638", "658"]
+  },
+  "mixedGroups": {
+    "styles.css": ["343", "397", "494", "500", "512", "517", "520", "524", "527"],
+    "layout.css": ["135", "162", "323", "327", "353", "356", "372", "378", "388", "593", "597", "601", "622", "629", "634", "643"]
+  },
+  "tupleSchema": [
+    "id", "source.path", "source.mainImportRank", "source.ruleIndex", "source.selectorIndex",
+    "selector", "source.atContext", "specificity", "declarations.properties",
+    "declarations.importantProperties", "declarations.signatureSha256"
+  ],
+  "targetTupleSha256": "f2b46c9b70df293976ca55f182cc8ffc0715d8d6c5f535b5232f779c79f78aca",
+  "aggregate": {
+    "targetRows": 172,
+    "coreRows": 168,
+    "plotRows": 4,
+    "targetGroups": 137,
+    "completeGroupRemovals": 112,
+    "mixedGroupShrinks": 25,
+    "retainedPeerRows": 44,
+    "deferredRows": 60,
+    "deferredGroups": 51,
+    "expectedAfter": {
+      "selectorRows": 1449,
+      "cssRuleGroups": 1231,
+      "m1eRows": 60,
+      "m1eGroups": 51,
+      "crossCssDuplicateRows": 6
+    }
+  },
+  "owners": {
+    "core": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+    "plot": "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css"
+  },
+  "imports": {
+    "core": ["apps/web/src/material-modeling-workspace.tsx"],
+    "plot": ["apps/web/src/engineering-curve-plot.tsx"]
+  },
+  "fixture": {
+    "material": "DP780",
+    "testDataKey": "CMP-DEMO-DP780-TEST-JSON",
+    "testDataRevision": "rev1",
+    "testDataTitle": "Tensile test 0001",
+    "fitMethod": "swift+voce",
+    "fitMethodLabel": "swift + voce 50/50",
+    "target": "abaqus/2025/kg_m_s",
+    "approximation": "openradioss/2025/kg_m_s",
+    "nativeMaterialName": "DP780_C1_REFERENCE"
+  }
+}

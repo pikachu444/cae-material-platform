@@ -309,6 +309,13 @@ def test_structured_image_references_must_be_exact_existing_repository_paths(
     assert user_guide._structured_manifest_images(tmp_path) == {image_relative}
 
 
+def test_m1e4_evidence_manifest_is_registered_for_future_capture_paths() -> None:
+    assert (
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/manifest.json"
+        in user_guide._STRUCTURED_IMAGE_MANIFESTS
+    )
+
+
 def test_structured_yaml_path_references_register_visual_evidence(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -375,7 +382,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 893
+    assert report.duplicate_image_group_count == 1180
 
 
 @pytest.mark.parametrize(
@@ -509,26 +516,25 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
 
-    current_source = manifest["source_commit"]
+    manifest_source = manifest["source_commit"]
     capture_source = manifest["visual_evidence"]["capture_source"]
     issue298_source = "ae93058d61f4a229addbcb746a50a86689639f6f+issue298-worktree"
     issue289_source = "a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree"
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
-    assert manifest["version"] == 129
-    assert manifest["scope"] == "issue-309-modeling-data-axis-overlap"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", current_source)
-    assert manifest["source_commit"] == current_source
-    assert capture_source == current_source
-    assert manifest["visual_evidence"]["baseline_source"] == current_source.split("+")[0]
-    assert manifest["visual_evidence"]["current_source"] == current_source
+    assert manifest["version"] == 132
+    assert manifest["scope"] == "issue-261-m1e4-modeling-core-stage-ownership"
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue261-m1e4-worktree", manifest_source)
+    assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
+    assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
+    assert manifest["visual_evidence"]["current_source"] == capture_source
     assert manifest["visual_evidence"]["sidecar"] == (
         "docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml"
     )
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "native Python Playwright 1.62" in manifest["capture_command"]
-    assert "resolved-mapping" in manifest["capture_command"]
+    assert "issue-261 M1E4" in manifest["capture_command"]
+    assert "no current-guide PNG replacement" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
