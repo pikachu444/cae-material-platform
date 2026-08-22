@@ -2461,7 +2461,7 @@ function validateInventory(inventory) {
         errors.push(`combined B4 residual ${batch} is ${combined.current.byMigrationBatch[batch] ?? "missing"}/${combined.residualRouting[batch] ?? "missing"}, expected ${count}`);
       }
     }
-    if (combined.current.selectorRows !== 1772 || combined.current.cssRuleGroups !== 1473 || combined.current.crossCssDuplicateRows !== 10) {
+    if (combined.current.selectorRows !== 1772 || combined.current.cssRuleGroups !== 1473 || combined.current.crossCssDuplicateRows !== 7) {
       errors.push(`combined B4 current totals are ${JSON.stringify(combined.current)}`);
     }
   }

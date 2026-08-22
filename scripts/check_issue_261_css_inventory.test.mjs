@@ -1830,7 +1830,7 @@ test("preserves standalone B1/M2/M3 checkpoints and records the combined B4 hand
   assert.deepEqual(inventory.migrationPlan.combinedB4.current, {
     selectorRows: 1772,
     cssRuleGroups: 1473,
-    crossCssDuplicateRows: 10,
+    crossCssDuplicateRows: 7,
     byMigrationBatch: {
       "HOLD-owner-or-cross-feature-split": 504,
       "M1A-modeling-data": 9,

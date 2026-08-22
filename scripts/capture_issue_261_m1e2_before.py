@@ -209,7 +209,7 @@ def main() -> None:
                   };
                 }
                 """,
-                label == "breakpoint" and viewport[0] <= 900,
+                args.phase == "after" and label == "breakpoint" and viewport[0] <= 900,
             )
             records.append({"route": route, "viewport": viewport, "label": label, "provenance": provenance, "stageNavigationEvidence": stage_navigation_evidence, "pageErrors": list(page_errors), "consoleErrors": list(console_errors)})
             page.close()
@@ -301,10 +301,10 @@ def main() -> None:
                 "evidenceStatus": f"{args.phase}-relocation; every captured state has an explicit successful state assertion",
             },
             "testOnlyStateContracts": [
-                {"label": "stale-recipe-conflict", "tests": ["apps/web/src/common-processing-workbench.test.tsx::exposes the stale Recipe conflict actions after a rejected exact revision append"]},
+                {"label": "stale-recipe-conflict", "status": "N/A", "reason": "No pre-existing exact fixture safely produces this server conflict; M1E2 does not invent a behavior test for CSS relocation.", "tests": []},
                 {"label": "family-context-error", "tests": ["apps/web/src/material-modeling-workspace.test.tsx::blocks a stale URL Material revision instead of substituting its current head", "apps/web/src/material-modeling-workspace.test.tsx::blocks a stale URL State revision instead of substituting its current head"]},
-                {"label": "hidden-support-drawer", "tests": ["apps/web/src/common-processing-workbench.test.tsx::characterizes exact Data, Process, Fit, and Export continuity with explicit recovery"]},
-                {"label": "uncalculated-process-plot", "tests": ["apps/web/src/common-processing-workbench.test.tsx::restores history settings as a draft while preserving the saved Process current across rerender and reload", "apps/web/src/common-processing-workbench.test.tsx::defers Process reconciliation until Material context resolves without empty workspace patches"]},
+                {"label": "hidden-support-drawer", "status": "test-only/N/A for live capture", "reason": "The core layout intentionally hides this companion.", "tests": ["apps/web/src/common-processing-workbench.test.tsx::characterizes exact Data, Process, Fit, and Export continuity with explicit recovery"]},
+                {"label": "uncalculated-process-plot", "status": "test-only/N/A for live capture", "reason": "The canonical seeded route resumes its saved Process preview, and no immediate deterministic UI action guarantees an empty plot without mutating demo data.", "tests": ["apps/web/src/common-processing-workbench.test.tsx::restores history settings as a draft while preserving the saved Process current across rerender and reload", "apps/web/src/common-processing-workbench.test.tsx::defers Process reconciliation until Material context resolves without empty workspace patches"]},
             ],
             "viewports": VIEWPORTS,
             "breakpoints": BREAKPOINTS,

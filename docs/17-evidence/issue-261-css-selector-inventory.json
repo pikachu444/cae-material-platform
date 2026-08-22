@@ -158,11 +158,11 @@
         "importers": [
           "apps/web/src/material-modeling-workspace.tsx"
         ],
-        "bytes": 13466,
-        "lines": 604,
-        "cssRuleGroups": 96,
-        "selectorRows": 102,
-        "sha256": "5c1fc06642d896d69d37d87e8ee0e98a7146de81515836edb63f32b5281a0686"
+        "bytes": 13351,
+        "lines": 595,
+        "cssRuleGroups": 95,
+        "selectorRows": 101,
+        "sha256": "11a43e407498c54d47215da8e42b09175be87193c6fbaba8fff83dc67c51a0cf"
       },
       "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css": {
         "legacyGlobal": false,
@@ -209,11 +209,11 @@
           "apps/web/src/reference-shear-relaxation-workflow.tsx",
           "apps/web/src/viscoelastic-master-workbench.tsx"
         ],
-        "bytes": 4987,
-        "lines": 294,
+        "bytes": 4986,
+        "lines": 293,
         "cssRuleGroups": 46,
         "selectorRows": 50,
-        "sha256": "ad285067646f5a2a93f52c8727037671abe499e1595d7fd9c2f826743b69a743"
+        "sha256": "493a37fef2acb0b00e46d10749725d0444963d354ef0f2350b77b692e3cabb6e"
       },
       "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": {
         "legacyGlobal": false,
@@ -330,7 +330,7 @@
       "sameContextSelectorConsolidationCandidate": 318,
       "crossLegacyFileSameSelector": 46,
       "duplicateCandidate": 0,
-      "crossCssDuplicate": 10
+      "crossCssDuplicate": 7
     },
     "exactSelectorCascadeGroups": 247,
     "targetPropertyCascadeGroups": 940
@@ -13203,7 +13203,7 @@
         "sameContextSelectorConsolidationCandidate": true,
         "crossLegacyFileSameSelector": false,
         "duplicateCandidate": false,
-        "crossCssDuplicate": true
+        "crossCssDuplicate": false
       },
       "cascade": {
         "exactSelectorGroupIds": [
@@ -13213,22 +13213,7 @@
           "TARGET-0110",
           "TARGET-0111"
         ],
-        "duplicateOwnedStylePeers": [
-          {
-            "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-            "line": 600,
-            "mainImportRank": null,
-            "atContext": [
-              "@media (max-width: 900px)"
-            ],
-            "properties": [
-              "flex-basis",
-              "min-height"
-            ],
-            "importantProperties": [],
-            "declarationSignatureSha256": "0c851071cc65467a1b8ca2fb218a238945fe4de77343e794f134d354f8f50ee8"
-          }
-        ]
+        "duplicateOwnedStylePeers": []
       }
     },
     {
@@ -54442,7 +54427,7 @@
         "sameContextSelectorConsolidationCandidate": true,
         "crossLegacyFileSameSelector": false,
         "duplicateCandidate": false,
-        "crossCssDuplicate": true
+        "crossCssDuplicate": false
       },
       "cascade": {
         "exactSelectorGroupIds": [
@@ -54451,22 +54436,7 @@
         "targetPropertyGroupIds": [
           "TARGET-0111"
         ],
-        "duplicateOwnedStylePeers": [
-          {
-            "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-            "line": 600,
-            "mainImportRank": null,
-            "atContext": [
-              "@media (max-width: 900px)"
-            ],
-            "properties": [
-              "flex-basis",
-              "min-height"
-            ],
-            "importantProperties": [],
-            "declarationSignatureSha256": "0c851071cc65467a1b8ca2fb218a238945fe4de77343e794f134d354f8f50ee8"
-          }
-        ]
+        "duplicateOwnedStylePeers": []
       }
     },
     {
@@ -54603,7 +54573,7 @@
         "sameContextSelectorConsolidationCandidate": true,
         "crossLegacyFileSameSelector": false,
         "duplicateCandidate": false,
-        "crossCssDuplicate": true
+        "crossCssDuplicate": false
       },
       "cascade": {
         "exactSelectorGroupIds": [
@@ -54612,22 +54582,7 @@
         "targetPropertyGroupIds": [
           "TARGET-0110"
         ],
-        "duplicateOwnedStylePeers": [
-          {
-            "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-            "line": 600,
-            "mainImportRank": null,
-            "atContext": [
-              "@media (max-width: 900px)"
-            ],
-            "properties": [
-              "flex-basis",
-              "min-height"
-            ],
-            "importantProperties": [],
-            "declarationSignatureSha256": "0c851071cc65467a1b8ca2fb218a238945fe4de77343e794f134d354f8f50ee8"
-          }
-        ]
+        "duplicateOwnedStylePeers": []
       }
     },
     {
@@ -165191,7 +165146,7 @@
       "current": {
         "selectorRows": 1772,
         "cssRuleGroups": 1473,
-        "crossCssDuplicateRows": 10,
+        "crossCssDuplicateRows": 7,
         "byMigrationBatch": {
           "HOLD-owner-or-cross-feature-split": 504,
           "M1A-modeling-data": 9,

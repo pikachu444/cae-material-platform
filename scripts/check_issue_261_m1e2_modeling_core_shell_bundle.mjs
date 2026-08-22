@@ -38,18 +38,6 @@ function rowIdentity(row) {
   return selectorContextKey(row.selector, row.atContext);
 }
 
-function declarationIdentity(declarations) {
-  return JSON.stringify(declarations.map(({ property, value, important }) => [property, value, important]));
-}
-
-function exactRuleIdentity(row) {
-  return JSON.stringify([
-    normalizeSelector(row.selector),
-    normalizeContext(row.atContext),
-    declarationIdentity(row.declarations),
-  ]);
-}
-
 function walkCss(directory) {
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -75,14 +63,12 @@ function checkBundle(rootArg, label) {
     null,
   );
   const correction = FIXTURE.corrections[0];
-  const correctionIdentity = JSON.stringify([
-    normalizeSelector(correction.selector),
-    normalizeContext(correction.atContext),
-    declarationIdentity(correction.declarations),
-  ]);
-  const ownerCorrectionRows = allOwnerRows.filter((row) => exactRuleIdentity(row) === correctionIdentity);
-  assert.equal(ownerCorrectionRows.length, 1, `${label}: explicit compact stage-shell correction must have one owner row`);
-  const ownerRows = allOwnerRows.filter((row) => exactRuleIdentity(row) !== correctionIdentity);
+  const correctionKey = selectorContextKey(correction.selector, correction.atContext);
+  const ownerCorrectionRows = allOwnerRows.filter((row) => rowIdentity(row) === correctionKey);
+  assert.equal(ownerCorrectionRows.length, 1, `${label}: compact stage-shell declarations must stay in one existing owner row`);
+  assert.equal(allOwnerRows.length, FIXTURE.moves.at(-1).expectedRows, `${label}: source owner row roster drift`);
+  assert.equal(new Set(allOwnerRows.map((row) => row.ruleIndex)).size, FIXTURE.moves.at(-1).expectedGroups, `${label}: source owner group roster drift`);
+  const ownerRows = allOwnerRows;
   const expectedCounts = new Map();
   const ownerGroups = new Map();
   for (const row of ownerRows) {
@@ -107,8 +93,33 @@ function checkBundle(rootArg, label) {
   }
   assert.deepEqual(missing, [], `${label}: moved modeling-core selectors missing from generated CSS`);
   assert.deepEqual(duplicate, [], `${label}: moved modeling-core selectors duplicated in generated CSS`);
-  const emittedCorrectionRows = rows.filter((row) => exactRuleIdentity(row) === correctionIdentity);
-  assert.equal(emittedCorrectionRows.length, 1, `${label}: explicit compact stage-shell correction must be emitted once`);
+  const emittedCorrectionRows = rows.filter((row) => rowIdentity(row) === correctionKey);
+  assert.equal(emittedCorrectionRows.length, expectedCounts.get(correctionKey), `${label}: compact stage-shell selector/context emitted unexpectedly`);
+  const emittedCorrectionProperties = new Set(emittedCorrectionRows.flatMap((row) => row.declarations.map(({ property }) => property)));
+  for (const { property } of correction.declarations) {
+    assert.ok(emittedCorrectionProperties.has(property), `${label}: compact stage-shell ${property} declaration missing`);
+  }
+
+  const ownerAssetFiles = files.filter((path) => parseCss(
+    relative(ROOT, path).replaceAll("\\", "/"),
+    readFileSync(path, "utf8"),
+    null,
+  ).some((row) => rowIdentity(row) === correctionKey));
+  assert.equal(ownerAssetFiles.length, 1, `${label}: owner selector must be emitted in exactly one CSS asset`);
+  if (label === "production") {
+    const ownerAssetName = ownerAssetFiles[0].split(/[\\/]/).at(-1);
+    assert.match(ownerAssetName, /^material-modeling-workspace-.*\.css$/, `${label}: owner CSS must stay in the lazy Modeling workspace chunk`);
+    const ownerJs = readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name === "assets")
+      .flatMap(() => readdirSync(join(root, "assets")))
+      .filter((name) => /^material-modeling-workspace-.*\.js$/.test(name));
+    assert.equal(ownerJs.length, 1, `${label}: lazy Modeling workspace JS chunk missing or duplicated`);
+    const entryJs = readdirSync(join(root, "assets")).filter((name) => /^index-.*\.js$/.test(name));
+    assert.ok(entryJs.some((name) => {
+      const source = readFileSync(join(root, "assets", name), "utf8");
+      return source.includes(ownerAssetName) && source.includes(ownerJs[0]);
+    }), `${label}: entry preload graph does not reference the lazy Modeling owner JS/CSS chunks`);
+  }
   return {
     label,
     root: rootArg,
@@ -117,6 +128,7 @@ function checkBundle(rootArg, label) {
     oracleRows: ownerRows.length,
     oracleGroups: FIXTURE.moves.at(-1).expectedGroups,
     correctionRows: emittedCorrectionRows.length,
+    ownerAssets: ownerAssetFiles.map((path) => relative(ROOT, path).replaceAll("\\", "/")),
   };
 }
 

@@ -4424,21 +4424,22 @@
     {
       "id": "M1E2-production-stage-shell-compact-boundary",
       "target": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "selector": ".application-shell:has(.processing-workbench-page) .modeling-stage-shell",
+      "baseLegacyId": "CSS-0169",
+      "selector": ".modeling-stage-shell",
       "atContext": ["@media (max-width: 900px)"],
       "declarations": [
         {
           "property": "min-height",
           "value": "calc(var(--ux-interactive-min-block-size) * 2)",
-          "important": false
+          "important": true
         },
         {
           "property": "flex-basis",
           "value": "calc(var(--ux-interactive-min-block-size) * 2)",
-          "important": false
+          "important": true
         }
       ],
-      "rationale": "The production flex item must expose both rows created by the shared three-column stage navigator at the 900px compact boundary."
+      "rationale": "The production flex item must expose both rows created by the shared three-column stage navigator at the 900px compact boundary. The declarations stay in the existing owner-local relocation row; importance is removed when M4 retires the higher-specificity legacy shared-shell sizing."
     }
   ],
   "forbiddenChangedPaths": [

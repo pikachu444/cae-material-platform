@@ -1,5 +1,5 @@
 {
-  "version": "issue-261-m1e2-modeling-core-shell-evidence.v3",
+  "version": "issue-261-m1e2-modeling-core-shell-evidence.v4",
   "baseSha": "60cca28cc24bd7b734925b732b0b090a6534387f",
   "beforeReconstruction": {
     "legacySelectorRows": 1873,
@@ -34,7 +34,7 @@
   },
   "normalization": {
     "computedAndBounds": "exact JSON comparison",
-    "matchedDeclarations": "source URL and rule order ignored; CRLF/LF and CSSOM-equivalent border-image initial/none canonicalized; explicit correction rule excluded from relocation-equivalence comparison",
+    "matchedDeclarations": "source URL and rule order ignored; CRLF/LF and CSSOM-equivalent border-image initial/none canonicalized; the two registered compact declarations are stripped from their existing responsive owner row before exact source replay",
     "nativeControlRaster": "three full-state deltas accepted only at the exact measured bounding boxes of the native Test type/Condition select glyph; computed geometry and normalized declarations remain exact"
   },
   "areas": {

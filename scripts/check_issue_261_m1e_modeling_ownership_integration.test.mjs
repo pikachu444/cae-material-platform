@@ -58,12 +58,18 @@ function parsedIdentity(row) {
   ]);
 }
 
-function correctionIdentity(correction) {
-  return JSON.stringify([
-    correction.selector,
-    correction.atContext ?? [],
-    declarationSignature(correction.declarations),
-  ]);
+function isCorrectionTarget(row, correction) {
+  return row.selector === correction.selector
+    && JSON.stringify(row.atContext ?? []) === JSON.stringify(correction.atContext ?? []);
+}
+
+function stripCorrectionDeclarations(row, correction) {
+  if (!isCorrectionTarget(row, correction)) return row;
+  const properties = new Set(correction.declarations.map(({ property }) => property));
+  return {
+    ...row,
+    declarations: row.declarations.filter(({ property }) => !properties.has(property)),
+  };
 }
 
 function oracleIdentity(tuple) {
@@ -183,10 +189,9 @@ test("M1E integration freezes the reviewed base oracle and current residual sour
 });
 
 test("M1E owner styles and legacy residual are the exact serial Lane A then Lane B replay", () => {
-  const allOracle = FIXTURE.moves.flatMap((move) => move.oracle);
-  const correctionIdentities = new Map(FIXTURE.corrections.map((correction) => [
+  const corrections = new Map(FIXTURE.corrections.map((correction) => [
     correction.target,
-    correctionIdentity(correction),
+    correction,
   ]));
   for (const move of FIXTURE.moves) {
     const sourceRank = new Map(move.sourceOrder.map((path, index) => [path, index]));
@@ -195,11 +200,10 @@ test("M1E owner styles and legacy residual are the exact serial Lane A then Lane
       || left[TUPLE.sourceRuleIndex] - right[TUPLE.sourceRuleIndex]
       || left[TUPLE.sourceSelectorIndex] - right[TUPLE.sourceSelectorIndex]
     ));
-    const actual = parsedStylesheet(move.target);
-    const correctionIdentityForTarget = correctionIdentities.get(move.target);
-    const relocationActual = correctionIdentityForTarget
-      ? actual.filter((row) => parsedIdentity(row) !== correctionIdentityForTarget)
-      : actual;
+    const correction = corrections.get(move.target);
+    const relocationActual = parsedStylesheet(move.target).map((row) => (
+      correction ? stripCorrectionDeclarations(row, correction) : row
+    ));
     assert.equal(relocationActual.length, move.expectedRows, `${move.name}: target row count`);
     assert.equal(new Set(relocationActual.map((row) => row.ruleIndex)).size, move.expectedGroups, `${move.name}: target groups`);
     assert.deepEqual(relocationActual.map(parsedIdentity), expected.map(oracleIdentity), `${move.name}: tuple/order drift`);
@@ -236,26 +240,38 @@ test("M1E owner styles and legacy residual are the exact serial Lane A then Lane
   }
 });
 
-test("M1E2 compact production stage-shell correction is explicit and outside relocation counts", () => {
+test("M1E2 compact production stage-shell correction stays inside the existing 101/95 owner roster", () => {
   assert.deepEqual(FIXTURE.corrections.map(({ id }) => id), ["M1E2-production-stage-shell-compact-boundary"]);
   const correction = FIXTURE.corrections[0];
-  const rows = parsedStylesheet(correction.target).filter((row) => parsedIdentity(row) === correctionIdentity(correction));
-  assert.equal(rows.length, 1, "the corrective rule must be emitted exactly once");
+  const owner = parsedStylesheet(correction.target);
+  const move = FIXTURE.moves.find(({ target }) => target === correction.target);
+  assert.ok(move, "the compact correction target must be a frozen move owner");
+  assert.equal(owner.length, move.expectedRows, "the correction must not add a selector row");
+  assert.equal(new Set(owner.map((row) => row.ruleIndex)).size, move.expectedGroups, "the correction must not add a rule group");
+
+  const rows = owner.filter((row) => isCorrectionTarget(row, correction));
+  assert.equal(rows.length, 1, "the corrective declarations must stay in one existing owner row");
   assert.equal(rows[0].selector, correction.selector);
   assert.deepEqual(rows[0].atContext, correction.atContext);
-  assert.deepEqual(rows[0].declarations, correction.declarations);
+  assert.deepEqual(
+    rows[0].declarations.filter(({ property }) => correction.declarations.some((entry) => entry.property === property)),
+    correction.declarations,
+  );
+  const baseTuple = move.oracle.find((tuple) => tuple[TUPLE.legacyId] === correction.baseLegacyId);
+  assert.ok(baseTuple, "the correction must name its frozen relocation row");
+  assert.equal(parsedIdentity(stripCorrectionDeclarations(rows[0], correction)), oracleIdentity(baseTuple));
 
   const core = readFileSync(resolve(ROOT, correction.target), "utf8");
   assert.match(core, /@media\s*\(max-width:\s*900px\)/);
-  assert.match(core, /\.application-shell:has\(\.processing-workbench-page\) \.modeling-stage-shell/);
-  assert.match(core, /min-height:\s*calc\(var\(--ux-interactive-min-block-size\)\s*\*\s*2\)/);
-  assert.match(core, /flex-basis:\s*calc\(var\(--ux-interactive-min-block-size\)\s*\*\s*2\)/);
+  assert.doesNotMatch(core, /\.application-shell:has\(\.processing-workbench-page\) \.modeling-stage-shell/);
+  assert.match(core, /min-height:\s*calc\(var\(--ux-interactive-min-block-size\)\s*\*\s*2\)\s*!important/);
+  assert.match(core, /flex-basis:\s*calc\(var\(--ux-interactive-min-block-size\)\s*\*\s*2\)\s*!important/);
 
   const captureHelper = readFileSync(resolve(ROOT, "scripts/capture_issue_261_m1e2_before.py"), "utf8");
   assert.match(captureHelper, /stageNavigationEvidence/);
   assert.match(captureHelper, /buttonCount/);
   assert.match(captureHelper, /withinShellBounds/);
-  assert.match(captureHelper, /label == "breakpoint" and viewport\[0\] <= 900/);
+  assert.match(captureHelper, /args\.phase == "after" and label == "breakpoint" and viewport\[0\] <= 900/);
 });
 
 test("M1E exclusions, mixed groups, and unique producer imports remain exact", () => {
@@ -429,10 +445,10 @@ test("M1E deferrals, boundary IDs, responsive tuples, and provenance metadata re
   assert.ok(responsiveTuples.every((tuple) => tuple[TUPLE.atContext].some((context) => /@media/.test(context))));
 
   const testOnlyStateContracts = [
-    { label: "stale-recipe-conflict", tests: ["apps/web/src/common-processing-workbench.test.tsx::exposes the stale Recipe conflict actions after a rejected exact revision append"] },
+    { label: "stale-recipe-conflict", status: "N/A", reason: "No pre-existing exact fixture safely produces this server conflict; M1E2 does not invent a behavior test for CSS relocation.", tests: [] },
     { label: "family-context-error", tests: ["apps/web/src/material-modeling-workspace.test.tsx::blocks a stale URL Material revision instead of substituting its current head", "apps/web/src/material-modeling-workspace.test.tsx::blocks a stale URL State revision instead of substituting its current head"] },
-    { label: "hidden-support-drawer", tests: ["apps/web/src/common-processing-workbench.test.tsx::characterizes exact Data, Process, Fit, and Export continuity with explicit recovery"] },
-    { label: "uncalculated-process-plot", tests: ["apps/web/src/common-processing-workbench.test.tsx::restores history settings as a draft while preserving the saved Process current across rerender and reload", "apps/web/src/common-processing-workbench.test.tsx::defers Process reconciliation until Material context resolves without empty workspace patches"] },
+    { label: "hidden-support-drawer", status: "test-only/N/A for live capture", reason: "The core layout intentionally hides this companion.", tests: ["apps/web/src/common-processing-workbench.test.tsx::characterizes exact Data, Process, Fit, and Export continuity with explicit recovery"] },
+    { label: "uncalculated-process-plot", status: "test-only/N/A for live capture", reason: "The canonical seeded route resumes its saved Process preview, and no immediate deterministic UI action guarantees an empty plot without mutating demo data.", tests: ["apps/web/src/common-processing-workbench.test.tsx::restores history settings as a draft while preserving the saved Process current across rerender and reload", "apps/web/src/common-processing-workbench.test.tsx::defers Process reconciliation until Material context resolves without empty workspace patches"] },
   ];
   const expectedStories = [
     "foundation-modelingworkspacelayout--default",

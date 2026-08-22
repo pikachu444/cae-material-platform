@@ -251,7 +251,7 @@
 .modeling-stage-shell button { align-items: center; justify-content: center; gap: 4px; min-height: 27px; padding: 3px 8px; }
 
 @media (max-width: 900px) {
-  .modeling-stage-shell { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .modeling-stage-shell { grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: calc(var(--ux-interactive-min-block-size) * 2) !important; flex-basis: calc(var(--ux-interactive-min-block-size) * 2) !important; } /* M1E2: owner-local importance outranks deferred M4 shared-shell sizing; remove it when M4 retires that legacy rule. */
 }
 
 @media (max-width: 900px) {
@@ -592,13 +592,4 @@
 
 .modeling-main-surface {
   grid-template-rows: minmax(0, auto) minmax(0, 1fr);
-}
-
-/* M1E2 correction: the production flex shell must reserve the second grid
-   row created by the compact three-column stage navigator. */
-@media (max-width: 900px) {
-  .application-shell:has(.processing-workbench-page) .modeling-stage-shell {
-    min-height: calc(var(--ux-interactive-min-block-size) * 2);
-    flex-basis: calc(var(--ux-interactive-min-block-size) * 2);
-  }
 }
