@@ -1,3 +1,8 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#267. */
+.promotion-confirmation > .button {
+  justify-self: start;
+}
+
 .property-grid div {
   display: grid;
   gap: 0.15rem;

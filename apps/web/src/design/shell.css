@@ -1,3 +1,75 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#247. */
+.application-workspace:has(.governed-import-route) {
+  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
+  max-width: var(--ux-workspace-max-inline-size);
+  margin-inline: auto;
+  padding: 1rem 0 3rem;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#431. */
+.session-shell main {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#7. */
+.application-workspace:has(.ux-page),
+.application-workspace:has(.processing-workbench-page),
+.application-workspace:has(.material-database-page),
+.application-workspace:has(.test-json-page),
+.application-workspace:has(.administration-workspace) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#12. */
+.application-workspace:has(.ux-page) {
+  padding: 0 0 var(--ux-space-6);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#13. */
+.application-workspace:has(.activity-shell) {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#14. */
+.application-workspace:has(.activity-shell) > .ux-page {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#15. */
+.application-workspace:has(.materials-page) {
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#16. */
+.application-workspace:has(.administration-workspace) {
+  padding: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#17. */
+.application-workspace:has(.processing-workbench-page),
+.application-workspace:has(.material-database-page),
+.application-workspace:has(.test-json-page) {
+  padding-inline: 8px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#125. */
+.application-shell:has(.processing-workbench-page) {
+  background: var(--ux-canvas);
+}
+
 .application-shell {
   display: grid;
   grid-template-rows: var(--ux-application-bar-height) var(--ux-command-bar-height) minmax(0, 1fr) var(--ux-status-bar-height);

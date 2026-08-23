@@ -1,3 +1,15 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#665. */
+.master-curve-workbench.compact .form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#668. */
+@media (max-width: 760px) {
+  .master-curve-workbench.compact .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .curve-plot polyline.prediction-line {
   stroke: #287d78;
   stroke-dasharray: 7 4;

@@ -1,3 +1,128 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#348. */
+.modeling-plot-toolbar .plot-interaction-modes {
+  background: #eef4f4;
+  border-radius: 0.5rem;
+  padding: 0.18rem;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#187. */
+.persistent-modeling-plot .engineering-plot-frame > .processing-curve,
+.persistent-modeling-plot .engineering-plot-frame > .engineering-curve-plot-empty-svg {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#267. */
+.persistent-modeling-plot > .engineering-plot-frame {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: stretch;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#268. */
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend {
+  position: absolute;
+  z-index: 2;
+  right: var(--ux-space-4);
+  top: var(--ux-space-2);
+  bottom: auto;
+  max-width: calc(100% - var(--ux-space-4) - var(--ux-space-4));
+  max-height: calc(100% - var(--ux-space-2) - var(--ux-space-2));
+  margin: 0;
+  padding: var(--ux-space-1) var(--ux-space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  background: color-mix(in srgb, var(--ux-surface) 90%, transparent);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#269. */
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: auto;
+  max-width: var(--ux-plot-legend-max-inline-size);
+  gap: var(--ux-space-1);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#270. */
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button {
+  min-height: 16px;
+  justify-content: start;
+  padding: 1px 3px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#271. */
+.engineering-curve-plot-empty-overlay .button {
+  min-height: 28px;
+  padding: 4px 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#404. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot {
+  grid-template-columns: minmax(0, 1fr) auto auto; grid-template-rows: 31px minmax(0, 1fr); padding: 6px 9px 8px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#405. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading {
+  min-height: 31px; border-bottom: 1px solid var(--ux-border);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#406. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption {
+  font-size: 14px; font-weight: 600;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#407. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot .hardening-analysis-tabs {
+  align-self: center;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#408. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot .hardening-analysis-tabs button {
+  min-height: 25px; font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#491. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#533. */
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend {
+  right: var(--ux-space-4);
+  max-width: calc(100% - var(--ux-space-4) - var(--ux-space-4));
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#534. */
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button,
+.modeling-workspace-stage-process .persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button,
+.modeling-workspace-stage-fit .persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#537. */
+.engineering-curve-plot-empty-overlay .button {
+  min-height: var(--ux-control-min-block-size);
+}
+
 .modeling-plot-toolbar {
   align-items: center;
   display: flex;

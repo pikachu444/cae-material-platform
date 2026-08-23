@@ -1,0 +1,37 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#591. */
+.distribution-command-bar {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(300px, 1.35fr) minmax(190px, .7fr) max-content;
+  align-items: end;
+  gap: var(--ux-space-3);
+  min-width: 0;
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#660. */
+.distribution-decision-actions :is(.text-button, .button) {
+  min-height: var(--ux-input-min-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#678. */
+.field-error {
+  display: block; color: var(--ux-warning);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#679. */
+@media (max-width: 1100px) {
+  .distribution-command-bar {
+    grid-template-columns: minmax(250px, 1fr) max-content;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#685. */
+@media (max-height: 800px) {
+  .distribution-command-bar {
+    padding-block: var(--ux-space-1);
+  }
+}

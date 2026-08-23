@@ -32,10 +32,7 @@ test("accepts a committed inventory whose sourceSha is a historical ancestor", (
     /("sourceSha"\s*:\s*")[0-9a-f]{40}(")/,
     `$1${currentHead}$2`,
   );
-  const combinedOffset = renderedWithSource.indexOf('"combinedB4"');
-  const rendered = `${renderedWithSource.slice(0, combinedOffset)}${renderedWithSource
-    .slice(combinedOffset)
-    .replace(/("sourceCommit"\s*:\s*")[0-9a-f]{40}(")/, `$1${currentHead}$2`)}`;
+  const rendered = renderedWithSource;
 
   assert.equal(reconcileInventorySourceSha(committed, rendered), rendered);
 });
@@ -1801,9 +1798,9 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
     );
   }
   assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
-    id: "M1A21-modeling-data-component-region",
+    id: "M6-zero-consumer-audit-and-removal",
     status: "owner-packet-required",
-    scope: "Select one remaining M1A Data component region from the regenerated inventory after M1A20; do not migrate all remaining M1A rows together.",
+    scope: "Audit the 533 zero-consumer candidate rows as one large evidence-led packet; treat the set as candidates, preserve false positives in HOLD, and remove only selectors with complete producer/reference/runtime proof.",
   });
 });
 
@@ -1851,5 +1848,19 @@ test("preserves standalone B1/M2/M3 checkpoints and records the combined B4 hand
       "M6-zero-consumer-removal-candidate": 533,
     },
   });
-  assert.equal(inventory.migrationPlan.combinedB4.status, "MAIN-REQUIRED");
+  assert.equal(inventory.migrationPlan.combinedB4.status, "ACCEPTED_MAIN_VISUAL_AND_RUNTIME");
+  const m4 = checkpoints.get("M4-shared-css-ownership-consolidation");
+  assert.equal(m4.candidate.rows, 314);
+  assert.equal(m4.candidate.groups, 262);
+  assert.equal(m4.approvedMove.rows, 288);
+  assert.equal(m4.approvedMove.groups, 243);
+  assert.equal(m4.acceptedInPlace.rows, 11);
+  assert.equal(m4.retainedBoundary.rows, 19);
+  assert.deepEqual(m4.current, {
+    selectorRows: 1103,
+    cssRuleGroups: 941,
+    holdRows: 525,
+    acceptedInPlaceRows: 11,
+    crossCssDuplicateRows: 6,
+  });
 });

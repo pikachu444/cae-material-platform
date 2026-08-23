@@ -1,3 +1,186 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#135. */
+.modeling-context-actions .button {
+  min-height: 26px; padding: 3px 9px; font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#136. */
+.application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-advanced-menu > summary) {
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  padding: 5px 9px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#139. */
+.application-shell:has(.processing-workbench-page) .modeling-context-strip {
+  min-height: 50px;
+  flex-basis: 50px;
+  padding-inline: 10px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#140. */
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell {
+  min-height: 34px;
+  flex-basis: 34px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#141. */
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
+  min-height: 34px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#231. */
+.modeling-ribbon-actions .button {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#258. */
+.modeling-pane-divider {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 var(--ux-splitter-inline-size);
+  width: var(--ux-splitter-inline-size);
+  background: var(--ux-border);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#259. */
+.modeling-pane-divider:hover,
+.modeling-pane-divider:focus-visible {
+  background: var(--ux-accent);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#261. */
+.modeling-pane-divider > button {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 2px;
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  cursor: pointer;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#262. */
+.modeling-pane-divider > button {
+  top: 10px;
+  left: -5px;
+  width: 15px;
+  height: 26px;
+  padding: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#263. */
+.modeling-pane-divider > button:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: 2px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#294. */
+.rail-statistics-action .button {
+  min-height: 28px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#298. */
+.plot-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#299. */
+.plot-view-switch > button {
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#300. */
+.plot-view-switch > button.active {
+  border-color: var(--ux-accent);
+  background: var(--ux-accent);
+  color: #fff;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#301. */
+.plot-view-switch > button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#336. */
+.application-shell main.processing-workbench-page :is(label, legend, small, code),
+.application-shell main.processing-workbench-page .modeling-support-drawer summary span,
+.application-shell main.processing-workbench-page .mapping-note {
+  font-size: 12px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#427. */
+.processing-workbench-page > .error-banner {
+  position: fixed;
+  z-index: 30;
+  top: calc(var(--ux-shell-top-height) + var(--ux-space-3));
+  right: clamp(16px, 1.7vw, 32px);
+  width: min(520px, calc(100vw - 32px));
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#428. */
+.processing-workbench-page .button.primary {
+  border-color: var(--ux-accent);
+  background: var(--ux-accent);
+  color: #fff;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#429. */
+.processing-workbench-page .button.primary:hover {
+  border-color: var(--ux-accent-hover);
+  background: var(--ux-accent-hover);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#497. */
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell,
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#499. */
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell {
+  flex-basis: var(--ux-interactive-min-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#506. */
+.application-shell main.processing-workbench-page .modeling-context-actions > .modeling-advanced-menu {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  min-height: 0;
+  height: auto;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#521. */
+.modeling-ribbon-actions .button {
+  min-height: var(--ux-control-min-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#523. */
+.modeling-ribbon-actions .button {
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+}
+
 .method-registry-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));

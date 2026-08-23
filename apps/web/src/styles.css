@@ -1,40 +1,14 @@
-:root {
-  color: #17212b;
-  background: #edf1f3;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-}
 
 
 
 
 
-.error-banner,
-.success-banner {
-  border-radius: 10px;
-  padding: 0.8rem 1rem;
-  font-weight: 650;
-}
 
-.error-banner {
-  background: #fff0f1;
-  border: 1px solid #e6a4aa;
-  color: #8b1f29;
-}
 
-.success-banner {
-  background: #ecf8f2;
-  border: 1px solid #8bc9ac;
-  color: #175d3d;
-}
+
+
+
+
 
 
 
@@ -73,40 +47,6 @@
 
 
 
-.administration-record-workbench
-  > :is(
-    .record-administration-header,
-    .catalog-search-panel,
-    .registration-panel,
-    .catalog-record-grid,
-    .error-banner,
-    .success-banner
-  ) {
-  width: 100%;
-  max-width: none;
-  box-sizing: border-box;
-  margin-inline: 0;
-}
-
-.administration-record-workbench > .content-card,
-.administration-record-workbench .catalog-record-grid > .content-card {
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-  box-shadow: none;
-}
-
-
-
-
-
-
-
-.administration-record-workbench
-  .catalog-record-grid
-  > .content-card:not(:last-child) {
-  border-right: 1px solid var(--border);
-}
 
 
 
@@ -118,9 +58,18 @@
 
 
 
-.range-filter-row .button {
-  flex: 0 0 auto;
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -215,27 +164,13 @@
   box-sizing: border-box;
 }
 
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-}
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
 
-button {
-  cursor: pointer;
-}
 
-button:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
+
+
+
+
 
 .connection-button,
 .text-button,
@@ -338,9 +273,7 @@ button:disabled {
   font-size: 0.82rem;
 }
 
-.module-material-card .button {
-  align-self: flex-start;
-}
+
 
 .count-chip {
   padding: 0.3rem 0.55rem;
@@ -445,36 +378,15 @@ h4 {
   gap: 0.75rem;
 }
 
-.button {
-  min-height: 40px;
-  padding: 0.65rem 1rem;
-  border: 1px solid transparent;
-  border-radius: 7px;
-  font-size: 0.88rem;
-  font-weight: 700;
-}
 
-.button.primary {
-  border-color: #0f6966;
-  color: #fff;
-  background: #147a76;
-  box-shadow: 0 2px 5px rgb(10 82 78 / 18%);
-}
 
-.button.primary:hover {
-  background: #0d6966;
-}
 
-.button.secondary {
-  border-color: #a8bec2;
-  color: #234852;
-  background: #f9fbfb;
-}
 
-.button.secondary:hover {
-  border-color: #78959a;
-  background: #f1f6f5;
-}
+
+
+
+
+
 
 .text-button,
 .back-link {
@@ -619,38 +531,13 @@ h4 {
   flex: 1;
 }
 
-label {
-  display: grid;
-  gap: 0.35rem;
-  color: #395660;
-  font-size: 0.8rem;
-  font-weight: 750;
-}
 
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 0.6rem 0.65rem;
-  border: 1px solid #b8c9cb;
-  border-radius: 6px;
-  outline: none;
-  color: #1d353e;
-  background: #fff;
-  font-size: 0.9rem;
-  font-weight: 450;
-}
 
-textarea {
-  resize: vertical;
-}
 
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: #16817c;
-  box-shadow: 0 0 0 3px rgb(42 150 143 / 16%);
-}
+
+
+
+
 
 .form-stack {
   display: grid;
@@ -700,11 +587,7 @@ select:focus {
   line-height: 1.45;
 }
 
-.button.danger {
-  border-color: #bb6b68;
-  color: #fff;
-  background: #a33e3a;
-}
+
 
 .revision-chip.review,
 .revision-chip.changes_requested,
@@ -730,26 +613,11 @@ select:focus {
 
 
 
-.empty-state {
-  display: grid;
-  max-width: 720px;
-  gap: 1rem;
-  padding: clamp(2rem, 7vw, 4rem);
-  border: 1px dashed #a8c0c3;
-  border-radius: 14px;
-  background: #f9fdfc;
-}
 
-.empty-state h2 {
-  margin-bottom: 0;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-}
 
-.empty-state p {
-  margin-bottom: 0;
-  color: #4e6970;
-  line-height: 1.65;
-}
+
+
+
 
 .detail-hero {
   align-items: flex-start;
@@ -1088,11 +956,7 @@ dd {
 
 
 
-.neutral-solver-export .button-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
+
 
 .delivery-progress li.complete {
   background: #ecf8f4;
@@ -1193,7 +1057,7 @@ dd {
 
 .export-reference-marker { color: var(--muted); font-size: 0.7rem; font-weight: 650; }
 
-.modeling-export-recovery .button { width: 100%; }
+
 
 .export-status-ready-to-create { color: #276b49; }
 .export-status-review-required { color: #8a5a13; }
@@ -1222,11 +1086,7 @@ dd {
    prerequisite variant on its existing three-region topology while sharing
    the same compact grammar and local scroll ownership. */
 @media (min-width: 1101px) {
-  .application-shell main.processing-workbench-page > .export-workspace {
-    flex: 1 1 auto;
-    height: auto;
-    min-height: 0;
-  }
+
 
   .modeling-target-preview .export-properties > .text-button,
   .modeling-export-blocked .export-properties > .text-button {
@@ -1292,7 +1152,7 @@ dd {
   .modeling-target-preview .export-mapping-status.unsupported { color: #923b2b; }
   .modeling-target-preview .export-mapping-status.not_applicable { color: #5d6a71; }
 
-  .modeling-export-blocked .modeling-export-recovery .button.primary { min-height: var(--ux-control-min-block-size); }
+
 
 }
 
@@ -1300,40 +1160,15 @@ dd {
    the native viewport scrollable for wheel/keyboard semantics while removing
    only the browser scrollbar so it cannot create a second rail. */
 
-.application-shell main.processing-workbench-page.stage-export > #modeling-output {
-  flex: 0 0 var(--ux-interactive-min-block-size);
-  min-height: var(--ux-interactive-min-block-size);
-  margin: 0;
-  border: 0;
-  border-top: 1px solid #c9d1d6;
-  border-radius: 0;
-  background: #f7f9fa;
-  overflow: hidden;
-}
 
-.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary {
-  min-height: var(--ux-interactive-min-block-size);
-  height: var(--ux-interactive-min-block-size);
-  padding: 0 var(--ux-space-3);
-  border: 0;
-  border-radius: 0;
-  font-size: var(--ux-metadata-font-size);
-}
 
-.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary strong {
-  font-size: var(--ux-metadata-font-size);
-}
 
-.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary small,
-.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary > span:last-child {
-  font-size: var(--ux-metadata-font-size);
-}
 
-.application-shell main.processing-workbench-page.stage-export > #modeling-output[open] {
-  flex: 0 0 auto;
-  max-height: min(42vh, 360px);
-  overflow: auto;
-}
+
+
+
+
+
 
 .target-delivery-action .ux-notice {
   min-width: 0;
@@ -1470,9 +1305,7 @@ summary {
 
 
 
-.genealogy-link-form .button {
-  justify-self: start;
-}
+
 
 
 
@@ -1574,12 +1407,7 @@ summary {
   gap: 1rem;
 }
 
-.application-workspace:has(.governed-import-route) {
-  width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));
-  max-width: var(--ux-workspace-max-inline-size);
-  margin-inline: auto;
-  padding: 1rem 0 3rem;
-}
+
 
 .governed-import-route {
   display: grid;
@@ -1612,10 +1440,7 @@ summary {
   color: #607278;
   font-size: 0.76rem;
 }
-.governed-import-route-header .button {
-  min-height: 2rem;
-  padding: 0.38rem 0.65rem;
-}
+
 
 .governed-import-route > .governed-import {
   margin: 0;
@@ -1707,9 +1532,7 @@ summary {
   background: color-mix(in srgb, var(--accent) 9%, var(--surface));
 }
 
-.promotion-confirmation > .button {
-  justify-self: start;
-}
+
 
 
 
@@ -1870,9 +1693,7 @@ summary {
 
 
 
-.table-node {
-  font-weight: 750;
-}
+
 
 
 
@@ -1915,9 +1736,7 @@ summary {
 
 
 
-.link-type-form .button {
-  align-self: end;
-}
+
 
 
 
@@ -2286,11 +2105,7 @@ summary {
   box-shadow: inset 0 0 0 1px #173b44;
   color: #fff;
 }
-.modeling-plot-toolbar .plot-interaction-modes {
-  background: #eef4f4;
-  border-radius: 0.5rem;
-  padding: 0.18rem;
-}
+
 .hardening-analysis-tabs button.active {
   background: #fff;
   box-shadow: 0 1px 3px rgb(20 50 56 / 14%);
@@ -2673,12 +2488,7 @@ summary {
   white-space: nowrap;
 }
 
-.session-shell main {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-}
+
 
 .product-session-boundary {
   align-items: center;
@@ -2748,11 +2558,7 @@ summary {
   font-size: 0.72rem;
   margin: 0.2rem 0 0;
 }
-.material-database-toolbar > .button.secondary {
-  background: #f4faf7;
-  border-color: #f4faf7;
-  color: #174d3c;
-}
+
 
 .material-database-search {
   align-items: center;
@@ -2775,12 +2581,7 @@ summary {
   background: #f2f6f4;
   border-right: 1px solid #d5dfdb;
 }
-.material-database-search .button {
-  border-radius: 6px;
-  margin: 0.25rem;
-  min-height: 34px;
-  padding-block: 0.4rem;
-}
+
 
 .material-database-workspace {
   background: #fff;
@@ -3855,18 +3656,9 @@ summary {
   grid-column: 1 / -1;
 }
 
-.reference-elastoplastic-workbench.embedded .neutral-solver-export > .form-grid,
-.reference-elastoplastic-workbench.embedded
-  .neutral-solver-export
-  > .error-banner {
-  grid-column: 2;
-}
 
-.reference-elastoplastic-workbench.embedded
-  .neutral-solver-export.has-card
-  > .form-grid {
-  grid-column: 1 / -1;
-}
+
+
 .mapping-status-legend .mapping-status {
   font-size: 0.58rem;
 }
@@ -4018,9 +3810,7 @@ summary {
   z-index: 2;
 }
 
-.master-curve-workbench.compact .form-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
+
 
 .reference-linear-viscoelastic-workbench.embedded
   .viscoelastic-result.embedded
@@ -4040,9 +3830,7 @@ summary {
     width: calc(100vw - 16px);
   }
 
-  .master-curve-workbench.compact .form-grid {
-    grid-template-columns: 1fr;
-  }
+
 }
 
 

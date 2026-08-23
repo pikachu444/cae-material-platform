@@ -1,3 +1,58 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#7. */
+.administration-record-workbench
+  > :is(
+    .record-administration-header,
+    .catalog-search-panel,
+    .registration-panel,
+    .catalog-record-grid,
+    .error-banner,
+    .success-banner
+  ) {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin-inline: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#8. */
+.administration-record-workbench > .content-card,
+.administration-record-workbench .catalog-record-grid > .content-card {
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#10. */
+.administration-record-workbench
+  .catalog-record-grid
+  > .content-card:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#230. */
+.genealogy-link-form .button {
+  justify-self: start;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#285. */
+.table-node {
+  font-weight: 750;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#288. */
+.link-type-form .button {
+  align-self: end;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#175. */
+.schema-command-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 6px;
+}
+
 /* Issue #261 M3A-administration source-owned CSS. Generated from approved M3 selector tuples. */
 
 .catalog-schema-workbench {

@@ -1,3 +1,98 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#189. */
+.processing-workbench-page.stage-process .modeling-context-actions .button {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+  padding: 5px 9px;
+  line-height: 16px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#305. */
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .button,
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+  padding-block: 5px;
+  line-height: 16px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#307. */
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions {
+  align-items: center;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#308. */
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu {
+  gap: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#309. */
+.application-shell main.processing-workbench-page.stage-process .process-band-controls :is(input, select, button),
+.application-shell main.processing-workbench-page.stage-process .process-band-save :is(input, button) {
+  box-sizing: border-box;
+  min-height: 28px;
+  height: 28px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#311. */
+.application-shell main.processing-workbench-page.stage-process .process-band-save {
+  grid-template-columns: minmax(240px, .8fr) minmax(360px, 1.2fr) max-content;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#312. */
+.application-shell main.processing-workbench-page.stage-process .process-band-save > .button {
+  padding: 4px 8px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#313. */
+.application-shell main.processing-workbench-page.stage-process .process-band-controls input[type="range"] {
+  padding-block: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#314. */
+.application-shell main.processing-workbench-page.stage-process .process-band-save > label,
+.application-shell main.processing-workbench-page.stage-process .process-band-save > .button {
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#525. */
+@container (max-width: 820px) {
+  .application-shell main.processing-workbench-page .process-stage-options .process-band-save {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#526. */
+@container (max-width: 820px) {
+  .application-shell main.processing-workbench-page .process-stage-options .process-band-save > .button {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#528. */
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .button,
+.application-shell main.processing-workbench-page.stage-process .modeling-context-actions .modeling-advanced-menu > summary,
+.application-shell main.processing-workbench-page.stage-process .process-band-controls :is(input, select, button),
+.application-shell main.processing-workbench-page.stage-process .process-band-save :is(input, button) {
+  min-height: var(--ux-input-min-block-size);
+  height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#532. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon:has(.process-stage-options) {
+  height: auto;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
 /* Issue #261 owns Process stage-specific CSS; shared rules remain in the design layer. */
 
 .processing-input-card {

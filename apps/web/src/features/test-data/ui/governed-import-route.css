@@ -1,3 +1,9 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#253. */
+.governed-import-route-header .button {
+  min-height: 2rem;
+  padding: 0.38rem 0.65rem;
+}
+
 /* M1E5 frozen ownership move: apps/web/src/styles.css#268. */
 .governed-import-route .workflow-card {
   min-width: 0;
