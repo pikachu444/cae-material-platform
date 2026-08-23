@@ -1368,10 +1368,7 @@
   box-shadow: inset 3px 0 0 var(--ux-accent);
 }
 
-.contract-curve-svg:focus-visible {
-  outline: 2px solid var(--ux-focus);
-  outline-offset: -2px;
-}
+
 
 
 
@@ -1383,128 +1380,45 @@
   gap: var(--ux-space-3);
 }
 
-.contract-curve-heading {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: var(--ux-space-4);
-}
 
-.contract-curve-heading h3,
-.contract-curve-heading p,
-.curve-band-meaning {
-  margin: 0;
-}
 
-.contract-curve-heading p,
-.contract-curve-heading > span,
-.curve-band-meaning,
-.contract-curve-actions > span {
-  color: var(--ux-text-muted);
-  font-size: 12px;
-}
 
-.curve-channel-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ux-space-1) var(--ux-space-4);
-  color: var(--ux-text-muted);
-  font-size: 12px;
-}
 
-.contract-curve-frame {
-  position: relative;
-  min-width: 0;
-  border-block: 1px solid var(--ux-border);
-  background: var(--ux-surface);
-}
 
-.contract-curve-svg {
-  display: block;
-  width: 100%;
-  height: clamp(300px, 40vh, 680px);
-  touch-action: none;
-}
 
-.contract-curve-line {
-  fill: none;
-  stroke: var(--ux-accent);
-  stroke-linejoin: round;
-  stroke-width: 2.5;
-  vector-effect: non-scaling-stroke;
-}
 
-.contract-curve-active {
-  pointer-events: none;
-}
 
-.contract-curve-active line {
-  stroke: var(--ux-text-muted);
-  stroke-dasharray: 4 3;
-  stroke-width: 1;
-}
 
-.contract-curve-active circle {
-  fill: var(--ux-surface);
-  stroke: var(--ux-accent);
-  stroke-width: 3;
-}
 
-.contract-curve-tooltip {
-  position: absolute;
-  z-index: 2;
-  display: grid;
-  max-width: min(360px, 78%);
-  padding: var(--ux-space-2) var(--ux-space-3);
-  border: 1px solid var(--ux-border-strong);
-  background: var(--ux-surface);
-  box-shadow: var(--ux-shadow-overlay);
-  color: var(--ux-text);
-  font-size: 12px;
-  gap: 2px;
-  pointer-events: none;
-  transform: translate(12px, calc(-100% - 12px));
-}
 
-.contract-curve-tooltip span {
-  color: var(--ux-text-muted);
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 .engineering-plot-frame {
   position: relative;
 }
 
-.contract-curve .curve-legend {
-  margin: 0;
-}
 
-.curve-legend i.contract-line {
-  background: var(--ux-accent);
-}
 
-.contract-curve-actions {
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-  gap: var(--ux-space-3);
-}
 
-.curve-evidence dl {
-  display: grid;
-  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
-  margin: var(--ux-space-3) 0 0;
-  gap: var(--ux-space-2) var(--ux-space-4);
-}
 
-.curve-evidence dt {
-  color: var(--ux-text-muted);
-}
 
-.curve-evidence dd {
-  min-width: 0;
-  margin: 0;
-  overflow-wrap: anywhere;
-}
+
+
+
+
+
+
 
 @media (max-width: 900px) {
 
@@ -3146,7 +3060,6 @@
   font-size: 14px;
 }
 
-.test-json-page .workbench-card,
 .advanced-canonical-json {
   border-color: var(--ux-border);
   border-radius: var(--ux-radius-panel);

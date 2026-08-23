@@ -1018,21 +1018,9 @@ dd {
 }
 
 
-.curve-legend::before {
-  display: inline-block;
-  width: 1rem;
-  height: 0.2rem;
-  margin-right: 0.28rem;
-  vertical-align: middle;
-  content: "";
-}
 
-.curve-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
+
+
 
 
 
@@ -1098,13 +1086,7 @@ dd {
   background: #fff3f0;
 }
 
-.mapping-report-heading,
-.card-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
+
 
 .neutral-solver-export .button-row {
   display: flex;
@@ -1375,9 +1357,7 @@ dd {
   margin: 0;
 }
 
-.card-actions {
-  justify-content: flex-end;
-}
+
 
 details {
   display: grid;
@@ -1554,11 +1534,7 @@ summary {
     display: grid;
   }
 
-  .mapping-report-heading,
-.card-actions {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+
 
   .search-form {
     align-items: stretch;
@@ -1678,30 +1654,13 @@ summary {
   gap: 0;
 }
 
-.governed-import-route .workflow-card {
-  min-width: 0;
-  padding: 0.8rem;
-  border-right: 1px solid #dce3e4;
-}
 
-.governed-import-route .workflow-card:last-child {
-  border-right: 0;
-}
-.governed-import-route .workflow-card h4 {
-  margin-bottom: 0.65rem;
-  font-size: 0.84rem;
-}
-.governed-import-route .workflow-card label {
-  font-size: 0.72rem;
-}
-.governed-import-route .workflow-card input,
-.governed-import-route .workflow-card select {
-  min-height: 2rem;
-  padding: 0.35rem 0.45rem;
-}
-.governed-import-route .workflow-card button {
-  min-height: 2rem;
-}
+
+
+
+
+
+
 
 .governed-import-empty {
   display: grid;
@@ -1721,13 +1680,8 @@ summary {
   .governed-import-route .workflow-grid {
     grid-template-columns: 1fr;
   }
-  .governed-import-route .workflow-card {
-    border-right: 0;
-    border-bottom: 1px solid #dce3e4;
-  }
-  .governed-import-route .workflow-card:last-child {
-    border-bottom: 0;
-  }
+
+
 }
 
 @media (max-width: 700px) {
@@ -2047,23 +2001,14 @@ summary {
 
 
 
-.channel-preview small,
-.digest-line span {
+.channel-preview small {
   color: var(--muted);
   font-size: 12px;
 }
 
-.digest-line {
-  display: grid;
-  gap: 5px;
-  margin: 14px 0 22px;
-}
 
-.digest-line code {
-  overflow-wrap: anywhere;
-  color: var(--teal-dark);
-  font-size: 11px;
-}
+
+
 
 
 
@@ -2385,70 +2330,21 @@ summary {
     Consolas,
     monospace;
 }
-.chart-axis {
-  stroke: #89a0a4;
-  stroke-width: 1;
-}
-.chart-grid {
-  stroke: #dbe5e4;
-  stroke-width: 1;
-}
-.chart-tick,
-.chart-axis-label {
-  fill: #466064;
-  font-family: var(--body-font);
-  font-size: 12px;
-}
-.chart-axis-label {
-  font-size: 12px;
-  font-weight: 700;
-}
+
+
+
+
 .curve-line.source {
   stroke: #8e9ca0;
   stroke-dasharray: 6 5;
 }
-.curve-legend {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.6rem;
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-.curve-legend span {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-.curve-legend i {
-  width: 1.5rem;
-  height: 3px;
-  background: #8e9ca0;
-}
-.curve-legend.interactive {
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-.curve-legend.interactive button {
-  align-items: center;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--ink);
-  cursor: pointer;
-  display: inline-flex;
-  font-size: 0.72rem;
-  gap: 0.35rem;
-  padding: 0.3rem 0.55rem;
-}
-.curve-legend.interactive button.hidden {
-  opacity: 0.45;
-  text-decoration: line-through;
-}
-.curve-legend.interactive i {
-  border-radius: 999px;
-  display: inline-block;
-  flex: 0 0 1.2rem;
-}
+
+
+
+
+
+
+
 .candidate-evidence-list {
   display: grid;
   gap: 0.42rem;
@@ -2603,15 +2499,8 @@ summary {
   margin-top: 1rem;
 }
 
-.ensemble-confidence-band {
-  fill: rgb(47 143 131 / 14%);
-  pointer-events: none;
-  stroke: rgb(47 143 131 / 45%);
-  stroke-width: 1;
-}
-.curve-legend i.confidence {
-  background: #8d5bb0;
-}
+
+
 .recipe-library-card {
   min-width: 0;
 }

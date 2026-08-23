@@ -1,0 +1,83 @@
+{
+  "phase": "before",
+  "route": "/modeling?stage=fit&family=elastomer",
+  "viewport": {
+    "name": "1920x1080",
+    "width": 1920,
+    "height": 1080
+  },
+  "geometry": {
+    "innerWidth": 1920,
+    "innerHeight": 1080,
+    "scrollWidth": 1920,
+    "scrollHeight": 1080,
+    "rootWidth": 1920,
+    "rootHeight": 1030,
+    "bodyText": "CMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nDemo workspace\nFit Material Model\nELASTOMER-OGDEN / Select Test Data\nNot calculated\nAdvanced\nPreview changes\nSave fit & continue\nData\nProcess\nFit\nExport\nMATERIAL\nChoose Material context\nSynthetic Elastomer Ogden-Prony · r1\nMATERIAL STATE\nChoose Material State\nReference cured · r1\nOpen full datasheet\n\nELASTOMER MATERIAL MODELING\n\nMulti-mode hyperelastic model comparison\n\nConfigure uniaxial, planar and biaxial evidence, compare public model families, review holdout response and promote the selected result without leaving this workbench.\n\nREFERENCE · SOLVER-NEUTRAL\n1 profile · 4 curves\nRefresh inputs\nAdvanced recovery and Neutral JSON interchange\n\nFIT · PUBLIC CONSTITUTIVE MODELS\n\nCompare the same exact curves across four families\n3 FIT · 1 HOLDOUT · 3 MODES\nBEST FIT\nOgden 1\nnRMSE 1.036e-12\nstable on fitted domain\nmonotonic on fitted domain\nYeoh\nnRMSE 1.089e-12\nstable on fitted domain\nmonotonic on fitted domain\nNeo Hookean\nnRMSE 1.118e-12\nstable on fitted domain\nmonotonic on fitted domain\nMooney Rivlin\nnRMSE 2.935e-9\nstable on fitted domain\n\nSELECTED CANDIDATE · EXACT DIAGNOSTICS\n\nogden 1 response "
+  },
+  "crops": {
+    "header": {
+      "width": 1920,
+      "height": 50,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "CMPCAE Material PlatformMaterial data and solver deliveryMaterialsModelingActivityDemo workspaceAdministrationDisplay densityCompactStandardLargeReset display density"
+    },
+    "navigator": {
+      "width": 218.671875,
+      "height": 49,
+      "display": "flex",
+      "overflow": "visible",
+      "text": "MaterialsModelingActivity"
+    },
+    "table-form": {
+      "width": 1838.8125,
+      "height": 331.921875,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "Selected model resultogden 1 · referenceexact revisionsSelection reasonSelect one-term Ogden after reviewing all four families, the three fit modes, holdout response, stability, and the exact residual Artifact.Model revisionExact model revi"
+    },
+    "stage-controls": {
+      "width": 1809.625,
+      "height": 39.78125,
+      "display": "flex",
+      "overflow": "visible",
+      "text": "Download exact Neutral JSONReturn to Material datasheet"
+    },
+    "engineering-graph": {
+      "width": 1868,
+      "height": 4916.234375,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "Elastomer Material ModelingMulti-mode hyperelastic model comparisonConfigure uniaxial, planar and biaxial evidence, compare public model families, review holdout response and promote the selected result without leaving this workbench.refere"
+    },
+    "native-preview": {
+      "width": 1838.8125,
+      "height": 564.484375,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "ogden 1 → abaqusReport SHA-256 dfbd26f279980f27…exportableexactdensity · *DENSITYSI density is emitted unchanged.exactconstitutive parameters · *HYPERELASTICReviewed hyperelastic coefficients map without refitting.exactshear prony overlay ·"
+    }
+  },
+  "selectorApplications": [
+    {
+      "id": "CSS-0897",
+      "locator": "section.neutral-solver-export[aria-label=\"Reviewed Neutral Material and solver card delivery\"] .mapping-report-heading",
+      "baseSelector": ".mapping-report-heading",
+      "matchSelector": ".mapping-report-heading",
+      "pseudoElement": null,
+      "computed": {
+        "align-items": "center",
+        "display": "flex",
+        "gap": "12px",
+        "justify-content": "space-between"
+      },
+      "geometry": {
+        "x": 54.390625,
+        "y": 608.609375,
+        "width": 1811.21875,
+        "height": 36.1875
+      }
+    }
+  ]
+}

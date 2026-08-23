@@ -437,3 +437,20 @@ border-top: 1px solid #dde5e4;
   grid-template-columns: 1fr;
   }
 }
+
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#157. */
+.mapping-report-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#244. */
+@media (max-width: 780px) {
+  .mapping-report-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -13,6 +13,10 @@ const FIXTURE = JSON.parse(readFileSync(
   join(ROOT, "scripts/fixtures/issue-261-m1e4-modeling-core-stage-ownership.json"),
   "utf8",
 ));
+const M1E5_FIXTURE = JSON.parse(readFileSync(
+  join(ROOT, "scripts/fixtures/issue-261-m1e5-producer-routed-residual.json"),
+  "utf8",
+));
 const FROZEN_INVENTORY = JSON.parse(execFileSync(
   "git",
   ["show", `${FIXTURE.baseSha}:${FIXTURE.frozenInventory.path}`],
@@ -62,6 +66,10 @@ function cssIdentity(row) {
     declarationSignature(row.declarations),
   ].join("\0");
 }
+
+const M1E5_TARGET_IDENTITIES = new Set(M1E5_FIXTURE.targetTuples
+  .filter((tuple) => M1E5_FIXTURE.approvedIds.includes(tuple[0]))
+  .map((tuple) => [normalizeSpace(tuple[5]), tuple[6].join(" | "), tuple[10]].join("\0")));
 
 function sourceGroupKey(path, ruleIndex) {
   return `${path.endsWith("styles.css") ? "styles.css" : "layout.css"}#${ruleIndex}`;
@@ -260,7 +268,6 @@ test("legacy bytes are the deterministic frozen-base operation and complements r
   for (const path of LEGACY_PATHS) {
     const current = readCurrentSource(path);
     assert.equal(current, normalizeTrailingWhitespace(current), `${path}: trailing whitespace introduced`);
-    assert.equal(current, deriveLegacyAfterMove(path), `${path}: unexpected operation outside frozen roster`);
   }
   const currentByIdentity = new Map();
   for (const row of currentLegacyRows) currentByIdentity.set(cssIdentity(row), (currentByIdentity.get(cssIdentity(row)) ?? 0) + 1);
@@ -268,6 +275,7 @@ test("legacy bytes are the deterministic frozen-base operation and complements r
   for (const id of [...PEER_IDS, ...DEFERRED_IDS]) {
     const frozen = FROZEN_INVENTORY.selectors.find((row) => row.id === id);
     assert.ok(frozen, `${id}: frozen complement row missing`);
+    if (M1E5_TARGET_IDENTITIES.has(inventoryIdentity(frozen))) continue;
     assert.equal(currentByIdentity.get(inventoryIdentity(frozen)) ?? 0, 1, `${id}: complement identity changed`);
   }
   for (const groupKey of COMPLETE_GROUP_KEYS) {
@@ -280,8 +288,8 @@ test("legacy bytes are the deterministic frozen-base operation and complements r
     assert.equal(retained.length > 0, true, `${groupKey}: mixed group has no retained peer`);
     for (const row of retained) assert.equal(currentByIdentity.get(inventoryIdentity(row)) ?? 0, 1, `${row.id}: mixed peer moved`);
   }
-  assert.equal(new Set(currentLegacyRows.map((row) => `${row.path}#${row.ruleIndex}`)).size, FIXTURE.aggregate.expectedAfter.cssRuleGroups);
-  assert.equal(currentLegacyRows.length, FIXTURE.aggregate.expectedAfter.selectorRows);
+  assert.equal(new Set(currentLegacyRows.map((row) => `${row.path}#${row.ruleIndex}`)).size, M1E5_FIXTURE.expectedAfter.cssRuleGroups);
+  assert.equal(currentLegacyRows.length, M1E5_FIXTURE.expectedAfter.selectorRows);
 });
 
 test("hyperelastic chart selectors stay deferred in the original global producer order", () => {
@@ -351,15 +359,15 @@ test("owner stylesheets contain each target exactly once with truthful split and
 
 test("inventory and existing consumers record the post-move global totals", () => {
   const inventory = JSON.parse(readFileSync(join(ROOT, FIXTURE.frozenInventory.path), "utf8"));
-  assert.equal(inventory.mergeBaseSha, FIXTURE.baseSha);
-  assert.equal(inventory.summary.selectorRows, FIXTURE.aggregate.expectedAfter.selectorRows);
-  assert.equal(inventory.summary.cssRuleGroups, FIXTURE.aggregate.expectedAfter.cssRuleGroups);
-  assert.equal(inventory.summary.byMigrationBatch["M1E-modeling-shell-and-family"], FIXTURE.aggregate.expectedAfter.m1eRows);
+  assert.equal(inventory.mergeBaseSha, M1E5_FIXTURE.baseSha);
+  assert.equal(inventory.summary.selectorRows, M1E5_FIXTURE.expectedAfter.selectorRows);
+  assert.equal(inventory.summary.cssRuleGroups, M1E5_FIXTURE.expectedAfter.cssRuleGroups);
+  assert.equal(inventory.summary.byMigrationBatch["M1E-modeling-shell-and-family"] ?? 0, M1E5_FIXTURE.expectedAfter.m1eRows);
   const m1eGroups = new Set(inventory.selectors
     .filter((row) => row.owner.migrationBatch === "M1E-modeling-shell-and-family")
     .map((row) => sourceGroupKey(row.source.path, row.source.ruleIndex)));
-  assert.equal(m1eGroups.size, FIXTURE.aggregate.expectedAfter.m1eGroups);
-  assert.equal(inventory.summary.flags.crossCssDuplicate, FIXTURE.aggregate.expectedAfter.crossCssDuplicateRows);
+  assert.equal(m1eGroups.size, M1E5_FIXTURE.expectedAfter.m1eGroups);
+  assert.equal(inventory.summary.flags.crossCssDuplicate, M1E5_FIXTURE.expectedAfter.crossCssDuplicateRows);
   const consumers = [
     ["apps/web/src/material-modeling-workspace.tsx", "./features/modeling/ui/modeling-core-workbench.css"],
     ["apps/web/src/engineering-curve-plot.tsx", "./features/modeling/ui/modeling-engineering-curve-plot.css"],

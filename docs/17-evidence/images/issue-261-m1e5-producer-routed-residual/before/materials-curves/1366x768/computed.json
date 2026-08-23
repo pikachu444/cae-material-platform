@@ -1,0 +1,334 @@
+{
+  "phase": "before",
+  "route": "http://127.0.0.1:32772/materials/7bb58838-63e2-4f69-80b9-97dea9eeaf17/curves?record_id=2229bb0e-cc02-43dd-aaa1-03ac583a83d5&record_revision_id=2a942de3-53d3-4457-9c53-ff9a761d4c2b&material_revision_id=43b73494-be54-4b18-8f5f-0f113a4e3c3e",
+  "viewport": {
+    "name": "1366x768",
+    "width": 1366,
+    "height": 768
+  },
+  "geometry": {
+    "innerWidth": 1366,
+    "innerHeight": 768,
+    "scrollWidth": 1366,
+    "scrollHeight": 768,
+    "rootWidth": 1366,
+    "rootHeight": 650,
+    "bodyText": "CMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo user\nMaterial Detail\nBack to results\nResults\nBrowse\nBrowse\n4 categories\nFind\nExpand a category to browse its data.\nTechnical Data\nDP780 synthetic reference steel\nSynthetic Elastomer Ogden-Prony\nSynthetic Polymer Prony\nTest Data\nSimulation Data\nSolver Cards\nChoose a category to list data. Click a result to open details.\nDP780 synthetic reference steel\n\nSynthetic reference data; not validated for engineering use.\n\nCMP-DEMO-DP780\ndual-phase steel\nSynthetic reference data\nStart Modeling\nRequest review\nOverview\nProperties\nCurves\nCAE Cards\nEvidence\n\nTest and model data\n\nCurves\n\nInspect channel meaning, units, deviation evidence, and exact revision before opening an eligible Test Data curve in Modeling.\n\nMaterial data\n\nMaterial overview\n\nEach curve is read from this exact immutable Record revision.\n\nObserved tensile curve\nStatistical curve · View only\nReplicate statistics curve\nStatistical curve · View only\nObserved tensile curve\n\nDeclared curve contract · revision 2a942de3\n\nView only\nEngineering strain: original 1 · normalized 1 · display 1\nEngineering stress: original Pa · normalized Pa · display Pa\n-0.009\n0.0246\n0.0582\n0.0918\n0"
+  },
+  "crops": {
+    "header": {
+      "width": 1366,
+      "height": 50,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "CMPCAE Material PlatformMaterial data and solver deliveryMaterialsModelingActivityDemo userAdministrationDisplay densityCompactStandardLargeReset display density"
+    },
+    "navigator": {
+      "width": 239.0625,
+      "height": 49,
+      "display": "flex",
+      "overflow": "visible",
+      "text": "MaterialsModelingActivity"
+    },
+    "table-form": {
+      "width": 287,
+      "height": 43,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "Find"
+    },
+    "engineering-graph": {
+      "width": 734.203125,
+      "height": 309.1875,
+      "display": "block",
+      "overflow": "visible",
+      "text": "-0.0090.02460.05820.09180.12540.159-3.7200e+71.0168e+82.4056e+83.7944e+85.1832e+86.5720e+8Engineering strain [1]Engineering stress [Pa]"
+    }
+  },
+  "selectorApplications": [
+    {
+      "id": "CSS-0160",
+      "locator": ".contract-curve-heading",
+      "baseSelector": ".contract-curve-heading",
+      "matchSelector": ".contract-curve-heading",
+      "pseudoElement": null,
+      "computed": {
+        "align-items": "start",
+        "display": "flex",
+        "gap": "18px",
+        "justify-content": "space-between"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -264.125,
+        "width": 734.203125,
+        "height": 38.1875
+      }
+    },
+    {
+      "id": "CSS-0161",
+      "locator": ".contract-curve-heading h3",
+      "baseSelector": ".contract-curve-heading h3",
+      "matchSelector": ".contract-curve-heading h3",
+      "pseudoElement": null,
+      "computed": {
+        "margin": "0px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -264.125,
+        "width": 230.375,
+        "height": 20.796875
+      }
+    },
+    {
+      "id": "CSS-0162",
+      "locator": ".contract-curve-heading p",
+      "baseSelector": ".contract-curve-heading p",
+      "matchSelector": ".contract-curve-heading p",
+      "pseudoElement": null,
+      "computed": {
+        "margin": "0px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -243.328125,
+        "width": 230.375,
+        "height": 17.390625
+      }
+    },
+    {
+      "id": "CSS-0164",
+      "locator": ".contract-curve-heading p",
+      "baseSelector": ".contract-curve-heading p",
+      "matchSelector": ".contract-curve-heading p",
+      "pseudoElement": null,
+      "computed": {
+        "color": "rgb(93, 104, 116)",
+        "font-size": "12px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -243.328125,
+        "width": 230.375,
+        "height": 17.390625
+      }
+    },
+    {
+      "id": "CSS-0165",
+      "locator": ".contract-curve-heading > span",
+      "baseSelector": ".contract-curve-heading > span",
+      "matchSelector": ".contract-curve-heading > span",
+      "pseudoElement": null,
+      "computed": {
+        "color": "rgb(93, 104, 116)",
+        "font-size": "12px"
+      },
+      "geometry": {
+        "x": 1279.859375,
+        "y": -264.125,
+        "width": 51.140625,
+        "height": 17.390625
+      }
+    },
+    {
+      "id": "CSS-0167",
+      "locator": ".contract-curve-actions > span",
+      "baseSelector": ".contract-curve-actions > span",
+      "matchSelector": ".contract-curve-actions > span",
+      "pseudoElement": null,
+      "computed": {
+        "color": "rgb(93, 104, 116)",
+        "font-size": "12px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": 190.21875,
+        "width": 238.21875,
+        "height": 17.390625
+      }
+    },
+    {
+      "id": "CSS-0168",
+      "locator": ".curve-channel-summary",
+      "baseSelector": ".curve-channel-summary",
+      "matchSelector": ".curve-channel-summary",
+      "pseudoElement": null,
+      "computed": {
+        "color": "rgb(93, 104, 116)",
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "font-size": "12px",
+        "gap": "5px 18px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -211.9375,
+        "width": 734.203125,
+        "height": 17.390625
+      }
+    },
+    {
+      "id": "CSS-0169",
+      "locator": ".contract-curve-frame",
+      "baseSelector": ".contract-curve-frame",
+      "matchSelector": ".contract-curve-frame",
+      "pseudoElement": null,
+      "computed": {
+        "background": "rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border-block": "1px solid rgb(203, 211, 218)",
+        "min-width": "0px",
+        "position": "relative"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -180.546875,
+        "width": 734.203125,
+        "height": 309.1875
+      }
+    },
+    {
+      "id": "CSS-0170",
+      "locator": ".contract-curve-svg",
+      "baseSelector": ".contract-curve-svg",
+      "matchSelector": ".contract-curve-svg",
+      "pseudoElement": null,
+      "computed": {
+        "display": "block",
+        "height": "307.188px",
+        "touch-action": "none",
+        "width": "734.203px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": -179.546875,
+        "width": 734.203125,
+        "height": 307.1875
+      }
+    },
+    {
+      "id": "CSS-0171",
+      "locator": ".contract-curve-line",
+      "baseSelector": ".contract-curve-line",
+      "matchSelector": ".contract-curve-line",
+      "pseudoElement": null,
+      "computed": {
+        "fill": "none",
+        "stroke": "rgb(36, 94, 168)",
+        "stroke-linejoin": "round",
+        "stroke-width": "2.5px",
+        "vector-effect": "non-scaling-stroke"
+      },
+      "geometry": {
+        "x": 709.5471801757812,
+        "y": -149.08531188964844,
+        "width": 547.2794799804688,
+        "height": 221.97511291503906
+      }
+    },
+    {
+      "id": "CSS-0178",
+      "locator": ".contract-curve .curve-legend",
+      "baseSelector": ".contract-curve .curve-legend",
+      "matchSelector": ".contract-curve .curve-legend",
+      "pseudoElement": null,
+      "computed": {
+        "margin": "0px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": 142.640625,
+        "width": 734.203125,
+        "height": 26.28125
+      }
+    },
+    {
+      "id": "CSS-0179",
+      "locator": ".curve-legend i.contract-line",
+      "baseSelector": ".curve-legend i.contract-line",
+      "matchSelector": ".curve-legend i.contract-line",
+      "pseudoElement": null,
+      "computed": {
+        "background": "rgb(36, 94, 168) none repeat scroll 0% 0% / auto padding-box border-box"
+      },
+      "geometry": {
+        "x": 632.453125,
+        "y": 154.28125,
+        "width": 19.1875,
+        "height": 3
+      }
+    },
+    {
+      "id": "CSS-0180",
+      "locator": ".contract-curve-actions",
+      "baseSelector": ".contract-curve-actions",
+      "matchSelector": ".contract-curve-actions",
+      "pseudoElement": null,
+      "computed": {
+        "align-items": "center",
+        "display": "flex",
+        "gap": "14px",
+        "min-height": "32px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": 182.921875,
+        "width": 734.203125,
+        "height": 32
+      }
+    },
+    {
+      "id": "CSS-0181",
+      "locator": ".curve-evidence dl",
+      "baseSelector": ".curve-evidence dl",
+      "matchSelector": ".curve-evidence dl",
+      "pseudoElement": null,
+      "computed": {
+        "display": "grid",
+        "gap": "10px 18px",
+        "grid-template-columns": "180px 536.203px",
+        "margin": "14px 0px 0px"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": 302.46875,
+        "width": 734.203125,
+        "height": 245.46875
+      }
+    },
+    {
+      "id": "CSS-0182",
+      "locator": ".curve-evidence dt",
+      "baseSelector": ".curve-evidence dt",
+      "matchSelector": ".curve-evidence dt",
+      "pseudoElement": null,
+      "computed": {
+        "color": "rgb(93, 104, 116)"
+      },
+      "geometry": {
+        "x": 596.796875,
+        "y": 302.46875,
+        "width": 180,
+        "height": 19.546875
+      }
+    },
+    {
+      "id": "CSS-0183",
+      "locator": ".curve-evidence dd",
+      "baseSelector": ".curve-evidence dd",
+      "matchSelector": ".curve-evidence dd",
+      "pseudoElement": null,
+      "computed": {
+        "margin": "0px",
+        "min-width": "0px",
+        "overflow-wrap": "anywhere"
+      },
+      "geometry": {
+        "x": 794.796875,
+        "y": 302.46875,
+        "width": 536.203125,
+        "height": 19.546875
+      }
+    }
+  ]
+}

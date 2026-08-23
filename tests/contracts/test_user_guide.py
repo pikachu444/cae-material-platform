@@ -316,6 +316,13 @@ def test_m1e4_evidence_manifest_is_registered_for_future_capture_paths() -> None
     )
 
 
+def test_m1e5_evidence_manifest_is_registered_for_future_capture_paths() -> None:
+    assert (
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/manifest.json"
+        in user_guide._STRUCTURED_IMAGE_MANIFESTS
+    )
+
+
 def test_structured_yaml_path_references_register_visual_evidence(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

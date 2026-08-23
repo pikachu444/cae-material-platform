@@ -1,0 +1,167 @@
+{
+  "phase": "before",
+  "route": "/datasets/import",
+  "viewport": {
+    "name": "1920x1080",
+    "width": 1920,
+    "height": 1080
+  },
+  "geometry": {
+    "innerWidth": 1920,
+    "innerHeight": 1080,
+    "scrollWidth": 1920,
+    "scrollHeight": 1080,
+    "rootWidth": 1904,
+    "rootHeight": 962,
+    "bodyText": "CMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo workspace\nModeling\nNew session\nSave draft\nUndo\nRedo\nData\nProcess\nFit\nExport\n\nMODELING / DATA / ADVANCED IMPORT\n\nMap tabular test data\n\nDP780 synthetic reference steel · CMP-DEMO-DP780 · As received · synthetic reference · r1\n\n← Modeling Data\nGoverned CSV / TSV / XLSX import\n\nUpload immutable source bytes, inspect headers, approve quantity and unit semantics, then create separate raw and normalized SI Datasets.\n\n1. Upload and preview\nExact Test Run\nChoose a Run\nCMP demo tensile replicate 1 · r1\nCMP demo tensile replicate 2 · r1\nCMP demo tensile replicate 3 · r1\nCMP demo tensile replicate 5 · r1\nCMP demo tensile replicate 6 · r1\nCMP demo tensile replicate 7 · r1\nCMP demo tensile replicate 8 · r1\nCMP demo tensile replicate 9 · r1\nCMP demo tensile holdout · r1\nFormat\nCSV\nTSV\nXLSX\nDelimiter\ncomma\nsemicolon\nHeader row\nDecimal\ndot\ncomma\nSource file\nUpload immutable bytes and preview\n2. Approve reusable Profile\nData schema\nMonotonic tension\nMonotonic compression\nPlanar tension\nBiaxial tension\nSimple shear\nShear relaxation\nSource is displacement / force\nIndependent column\nChoose\nOriginal unit\n1\n%\nDependent column\nChoose\nOriginal uni"
+  },
+  "crops": {
+    "header": {
+      "width": 1920,
+      "height": 50,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "CMPCAE Material PlatformMaterial data and solver deliveryMaterialsModelingActivityDemo workspaceAdministrationDisplay densityCompactStandardLargeReset display density"
+    },
+    "navigator": {
+      "width": 237.640625,
+      "height": 49,
+      "display": "flex",
+      "overflow": "visible",
+      "text": "MaterialsModelingActivity"
+    },
+    "table-form": {
+      "width": 1902,
+      "height": 540.65625,
+      "display": "block",
+      "overflow": "visible",
+      "text": "T-41 · reusable intakeGoverned CSV / TSV / XLSX importUpload immutable source bytes, inspect headers, approve quantity and unit semantics, then create separate raw and normalized SI Datasets.explicit mapping1. Upload and previewExact Test R"
+    },
+    "stage-controls": {
+      "width": 1874.8125,
+      "height": 461.890625,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "1. Upload and previewExact Test RunChoose a RunCMP demo tensile replicate 1 · r1CMP demo tensile replicate 2 · r1CMP demo tensile replicate 3 · r1CMP demo tensile replicate 5 · r1CMP demo tensile replicate 6 · r1CMP demo tensile replicate 7"
+    }
+  },
+  "selectorApplications": [
+    {
+      "id": "CSS-1008",
+      "locator": ".governed-import-route .workflow-card",
+      "baseSelector": ".governed-import-route .workflow-card",
+      "matchSelector": ".governed-import-route .workflow-card",
+      "pseudoElement": null,
+      "computed": {
+        "border-right": "1px solid rgb(220, 227, 228)",
+        "min-width": "0px",
+        "padding": "12.8px"
+      },
+      "geometry": {
+        "x": 22.59375,
+        "y": 254.953125,
+        "width": 545.390625,
+        "height": 461.890625
+      }
+    },
+    {
+      "id": "CSS-1009",
+      "locator": ".governed-import-route .workflow-card:last-child",
+      "baseSelector": ".governed-import-route .workflow-card:last-child",
+      "matchSelector": ".governed-import-route .workflow-card:last-child",
+      "pseudoElement": null,
+      "computed": {
+        "border-right": "0px none rgb(23, 33, 43)"
+      },
+      "geometry": {
+        "x": 1352,
+        "y": 254.953125,
+        "width": 545.40625,
+        "height": 461.890625
+      }
+    },
+    {
+      "id": "CSS-1010",
+      "locator": ".governed-import-route .workflow-card h4",
+      "baseSelector": ".governed-import-route .workflow-card h4",
+      "matchSelector": ".governed-import-route .workflow-card h4",
+      "pseudoElement": null,
+      "computed": {
+        "font-size": "13.44px",
+        "margin-bottom": "10.4px"
+      },
+      "geometry": {
+        "x": 35.390625,
+        "y": 267.75,
+        "width": 518.796875,
+        "height": 18
+      }
+    },
+    {
+      "id": "CSS-1011",
+      "locator": ".governed-import-route .workflow-card label",
+      "baseSelector": ".governed-import-route .workflow-card label",
+      "matchSelector": ".governed-import-route .workflow-card label",
+      "pseudoElement": null,
+      "computed": {
+        "font-size": "11.52px"
+      },
+      "geometry": {
+        "x": 35.390625,
+        "y": 312.140625,
+        "width": 518.796875,
+        "height": 55.78125
+      }
+    },
+    {
+      "id": "CSS-1012",
+      "locator": ".governed-import-route .workflow-card input",
+      "baseSelector": ".governed-import-route .workflow-card input",
+      "matchSelector": ".governed-import-route .workflow-card input",
+      "pseudoElement": null,
+      "computed": {
+        "min-height": "32px",
+        "padding": "5.6px 7.2px"
+      },
+      "geometry": {
+        "x": 35.390625,
+        "y": 550.078125,
+        "width": 252.203125,
+        "height": 33.1875
+      }
+    },
+    {
+      "id": "CSS-1013",
+      "locator": ".governed-import-route .workflow-card select",
+      "baseSelector": ".governed-import-route .workflow-card select",
+      "matchSelector": ".governed-import-route .workflow-card select",
+      "pseudoElement": null,
+      "computed": {
+        "min-height": "32px",
+        "padding": "5.6px 7.2px"
+      },
+      "geometry": {
+        "x": 35.390625,
+        "y": 333.734375,
+        "width": 518.796875,
+        "height": 34.1875
+      }
+    },
+    {
+      "id": "CSS-1014",
+      "locator": ".governed-import-route .workflow-card button",
+      "baseSelector": ".governed-import-route .workflow-card button",
+      "matchSelector": ".governed-import-route .workflow-card button",
+      "pseudoElement": null,
+      "computed": {
+        "min-height": "32px"
+      },
+      "geometry": {
+        "x": 35.390625,
+        "y": 672.046875,
+        "width": 518.796875,
+        "height": 32
+      }
+    }
+  ]
+}

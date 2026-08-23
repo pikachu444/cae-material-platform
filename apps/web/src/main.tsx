@@ -7,6 +7,7 @@ import "./styles.css";
 import "./design/tokens.css";
 import "./design/typography.css";
 import "./design/primitives.css";
+import "./features/test-data/ui/governed-import-route.css";
 import "./design/layout.css";
 import "./features/materials/ui/materials.css";
 import "./design/shell.css";

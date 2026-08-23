@@ -1,0 +1,7 @@
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#455. */
+.test-json-page .workbench-card {
+  border-color: var(--ux-border);
+  border-radius: var(--ux-radius-panel);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-none);
+}

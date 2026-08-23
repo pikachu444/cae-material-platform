@@ -1,0 +1,92 @@
+{
+  "phase": "before",
+  "route": "/exports",
+  "viewport": {
+    "name": "2560x1440",
+    "width": 2560,
+    "height": 1440
+  },
+  "geometry": {
+    "innerWidth": 2560,
+    "innerHeight": 1440,
+    "scrollWidth": 2560,
+    "scrollHeight": 1440,
+    "rootWidth": 2560,
+    "rootHeight": 1322,
+    "bodyText": "CMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo user\nActivity\n\nMATERIAL → NEUTRAL DATA → SOLVER CARD\n\nBulk Export Center\n\nChoose exact immutable revisions. Every ZIP includes a manifest, SHA-256 checksums, classification, and explicit omissions. Transfer authorization is not a Release approval.\n\nT-45 · deterministic bundle\n\n1. SOURCE SCOPE\n\nSelect a Material\nMaterial\nDP780 synthetic reference steel · CMP-DEMO-DP780\nSynthetic Elastomer Ogden-Prony · CMP-DEMO-ELASTOMER-OGDEN\nSynthetic Polymer Prony · CMP-DEMO-POLYMER-PRONY\n0 of 40 exact representations selected0 B expected\nSelect all\nClear\nCreate immutable ZIP\nMaterial Model IR\n3\nurn:cmp:reference:isotropic-linear-elasticity:1.0.0models/05a8235c-d957-4aa3-a6c0-bdfd6599911e/d93ae446-af8b-492f-b9d2-3392472d851f/ir.json\nINTERNAL\n1.1 KiB\nurn:cmp:reference:isotropic-tabulated-plasticity:1.2.0models/96a5ce6c-d94c-4e24-9da1-573c0b1a03d4/74b40513-c3cc-4661-ada3-91060b6c6962/ir.json\nINTERNAL\n1.3 KiB\nurn:cmp:reference:isotropic-tabulated-plasticity:1.0.0models/fad2bbdc-1800-427f-8be5-a5038cb55c03/197e99b0-9f6c-4ec1-84ce-b231fe5a0f08/ir.json\nINTERNAL\n1.3 KiB\nIR JSON Schema\n3\nIR schema · urn:cmp:reference:isotropic-linear-elasticity:1"
+  },
+  "crops": {
+    "header": {
+      "width": 2560,
+      "height": 50,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "CMPCAE Material PlatformMaterial data and solver deliveryMaterialsModelingActivityDemo userAdministrationDisplay densityCompactStandardLargeReset display density"
+    },
+    "navigator": {
+      "width": 237.640625,
+      "height": 49,
+      "display": "flex",
+      "overflow": "visible",
+      "text": "MaterialsModelingActivity"
+    },
+    "table-form": {
+      "width": 2560,
+      "height": 4330.390625,
+      "display": "block",
+      "overflow": "visible",
+      "text": "1. Source scopeSelect a MaterialMaterialDP780 synthetic reference steel · CMP-DEMO-DP780Synthetic Elastomer Ogden-Prony · CMP-DEMO-ELASTOMER-OGDENSynthetic Polymer Prony · CMP-DEMO-POLYMER-PRONY0 of 40 exact representations selected0 B expe"
+    },
+    "stage-controls": {
+      "width": 2511.625,
+      "height": 61.78125,
+      "display": "block",
+      "overflow": "visible",
+      "text": "0 of 40 exact representations selected0 B expectedSelect allClearCreate immutable ZIP"
+    },
+    "native-preview": {
+      "width": 2560,
+      "height": 4330.390625,
+      "display": "block",
+      "overflow": "visible",
+      "text": "1. Source scopeSelect a MaterialMaterialDP780 synthetic reference steel · CMP-DEMO-DP780Synthetic Elastomer Ogden-Prony · CMP-DEMO-ELASTOMER-OGDENSynthetic Polymer Prony · CMP-DEMO-POLYMER-PRONY0 of 40 exact representations selected0 B expe"
+    }
+  },
+  "selectorApplications": [
+    {
+      "id": "CSS-0898",
+      "locator": ".bulk-export-center .card-actions",
+      "baseSelector": ".card-actions",
+      "matchSelector": ".card-actions",
+      "pseudoElement": null,
+      "computed": {
+        "align-items": "center",
+        "display": "flex",
+        "gap": "12px",
+        "justify-content": "flex-end"
+      },
+      "geometry": {
+        "x": 24.1875,
+        "y": 349.8125,
+        "width": 2511.625,
+        "height": 40.78125
+      }
+    },
+    {
+      "id": "CSS-0961",
+      "locator": ".bulk-export-center .card-actions",
+      "baseSelector": ".card-actions",
+      "matchSelector": ".card-actions",
+      "pseudoElement": null,
+      "computed": {
+        "justify-content": "flex-end"
+      },
+      "geometry": {
+        "x": 24.1875,
+        "y": 349.8125,
+        "width": 2511.625,
+        "height": 40.78125
+      }
+    }
+  ]
+}

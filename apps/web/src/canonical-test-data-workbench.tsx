@@ -21,6 +21,7 @@ import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { modelingFamilyFromQuantities, saveModelingSession } from "./features/modeling";
 import { ReviewRequestAction } from "./review-request-action";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
+import "./features/test-data/ui/canonical-test-data-workbench.css";
 
 interface Props {
   config: ApiConfig;

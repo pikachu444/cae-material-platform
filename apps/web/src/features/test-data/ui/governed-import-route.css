@@ -1,0 +1,49 @@
+/* M1E5 frozen ownership move: apps/web/src/styles.css#268. */
+.governed-import-route .workflow-card {
+  min-width: 0;
+  padding: 0.8rem;
+  border-right: 1px solid #dce3e4;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#269. */
+.governed-import-route .workflow-card:last-child {
+  border-right: 0;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#270. */
+.governed-import-route .workflow-card h4 {
+  margin-bottom: 0.65rem;
+  font-size: 0.84rem;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#271. */
+.governed-import-route .workflow-card label {
+  font-size: 0.72rem;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#272. */
+.governed-import-route .workflow-card input,
+.governed-import-route .workflow-card select {
+  min-height: 2rem;
+  padding: 0.35rem 0.45rem;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#274. */
+.governed-import-route .workflow-card button {
+  min-height: 2rem;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#279. */
+@media (max-width: 1100px) {
+  .governed-import-route .workflow-card {
+    border-right: 0;
+    border-bottom: 1px solid #dce3e4;
+  }
+}
+
+/* M1E5 frozen ownership move: apps/web/src/styles.css#280. */
+@media (max-width: 1100px) {
+  .governed-import-route .workflow-card:last-child {
+    border-bottom: 0;
+  }
+}
