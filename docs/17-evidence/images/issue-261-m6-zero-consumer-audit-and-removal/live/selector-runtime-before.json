@@ -1,0 +1,2790 @@
+{
+  "schemaVersion": "cmp.issue-261.m6.live-selector-audit.v1",
+  "phase": "before",
+  "sourceRoot": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m6-zero-consumer-audit-and-removal",
+  "handoff": {
+    "rows": 556,
+    "groups": 495,
+    "tupleSha256": "41a6cda0826c330fbf430462e8dbfc0de8041f2cd9344baf9ce1c08c66ffc900"
+  },
+  "method": "document.querySelectorAll for every unique frozen M6 selector immediately before each settled original screenshot in the accepted 13-topology/five-viewport harness",
+  "coverage": {
+    "topologies": [
+      "materials-search",
+      "material-detail",
+      "materials-curves",
+      "administration-database",
+      "administration-preview",
+      "modeling-data",
+      "modeling-process",
+      "modeling-fit",
+      "modeling-export",
+      "modeling-distribution",
+      "governed-import",
+      "modeling-polymer-fit",
+      "modeling-elastomer-fit"
+    ],
+    "viewports": [
+      "1440x900"
+    ],
+    "snapshots": 13,
+    "selectorRows": 556,
+    "uniqueSelectors": 465
+  },
+  "summary": {
+    "selectorsWithMatches": 11,
+    "selectorsWithQueryErrors": 0,
+    "zeroMatchSelectors": 454
+  },
+  "selectors": [
+    {
+      "selector": ".activity-review-list li",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".add-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".add-card small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".add-card span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".add-card:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".advanced-canonical-json",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".advanced-canonical-json > article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".advanced-canonical-json > summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-filter",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-filter input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-group-row",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-tree-group > details > article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .approved-fit-curve-tree .mean-confidence-swatch",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .approved-fit-process-tree .curve-tree-foot",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .fit-stage-options :is(label, legend, output, button)",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 25,
+          "samples": [
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "text-button"
+              ]
+            },
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "text-button"
+              ]
+            },
+            {
+              "tag": "legend",
+              "id": null,
+              "classes": []
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 30,
+          "samples": [
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "text-button"
+              ]
+            },
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "text-button"
+              ]
+            },
+            {
+              "tag": "legend",
+              "id": null,
+              "classes": []
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .fit-stage-options > .section-heading .fit-step-impact",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .fit-stage-options input[type=\"range\"]",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "aside",
+              "id": null,
+              "classes": [
+                "step-option-panel",
+                "fit-stage-options"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "aside",
+              "id": null,
+              "classes": [
+                "step-option-panel",
+                "fit-stage-options"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".application-shell main.processing-workbench-page .stage-chip-rail :is(span, strong, small)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".back-link",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".back-link:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-actions",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-actions label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-builder-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-builder-grid fieldset",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-builder-grid fieldset label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-member-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-member-list > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-member-list code",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-monitor-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-preflight",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-preflight article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-preflight article > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-run-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-run-heading + code",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-run-heading > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-run-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".batch-run-list > article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".brand small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".browse-tree-entry",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-evidence-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-evidence-list article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-evidence-list article.selected",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-evidence-list details",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-evidence-list summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-evidence-list summary em",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-parameter-table",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-parameter-table > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-parameter-table small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-parameter-table span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-parameter-table strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-rank",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-summary > span:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-summary > strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-summary b",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-summary small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".candidate-summary:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compact-file-picker input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-box",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-box p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-box small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-check",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-check input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-controls",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-controls select",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-toolbar",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compare-toolbar h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compatibility-notice",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".compatibility-notice h4",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".configured-step-list > button.active",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-process",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=process&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "active"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "active"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-distribution",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=process&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "active"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "button",
+              "id": null,
+              "classes": [
+                "active"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".connection-button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".connection-dot",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".connection-dot.online",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".connection-panel",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".connection-panel > .muted",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".context-record-title",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".create-state-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-artifact-row",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-filter",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-filter input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-group-row",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-group-row > small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-group-row > strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-group-row::-webkit-details-marker",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-group-row::before",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-include-toggle",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-include-toggle input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-include-toggle:focus-within",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-overlay-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-tree-group",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-tree-group > details",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-tree-group > details > article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-tree-group > details > article.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-tree-group > details > article:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".curve-tree-group > details[open] > .curve-group-row::before",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-library-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-library-heading span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-library-heading strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-mapping-consequence",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-mapping-decision .data-mapping-attention",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-provenance-group",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-provenance-group strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-source-evidence",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-source-evidence :is(header, p)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-source-evidence header",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-source-evidence header strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-source-evidence p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-stage-ribbon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-stage-ribbon > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-stage-ribbon strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-stage-summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".data-stage-summary span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-breadcrumb",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-breadcrumb span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-context-tabs",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-context-tabs button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-context-tabs button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-facet-group",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-facet-group > strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-facet-group button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-facet-group button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-live-indicator",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-live-indicator i",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-node-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-projection-switch",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-projection-switch button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-projection-switch button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-projection-switch button:disabled",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-range-inputs",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-list button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-list button > span:nth-child(2)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-list small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-row",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-row > button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-result-view",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-revision-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-revision-list button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-revision-list button em",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-revision-list button small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-revision-list button span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-revision-list button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-search-filters",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-search-filters label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-search-filters section",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-search-return",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-status-pill",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-status-pill i",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-toolbar-context",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-children.profile-level",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-children.root-level",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-children:not(.root-level):not(.profile-level)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node > span:nth-child(3)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node.database-root",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node.profile-root",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node.record",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node.selected",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-node:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-tree-status",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-welcome-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-welcome-view",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".database-welcome-view > p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-history",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-history > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-history em",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-history h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-metadata",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-metadata dd",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-metadata div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-metadata div:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-metadata dt",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-title",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".datasheet-title h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".demo-identity-action",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".demo-identity-action small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".detail-hero",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".detail-hero h1",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".detail-hero p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".detail-subtitle",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".details-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".dialog-backdrop",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".editor-limit",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".empty-properties",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".empty-properties p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-controls",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-controls > label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-controls fieldset",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-controls fieldset label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-methods",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-methods article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-methods code",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-methods small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ensemble-results",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".exact-value-table",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-header-subtitle",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-reference-marker",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-stage-ribbon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-stage-ribbon > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-stage-ribbon span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-stage-ribbon strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-status-ready-to-create",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-export",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=export&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "strong",
+              "id": null,
+              "classes": [
+                "export-status",
+                "export-status-ready-to-create"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".export-status-review-required",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".family-modeling-workbench",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".filter-range",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-candidate-status",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-candidate-status.blocked",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-candidate-status.ready",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-candidate-warning",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-output-points",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-secondary-law",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-source-axis",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-source-axis-labels",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-stage-options",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "aside",
+              "id": null,
+              "classes": [
+                "step-option-panel",
+                "fit-stage-options"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "aside",
+              "id": null,
+              "classes": [
+                "step-option-panel",
+                "fit-stage-options"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-stage-options > .section-heading .fit-step-impact",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-stage-options input",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 9,
+          "samples": [
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            },
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            },
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 18,
+          "samples": [
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            },
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            },
+            {
+              "tag": "input",
+              "id": null,
+              "classes": []
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-stage-options select",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 2,
+          "samples": [
+            {
+              "tag": "select",
+              "id": null,
+              "classes": []
+            },
+            {
+              "tag": "select",
+              "id": null,
+              "classes": []
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 2,
+          "samples": [
+            {
+              "tag": "select",
+              "id": null,
+              "classes": []
+            },
+            {
+              "tag": "select",
+              "id": null,
+              "classes": []
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-surface-state-calculating",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".fit-surface-state-saved-result-stale",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".folder-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".folder-icon::before",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".hardening-metric-strip",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".hardening-metric-strip article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".hardening-metric-strip b",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".hardening-metric-strip span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".hardening-metric-strip strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".inline-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-row",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-row > span:first-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-row > span:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-row em",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-row small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-attribute-row:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-datasheet-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-picker-actions",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-picker-actions label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".layout-picker-actions select",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".linked-delivery-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".linked-delivery-grid button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".linked-delivery-grid button small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".linked-delivery-grid button span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-action-error",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-chevron",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-contents-pane",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-contents-tree",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-context-tabs",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-context-tabs button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-context-tabs button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-context-tabs button:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-page",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-search",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-search input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-search select",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-toolbar",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-toolbar .database-toolbar-context",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-toolbar .eyebrow",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-toolbar h1",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-database-workspace",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-list.compact",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-record-compare",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-record-pane",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-record-view",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-related-context h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-related-pane",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-related-pane > section",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-related-pane h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-edge",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-edge > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-edge::before",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-node",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-node > span:nth-child(2)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-node em",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-node small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-node.current",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-tree",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-tree ul",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-tree-item > ul",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-tree.compact .material-workflow-node",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-tree.compact .material-workflow-node em",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".material-workflow-tree.compact .material-workflow-node strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".materials-scroll-rail-x",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".materials-scroll-rail-y",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-export",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=export&family=metal",
+          "count": 2,
+          "samples": [
+            {
+              "tag": "div",
+              "id": null,
+              "classes": [
+                "materials-scroll-rail",
+                "materials-scroll-rail-y"
+              ]
+            },
+            {
+              "tag": "div",
+              "id": null,
+              "classes": [
+                "materials-scroll-rail",
+                "materials-scroll-rail-y"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".materials-workspace.context-visible",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".materials-workspace.context-visible:not(.filters-visible)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".materials-workspace.filters-visible",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".materials-workspace.filters-visible.context-visible",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".model-card-workflow",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-card-workspace",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-card-workspace > .family-modeling-workbench",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-card-workspace > header",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-card-workspace > header h2",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-card-workspace > header p:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-advanced",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-advanced > summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-advanced > summary > span:first-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-curve-tree .curve-row-label small.curve-secondary-identity",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-curve-tree .curve-secondary-identity > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-curve-tree .curve-tree-group > details > article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-entry",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-entry > header",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-entry h2",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-entry p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-data-entry p:not(.eyebrow)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-export-dock .family-modeling-workbench",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-export-dock > header",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-export-dock > header :is(p, h2)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-export-dock > header > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-export-dock > header h2",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-format-actions",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-graph-workspace",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-graph-workspace:not(.inspector-visible)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-main-surface.has-data-split .data-mapping-consequence",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-rail-contract",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-rail-contract small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-stage-placeholder",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-stage-placeholder h2",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-stage-placeholder p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-support-drawer > .family-modeling-workbench",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-support-drawer > .processing-setup-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-target-preview.delivered .target-preview-evidence[open]",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-task-ribbon > .step-option-panel.fit-stage-options",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "aside",
+              "id": null,
+              "classes": [
+                "step-option-panel",
+                "fit-stage-options"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-polymer-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=polymer",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "aside",
+              "id": null,
+              "classes": [
+                "step-option-panel",
+                "fit-stage-options"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".modeling-workspace-stage-process .curve-tree-group > details > article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".pane-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".pane-heading button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".panel-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".plot-preview-state",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".process-band-step",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".process-preview-note",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-curve.interactive.interaction-pan:not(.is-panning)",
+      "matchingSnapshots": [
+        {
+          "topology": "modeling-data",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=data&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "svg",
+              "id": null,
+              "classes": [
+                "processing-curve",
+                "interactive",
+                "interaction-pan"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-process",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=process&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "svg",
+              "id": null,
+              "classes": [
+                "processing-curve",
+                "interactive",
+                "interaction-pan"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-fit",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=fit&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "svg",
+              "id": null,
+              "classes": [
+                "processing-curve",
+                "interactive",
+                "interaction-pan"
+              ]
+            }
+          ]
+        },
+        {
+          "topology": "modeling-distribution",
+          "viewport": "1440x900",
+          "url": "http://127.0.0.1:32784/modeling?stage=process&family=metal",
+          "count": 1,
+          "samples": [
+            {
+              "tag": "svg",
+              "id": null,
+              "classes": [
+                "processing-curve",
+                "interactive",
+                "interaction-pan"
+              ]
+            }
+          ]
+        }
+      ],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-curve.interactive.interaction-point",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-curve.interactive.interaction-range",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-hero",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-hero .eyebrow",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-hero > div > p:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-hero h1",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-output-form",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-output-form label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-result-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-setup-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-workbench-page .hardening-metric-strip b",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-workbench-page .hardening-metric-strip span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-workbench-page .hardening-metric-strip strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-workbench-page .stage-chip-rail :is(span, strong, small)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".processing-workbench-page .stage-chip-rail button strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".product-user-badge",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".profile-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button b",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button.selected",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-candidate-strip button:hover",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-metric-strip article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-metric-strip article small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-selected-term",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".prony-selected-terms",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-editor",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-editor > p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-editor h4",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-tile-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-tile-grid article",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-tile-grid article h4",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-tile-grid article small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".property-tile-grid article strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".recipe-actions",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".recipe-library-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".recipe-library-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".recipe-library-grid label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-compare-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-compare-grid > *",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-compare-grid > strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-compare-grid small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-facts",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-facts dd",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-facts div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-facts dt",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-heading-actions",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-heading-actions .text-button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-pane-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-pane-heading h2",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-pane-heading p",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-revision-badge",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-view-tabs",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-view-tabs button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".record-view-tabs button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-link-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-link-list button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-link-list button small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-link-list button span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-record-summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-record-summary > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".related-record-summary small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".revision-dot",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".revision-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".revision-list li",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".revision-list small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".revision-list strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".saved-subset-section",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".saved-subset-section > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".saved-subset-section button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".saved-test-documents-content",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".search-form",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".search-label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-context",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-context dd",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-context dt",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-delivery-command",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-delivery-command .ux-button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-heading h2",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-property-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-property-grid > div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-property-grid span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".selection-property-grid strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-chip-rail",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-chip-rail button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-chip-rail button small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-chip-rail button span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-chip-rail button strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-chip-rail button.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-data > .section-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-item",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-item > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-item div",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-item small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-item.active",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-item.active > span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-list",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".stage-list-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".state-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".state-description",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".state-grid",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".state-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".state-heading h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".state-modeling-action",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".step-index",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".table-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".target-change-button",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".target-preview-controls",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".target-preview-controls input",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".target-preview-controls label",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".target-preview-controls select",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".target-preview-evidence > summary",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".track-contract-note",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".track-contract-note strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".tree-subset",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ux-result-row",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ux-result-row span:nth-of-type(2)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".ux-result-row span:nth-of-type(3)",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-kind-icon",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-projection-heading",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-projection-heading small",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-projection-heading span",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-projection-heading strong",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-tree-card",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-tree-card > div > p:last-child",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    },
+    {
+      "selector": ".workflow-tree-card h3",
+      "matchingSnapshots": [],
+      "queryErrors": []
+    }
+  ]
+}

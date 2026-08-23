@@ -52,9 +52,15 @@ test("FE-06 preserves the original M6 oracle and adds audited zero-consumer hand
   assert.equal(fixture.m6Handoff.groups, 495);
   assert.equal(fixture.m6Handoff.tuples.length, 556);
   assert.equal(digest(fixture.m6Handoff.tuples), fixture.m6Handoff.tupleSha256);
-  assert.equal(inventory.summary.selectorRows, 578);
-  assert.equal(inventory.summary.cssRuleGroups, 517);
-  assert.deepEqual(inventory.summary.byMigrationBatch, {
+  const postM6 = inventory.migrationPlan.checkpoints.some(
+    (entry) => entry.unit === "M6-zero-consumer-audit-and-removal",
+  );
+  assert.equal(inventory.summary.selectorRows, postM6 ? 67 : 578);
+  assert.equal(inventory.summary.cssRuleGroups, postM6 ? 65 : 517);
+  assert.deepEqual(inventory.summary.byMigrationBatch, postM6 ? {
+    "ACCEPTED-shared-layout-in-place": 22,
+    "HOLD-m6-zero-consumer-false-positive": 45,
+  } : {
     "ACCEPTED-shared-layout-in-place": 22,
     "M6-zero-consumer-removal-candidate": 556,
   });
@@ -63,8 +69,8 @@ test("FE-06 preserves the original M6 oracle and adds audited zero-consumer hand
   );
   assert.equal(checkpoint.current.residualTargetRows, 0);
   assert.equal(checkpoint.m6Handoff.tupleSha256, fixture.m6Handoff.tupleSha256);
-  assert.equal(inventory.migrationPlan.nextBoundedUnit.id, "M6-zero-consumer-audit-and-removal");
-  assert.match(inventory.migrationPlan.nextBoundedUnit.scope, /556/);
+  assert.equal(inventory.migrationPlan.nextBoundedUnit.id, postM6 ? "FE-07 / #262" : "M6-zero-consumer-audit-and-removal");
+  assert.match(inventory.migrationPlan.nextBoundedUnit.scope, postM6 ? /M6 acceptance/ : /556/);
 });
 
 test("FE-06 pins cold-route owners and the missing direct load edges", () => {
@@ -90,7 +96,16 @@ test("FE-06 pins cold-route owners and the missing direct load edges", () => {
 
 test("FE-06 exact transform, inventory regeneration, and guard are green", () => {
   const options = { cwd: ROOT, encoding: "utf8", stdio: "pipe", maxBuffer: 64 * 1024 * 1024 };
-  execFileSync("node", ["scripts/apply_issue_261_residual_owner_boundary.mjs", "--check", "--exact"], options);
+  const postM6 = inventory.migrationPlan.checkpoints.some(
+    (entry) => entry.unit === "M6-zero-consumer-audit-and-removal",
+  );
+  execFileSync("node", [
+    postM6
+      ? "scripts/apply_issue_261_m6_zero_consumer_removal.mjs"
+      : "scripts/apply_issue_261_residual_owner_boundary.mjs",
+    "--check",
+    "--exact",
+  ], options);
   execFileSync("node", ["scripts/check_issue_261_css_inventory.mjs"], options);
   execFileSync("node", ["scripts/check_frontend_guard.mjs"], options);
 });

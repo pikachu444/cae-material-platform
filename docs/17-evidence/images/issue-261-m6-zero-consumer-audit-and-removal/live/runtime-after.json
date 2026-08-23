@@ -1,0 +1,32 @@
+{
+  "phase": "after",
+  "sourceRoot": "C:/SourceCodes/cae-material-platform-worktrees/issue-261-m6-zero-consumer-audit-and-removal",
+  "project": "cmp-demo-test-261m6after-final2",
+  "browserZoomPercent": 100,
+  "devicePixelRatio": 1,
+  "display": "Playwright Chromium CSS viewport; not physical 4K hardware",
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ],
+  "topologies": [
+    "materials-search",
+    "material-detail",
+    "materials-curves",
+    "administration-database",
+    "administration-preview",
+    "modeling-data",
+    "modeling-process",
+    "modeling-fit",
+    "modeling-export",
+    "modeling-distribution",
+    "governed-import",
+    "modeling-polymer-fit",
+    "modeling-elastomer-fit"
+  ],
+  "permanentDemoPreserved": true,
+  "disposableResourcesRemoved": true
+}

@@ -728,3 +728,19 @@ controls·engineering graph/native preview crop은 [M4 evidence manifest](../17-
 cascade와 폭이 복구된 것을 확인했으며, 현재 상태는 `ACCEPTED_MAIN_VISUAL_AND_RUNTIME`입니다.
 현재 guide PNG는 검토된 M4 after 원본을 재사용하고, 자동 3840×2160은 geometry만 증명하며
 physical Windows 4K readability는 #223 gate입니다.
+
+### Issue #261 M6 zero-consumer legacy CSS audit provenance
+
+M6는 PR #318이 넘긴 556개 selector row/495개 rule group을 하나의 frozen batch로
+감사합니다. Static producer/reference, production bundle, 13개 live route/state topology를 모두
+확인해 세 축이 전부 zero인 511개 row를 제거했습니다. 실제 producer/reference 또는 live DOM
+증거가 남은 45개 row/43개 group은 current owner와 제거 조건을 명시한 HOLD로 보존합니다.
+React, DOM, 문구, API, route, state, exact revision/session contract는 변경하지 않습니다.
+
+다섯 CSS viewport의 305개 before/after pair와 원본·header·navigator·table/form·stage
+controls·engineering graph/native preview crop은 [M6 evidence manifest](../17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json)에
+`ACCEPTED_MAIN_VISUAL_AND_RUNTIME`으로 기록됩니다. 차이는 생성된 revision/UUID/hash 문자열과
+큰 viewport의 Search 화면에서 확인된 2–15개의 저강도 raster pixel뿐이며, geometry와 interaction
+reachability는 동일합니다. 현재 guide의 1920×1080
+Export PNG는 이 검토된 M6 after 원본으로 갱신했습니다. 자동 3840×2160 검사는 geometry만
+증명하며 physical Windows 4K readability는 #223 gate로 남습니다.

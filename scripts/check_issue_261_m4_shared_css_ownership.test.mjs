@@ -87,7 +87,16 @@ test("M4 exact transform, owner import, and regenerated residual inventory pass"
     resolve(ROOT, "docs/17-evidence/issue-261-css-selector-inventory.json"),
     "utf8",
   ));
-  if (currentBefore.migrationPlan.checkpoints.some(
+  const postM6 = currentBefore.migrationPlan.checkpoints.some(
+    (checkpoint) => checkpoint.unit === "M6-zero-consumer-audit-and-removal",
+  );
+  if (postM6) {
+    execFileSync("node", [
+      "scripts/apply_issue_261_m6_zero_consumer_removal.mjs",
+      "--check",
+      "--exact",
+    ], { cwd: ROOT, stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  } else if (currentBefore.migrationPlan.checkpoints.some(
     (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
   )) {
     execFileSync("node", [
@@ -119,15 +128,16 @@ test("M4 exact transform, owner import, and regenerated residual inventory pass"
   const postResidualOwnerBoundary = current.migrationPlan.checkpoints.some(
     (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
   );
-  assert.equal(current.summary.selectorRows, postResidualOwnerBoundary ? 578 : 1103);
-  assert.equal(current.summary.cssRuleGroups, postResidualOwnerBoundary ? 517 : 941);
+  assert.equal(current.summary.selectorRows, postM6 ? 67 : postResidualOwnerBoundary ? 578 : 1103);
+  assert.equal(current.summary.cssRuleGroups, postM6 ? 65 : postResidualOwnerBoundary ? 517 : 941);
   assert.equal(current.summary.byMigrationBatch["M4-shared-cleanup"] ?? 0, 0);
   assert.equal(current.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"], postResidualOwnerBoundary ? 22 : 11);
   assert.equal(
     current.summary.byMigrationBatch["HOLD-owner-or-cross-feature-split"] ?? 0,
     postResidualOwnerBoundary ? 0 : 525,
   );
-  assert.equal(current.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"], postResidualOwnerBoundary ? 556 : 529);
+  assert.equal(current.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"] ?? 0, postM6 ? 0 : postResidualOwnerBoundary ? 556 : 529);
+  if (postM6) assert.equal(current.summary.byMigrationBatch["HOLD-m6-zero-consumer-false-positive"], 45);
 });
 
 test("M4 Fit producer imports preserve the reviewed cascade order", () => {
