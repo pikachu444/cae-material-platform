@@ -1,6 +1,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import "./features/modeling/ui/stages/fit/modeling-fit-stage.css";
 import "./features/modeling/ui/modeling-core-workbench.css";
+import "./features/modeling/ui/stages/fit/modeling-fit-stage-base.css";
 
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
 import { dispatchModelingSession, loadModelingSession, saveModelingSession, type ModelingMaterialFamily, type ModelingSessionSummary, type ModelingTrack } from "./features/modeling";

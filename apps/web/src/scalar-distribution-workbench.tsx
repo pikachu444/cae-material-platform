@@ -29,6 +29,7 @@ import type {
   ScalarDistributionSelectionResponse,
   TensileReplicateSelectionResponse,
 } from "./types";
+import "./features/modeling/ui/modeling-scalar-distribution.css";
 
 interface Props {
   config: ApiConfig;

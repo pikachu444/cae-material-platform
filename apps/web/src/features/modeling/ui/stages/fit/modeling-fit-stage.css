@@ -1,254 +1,742 @@
-/* Issue #261 owns Fit stage-specific CSS; shared rules remain in the design layer. */
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#207. */
+.application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+  height: 52px;
+  align-items: start;
+}
 
-.recipe-library-summary {
-  align-items: center;
-  background: #eaf4f0;
-  border: 1px solid #bdd8ce;
-  border-radius: 0.6rem;
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#208. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  min-height: 50px;
+  align-content: start;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#209. */
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid label {
   display: flex;
-  justify-content: space-between;
-  padding: 0.55rem 0.65rem;
+  align-items: center;
+  min-height: 16px;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 10px;
+  line-height: 1.1;
 }
 
-.recipe-library-summary.draft {
-  background: #f5f1e8;
-  border-color: #dfd2b7;
-}
-
-.recipe-library-summary > span {
-  display: grid;
-  gap: 0.12rem;
-}
-
-.recipe-library-summary strong {
-  color: #245e4b;
-  font-size: 0.7rem;
-  text-transform: capitalize;
-}
-
-.recipe-library-summary small {
-  color: var(--muted);
-  font-size: 0.63rem;
-}
-
-.curve-line.engineering-fit {
-  stroke-dasharray: 7 4;
-  stroke-width: 2;
-}
-
-.shift-factor-chart .shift-fit-line {
-  fill: none;
-  stroke: #0d8079;
-  stroke-width: 2;
-}
-
-.hyperelastic-response-plot .fitted-curve {
-  fill: none;
-  stroke-width: 2.2;
-}
-
-.elastomer-fit-stage {
-  display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  gap: 10px;
-  align-items: stretch;
-}
-
-.elastomer-fit-stage .engineering-diagnostics {
-  min-width: 0;
-}
-
-@media (max-width: 1100px) {
-  .elastomer-fit-stage {
-    grid-template-columns: 210px minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 760px) {
-  .elastomer-fit-stage {
-    grid-template-columns: 1fr;
-  }
-}
-
-.fit-context-source { max-width: min(42vw, 420px); }
-
-.fit-surface-state { color: var(--ux-text) !important; font-weight: 650; }
-
-.modeling-task-ribbon:has(.fit-stage-options) {
-  min-height: 122px;
-  max-height: none;
-  overflow: hidden;
-  border-bottom: 2px solid var(--ux-border);
-}
-
-.fit-stage-options .candidate-evidence-heading,
-.fit-stage-options > .workspace-inspector-heading {
-  display: none;
-}
-
-.fit-stage-options .candidate-check-grid {
-  position: relative;
-  height: 68px;
-  grid-template-columns: repeat(2, minmax(82px, 1fr));
-  gap: 6px;
-  padding-left: 145px;
-}
-
-.fit-stage-options .candidate-check-grid legend {
-  position: absolute;
-  top: 50%;
-  left: 0;
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#210. */
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  min-height: 13px;
+  flex: 0 0 13px;
   margin: 0;
-  transform: translateY(-50%);
 }
 
-.fit-stage-options .candidate-check-grid label {
-  min-height: 21px;
-  padding: 4px 8px;
-}
-
-.fit-stage-options > .guided-step-options { display: grid; grid-template-columns: minmax(250px, 1.2fr) minmax(150px, .72fr) minmax(170px, .8fr) minmax(145px, .68fr) minmax(170px, .8fr); align-items: end; gap: 5px 8px; }
-
-.fit-stage-options .guided-range-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-
-.fit-stage-options .guided-range-row label { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
-
-.fit-stage-options .option-hint { display: none; }
-
-.fit-stage-options .slider-option { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
-
-.fit-heading-actions { display: flex; align-items: center; min-width: 0; gap: 6px; white-space: nowrap; }
-
-.fit-stage-options > .guided-step-options { grid-template-columns: minmax(210px, 1.4fr) minmax(120px, .75fr) minmax(150px, .9fr) minmax(120px, .7fr) minmax(120px, .7fr) minmax(160px, .9fr); gap: 4px 7px; }
-
-.fit-stage-options .fit-control-group { display: grid; min-width: 0; min-height: 50px; margin: 0; padding: 2px 4px 4px; border: 0; border-left: 1px solid var(--ux-border); }
-
-.fit-stage-options .fit-control-group:first-child { border-left: 0; }
-
-.fit-stage-options .fit-control-group legend { padding: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
-
-.fit-stage-options .candidate-check-grid { position: static; height: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 5px; padding-left: 4px; }
-
-.fit-stage-options .candidate-check-grid legend { position: static; transform: none; }
-
-.fit-stage-options .candidate-check-grid label { min-height: 18px; padding: 1px 2px; font-size: 10px; }
-
-.fit-stage-options .fit-control-group > label { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 10px; }
-
-.fit-stage-options .graph-interaction-group > div { display: flex; flex-wrap: wrap; gap: 3px; align-content: start; }
-
-.fit-stage-options .graph-interaction-group button { min-height: 21px; padding: 2px 5px; font-size: 10px; }
-
-.fit-stage-options > .advanced-workflow-settings { display: none; }
-
-.fit-candidate-table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid var(--ux-border);
-  background: var(--ux-surface);
-}
-
-.fit-candidate-table {
-  width: 100%;
-  min-width: 840px;
-  border-collapse: collapse;
-  table-layout: fixed;
-  color: var(--ux-text);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-
-.fit-candidate-table th,
-.fit-candidate-table td {
-  padding: 5px 7px;
-  border-bottom: 1px solid var(--ux-border);
-  text-align: left;
-  vertical-align: middle;
-  overflow-wrap: anywhere;
-}
-
-.fit-candidate-table thead th {
-  color: var(--ux-text-muted);
-  background: var(--ux-surface-subtle);
-  font-size: 12px;
-  font-weight: 750;
-  white-space: nowrap;
-  overflow-wrap: normal;
-}
-
-.fit-candidate-table th:nth-child(1) { width: 92px; }
-
-.fit-candidate-table th:nth-child(2) { width: 140px; }
-
-.fit-candidate-table th:nth-child(3) { width: 128px; min-width: 128px; }
-
-.fit-candidate-table th:nth-child(4) { width: 150px; }
-
-.fit-candidate-table th:nth-child(5) { width: 150px; min-width: 150px; }
-
-.fit-candidate-table th:nth-child(6) { width: 105px; }
-
-.fit-candidate-table th:nth-child(7) { width: 120px; min-width: 120px; }
-
-.fit-candidate-table th:nth-child(8) { width: 110px; min-width: 110px; }
-
-.fit-candidate-table tbody tr:last-child :is(th, td) {
-  border-bottom: 0;
-}
-
-.fit-candidate-table tbody th,
-.fit-candidate-table tbody td:nth-child(4) {
-  display: table-cell;
-}
-
-.fit-candidate-table tbody :is(th, td:nth-child(4)) strong,
-.fit-candidate-table tbody :is(th, td:nth-child(4)) small {
-  display: block;
-}
-
-.fit-candidate-table tbody small {
-  color: var(--ux-text-muted);
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#211. */
+.application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) {
+  height: 24px;
+  min-height: 24px;
+  padding-block: 2px;
   font-size: 11px;
 }
 
-.fit-candidate-table button {
-  min-height: 26px;
-  padding: 3px 8px;
-  border: 1px solid var(--ux-border-strong);
-  border-radius: var(--ux-radius-control);
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#214. */
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group > div {
+  flex-wrap: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#215. */
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group button {
+  height: 20px;
+  min-height: 20px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#274. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading h2.fit-plot-heading {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
   color: var(--ux-text);
-  background: var(--ux-surface);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 750;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.fit-candidate-table button:hover,
-.fit-candidate-table button[aria-pressed="true"] {
-  border-color: var(--ux-accent);
-  color: var(--ux-accent-strong);
-  background: var(--ux-accent-soft);
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#336. */
+.application-shell main.processing-workbench-page :is(.plot-view-switch, .workspace-inspector-tabs, .option-choice-grid, .candidate-check-grid) :is(button, span) {
+  font-size: 12px;
 }
 
-.selected-parameter-inspector .fit-candidate-table {
-  margin-bottom: var(--ux-space-2);
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#346. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon:has(.fit-stage-options) {
+  min-height: 104px;
+  max-height: 104px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
 }
 
-.fit-candidate-table th,
-.fit-candidate-table td {
-  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#348. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .fit-stage-options > .section-heading {
+  display: flex;
+  min-height: 31px;
+  padding: 0 9px;
+  border-bottom: 1px solid var(--ux-border);
 }
 
-.fit-candidate-table {
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#349. */
+.application-shell main.processing-workbench-page .fit-stage-options > .section-heading h3 {
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#352. */
+.application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.1fr 1.1fr 1.25fr;
+  min-width: 0;
+  height: 72px;
+  gap: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#353. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  min-width: 0;
+  min-height: 72px;
+  height: 72px;
+  padding: 5px 8px;
+  border-left: 0;
+  border-right: 1px solid var(--ux-border);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#354. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group:last-child {
+  border-right: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#355. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group legend {
+  margin: 0 0 6px; font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#356. */
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid {
+  gap: 5px 8px; padding: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#357. */
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid label {
+  min-height: 13px; font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#358. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group > label {
+  gap: 3px; font-size: 10.5px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#359. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group :is(label, legend, output, span, strong) {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#360. */
+.application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) {
+  height: 26px; min-height: 26px; font-size: 11.5px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#361. */
+.application-shell main.processing-workbench-page .fit-stage-options .selected-blend-group,
+.application-shell main.processing-workbench-page .fit-stage-options .extrapolation-group {
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 6px; align-content: start;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#363. */
+.application-shell main.processing-workbench-page .fit-stage-options .selected-blend-group legend,
+.application-shell main.processing-workbench-page .fit-stage-options .extrapolation-group legend {
+  grid-column: 1 / -1;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#365. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option > span {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 5px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#366. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option input {
+  width: 100%;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#367. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group select:disabled {
+  opacity: 1; color: var(--ux-text); background: var(--ux-surface);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#368. */
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group > div {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 4px; width: 100%;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#369. */
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group button {
+  width: 100%; min-width: 0; height: 26px; min-height: 22px; font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#370. */
+.application-shell main.processing-workbench-page .fit-stage-options > .fit-evidence-trigger {
+  position: absolute;
+  right: 8px;
+  bottom: 1px;
+  z-index: 2;
+  height: 17px;
+  min-height: 17px;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 0;
+  color: var(--ux-text-muted);
+  background: transparent;
+  font-size: 11px;
+  line-height: 17px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#371. */
+.application-shell main.processing-workbench-page .fit-stage-options > .fit-evidence-trigger:hover,
+.application-shell main.processing-workbench-page .fit-stage-options > .fit-evidence-trigger[aria-expanded="true"] {
+  color: var(--ux-text);
+  background: transparent;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#373. */
+@media (max-width: 1500px) {
+  .application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+    grid-template-columns: minmax(166px, 1.55fr) minmax(104px, .95fr) minmax(112px, 1fr) minmax(120px, 1.05fr) minmax(122px, 1.05fr) minmax(138px, 1.15fr);
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#374. */
+@media (max-width: 1500px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+    padding-inline: 5px;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#375. */
+@media (max-width: 1500px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group legend {
+    margin-bottom: 4px; font-size: 10.5px;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#376. */
+@media (max-width: 1500px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group > label {
+    font-size: 10px;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#377. */
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock {
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr) min(25vh, 220px);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#378. */
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock > .persistent-modeling-plot {
+  min-height: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#379. */
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock > .modeling-workspace-dock {
+  height: min(25vh, 220px);
+  max-height: min(25vh, 220px);
+  min-height: 0;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#380. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer {
+  display: grid;
+  grid-template-rows: 29px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#381. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 29px;
+  height: 29px;
+  padding: 0 9px;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#382. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header > strong {
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#383. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-status {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#384. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header .text-button {
+  min-height: 22px;
+  padding: 1px 4px;
+  font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#385. */
+.application-shell main.processing-workbench-page .fit-evidence-body {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  padding: 7px 9px 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: var(--ux-border-strong) var(--ux-surface-subtle);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#386. */
+.application-shell main.processing-workbench-page .fit-evidence-body:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#387. */
+.application-shell main.processing-workbench-page .fit-source-evidence {
+  margin: 0 0 8px;
+  padding: 0 0 7px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#388. */
+.application-shell main.processing-workbench-page .fit-source-evidence-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#389. */
+.application-shell main.processing-workbench-page .fit-source-evidence-heading h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#390. */
+.application-shell main.processing-workbench-page .fit-source-evidence-heading span {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#391. */
+.application-shell main.processing-workbench-page .fit-source-evidence dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px 12px;
+  margin: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#392. */
+.application-shell main.processing-workbench-page .fit-source-evidence dl > div {
+  min-width: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#393. */
+.application-shell main.processing-workbench-page .fit-source-evidence dt {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#394. */
+.application-shell main.processing-workbench-page .fit-source-evidence dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#395. */
+.application-shell main.processing-workbench-page .fit-source-evidence code {
+  font-size: 10px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#396. */
+.application-shell main.processing-workbench-page .fit-evidence-body .warning-acknowledgement {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#397. */
+.application-shell main.processing-workbench-page .fit-evidence-body .warning-acknowledgement input[type="checkbox"] {
+  flex: 0 0 13px;
+  align-self: flex-start;
+  width: 13px;
+  min-width: 13px;
+  height: 13px;
+  min-height: 13px;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#398. */
+.application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar {
+  width: var(--ux-scrollbar-track-size);
+  height: var(--ux-scrollbar-track-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#399. */
+.application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar-track {
+  background: var(--ux-surface-subtle);
+  border-left: 1px solid var(--ux-border);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#400. */
+.application-shell main.processing-workbench-page .fit-evidence-body::-webkit-scrollbar-thumb {
+  min-height: var(--ux-scrollbar-thumb-min-size);
+  border: 2px solid var(--ux-surface-subtle);
+  background: var(--ux-border-strong);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#401. */
+.application-shell main.processing-workbench-page .fit-evidence-body .fit-candidate-table-wrap {
+  max-width: none;
+  overflow: visible;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#402. */
+@media (max-height: 768px) {
+  .application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock {
+    grid-template-rows: minmax(0, auto) minmax(0, 1fr) 138px;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#403. */
+@media (max-height: 768px) {
+  .application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock > .modeling-workspace-dock {
+    height: 138px;
+    max-height: 138px;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#409. */
+.application-shell main.processing-workbench-page .ghosh-display-scale-note {
+  grid-column: 1 / -1;
+  margin: 2px 9px 0;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#410. */
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .rail-heading,
+.application-shell main.processing-workbench-page .approved-fit-process-tree > .rail-title {
+  min-height: 29px; padding: 0 8px; color: #4f6068; font-size: 11.5px; font-weight: 650;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#416. */
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .dataset-curve-swatch {
+  width: 3px; height: 17px; margin: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#418. */
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-row-label {
+  min-height: 26px; padding: 2px 0; font-size: 12.5px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#419. */
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-row-label small {
+  display: none;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#420. */
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-visibility-toggle {
+  width: 18px; height: 20px; font-size: 14px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#421. */
+.application-shell main.processing-workbench-page .approved-fit-process-tree {
+  display: grid; grid-template-rows: auto repeat(4, 26px) minmax(0, 1fr) auto; min-height: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#422. */
+.application-shell main.processing-workbench-page .approved-fit-process-tree > .rail-title > span {
+  color: var(--ux-text-muted); font-size: 11.5px; font-weight: 400;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#423. */
+.application-shell main.processing-workbench-page .approved-fit-process-tree > button {
+  min-height: 26px; padding: 2px 7px 2px 10px; border-bottom: 0; font-size: 12px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#424. */
+.application-shell main.processing-workbench-page .approved-fit-process-tree > button > span:first-child {
+  width: 18px; height: 18px; font-size: 10.5px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#425. */
+.application-shell main.processing-workbench-page .approved-fit-process-tree > button strong {
+  font-size: 12px; font-weight: 400;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#491. */
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading h2.fit-plot-heading {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#538. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon:has(.fit-stage-options) {
+  min-height: var(--ux-workbench-ribbon-block-size);
+  max-height: var(--ux-workbench-ribbon-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#540. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .fit-stage-options > .section-heading {
+  min-height: var(--ux-workbench-ribbon-header-block-size);
+  padding-inline: var(--ux-space-2);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#541. */
+.application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options,
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  height: var(--ux-workbench-ribbon-band-block-size);
+  min-height: var(--ux-workbench-ribbon-band-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#543. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  align-content: start;
+  padding: var(--ux-space-1) var(--ux-space-2);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#544. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group {
+  display: block;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#545. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-control-stack {
+  display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: var(--ux-space-1);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#546. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option > span {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) max-content;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#547. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#548. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option input[type="range"] {
+  grid-column: auto;
+  margin-inline: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#549. */
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option output {
+  min-width: max-content;
+  overflow: visible;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#550. */
+.application-shell main.processing-workbench-page .fit-stage-options > .section-heading h3,
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group :is(label, legend, output, span, strong),
+.application-shell main.processing-workbench-page .fit-heading-actions .text-button {
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#553. */
+.application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: var(--ux-input-min-block-size);
+  min-height: var(--ux-input-min-block-size);
   font-size: var(--ux-data-font-size);
 }
 
-.fit-candidate-table thead th,
-.fit-candidate-table tbody small {
-  font-size: var(--ux-table-heading-font-size);
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#554. */
+.application-shell main.processing-workbench-page .fit-stage-options :is(.selected-blend-group, .extrapolation-group) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-.fit-candidate-table button {
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#555. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--ux-space-1);
+  overflow: hidden;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#556. */
+.application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls > label {
+  width: 0;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#557. */
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group button {
+  height: var(--ux-navigator-row-block-size);
+  min-height: var(--ux-navigator-row-block-size);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#558. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+    grid-template-columns:
+      minmax(0, 1.4fr)
+      minmax(0, .9fr)
+      minmax(0, 1.25fr)
+      minmax(0, 1fr)
+      minmax(0, 1.05fr)
+      minmax(0, 1.15fr);
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#559. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+    padding-inline: var(--ux-space-1);
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#560. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#561. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .fit-paired-controls > label {
+    flex: 0 0 auto;
+    width: 100%;
+    gap: 0;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#562. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .contribution-control-stack {
+    gap: 0;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#563. */
+@container (max-width: 800px) {
+  .application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#564. */
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock.has-dock-overlay {
+  position: relative;
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#565. */
+.application-shell main.processing-workbench-page .modeling-main-surface.has-fit-evidence-dock.has-dock-overlay > .modeling-workspace-dock {
+  position: absolute;
+  z-index: 6;
+  grid-row: auto;
+  grid-column: auto;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: min(25vh, 220px);
+  max-height: calc(100% - var(--ux-workbench-ribbon-header-block-size));
+  border-top: 1px solid var(--ux-border-strong);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#566. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer {
+  grid-template-rows: var(--ux-interactive-min-block-size) minmax(0, 1fr);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#567. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header {
   min-height: var(--ux-interactive-min-block-size);
-  padding: var(--ux-space-1) var(--ux-space-2);
+  height: var(--ux-interactive-min-block-size);
+  gap: var(--ux-space-2);
+  padding-inline: var(--ux-space-2);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#568. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header > strong,
+.application-shell main.processing-workbench-page .fit-source-evidence-heading h3,
+.application-shell main.processing-workbench-page .fit-evidence-body dd {
+  font-size: var(--ux-data-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#571. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-status,
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header .text-button,
+.application-shell main.processing-workbench-page .fit-source-evidence :is(dt, code, span) {
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#574. */
+.application-shell main.processing-workbench-page .fit-evidence-drawer-header .text-button {
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#575. */
+.application-shell main.processing-workbench-page .fit-evidence-body {
+  padding: var(--ux-pane-padding);
 }

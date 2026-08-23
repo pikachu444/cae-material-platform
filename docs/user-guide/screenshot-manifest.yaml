@@ -1,4 +1,4 @@
-version: 133
+version: 134
 verified_at: 2026-08-23
 scope: issue-261-m1e5-producer-routed-residual
 source_commit: f51fa6da9856b48e9e3be1ac77e0c2a16b1f9f8a+issue261-m1e5-worktree
@@ -6,6 +6,7 @@ capture_script: ../../scripts/capture_issue_261_m1e5_visual_evidence.py
 capture_command: Main-owned Issue #261 M1E5 before/after Product and Storybook evidence against the bounded synthetic Modeling/Materials journey at browser zoom 100% and DPR 1; final packet accepted after Main opened originals and direct crops, with physical Windows 4K readability deferred to #223
 notes:
   - "Issue #261 M1E5 relocates the approved 58 selector rows in 49 rule groups from the frozen legacy producers into truthful shared, Materials curve-contract, Test Data governed-import/canonical JSON, and Modeling mapping-report owner stylesheets. The two hyperelastic chart-axis/chart-tick rows remain byte-exact producer holds because the accepted 12px processing-workbench cascade must not regress to 9px. Main accepted the seven-topology five-viewport before/after and direct 100%-pixel crop packet with selector computed equality 190/190, page geometry 35/35, crop geometry/display/overflow 160/160 and no clipping/topology regression. The current guide's 1920x1080 Data PNG reuses the accepted live capture at docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png; physical Windows 4K readability remains deferred to #223."
+  - "Issue #261 M4 records a 314-row/262-group frozen packet: 284 approved candidate rows/239 groups plus four omitted live Fit cascade peers move as 288 rows/243 groups into 15 truthful owner stylesheets, 11 already-truthful shared-layout rows remain in place, and 19 rows/12 groups remain HOLD for mixed source or cascade ownership. The current Product evidence is registered at docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/manifest.json with 13 topologies, five CSS viewports, 610 PNGs and 305 before/after pairs; status is ACCEPTED_MAIN_VISUAL_AND_RUNTIME. Fit's frozen M4 owner and pre-existing Fit baseline use separate import slots, while the complete repeated Fit input-selector family moves together in original source order to preserve the generic Modeling cascade. Main directly confirmed that the 1366px Fit controls recover their original widths without clipping. The current guide's representative 1366x768 Modeling/Data PNG reuses the reviewed M4 after original without a new route or capture; physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M1E4 moves the narrowed independently audited 172-row/137-group Modeling common-core/workbench/stage roster (168 core plus four engineering-curve plot rows) into the existing Modeling owner stylesheets. Main inspected the frozen-base/corrected originals and direct 100%-pixel crops at all five CSS viewports. The 48 comparison records and 220 image pairs have zero geometry/text or pixel failures. The approved 60 deferred rows remain legacy-owned; CSS-1618/1619 retain their original styles.css producer/order after the rejected first candidate proved a 12px-to-9px chart-tick cascade regression. No current-guide PNG is replaced, and automated 3840x2160 geometry does not claim physical Windows 4K readability (#223 remains the physical gate)."
   - "The final M1E4 v5 evidence index registers 924 PNGs: 702 accepted Main artifacts and 222 non-acceptance correction diagnostics. Fourteen live states cover the normal Data/Process/Fit/Export journey, representative blocked states, alias, reload and Materials lineage read-back; the remaining registered loading/error states stay source-oracle-only. EngineeringCurvePlot/EmptyCompatibleSeries is pixel-exact at 1440x900 DPR1, and the three #249 synthesis axes pass. Dynamic runtime UUIDs and hashes were read within the disposable run and were not frozen as reusable constants."
   - "Issue #261 M1E3 moves the independently frozen 151-row/139-group Modeling-exclusive constitutive/reference-family roster into engineering-curve, calibration, Export/delivery/elastoplastic and viscoelastic/elastomer producer owners without changing React, DOM, API, copy, route, state or exact-revision contracts. The structured evidence contains 43 Product and 5 Storybook records, 220 before/after image pairs, 187 pixel-identical pairs, 33 generated-identity-only pairs, and zero geometry/text or pixel failures. Main opened every after-state original at source resolution and reviewed direct 100%-pixel family/Export/4K crops. No current-guide PNG changes because the effective UI is preserved. Automated 3840x2160 geometry does not claim physical Windows 4K readability; #223 remains the physical gate."
@@ -1876,7 +1877,6 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-309-modeling-data-axis-overlap/after/originals/modeling-data-mapping-resolved-1366x768.png
-      - docs/user-guide/images/current/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1366x768.png
       - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1366x768.png
   - rationale: 'Issue #261 M1A18 retains these byte-identical before/after ownership-migration images at their exact evidence lifecycle paths.'
@@ -2763,6 +2763,10 @@ captures:
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
+    evidence_status: ACCEPTED_MAIN_VISUAL_AND_RUNTIME_REUSED_M4_AFTER_ORIGINAL
+    evidence_source: docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1366x768/original.png
+    evidence_sha256: 6f4153ee1d1882026c97046e5df1871f206a578c7b4dd499541d770b9abc515d
+    evidence_note: Reused the Main-accepted M4 after original at the matching viewport; no new route or separate screenshot was captured.
     owner_direction_images: [docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/owner-reference/modeling-data-approved-direction-1920x1080.png]
     comparison_evidence: docs/17-evidence/issue-309-modeling-data-axis-overlap.md
   - id: modeling-session-1366

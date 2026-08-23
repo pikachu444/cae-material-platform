@@ -1,3 +1,86 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#155. */
+.neutral-solver-export .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#176. */
+.modeling-export-recovery .button {
+  width: 100%;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#187. */
+@media (min-width: 1101px) {
+  .application-shell main.processing-workbench-page > .export-workspace {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#204. */
+@media (min-width: 1101px) {
+  .modeling-export-blocked .modeling-export-recovery .button.primary {
+    min-height: var(--ux-control-min-block-size);
+  }
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#205. */
+.application-shell main.processing-workbench-page.stage-export > #modeling-output {
+  flex: 0 0 var(--ux-interactive-min-block-size);
+  min-height: var(--ux-interactive-min-block-size);
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #c9d1d6;
+  border-radius: 0;
+  background: #f7f9fa;
+  overflow: hidden;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#206. */
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary {
+  min-height: var(--ux-interactive-min-block-size);
+  height: var(--ux-interactive-min-block-size);
+  padding: 0 var(--ux-space-3);
+  border: 0;
+  border-radius: 0;
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#207. */
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary strong {
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#208. */
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary small,
+.application-shell main.processing-workbench-page.stage-export > #modeling-output > summary > span:last-child {
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#210. */
+.application-shell main.processing-workbench-page.stage-export > #modeling-output[open] {
+  flex: 0 0 auto;
+  max-height: min(42vh, 360px);
+  overflow: auto;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#641. */
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .form-grid,
+.reference-elastoplastic-workbench.embedded
+  .neutral-solver-export
+  > .error-banner {
+  grid-column: 2;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#643. */
+.reference-elastoplastic-workbench.embedded
+  .neutral-solver-export.has-card
+  > .form-grid {
+  grid-column: 1 / -1;
+}
+
 /* Issue #261 owns Export stage-specific CSS; shared rules remain in the design layer. */
 
 .solver-card-item {

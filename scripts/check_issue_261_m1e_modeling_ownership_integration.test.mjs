@@ -13,6 +13,15 @@ const FIXTURE = JSON.parse(readFileSync(
   new URL("./fixtures/issue-261-m1e-modeling-ownership-integration.json", import.meta.url),
   "utf8",
 ));
+const M4_FIXTURE = JSON.parse(readFileSync(
+  new URL("./fixtures/issue-261-m4-shared-css-ownership.json", import.meta.url),
+  "utf8",
+));
+const M4_IMPORT_ALLOWANCES = new Map();
+for (const { importer, value } of M4_FIXTURE.m1eSideEffectImportAllowances ?? []) {
+  if (!M4_IMPORT_ALLOWANCES.has(importer)) M4_IMPORT_ALLOWANCES.set(importer, new Set());
+  M4_IMPORT_ALLOWANCES.get(importer).add(`import "${value}";`);
+}
 
 const TUPLE = {
   legacyId: 0,
@@ -71,6 +80,15 @@ function isCorrectionTarget(row, correction) {
     && JSON.stringify(row.atContext ?? []) === JSON.stringify(correction.atContext ?? []);
 }
 
+function hasCorrectionDeclarations(row, correction) {
+  return isCorrectionTarget(row, correction)
+    && correction.declarations.every((expected) => row.declarations.some((actual) => (
+      actual.property === expected.property
+      && actual.value === expected.value
+      && actual.important === expected.important
+    )));
+}
+
 function stripCorrectionDeclarations(row, correction) {
   if (!isCorrectionTarget(row, correction)) return row;
   const properties = new Set(correction.declarations.map(({ property }) => property));
@@ -124,6 +142,15 @@ function walkSourceFiles(directory) {
 
 function exceptionKey(entry) {
   return `${entry.ruleId}|${entry.path}|${entry.fingerprint}`;
+}
+
+function stripDeclaredM4Imports(source, importer) {
+  const allowed = M4_IMPORT_ALLOWANCES.get(importer);
+  if (!allowed?.size) return source;
+  return source
+    .split(/\r?\n/)
+    .filter((line) => !allowed.has(line.trim()))
+    .join("\n");
 }
 
 test("M1E integration freezes the reviewed base oracle and current residual source", () => {
@@ -219,9 +246,11 @@ test("M1E owner styles and legacy residual are the exact serial Lane A then Lane
       .map((tuple) => [JSON.stringify([tuple[TUPLE.selector], tuple[TUPLE.atContext] ?? []]), tuple]));
     const relocationActual = parsedStylesheet(move.target)
       .filter((row) => expectedIdentities.has(parsedIdentity(row))
-        || (correction && isCorrectionTarget(row, correction))
+        || (correction && hasCorrectionDeclarations(row, correction))
         || exceptionSelectors.includes(JSON.stringify([row.selector, row.atContext ?? []])))
-      .map((row) => (correction ? stripCorrectionDeclarations(row, correction) : row));
+      .map((row) => (correction && hasCorrectionDeclarations(row, correction)
+        ? stripCorrectionDeclarations(row, correction)
+        : row));
     const replayIdentity = (row) => exceptionTupleBySelector.has(JSON.stringify([row.selector, row.atContext ?? []]))
       ? oracleIdentity(exceptionTupleBySelector.get(JSON.stringify([row.selector, row.atContext ?? []])))
       : parsedIdentity(row);
@@ -268,11 +297,11 @@ test("M1E2 compact production stage-shell correction stays inside the existing 1
   const move = FIXTURE.moves.find(({ target }) => target === correction.target);
   assert.ok(move, "the compact correction target must be a frozen move owner");
   const expectedIdentities = new Set(move.oracle.map(oracleIdentity));
-  const ownerRoster = owner.filter((row) => expectedIdentities.has(parsedIdentity(row)) || isCorrectionTarget(row, correction));
+  const ownerRoster = owner.filter((row) => expectedIdentities.has(parsedIdentity(row)) || hasCorrectionDeclarations(row, correction));
   assert.equal(ownerRoster.length, move.expectedRows, "the correction must not add a selector row");
   assert.equal(new Set(ownerRoster.map((row) => row.ruleIndex)).size, move.expectedGroups, "the correction must not add a rule group");
 
-  const rows = ownerRoster.filter((row) => isCorrectionTarget(row, correction));
+  const rows = ownerRoster.filter((row) => hasCorrectionDeclarations(row, correction));
   assert.equal(rows.length, 1, "the corrective declarations must stay in one existing owner row");
   assert.equal(rows[0].selector, correction.selector);
   assert.deepEqual(rows[0].atContext, correction.atContext);
@@ -286,7 +315,11 @@ test("M1E2 compact production stage-shell correction stays inside the existing 1
 
   const core = readFileSync(resolve(ROOT, correction.target), "utf8");
   assert.match(core, /@media\s*\(max-width:\s*900px\)/);
-  assert.doesNotMatch(core, /\.application-shell:has\(\.processing-workbench-page\) \.modeling-stage-shell/);
+  assert.match(core, /\.application-shell:has\(\.processing-workbench-page\) \.modeling-stage-shell/);
+  assert.ok(Object.values(M4_FIXTURE.owners)
+    .find((ownerEntry) => ownerEntry.path === correction.target)
+    .ids.some((id) => M4_FIXTURE.targetTuples
+      .find((tuple) => tuple[0] === id)?.[5] === ".application-shell:has(.processing-workbench-page) .modeling-stage-shell"));
   assert.match(core, /min-height:\s*calc\(var\(--ux-interactive-min-block-size\)\s*\*\s*2\)\s*!important/);
   assert.match(core, /flex-basis:\s*calc\(var\(--ux-interactive-min-block-size\)\s*\*\s*2\)\s*!important/);
 
@@ -359,8 +392,9 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
     );
     for (const importer of move.importers) {
       const current = readFileSync(resolve(ROOT, importer), "utf8").replaceAll("\r\n", "\n");
+      const currentWithoutDeclaredM4 = stripDeclaredM4Imports(current, importer);
       assert.equal(
-        current,
+        currentWithoutDeclaredM4,
         currentBaseSource(importer).replaceAll("\r\n", "\n"),
         `${importer}: M1E4 must not change the already-owned side-effect import`,
       );
@@ -368,52 +402,56 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
   }
 });
 
-test("M1E regenerated residual inventory and guard baseline preserve the integration contract", () => {
+test("M1E historical handoff remains frozen while M4 advances inventory and guard ownership", () => {
   const inventory = JSON.parse(readFileSync(resolve(ROOT, FIXTURE.frozenInventory.path), "utf8"));
-  const currentBaseSha = FIXTURE.currentBaseSha ?? FIXTURE.baseSha;
-  assert.equal(inventory.sourceSha, currentBaseSha);
-  assert.equal(inventory.mergeBaseSha, currentBaseSha);
-  assert.equal(inventory.summary.selectorRows, FIXTURE.aggregate.residual.selectorRows);
-  assert.equal(inventory.summary.cssRuleGroups, FIXTURE.aggregate.residual.ruleGroups);
+  assert.equal(inventory.sourceSha, M4_FIXTURE.baseSha);
+  assert.equal(inventory.mergeBaseSha, M4_FIXTURE.baseSha);
+  assert.equal(inventory.summary.selectorRows, 1103);
+  assert.equal(inventory.summary.cssRuleGroups, 941);
   for (const [batch, expected] of Object.entries(FIXTURE.aggregate.residual.byMigrationBatch)) {
-    assert.equal(inventory.summary.byMigrationBatch[batch], expected, batch);
     assert.equal(inventory.migrationPlan.combinedB4.residualRouting[batch], expected, `${batch} route`);
   }
+  assert.equal(inventory.summary.byMigrationBatch["M4-shared-cleanup"] ?? 0, 0);
+  assert.equal(inventory.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"], 11);
+  assert.equal(inventory.summary.byMigrationBatch["HOLD-owner-or-cross-feature-split"], 525);
+  assert.equal(inventory.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"], 529);
+  const checkpoints = new Map(inventory.migrationPlan.checkpoints.map((checkpoint) => [checkpoint.unit, checkpoint]));
+  assert.equal(checkpoints.get("M1E5-producer-routed-residual").status, "ACCEPTED_MAIN_VISUAL_AND_RUNTIME");
+  assert.equal(checkpoints.get("M4-shared-css-ownership-consolidation").approvedMove.rows, 288);
 
   const baseline = JSON.parse(readFileSync(resolve(ROOT, "apps/web/frontend-guard-baseline.json"), "utf8"));
-  const baseBaseline = JSON.parse(currentBaseSource("apps/web/frontend-guard-baseline.json"));
-  assert.equal(baseline.sourceSha, currentBaseSha);
+  const baseBaseline = JSON.parse(execFileSync(
+    "git",
+    ["show", `${M4_FIXTURE.baseSha}:apps/web/frontend-guard-baseline.json`],
+    { cwd: ROOT, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
+  ));
+  assert.equal(baseline.sourceSha, M4_FIXTURE.baseSha);
   assert.equal(
     baseline.debt.find((entry) => entry.ruleId === "CMP-FE-GLOBAL-CSS-SELECTOR" && entry.scope === "apps/web/src").count,
-    FIXTURE.aggregate.residual.ruleGroups,
+    941,
   );
-  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines, 4245);
-  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines, 4586);
+  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines, 3922);
+  assert.equal(baseline.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines, 3767);
 
   const normalizedBase = structuredClone(baseBaseline);
-  normalizedBase.sourceSha = currentBaseSha;
+  normalizedBase.sourceSha = M4_FIXTURE.baseSha;
   normalizedBase.debt.find(
     (entry) => entry.ruleId === "CMP-FE-GLOBAL-CSS-SELECTOR" && entry.scope === "apps/web/src",
-  ).count = FIXTURE.aggregate.residual.ruleGroups;
-  normalizedBase.debt.find(
-    (entry) => entry.ruleId === "CMP-FE-RAW-COLOR" && entry.scope === "apps/web/src",
-  ).count = 967;
-  normalizedBase.debt.find(
-    (entry) => entry.ruleId === "CMP-FE-FONT-WEIGHT" && entry.scope === "apps/web/src",
-  ).count = 223;
-  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines = 4245;
-  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines = 4586;
+  ).count = 941;
+  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/styles.css").baselineLines = 3922;
+  normalizedBase.hotspots.find((entry) => entry.path === "apps/web/src/design/layout.css").baselineLines = 3767;
   const currentExceptions = baseline.exceptions;
   const baseExceptions = normalizedBase.exceptions;
   delete baseline.exceptions;
   delete normalizedBase.exceptions;
   assert.deepEqual(baseline, normalizedBase, "non-relocation guard debt/history changed");
 
-  const currentByKey = new Map(currentExceptions.map((entry) => [exceptionKey(entry), entry]));
-  const baseByKey = new Map(baseExceptions.map((entry) => [exceptionKey(entry), entry]));
+  const m4ExceptionKey = (entry) => `${entry.ruleId}\0${entry.path}\0${entry.fingerprint}`;
+  const currentByKey = new Map(currentExceptions.map((entry) => [m4ExceptionKey(entry), entry]));
+  const baseByKey = new Map(baseExceptions.map((entry) => [m4ExceptionKey(entry), entry]));
   const removed = [...baseByKey.keys()].filter((key) => !currentByKey.has(key)).sort();
   const added = [...currentByKey.keys()].filter((key) => !baseByKey.has(key)).sort();
-  const currentGuardDelta = FIXTURE.currentGuardDelta;
+  const currentGuardDelta = M4_FIXTURE.frontendGuardDelta;
   assert.equal(removed.length, currentGuardDelta.removedCount);
   assert.equal(added.length, currentGuardDelta.addedCount);
   assert.equal(sha256(JSON.stringify(removed)), currentGuardDelta.removedSha256);
@@ -423,15 +461,23 @@ test("M1E regenerated residual inventory and guard baseline preserve the integra
   }
   for (const key of removed) {
     const entry = baseByKey.get(key);
-    assert.equal(entry.ruleId, "CMP-FE-GLOBAL-CSS-SELECTOR");
-    assert.ok(FIXTURE.legacySources.includes(entry.path));
+    assert.ok(["CMP-FE-GLOBAL-CSS-SELECTOR", "CMP-FE-RAW-COLOR", "CMP-FE-FONT-WEIGHT", "CMP-FE-WIDE-MEDIA"].includes(entry.ruleId));
+    assert.ok(new Set([
+      ...M4_FIXTURE.legacySources.map(({ path }) => path),
+      ...Object.values(M4_FIXTURE.owners).map(({ path }) => path),
+      ...Object.values(M4_FIXTURE.ownerCompanions ?? {}),
+    ]).has(entry.path));
   }
   for (const key of added) {
     const entry = currentByKey.get(key);
     assert.ok(["CMP-FE-GLOBAL-CSS-SELECTOR", "CMP-FE-RAW-COLOR", "CMP-FE-FONT-WEIGHT", "CMP-FE-WIDE-MEDIA"].includes(entry.ruleId));
-    assert.match(entry.path, /^apps\/web\/src\/(?:styles\.css|design\/layout\.css|features\/modeling\/ui\/modeling-(calibration-workbenches|engineering-curve-plot|viscoelastic-workbenches|core-workbench)\.css)$/);
+    assert.ok(new Set([
+      ...M4_FIXTURE.legacySources.map(({ path }) => path),
+      ...Object.values(M4_FIXTURE.owners).map(({ path }) => path),
+      ...Object.values(M4_FIXTURE.ownerCompanions ?? {}),
+    ]).has(entry.path));
     assert.equal(entry.ownerIssue, "#261");
-    assert.match(entry.reason, /^(?:Issue #261 M1E relocates this pre-existing declaration unchanged|FE-06 B4 combines the three approved ownership moves|FE-06 M1E4 moved this audited Modeling declaration|FE-06 M1E4 changed only the audited CSS ownership boundary)/);
+    assert.match(entry.reason, /^FE-06 M4 moves this exact declaration or selector/);
   }
 });
 
@@ -632,7 +678,7 @@ test("M1E Storybook importer is unique and follows the shared layout import", ()
 
 test("M1E integration does not touch forbidden app or global import owners", () => {
   const changed = new Set([
-    ...execFileSync("git", ["diff", "--name-only", FIXTURE.currentBaseSha ?? FIXTURE.baseSha, "--"], { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/),
+    ...execFileSync("git", ["diff", "--name-only", M4_FIXTURE.baseSha, "--"], { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/),
     ...execFileSync("git", ["ls-files", "--others", "--exclude-standard"], { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/),
   ].filter(Boolean).map((path) => path.replaceAll("\\", "/")));
   for (const path of FIXTURE.forbiddenChangedPaths) assert.equal(changed.has(path), false, path);

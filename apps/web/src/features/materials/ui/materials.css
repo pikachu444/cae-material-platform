@@ -1,3 +1,172 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#11. */
+.range-filter-row .button {
+  flex: 0 0 auto;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#38. */
+.module-material-card .button {
+  align-self: flex-start;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#441. */
+.material-database-toolbar > .button.secondary {
+  background: #f4faf7;
+  border-color: #f4faf7;
+  color: #174d3c;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#446. */
+.material-database-search .button {
+  border-radius: 6px;
+  margin: 0.25rem;
+  min-height: 34px;
+  padding-block: 0.4rem;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#24. */
+.materials-datasheet-page .resizable-workspace {
+  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#30. */
+.materials-resize-handle {
+  position: relative;
+  width: var(--ux-splitter-inline-size);
+  flex: 0 0 var(--ux-splitter-inline-size);
+  border-inline: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+  outline: none;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#31. */
+.materials-resize-handle::after {
+  position: absolute;
+  inset: 0 -3px;
+  content: "";
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#32. */
+.materials-resize-handle:is(:hover, :focus-visible, [data-separator="active"]) {
+  border-color: var(--ux-accent);
+  background: var(--ux-accent-soft);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#46. */
+.materials-scroll-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--ux-surface);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#47. */
+.materials-scroll-shell[data-scroll-y="true"] {
+  grid-template-columns: minmax(0, 1fr) var(--ux-scrollbar-track-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#48. */
+.materials-scroll-shell[data-scroll-x="true"] {
+  grid-template-rows: minmax(0, 1fr) var(--ux-scrollbar-track-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#49. */
+.materials-scroll-rail {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #9bb1bb;
+  background: #dce7ec;
+  touch-action: none;
+  user-select: none;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#52. */
+.materials-scroll-thumb {
+  position: absolute;
+  display: block;
+  border: 1px solid #345b6d;
+  border-radius: 2px;
+  background: #4e8195;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#53. */
+.materials-scroll-rail-y .materials-scroll-thumb {
+  top: 2px;
+  right: 2px;
+  left: 2px;
+  min-height: var(--ux-scrollbar-thumb-min-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#54. */
+.materials-scroll-rail-x .materials-scroll-thumb {
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  min-width: var(--ux-scrollbar-thumb-min-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#55. */
+.materials-scroll-rail:hover .materials-scroll-thumb {
+  background: #315f72;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#56. */
+.materials-scroll-rail:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#57. */
+.materials-scroll-corner {
+  grid-row: 2;
+  grid-column: 2;
+  border-top: 1px solid #9bb1bb;
+  border-left: 1px solid #9bb1bb;
+  background: #dce7ec;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#70. */
+.tree-subset-list > .ux-meta {
+  padding: var(--ux-space-2) var(--ux-space-3);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#96. */
+.linked-response-heading > .ux-meta {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#99. */
+.card-preview-actions > .ux-kicker {
+  margin: 9px 0 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#112. */
+.evidence-grid {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: var(--ux-space-2) var(--ux-space-4);
+  margin: 0 0 var(--ux-space-5);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#113. */
+.evidence-grid dt {
+  color: var(--ux-text-muted);
+  font-weight: 650;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#114. */
+.evidence-grid dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
 /* Issue #261 M2: Materials-owned layout rules extracted without selector or declaration changes. */
 
 .materials-page {

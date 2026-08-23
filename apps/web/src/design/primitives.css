@@ -1,3 +1,160 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#2. */
+.error-banner,
+.success-banner {
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-weight: 650;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#4. */
+.error-banner {
+  background: #fff0f1;
+  border: 1px solid #e6a4aa;
+  color: #8b1f29;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#5. */
+.success-banner {
+  background: #ecf8f2;
+  border: 1px solid #8bc9ac;
+  color: #175d3d;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#16. */
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#17. */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#21. */
+button {
+  cursor: pointer;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#22. */
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#58. */
+.button {
+  min-height: 40px;
+  padding: 0.65rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#59. */
+.button.primary {
+  border-color: #0f6966;
+  color: #fff;
+  background: #147a76;
+  box-shadow: 0 2px 5px rgb(10 82 78 / 18%);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#60. */
+.button.primary:hover {
+  background: #0d6966;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#61. */
+.button.secondary {
+  border-color: #a8bec2;
+  color: #234852;
+  background: #f9fbfb;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#62. */
+.button.secondary:hover {
+  border-color: #78959a;
+  background: #f1f6f5;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#86. */
+label {
+  display: grid;
+  gap: 0.35rem;
+  color: #395660;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#87. */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.6rem 0.65rem;
+  border: 1px solid #b8c9cb;
+  border-radius: 6px;
+  outline: none;
+  color: #1d353e;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 450;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#90. */
+textarea {
+  resize: vertical;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#91. */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #16817c;
+  box-shadow: 0 0 0 3px rgb(42 150 143 / 16%);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#99. */
+.button.danger {
+  border-color: #bb6b68;
+  color: #fff;
+  background: #a33e3a;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#104. */
+.empty-state {
+  display: grid;
+  max-width: 720px;
+  gap: 1rem;
+  padding: clamp(2rem, 7vw, 4rem);
+  border: 1px dashed #a8c0c3;
+  border-radius: 14px;
+  background: #f9fdfc;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#105. */
+.empty-state h2 {
+  margin-bottom: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#106. */
+.empty-state p {
+  margin-bottom: 0;
+  color: #4e6970;
+  line-height: 1.65;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#159. */
+.engineering-plot-frame {
+  position: relative;
+}
+
 .ux-button,
 .ux-icon-button,
 .ux-tab,

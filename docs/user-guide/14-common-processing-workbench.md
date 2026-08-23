@@ -710,3 +710,21 @@ Main visual/runtime acceptance PASS로 기록됩니다. 현재 guide의 1920×10
 (`docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png`)를
 재사용하며 새 route나 screenshot을 추가하지 않았습니다. 자동 3840×2160 검사는 geometry만
 증명하고 physical Windows 4K readability는 #223 gate로 남습니다.
+
+### Issue #261 M4 shared CSS ownership consolidation provenance
+
+M4는 frozen base의 314개 selector row/262개 rule group 중 승인된 284개 row/239개 group과
+같은 Fit cascade의 누락된 4개 row/4개 group을 합친 288개 row/243개 group을 15개 truthful
+owner stylesheet로 정리합니다. 이미 shared layout이 truthful한 11개 row는
+in-place로 기록하고, mixed source/selector cascade가 남은 19개 row(12개 group)는 HOLD로
+보존합니다. DOM, 문구, API, route, state, exact revision/session contract와 #249의 정보
+계층·engineering flow·wide-screen composition은 변경하지 않습니다. Fit owner는 frozen
+M4 규칙과 기존 Fit baseline을 별도 import slot으로 유지하고, 반복된 Fit 입력 selector
+family 전체를 원래 source 순서대로 함께 소유해 generic Modeling cascade를 역전시키지 않습니다.
+
+다섯 CSS viewport의 13개 topology before/after 원본과 header·navigator·table/form·stage
+controls·engineering graph/native preview crop은 [M4 evidence manifest](../17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/manifest.json)에
+기록되어 있습니다. Main은 원본과 직접 crop에서 1366px Fit control 잘림이 제거되고 원래
+cascade와 폭이 복구된 것을 확인했으며, 현재 상태는 `ACCEPTED_MAIN_VISUAL_AND_RUNTIME`입니다.
+현재 guide PNG는 검토된 M4 after 원본을 재사용하고, 자동 3840×2160은 geometry만 증명하며
+physical Windows 4K readability는 #223 gate입니다.

@@ -1,3 +1,52 @@
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#229. */
+.data-mapping-actions .button {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#476. */
+.modeling-main-surface.has-data-split .data-mapping-actions .button {
+  box-sizing: border-box;
+  height: var(--ux-control-min-block-size);
+  min-height: var(--ux-control-min-block-size);
+  padding: 0 var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  line-height: normal;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#485. */
+.modeling-main-surface.has-data-split .data-mapping-actions .button {
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#486. */
+.modeling-main-surface.has-data-split .data-mapping-actions .button.is-prerequisite-blocked:disabled {
+  border-color: var(--ux-border-strong);
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#487. */
+.modeling-main-surface.has-data-split .data-mapping-actions .button.is-prerequisite-blocked:disabled {
+  background: var(--ux-surface-subtle);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#521. */
+.data-mapping-actions .button {
+  min-height: var(--ux-control-min-block-size);
+}
+
+/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#523. */
+.data-mapping-actions .button {
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+}
+
 /* Issues #260 and #261 own every selector in this file. Shared shell, density
    and primitive rules remain in the design layer. */
 

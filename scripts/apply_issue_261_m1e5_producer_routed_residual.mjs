@@ -5,15 +5,19 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const FIXTURE = JSON.parse(readFileSync(
-  resolve(ROOT, "scripts/fixtures/issue-261-m1e5-producer-routed-residual.json"),
-  "utf8",
-));
-const FROZEN_INVENTORY_TEXT = execFileSync(
-  "git",
-  ["show", `${FIXTURE.baseSha}:${FIXTURE.frozenInventory.path}`],
-  { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] },
-);
+const fixtureArgIndex = process.argv.indexOf("--fixture");
+const fixturePath = fixtureArgIndex >= 0
+  ? process.argv[fixtureArgIndex + 1]
+  : "scripts/fixtures/issue-261-m1e5-producer-routed-residual.json";
+if (!fixturePath) throw new Error("--fixture requires a repository-relative JSON path");
+const FIXTURE = JSON.parse(readFileSync(resolve(ROOT, fixturePath), "utf8"));
+const FROZEN_INVENTORY_TEXT = FIXTURE.frozenInventory
+  ? execFileSync(
+      "git",
+      ["show", `${FIXTURE.baseSha}:${FIXTURE.frozenInventory.path}`],
+      { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] },
+    )
+  : null;
 const TARGET_IDS = new Set(FIXTURE.approvedIds);
 const ROW_BY_KEY = new Map(FIXTURE.targetTuples.map((tuple) => [
   `${tuple[1]}#${tuple[3]}#${tuple[4]}`,
@@ -32,6 +36,7 @@ const OWNER_BY_ID = new Map(
   Object.values(FIXTURE.owners)
     .flatMap((owner) => owner.ids.filter((id) => TARGET_IDS.has(id)).map((id) => [id, owner.path])),
 );
+const OWNER_COMPANIONS = new Map(Object.entries(FIXTURE.ownerCompanions ?? {}));
 
 function normalizeSpace(value) {
   return value.replace(/\s+/g, " ").trim();
@@ -137,14 +142,14 @@ function cssIdentity(row) {
   return `${normalizeSpace(row.selector)}\0${(row.atContext ?? []).join(" | ")}\0${row.signature ?? ""}`;
 }
 
-function tupleIdentity(path, selector, atContext) {
-  return `${path}\0${normalizeSpace(selector)}\0${(atContext ?? []).join(" | ")}`;
+function tupleIdentity(path, selector, atContext, signature) {
+  return `${path}\0${normalizeSpace(selector)}\0${(atContext ?? []).join(" | ")}\0${signature}`;
 }
 
 const APPROVED_BY_IDENTITY = new Map(
   FIXTURE.targetTuples
     .filter((tuple) => TARGET_IDS.has(tuple[0]))
-    .map((tuple) => [tupleIdentity(tuple[1], tuple[5], tuple[6]), tuple]),
+    .map((tuple) => [tupleIdentity(tuple[1], tuple[5], tuple[6], tuple[10]), tuple]),
 );
 
 function eolFor(source) {
@@ -209,7 +214,7 @@ function formatMovedRule(selectors, body, eol) {
     .map((line) => line.match(/^\s*/)?.[0].length ?? 0);
   const baseIndent = indents.length ? Math.min(...indents) : 0;
   const normalizedBody = lines
-    .map((line) => `${line.trim() ? "  " : ""}${line.slice(baseIndent)}`)
+    .map((line) => `${line.trim() ? "  " : ""}${line.slice(baseIndent)}`.replace(/[ \t]+$/, ""))
     .join(eol);
   return `${selectors.join(`,${eol}`)} {${eol}${normalizedBody}${eol}}`;
 }
@@ -253,17 +258,25 @@ function currentTargetRows(path, source) {
   return rules
     .map((rule) => ({
       rule,
-      tuple: APPROVED_BY_IDENTITY.get(tupleIdentity(path, rule.selector, rule.atContext)),
+      tuple: APPROVED_BY_IDENTITY.get(tupleIdentity(
+        path,
+        rule.selector,
+        rule.atContext,
+        declarationSignature(source.slice(rule.bodyStart, rule.close)),
+      )),
     }))
     .filter(({ tuple }) => tuple);
 }
 
-function ownerRows(path) {
-  const source = readFileSync(resolve(ROOT, path), "utf8");
+function ownerRowsFromSource(source) {
   return scanCss(source).map((rule) => ({
     ...rule,
     signature: declarationSignature(source.slice(rule.bodyStart, rule.close)),
   }));
+}
+
+function ownerRows(path) {
+  return ownerRowsFromSource(readFileSync(resolve(ROOT, path), "utf8"));
 }
 
 function targetOwnerBlocks(path, source) {
@@ -327,30 +340,95 @@ function targetOwnerBlocks(path, source) {
   return { nextSource, blocks };
 }
 
-function appendBlocks(ownerPath, blocks) {
+function integratedSource(ownerPath, blocks, existing) {
+  const eol = eolFor(existing);
+  const existingRules = ownerRowsFromSource(existing);
+  const existingIdentities = new Set(existingRules.map(cssIdentity));
+  const freshBlocks = blocks
+    .sort((left, right) => left.sourceRank - right.sourceRank || left.ruleIndex - right.ruleIndex || left.selectorIndex - right.selectorIndex)
+    .filter((block) => block.identityRows.some((row) => !existingIdentities.has(cssIdentity(row))));
+  if (!freshBlocks.length) return existing;
+  const base = existing.replace(/\s+$/, "");
+  const separated = freshBlocks.map((_, index) => (index ? `${eol}${eol}` : ""));
+  let body = "";
+  freshBlocks.forEach((block, index) => {
+    const blockText = `${separated[index]}/* ${FIXTURE.unit ?? "M1E5"} frozen ownership move: ${block.sourceKey}. */${eol}${convertEol(block.text, eol)}`;
+    body += blockText;
+  });
+  if (FIXTURE.targetInsertion === "prepend" && base) {
+    return `${body}${eol}${eol}${base}${eol}`;
+  }
+  const prefix = base ? `${base}${eol}${eol}` : "";
+  return `${prefix}${body}${eol}`;
+}
+
+function integrateBlocks(ownerPath, blocks) {
   const ownerFile = resolve(ROOT, ownerPath);
+  const companionPath = OWNER_COMPANIONS.get(ownerPath);
+  if (companionPath) {
+    const companionFile = resolve(ROOT, companionPath);
+    const existingOwner = existsSync(ownerFile) ? readFileSync(ownerFile, "utf8") : "";
+    if (!existsSync(companionFile)) {
+      mkdirSync(resolve(companionFile, ".."), { recursive: true });
+      writeFileSync(companionFile, existingOwner, "utf8");
+    }
+    if (existingOwner && !existingOwner.includes("frozen ownership move:")) {
+      writeFileSync(companionFile, existingOwner, "utf8");
+      writeFileSync(ownerFile, "", "utf8");
+    }
+  }
   if (!existsSync(ownerFile)) {
     mkdirSync(resolve(ownerFile, ".."), { recursive: true });
     writeFileSync(ownerFile, "", "utf8");
   }
   const existing = readFileSync(ownerFile, "utf8");
-  const eol = eolFor(existing);
-  const existingRules = ownerRows(ownerPath);
-  const existingIdentities = new Set(existingRules.map(cssIdentity));
-  const freshBlocks = blocks
-    .sort((left, right) => left.sourceRank - right.sourceRank || left.ruleIndex - right.ruleIndex || left.selectorIndex - right.selectorIndex)
-    .filter((block) => block.identityRows.some((row) => !existingIdentities.has(cssIdentity(row))));
-  if (!freshBlocks.length) return false;
-  const base = existing.replace(/[ \t]+$/, "");
-  const prefix = base ? `${base}${eol}${eol}` : "";
-  const separated = freshBlocks.map((_, index) => (index ? `${eol}${eol}` : ""));
-  let body = "";
-  freshBlocks.forEach((block, index) => {
-    const blockText = `${separated[index]}/* M1E5 frozen ownership move: ${block.sourceKey}. */${eol}${convertEol(block.text, eol)}`;
-    body += blockText;
-  });
-  writeFileSync(ownerFile, `${prefix}${body}${eol}`, "utf8");
+  const next = integratedSource(ownerPath, blocks, existing);
+  if (next === existing) return false;
+  writeFileSync(ownerFile, next, "utf8");
   return true;
+}
+
+function frozenTransformation() {
+  const nextLegacyByPath = new Map();
+  const blocksByOwner = new Map();
+  for (const { path } of FIXTURE.legacySources) {
+    const source = frozenSource(path);
+    const { nextSource, blocks } = targetOwnerBlocks(path, source);
+    nextLegacyByPath.set(path, nextSource);
+    for (const block of blocks) {
+      if (!blocksByOwner.has(block.ownerPath)) blocksByOwner.set(block.ownerPath, []);
+      blocksByOwner.get(block.ownerPath).push(block);
+    }
+  }
+  return { nextLegacyByPath, blocksByOwner };
+}
+
+function verifyExactTransformation() {
+  const { nextLegacyByPath, blocksByOwner } = frozenTransformation();
+  const drift = [];
+  for (const [path, expected] of nextLegacyByPath) {
+    if (readFileSync(resolve(ROOT, path), "utf8") !== expected) drift.push(path);
+  }
+  for (const [ownerPath, blocks] of blocksByOwner) {
+    let frozenOwner = "";
+    try {
+      frozenOwner = frozenSource(ownerPath);
+    } catch {
+      // A packet may introduce a new owner stylesheet.
+    }
+    const companionPath = OWNER_COMPANIONS.get(ownerPath);
+    const expected = integratedSource(ownerPath, blocks, companionPath ? "" : frozenOwner);
+    if (!existsSync(resolve(ROOT, ownerPath)) || readFileSync(resolve(ROOT, ownerPath), "utf8") !== expected) {
+      drift.push(ownerPath);
+    }
+    if (companionPath) {
+      if (!existsSync(resolve(ROOT, companionPath))
+        || readFileSync(resolve(ROOT, companionPath), "utf8") !== frozenOwner) {
+        drift.push(companionPath);
+      }
+    }
+  }
+  if (drift.length) throw new Error(`exact frozen transformation drifted: ${drift.join(", ")}`);
 }
 
 function verifyOwners() {
@@ -386,7 +464,7 @@ function report(mode) {
   console.log(JSON.stringify({
     mode,
     baseSha: FIXTURE.baseSha,
-    frozenInventorySha256: FIXTURE.frozenInventory.sha256,
+    frozenInventorySha256: FIXTURE.frozenInventory?.sha256 ?? null,
     approvedRows: FIXTURE.approvedMove.rows,
     approvedGroups: FIXTURE.approvedMove.groups,
     legacyTargetRowsPresent: legacyRows.length,
@@ -397,10 +475,11 @@ function report(mode) {
 
 if (process.argv.includes("--check")) {
   report("check");
-  if (sha256Text(FROZEN_INVENTORY_TEXT) !== FIXTURE.frozenInventory.sha256) {
+  if (FIXTURE.frozenInventory && sha256Text(FROZEN_INVENTORY_TEXT) !== FIXTURE.frozenInventory.sha256) {
     throw new Error("frozen current inventory hash drifted; regenerate the current inventory before applying M1E5");
   }
   verifyOwners();
+  if (FIXTURE.exactResult) verifyExactTransformation();
 } else if (!process.argv.includes("--write")) {
   console.error("Refusing to modify CSS without --write");
   process.exitCode = 2;
@@ -422,7 +501,7 @@ if (process.argv.includes("--check")) {
     blocksByOwner.get(block.ownerPath).push(block);
   }
   for (const [ownerPath, blocks] of blocksByOwner) {
-    if (appendBlocks(ownerPath, blocks)) console.log(`WROTE ${ownerPath}: ${blocks.length} frozen source groups`);
+    if (integrateBlocks(ownerPath, blocks)) console.log(`WROTE ${ownerPath}: ${blocks.length} frozen source groups`);
     else console.log(`UNCHANGED ${ownerPath}: all frozen identities already present`);
   }
   verifyOwners();
