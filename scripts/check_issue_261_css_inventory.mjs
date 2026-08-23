@@ -28,6 +28,11 @@ const FROZEN_BASE = "4d53d95ce926b96b84e47f9d942127f0853d8ed2";
 const B1_SOURCE = "a26649ec9d7e689cf773ccad9dedfcb985d9ea62";
 const M2_SOURCE = "be5538ec57efdd65f4104fffa733f134b3d42d87";
 const M3_SOURCE = "dfc3bf00b5aafac2ac466d662f07ee4be88421eb";
+const M1E5_HOLD_REASON = "Producer move reverses the accepted processing-workbench cascade (current 12px -> 9px); retain the global producer until a later shared/feature cascade redesign.";
+const M1E5_SOURCE = "f51fa6da9856b48e9e3be1ac77e0c2a16b1f9f8a";
+const M1E5_APPROVED_MOVE_DIGEST = "0f6aa0655f142ce6e86d795038ce30c6af3ba3cb42b094f01571995fd01831b5";
+const M1E5_CANDIDATE_DIGEST = "a3eae9d1cd349b194183ee09da9dbdcc74e1f96131c42401ae2a901eb33678c3";
+const M1E5_RETAINED_DIGEST = "e71f72f787214b01e40d6c6109e37fe54d4263899dc9eeff0aabd0a3e1fa7880";
 const M2_FIXTURE = JSON.parse(readFileSync(
   join(ROOT, "scripts", "fixtures", "issue-261-m2-materials-css-ownership.json"),
   "utf8",
@@ -1199,7 +1204,11 @@ function selectorStates(selector) {
   return [...states].sort();
 }
 
-function migrationBatch(owner, selector, deadCandidate) {
+function migrationBatch(owner, selector, deadCandidate, sourcePath) {
+  if (sourcePath === "apps/web/src/styles.css"
+      && [".hyperelastic-response-plot .chart-axis", ".hyperelastic-response-plot .chart-tick"].includes(selector)) {
+    return "HOLD-owner-or-cross-feature-split";
+  }
   if (deadCandidate) return "M6-zero-consumer-removal-candidate";
   if (owner === "modeling-specific") {
     if (/data-|data\b|intake|library/.test(selector)) return "M1A-modeling-data";
@@ -1282,7 +1291,11 @@ function makeInventory() {
       owner: {
         category: owner,
         proposedTarget: OWNER_TARGET[owner],
-        migrationBatch: migrationBatch(owner, rule.selector.toLowerCase(), deadCandidate),
+        migrationBatch: migrationBatch(owner, rule.selector.toLowerCase(), deadCandidate, rule.path),
+        ...(rule.path === "apps/web/src/styles.css"
+          && [".hyperelastic-response-plot .chart-axis", ".hyperelastic-response-plot .chart-tick"].includes(rule.selector)
+          ? { migrationReason: M1E5_HOLD_REASON }
+          : {}),
       },
       consumers: {
         status: subjectToken
@@ -1938,7 +1951,30 @@ function makeInventory() {
           },
         },
       ],
-      checkpoints: OWNERSHIP_CHECKPOINTS,
+      checkpoints: [
+        ...OWNERSHIP_CHECKPOINTS,
+        {
+          unit: "M1E5-producer-routed-residual",
+          sourceCommit: sourceSha,
+          frozenBase: sourceSha,
+          disposition: "PLANNED",
+          current: {
+            selectorRows: rows.length,
+            cssRuleGroups: cssRuleGroupCount,
+            m1eRows: countBy(rows, (row) => row.owner.migrationBatch)["M1E-modeling-shell-and-family"] ?? 0,
+            m1eGroups: new Set(rows
+              .filter((row) => row.owner.migrationBatch === "M1E-modeling-shell-and-family")
+              .map((row) => `${row.source.path}#${row.source.ruleIndex}`)).size,
+            holdRows: countBy(rows, (row) => row.owner.migrationBatch)["HOLD-owner-or-cross-feature-split"] ?? 0,
+            crossCssDuplicateRows: flagCounts.crossCssDuplicate,
+          },
+          approvedMove: { rows: 58, groups: 49, tupleSha256: M1E5_APPROVED_MOVE_DIGEST },
+          candidateResidual: { rows: 60, groups: 51, tupleSha256: M1E5_CANDIDATE_DIGEST },
+          retainedBoundary: { rows: 2, groups: 2, tupleSha256: M1E5_RETAINED_DIGEST, ids: ["CSS-1446", "CSS-1447"] },
+          status: "MAIN-REQUIRED",
+          liveAcceptance: "pending Main live acceptance",
+        },
+      ],
       combinedB4: {
         unit: "B4-combined-css-ownership-integration",
         sourceCommit: sourceSha,
@@ -1947,10 +1983,17 @@ function makeInventory() {
         liveAcceptance: "pending Main live acceptance",
         handoffs: ["B1-modeling-stage-css-ownership", "M2-materials-css-ownership", "M3-governance-css-ownership"],
         current: {
-          selectorRows: rows.length,
-          cssRuleGroups: cssRuleGroupCount,
-          crossCssDuplicateRows: flagCounts.crossCssDuplicate,
-          byMigrationBatch: countBy(rows, (row) => row.owner.migrationBatch),
+          selectorRows: 1449,
+          cssRuleGroups: 1231,
+          crossCssDuplicateRows: 6,
+          byMigrationBatch: {
+            "HOLD-owner-or-cross-feature-split": 504,
+            "M1A-modeling-data": 9,
+            "M1B-modeling-process": 29,
+            "M1E-modeling-shell-and-family": 60,
+            "M4-shared-cleanup": 314,
+            "M6-zero-consumer-removal-candidate": 533,
+          },
         },
         residualRouting: {
           "M1A-modeling-data": 9,
@@ -1960,7 +2003,7 @@ function makeInventory() {
           "M4-shared-cleanup": 314,
           "M6-zero-consumer-removal-candidate": 533,
         },
-        note: "Combined source inventory only; no live DOM, viewport, or product-owner acceptance is asserted here.",
+        note: "Immutable B4 source inventory checkpoint; M1E5 current counts are recorded in checkpoints and do not alter this historical arithmetic.",
       },
       nextBoundedUnit: {
         id: "M1A21-modeling-data-component-region",
@@ -2442,6 +2485,32 @@ function validateInventory(inventory) {
     if (!actual) errors.push(`ownership checkpoint ${checkpoint.unit} is missing`);
     else if (actual.sourceCommit !== checkpoint.sourceCommit || actual.frozenBase !== FROZEN_BASE || actual.disposition !== "APPROVE") {
       errors.push(`ownership checkpoint ${checkpoint.unit} provenance/disposition changed`);
+    }
+  }
+  const m1e5 = checkpointByUnit.get("M1E5-producer-routed-residual");
+  if (!m1e5) {
+    errors.push("M1E5 producer-routed residual checkpoint is missing");
+  } else {
+    if (m1e5.sourceCommit !== M1E5_SOURCE || m1e5.frozenBase !== M1E5_SOURCE || m1e5.disposition !== "PLANNED") {
+      errors.push("M1E5 checkpoint provenance/disposition changed");
+    }
+    if (m1e5.current?.selectorRows !== inventory.summary.selectorRows
+        || m1e5.current?.cssRuleGroups !== inventory.summary.cssRuleGroups
+        || m1e5.current?.m1eRows !== 0
+        || m1e5.current?.m1eGroups !== 0
+        || m1e5.current?.holdRows !== inventory.summary.byMigrationBatch["HOLD-owner-or-cross-feature-split"]
+        || m1e5.current?.crossCssDuplicateRows !== inventory.summary.flags.crossCssDuplicate) {
+      errors.push(`M1E5 current checkpoint is ${JSON.stringify(m1e5.current)}`);
+    }
+    if (m1e5.approvedMove?.rows !== 58 || m1e5.approvedMove?.groups !== 49 || m1e5.approvedMove?.tupleSha256 !== M1E5_APPROVED_MOVE_DIGEST
+        || m1e5.candidateResidual?.rows !== 60 || m1e5.candidateResidual?.groups !== 51 || m1e5.candidateResidual?.tupleSha256 !== M1E5_CANDIDATE_DIGEST
+        || m1e5.retainedBoundary?.rows !== 2 || m1e5.retainedBoundary?.groups !== 2 || m1e5.retainedBoundary?.tupleSha256 !== M1E5_RETAINED_DIGEST) {
+      errors.push("M1E5 approved/candidate/retained digest contract changed");
+    }
+    const holdRows = rows.filter((row) => row.owner.migrationBatch === "HOLD-owner-or-cross-feature-split"
+      && [".hyperelastic-response-plot .chart-axis", ".hyperelastic-response-plot .chart-tick"].includes(row.selector));
+    if (holdRows.length !== 2 || holdRows.some((row) => row.owner.migrationReason !== M1E5_HOLD_REASON)) {
+      errors.push("M1E5 hold selectors/reason are not preserved");
     }
   }
   const combined = inventory.migrationPlan.combinedB4;

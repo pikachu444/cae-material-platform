@@ -13,6 +13,10 @@ const FIXTURE = JSON.parse(readFileSync(
   join(ROOT, "scripts/fixtures/issue-261-m1e3-modeling-family-ownership.json"),
   "utf8",
 ));
+const M1E5_FIXTURE = JSON.parse(readFileSync(
+  join(ROOT, "scripts/fixtures/issue-261-m1e5-producer-routed-residual.json"),
+  "utf8",
+));
 const FROZEN_INVENTORY = JSON.parse(execFileSync(
   "git",
   ["show", `${FIXTURE.baseSha}:${FIXTURE.frozenInventory.path}`],
@@ -155,16 +159,16 @@ test("M1E3 owners contain the moved roster and legacy CSS retains only approved 
     {
       selectorRows: inventory.summary.selectorRows,
       cssRuleGroups: inventory.summary.cssRuleGroups,
-      m1eRows: inventory.summary.byMigrationBatch["M1E-modeling-shell-and-family"],
+      m1eRows: inventory.summary.byMigrationBatch["M1E-modeling-shell-and-family"] ?? 0,
       m1eGroups: m1eGroups.size,
       crossCssDuplicateRows: inventory.summary.flags.crossCssDuplicate,
     },
     {
-      selectorRows: FIXTURE.aggregate.expectedAfter.selectorRows,
-      cssRuleGroups: FIXTURE.aggregate.expectedAfter.cssRuleGroups,
-      m1eRows: FIXTURE.aggregate.expectedAfter.m1eRows,
-      m1eGroups: FIXTURE.aggregate.expectedAfter.m1eGroups,
-      crossCssDuplicateRows: FIXTURE.aggregate.expectedAfter.crossCssDuplicateRows,
+      selectorRows: M1E5_FIXTURE.expectedAfter.selectorRows,
+      cssRuleGroups: M1E5_FIXTURE.expectedAfter.cssRuleGroups,
+      m1eRows: M1E5_FIXTURE.expectedAfter.m1eRows,
+      m1eGroups: M1E5_FIXTURE.expectedAfter.m1eGroups,
+      crossCssDuplicateRows: M1E5_FIXTURE.expectedAfter.crossCssDuplicateRows,
     },
   );
 

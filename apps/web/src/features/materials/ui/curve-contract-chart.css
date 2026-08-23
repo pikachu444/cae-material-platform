@@ -1,0 +1,147 @@
+/* M1E5 frozen ownership move: apps/web/src/styles.css#418. */
+.curve-legend i.confidence {
+  background: #8d5bb0;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#158. */
+.contract-curve-svg:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#160. */
+.contract-curve-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#161. */
+.contract-curve-heading h3,
+.contract-curve-heading p,
+.curve-band-meaning {
+  margin: 0;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#164. */
+.contract-curve-heading p,
+.contract-curve-heading > span,
+.curve-band-meaning,
+.contract-curve-actions > span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#168. */
+.curve-channel-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ux-space-1) var(--ux-space-4);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#169. */
+.contract-curve-frame {
+  position: relative;
+  min-width: 0;
+  border-block: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#170. */
+.contract-curve-svg {
+  display: block;
+  width: 100%;
+  height: clamp(300px, 40vh, 680px);
+  touch-action: none;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#171. */
+.contract-curve-line {
+  fill: none;
+  stroke: var(--ux-accent);
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#172. */
+.contract-curve-active {
+  pointer-events: none;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#173. */
+.contract-curve-active line {
+  stroke: var(--ux-text-muted);
+  stroke-dasharray: 4 3;
+  stroke-width: 1;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#174. */
+.contract-curve-active circle {
+  fill: var(--ux-surface);
+  stroke: var(--ux-accent);
+  stroke-width: 3;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#175. */
+.contract-curve-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  max-width: min(360px, 78%);
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+  color: var(--ux-text);
+  font-size: 12px;
+  gap: 2px;
+  pointer-events: none;
+  transform: translate(12px, calc(-100% - 12px));
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#176. */
+.contract-curve-tooltip span {
+  color: var(--ux-text-muted);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#178. */
+.contract-curve .curve-legend {
+  margin: 0;
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#179. */
+.curve-legend i.contract-line {
+  background: var(--ux-accent);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#180. */
+.contract-curve-actions {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  gap: var(--ux-space-3);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#181. */
+.curve-evidence dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+  margin: var(--ux-space-3) 0 0;
+  gap: var(--ux-space-2) var(--ux-space-4);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#182. */
+.curve-evidence dt {
+  color: var(--ux-text-muted);
+}
+
+/* M1E5 frozen ownership move: apps/web/src/design/layout.css#183. */
+.curve-evidence dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}

@@ -4,6 +4,7 @@ import "../src/styles.css";
 import "../src/design/tokens.css";
 import "../src/design/typography.css";
 import "../src/design/primitives.css";
+import "../src/features/test-data/ui/governed-import-route.css";
 import "../src/design/layout.css";
 import "../src/features/modeling/ui/modeling-core-workbench.css";
 import "../src/design/shell.css";

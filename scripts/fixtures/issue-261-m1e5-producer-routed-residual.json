@@ -1,0 +1,1432 @@
+{
+  "version": "issue-261-m1e5-producer-routed-residual.v1",
+  "baseSha": "f51fa6da9856b48e9e3be1ac77e0c2a16b1f9f8a",
+  "frozenInventory": {
+    "path": "docs/17-evidence/issue-261-css-selector-inventory.json",
+    "sha256": "3f172e1642ab2dedf054beaa88c765ea00ef6578ffdcc893258837431b598965"
+  },
+  "legacySources": [
+    {
+      "path": "apps/web/src/styles.css",
+      "mainImportRank": 0,
+      "sha256": "e9373a23dd996247e45b3ea5564ef4533de3f0f5d54aba32869760fd1cfb3bca"
+    },
+    {
+      "path": "apps/web/src/design/layout.css",
+      "mainImportRank": 4,
+      "sha256": "39fe3d0bfc36b727cea8820507cb291ac682ffcbf420b18a0b5639dcca50ccdb"
+    }
+  ],
+  "tupleSchema": [
+    "id",
+    "source.path",
+    "source.mainImportRank",
+    "source.ruleIndex",
+    "source.selectorIndex",
+    "selector",
+    "source.atContext",
+    "specificity",
+    "declarations.properties",
+    "declarations.importantProperties",
+    "declarations.signatureSha256"
+  ],
+  "candidateResidual": {
+    "rows": 60,
+    "groups": 51,
+    "tupleSha256": "a3eae9d1cd349b194183ee09da9dbdcc74e1f96131c42401ae2a901eb33678c3"
+  },
+  "approvedMove": {
+    "rows": 58,
+    "groups": 49,
+    "tupleSha256": "0f6aa0655f142ce6e86d795038ce30c6af3ba3cb42b094f01571995fd01831b5"
+  },
+  "retainedBoundary": {
+    "ids": [
+      "CSS-1446",
+      "CSS-1447"
+    ],
+    "rows": 2,
+    "groups": 2,
+    "tupleSha256": "e71f72f787214b01e40d6c6109e37fe54d4263899dc9eeff0aabd0a3e1fa7880",
+    "reason": "HOLD-owner-or-cross-feature-split: producer move reverses accepted processing-workbench cascade (12px -> 9px) until a later shared/feature cascade redesign."
+  },
+  "targetIds": [
+    "CSS-0158",
+    "CSS-0160",
+    "CSS-0161",
+    "CSS-0162",
+    "CSS-0163",
+    "CSS-0164",
+    "CSS-0165",
+    "CSS-0166",
+    "CSS-0167",
+    "CSS-0168",
+    "CSS-0169",
+    "CSS-0170",
+    "CSS-0171",
+    "CSS-0172",
+    "CSS-0173",
+    "CSS-0174",
+    "CSS-0175",
+    "CSS-0176",
+    "CSS-0178",
+    "CSS-0179",
+    "CSS-0180",
+    "CSS-0181",
+    "CSS-0182",
+    "CSS-0183",
+    "CSS-0455",
+    "CSS-0886",
+    "CSS-0887",
+    "CSS-0897",
+    "CSS-0898",
+    "CSS-0961",
+    "CSS-0984",
+    "CSS-0985",
+    "CSS-1008",
+    "CSS-1009",
+    "CSS-1010",
+    "CSS-1011",
+    "CSS-1012",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1019",
+    "CSS-1020",
+    "CSS-1057",
+    "CSS-1058",
+    "CSS-1059",
+    "CSS-1114",
+    "CSS-1115",
+    "CSS-1116",
+    "CSS-1117",
+    "CSS-1118",
+    "CSS-1120",
+    "CSS-1121",
+    "CSS-1122",
+    "CSS-1123",
+    "CSS-1124",
+    "CSS-1125",
+    "CSS-1126",
+    "CSS-1157",
+    "CSS-1158",
+    "CSS-1446",
+    "CSS-1447"
+  ],
+  "targetTuples": [
+    [
+      "CSS-0886",
+      "apps/web/src/styles.css",
+      0,
+      146,
+      1,
+      ".curve-legend::before",
+      [],
+      "0-1-1",
+      [
+        "content",
+        "display",
+        "height",
+        "margin-right",
+        "vertical-align",
+        "width"
+      ],
+      [],
+      "a424dcb52b81b409fcbeb06426702b90cbc71c71490f855e9fd338d8dae9ced6"
+    ],
+    [
+      "CSS-0887",
+      "apps/web/src/styles.css",
+      0,
+      147,
+      1,
+      ".curve-heading",
+      [],
+      "0-1-0",
+      [
+        "align-items",
+        "display",
+        "gap",
+        "justify-content"
+      ],
+      [],
+      "758c626749289f436641dde28ff544016d6ec0db2626a255702ac58cf2d10f39"
+    ],
+    [
+      "CSS-0897",
+      "apps/web/src/styles.css",
+      0,
+      157,
+      1,
+      ".mapping-report-heading",
+      [],
+      "0-1-0",
+      [
+        "align-items",
+        "display",
+        "gap",
+        "justify-content"
+      ],
+      [],
+      "0c5ebee71af0768e5c9c385be2191b5767b0d0bb0a1eaecd0a38a44342627621"
+    ],
+    [
+      "CSS-0898",
+      "apps/web/src/styles.css",
+      0,
+      157,
+      2,
+      ".card-actions",
+      [],
+      "0-1-0",
+      [
+        "align-items",
+        "display",
+        "gap",
+        "justify-content"
+      ],
+      [],
+      "0c5ebee71af0768e5c9c385be2191b5767b0d0bb0a1eaecd0a38a44342627621"
+    ],
+    [
+      "CSS-0961",
+      "apps/web/src/styles.css",
+      0,
+      221,
+      1,
+      ".card-actions",
+      [],
+      "0-1-0",
+      [
+        "justify-content"
+      ],
+      [],
+      "d0c1356e1efd9c6284d11d1ce35ac63215137144e579d71ecfd25ee1c56f3b29"
+    ],
+    [
+      "CSS-0984",
+      "apps/web/src/styles.css",
+      0,
+      244,
+      1,
+      ".mapping-report-heading",
+      [
+        "@media (max-width: 780px)"
+      ],
+      "0-1-0",
+      [
+        "align-items",
+        "flex-direction"
+      ],
+      [],
+      "331571dadc20a5448418acdd3fb3e67c47a58a592ec935b80dd24cbdf8d1b8d2"
+    ],
+    [
+      "CSS-0985",
+      "apps/web/src/styles.css",
+      0,
+      244,
+      2,
+      ".card-actions",
+      [
+        "@media (max-width: 780px)"
+      ],
+      "0-1-0",
+      [
+        "align-items",
+        "flex-direction"
+      ],
+      [],
+      "331571dadc20a5448418acdd3fb3e67c47a58a592ec935b80dd24cbdf8d1b8d2"
+    ],
+    [
+      "CSS-1008",
+      "apps/web/src/styles.css",
+      0,
+      268,
+      1,
+      ".governed-import-route .workflow-card",
+      [],
+      "0-2-0",
+      [
+        "border-right",
+        "min-width",
+        "padding"
+      ],
+      [],
+      "c3275d4d95082b7e9b459a3d651de7e60f28afb46669344ae3fcc5dc2393ec24"
+    ],
+    [
+      "CSS-1009",
+      "apps/web/src/styles.css",
+      0,
+      269,
+      1,
+      ".governed-import-route .workflow-card:last-child",
+      [],
+      "0-3-0",
+      [
+        "border-right"
+      ],
+      [],
+      "1f6be887d3ade51e9c4a67bb296dec9d499f1199c1a544dff39903e9bc577530"
+    ],
+    [
+      "CSS-1010",
+      "apps/web/src/styles.css",
+      0,
+      270,
+      1,
+      ".governed-import-route .workflow-card h4",
+      [],
+      "0-2-1",
+      [
+        "font-size",
+        "margin-bottom"
+      ],
+      [],
+      "14d1bc78d885d333e0ecad10f4e85512a089ed471418812065da598ae0a160e6"
+    ],
+    [
+      "CSS-1011",
+      "apps/web/src/styles.css",
+      0,
+      271,
+      1,
+      ".governed-import-route .workflow-card label",
+      [],
+      "0-2-1",
+      [
+        "font-size"
+      ],
+      [],
+      "7350010ce517c3145b0b948c80f7072f772be04ff13b4994c540b35233db9408"
+    ],
+    [
+      "CSS-1012",
+      "apps/web/src/styles.css",
+      0,
+      272,
+      1,
+      ".governed-import-route .workflow-card input",
+      [],
+      "0-2-1",
+      [
+        "min-height",
+        "padding"
+      ],
+      [],
+      "f093aaa5397f4b7c5efd72d46e59e3f5f148e60a95c226d83603bff9bdf40d08"
+    ],
+    [
+      "CSS-1013",
+      "apps/web/src/styles.css",
+      0,
+      272,
+      2,
+      ".governed-import-route .workflow-card select",
+      [],
+      "0-2-1",
+      [
+        "min-height",
+        "padding"
+      ],
+      [],
+      "f093aaa5397f4b7c5efd72d46e59e3f5f148e60a95c226d83603bff9bdf40d08"
+    ],
+    [
+      "CSS-1014",
+      "apps/web/src/styles.css",
+      0,
+      274,
+      1,
+      ".governed-import-route .workflow-card button",
+      [],
+      "0-2-1",
+      [
+        "min-height"
+      ],
+      [],
+      "e3c14c21a006c45201eb2d83a2383306e46bda2f1528ee7934047ffd43f159ab"
+    ],
+    [
+      "CSS-1019",
+      "apps/web/src/styles.css",
+      0,
+      279,
+      1,
+      ".governed-import-route .workflow-card",
+      [
+        "@media (max-width: 1100px)"
+      ],
+      "0-2-0",
+      [
+        "border-bottom",
+        "border-right"
+      ],
+      [],
+      "ce3e46aa6fc0cf5e970b59ca864f3bb7fef9a0911ac6790e624b2fab4137ab13"
+    ],
+    [
+      "CSS-1020",
+      "apps/web/src/styles.css",
+      0,
+      280,
+      1,
+      ".governed-import-route .workflow-card:last-child",
+      [
+        "@media (max-width: 1100px)"
+      ],
+      "0-3-0",
+      [
+        "border-bottom"
+      ],
+      [],
+      "9609554f860e8f243f738b86b67645aa178e906d0263e09cd5ea4e1aec1fcae3"
+    ],
+    [
+      "CSS-1057",
+      "apps/web/src/styles.css",
+      0,
+      316,
+      2,
+      ".digest-line span",
+      [],
+      "0-1-1",
+      [
+        "color",
+        "font-size"
+      ],
+      [],
+      "47d401c19fdd0f0631b5b17cd64fcd8447f510d113275a2df2e5bc3267821a18"
+    ],
+    [
+      "CSS-1058",
+      "apps/web/src/styles.css",
+      0,
+      318,
+      1,
+      ".digest-line",
+      [],
+      "0-1-0",
+      [
+        "display",
+        "gap",
+        "margin"
+      ],
+      [],
+      "a8fefd6b76757a9d697a8e919d1b9be692b898f628598e71ede5bcb8fab2e515"
+    ],
+    [
+      "CSS-1059",
+      "apps/web/src/styles.css",
+      0,
+      319,
+      1,
+      ".digest-line code",
+      [],
+      "0-1-1",
+      [
+        "color",
+        "font-size",
+        "overflow-wrap"
+      ],
+      [],
+      "ad49d60704b67c0942e10e005774b84f10458e958f2c2e539e936dbeaa80749a"
+    ],
+    [
+      "CSS-1114",
+      "apps/web/src/styles.css",
+      0,
+      374,
+      1,
+      ".chart-axis",
+      [],
+      "0-1-0",
+      [
+        "stroke",
+        "stroke-width"
+      ],
+      [],
+      "b2d7d49e7382ccb19d43f8a2e190fad38f480f160c1428b2700c4b268af786fa"
+    ],
+    [
+      "CSS-1115",
+      "apps/web/src/styles.css",
+      0,
+      375,
+      1,
+      ".chart-grid",
+      [],
+      "0-1-0",
+      [
+        "stroke",
+        "stroke-width"
+      ],
+      [],
+      "3597924689b01b3cd4aba44672a552f7ee4a486895643a430d5027ac087ce123"
+    ],
+    [
+      "CSS-1116",
+      "apps/web/src/styles.css",
+      0,
+      376,
+      1,
+      ".chart-tick",
+      [],
+      "0-1-0",
+      [
+        "fill",
+        "font-family",
+        "font-size"
+      ],
+      [],
+      "da9383b75d48d769b8c1df590c50abfdb70cdebc7d62e7b961416a0cf699782b"
+    ],
+    [
+      "CSS-1117",
+      "apps/web/src/styles.css",
+      0,
+      376,
+      2,
+      ".chart-axis-label",
+      [],
+      "0-1-0",
+      [
+        "fill",
+        "font-family",
+        "font-size"
+      ],
+      [],
+      "da9383b75d48d769b8c1df590c50abfdb70cdebc7d62e7b961416a0cf699782b"
+    ],
+    [
+      "CSS-1118",
+      "apps/web/src/styles.css",
+      0,
+      378,
+      1,
+      ".chart-axis-label",
+      [],
+      "0-1-0",
+      [
+        "font-size",
+        "font-weight"
+      ],
+      [],
+      "2cc34dabdb36ca60661689344c237a384d810715c3c347641eac3d0e15fc7ada"
+    ],
+    [
+      "CSS-1120",
+      "apps/web/src/styles.css",
+      0,
+      380,
+      1,
+      ".curve-legend",
+      [],
+      "0-1-0",
+      [
+        "color",
+        "display",
+        "font-size",
+        "gap",
+        "margin-top"
+      ],
+      [],
+      "364f77bec90f4b1b7e0fff915029346ad853adfb1962710c89dcc3027fa74070"
+    ],
+    [
+      "CSS-1121",
+      "apps/web/src/styles.css",
+      0,
+      381,
+      1,
+      ".curve-legend span",
+      [],
+      "0-1-1",
+      [
+        "align-items",
+        "display",
+        "gap"
+      ],
+      [],
+      "3a39e1ab9d5d377f15d8c62d9014bdf2f8d10d0e4f43af05d516051dce6bcd23"
+    ],
+    [
+      "CSS-1122",
+      "apps/web/src/styles.css",
+      0,
+      382,
+      1,
+      ".curve-legend i",
+      [],
+      "0-1-1",
+      [
+        "background",
+        "height",
+        "width"
+      ],
+      [],
+      "bf681423cd8370548fd39b403cb97b04b7f818df41a6f7302249a7617b6e2544"
+    ],
+    [
+      "CSS-1123",
+      "apps/web/src/styles.css",
+      0,
+      383,
+      1,
+      ".curve-legend.interactive",
+      [],
+      "0-2-0",
+      [
+        "flex-wrap",
+        "gap"
+      ],
+      [],
+      "b7d7cea8ea8922498e750862f30435b58cca2fbad2f15aef6e99d632981bc1fa"
+    ],
+    [
+      "CSS-1124",
+      "apps/web/src/styles.css",
+      0,
+      384,
+      1,
+      ".curve-legend.interactive button",
+      [],
+      "0-2-1",
+      [
+        "align-items",
+        "background",
+        "border",
+        "border-radius",
+        "color",
+        "cursor",
+        "display",
+        "font-size",
+        "gap",
+        "padding"
+      ],
+      [],
+      "f339a38d83a798bd29ecdd52072efcd8a1e3eb275fe7a966d71db29aa3c93ca8"
+    ],
+    [
+      "CSS-1125",
+      "apps/web/src/styles.css",
+      0,
+      385,
+      1,
+      ".curve-legend.interactive button.hidden",
+      [],
+      "0-3-1",
+      [
+        "opacity",
+        "text-decoration"
+      ],
+      [],
+      "cc5495260907afe3dbbc67a6868f6c0f14a863122817bda1b410e04ecbd21179"
+    ],
+    [
+      "CSS-1126",
+      "apps/web/src/styles.css",
+      0,
+      386,
+      1,
+      ".curve-legend.interactive i",
+      [],
+      "0-2-1",
+      [
+        "border-radius",
+        "display",
+        "flex"
+      ],
+      [],
+      "da5b25dfa1bf383e55f4c701ce86220b8c272e910ba87583de6dea1f2071987e"
+    ],
+    [
+      "CSS-1157",
+      "apps/web/src/styles.css",
+      0,
+      417,
+      1,
+      ".ensemble-confidence-band",
+      [],
+      "0-1-0",
+      [
+        "fill",
+        "pointer-events",
+        "stroke",
+        "stroke-width"
+      ],
+      [],
+      "574a2e1204024529fc9c062e7d0f8366b6ebc45e047def9aecf441ab24007edc"
+    ],
+    [
+      "CSS-1158",
+      "apps/web/src/styles.css",
+      0,
+      418,
+      1,
+      ".curve-legend i.confidence",
+      [],
+      "0-2-1",
+      [
+        "background"
+      ],
+      [],
+      "0cd3ee03aec3b458ae4a1ce4dfb469a4769f4b73a40aed42eb769bd82061196f"
+    ],
+    [
+      "CSS-1446",
+      "apps/web/src/styles.css",
+      0,
+      706,
+      1,
+      ".hyperelastic-response-plot .chart-axis",
+      [],
+      "0-2-0",
+      [
+        "stroke",
+        "stroke-width"
+      ],
+      [],
+      "443b0b3676bddc14998b7d7a256ec3cca56b1618e9dabdb1a75c9b36fef2b89a"
+    ],
+    [
+      "CSS-1447",
+      "apps/web/src/styles.css",
+      0,
+      707,
+      1,
+      ".hyperelastic-response-plot .chart-tick",
+      [],
+      "0-2-0",
+      [
+        "fill",
+        "font-size"
+      ],
+      [],
+      "0df603107765d4fb37c4eba545a09f5f871fb0c921fee456e9a9a370f3defaa1"
+    ],
+    [
+      "CSS-0158",
+      "apps/web/src/design/layout.css",
+      4,
+      158,
+      1,
+      ".contract-curve-svg:focus-visible",
+      [],
+      "0-2-0",
+      [
+        "outline",
+        "outline-offset"
+      ],
+      [],
+      "e3184872c72da46c68097b0a9c68ab60bad359c5d089ade0ef15d03ec16c74e2"
+    ],
+    [
+      "CSS-0160",
+      "apps/web/src/design/layout.css",
+      4,
+      160,
+      1,
+      ".contract-curve-heading",
+      [],
+      "0-1-0",
+      [
+        "align-items",
+        "display",
+        "gap",
+        "justify-content"
+      ],
+      [],
+      "96e35e5f575210386b9c87beff43612a645e3afb752ca6c99511a6a48e9f3a33"
+    ],
+    [
+      "CSS-0161",
+      "apps/web/src/design/layout.css",
+      4,
+      161,
+      1,
+      ".contract-curve-heading h3",
+      [],
+      "0-1-1",
+      [
+        "margin"
+      ],
+      [],
+      "b752db166317124747bcb7abc108c98d0f3ff0a42088961cf4d93e7741eba85a"
+    ],
+    [
+      "CSS-0162",
+      "apps/web/src/design/layout.css",
+      4,
+      161,
+      2,
+      ".contract-curve-heading p",
+      [],
+      "0-1-1",
+      [
+        "margin"
+      ],
+      [],
+      "b752db166317124747bcb7abc108c98d0f3ff0a42088961cf4d93e7741eba85a"
+    ],
+    [
+      "CSS-0163",
+      "apps/web/src/design/layout.css",
+      4,
+      161,
+      3,
+      ".curve-band-meaning",
+      [],
+      "0-1-0",
+      [
+        "margin"
+      ],
+      [],
+      "b752db166317124747bcb7abc108c98d0f3ff0a42088961cf4d93e7741eba85a"
+    ],
+    [
+      "CSS-0164",
+      "apps/web/src/design/layout.css",
+      4,
+      164,
+      1,
+      ".contract-curve-heading p",
+      [],
+      "0-1-1",
+      [
+        "color",
+        "font-size"
+      ],
+      [],
+      "0ba2f91a2d89968002e47a23df0d51d84a7bef2af97a0be2ae5bdb0d4683f399"
+    ],
+    [
+      "CSS-0165",
+      "apps/web/src/design/layout.css",
+      4,
+      164,
+      2,
+      ".contract-curve-heading > span",
+      [],
+      "0-1-1",
+      [
+        "color",
+        "font-size"
+      ],
+      [],
+      "0ba2f91a2d89968002e47a23df0d51d84a7bef2af97a0be2ae5bdb0d4683f399"
+    ],
+    [
+      "CSS-0166",
+      "apps/web/src/design/layout.css",
+      4,
+      164,
+      3,
+      ".curve-band-meaning",
+      [],
+      "0-1-0",
+      [
+        "color",
+        "font-size"
+      ],
+      [],
+      "0ba2f91a2d89968002e47a23df0d51d84a7bef2af97a0be2ae5bdb0d4683f399"
+    ],
+    [
+      "CSS-0167",
+      "apps/web/src/design/layout.css",
+      4,
+      164,
+      4,
+      ".contract-curve-actions > span",
+      [],
+      "0-1-1",
+      [
+        "color",
+        "font-size"
+      ],
+      [],
+      "0ba2f91a2d89968002e47a23df0d51d84a7bef2af97a0be2ae5bdb0d4683f399"
+    ],
+    [
+      "CSS-0168",
+      "apps/web/src/design/layout.css",
+      4,
+      168,
+      1,
+      ".curve-channel-summary",
+      [],
+      "0-1-0",
+      [
+        "color",
+        "display",
+        "flex-wrap",
+        "font-size",
+        "gap"
+      ],
+      [],
+      "eba2c0a9f0ec18a3ea2fdcece537d2055b1e71f9643113f5561fdaa788ba1eaa"
+    ],
+    [
+      "CSS-0169",
+      "apps/web/src/design/layout.css",
+      4,
+      169,
+      1,
+      ".contract-curve-frame",
+      [],
+      "0-1-0",
+      [
+        "background",
+        "border-block",
+        "min-width",
+        "position"
+      ],
+      [],
+      "719262eb0c2ee23aeee64c1be6f76dc13feef991554d76f1739c359145810941"
+    ],
+    [
+      "CSS-0170",
+      "apps/web/src/design/layout.css",
+      4,
+      170,
+      1,
+      ".contract-curve-svg",
+      [],
+      "0-1-0",
+      [
+        "display",
+        "height",
+        "touch-action",
+        "width"
+      ],
+      [],
+      "4899879c7f9927672a667d75dbfbffcf50d133a45c6d715a3a73c8990ed195a3"
+    ],
+    [
+      "CSS-0171",
+      "apps/web/src/design/layout.css",
+      4,
+      171,
+      1,
+      ".contract-curve-line",
+      [],
+      "0-1-0",
+      [
+        "fill",
+        "stroke",
+        "stroke-linejoin",
+        "stroke-width",
+        "vector-effect"
+      ],
+      [],
+      "9c65fa4b63cd117d413ea8fb1a5d571e5f618aeb97abaf9583b82fceba144ae2"
+    ],
+    [
+      "CSS-0172",
+      "apps/web/src/design/layout.css",
+      4,
+      172,
+      1,
+      ".contract-curve-active",
+      [],
+      "0-1-0",
+      [
+        "pointer-events"
+      ],
+      [],
+      "78c2ec80b10a115318f997726122399e61b726d884aa9901e8c792d085ad1dcc"
+    ],
+    [
+      "CSS-0173",
+      "apps/web/src/design/layout.css",
+      4,
+      173,
+      1,
+      ".contract-curve-active line",
+      [],
+      "0-1-1",
+      [
+        "stroke",
+        "stroke-dasharray",
+        "stroke-width"
+      ],
+      [],
+      "512049509de364431d2638265550d6325157b6b18f56fea38ccdea105e7d078b"
+    ],
+    [
+      "CSS-0174",
+      "apps/web/src/design/layout.css",
+      4,
+      174,
+      1,
+      ".contract-curve-active circle",
+      [],
+      "0-1-1",
+      [
+        "fill",
+        "stroke",
+        "stroke-width"
+      ],
+      [],
+      "4ca526080adc14cae6ebede9871ca7773003017a44fb1df820fe316e59045315"
+    ],
+    [
+      "CSS-0175",
+      "apps/web/src/design/layout.css",
+      4,
+      175,
+      1,
+      ".contract-curve-tooltip",
+      [],
+      "0-1-0",
+      [
+        "background",
+        "border",
+        "box-shadow",
+        "color",
+        "display",
+        "font-size",
+        "gap",
+        "max-width",
+        "padding",
+        "pointer-events",
+        "position",
+        "transform",
+        "z-index"
+      ],
+      [],
+      "f6db31ccf21c8e98446c7666c5621527079480ec976d1622d5af8cbe287003a8"
+    ],
+    [
+      "CSS-0176",
+      "apps/web/src/design/layout.css",
+      4,
+      176,
+      1,
+      ".contract-curve-tooltip span",
+      [],
+      "0-1-1",
+      [
+        "color"
+      ],
+      [],
+      "c5dd81915a475319865f062b89b49d9e5350238607fd548b08ec0359fb84d6f6"
+    ],
+    [
+      "CSS-0178",
+      "apps/web/src/design/layout.css",
+      4,
+      178,
+      1,
+      ".contract-curve .curve-legend",
+      [],
+      "0-2-0",
+      [
+        "margin"
+      ],
+      [],
+      "b752db166317124747bcb7abc108c98d0f3ff0a42088961cf4d93e7741eba85a"
+    ],
+    [
+      "CSS-0179",
+      "apps/web/src/design/layout.css",
+      4,
+      179,
+      1,
+      ".curve-legend i.contract-line",
+      [],
+      "0-2-1",
+      [
+        "background"
+      ],
+      [],
+      "b0457aa742e756c2c87544921042b44687ccc38c609c97b148d99c0b74426a73"
+    ],
+    [
+      "CSS-0180",
+      "apps/web/src/design/layout.css",
+      4,
+      180,
+      1,
+      ".contract-curve-actions",
+      [],
+      "0-1-0",
+      [
+        "align-items",
+        "display",
+        "gap",
+        "min-height"
+      ],
+      [],
+      "b9a5d416538b591a8e3db7e4e044f14f2b738dfe036beb75e101e44209c3343f"
+    ],
+    [
+      "CSS-0181",
+      "apps/web/src/design/layout.css",
+      4,
+      181,
+      1,
+      ".curve-evidence dl",
+      [],
+      "0-1-1",
+      [
+        "display",
+        "gap",
+        "grid-template-columns",
+        "margin"
+      ],
+      [],
+      "9f6260aca6367d72d762defaba685ed52fa132a1f22e6c99f196d1f090326da1"
+    ],
+    [
+      "CSS-0182",
+      "apps/web/src/design/layout.css",
+      4,
+      182,
+      1,
+      ".curve-evidence dt",
+      [],
+      "0-1-1",
+      [
+        "color"
+      ],
+      [],
+      "c5dd81915a475319865f062b89b49d9e5350238607fd548b08ec0359fb84d6f6"
+    ],
+    [
+      "CSS-0183",
+      "apps/web/src/design/layout.css",
+      4,
+      183,
+      1,
+      ".curve-evidence dd",
+      [],
+      "0-1-1",
+      [
+        "margin",
+        "min-width",
+        "overflow-wrap"
+      ],
+      [],
+      "8387a9e6f06b66010486a98e93747b88c0ca2ff32618813116e18a45a559617f"
+    ],
+    [
+      "CSS-0455",
+      "apps/web/src/design/layout.css",
+      4,
+      455,
+      1,
+      ".test-json-page .workbench-card",
+      [],
+      "0-2-0",
+      [
+        "background",
+        "border-color",
+        "border-radius",
+        "box-shadow"
+      ],
+      [],
+      "ce19b54e4c0c6a7519470dd9b4530d8337aadb19fc0636d7f766f4a385b39055"
+    ]
+  ],
+  "owners": {
+    "shared": {
+      "path": "apps/web/src/design/primitives.css",
+      "rows": 21,
+      "groups": 20,
+      "ids": [
+        "CSS-0886",
+        "CSS-0887",
+        "CSS-0898",
+        "CSS-0961",
+        "CSS-0985",
+        "CSS-1057",
+        "CSS-1058",
+        "CSS-1059",
+        "CSS-1114",
+        "CSS-1115",
+        "CSS-1116",
+        "CSS-1117",
+        "CSS-1118",
+        "CSS-1120",
+        "CSS-1121",
+        "CSS-1122",
+        "CSS-1123",
+        "CSS-1124",
+        "CSS-1125",
+        "CSS-1126",
+        "CSS-1157"
+      ]
+    },
+    "curveContractChart": {
+      "path": "apps/web/src/features/materials/ui/curve-contract-chart.css",
+      "rows": 25,
+      "groups": 20,
+      "ids": [
+        "CSS-0158",
+        "CSS-0160",
+        "CSS-0161",
+        "CSS-0162",
+        "CSS-0163",
+        "CSS-0164",
+        "CSS-0165",
+        "CSS-0166",
+        "CSS-0167",
+        "CSS-0168",
+        "CSS-0169",
+        "CSS-0170",
+        "CSS-0171",
+        "CSS-0172",
+        "CSS-0173",
+        "CSS-0174",
+        "CSS-0175",
+        "CSS-0176",
+        "CSS-0178",
+        "CSS-0179",
+        "CSS-0180",
+        "CSS-0181",
+        "CSS-0182",
+        "CSS-0183",
+        "CSS-1158"
+      ]
+    },
+    "governedImport": {
+      "path": "apps/web/src/features/test-data/ui/governed-import-route.css",
+      "rows": 9,
+      "groups": 8,
+      "ids": [
+        "CSS-1008",
+        "CSS-1009",
+        "CSS-1010",
+        "CSS-1011",
+        "CSS-1012",
+        "CSS-1013",
+        "CSS-1014",
+        "CSS-1019",
+        "CSS-1020"
+      ]
+    },
+    "canonicalTestJson": {
+      "path": "apps/web/src/features/test-data/ui/canonical-test-data-workbench.css",
+      "rows": 1,
+      "groups": 1,
+      "ids": [
+        "CSS-0455"
+      ]
+    },
+    "mappingReport": {
+      "path": "apps/web/src/features/modeling/ui/modeling-export-delivery-workbenches.css",
+      "rows": 2,
+      "groups": 2,
+      "ids": [
+        "CSS-0897",
+        "CSS-0984"
+      ]
+    },
+    "hold": {
+      "path": "apps/web/src/styles.css",
+      "rows": 2,
+      "groups": 2,
+      "ids": [
+        "CSS-1446",
+        "CSS-1447"
+      ]
+    }
+  },
+  "completeGroups": {
+    "apps/web/src/styles.css": [
+      146,
+      147,
+      157,
+      221,
+      244,
+      268,
+      269,
+      270,
+      271,
+      272,
+      274,
+      279,
+      280,
+      318,
+      319,
+      374,
+      375,
+      376,
+      378,
+      380,
+      381,
+      382,
+      383,
+      384,
+      385,
+      386,
+      417,
+      418
+    ],
+    "apps/web/src/design/layout.css": [
+      158,
+      160,
+      161,
+      164,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183
+    ]
+  },
+  "mixedGroups": {
+    "apps/web/src/styles.css": [
+      {
+        "ruleIndex": 316,
+        "targetIds": [
+          "CSS-1057"
+        ],
+        "retainedIds": [
+          "CSS-1056"
+        ]
+      }
+    ],
+    "apps/web/src/design/layout.css": [
+      {
+        "ruleIndex": 455,
+        "targetIds": [
+          "CSS-0455"
+        ],
+        "retainedIds": [
+          "CSS-0456"
+        ]
+      }
+    ]
+  },
+  "retainedPeers": [
+    {
+      "id": "CSS-1056",
+      "selector": ".channel-preview small",
+      "path": "apps/web/src/styles.css",
+      "ruleIndex": 316,
+      "byteExact": true
+    },
+    {
+      "id": "CSS-0456",
+      "selector": ".advanced-canonical-json",
+      "path": "apps/web/src/design/layout.css",
+      "ruleIndex": 455,
+      "byteExact": true
+    }
+  ],
+  "imports": {
+    "main": [
+      "apps/web/src/main.tsx",
+      "apps/web/.storybook/preview.ts"
+    ],
+    "sharedSpecifier": "./design/primitives.css",
+    "governedSpecifier": "./features/test-data/ui/governed-import-route.css",
+    "governedBefore": "./design/layout.css",
+    "curveConsumer": "apps/web/src/curve-contract-chart.tsx",
+    "curveSpecifier": "./features/materials/ui/curve-contract-chart.css",
+    "canonicalConsumer": "apps/web/src/canonical-test-data-workbench.tsx",
+    "canonicalSpecifier": "./features/test-data/ui/canonical-test-data-workbench.css",
+    "mappingConsumer": "apps/web/src/modeling-stage-shell.tsx",
+    "mappingSpecifier": "./features/modeling/ui/modeling-export-delivery-workbenches.css"
+  },
+  "expectedAfter": {
+    "selectorRows": 1391,
+    "cssRuleGroups": 1184,
+    "m1eRows": 0,
+    "m1eGroups": 0,
+    "holdRows": 506,
+    "holdGroups": 506,
+    "crossCssDuplicateRows": 6
+  },
+  "cascade": {
+    "governedLayoutWinner": {
+      "selector": ".governed-import-route .workflow-card label",
+      "featureValue": "0.72rem",
+      "layoutValue": "12px",
+      "winner": "layout",
+      "featureBeforeLayout": true
+    },
+    "retainedBoundary": [
+      "CSS-1446",
+      "CSS-1447"
+    ],
+    "peerIds": [
+      "CSS-1056",
+      "CSS-0456"
+    ]
+  },
+  "approvedIds": [
+    "CSS-0158",
+    "CSS-0160",
+    "CSS-0161",
+    "CSS-0162",
+    "CSS-0163",
+    "CSS-0164",
+    "CSS-0165",
+    "CSS-0166",
+    "CSS-0167",
+    "CSS-0168",
+    "CSS-0169",
+    "CSS-0170",
+    "CSS-0171",
+    "CSS-0172",
+    "CSS-0173",
+    "CSS-0174",
+    "CSS-0175",
+    "CSS-0176",
+    "CSS-0178",
+    "CSS-0179",
+    "CSS-0180",
+    "CSS-0181",
+    "CSS-0182",
+    "CSS-0183",
+    "CSS-0455",
+    "CSS-0886",
+    "CSS-0887",
+    "CSS-0897",
+    "CSS-0898",
+    "CSS-0961",
+    "CSS-0984",
+    "CSS-0985",
+    "CSS-1008",
+    "CSS-1009",
+    "CSS-1010",
+    "CSS-1011",
+    "CSS-1012",
+    "CSS-1013",
+    "CSS-1014",
+    "CSS-1019",
+    "CSS-1020",
+    "CSS-1057",
+    "CSS-1058",
+    "CSS-1059",
+    "CSS-1114",
+    "CSS-1115",
+    "CSS-1116",
+    "CSS-1117",
+    "CSS-1118",
+    "CSS-1120",
+    "CSS-1121",
+    "CSS-1122",
+    "CSS-1123",
+    "CSS-1124",
+    "CSS-1125",
+    "CSS-1126",
+    "CSS-1157",
+    "CSS-1158"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "phase": "after",
+  "route": "/datasets/test-json",
+  "viewport": {
+    "name": "2560x1440",
+    "width": 2560,
+    "height": 1440
+  },
+  "geometry": {
+    "innerWidth": 2560,
+    "innerHeight": 1440,
+    "scrollWidth": 2560,
+    "scrollHeight": 1440,
+    "rootWidth": 2560,
+    "rootHeight": 1322,
+    "bodyText": "CMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo workspace\nModeling\nNew session\nSave draft\nUndo\nRedo\nData\nProcess\nFit\nExport\n\nT-52 · CANONICAL EXCHANGE\n\nTest Data JSON\n\nValidate maker, test, specimen, quantity, original units, normalized units and missing evidence before immutable import.\n\nDataset hub\nMaterial Modeling\nCSV / TSV / XLSX adapter\nReuse the governed mapping contract and produce the same canonical JSON.\n\nUSER EXCHANGE FILE\n\nJSON source\nbuilt-in DP600 example\nChoose `.json` file\nDocument\nValidate with server\n\nSEMANTIC PREVIEW\n\nAwaiting validation\n\nChoose a JSON file or use the example, then validate it against the real API.\n\nREVISION-PINNED EVIDENCE\n\nImported Test Data\n14 documents\nDownload current JSON+ZIP\nCMP Synthetic Materials · DP780\nCMP-246-FLD-MARCINIAK · specimen DP780-FLD-02 · 5 points\nRevision 1\n89870f565054…\nDownload exact JSON\nOpen in Material Modeling\nRequest review\nEXACT LINKED DATA\nCMP-246-FLD-MARCINIAK r1\nOpen Workflow Explorer\ntest data\nDP780 FLD · Marciniak · synthetic reference\nexact r1 · 7f696366…\nmaterial\nDP780 synthetic reference steel\nexact r1 · 2f24caad…\ntest data\nDP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference\nexact r1 · 7b7335"
+  },
+  "crops": {
+    "header": {
+      "width": 2560,
+      "height": 50,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "CMPCAE Material PlatformMaterial data and solver deliveryMaterialsModelingActivityDemo workspaceAdministrationDisplay densityCompactStandardLargeReset display density"
+    },
+    "navigator": {
+      "width": 237.640625,
+      "height": 49,
+      "display": "flex",
+      "overflow": "visible",
+      "text": "MaterialsModelingActivity"
+    },
+    "table-form": {
+      "width": 1180,
+      "height": 799.71875,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "User exchange fileJSON sourcebuilt-in DP600 exampleChoose `.json` fileDocument{\n  \"document_type\": \"cmp.test-data\",\n  \"schema_version\": \"1.0.0\",\n  \"document_id\": \"DP600-TENSILE-01\",\n  \"material\": {\"maker\": \"CMP Demo Metals\", \"grade\": \"DP600"
+    },
+    "stage-controls": {
+      "width": 1180,
+      "height": 56,
+      "display": "grid",
+      "overflow": "visible",
+      "text": "CSV / TSV / XLSX adapterReuse the governed mapping contract and produce the same canonical JSON.Choose tabular sourceMetadata and mapping profile JSON{\n  \"document_id\": \"DP600-CSV-01\",\n  \"material\": {\"maker\": \"CMP Demo Metals\", \"grade\": \"DP"
+    }
+  },
+  "selectorApplications": [
+    {
+      "id": "CSS-0455",
+      "locator": ".test-json-page .workbench-card",
+      "baseSelector": ".test-json-page .workbench-card",
+      "matchSelector": ".test-json-page .workbench-card",
+      "pseudoElement": null,
+      "computed": {
+        "background": "rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border-color": "rgb(203, 211, 218)",
+        "border-radius": "8px",
+        "box-shadow": "none"
+      },
+      "geometry": {
+        "x": 690,
+        "y": 315.328125,
+        "width": 1180,
+        "height": 56
+      }
+    }
+  ]
+}

@@ -693,3 +693,20 @@ engineering task flow, responsive/wide-screen composition이 모두 통과했습
 `EngineeringCurvePlot/EmptyCompatibleSeries` Storybook 1440×900 DPR1 before/after도 동일한 SHA-256을
 기록합니다. `CMP-DEMO-DP780-TEST-JSON-03 · r1` 정적 참조는 topology 전용이며 동작 동일성의
 근거로 사용하지 않았습니다.
+
+### Issue #261 M1E5 producer-routed residual ownership provenance
+
+M1E5는 M1E4 이후 남은 60개 selector row(51개 rule group) 중 승인된 58개 row(49개 group)를
+공통 primitive, Materials curve-contract, Test Data governed-import/canonical JSON, Modeling
+mapping-report producer stylesheet로 옮깁니다. 두 hyperelastic chart-axis/chart-tick row는
+기존 12px processing cascade를 보존하기 위해 `styles.css`에 그대로 남습니다. 이 작업은 CSS
+소유권과 import 경계만 정리하며 Data → Process → Fit → Export 순서, exact revision/session
+선택, 저장·reload read-back, route alias, copy와 API 계약을 바꾸지 않습니다.
+
+M1E5의 일곱 topology에 대한 다섯 viewport before/after 및 직접 100%-pixel crop은
+[M1E5 evidence manifest](../17-evidence/images/issue-261-m1e5-producer-routed-residual/manifest.json)에
+Main visual/runtime acceptance PASS로 기록됩니다. 현재 guide의 1920×1080 Data PNG는
+동일 viewport의 승인된 live capture
+(`docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png`)를
+재사용하며 새 route나 screenshot을 추가하지 않았습니다. 자동 3840×2160 검사는 geometry만
+증명하고 physical Windows 4K readability는 #223 gate로 남습니다.
