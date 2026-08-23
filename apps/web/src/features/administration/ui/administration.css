@@ -1,3 +1,144 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#1; peers CSS-0488. */
+.schema-table-row.active {
+  background: #edf5ff;
+  border-color: #3174b9;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#2; peers CSS-0489. */
+.facet-row.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent-strong);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#3; peers CSS-0490. */
+.folder-admin-list button.active {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#4; peers CSS-0491. */
+.record-result.active {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#121; peers CSS-0121. */
+.administration-navigation .eyebrow {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#122; peers CSS-0122, CSS-0123. */
+.administration-navigation nav button.active,
+.administration-navigation nav button.active:hover:not(:disabled) {
+  background: var(--ux-selection);
+  color: var(--ux-text);
+  box-shadow: inset 2px 0 0 var(--ux-accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#124; peers CSS-0124. */
+.administration-navigation > .ux-button.tertiary {
+  margin-top: auto;
+  justify-content: flex-start;
+  padding-inline: var(--ux-space-2);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#125; peers CSS-0125. */
+.administration-content > .page-heading {
+  margin-bottom: var(--ux-space-4);
+  padding-bottom: var(--ux-space-4);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#126; peers CSS-0126. */
+.administration-content > .page-heading h1 {
+  font-size: 20px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#127; peers CSS-0127. */
+.schema-bundle-workbench .ux-button {
+  font-weight: 600;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#128; peers CSS-0128. */
+.schema-bundle-workbench .ux-disclosure summary {
+  color: var(--ux-text-muted);
+  font-weight: 500;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#129; peers CSS-0129. */
+.schema-bundle-workbench > .ux-notice {
+  margin: 0 0 var(--ux-space-3);
+  border-radius: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#130; peers CSS-0130. */
+.schema-bundle-source > .ux-button {
+  width: 100%;
+  margin-top: var(--ux-space-4);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#131; peers CSS-0131. */
+.schema-bundle-counts .blocked {
+  color: var(--ux-danger);
+  font-weight: 700;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#132; peers CSS-0132. */
+.schema-bundle-completion > .ux-button {
+  width: 100%;
+  margin-top: var(--ux-space-3);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#133; peers CSS-0133. */
+.schema-bundle-completion > .ux-notice {
+  margin-top: var(--ux-space-3);
+  padding: var(--ux-space-3);
+  border-radius: 0;
+  overflow-wrap: anywhere;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#134; peers CSS-0134. */
+.schema-bundle-error > .ux-button {
+  margin-top: var(--ux-space-3);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#135; peers CSS-0135. */
+.schema-object-navigator > button.active {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#136; peers CSS-0136. */
+.schema-list-rows > button.active {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#137; peers CSS-0137. */
+.schema-list-rows .muted {
+  padding: var(--ux-space-3);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#235; peers CSS-0722. */
+.tree-node.selected {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#236; peers CSS-0723. */
+.workflow-node.root {
+  border-color: #2a8b85;
+  box-shadow: inset 3px 0 #2a8b85;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#7. */
 .administration-record-workbench
   > :is(

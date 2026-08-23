@@ -1,3 +1,8 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#169; peers CSS-0169. */
+.data-intake-message.error {
+  color: var(--ux-danger);
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#229. */
 .data-mapping-actions .button {
   min-height: 30px;

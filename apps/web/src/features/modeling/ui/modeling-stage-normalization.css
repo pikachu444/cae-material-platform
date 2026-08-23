@@ -1,3 +1,30 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#153; peers CSS-0153, CSS-0154. */
+.stage-process > .section-heading,
+.stage-fit > .section-heading {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#255; peers CSS-0255, CSS-0256, CSS-0257, CSS-0258, CSS-0259. */
+.application-shell main.processing-workbench-page .step-option-panel :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
+.application-shell main.processing-workbench-page .persistent-modeling-plot :is(.curve-legend button, .curve-band-legend),
+.application-shell main.processing-workbench-page .persistent-modeling-plot :is(.model-diagnostics-details, .candidate-evidence-list) :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
+.application-shell main.processing-workbench-page .stage-diagnostics :is(p, span, strong, b, em, code, summary),
+.application-shell main.processing-workbench-page .modeling-section-actions :is(span, small) {
+  font-size: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#331; peers CSS-0331, CSS-0332, CSS-0333, CSS-0334, CSS-0335, CSS-0336. */
+.application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-advanced-menu > summary),
+.application-shell main.processing-workbench-page .modeling-advanced-menu,
+.processing-workbench-page .button,
+.processing-workbench-page .plot-view-switch > button,
+.processing-workbench-page .modeling-plot-toolbar button,
+.processing-workbench-page .hardening-analysis-tabs button {
+  min-height: var(--ux-interactive-min-block-size);
+  height: auto;
+  font-size: var(--ux-metadata-font-size);
+}
+
 /* Issue #260 owns this bounded Modeling grammar. Existing shared shell and
    density rules remain in the design layer; these selectors only normalize
    Process, Fit and Export around their real engineering tasks. */

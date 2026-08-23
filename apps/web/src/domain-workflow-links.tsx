@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import "./domain-workflow-links.css";
+
 import {
   ApiError,
   getCatalogWorkflowGraph,

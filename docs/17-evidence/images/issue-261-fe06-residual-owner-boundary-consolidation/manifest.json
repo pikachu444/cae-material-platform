@@ -1,0 +1,2494 @@
+{
+  "schema_version": 1,
+  "issue": "#261",
+  "unit": "FE-06-residual-owner-boundary-consolidation",
+  "implementation_base": "599278067ab5f69d46ea59559344499399b51fed",
+  "branch": "issue-261-residual-owner-boundary-consolidation",
+  "browser_zoom_percent": 100,
+  "device_pixel_ratio": 1,
+  "density": "standard",
+  "images": [
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1366x768.png",
+      "kind": "original",
+      "phase": "before",
+      "viewport": "1366x768",
+      "state": "normal",
+      "sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1366x768.png",
+      "kind": "original",
+      "phase": "after",
+      "viewport": "1366x768",
+      "state": "normal",
+      "sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1440x900.png",
+      "kind": "original",
+      "phase": "before",
+      "viewport": "1440x900",
+      "state": "normal",
+      "sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1440x900.png",
+      "kind": "original",
+      "phase": "after",
+      "viewport": "1440x900",
+      "state": "normal",
+      "sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1920x1080.png",
+      "kind": "original",
+      "phase": "before",
+      "viewport": "1920x1080",
+      "state": "normal",
+      "sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1920x1080.png",
+      "kind": "original",
+      "phase": "after",
+      "viewport": "1920x1080",
+      "state": "normal",
+      "sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-2560x1440.png",
+      "kind": "original",
+      "phase": "before",
+      "viewport": "2560x1440",
+      "state": "normal",
+      "sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-2560x1440.png",
+      "kind": "original",
+      "phase": "after",
+      "viewport": "2560x1440",
+      "state": "normal",
+      "sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-3840x2160.png",
+      "kind": "original",
+      "phase": "before",
+      "viewport": "3840x2160",
+      "state": "normal",
+      "sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb"
+    },
+    {
+      "path": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-3840x2160.png",
+      "kind": "original",
+      "phase": "after",
+      "viewport": "3840x2160",
+      "state": "normal",
+      "sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb"
+    }
+  ],
+  "original_pairs": [
+    {
+      "name": "materials-search-1366x768.png",
+      "before_sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2",
+      "after_sha256": "600ac4273c742ecb26db6ed47c80872b3099c64ff642337399802106d3896fa2",
+      "byte_equal": true
+    },
+    {
+      "name": "materials-search-1440x900.png",
+      "before_sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825",
+      "after_sha256": "2b8bedebd61e93e945cbd5d50eb2229f7415d8f572f7bb731689f2bf0db78825",
+      "byte_equal": true
+    },
+    {
+      "name": "materials-search-1920x1080.png",
+      "before_sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6",
+      "after_sha256": "54f6e8ab09f7b1793b9d2063e52186a036708dcae926851a90daf8bd226fd0a6",
+      "byte_equal": true
+    },
+    {
+      "name": "materials-search-2560x1440.png",
+      "before_sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80",
+      "after_sha256": "7c6fc32d9ada187768bc9792f13156c02b273760f46673441b043aa4af418a80",
+      "byte_equal": true
+    },
+    {
+      "name": "materials-search-3840x2160.png",
+      "before_sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb",
+      "after_sha256": "c882d483f949f439135ecb329f62a96efe43b266afd43c1d11fb61e4eee22edb",
+      "byte_equal": true
+    }
+  ],
+  "documentation_impact": {
+    "schema_version": "cmp.documentation-impact.css-byte-identical.v1",
+    "issue": "#261",
+    "source_sha": "599278067ab5f69d46ea59559344499399b51fed",
+    "classification": "behavior-preserving-css-migration",
+    "visual_files": [
+      "apps/web/src/design/layout.css",
+      "apps/web/src/design/primitives.css",
+      "apps/web/src/design/shell.css",
+      "apps/web/src/design/typography.css",
+      "apps/web/src/domain-workflow-links.css",
+      "apps/web/src/features/activity/ui/activity.css",
+      "apps/web/src/features/administration/ui/administration.css",
+      "apps/web/src/features/materials/ui/curve-contract-chart.css",
+      "apps/web/src/features/materials/ui/materials.css",
+      "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css",
+      "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
+      "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css",
+      "apps/web/src/features/modeling/ui/modeling-export-delivery-workbenches.css",
+      "apps/web/src/features/modeling/ui/modeling-scalar-distribution.css",
+      "apps/web/src/features/modeling/ui/modeling-stage-normalization.css",
+      "apps/web/src/features/modeling/ui/modeling-validation-stage.css",
+      "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css",
+      "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
+      "apps/web/src/features/modeling/ui/stages/fit/modeling-fit-stage.css",
+      "apps/web/src/features/modeling/ui/stages/process/modeling-process-stage.css",
+      "apps/web/src/features/test-data/ui/canonical-test-data-workbench.css",
+      "apps/web/src/features/test-data/ui/governed-import-route.css",
+      "apps/web/src/styles.css"
+    ],
+    "visual_file_sha256": {
+      "apps/web/src/design/layout.css": "6f04926974277cd13c6a98680c87d6624e78094bebcbf10455368183cf0f4c48",
+      "apps/web/src/design/primitives.css": "a54e810ff4c509eb4de22438f50424460425628ed70e6da11dcece5340c9e33d",
+      "apps/web/src/design/shell.css": "2e0c62b973d05f34d916264f0d8a378abbff8065ba23369663670a1dd3568156",
+      "apps/web/src/design/typography.css": "e3291f67ab811f93b9c680adbf7b6bcea409f7f616db500276ffd25c9591afed",
+      "apps/web/src/domain-workflow-links.css": "f2da9164333b908d4252099763ce01e624419b84abb54c86993be9f7c5c94bd9",
+      "apps/web/src/features/activity/ui/activity.css": "1c8c47f2cde87ccc52c8434db65be6a3d6670e19fc8d18a3a4391143d069cf21",
+      "apps/web/src/features/administration/ui/administration.css": "d89701408d03714938a6dcf8f4f09eed0e852c4293787161332334f5260fccfd",
+      "apps/web/src/features/materials/ui/curve-contract-chart.css": "26d60f820e957e3764f5435f917de0ccd1c41133d7da7575336db48407f5ca93",
+      "apps/web/src/features/materials/ui/materials.css": "83da5b54d0b4cebe37f1d107ba1d49ea979e51f1edc73a41eceb39ef781e37ff",
+      "apps/web/src/features/modeling/ui/modeling-calibration-workbenches.css": "d3ba92e10a753c8db0fa6e478d739d2ed85afe48ae1267e42c40a10c7468d12a",
+      "apps/web/src/features/modeling/ui/modeling-core-workbench.css": "e2f22079807eef9bf84cd0bd8697424863cb348ad7c1218f2d4ccb1cf6e70078",
+      "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css": "88298bc0af444c5125e8d54432a50994fdad6c490317b6962ed8c75e8c9210ef",
+      "apps/web/src/features/modeling/ui/modeling-export-delivery-workbenches.css": "fe89dafbbf6b8d6d00bba3f9319bc7de5e876acfc810283a6f946908f63158c5",
+      "apps/web/src/features/modeling/ui/modeling-scalar-distribution.css": "215a05520992a1378b6b32c39bf90126c8d847c2984bd0c82000a6f25de4c49d",
+      "apps/web/src/features/modeling/ui/modeling-stage-normalization.css": "28d30d68b5fbcdba612794cf85f68494feecbab3b1395762bc9cbd37029f39d2",
+      "apps/web/src/features/modeling/ui/modeling-validation-stage.css": "93edaf6a58c3d2d632132b68c8fa909594f97fb6964904847d03c51586ba72d5",
+      "apps/web/src/features/modeling/ui/modeling-viscoelastic-workbenches.css": "af0771dc592614632ab4f465a6566d7c48632a9e03c7a08141e9e6e48d2e8b4c",
+      "apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css": "2695f3fefa0bff3fecf868c121710ceac5ee5c2b29813f601d3ab17660140f51",
+      "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css": "ac939e6c3bef46e333ebd899e916f2d5ad8db241a697a285b0598248aafea4ca",
+      "apps/web/src/features/modeling/ui/stages/fit/modeling-fit-stage.css": "37ae842693dc3ad2d4ba5720eff2ca301fb38aaaa6902d21525f71a9b0ffc561",
+      "apps/web/src/features/modeling/ui/stages/process/modeling-process-stage.css": "626af803edf3383330a32e80f938e8843e718143e9fc4f2f0cd5568b70051b95",
+      "apps/web/src/features/test-data/ui/canonical-test-data-workbench.css": "680b65e36dfd9c52868ad05fccd1bc976b5533ee2414ddbd7305f64be5bb5892",
+      "apps/web/src/features/test-data/ui/governed-import-route.css": "8e886e2a60c44ab16467d2bc2fbbfe5deffc467ff48efcd5e072e754eb963f59",
+      "apps/web/src/styles.css": "2bb59de4b5d2c257d02d4cf4ab652e2d72bc5bf924948662cdba5359743796f0"
+    },
+    "current_matches": [
+      {
+        "current": "docs/user-guide/images/current/materials-search-1366x768.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1366x768.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1366x768.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/materials-search-1440x900.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1440x900.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1440x900.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/materials-search-1920x1080.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1920x1080.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1920x1080.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/materials-search-2560x1440.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-2560x1440.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-2560x1440.png"
+      },
+      {
+        "current": "docs/user-guide/images/current/materials-search-3840x2160.png",
+        "before": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-3840x2160.png",
+        "after": "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-3840x2160.png"
+      }
+    ]
+  },
+  "status": "ACCEPTED_MAIN_VISUAL_AND_RUNTIME",
+  "live_capture": {
+    "manifest": "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/manifest.json",
+    "harness_schema": "cmp.issue-261.m4.visual-evidence.v1",
+    "note": "The established M4 topology harness is reused; the FE-06 fixture is authoritative for ownership counts.",
+    "status": "ACCEPTED_MAIN_VISUAL_AND_RUNTIME",
+    "topology_count": 13,
+    "viewport_count": 5,
+    "image_count": 610,
+    "pair_count": 305,
+    "pixel_identical_pairs": 229,
+    "browser_zoom_percent": 100,
+    "device_pixel_ratio": 1,
+    "physical_windows_4k_readability": "DEFERRED_TO_#223"
+  },
+  "ownership": {
+    "migrated_rows": 525,
+    "migrated_groups": 438,
+    "accepted_in_place_rows": 22,
+    "original_m6_rows": 529,
+    "m6_handoff_rows": 556,
+    "m6_handoff_groups": 495,
+    "target_tuple_sha256": "79813edef612bbf1c1123dd58e21b74480f0e8814ee34f9b89ae3d592c57ed68",
+    "m6_tuple_sha256": "41a6cda0826c330fbf430462e8dbfc0de8041f2cd9344baf9ce1c08c66ffc900"
+  },
+  "allowed_duplicate_groups": [
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-2560x1440.png",
+        "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-2560x1440.png",
+        "docs/user-guide/images/current/modeling-fit-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-3840x2160.png",
+        "docs/user-guide/images/current/modeling-fit-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/2560x1440/original.png",
+        "docs/user-guide/images/current/modeling-process-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/3840x2160/original.png",
+        "docs/user-guide/images/current/modeling-process-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-1366x768.png",
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/before/modeling-data-metal/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-data/1366x768/original.png",
+        "docs/user-guide/images/current/modeling-data-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-1440x900.png",
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/before/modeling-data-metal/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-data/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-1920x1080.png",
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/before/modeling-data-metal/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-data/1920x1080/original.png",
+        "docs/user-guide/images/current/modeling-data-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-2560x1440.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-data/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-3840x2160.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-data/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-1440x900.png",
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-object-states/administration-tables-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-database/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-database/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-database/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/original.png",
+        "docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1366x768.png",
+        "docs/user-guide/images/current/administration-database-preview-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/original.png",
+        "docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1440x900.png",
+        "docs/user-guide/images/current/administration-database-preview-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-preview/1920x1080/original.png",
+        "docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1920x1080.png",
+        "docs/user-guide/images/current/administration-database-preview-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-preview/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-preview/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/materials-live/material-detail-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/live/material-detail-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/live/material-detail-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/1920x1080/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/2560x1440/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-database/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-database/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-database/3840x2160/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1366x768/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1440x900/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1920x1080/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1920x1080/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1920x1080/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/2560x1440/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/2560x1440/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/2560x1440/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/2560x1440/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/3840x2160/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/3840x2160/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/3840x2160/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/3840x2160/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/1920x1080/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/2560x1440/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/governed-import/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/governed-import/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/governed-import/3840x2160/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1920x1080/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/2560x1440/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/3840x2160/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-curves/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-curves/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/2560x1440/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/3840x2160/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1920x1080/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/3840x2160/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1366x768/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1366x768/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1440x900/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1440x900/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1920x1080/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/1920x1080/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/2560x1440/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/2560x1440/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/3840x2160/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-data/3840x2160/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1366x768/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1366x768/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1440x900/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1440x900/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/1920x1080/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/1920x1080/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/2560x1440/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-distribution/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-distribution/3840x2160/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-distribution/3840x2160/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1366x768/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1440x900/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1920x1080/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-elastomer-fit/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/1366x768/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1366x768/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1366x768/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/1440x900/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1440x900/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1440x900/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/1920x1080/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1920x1080/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1920x1080/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/2560x1440/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/2560x1440/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/2560x1440/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/3840x2160/native-preview.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/3840x2160/native-preview.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/3840x2160/native-preview.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-export/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1366x768/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1366x768/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1440x900/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-fit/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1440x900/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1920x1080/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1920x1080/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/2560x1440/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/2560x1440/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/3840x2160/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/3840x2160/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1366x768/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1366x768/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1440x900/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1920x1080/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/2560x1440/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-polymer-fit/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/3840x2160/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1366x768/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1366x768/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1366x768/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1366x768/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1366x768/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1440x900/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1440x900/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1440x900/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1440x900/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1440x900/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1920x1080/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1920x1080/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1920x1080/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/1920x1080/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/1920x1080/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/2560x1440/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/2560x1440/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/3840x2160/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/3840x2160/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/3840x2160/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/3840x2160/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/2560x1440/navigator.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/2560x1440/navigator.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/2560x1440/table-form.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/2560x1440/table-form.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1366x768/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1366x768/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1440x900/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1920x1080/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/2560x1440/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/2560x1440/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/2560x1440/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/3840x2160/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-elastomer-fit/3840x2160/stage-controls.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-elastomer-fit/3840x2160/stage-controls.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-export/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-export/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-fit/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-fit/3840x2160/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1366x768/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1366x768/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1440x900/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1440x900/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1440x900/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1440x900/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1920x1080/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1920x1080/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1920x1080/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/1920x1080/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/2560x1440/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/2560x1440/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/2560x1440/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/2560x1440/original.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/3840x2160/engineering-graph.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/3840x2160/engineering-graph.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/3840x2160/header.png"
+      ]
+    },
+    {
+      "rationale": "FE-06 preserves byte-identical before/after and historical accepted evidence for the same rendered route/state.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-polymer-fit/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-polymer-fit/3840x2160/original.png"
+      ]
+    }
+  ]
+}

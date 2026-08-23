@@ -1,3 +1,239 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#184; peers CSS-0671. */
+.test-context-workbench {
+  display: grid;
+  gap: 0.9rem;
+  border-color: #cfdbea;
+  background: #f8faff;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#237; peers CSS-0724. */
+.mapping-note {
+  color: #31716d;
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#238; peers CSS-0725. */
+.test-json-page {
+  display: grid;
+  gap: 24px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#239; peers CSS-0726. */
+.test-json-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+  gap: 20px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#240; peers CSS-0727. */
+.tabular-adapter-card summary {
+  cursor: pointer;
+  list-style-position: outside;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#241; peers CSS-0728, CSS-0729. */
+.tabular-adapter-card summary span,
+.tabular-adapter-grid {
+  display: grid;
+  gap: 8px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#243; peers CSS-0730. */
+.tabular-adapter-card summary small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#244; peers CSS-0731. */
+.tabular-adapter-grid {
+  margin-top: 18px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#245; peers CSS-0732. */
+.adapter-settings-editor {
+  min-height: 280px;
+  resize: vertical;
+  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#246; peers CSS-0733. */
+.json-source-card {
+  min-width: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#247; peers CSS-0734. */
+.file-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#248; peers CSS-0735. */
+.json-editor {
+  min-height: 490px;
+  resize: vertical;
+  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#249; peers CSS-0736. */
+.channel-preview small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#250; peers CSS-0737. */
+.channel-preview {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.5fr) 0.8fr 0.75fr 0.65fr;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#251; peers CSS-0738. */
+.channel-preview > div {
+  display: grid;
+  gap: 3px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#252; peers CSS-0739. */
+.import-controls {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#253; peers CSS-0740. */
+.import-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#254; peers CSS-0741, CSS-0742. */
+.saved-test-documents,
+.document-list {
+  display: grid;
+  gap: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#256; peers CSS-0743. */
+.document-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.5fr) minmax(180px, 0.8fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#257; peers CSS-0744. */
+.document-row > div {
+  display: grid;
+  gap: 4px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#258; peers CSS-0745, CSS-0746. */
+.document-row small,
+.document-row span {
+  color: var(--muted);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#260; peers CSS-0747. */
+.document-row code {
+  font-size: 11px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#261; peers CSS-0748. */
+@media (max-width: 980px) {
+  .test-json-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#262; peers CSS-0749. */
+@media (max-width: 980px) {
+  .channel-preview {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#263; peers CSS-0750. */
+@media (max-width: 980px) {
+  .document-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#270; peers CSS-0270. */
+.test-json-page {
+  gap: var(--ux-space-4);
+  background: var(--ux-canvas);
+  color: var(--ux-text);
+  font-size: 14px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#272; peers CSS-0272. */
+.test-json-page .page-hero .eyebrow {
+  color: var(--ux-text);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#273; peers CSS-0273. */
+.test-json-page .test-json-grid {
+  grid-template-columns: 1fr;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#277; peers CSS-0277. */
+.tabular-adapter-card > summary {
+  min-height: 44px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#285; peers CSS-0285. */
+.saved-test-documents {
+  padding: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#286; peers CSS-0286. */
+.saved-test-documents > summary {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+  padding: var(--ux-space-3) var(--ux-space-4);
+  color: var(--ux-text);
+  cursor: pointer;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#287; peers CSS-0287. */
+.saved-test-documents > summary span:first-child {
+  display: grid;
+  gap: var(--ux-space-1);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#288; peers CSS-0288, CSS-0289. */
+.saved-test-documents > summary small,
+.saved-test-documents > summary span:last-child {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
 /* M1E5 frozen ownership move: apps/web/src/design/layout.css#455. */
 .test-json-page .workbench-card {
   border-color: var(--ux-border);

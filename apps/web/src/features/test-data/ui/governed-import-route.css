@@ -1,3 +1,138 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#199; peers CSS-0686. */
+.governed-import {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#200; peers CSS-0687. */
+.governed-import .workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#201; peers CSS-0688. */
+.governed-import-route {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #d5dde0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#202; peers CSS-0689. */
+.governed-import-route-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid #d5dde0;
+  background: #f6f8f8;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#203; peers CSS-0690. */
+.governed-import-route-header .eyebrow {
+  margin-bottom: 0.15rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#204; peers CSS-0691. */
+.governed-import-route-header h1 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#205; peers CSS-0692. */
+.governed-import-route-header p:last-child {
+  margin: 0.22rem 0 0;
+  color: #607278;
+  font-size: 0.76rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#206; peers CSS-0693. */
+.governed-import-route > .governed-import {
+  margin: 0;
+  padding: 0.85rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#207; peers CSS-0694. */
+.governed-import-route .governed-import > .section-heading {
+  align-items: start;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #dce3e4;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#208; peers CSS-0695, CSS-0696. */
+.governed-import-route .governed-import > .section-heading .eyebrow,
+.governed-import-route .governed-import > .section-heading .reference-chip {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#210; peers CSS-0697. */
+.governed-import-route .governed-import > .section-heading h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#211; peers CSS-0698. */
+.governed-import-route .governed-import > .section-heading p {
+  max-width: 62rem;
+  margin: 0.2rem 0 0;
+  color: #63757a;
+  font-size: 0.74rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#212; peers CSS-0699. */
+.governed-import-route .workflow-grid {
+  grid-template-columns: minmax(250px, 0.8fr) minmax(360px, 1.15fr) minmax(
+      250px,
+      0.8fr
+    );
+  gap: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#213; peers CSS-0700. */
+.governed-import-empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 2rem;
+  border: 1px solid #d5dde0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#214; peers CSS-0701, CSS-0702. */
+.governed-import-empty h1,
+.governed-import-empty p {
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#216; peers CSS-0703. */
+@media (max-width: 1100px) {
+  .governed-import-route .workflow-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#217; peers CSS-0704. */
+@media (max-width: 700px) {
+  .governed-import-route-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#252; peers CSS-0252, CSS-0253, CSS-0254. */
+.governed-import-route :is(label, small, .eyebrow, .reference-chip),
+.governed-import-route-header p:last-child,
+.governed-import-route .governed-import > .section-heading p {
+  font-size: 12px;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#253. */
 .governed-import-route-header .button {
   min-height: 2rem;

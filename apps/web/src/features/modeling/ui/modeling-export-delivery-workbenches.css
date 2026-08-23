@@ -1,3 +1,107 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#171; peers CSS-0658. */
+.solver-card-results > .muted {
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#223; peers CSS-0710. */
+.compact-field {
+  display: grid;
+  min-width: min(24rem, 100%);
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#224; peers CSS-0711. */
+.bundle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#225; peers CSS-0712. */
+.bundle-list {
+  display: grid;
+  gap: 1rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#226; peers CSS-0713. */
+.bundle-row > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#227; peers CSS-0714. */
+.bundle-row small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#228; peers CSS-0715. */
+.classification-badge {
+  padding: 0.2rem 0.45rem;
+  border: 1px solid #cfd9dc;
+  border-radius: 999px;
+  background: #eef5f6;
+  color: #315e68;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#229; peers CSS-0716, CSS-0717, CSS-0718. */
+.classification-badge.confidential,
+.classification-badge.restricted,
+.classification-badge.export_controlled {
+  border-color: #e0c9a3;
+  background: #fff6e6;
+  color: #84591c;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#232; peers CSS-0719. */
+.bundle-row {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#233; peers CSS-0720. */
+.bundle-row code {
+  overflow: hidden;
+  max-width: 48rem;
+  color: #756a7d;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#234; peers CSS-0721. */
+@media (max-width: 720px) {
+  .bundle-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#583; peers CSS-1070, CSS-1071. */
+.reference-elastoplastic-workbench.embedded .error-notice,
+.reference-elastoplastic-workbench.embedded .warning-notice {
+  grid-column: 1 / -1;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#585; peers CSS-1072. */
+.reference-elastoplastic-workbench.embedded
+  .neutral-solver-export
+  > .domain-workflow-links {
+  grid-column: 1 / -1;
+}
+
 .workflow-stack {
 display: grid;
   gap: 0.75rem;

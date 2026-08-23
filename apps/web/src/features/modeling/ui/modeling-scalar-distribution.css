@@ -1,3 +1,924 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#353; peers CSS-0353. */
+.distribution-analysis-sheet .scalar-distribution-workbench {
+  display: grid;
+  grid-template-rows: var(--ux-command-bar-height) minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--ux-text);
+  background: var(--ux-canvas);
+  outline: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#354; peers CSS-0354. */
+.distribution-analysis-sheet .scalar-distribution-workbench:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ux-focus);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#355; peers CSS-0355. */
+.distribution-drawer-heading {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ux-space-4);
+  min-width: 0;
+  padding-inline: var(--ux-pane-padding);
+  border-block-start: 3px solid var(--ux-accent);
+  border-block-end: 1px solid #334454;
+  color: #f7f9fb;
+  background: #1d2a36;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#356; peers CSS-0356. */
+.distribution-drawer-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ux-space-2);
+  min-width: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#357; peers CSS-0357, CSS-0358, CSS-0359. */
+.distribution-drawer-title h3,
+.distribution-drawer-title span,
+.distribution-drawer-state span {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#360; peers CSS-0360. */
+.distribution-drawer-title h3 {
+  font-size: var(--ux-emphasis-font-size);
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#361; peers CSS-0361, CSS-0362. */
+.distribution-drawer-title span,
+.distribution-drawer-state span {
+  color: #c8d2dc;
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#363; peers CSS-0363. */
+.distribution-drawer-state {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ux-space-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#364; peers CSS-0364. */
+.distribution-drawer-state span {
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#365; peers CSS-0365. */
+.distribution-drawer-state .text-button {
+  min-height: var(--ux-interactive-min-block-size);
+  padding-inline: var(--ux-space-2);
+  color: #f7f9fb;
+  font-size: var(--ux-data-font-size);
+  font-weight: 650;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#366; peers CSS-0366. */
+.distribution-drawer-state .text-button:hover {
+  color: #ffffff;
+  background: rgb(255 255 255 / 10%);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#367; peers CSS-0367. */
+.distribution-workbench-body {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#368; peers CSS-0368, CSS-0369, CSS-0370, CSS-0371. */
+.distribution-selection-control,
+.distribution-popover > label,
+.distribution-decision-editor > label,
+.distribution-history-controls > label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: 650;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#372; peers CSS-0372, CSS-0373, CSS-0374. */
+.distribution-selection-control select,
+.distribution-popover :is(input, select),
+.distribution-history-controls select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ux-input-min-block-size);
+  color: var(--ux-text);
+  background: var(--ux-surface);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#375; peers CSS-0375. */
+.distribution-input-summary {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: var(--ux-input-min-block-size);
+  margin: 0;
+  padding: 0 0 0 var(--ux-space-3);
+  border: 0;
+  border-inline-start: 2px solid var(--ux-accent);
+  background: transparent;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#376; peers CSS-0376, CSS-0377. */
+.distribution-input-summary strong,
+.distribution-input-summary span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#378; peers CSS-0378. */
+.distribution-input-summary strong {
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#379; peers CSS-0379. */
+.distribution-input-summary span {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#380; peers CSS-0380. */
+.distribution-input-summary.unavailable {
+  border-inline-start-color: var(--ux-border-strong);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#381; peers CSS-0381. */
+.distribution-command-tools {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  gap: var(--ux-space-1);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#382; peers CSS-0382. */
+.distribution-command-detail {
+  position: relative;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#383; peers CSS-0383, CSS-0384. */
+.distribution-command-detail > summary,
+.distribution-evidence-bar > details > summary {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: var(--ux-input-min-block-size);
+  padding-inline: var(--ux-space-2);
+  border: 1px solid var(--ux-border);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-text);
+  background: var(--ux-surface);
+  cursor: pointer;
+  font-size: var(--ux-data-font-size);
+  font-weight: 650;
+  list-style-position: inside;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#385; peers CSS-0385. */
+.distribution-command-detail[open] > summary {
+  border-color: var(--ux-accent);
+  color: var(--ux-accent-strong);
+  background: var(--ux-accent-soft);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#386; peers CSS-0386. */
+.distribution-popover {
+  position: absolute;
+  z-index: 8;
+  inset-block-start: calc(100% + var(--ux-space-1));
+  inset-inline-end: 0;
+  display: grid;
+  gap: var(--ux-space-2);
+  width: min(520px, calc(100vw - 64px));
+  padding: var(--ux-pane-padding);
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 2px;
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#387; peers CSS-0387. */
+.distribution-replay-popover {
+  width: min(460px, calc(100vw - 64px));
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#388; peers CSS-0388. */
+.distribution-popover-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+  padding-bottom: var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#389; peers CSS-0389. */
+.distribution-popover-heading strong {
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#390; peers CSS-0390. */
+.distribution-popover-heading span {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#391; peers CSS-0391. */
+.distribution-sets-popover fieldset {
+  max-height: min(34vh, 300px);
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  border-block: 1px solid var(--ux-border);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#392; peers CSS-0392. */
+.distribution-sets-popover fieldset legend {
+  padding-block: var(--ux-space-1);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: 650;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#393; peers CSS-0393. */
+.distribution-sets-popover fieldset > label {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: start;
+  gap: var(--ux-space-2);
+  padding: var(--ux-space-1) 2px;
+  border-top: 1px solid var(--ux-border);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#394; peers CSS-0394. */
+.distribution-sets-popover fieldset small {
+  display: block;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#395; peers CSS-0395. */
+.distribution-popover-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#396; peers CSS-0396. */
+.distribution-workbench-body > :is(.error-message, .notice-message) {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: var(--ux-space-1) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#397; peers CSS-0397. */
+.distribution-ledger {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  margin: var(--ux-pane-padding);
+  margin-bottom: 0;
+  overflow: hidden;
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#398; peers CSS-0398. */
+.distribution-ledger-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: var(--ux-space-4);
+  min-width: 0;
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface-subtle);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#399; peers CSS-0399, CSS-0400. */
+.distribution-ledger-heading > div:first-child,
+.distribution-ledger-recommendation {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ux-space-2);
+  min-width: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#401; peers CSS-0401. */
+.distribution-ledger-heading strong {
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#402; peers CSS-0402. */
+.distribution-ledger-heading span {
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#403; peers CSS-0403. */
+.distribution-ledger-recommendation {
+  padding-inline-start: var(--ux-space-3);
+  border-inline-start: 1px solid var(--ux-border-strong);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#404; peers CSS-0404. */
+.distribution-ledger-recommendation strong {
+  color: var(--ux-accent-strong);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#405; peers CSS-0405. */
+.distribution-table-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  border: 0;
+  scrollbar-gutter: stable;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#406; peers CSS-0406. */
+.distribution-candidate-table {
+  width: min(100%, var(--ux-comparison-table-max-inline-size));
+  min-width: 1060px;
+  margin-inline: auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#407; peers CSS-0407, CSS-0408. */
+.distribution-candidate-table th,
+.distribution-candidate-table td {
+  height: var(--ux-work-row-min-block-size);
+  padding: var(--ux-cell-padding-block) var(--ux-cell-padding-inline);
+  border-bottom: 1px solid var(--ux-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#409; peers CSS-0409. */
+.distribution-candidate-table thead th {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  height: auto;
+  color: var(--ux-text-muted);
+  background: var(--ux-surface-subtle);
+  font-size: var(--ux-table-heading-font-size);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#410; peers CSS-0410, CSS-0411. */
+.distribution-candidate-table tbody th strong,
+.distribution-candidate-table tbody :is(th, td) small {
+  display: block;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#412; peers CSS-0412. */
+.distribution-candidate-table tbody :is(th, td) small {
+  margin-top: 2px;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#413; peers CSS-0413. */
+.distribution-candidate-table tbody tr.recommended {
+  background: var(--ux-surface-subtle);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#414; peers CSS-0414. */
+.distribution-candidate-table tbody tr.selected {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 var(--ux-accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#415; peers CSS-0415. */
+.distribution-status {
+  display: inline-block;
+  color: var(--ux-text-muted);
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#416; peers CSS-0416. */
+.distribution-status.succeeded {
+  color: var(--ux-success);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#417; peers CSS-0417, CSS-0418. */
+.distribution-status.failed,
+.distribution-status.not_eligible {
+  color: var(--ux-warning);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#419; peers CSS-0419. */
+.distribution-row-action {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border: 1px solid var(--ux-border-strong);
+  border-radius: var(--ux-radius-control);
+  color: var(--ux-text);
+  background: var(--ux-surface);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 650;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#420; peers CSS-0420, CSS-0421. */
+.distribution-row-action:hover,
+.distribution-row-action[aria-pressed="true"] {
+  border-color: var(--ux-accent);
+  color: var(--ux-accent-strong);
+  background: var(--ux-accent-soft);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#422; peers CSS-0422. */
+.distribution-row-action:disabled {
+  cursor: not-allowed; opacity: .55;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#423; peers CSS-0423, CSS-0424. */
+.distribution-decision-record,
+.distribution-decision-editor {
+  min-width: 0;
+  border-top: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#425; peers CSS-0425. */
+.distribution-decision-record {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(180px, 1fr) max-content;
+  align-items: center;
+  gap: var(--ux-space-3);
+  min-height: var(--ux-command-bar-height);
+  padding-inline: var(--ux-space-3);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#426; peers CSS-0426, CSS-0427. */
+.distribution-decision-record span,
+.distribution-decision-record small {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#428; peers CSS-0428. */
+.distribution-decision-record p {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--ux-data-font-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#429; peers CSS-0429. */
+.distribution-decision-editor {
+  display: grid;
+  grid-template-columns: minmax(170px, .38fr) minmax(320px, 1.3fr) max-content;
+  align-items: end;
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-2) var(--ux-space-3);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#430; peers CSS-0430. */
+.distribution-decision-model {
+  display: grid;
+  gap: 2px;
+  align-self: center;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#431; peers CSS-0431, CSS-0432. */
+.distribution-decision-model span,
+.distribution-decision-model small {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#433; peers CSS-0433. */
+.distribution-decision-model strong {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#434; peers CSS-0434. */
+.distribution-decision-editor textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--ux-input-min-block-size);
+  max-height: 96px;
+  resize: vertical;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#435; peers CSS-0435. */
+.distribution-decision-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-1);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#436; peers CSS-0436. */
+.distribution-decision-note {
+  margin: 0;
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border-top: 1px solid var(--ux-border-strong);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#437; peers CSS-0437. */
+.distribution-evidence-bar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  min-height: var(--ux-command-bar-height);
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--ux-space-1);
+  padding-inline: var(--ux-pane-padding);
+  border-top: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#438; peers CSS-0438. */
+.distribution-evidence-bar > details > summary {
+  min-height: var(--ux-interactive-min-block-size);
+  border-color: transparent;
+  color: var(--ux-text-muted);
+  background: transparent;
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#439; peers CSS-0439. */
+.distribution-evidence-bar > details[open] > summary {
+  color: var(--ux-accent-strong);
+  background: var(--ux-accent-soft);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#440; peers CSS-0440, CSS-0441, CSS-0442. */
+.distribution-warnings,
+.distribution-history-controls,
+.distribution-provenance dl {
+  position: absolute;
+  z-index: 7;
+  inset-inline: var(--ux-pane-padding);
+  inset-block-end: calc(100% - 1px);
+  max-height: min(36vh, 340px);
+  margin: 0;
+  padding: var(--ux-pane-padding);
+  overflow: auto;
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#443; peers CSS-0443. */
+.distribution-warnings {
+  display: grid;
+  gap: var(--ux-space-1);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#444; peers CSS-0444. */
+.distribution-warnings p {
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#445; peers CSS-0445. */
+.distribution-history-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ux-space-3);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#446; peers CSS-0446. */
+.distribution-provenance dl > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-1) 0;
+  border-bottom: 1px solid var(--ux-border);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#447; peers CSS-0447. */
+.distribution-provenance dl > div:last-child {
+  border-bottom: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#448; peers CSS-0448. */
+.distribution-provenance :is(dt, dd) {
+  min-width: 0; margin: 0; overflow-wrap: anywhere;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#449; peers CSS-0449. */
+.distribution-provenance dt {
+  color: var(--ux-text-muted);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#450; peers CSS-0450. */
+.distribution-empty {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  place-content: center;
+  gap: var(--ux-space-1);
+  margin: var(--ux-pane-padding);
+  padding: var(--ux-pane-padding);
+  border-block: 1px solid var(--ux-border);
+  color: var(--ux-text-muted);
+  text-align: center;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#451; peers CSS-0451. */
+.distribution-empty strong {
+  color: var(--ux-text); font-size: var(--ux-emphasis-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#452; peers CSS-0452. */
+.distribution-empty span {
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#453; peers CSS-0453. */
+@media (max-width: 1100px) {
+  .distribution-input-summary {
+    display: none;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#454; peers CSS-0454. */
+@media (max-width: 1100px) {
+  .distribution-ledger-heading {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ux-space-1);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#455; peers CSS-0455. */
+@media (max-width: 1100px) {
+  .distribution-ledger-recommendation {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#456; peers CSS-0456. */
+@media (max-width: 1100px) {
+  .distribution-decision-editor {
+    grid-template-columns: minmax(150px, .35fr) minmax(260px, 1fr);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#457; peers CSS-0457. */
+@media (max-width: 1100px) {
+  .distribution-decision-actions {
+    grid-column: 1 / -1; justify-content: flex-end;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#458; peers CSS-0458. */
+@media (max-height: 800px) {
+  .distribution-ledger {
+    margin-top: var(--ux-space-2);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#459; peers CSS-0459, CSS-0460. */
+@media (max-height: 800px) {
+  .distribution-candidate-table th,
+  .distribution-candidate-table td {
+    height: var(--ux-interactive-min-block-size);
+    padding-block: var(--ux-space-1);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#461; peers CSS-0461. */
+.distribution-analysis-sheet .distribution-ledger {
+  grid-template-rows: minmax(130px, 1fr) auto auto auto;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#462; peers CSS-0462. */
+.distribution-probability-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#463; peers CSS-0463. */
+.distribution-probability-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+  min-width: 0;
+  padding: var(--ux-space-1) var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#464; peers CSS-0464, CSS-0465. */
+.distribution-probability-panel > header > div:first-child,
+.distribution-plot-legend {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ux-space-2);
+  min-width: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#466; peers CSS-0466. */
+.distribution-probability-panel > header strong {
+  font-size: var(--ux-data-font-size);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#467; peers CSS-0467. */
+.distribution-probability-panel > header span {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#468; peers CSS-0468. */
+.distribution-plot-legend {
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#469; peers CSS-0469. */
+.distribution-plot-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ux-space-1);
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#470; peers CSS-0470. */
+.distribution-plot-legend i {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 2px solid var(--ux-text);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#471; peers CSS-0471. */
+.distribution-plot-legend .empirical i {
+  border-top-style: dashed; border-top-width: 3px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#472; peers CSS-0472. */
+.distribution-plot-legend .lognormal i {
+  border-color: #087f73;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#473; peers CSS-0473. */
+.distribution-plot-legend .weibull i {
+  border-color: #a45a13;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#474; peers CSS-0474. */
+.distribution-cdf-plot {
+  width: min(100%, var(--ux-comparison-table-max-inline-size));
+  height: 100%;
+  min-height: 0;
+  margin-inline: auto;
+  overflow: hidden;
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#475; peers CSS-0475. */
+.distribution-cdf-plot svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#476; peers CSS-0476. */
+.distribution-plot-grid line {
+  stroke: var(--ux-border);
+  stroke-width: 1;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#477; peers CSS-0477. */
+.distribution-plot-axes line {
+  stroke: var(--ux-border-strong);
+  stroke-width: 1;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#478; peers CSS-0478. */
+.distribution-plot-axes text {
+  fill: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#479; peers CSS-0479. */
+.distribution-plot-axes .axis-title {
+  fill: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: 650;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#480; peers CSS-0480. */
+.distribution-empirical-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#481; peers CSS-0481. */
+.distribution-fit-line.selected {
+  stroke-width: 3.5; opacity: 1;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#482; peers CSS-0482. */
+.distribution-empirical-line {
+  stroke: var(--ux-text);
+  stroke-width: 2.5;
+  stroke-dasharray: 7 4;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#483; peers CSS-0483. */
+@media (max-width: 1100px) {
+  .distribution-probability-panel > header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--ux-space-1);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#484; peers CSS-0484. */
+@media (max-width: 1100px) {
+  .distribution-plot-legend {
+    justify-content: flex-start;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#485; peers CSS-0485. */
+@media (max-height: 800px) {
+  .distribution-analysis-sheet .distribution-ledger {
+    grid-template-rows: minmax(88px, 1fr) auto auto auto;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#486; peers CSS-0486. */
+@media (max-height: 800px) {
+  .distribution-probability-panel > header > div:first-child > span {
+    display: none;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#487; peers CSS-0487. */
+@media (max-height: 800px) {
+  .distribution-plot-axes .y-axis-title {
+    display: none;
+  }
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#591. */
 .distribution-command-bar {
   position: relative;

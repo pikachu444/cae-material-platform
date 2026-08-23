@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
+import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
+
 import {
   type ApiConfig,
   listShearRelaxationDatasetsForMaterialState,

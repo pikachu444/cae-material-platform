@@ -22,6 +22,10 @@ for (const { importer, value } of M4_FIXTURE.m1eSideEffectImportAllowances ?? []
   if (!M4_IMPORT_ALLOWANCES.has(importer)) M4_IMPORT_ALLOWANCES.set(importer, new Set());
   M4_IMPORT_ALLOWANCES.get(importer).add(`import "${value}";`);
 }
+const FE06_EXTRA_IMPORTERS = new Map([
+  ["B calibration", ["apps/web/src/reference-replicate-statistics-workbench.tsx"]],
+  ["B viscoelastic", ["apps/web/src/polymer-temperature-shift-inspector.tsx"]],
+]);
 
 const TUPLE = {
   legacyId: 0,
@@ -387,7 +391,9 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
     }
     assert.deepEqual(
       importers.sort((left, right) => left.path.localeCompare(right.path)),
-      move.importers.map((path) => ({ path, count: 1 })).sort((left, right) => left.path.localeCompare(right.path)),
+      [...move.importers, ...(FE06_EXTRA_IMPORTERS.get(move.name) ?? [])]
+        .map((path) => ({ path, count: 1 }))
+        .sort((left, right) => left.path.localeCompare(right.path)),
       `${move.name}: import ownership drift`,
     );
     for (const importer of move.importers) {
@@ -404,6 +410,23 @@ test("M1E exclusions, mixed groups, and unique producer imports remain exact", (
 
 test("M1E historical handoff remains frozen while M4 advances inventory and guard ownership", () => {
   const inventory = JSON.parse(readFileSync(resolve(ROOT, FIXTURE.frozenInventory.path), "utf8"));
+  if (inventory.migrationPlan.checkpoints.some(
+    (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
+  )) {
+    assert.equal(inventory.sourceSha, "599278067ab5f69d46ea59559344499399b51fed");
+    assert.equal(inventory.mergeBaseSha, "599278067ab5f69d46ea59559344499399b51fed");
+    assert.equal(inventory.summary.selectorRows, 578);
+    assert.equal(inventory.summary.cssRuleGroups, 517);
+    assert.equal(inventory.summary.byMigrationBatch["M4-shared-cleanup"] ?? 0, 0);
+    assert.equal(inventory.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"], 22);
+    assert.equal(inventory.summary.byMigrationBatch["HOLD-owner-or-cross-feature-split"] ?? 0, 0);
+    assert.equal(inventory.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"], 556);
+    const checkpoints = new Map(inventory.migrationPlan.checkpoints.map((checkpoint) => [checkpoint.unit, checkpoint]));
+    assert.equal(checkpoints.get("M1E5-producer-routed-residual").status, "ACCEPTED_MAIN_VISUAL_AND_RUNTIME");
+    assert.equal(checkpoints.get("M4-shared-css-ownership-consolidation").approvedMove.rows, 288);
+    assert.equal(checkpoints.get("FE-06-residual-owner-boundary-consolidation").current.m6Rows, 556);
+    return;
+  }
   assert.equal(inventory.sourceSha, M4_FIXTURE.baseSha);
   assert.equal(inventory.mergeBaseSha, M4_FIXTURE.baseSha);
   assert.equal(inventory.summary.selectorRows, 1103);

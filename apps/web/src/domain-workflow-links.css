@@ -1,0 +1,63 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#566; peers CSS-1053. */
+.domain-workflow-links {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#567; peers CSS-1054. */
+.domain-workflow-links.compact {
+  margin-top: 0.65rem;
+  padding: 0.75rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#568; peers CSS-1055. */
+.domain-workflow-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#569; peers CSS-1056. */
+.domain-workflow-heading > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#570; peers CSS-1057. */
+.domain-workflow-node-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#571; peers CSS-1058. */
+.domain-workflow-node-list a {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#572; peers CSS-1059, CSS-1060, CSS-1061. */
+.domain-workflow-node-list a:hover,
+.domain-workflow-node-list a:focus-visible,
+.domain-workflow-node-list a.current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#575; peers CSS-1062, CSS-1063. */
+.domain-workflow-node-list span,
+.domain-workflow-node-list small {
+  color: var(--muted);
+}

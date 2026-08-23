@@ -1,3 +1,31 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#93; peers CSS-0093. */
+.processing-workbench-page > :is(.modeling-context-strip, .modeling-stage-shell, .modeling-notice-line) {
+  flex: 0 0 auto;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#99; peers CSS-0099. */
+.modeling-stage-shell button.active {
+  background: var(--ux-accent-soft); color: var(--ux-text);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#100; peers CSS-0100. */
+.modeling-stage-shell button.active {
+  box-shadow: inset 0 -2px 0 var(--ux-accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#283; peers CSS-0770. */
+.workspace-inspector-tabs button.active {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#285; peers CSS-0772. */
+.option-choice-grid button.active {
+  background: #e8f4f1;
+  border-color: #61a496;
+  color: #1f5e54;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#135. */
 .modeling-context-actions .button {
   min-height: 26px; padding: 3px 9px; font-size: 11px;

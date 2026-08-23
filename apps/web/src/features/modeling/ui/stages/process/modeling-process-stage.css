@@ -1,3 +1,208 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#92; peers CSS-0092. */
+.processing-workbench-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--ux-canvas);
+  color: var(--ux-text);
+  font-size: 14px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#94; peers CSS-0094. */
+.processing-workbench-page > .method-builder-card {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#95; peers CSS-0095. */
+.processing-workbench-page > .method-builder-card > .section-heading {
+  min-height: 38px;
+  flex: 0 0 38px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#96; peers CSS-0096. */
+.processing-workbench-page > .method-builder-card > .section-heading .workspace-caption {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#97; peers CSS-0097, CSS-0098. */
+.processing-workbench-page > .method-builder-card > :is(.advanced-definition, .mapping-note),
+.processing-workbench-page > .method-builder-card ~ .modeling-support-drawer {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#114; peers CSS-0114, CSS-0115. */
+.method-builder-card > .section-heading,
+.method-library {
+  border-color: var(--ux-border);
+  border-radius: var(--ux-radius-panel);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-none);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#139; peers CSS-0139. */
+.method-builder-card > .section-heading {
+  min-height: 36px;
+  padding: 4px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#140; peers CSS-0140. */
+.method-builder-card > .method-library {
+  margin: 0;
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#141; peers CSS-0141. */
+.modeling-section-actions .method-library {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#142; peers CSS-0142. */
+.modeling-section-actions .method-library summary {
+  min-height: 32px;
+  padding: 7px 10px;
+  border: 1px solid var(--ux-border);
+  border-radius: var(--ux-radius-control);
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#143; peers CSS-0143. */
+.modeling-section-actions .method-library[open] summary {
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#146; peers CSS-0146. */
+.process-comparison-table td:last-child .text-button {
+  min-height: 24px;
+  height: 24px;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#232; peers CSS-0232, CSS-0233, CSS-0234. */
+.processing-workbench-page .button,
+.processing-workbench-page input:not([type="checkbox"]):not([type="radio"]),
+.processing-workbench-page select {
+  min-height: 32px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#235; peers CSS-0235, CSS-0236, CSS-0237, CSS-0238, CSS-0239. */
+.processing-workbench-page small,
+.processing-workbench-page .eyebrow,
+.processing-workbench-page .option-hint,
+.processing-workbench-page .guided-step-options label,
+.processing-workbench-page .rail-heading > span {
+  font-size: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#241; peers CSS-0248. */
+.processing-workbench-page .guided-range-row label {
+  font-size: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#274; peers CSS-0761. */
+.method-library {
+  border-bottom: 1px solid var(--border);
+  margin: 0 0 0.65rem;
+  padding-bottom: 0.55rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#275; peers CSS-0762. */
+.method-library summary {
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#276; peers CSS-0763. */
+.method-library summary span {
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: 0.35rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#277; peers CSS-0764. */
+.method-library[open] summary {
+  margin-bottom: 0.55rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#284; peers CSS-0771. */
+.batch-preflight-members .blocked i {
+  background: #c47a3d;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#324; peers CSS-0324. */
+.processing-workbench-page {
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#325; peers CSS-0325. */
+.processing-workbench-page > .method-builder-card > .section-heading {
+  min-height: var(--ux-control-min-block-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#326; peers CSS-0326. */
+.processing-workbench-page > .method-builder-card > .section-heading {
+  flex-basis: var(--ux-control-min-block-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#327; peers CSS-0327, CSS-0328, CSS-0330. */
+.processing-workbench-page :is(small, .eyebrow, .option-hint, .workspace-caption, .step-index),
+.processing-workbench-page :is(label, legend, code),
+.processing-workbench-page .rail-heading > span {
+  font-size: var(--ux-metadata-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#338; peers CSS-0339. */
+.rail-statistics-action :is(input, .button) {
+  min-height: var(--ux-interactive-min-block-size);
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#348; peers CSS-0348, CSS-0349, CSS-0350. */
+.processing-workbench-page input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.processing-workbench-page select,
+.processing-workbench-page textarea {
+  min-height: var(--ux-input-min-block-size);
+  height: auto;
+  font-size: var(--ux-data-font-size);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#373; peers CSS-0860. */
+.method-builder-card > .mapping-note {
+  margin-inline: 0.65rem;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#189. */
 .processing-workbench-page.stage-process .modeling-context-actions .button {
   box-sizing: border-box;
