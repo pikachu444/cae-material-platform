@@ -1,4 +1,4 @@
-version: 25
+version: 26
 shell:
   product_header_px: {compact: 46, standard: 50, large: 54}
   generic_command_status_bands: absent
@@ -91,7 +91,7 @@ administration_workspace:
     validation: [required-value, value-type, unit, duplicate-code, per-row-correction]
     publication: published-revisions-only-in-material-database-search
 materials_workspace:
-  task: UXC-01 server-scoped Find correction on DUI-02 workspace; Issue #246 Task 1 category integration
+  task: UXC-01 server-scoped Find correction on DUI-02 workspace; Issue #246 Task 1 category integration; Issue #262 FE-07A Materials architecture and UI refinement
   routes:
     results: /materials
     material_datasheet: /materials/:materialId/:tab?
@@ -133,6 +133,19 @@ materials_workspace:
     exact_revision_fallback: forbidden
     back_restores: [query, filters, sort, navigator_mode, selection, pane_layout]
     capture_ready: [aria-busy-false, server-scoped-total-page-and-material-class-facet, no-row-enrichment-requests]
+    related_data_placement: adjacent-to-active-overview-properties-or-curves-decision
+    curve_link_decisions: [Modeling input, Exact source records]
+    cae_delivery_heading: CAE card applicability
+  ownership:
+    public_boundary: apps/web/src/features/materials/index.ts
+    query_api: apps/web/src/features/materials/api/search-materials.ts
+    experience_loader: apps/web/src/features/materials/api/load-material-experience.ts
+    search_controller: apps/web/src/features/materials/controller/use-materials-search-controller.ts
+    route_state: apps/web/src/features/materials/model/materials-route-state.ts
+    search_page: apps/web/src/features/materials/ui/material-search-page.tsx
+    detail_exact_and_card_pages: apps/web/src/features/materials/ui/materials-pages.tsx
+    root_material_library: Activity-only
+    forbidden_fallbacks: [latest, first-item, global-output, other-session]
   find_query:
     source_of_truth: server-side
     fields: [text_query, material_class, provider, evidence_source, sort, offset, limit]
@@ -185,7 +198,7 @@ modeling_workspace:
     uxc_03_to_06: complete-bounded
     uxc_06: exact-source-provenance-complete; historical-and-json-only-proof-null; ephemeral-preview-delivery-receipt-required
     reviewer_role_access: complete
-    materials_presentation_and_query_projections: pending
+    materials_presentation_and_query_projections: fe07a-complete-owner-visual-approval-pending
     dui_07: complete
     dui_08a_activity_review_queue: complete
     dui_08b: complete-exact-material-and-solver-card-request-entry

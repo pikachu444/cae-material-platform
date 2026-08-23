@@ -210,14 +210,23 @@ async function installFixture(page: Page): Promise<void> {
   });
 }
 
-async function waitForFixture(page: Page, searchText = "reference"): Promise<void> {
-  await page.goto("/materials");
-  await expect(page.locator(".materials-results")).toHaveAttribute("aria-busy", "false");
+async function waitForFixture(
+  page: Page,
+  searchText = "reference",
+  mode: "browse" | "filters" = "browse",
+): Promise<void> {
+  await page.goto(mode === "filters" ? "/materials?mode=filters" : "/materials");
+  if (mode === "filters") {
+    await expect(page.locator(".materials-results")).toHaveAttribute("aria-busy", "false");
+  }
   await expect(page.locator(".materials-result-table tbody tr").first()).toBeVisible();
-  await expect(page.locator(".materials-tree-row").first()).toBeVisible();
-  await page.getByRole("textbox", { name: "Search materials" }).fill(searchText);
-  await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
-  await expect(page.locator(".materials-result-table tbody tr").first()).toBeVisible();
+  if (mode === "filters") {
+    await page.getByRole("textbox", { name: "Search materials" }).fill(searchText);
+    await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
+    await expect(page.locator(".materials-result-table tbody tr").first()).toBeVisible();
+  } else {
+    await expect(page.locator(".materials-tree-row").first()).toBeVisible();
+  }
 }
 
 test("Materials table and Browse tree keep independent native local scroll at required viewports", async ({ page }) => {
@@ -233,13 +242,13 @@ test("Materials table and Browse tree keep independent native local scroll at re
     await page.setViewportSize(viewport);
     await waitForFixture(page);
     const pa66Row = page.locator(".materials-result-table tbody tr").filter({ hasText: "PA66 glass-filled polymer" }).first();
-    await expect(pa66Row).toContainText("Polymer");
+    await expect(pa66Row).toContainText("Technical Data");
     const results = page.locator(".materials-result-table-wrap");
     const tree = page.locator(".materials-tree-scroll");
     const resultRailY = page.locator(".materials-result-scroll-shell .materials-scroll-rail-y");
     const treeRailY = page.locator(".materials-tree-scroll-shell .materials-scroll-rail-y");
     const treeRailX = page.locator(".materials-tree-scroll-shell .materials-scroll-rail-x");
-    const title = page.getByRole("heading", { name: "Materials", level: 2 });
+    const title = page.locator(".materials-results h2");
     const beforeTitle = await title.boundingBox();
     const geometry = await Promise.all([results, tree].map(async (locator) => locator.evaluate((element) => ({
       clientWidth: element.clientWidth,
@@ -322,7 +331,7 @@ test("Materials table and Browse tree keep independent native local scroll at re
   }
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await waitForFixture(page);
+  await waitForFixture(page, "reference", "filters");
   await page.getByRole("textbox", { name: "Search materials" }).fill("steel");
   await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
   await expect(page.locator(".materials-result-table-wrap")).toHaveJSProperty("scrollHeight", await page.locator(".materials-result-table-wrap").evaluate((element) => element.clientHeight));

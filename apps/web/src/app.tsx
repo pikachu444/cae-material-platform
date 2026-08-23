@@ -23,7 +23,7 @@ import type {
   MaterialClass,
   MaterialResponse,
 } from "./types";
-import type { MaterialRevisionPin, MaterialTab } from "./material-library";
+import type { MaterialRevisionPin, MaterialTab } from "./features/materials/model/materials-route-state";
 import {
   ApplicationShell,
   publishWorkspaceStatus,
@@ -136,22 +136,22 @@ const ProductAccessCenter = lazy(() =>
   })),
 );
 const MaterialSearchPage = lazy(() =>
-  import("./material-library").then((module) => ({
+  import("./features/materials/ui/material-search-page").then((module) => ({
     default: module.MaterialSearchPage,
   })),
 );
 const SearchFirstMaterialDetailPage = lazy(() =>
-  import("./material-library").then((module) => ({
+  import("./features/materials/ui/materials-pages").then((module) => ({
     default: module.MaterialDetailPage,
   })),
 );
 const ExactRecordDatasheetPage = lazy(() =>
-  import("./material-library").then((module) => ({
+  import("./features/materials/ui/materials-pages").then((module) => ({
     default: module.ExactRecordDatasheetPage,
   })),
 );
 const SolverCardPreviewPage = lazy(() =>
-  import("./material-library").then((module) => ({
+  import("./features/materials/ui/materials-pages").then((module) => ({
     default: module.SolverCardPreviewPage,
   })),
 );

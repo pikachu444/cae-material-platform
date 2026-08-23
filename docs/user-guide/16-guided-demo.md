@@ -56,16 +56,19 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 3. 검색 결과에서 금속·폴리머·엘라스토머 합성 Material을 확인합니다.
 
 
-## 3. Material Database에서 계층과 연결 확인하기
+## 3. Materials에서 자료와 연결 확인하기
 
 1. **Materials**에서 **Browse**를 엽니다.
-2. **CAE Material Database → Engineering Materials Profile → Demo Material Records →
-   Material Library → Metals → Steels → DP780 Dual-Phase Steel**이 자동 전개되고 유용한 demo
-   Record의 **Overview**가 바로 표시되는지 확인합니다.
-3. Record를 선택해 Material Detail의 **Evidence**를 열고 Material, Material State, Test Data,
-   Processing Output, Material Model IR, Neutral Material과 두 Solver Card의 계보를 확인합니다.
-4. **Related / Workflow**에서 현재 revision의 양방향 링크와 immutable history를 확인합니다.
-   링크를 누르면 해당 Datasheet 또는 실제 Modeling 작업공간으로 이동합니다.
+2. Navigator에서 **Technical Data | Test Data | Simulation Data | Solver Cards**가 같은 수준의
+   범주로 표시되는지 확인합니다. 범주를 펼쳐 **DP780 synthetic reference steel** 또는 연결된
+   Test Data를 선택하면 가운데 결과와 상세가 같은 작업공간에서 열립니다.
+3. Material Detail의 **Overview / Properties / Curves / CAE Cards / Evidence**를 차례로 엽니다.
+   이름, code, exact revision, condition, source, curve와 CAE card applicability가 같은 선택을
+   가리키는지 확인합니다.
+4. 각 탭의 **Related data** 또는 **Exact source records**에서 현재 exact revision의 직접 링크를
+   확인하고, **Evidence**에서 Material, Material State, Test Data, Processing Output,
+   Material Model IR, Neutral Material과 Solver Card 계보를 검토합니다. 저장 위치와 형식 정의는
+   Administration에서 확인합니다.
    DP780의 직접 연결에는 23 °C 기준, 80 °C, 저속, 고속의 인장 조건 네 개와 Nakajima,
    Marciniak FLD 두 개가 있습니다. 이름 끝의 `synthetic reference`는 모두 비생산 합성 예제임을
    뜻합니다.
@@ -73,8 +76,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
    원본 `g/cm^3`, `MPa` 값과 normalized `kg/m^3`, `Pa` 값이 함께 보여야 합니다.
 6. 상단에서 `DP780`을 검색하고 Material과 Material State의 **Compare**를 선택한 뒤 Layout
    비교를 엽니다. 오른쪽 facet과 normalized numeric range도 같은 typed Record 검색에 적용됩니다.
-7. Test Data 노드를 눌러 Modeling을 연 뒤 **Materials로 돌아가기**로 같은 검색과 Browse Tree
-   탐색 문맥에 돌아옵니다.
+7. 적합한 exact 자료에서 **Start Modeling**을 누르고 Material revision이 Modeling에 그대로
+   전달되는지 확인합니다. **Materials로 돌아가기**로 복귀하면 검색어, Navigator mode, 트리 선택,
+   결과 선택과 상세 return path가 지원되는 범위에서 유지됩니다.
 
 
 
@@ -86,7 +90,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 2. **Overview / Properties / Curves**에서 Material, State, 주요 물성과 시험 curve를 확인합니다.
 3. **Related exact records**에서 23 °C 기준, 80 °C, 저속, 고속의 인장 Record 네 개를 확인합니다.
    이 Record들은 대표 조건을 구분하는 예제입니다.
-4. **Modeling에서 사용**으로 이동해 **Data**에서 같은 합성 기준시험의 세 반복
+4. **Start Modeling**으로 이동해 **Data**에서 같은 합성 기준시험의 세 반복
    (`CMP-DEMO-DP780-TEST-JSON`, `-02`, `-03`)과 raw/normalized curve를 확인합니다. Materials의
    네 조건 Record와 Modeling의 세 반복을 합치거나 중복 데이터로 해석하지 마십시오.
 5. Materials로 돌아가 고속 인장 Record를 열고 exact r1 링크가
@@ -109,7 +113,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 ## 5. 폴리머 점탄성 경로
 
-1. Materials에서 polymer family를 필터하고 reference polymer를 선택한 뒤 **Modeling에서 사용**을 누릅니다.
+1. Materials에서 polymer family를 필터하고 reference polymer를 선택한 뒤 **Start Modeling**을 누릅니다.
 2. **Data**에서 273.15/293.15/313.15 K, 온도별 두 반복 curve를 확인합니다.
 3. **Process / Fit**에서 log-time 정렬, 온도별 통계와 수동 shift factor를 확인합니다.
 4. **Fit**에서 exact common Processing Output, automatic BIC로 선택된 3항, RMSE와 catalog G₀
@@ -124,7 +128,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 ## 6. 엘라스토머 초탄성·초점탄성 경로
 
-1. Materials에서 elastomer family를 필터하고 reference elastomer를 선택한 뒤 **Modeling에서 사용**을 누릅니다.
+1. Materials에서 elastomer family를 필터하고 reference elastomer를 선택한 뒤 **Start Modeling**을 누릅니다.
 2. uniaxial, planar, biaxial calibration curve와 별도 holdout curve를 확인합니다.
 3. family 비교와 fitted/residual 결과에서 선택 근거와 경고를 검토합니다.
 4. selected Candidate가 같은 stable Model identity의 IR revision 2로 승격됐는지 확인합니다.

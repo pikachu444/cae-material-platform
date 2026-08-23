@@ -1,10 +1,11 @@
-version: 135
+version: 136
 verified_at: 2026-08-24
-scope: issue-261-m6-zero-consumer-audit-and-removal
-source_commit: 593dfd3dab3a22ec93bc9d9a078c05b6f1f1c329+issue261-m6-worktree
-capture_script: ../../scripts/capture_issue_261_m6_visual_evidence.py
-capture_command: Main-owned Issue #261 M6 13-topology before/after Product evidence at five CSS viewports, browser zoom 100% and DPR 1, using --phase before/after followed by --compare, --accept and --check; final packet accepted after Main opened all originals and direct crops, with physical Windows 4K readability deferred to #223
+scope: issue-262-fe07a-materials-architecture-ui
+source_commit: 50095dbedf3587a585fc5552e9b5e422f59f7289+issue262-fe07a-worktree
+capture_script: ../../scripts/capture_issue_262_fe07a_visual_evidence.py
+capture_command: 'Main-owned Issue #262 FE-07A before/after Product evidence at five CSS viewports, browser zoom 100% and DPR 1; the flow verifies server-scoped search, Browse, exact detail/curve read-back, query-error recovery, Results return continuity and exact Start Modeling context, and Main opened all originals and direct 100%-pixel crops; physical Windows 4K readability remains deferred to #223'
 notes:
+  - "Issue #262 FE-07A moves Materials query, route-state, exact-loader, controller and page ownership out of the root Activity surface, preserves the one server-scoped result/total/facet query and exact revision/card lineage, and refines only redundant Materials presentation. The registered packet under docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/manifest.json contains 40 before/after originals, 140 direct 100%-pixel crops and 2 recovery originals across search, Browse, detail and curve states. Main opened every asset at original resolution; five-viewport geometry, reload/read-back, Results return and Start Modeling exact-context checks pass. Product Owner visual/geometry approval and merge remain pending, and physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M6 audits the exact PR #318 556-row/495-group zero-consumer handoff as one batch. Static producer/reference, production bundle and 13-topology live DOM evidence authorize removal of 511 rows touching 462 groups; 45 false-positive rows in 43 groups remain explicit HOLD with truthful current owners and removal conditions. The five-viewport audit restored `.materials-scroll-rail-x` after proving its narrow Export producer. The packet under docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json registers 610 PNGs and 305 before/after pairs with Main visual/runtime acceptance. The current guide's 1920x1080 Export PNG reuses the accepted M6 after original; physical Windows 4K readability remains deferred to #223."
   - "Issue #261 FE-06 freezes the corrected 525-row/438-group residual owner-boundary packet at 599278067ab5f69d46ea59559344499399b51fed, moves every approved tuple to a truthful feature or shared owner, and accepts 22 shared-layout rows in place to preserve eager cascade rank. The original 529-row/475-group M6 candidate is preserved, with 27 audited no-current-DOM rows added after truthful owner review for a 556-row/495-group next handoff. The registered live packet under docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/manifest.json covers 13 topologies and five CSS viewports with 610 images and 305 before/after pairs; Main accepted the runtime and original-resolution evidence. No current-guide PNG is replaced, and physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M1E5 relocates the approved 58 selector rows in 49 rule groups from the frozen legacy producers into truthful shared, Materials curve-contract, Test Data governed-import/canonical JSON, and Modeling mapping-report owner stylesheets. The two hyperelastic chart-axis/chart-tick rows remain byte-exact producer holds because the accepted 12px processing-workbench cascade must not regress to 9px. Main accepted the seven-topology five-viewport before/after and direct 100%-pixel crop packet with selector computed equality 190/190, page geometry 35/35, crop geometry/display/overflow 160/160 and no clipping/topology regression. The current guide's 1920x1080 Data PNG reuses the accepted live capture at docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png; physical Windows 4K readability remains deferred to #223."
@@ -2442,6 +2443,10 @@ visual_evidence:
   independent_read_only_review: required_issue309_exact_candidate_before_commit
   product_owner_review: task_owner_supplied_exact_issue309_scope_and_acceptance
 capture_provenance:
+  - source_commit: 50095dbedf3587a585fc5552e9b5e422f59f7289+issue262-fe07a-worktree
+    captured_at: '2026-08-24'
+    command: 'Disposable current-worktree Compose project cmp-issue262-visual with the existing database and named volumes preserved; uv run --with playwright==1.62.0 --with pillow python scripts/capture_issue_262_fe07a_visual_evidence.py --base-url http://127.0.0.1:5173 at browser zoom 100% and DPR 1. The flow captures search, Browse, exact detail and exact curve states at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160, creates direct header/navigator/table-form/graph-preview crops, and verifies query-error retention/retry, reload/read-back, Results return and Start Modeling exact context.'
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840]
   - source_commit: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1+issue309-worktree
     captured_at: '2026-08-21'
     command: 'Canonical current-worktree Compose with preserved PostgreSQL/object data and only the web image rebuilt for after capture; native Python Playwright 1.62 task-local resolved-mapping drill using scripts.capture_current_product helpers at browser zoom 100% and DPR 1. The journey preserves three exact DP780 Test Data refs and one current document through Data to Process to Data and reload; proves invalid mapping blocks preview, repairs the mapping, reaches Columns ready, verifies Update preview focus, then measures the actual rendered SVG, tick/title/frame collisions and page overflow at five CSS viewports. The accepted 1366 after original is promoted to the current Modeling Data capture; 1440 through 3840 remain issue evidence and their existing current images are unchanged. The seed base phase completed before the preserved-volume Issue #246 binding met an idempotency conflict; no reset, deletion or unchanged replay was performed.'
@@ -2486,8 +2491,8 @@ capture_provenance:
     ids: [modeling-distribution-1366, modeling-distribution-1440, modeling-distribution-1920, modeling-distribution-2560, modeling-distribution-3840]
   - source_commit: e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4
     captured_at: '2026-08-12'
-    command: 'Canonical current-source Compose; capture_current_product.py --only-materials and --only-modeling-data-session at browser zoom 100% and DPR 1. The issue-owned script copied the affected five-viewport originals, produced direct 100%-pixel crops, exercised keyboard/pointer tooltip and band-toggle parity, opened Evidence, and recorded the honest metadata-absent state. The Process/Fit images from this run were later refreshed and reassigned to Issue #212 provenance; the Data/session images were later refreshed and reassigned to Issue #259 FE-04C provenance.'
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-search-2560, materials-search-3840, materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, materials-browse-1440, material-detail-1366, material-detail-1440, material-detail-1920, material-detail-2560, material-detail-3840, material-curves-1366, material-curves-1440, material-curves-1920, material-curves-2560, material-curves-3840, material-cae-cards-1440]
+    command: 'Canonical current-source Compose; capture_current_product.py --only-materials and --only-modeling-data-session at browser zoom 100% and DPR 1. The retained current Materials captures cover the long/short/empty local-scroll states and CAE card preview; search, Browse, detail and curve captures were refreshed and reassigned to Issue #262 FE-07A provenance. The Process/Fit images from this run were later refreshed and reassigned to Issue #212 provenance; the Data/session images were later refreshed and reassigned to Issue #259 FE-04C provenance.'
+    ids: [materials-scroll-long-1366, materials-scroll-long-1440, materials-scroll-long-1920, materials-scroll-short-1440, materials-scroll-empty-1440, material-cae-cards-1440]
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
     command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. The routes recaptured for #206 were reassigned to the #206 source record, the five current Process method/recovery images were later refreshed and reassigned to Issue #259 FE-04D provenance, the seven current Fit candidate/recovery images were later refreshed and reassigned to FE-04E provenance, and the seven current Export preview/recovery images were later refreshed and reassigned to FE-04F provenance.'
@@ -2544,35 +2549,35 @@ previous_capture_provenance:
 captures:
   - id: materials-search-1366
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet
+    workflow: server-scoped-search-select-open-exact-datasheet-and-return-with-continuity
     fixture: synthetic DP780 Material library
     image: images/current/materials-search-1366x768.png
     width: 1366
     height: 768
   - id: materials-search-1440
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet
+    workflow: server-scoped-search-select-open-exact-datasheet-and-return-with-continuity
     fixture: synthetic DP780 Material library
     image: images/current/materials-search-1440x900.png
     width: 1440
     height: 900
   - id: materials-search-1920
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet
+    workflow: server-scoped-search-select-open-exact-datasheet-and-return-with-continuity
     fixture: synthetic DP780 Material library
     image: images/current/materials-search-1920x1080.png
     width: 1920
     height: 1080
   - id: materials-search-2560
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet-wide-elastic
+    workflow: server-scoped-search-select-open-exact-datasheet-and-return-wide-elastic
     fixture: synthetic DP780 Material library with bounded navigator/context panes and an elastic result workspace
     image: images/current/materials-search-2560x1440.png
     width: 2560
     height: 1440
   - id: materials-search-3840
     route: /materials
-    workflow: browse-default-search-select-and-open-datasheet-wide-elastic
+    workflow: server-scoped-search-select-open-exact-datasheet-and-return-wide-elastic
     fixture: synthetic DP780 Material library with bounded navigator/context panes and an elastic result workspace
     image: images/current/materials-search-3840x2160.png
     width: 3840
@@ -2614,7 +2619,7 @@ captures:
     height: 900
   - id: materials-browse-1440
     route: /materials?mode=browse
-    workflow: searchable-database-profile-table-folder-record-tree
+    workflow: searchable-four-peer-category-tree-select-exact-record-and-return-with-continuity
     fixture: synthetic DP780 workflow Records
     image: images/current/materials-browse-1440x900.png
     width: 1440
@@ -2648,7 +2653,7 @@ captures:
     width: 1440
     height: 900
     approved_reference_ids: [materials-datasheet-overview-normal-1440x900]
-    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-detail-1366
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
@@ -2657,7 +2662,7 @@ captures:
     width: 1366
     height: 768
     approved_reference_ids: [materials-datasheet-overview-normal-1366x768]
-    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-detail-1920
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
@@ -2666,7 +2671,7 @@ captures:
     width: 1920
     height: 1080
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
-    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-detail-2560
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-elastic
@@ -2675,7 +2680,7 @@ captures:
     width: 2560
     height: 1440
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
-    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-detail-3840
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-elastic
@@ -2684,7 +2689,7 @@ captures:
     width: 3840
     height: 2160
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
-    comparison_evidence: docs/17-evidence/issue-159-mat-detail-comparison.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-curves-1366
     route: /materials/:materialId/curves
     workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
@@ -2693,7 +2698,7 @@ captures:
     width: 1366
     height: 768
     approved_reference_ids: [materials-datasheet-overview-normal-1366x768]
-    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-curves-1440
     route: /materials/:materialId/curves
     workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
@@ -2702,7 +2707,7 @@ captures:
     width: 1440
     height: 900
     approved_reference_ids: [materials-datasheet-overview-normal-1440x900]
-    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-curves-1920
     route: /materials/:materialId/curves
     workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
@@ -2711,7 +2716,7 @@ captures:
     width: 1920
     height: 1080
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
-    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-curves-2560
     route: /materials/:materialId/curves
     workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
@@ -2720,7 +2725,7 @@ captures:
     width: 2560
     height: 1440
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
-    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-curves-3840
     route: /materials/:materialId/curves
     workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
@@ -2729,7 +2734,7 @@ captures:
     width: 3840
     height: 2160
     approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
-    comparison_evidence: docs/17-evidence/issue-206-curve-channel-metadata-and-deviation.md
+    comparison_evidence: docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md
   - id: material-cae-cards-1440
     route: /materials/:materialId/cards
     workflow: native-card-preview-and-download-actions

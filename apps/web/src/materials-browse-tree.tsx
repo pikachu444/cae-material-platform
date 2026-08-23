@@ -916,7 +916,6 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
           })}
         </div>
       </MaterialsScrollRegion>
-      <div className="materials-explorer-help ux-meta">Choose a category to list data. Click a result to open details.</div>
     </div>
   );
 }

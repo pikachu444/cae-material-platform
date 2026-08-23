@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./material-library";
+import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./features/materials";
 import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const materialId = "material-1";

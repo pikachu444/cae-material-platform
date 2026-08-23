@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
-import { MaterialDetailPage } from "./material-library";
+import { MaterialDetailPage } from "./features/materials";
 
 vi.mock("./materials-browse-tree", async () => {
   const React = await import("react");

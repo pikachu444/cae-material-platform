@@ -389,7 +389,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 1180
+    assert report.duplicate_image_group_count == 1775
 
 
 @pytest.mark.parametrize(
@@ -530,9 +530,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
-    assert manifest["version"] == 132
-    assert manifest["scope"] == "issue-261-m1e4-modeling-core-stage-ownership"
-    assert re.fullmatch(r"[0-9a-f]{40}\+issue261-m1e4-worktree", manifest_source)
+    issue262_source = "50095dbedf3587a585fc5552e9b5e422f59f7289+issue262-fe07a-worktree"
+    assert manifest["version"] == 136
+    assert manifest["scope"] == "issue-262-fe07a-materials-architecture-ui"
+    assert manifest_source == issue262_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -540,8 +541,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml"
     )
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "issue-261 M1E4" in manifest["capture_command"]
-    assert "no current-guide PNG replacement" in manifest["capture_command"]
+    assert "Issue #262 FE-07A" in manifest["capture_command"]
+    assert "five CSS viewports" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -551,6 +552,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         capture_source,
+        issue262_source,
         issue298_source,
         issue289_source,
         issue260_source,
@@ -572,7 +574,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-access-2560",
         "administration-access-3840",
     }
-    new_issue_206_captures = {
+    historically_new_issue_206_captures = {
         "material-curves-1366",
         "material-curves-1440",
         "material-curves-1920",
@@ -588,6 +590,32 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-schema-bundle-1440",
     }
     new_issue_253_captures = {"demo-session-recovery-1440"}
+    new_issue_262_captures = {
+        "materials-search-1366",
+        "materials-search-1440",
+        "materials-search-1920",
+        "materials-search-2560",
+        "materials-search-3840",
+        "materials-browse-1440",
+        "material-detail-1366",
+        "material-detail-1440",
+        "material-detail-1920",
+        "material-detail-2560",
+        "material-detail-3840",
+        "material-curves-1366",
+        "material-curves-1440",
+        "material-curves-1920",
+        "material-curves-2560",
+        "material-curves-3840",
+    }
+    retained_issue_206_captures = {
+        "materials-scroll-long-1366",
+        "materials-scroll-long-1440",
+        "materials-scroll-long-1920",
+        "materials-scroll-short-1440",
+        "materials-scroll-empty-1440",
+        "material-cae-cards-1440",
+    }
     new_issue_309_captures = {"modeling-data-1366"}
     new_issue_260_captures = {
         "modeling-data-1440",
@@ -659,7 +687,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(previous_provenance_ids) == (
         set(captures)
         - new_issue_184_captures
-        - new_issue_206_captures
+        - historically_new_issue_206_captures
         - new_issue_210_captures
         - new_issue_246_captures
         - new_issue_253_captures
@@ -683,7 +711,15 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         if provenance["source_commit"] == "e9b523a7f7b613d8d6efc0396160f0ceb2aff2c4"
     )
     assert "--only-materials" in issue_206_provenance["command"]
-    assert new_issue_206_captures <= set(issue_206_provenance["ids"])
+    assert retained_issue_206_captures == set(issue_206_provenance["ids"])
+    issue_262_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == issue262_source
+    )
+    assert "capture_issue_262_fe07a_visual_evidence.py" in issue_262_provenance["command"]
+    assert "query-error retention/retry" in issue_262_provenance["command"]
+    assert new_issue_262_captures == set(issue_262_provenance["ids"])
     issue_210_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

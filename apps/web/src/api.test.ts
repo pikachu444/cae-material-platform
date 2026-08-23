@@ -15,13 +15,13 @@ import {
   inspectLocalDemoAccessToken,
   requestLocalDemoAccessToken,
   listMaterials,
-  searchMaterialCatalogRecords,
   applySchemaDefinitionBundle,
   downloadSchemaDefinitionBundle,
   getSchemaDefinitionBundleApplication,
   planSchemaDefinitionBundle,
   uploadSchemaDefinitionBundle,
 } from "./api";
+import { searchMaterialCatalogRecords } from "./features/materials/api/search-materials";
 import {
   downloadSelectedModelNeutralMaterial,
   previewCommonProcessingFromOutput,

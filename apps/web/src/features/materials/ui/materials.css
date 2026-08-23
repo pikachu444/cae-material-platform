@@ -1123,11 +1123,6 @@
   white-space: nowrap;
 }
 
-.materials-explorer-help {
-  padding: 0 var(--ux-space-3) var(--ux-space-2);
-  line-height: 16px;
-}
-
 .browse-selection-bar {
   min-height: 42px;
   margin: 0 calc(var(--ux-space-5) * -1);
@@ -1185,6 +1180,33 @@
   padding: 0;
   border-top: 1px solid var(--ux-border);
   list-style: none;
+}
+
+.material-linked-data {
+  margin-top: var(--ux-space-6);
+  padding-top: var(--ux-space-5);
+  border-top: 1px solid var(--ux-border-strong);
+}
+
+.material-linked-data.compact {
+  margin-top: var(--ux-space-5);
+}
+
+.related-record-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--ux-space-5);
+}
+
+.related-record-group {
+  min-width: 0;
+}
+
+.related-record-group h3 {
+  margin: var(--ux-space-3) 0 var(--ux-space-2);
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-heading);
 }
 
 .related-record-list button {

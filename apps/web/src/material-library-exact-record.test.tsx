@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ExactRecordDatasheetPage } from "./material-library";
+import { ExactRecordDatasheetPage } from "./features/materials";
 import type { RevisionMetadata } from "./types";
 
 const metadata = (id: string, revisionNo: number): RevisionMetadata => ({
