@@ -51,6 +51,10 @@ const RESIDUAL_OWNER_BOUNDARY_FIXTURE = JSON.parse(readFileSync(
   RESIDUAL_OWNER_BOUNDARY_FIXTURE_PATH,
   "utf8",
 ));
+const M6_FIXTURE = JSON.parse(readFileSync(
+  join(ROOT, "scripts", "fixtures", "issue-261-m6-zero-consumer-audit.json"),
+  "utf8",
+));
 
 const FE06_ACCEPTED_DESCRIPTORS = new Set(
   RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.ids.map((id) => {
@@ -72,6 +76,26 @@ const FE06_M6_DESCRIPTORS = new Set(
   RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.tuples.map((tuple) => (
     [tuple[1], normalizeSpace(tuple[5]), (tuple[6] ?? []).join(" | "), tuple[10]].join("\0")
   )),
+);
+const M6_HOLD_BY_DESCRIPTOR = new Map(
+  M6_FIXTURE.auditRows
+    .filter((row) => row.disposition === "HOLD")
+    .map((row) => [[
+      row.source.path,
+      normalizeSpace(row.selector),
+      row.source.atContext.join(" | "),
+      row.declarationSignature,
+    ].join("\0"), row]),
+);
+const M6_REMOVE_DESCRIPTORS = new Set(
+  M6_FIXTURE.auditRows
+    .filter((row) => row.disposition === "REMOVE")
+    .map((row) => [
+      row.source.path,
+      normalizeSpace(row.selector),
+      row.source.atContext.join(" | "),
+      row.declarationSignature,
+    ].join("\0")),
 );
 
 function historicalInventory(sourceSha) {
@@ -1420,6 +1444,11 @@ export function makeInventory() {
       row.owner.migrationBatch = "ACCEPTED-shared-layout-in-place";
       row.owner.migrationReason = "FE-06 cold-route cascade audit retained this shared primitive at its exact eager layout rank.";
       row.flags.deadCandidate = false;
+    } else if (M6_HOLD_BY_DESCRIPTOR.has(descriptor)) {
+      const audit = M6_HOLD_BY_DESCRIPTOR.get(descriptor);
+      row.owner.migrationBatch = "HOLD-m6-zero-consumer-false-positive";
+      row.owner.migrationReason = `M6 HOLD (${audit.hold.reasonCodes.join(", ")}): ${audit.hold.currentOwner} remains the truthful owner. Removal condition: ${audit.hold.removalCondition}`;
+      row.flags.deadCandidate = false;
     } else if (FE06_M6_DESCRIPTORS.has(descriptor)) {
       row.owner.migrationBatch = "M6-zero-consumer-removal-candidate";
       row.owner.migrationReason = "FE-06 cold-route audit found no exact current production DOM topology; preserve for the M6 runtime removal gate.";
@@ -2109,13 +2138,19 @@ export function makeInventory() {
       },
     },
   };
-  if (rows.length === RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows
-      && sourceSha === RESIDUAL_OWNER_BOUNDARY_FIXTURE.baseSha) {
+  if ([
+    RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows,
+    M6_FIXTURE.expectedAfter.selectorRows,
+  ].includes(rows.length) && isAncestorCommit(RESIDUAL_OWNER_BOUNDARY_FIXTURE.baseSha, sourceSha)) {
     const acceptedRows = rows.filter((row) => row.owner.migrationBatch === "ACCEPTED-shared-layout-in-place");
     const m6Rows = rows.filter((row) => row.owner.migrationBatch === "M6-zero-consumer-removal-candidate");
+    const m6HoldRows = rows.filter((row) => row.owner.migrationBatch === "HOLD-m6-zero-consumer-false-positive");
     inventory.migrationPlan.checkpoints = [
       ...inventory.migrationPlan.checkpoints.filter(
-        (checkpoint) => checkpoint.unit !== "FE-06-residual-owner-boundary-consolidation",
+        (checkpoint) => ![
+          "FE-06-residual-owner-boundary-consolidation",
+          "M6-zero-consumer-audit-and-removal",
+        ].includes(checkpoint.unit),
       ),
       {
         unit: "FE-06-residual-owner-boundary-consolidation",
@@ -2130,10 +2165,10 @@ export function makeInventory() {
           ownerRows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.expected.ownerRows,
         },
         current: {
-          selectorRows: inventory.summary.selectorRows,
-          cssRuleGroups: inventory.summary.cssRuleGroups,
-          acceptedInPlaceRows: acceptedRows.length,
-          m6Rows: m6Rows.length,
+          selectorRows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows,
+          cssRuleGroups: RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.groups + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.groups,
+          acceptedInPlaceRows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows,
+          m6Rows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows,
           m6Groups: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.groups,
           residualTargetRows: 0,
           crossCssDuplicateRows: inventory.summary.flags.crossCssDuplicate,
@@ -2153,11 +2188,30 @@ export function makeInventory() {
         status: "ACCEPTED_MAIN_VISUAL_AND_RUNTIME",
         liveAcceptance: "PASS — Main live/browser/original-resolution acceptance",
       },
+      {
+        unit: "M6-zero-consumer-audit-and-removal",
+        sourceCommit: M6_FIXTURE.baseSha,
+        frozenBase: M6_FIXTURE.baseSha,
+        evidence: "docs/17-evidence/issue-261-m6-zero-consumer-audit-and-removal.md",
+        disposition: "ACCEPTED",
+        frozen: M6_FIXTURE.handoff,
+        removed: M6_FIXTURE.remove,
+        hold: M6_FIXTURE.hold,
+        current: {
+          selectorRows: inventory.summary.selectorRows,
+          cssRuleGroups: inventory.summary.cssRuleGroups,
+          acceptedInPlaceRows: acceptedRows.length,
+          holdRows: m6HoldRows.length,
+          m6CandidateRows: m6Rows.length,
+        },
+        status: "ACCEPTED_MAIN_VISUAL_AND_RUNTIME",
+        liveAcceptance: "PASS — Main live/browser/original-resolution acceptance",
+      },
     ];
     inventory.migrationPlan.nextBoundedUnit = {
-      id: "M6-zero-consumer-audit-and-removal",
-      status: "owner-packet-required",
-      scope: `Audit the ${RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows} zero-consumer candidate rows as one evidence-led packet; preserve false positives in HOLD and remove only selectors with complete producer/reference/runtime proof after FE-06 live zero-consumer proof.`,
+      id: "FE-07 / #262",
+      status: "blocked-until-M6-delivery-read-back",
+      scope: "Start only from the exact parent #249 FE-07 authority after M6 acceptance, publication, and remote-main delivery read-back; #261 and #249 remain open.",
     };
   }
   return inventory;
@@ -2169,7 +2223,11 @@ function validateInventory(inventory) {
   const residualOwnerBoundary = inventory.migrationPlan?.checkpoints?.find(
     (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
   );
+  const m6Checkpoint = inventory.migrationPlan?.checkpoints?.find(
+    (checkpoint) => checkpoint.unit === "M6-zero-consumer-audit-and-removal",
+  );
   const postResidualOwnerBoundary = Boolean(residualOwnerBoundary)
+    || Boolean(m6Checkpoint)
     || rows.length === RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows;
   const rowById = new Map(rows.map((row) => [row.id, row]));
   if (rowById.size !== rows.length) errors.push("selector ids are not unique");
@@ -2185,7 +2243,8 @@ function validateInventory(inventory) {
         productionReferences: row.consumers.productionReferenceFiles,
       },
     );
-    const auditedRuntimeOverride = row.owner.migrationReason?.startsWith("FE-06 cold-route audit found no exact current production DOM topology");
+    const auditedRuntimeOverride = row.owner.migrationReason?.startsWith("FE-06 cold-route audit found no exact current production DOM topology")
+      || row.owner.migrationBatch === "HOLD-m6-zero-consumer-false-positive";
     if (row.flags.deadCandidate !== expectedDeadCandidate && !auditedRuntimeOverride) {
       errors.push(`${row.id} dead-candidate flag disagrees with production evidence`);
     }
@@ -2699,6 +2758,50 @@ function validateInventory(inventory) {
     if ((inventory.summary.byMigrationBatch["M4-shared-cleanup"] ?? 0) !== 0
         || inventory.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"] !== RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows) {
       errors.push("M4 residual routing still labels accepted or HOLD rows as shared-cleanup candidates");
+    }
+  }
+  if (!m6Checkpoint) {
+    errors.push("M6 zero-consumer audit/removal checkpoint is missing");
+  } else {
+    if (m6Checkpoint.sourceCommit !== M6_FIXTURE.baseSha
+        || m6Checkpoint.frozenBase !== M6_FIXTURE.baseSha
+        || !["IMPLEMENTED_PENDING_MAIN_ACCEPTANCE", "ACCEPTED"].includes(m6Checkpoint.disposition)) {
+      errors.push("M6 checkpoint provenance/disposition changed");
+    }
+    if (m6Checkpoint.frozen?.rows !== M6_FIXTURE.handoff.rows
+        || m6Checkpoint.frozen?.groups !== M6_FIXTURE.handoff.groups
+        || m6Checkpoint.frozen?.tupleSha256 !== M6_FIXTURE.handoff.tupleSha256
+        || m6Checkpoint.removed?.rows !== M6_FIXTURE.remove.rows
+        || m6Checkpoint.removed?.touchedGroups !== M6_FIXTURE.remove.touchedGroups
+        || m6Checkpoint.removed?.fullyRemovedGroups !== M6_FIXTURE.remove.fullyRemovedGroups
+        || m6Checkpoint.removed?.partiallyShrunkGroups !== M6_FIXTURE.remove.partiallyShrunkGroups
+        || m6Checkpoint.hold?.rows !== M6_FIXTURE.hold.rows
+        || m6Checkpoint.hold?.groups !== M6_FIXTURE.hold.groups) {
+      errors.push("M6 frozen/remove/HOLD arithmetic changed");
+    }
+    const expected = M6_FIXTURE.expectedAfter;
+    if (m6Checkpoint.current?.selectorRows !== expected.selectorRows
+        || m6Checkpoint.current?.cssRuleGroups !== expected.cssRuleGroups
+        || m6Checkpoint.current?.acceptedInPlaceRows !== expected.acceptedInPlaceRows
+        || m6Checkpoint.current?.holdRows !== expected.holdRows
+        || m6Checkpoint.current?.m6CandidateRows !== expected.m6CandidateRows) {
+      errors.push(`M6 current checkpoint is ${JSON.stringify(m6Checkpoint.current)}`);
+    }
+    const presentDescriptors = new Set(rows.map(selectorDescriptor));
+    for (const descriptor of M6_REMOVE_DESCRIPTORS) {
+      if (presentDescriptors.has(descriptor)) errors.push("an M6 REMOVE descriptor remains in legacy CSS");
+    }
+    for (const [descriptor, audit] of M6_HOLD_BY_DESCRIPTOR) {
+      const row = rows.find((candidate) => selectorDescriptor(candidate) === descriptor);
+      if (!row) errors.push(`${audit.handoffId} M6 HOLD descriptor is missing`);
+      else if (row.owner.migrationBatch !== "HOLD-m6-zero-consumer-false-positive"
+          || !row.owner.migrationReason.includes(audit.hold.currentOwner)
+          || !row.owner.migrationReason.includes(audit.hold.removalCondition)) {
+        errors.push(`${audit.handoffId} M6 HOLD ownership/removal condition changed`);
+      }
+    }
+    if ((inventory.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"] ?? 0) !== 0) {
+      errors.push("M6 zero-consumer candidates remain after the audited removal");
     }
   }
   const combined = inventory.migrationPlan.combinedB4;

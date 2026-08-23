@@ -155,10 +155,8 @@ test("preserves the exact M1A7 mapping-heading declarations and cascade order", 
   assert.equal(legacy.includes(".data-mapping-heading"), false);
   assert.equal(owner.replace(/\r\n/g, "\n").includes(expected), true);
   assert.equal(owner.match(/\.data-mapping-heading span \{/g)?.length, 2);
-  assert.ok(
-    legacy.replace(/\r\n/g, "\n").includes(`.data-mapping-consequence,
-.data-source-evidence :is(header, p),`),
-  );
+  assert.equal(legacy.includes(".data-mapping-consequence"), false);
+  assert.ok(legacy.includes(".data-source-evidence :is(header, p)"));
 });
 
 test("preserves the exact M1A8 optional-channel declarations and cascade order", () => {
@@ -1818,7 +1816,14 @@ test("keeps the audit regression selectors out of the generated dead batch", () 
       `${selector} no longer has exact legacy ownership`,
     );
   }
-  assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, {
+  const postM6 = inventory.migrationPlan.checkpoints.some(
+    (checkpoint) => checkpoint.unit === "M6-zero-consumer-audit-and-removal",
+  );
+  assert.deepEqual(inventory.migrationPlan.nextBoundedUnit, postM6 ? {
+    id: "FE-07 / #262",
+    status: "blocked-until-M6-delivery-read-back",
+    scope: "Start only from the exact parent #249 FE-07 authority after M6 acceptance, publication, and remote-main delivery read-back; #261 and #249 remain open.",
+  } : {
     id: "M6-zero-consumer-audit-and-removal",
     status: "owner-packet-required",
     scope: postResidualOwnerBoundary

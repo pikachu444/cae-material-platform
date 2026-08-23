@@ -1,10 +1,11 @@
-version: 134
-verified_at: 2026-08-23
-scope: issue-261-m1e5-producer-routed-residual
-source_commit: f51fa6da9856b48e9e3be1ac77e0c2a16b1f9f8a+issue261-m1e5-worktree
-capture_script: ../../scripts/capture_issue_261_m1e5_visual_evidence.py
-capture_command: Main-owned Issue #261 M1E5 before/after Product and Storybook evidence against the bounded synthetic Modeling/Materials journey at browser zoom 100% and DPR 1; final packet accepted after Main opened originals and direct crops, with physical Windows 4K readability deferred to #223
+version: 135
+verified_at: 2026-08-24
+scope: issue-261-m6-zero-consumer-audit-and-removal
+source_commit: 593dfd3dab3a22ec93bc9d9a078c05b6f1f1c329+issue261-m6-worktree
+capture_script: ../../scripts/capture_issue_261_m6_visual_evidence.py
+capture_command: Main-owned Issue #261 M6 13-topology before/after Product evidence at five CSS viewports, browser zoom 100% and DPR 1, using --phase before/after followed by --compare, --accept and --check; final packet accepted after Main opened all originals and direct crops, with physical Windows 4K readability deferred to #223
 notes:
+  - "Issue #261 M6 audits the exact PR #318 556-row/495-group zero-consumer handoff as one batch. Static producer/reference, production bundle and 13-topology live DOM evidence authorize removal of 511 rows touching 462 groups; 45 false-positive rows in 43 groups remain explicit HOLD with truthful current owners and removal conditions. The five-viewport audit restored `.materials-scroll-rail-x` after proving its narrow Export producer. The packet under docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json registers 610 PNGs and 305 before/after pairs with Main visual/runtime acceptance. The current guide's 1920x1080 Export PNG reuses the accepted M6 after original; physical Windows 4K readability remains deferred to #223."
   - "Issue #261 FE-06 freezes the corrected 525-row/438-group residual owner-boundary packet at 599278067ab5f69d46ea59559344499399b51fed, moves every approved tuple to a truthful feature or shared owner, and accepts 22 shared-layout rows in place to preserve eager cascade rank. The original 529-row/475-group M6 candidate is preserved, with 27 audited no-current-DOM rows added after truthful owner review for a 556-row/495-group next handoff. The registered live packet under docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/manifest.json covers 13 topologies and five CSS viewports with 610 images and 305 before/after pairs; Main accepted the runtime and original-resolution evidence. No current-guide PNG is replaced, and physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M1E5 relocates the approved 58 selector rows in 49 rule groups from the frozen legacy producers into truthful shared, Materials curve-contract, Test Data governed-import/canonical JSON, and Modeling mapping-report owner stylesheets. The two hyperelastic chart-axis/chart-tick rows remain byte-exact producer holds because the accepted 12px processing-workbench cascade must not regress to 9px. Main accepted the seven-topology five-viewport before/after and direct 100%-pixel crop packet with selector computed equality 190/190, page geometry 35/35, crop geometry/display/overflow 160/160 and no clipping/topology regression. The current guide's 1920x1080 Data PNG reuses the accepted live capture at docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png; physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M4 records a 314-row/262-group frozen packet: 284 approved candidate rows/239 groups plus four omitted live Fit cascade peers move as 288 rows/243 groups into 15 truthful owner stylesheets, 11 already-truthful shared-layout rows remain in place, and 19 rows/12 groups remain HOLD for mixed source or cascade ownership. The current Product evidence is registered at docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/manifest.json with 13 topologies, five CSS viewports, 610 PNGs and 305 before/after pairs; status is ACCEPTED_MAIN_VISUAL_AND_RUNTIME. Fit's frozen M4 owner and pre-existing Fit baseline use separate import slots, while the complete repeated Fit input-selector family moves together in original source order to preserve the generic Modeling cascade. Main directly confirmed that the 1366px Fit controls recover their original widths without clipping. The current guide's representative 1366x768 Modeling/Data PNG reuses the reviewed M4 after original without a new route or capture; physical Windows 4K readability remains deferred to #223."
@@ -3150,7 +3151,11 @@ captures:
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080
-    comparison_evidence: docs/17-evidence/issue-260-modeling-data-visual-normalization.md
+    evidence_status: ACCEPTED_MAIN_VISUAL_AND_RUNTIME_REUSED_M6_AFTER_ORIGINAL
+    evidence_source: docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-export/1920x1080/original.png
+    evidence_sha256: 6a2922f337f91cbfd57d3507bbacf763247e9151a71f776bef6d098fb1b5ac4a
+    evidence_note: Reused the Main-accepted M6 after original at the matching viewport; changed pixels are generated identity text only and geometry is unchanged.
+    comparison_evidence: docs/17-evidence/issue-261-m6-zero-consumer-audit-and-removal.md
   - id: modeling-export-2560
     route: /modeling?stage=export&family=metal
     workflow: wide one-selected-model solver-card setup with bounded forms and an elastic native preview
