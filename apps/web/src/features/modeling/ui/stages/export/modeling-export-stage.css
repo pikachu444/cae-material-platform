@@ -1,3 +1,157 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#127; peers CSS-0614. */
+.modeling-export-lineage li.current {
+  color: #276b49;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#135; peers CSS-0622. */
+.modeling-target-preview.delivered .target-delivery-action .ux-notice {
+  padding: 0.45rem 0.65rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#136; peers CSS-0623. */
+.target-delivery-action .delivery-acknowledgement {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#137; peers CSS-0624. */
+.target-delivery-action .delivery-acknowledgement input {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#143; peers CSS-0630. */
+.export-native-preview-shell > .materials-scroll-shell {
+  width: 100%; height: 100%;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#144; peers CSS-0631. */
+.export-native-preview-shell > .materials-scroll-shell > .native-preview:not(.export-preview-blocked) {
+  display: block; min-width: 0; min-height: 0; width: 100%; height: 100%; max-height: 100%; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: auto;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#145; peers CSS-0632. */
+.export-native-preview-shell > .materials-scroll-shell > .native-preview:not(.export-preview-blocked) pre {
+  width: max-content; min-width: 100%; min-height: 0; overflow: visible;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#150; peers CSS-0637, CSS-0638. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-properties > .text-button,
+  .modeling-export-blocked .export-properties > .text-button {
+    min-height: var(--ux-interactive-min-block-size);
+    margin: 0 var(--ux-space-3);
+    padding: 0;
+    justify-self: start;
+    font-size: var(--ux-metadata-font-size);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#152; peers CSS-0639, CSS-0640. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-check .ux-notice,
+  .modeling-export-blocked .export-check .ux-notice {
+    margin: 0;
+    padding: 5px 8px;
+    border: 0;
+    border-left: 3px solid #b6c9d2;
+    border-radius: 0;
+    background: #f7f9fa;
+    color: #52636d;
+    font-size: var(--ux-metadata-font-size);
+    line-height: 1.3;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#154; peers CSS-0641, CSS-0642. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-check .ux-notice.error,
+  .modeling-export-blocked .export-check .ux-notice.error {
+    border-left-color: #923b2b;
+    color: #923b2b;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#156; peers CSS-0643, CSS-0644. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-check .ux-notice.success,
+  .modeling-export-blocked .export-check .ux-notice.success {
+    border-left-color: #276b49;
+    color: #276b49;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#158; peers CSS-0645, CSS-0646. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-action-row .ux-button.primary,
+  .modeling-export-blocked .export-action-row .ux-button.primary {
+    width: 100%;
+    min-height: var(--ux-control-min-block-size);
+    padding: 0 var(--ux-space-3);
+    font-size: var(--ux-data-font-size);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#160; peers CSS-0647. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-native-preview-shell > .modeling-target-preview-native-scroll-shell > .native-preview:not(.export-preview-blocked) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    padding: 0;
+    border: 1px solid #aab5bb;
+    background: #f7f9fa;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#161; peers CSS-0648. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-native-preview-shell > .modeling-target-preview-native-scroll-shell > .native-preview:not(.export-preview-blocked) pre {
+    min-height: 100%;
+    padding: var(--ux-pane-padding);
+    color: #25343d;
+    font: var(--ux-data-font-size)/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#162; peers CSS-0649. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-mapping-status.transformed {
+    color: #826100;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#163; peers CSS-0650. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-mapping-status.ignored {
+    color: #826100;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#164; peers CSS-0651. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-mapping-status.unsupported {
+    color: #923b2b;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#165; peers CSS-0652. */
+@media (min-width: 1101px) {
+  .modeling-target-preview .export-mapping-status.not_applicable {
+    color: #5d6a71;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#166; peers CSS-0653. */
+.target-delivery-action .ux-notice {
+  min-width: 0;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#155. */
 .neutral-solver-export .button-row {
   display: flex;

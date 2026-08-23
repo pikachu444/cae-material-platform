@@ -1,3 +1,8 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#106; peers CSS-0106. */
+.modeling-governance-stage > .muted {
+  max-width: 800px; margin: 0;
+}
+
 .modeling-governance-stage {
   display: grid;
   gap: var(--ux-space-4);

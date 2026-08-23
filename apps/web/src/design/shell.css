@@ -1,3 +1,42 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#9; peers CSS-0496. */
+.brand-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid #58d2c0;
+  border-radius: 10px;
+  color: #58d2c0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#379; peers CSS-0866. */
+.product-session-boundary {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d5e0dc;
+  border-radius: 18px;
+  box-shadow: 0 22px 64px rgb(31 55 47 / 12%);
+  display: flex;
+  flex-direction: column;
+  max-width: 34rem;
+  padding: 3rem;
+  text-align: center;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#380; peers CSS-0867. */
+.product-session-boundary h1 {
+  margin: 0.3rem 0 0.5rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#381; peers CSS-0868. */
+.product-session-boundary p {
+  color: #60706a;
+  margin: 0 0 1.25rem;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#247. */
 .application-workspace:has(.governed-import-route) {
   width: calc(100% - var(--ux-shell-inline-gutter) - var(--ux-shell-inline-gutter));

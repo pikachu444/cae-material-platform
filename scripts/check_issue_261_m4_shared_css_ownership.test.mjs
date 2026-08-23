@@ -83,12 +83,26 @@ test("M4 routes Materials candidates to Materials and retains every mixed source
 });
 
 test("M4 exact transform, owner import, and regenerated residual inventory pass", () => {
-  execFileSync("node", [
-    "scripts/apply_issue_261_m1e5_producer_routed_residual.mjs",
-    "--fixture",
-    FIXTURE_PATH,
-    "--check",
-  ], { cwd: ROOT, stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  const currentBefore = JSON.parse(readFileSync(
+    resolve(ROOT, "docs/17-evidence/issue-261-css-selector-inventory.json"),
+    "utf8",
+  ));
+  if (currentBefore.migrationPlan.checkpoints.some(
+    (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
+  )) {
+    execFileSync("node", [
+      "scripts/apply_issue_261_residual_owner_boundary.mjs",
+      "--check",
+      "--exact",
+    ], { cwd: ROOT, stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  } else {
+    execFileSync("node", [
+      "scripts/apply_issue_261_m1e5_producer_routed_residual.mjs",
+      "--fixture",
+      FIXTURE_PATH,
+      "--check",
+    ], { cwd: ROOT, stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  }
   execFileSync("node", ["scripts/check_issue_261_css_inventory.mjs"], {
     cwd: ROOT,
     stdio: "pipe",
@@ -102,12 +116,18 @@ test("M4 exact transform, owner import, and regenerated residual inventory pass"
     resolve(ROOT, "docs/17-evidence/issue-261-css-selector-inventory.json"),
     "utf8",
   ));
-  assert.equal(current.summary.selectorRows, 1103);
-  assert.equal(current.summary.cssRuleGroups, 941);
+  const postResidualOwnerBoundary = current.migrationPlan.checkpoints.some(
+    (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
+  );
+  assert.equal(current.summary.selectorRows, postResidualOwnerBoundary ? 578 : 1103);
+  assert.equal(current.summary.cssRuleGroups, postResidualOwnerBoundary ? 517 : 941);
   assert.equal(current.summary.byMigrationBatch["M4-shared-cleanup"] ?? 0, 0);
-  assert.equal(current.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"], 11);
-  assert.equal(current.summary.byMigrationBatch["HOLD-owner-or-cross-feature-split"], 525);
-  assert.equal(current.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"], 529);
+  assert.equal(current.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"], postResidualOwnerBoundary ? 22 : 11);
+  assert.equal(
+    current.summary.byMigrationBatch["HOLD-owner-or-cross-feature-split"] ?? 0,
+    postResidualOwnerBoundary ? 0 : 525,
+  );
+  assert.equal(current.summary.byMigrationBatch["M6-zero-consumer-removal-candidate"], postResidualOwnerBoundary ? 556 : 529);
 });
 
 test("M4 Fit producer imports preserve the reviewed cascade order", () => {

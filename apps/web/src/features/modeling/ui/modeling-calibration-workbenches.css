@@ -1,3 +1,168 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#96; peers CSS-0583. */
+.source-line {
+  display: block;
+  margin-top: 0.8rem;
+  color: #587078;
+  font-size: 0.72rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#101; peers CSS-0588. */
+.reference-validation-workbench {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #d8bfd1;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgb(255 245 251 / 88%),
+    rgb(255 253 254 / 94%)
+  );
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#102; peers CSS-0589. */
+.validation-template-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#103; peers CSS-0590. */
+.validation-run-result {
+  border-color: #e0cbd8;
+  background: #fffaff;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#104; peers CSS-0591. */
+.manual-result-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #cbd8d5;
+  border-radius: 5px;
+  padding: 0.55rem 0.6rem;
+  color: #294c4a;
+  background: #fff;
+  font:
+    0.75rem/1.45 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#105; peers CSS-0592. */
+.validation-evidence-list {
+  display: grid;
+  gap: 0.38rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#106; peers CSS-0593. */
+.validation-evidence-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid #b16a96;
+  border-radius: 3px;
+  color: #60475a;
+  background: #fff5fb;
+  font-size: 0.74rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#107; peers CSS-0594. */
+.validation-evidence-list span {
+  overflow-wrap: anywhere;
+  color: #765f70;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#108; peers CSS-0595. */
+.validation-interpretation-result {
+  gap: 0.8rem;
+  border-color: #d5c6e6;
+  background: #fcfaff;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#109; peers CSS-0596. */
+.validation-observed-curve {
+  stroke: #8c4c75;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#110; peers CSS-0597. */
+.validation-simulated-curve {
+  stroke: #397c8d;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#111; peers CSS-0598. */
+.replicate-statistics-workbench {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#112; peers CSS-0599. */
+.replicate-statistics-plot polygon.confidence-band {
+  fill: rgb(50 150 137 / 20%);
+  stroke: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#113; peers CSS-0600. */
+.replicate-statistics-plot polyline.statistical-mean {
+  stroke: #258b80;
+  stroke-width: 3;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#114; peers CSS-0601. */
+.replicate-statistics-plot polyline.observed-range {
+  stroke: #718788;
+  stroke-dasharray: 7 5;
+  stroke-width: 1.5;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#191; peers CSS-0678. */
+@media (max-width: 780px) {
+  .validation-evidence-list li {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#192; peers CSS-0679. */
+@media (max-width: 780px) {
+  .validation-evidence-list li {
+    display: grid;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#218; peers CSS-0705. */
+.candidate-row.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#611; peers CSS-1098. */
+.ogden-calibration-workbench
+  .statistics-result
+  > .candidate-table:first-of-type
+  .candidate-row.selected::after {
+  content: "SELECTED";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #08736e;
+  font-size: 0.55rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#612; peers CSS-1099. */
+.elastomer-candidate-rail button.selected {
+  border-color: #0d8079;
+  box-shadow: inset 0 0 0 1px #0d8079;
+  background: #f1faf8;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#267. */
 .promotion-confirmation > .button {
   justify-self: start;

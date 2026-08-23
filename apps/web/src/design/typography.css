@@ -1,3 +1,87 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#24; peers CSS-0511. */
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #177a77;
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.095em;
+  text-transform: uppercase;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#25; peers CSS-0512, CSS-0513, CSS-0514, CSS-0515, CSS-0516. */
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#30; peers CSS-0517. */
+h1 {
+  margin-bottom: 0.65rem;
+  color: #12303a;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#31; peers CSS-0518. */
+h2 {
+  margin-bottom: 0.45rem;
+  color: #18323d;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#32; peers CSS-0519. */
+h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1.2rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#33; peers CSS-0520. */
+h4 {
+  margin-bottom: 0.55rem;
+  font-size: 0.96rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#36; peers CSS-0523. */
+.page-heading p {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: #576b74;
+  line-height: 1.6;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#47; peers CSS-0534. */
+.section-heading.compact-heading {
+  align-items: flex-start;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#50; peers CSS-0537. */
+.muted {
+  color: #677980;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#76; peers CSS-0563. */
+dt {
+  color: #698087;
+  font-size: 0.77rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#77; peers CSS-0564. */
+dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #2c4650;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
 .ux-page {
   color: var(--ux-text);
   font-size: var(--ux-data-font-size);

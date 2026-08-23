@@ -1,3 +1,153 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#219; peers CSS-0706. */
+.scientific-profile-panel {
+  align-items: center;
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
+  margin: 18px 0;
+  padding: 18px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#220; peers CSS-0707. */
+.profile-summary {
+  display: grid;
+  gap: 8px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#221; peers CSS-0708. */
+.profile-summary .revision-chip {
+  justify-self: start;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#222; peers CSS-0709. */
+@media (max-width: 780px) {
+  .scientific-profile-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#599; peers CSS-1086. */
+.polymer-temperature-shift-inspector {
+  margin-top: 12px;
+  border: 1px solid #cadde3;
+  border-radius: 8px;
+  background: #f8fbfc;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#600; peers CSS-1087. */
+.polymer-temperature-shift-inspector > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#601; peers CSS-1088. */
+.polymer-temperature-shift-inspector > summary span:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#602; peers CSS-1089. */
+.polymer-temperature-shift-inspector > summary small {
+  color: #657c83;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#603; peers CSS-1090. */
+.polymer-temperature-shift-inspector > summary span:last-child {
+  color: #08736e;
+  font-weight: 750;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#604; peers CSS-1091. */
+.polymer-temperature-shift-inspector[open] > summary {
+  border-bottom: 1px solid #d8e4e7;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#605; peers CSS-1092. */
+.polymer-temperature-shift-inspector[open] {
+  background: #f8fbfc;
+  border-color: #9ebfc6;
+  bottom: 20px;
+  box-shadow:
+    0 0 0 9999px rgb(17 35 42 / 22%),
+    0 24px 64px rgb(17 35 42 / 28%);
+  margin: 0;
+  max-width: calc(100vw - 40px);
+  overflow: auto;
+  position: fixed;
+  right: 20px;
+  top: 72px;
+  width: 760px;
+  z-index: 120;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#606; peers CSS-1093. */
+.polymer-temperature-shift-inspector[open] > summary {
+  background: #f8fbfc;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#607; peers CSS-1094. */
+.reference-linear-viscoelastic-workbench.embedded
+  .viscoelastic-result.embedded
+  > .section-heading {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#608; peers CSS-1095. */
+@media (max-width: 760px) {
+  .polymer-temperature-shift-inspector[open] {
+    bottom: 8px;
+    max-width: none;
+    right: 8px;
+    top: 64px;
+    width: calc(100vw - 16px);
+  }
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#609; peers CSS-1096. */
+.elastomer-workbench-heading .muted {
+  max-width: 72rem;
+  margin: 0;
+  font-size: 0.76rem;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#610; peers CSS-1097. */
+.ogden-calibration-workbench > .compact-heading {
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #d7e3e1;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f3f9f7, #f8faf9);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#615; peers CSS-1102. */
+.modeling-elastomer-workspace
+  .ogden-calibration-workbench
+  > .section-heading.compact-heading {
+  padding: 10px 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#616; peers CSS-1103. */
+.modeling-elastomer-workspace
+  .ogden-calibration-workbench
+  > .section-heading.compact-heading
+  .muted {
+  max-width: var(--ux-readable-form-max-inline-size);
+  margin: 4px 0 0;
+  font-size: 0.69rem;
+  line-height: 1.35;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#665. */
 .master-curve-workbench.compact .form-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));

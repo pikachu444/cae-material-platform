@@ -1,3 +1,70 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#206; peers CSS-0206. */
+.persistent-modeling-plot > .section-heading {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 30px;
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#207; peers CSS-0207. */
+.persistent-modeling-plot > .section-heading > div:first-child {
+  display: block;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#208; peers CSS-0208. */
+.persistent-modeling-plot > .section-heading {
+  display: flex; align-items: center; min-width: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#209; peers CSS-0209. */
+.persistent-modeling-plot > .section-heading h2 {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#241; peers CSS-0241, CSS-0242, CSS-0243, CSS-0244, CSS-0249, CSS-0250, CSS-0251. */
+.processing-workbench-page .modeling-plot-toolbar button,
+.processing-workbench-page .modeling-plot-toolbar span,
+.processing-workbench-page .hardening-analysis-tabs button,
+.processing-workbench-page .hardening-analysis-tabs > span,
+.processing-workbench-page .chart-tick,
+.processing-workbench-page .chart-axis-label,
+.processing-workbench-page .extrapolation-region text {
+  font-size: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#296; peers CSS-0783. */
+.modeling-plot-toolbar button.active {
+  background: #173b44;
+  border-color: #173b44;
+  box-shadow: inset 0 0 0 1px #173b44;
+  color: #fff;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#297; peers CSS-0784. */
+.hardening-analysis-tabs button.active {
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(20 50 56 / 14%);
+  color: #173b44;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#303; peers CSS-0790. */
+.curve-line.source {
+  stroke: #8e9ca0;
+  stroke-dasharray: 6 5;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#613; peers CSS-1100. */
+.hyperelastic-response-plot .chart-axis {
+  stroke: #809590;
+  stroke-width: 1.1;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#614; peers CSS-1101. */
+.hyperelastic-response-plot .chart-tick {
+  fill: #667a75;
+  font-size: 9px;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/styles.css#348. */
 .modeling-plot-toolbar .plot-interaction-modes {
   background: #eef4f4;

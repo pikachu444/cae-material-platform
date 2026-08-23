@@ -1,3 +1,34 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#149; peers CSS-0149. */
+.fit-stage-options > .section-heading {
+  display: none;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#157; peers CSS-0157. */
+.modeling-task-ribbon > .fit-stage-options > .section-heading {
+  display: flex; align-items: center; justify-content: space-between; min-height: 22px; gap: 12px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#158; peers CSS-0158. */
+.fit-stage-options > .section-heading h3 {
+  margin: 0; font-size: 12px; font-weight: 650;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#160; peers CSS-0160. */
+.fit-heading-actions .text-button {
+  min-height: 20px; padding: 1px 3px; font-size: 10px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#186; peers CSS-0186. */
+.fit-candidate-table tbody tr.selected {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 var(--ux-accent);
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#262; peers CSS-0263. */
+.application-shell main.processing-workbench-page .fit-heading-actions .text-button {
+  font-size: 11px;
+}
+
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#207. */
 .application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
   height: 52px;

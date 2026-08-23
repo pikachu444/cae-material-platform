@@ -1,3 +1,28 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/styles.css#66; peers CSS-0553. */
+.release-workbench > .muted {
+  max-width: 900px;
+  margin: 0;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#82; peers CSS-0082. */
+.activity-list .ux-button {
+  min-height: 28px;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#83; peers CSS-0083. */
+.activity-cell-action .ux-button {
+  max-width: 100%;
+  min-height: var(--ux-control-min-block-size);
+  padding-inline: var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  white-space: normal;
+}
+
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#91; peers CSS-0091. */
+.activity-context-line .ux-disclosure {
+  flex: 1 1 100%;
+}
+
 /* Issue #261 M3B-activity source-owned CSS. Generated from approved M3 selector tuples. */
 
 .release-workbench {

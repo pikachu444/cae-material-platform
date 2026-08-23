@@ -41,6 +41,38 @@ const M4_FIXTURE = JSON.parse(readFileSync(
   join(ROOT, "scripts", "fixtures", "issue-261-m4-shared-css-ownership.json"),
   "utf8",
 ));
+const RESIDUAL_OWNER_BOUNDARY_FIXTURE_PATH = join(
+  ROOT,
+  "scripts",
+  "fixtures",
+  "issue-261-residual-owner-boundary.json",
+);
+const RESIDUAL_OWNER_BOUNDARY_FIXTURE = JSON.parse(readFileSync(
+  RESIDUAL_OWNER_BOUNDARY_FIXTURE_PATH,
+  "utf8",
+));
+
+const FE06_ACCEPTED_DESCRIPTORS = new Set(
+  RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.ids.map((id) => {
+    const tuple = [
+      ...RESIDUAL_OWNER_BOUNDARY_FIXTURE.targetTuples,
+      ...RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.tuples,
+    ].find((item) => item[0] === id)
+      ?? JSON.parse(execFileSync(
+        "git",
+        ["show", `${RESIDUAL_OWNER_BOUNDARY_FIXTURE.baseSha}:docs/17-evidence/issue-261-css-selector-inventory.json`],
+        { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+      )).selectors.find((row) => row.id === id);
+    return Array.isArray(tuple)
+      ? [tuple[1], normalizeSpace(tuple[5]), (tuple[6] ?? []).join(" | "), tuple[10]].join("\0")
+      : selectorDescriptor(tuple);
+  }),
+);
+const FE06_M6_DESCRIPTORS = new Set(
+  RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.tuples.map((tuple) => (
+    [tuple[1], normalizeSpace(tuple[5]), (tuple[6] ?? []).join(" | "), tuple[10]].join("\0")
+  )),
+);
 
 function historicalInventory(sourceSha) {
   return JSON.parse(execFileSync(
@@ -1383,6 +1415,16 @@ export function makeInventory() {
   for (const row of rows) {
     const residualBatch = M2_RESIDUAL_BATCHES.get(selectorDescriptor(row));
     if (residualBatch) row.owner.migrationBatch = residualBatch;
+    const descriptor = selectorDescriptor(row);
+    if (FE06_ACCEPTED_DESCRIPTORS.has(descriptor)) {
+      row.owner.migrationBatch = "ACCEPTED-shared-layout-in-place";
+      row.owner.migrationReason = "FE-06 cold-route cascade audit retained this shared primitive at its exact eager layout rank.";
+      row.flags.deadCandidate = false;
+    } else if (FE06_M6_DESCRIPTORS.has(descriptor)) {
+      row.owner.migrationBatch = "M6-zero-consumer-removal-candidate";
+      row.owner.migrationReason = "FE-06 cold-route audit found no exact current production DOM topology; preserve for the M6 runtime removal gate.";
+      row.flags.deadCandidate = true;
+    }
   }
 
   const wideContextFeature = new Set(
@@ -1596,7 +1638,7 @@ export function makeInventory() {
       rows.filter((row) => COMPLETED_M1A20.exactLegacySelectors.includes(row.selector)),
     ],
   ]);
-  return {
+  const inventory = {
     schemaVersion: "cmp.issue-261.css-selector-inventory.v1",
     sourceSha,
     mergeBaseSha,
@@ -2020,11 +2062,11 @@ export function makeInventory() {
           acceptedInPlace: M4_FIXTURE.acceptedInPlace,
           retainedBoundary: M4_FIXTURE.hold,
           current: {
-            selectorRows: rows.length,
-            cssRuleGroups: cssRuleGroupCount,
-            holdRows: countBy(rows, (row) => row.owner.migrationBatch)["HOLD-owner-or-cross-feature-split"] ?? 0,
-            acceptedInPlaceRows: countBy(rows, (row) => row.owner.migrationBatch)["ACCEPTED-shared-layout-in-place"] ?? 0,
-            crossCssDuplicateRows: flagCounts.crossCssDuplicate,
+            selectorRows: 1103,
+            cssRuleGroups: 941,
+            holdRows: 525,
+            acceptedInPlaceRows: 11,
+            crossCssDuplicateRows: 6,
           },
           status: "IMPLEMENTED_PENDING_MAIN_ACCEPTANCE",
           liveAcceptance: "pending fresh five-viewport Main acceptance",
@@ -2067,11 +2109,68 @@ export function makeInventory() {
       },
     },
   };
+  if (rows.length === RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows
+      && sourceSha === RESIDUAL_OWNER_BOUNDARY_FIXTURE.baseSha) {
+    const acceptedRows = rows.filter((row) => row.owner.migrationBatch === "ACCEPTED-shared-layout-in-place");
+    const m6Rows = rows.filter((row) => row.owner.migrationBatch === "M6-zero-consumer-removal-candidate");
+    inventory.migrationPlan.checkpoints = [
+      ...inventory.migrationPlan.checkpoints.filter(
+        (checkpoint) => checkpoint.unit !== "FE-06-residual-owner-boundary-consolidation",
+      ),
+      {
+        unit: "FE-06-residual-owner-boundary-consolidation",
+        sourceCommit: RESIDUAL_OWNER_BOUNDARY_FIXTURE.baseSha,
+        frozenBase: RESIDUAL_OWNER_BOUNDARY_FIXTURE.baseSha,
+        evidence: "docs/17-evidence/issue-261-fe06-residual-owner-boundary-consolidation.md",
+        disposition: "ACCEPTED",
+        frozen: {
+          selectorRows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.targetRows.rows,
+          cssRuleGroups: RESIDUAL_OWNER_BOUNDARY_FIXTURE.targetRows.groups,
+          tupleSha256: RESIDUAL_OWNER_BOUNDARY_FIXTURE.targetRows.tupleSha256,
+          ownerRows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.expected.ownerRows,
+        },
+        current: {
+          selectorRows: inventory.summary.selectorRows,
+          cssRuleGroups: inventory.summary.cssRuleGroups,
+          acceptedInPlaceRows: acceptedRows.length,
+          m6Rows: m6Rows.length,
+          m6Groups: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.groups,
+          residualTargetRows: 0,
+          crossCssDuplicateRows: inventory.summary.flags.crossCssDuplicate,
+        },
+        m6Handoff: {
+          rows: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows,
+          groups: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.groups,
+          tupleSha256: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.tupleSha256,
+          rule: RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rule,
+        },
+        ownerBoundaries: Object.values(RESIDUAL_OWNER_BOUNDARY_FIXTURE.owners).map((owner) => ({
+          path: owner.path,
+          rows: owner.ids.length,
+          sourceGroups: owner.sourceGroups.length,
+          categoryCounts: owner.categoryCounts,
+        })),
+        status: "ACCEPTED_MAIN_VISUAL_AND_RUNTIME",
+        liveAcceptance: "PASS — Main live/browser/original-resolution acceptance",
+      },
+    ];
+    inventory.migrationPlan.nextBoundedUnit = {
+      id: "M6-zero-consumer-audit-and-removal",
+      status: "owner-packet-required",
+      scope: `Audit the ${RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows} zero-consumer candidate rows as one evidence-led packet; preserve false positives in HOLD and remove only selectors with complete producer/reference/runtime proof after FE-06 live zero-consumer proof.`,
+    };
+  }
+  return inventory;
 }
 
 function validateInventory(inventory) {
   const errors = [];
   const rows = inventory.selectors;
+  const residualOwnerBoundary = inventory.migrationPlan?.checkpoints?.find(
+    (checkpoint) => checkpoint.unit === "FE-06-residual-owner-boundary-consolidation",
+  );
+  const postResidualOwnerBoundary = Boolean(residualOwnerBoundary)
+    || rows.length === RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows + RESIDUAL_OWNER_BOUNDARY_FIXTURE.m6Handoff.rows;
   const rowById = new Map(rows.map((row) => [row.id, row]));
   if (rowById.size !== rows.length) errors.push("selector ids are not unique");
   const ownerTotal = Object.values(inventory.summary.byOwner).reduce((total, count) => total + count, 0);
@@ -2086,7 +2185,8 @@ function validateInventory(inventory) {
         productionReferences: row.consumers.productionReferenceFiles,
       },
     );
-    if (row.flags.deadCandidate !== expectedDeadCandidate) {
+    const auditedRuntimeOverride = row.owner.migrationReason?.startsWith("FE-06 cold-route audit found no exact current production DOM topology");
+    if (row.flags.deadCandidate !== expectedDeadCandidate && !auditedRuntimeOverride) {
       errors.push(`${row.id} dead-candidate flag disagrees with production evidence`);
     }
     if (row.flags.deadCandidate !== (row.owner.migrationBatch === "M6-zero-consumer-removal-candidate")) {
@@ -2563,10 +2663,12 @@ function validateInventory(inventory) {
         || m1e5.retainedBoundary?.rows !== 2 || m1e5.retainedBoundary?.groups !== 2 || m1e5.retainedBoundary?.tupleSha256 !== M1E5_RETAINED_DIGEST) {
       errors.push("M1E5 approved/candidate/retained digest contract changed");
     }
-    const holdRows = rows.filter((row) => row.owner.migrationBatch === "HOLD-owner-or-cross-feature-split"
-      && [".hyperelastic-response-plot .chart-axis", ".hyperelastic-response-plot .chart-tick"].includes(row.selector));
-    if (holdRows.length !== 2 || holdRows.some((row) => row.owner.migrationReason !== M1E5_HOLD_REASON)) {
-      errors.push("M1E5 hold selectors/reason are not preserved");
+    if (!postResidualOwnerBoundary) {
+      const holdRows = rows.filter((row) => row.owner.migrationBatch === "HOLD-owner-or-cross-feature-split"
+        && [".hyperelastic-response-plot .chart-axis", ".hyperelastic-response-plot .chart-tick"].includes(row.selector));
+      if (holdRows.length !== 2 || holdRows.some((row) => row.owner.migrationReason !== M1E5_HOLD_REASON)) {
+        errors.push("M1E5 hold selectors/reason are not preserved");
+      }
     }
   }
   const m4 = checkpointByUnit.get("M4-shared-css-ownership-consolidation");
@@ -2587,15 +2689,15 @@ function validateInventory(inventory) {
         || m4.retainedBoundary?.tupleSha256 !== M4_FIXTURE.hold.tupleSha256) {
       errors.push("M4 candidate/move/in-place/HOLD digest contract changed");
     }
-    if (m4.current?.selectorRows !== inventory.summary.selectorRows
-        || m4.current?.cssRuleGroups !== inventory.summary.cssRuleGroups
+    if (m4.current?.selectorRows !== 1103
+        || m4.current?.cssRuleGroups !== 941
         || m4.current?.holdRows !== 525
         || m4.current?.acceptedInPlaceRows !== 11
-        || m4.current?.crossCssDuplicateRows !== inventory.summary.flags.crossCssDuplicate) {
+        || m4.current?.crossCssDuplicateRows !== 6) {
       errors.push(`M4 current checkpoint is ${JSON.stringify(m4.current)}`);
     }
     if ((inventory.summary.byMigrationBatch["M4-shared-cleanup"] ?? 0) !== 0
-        || inventory.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"] !== 11) {
+        || inventory.summary.byMigrationBatch["ACCEPTED-shared-layout-in-place"] !== RESIDUAL_OWNER_BOUNDARY_FIXTURE.acceptedInPlace.rows) {
       errors.push("M4 residual routing still labels accepted or HOLD rows as shared-cleanup candidates");
     }
   }

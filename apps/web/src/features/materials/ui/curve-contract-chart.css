@@ -1,3 +1,10 @@
+/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#119; peers CSS-0119. */
+.contract-curve {
+  display: grid;
+  min-width: 0;
+  gap: var(--ux-space-3);
+}
+
 /* M1E5 frozen ownership move: apps/web/src/styles.css#418. */
 .curve-legend i.confidence {
   background: #8d5bb0;
