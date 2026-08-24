@@ -26,6 +26,14 @@ STATES: dict[str, tuple[str, ...]] = {
     "material-curves": ("header", "navigator", "table-form", "graph-preview"),
 }
 
+OWNER_REPORT_STATES = (
+    ("Search", "materials-search-1920x1080.png"),
+    ("Browse", "materials-browse-1920x1080.png"),
+    ("Detail Overview", "material-detail-1920x1080.png"),
+    ("Curves", "material-curves-1920x1080.png"),
+    ("Source & history", "material-source-history-1920x1080.png"),
+)
+
 # The current-guide manifest is cumulative. Keep the complete literal output
 # roster for the documentation checker even though FE-07A promotes only the
 # sixteen Materials originals listed in its capture provenance record.
@@ -329,6 +337,59 @@ def _capture_matrix(browser: Browser, base_url: str) -> list[dict[str, Any]]:
             raise EvidenceError(f"browser page errors at {suffix}: {errors}")
         page.context.close()
     return measurements
+
+
+def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
+    width, height = 1920, 1080
+    after = CORRECTION / "after/originals"
+    page = CAPTURE["_new_page"](browser, base_url, width, height)
+    errors: list[str] = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+
+    _open_browse(page, base_url)
+    _screenshot(page, after / "materials-browse-1920x1080.png", width, height)
+
+    _open_search(page)
+    _screenshot(page, after / "materials-search-1920x1080.png", width, height)
+
+    _open_detail(page)
+    page.get_by_role("tab", name="Overview", exact=True).wait_for(timeout=30_000)
+    _screenshot(page, after / "material-detail-1920x1080.png", width, height)
+
+    page.get_by_role("tab", name="Curves", exact=True).click()
+    page.get_by_role("heading", name="Curves", exact=True).wait_for(timeout=30_000)
+    _settle(page)
+    _screenshot(page, after / "material-curves-1920x1080.png", width, height)
+
+    source_history = page.get_by_role("tab", name="Source & history", exact=True)
+    source_history.click()
+    page.wait_for_url(lambda url: "/evidence" in url, timeout=30_000)
+    page.get_by_role("heading", name="Lineage and evidence", exact=True).wait_for(
+        timeout=30_000
+    )
+    _settle(page)
+    if source_history.get_attribute("aria-selected") != "true":
+        raise EvidenceError("Source & history is not the active tab")
+    source_measurement = _measure(page, "material-source-history", width, height)
+    _screenshot(
+        page,
+        after / "material-source-history-1920x1080.png",
+        width,
+        height,
+    )
+    if errors:
+        raise EvidenceError(f"browser page errors in owner report: {errors}")
+    result = {
+        "viewport": "1920x1080",
+        "browserZoomPercent": 100,
+        "devicePixelRatio": 1,
+        "sourceHistoryActive": True,
+        "sourceHistoryInternalRouteKey": "evidence",
+        "sourceHistoryUrl": page.url,
+        "sourceHistoryMeasurement": source_measurement,
+    }
+    page.context.close()
+    return result
 
 
 def _capture_recovery(browser: Browser, base_url: str) -> dict[str, Any]:
@@ -838,6 +899,7 @@ def _write_manifest(
     measurements: list[dict[str, Any]],
     recovery: dict[str, Any],
     continuity: dict[str, Any],
+    owner_report_verification: dict[str, Any] | None = None,
 ) -> None:
     images = sorted(
         [
@@ -871,6 +933,14 @@ def _write_manifest(
         "recovery": recovery,
         "continuity": continuity,
         "comparisons": comparisons,
+        "ownerReport": [
+            {
+                "state": state,
+                **_image_record(CORRECTION / "after/originals" / name),
+            }
+            for state, name in OWNER_REPORT_STATES
+        ],
+        "ownerReportVerification": owner_report_verification,
         "images": [_image_record(path) for path in images],
         "allowed_duplicate_groups": _duplicate_groups(),
     }
@@ -898,12 +968,34 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://127.0.0.1:5173")
     parser.add_argument("--manifest-only", action="store_true")
+    parser.add_argument("--owner-report-only", action="store_true")
     args = parser.parse_args()
     CORRECTION.mkdir(parents=True, exist_ok=True)
     if args.manifest_only:
         current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
-        _write_manifest(current["measurements"], current["recovery"], current["continuity"])
+        _write_manifest(
+            current["measurements"],
+            current["recovery"],
+            current["continuity"],
+            current.get("ownerReportVerification"),
+        )
         print("FE-07A visual manifest refreshed from existing verified captures.")
+        return 0
+    if args.owner_report_only:
+        current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                owner_report_verification = _capture_owner_report(browser, args.base_url)
+            finally:
+                browser.close()
+        _write_manifest(
+            current["measurements"],
+            current["recovery"],
+            current["continuity"],
+            owner_report_verification,
+        )
+        print("FE-07A owner report ready: five 1920x1080 originals verified.")
         return 0
     _stage_correction_before()
     with sync_playwright() as playwright:
@@ -912,10 +1004,11 @@ def main() -> int:
             measurements = _capture_matrix(browser, args.base_url)
             recovery = _capture_recovery(browser, args.base_url)
             continuity = _verify_continuity(browser, args.base_url)
+            owner_report_verification = _capture_owner_report(browser, args.base_url)
         finally:
             browser.close()
     _write_crops()
-    _write_manifest(measurements, recovery, continuity)
+    _write_manifest(measurements, recovery, continuity, owner_report_verification)
     print(
         "FE-07A visual evidence ready: "
         f"{len(measurements)} geometry records, 20 before/after pairs, "

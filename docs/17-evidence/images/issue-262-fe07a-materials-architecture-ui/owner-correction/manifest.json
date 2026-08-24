@@ -1668,8 +1668,8 @@
     },
     {
       "name": "materials-browse-1920x1080.png",
-      "changedPixels": 1512,
-      "changedPercent": 0.0729,
+      "changedPixels": 4522,
+      "changedPercent": 0.2181,
       "differenceBounds": [
         1307,
         185,
@@ -1810,6 +1810,122 @@
       ]
     }
   ],
+  "ownerReport": [
+    {
+      "state": "Search",
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-search-1920x1080.png",
+      "sha256": "24dd251a5e9903af55b1fa90696ce7f9e6f94a70416690453db3c2ab7fa96eb2",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "state": "Browse",
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-1920x1080.png",
+      "sha256": "57a578c1b6ddf28b49e8d966fd7066fb9b2780a6271efd9ccfa6a3edeb3ca12b",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "state": "Detail Overview",
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-detail-1920x1080.png",
+      "sha256": "3d1ed0d87395b5389e55ac4866d6fe913d516fdff30c9f3d2165f3817882f44a",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "state": "Curves",
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1920x1080.png",
+      "sha256": "1ffacf5f08c89b192cfa71b055ba53a0a193770c78a865a96adbf9c2b2073dc1",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "state": "Source & history",
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-source-history-1920x1080.png",
+      "sha256": "1ef9a03c18ac8036cd3992596b7784d0f8c339ccf296330c7a30c40ffe81e0c7",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "ownerReportVerification": {
+    "viewport": "1920x1080",
+    "browserZoomPercent": 100,
+    "devicePixelRatio": 1,
+    "sourceHistoryActive": true,
+    "sourceHistoryInternalRouteKey": "evidence",
+    "sourceHistoryUrl": "http://127.0.0.1:5173/materials/e58543c2-2c1c-4aa1-89c4-92f290e9155b/evidence?record_id=2ea5807c-ab29-4cb5-b042-e81431193ffa&record_revision_id=767e03a7-8f3d-4fb1-a925-c8e4b8bebd74&material_revision_id=2491047a-d0b7-4ae1-abe5-772e13c87a9c",
+    "sourceHistoryMeasurement": {
+      "state": "material-source-history",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 185.390625,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 868.609375,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 869,
+        "scrollHeight": 869
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 185.390625,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 868.609375,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 869,
+        "scrollHeight": 869
+      }
+    }
+  },
   "images": [
     {
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1366x768-graph-preview-100pct.png",
@@ -2304,6 +2420,12 @@
       "height": 2160
     },
     {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-source-history-1920x1080.png",
+      "sha256": "1ef9a03c18ac8036cd3992596b7784d0f8c339ccf296330c7a30c40ffe81e0c7",
+      "width": 1920,
+      "height": 1080
+    },
+    {
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-1366x768.png",
       "sha256": "e80d5f6a891d300e72c6d9e53089a665d3a0a57475f5026d5f91031b741d8e11",
       "width": 1366,
@@ -2317,7 +2439,7 @@
     },
     {
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-1920x1080.png",
-      "sha256": "337b7123442f0ffef1ccdc10d4469cf1d3ceb15fb32a07c8253a52f7082188a7",
+      "sha256": "57a578c1b6ddf28b49e8d966fd7066fb9b2780a6271efd9ccfa6a3edeb3ca12b",
       "width": 1920,
       "height": 1080
     },
