@@ -194,10 +194,10 @@ describe("MaterialSearchPage navigator and results", () => {
       }),
     );
 
-    const workspaceStatusUpdates: Array<{ revision?: string }> = [];
+    const workspaceStatusUpdates: Array<{ selection?: string; revision?: string }> = [];
     const observeWorkspaceStatus = (event: Event) => {
       workspaceStatusUpdates.push(
-        (event as CustomEvent<{ revision?: string }>).detail,
+        (event as CustomEvent<{ selection?: string; revision?: string }>).detail,
       );
     };
     window.addEventListener("cmp:workspace-status", observeWorkspaceStatus);
@@ -222,6 +222,8 @@ describe("MaterialSearchPage navigator and results", () => {
       ({ revision }) => revision === "r3",
     );
     expect(selectedStatus?.revision).toBe("r3");
+    expect(selectedStatus?.selection).toBe("Material selected");
+    expect(selectedStatus?.selection).not.toMatch(/synthetic reference/i);
     expect(selectedStatus?.revision).not.toMatch(/\bdraft\b/i);
     expect(screen.queryByRole("columnheader", { name: "Status" })).toBeNull();
     expect(
@@ -259,7 +261,9 @@ describe("MaterialSearchPage navigator and results", () => {
     const materialSortButton = screen.getByRole("button", {
       name: "Material",
     });
-    const codeHeader = screen.getByRole("columnheader", { name: /^Code/ });
+    const codeHeader = screen.getByRole("columnheader", {
+      name: /^Material code/,
+    });
     const familySortButton = screen.getByRole("button", { name: "Family" });
     expect(codeHeader.querySelector("button")).toBeNull();
     expect(codeHeader.hasAttribute("aria-sort")).toBe(false);

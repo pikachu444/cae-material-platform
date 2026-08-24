@@ -360,9 +360,9 @@ export function MaterialSearchPage({
                   />
                 </th>
                 <th>
-                  Code
+                  Material code
                   <EngineeringColumnResizeHandle
-                    label="Code"
+                    label="Material code"
                     width={columnWidths.code}
                     min={110}
                     max={260}
@@ -540,7 +540,7 @@ export function MaterialSearchPage({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Code</th>
+                <th>Material code</th>
                 <th>Category</th>
                 <th>Description</th>
                 <th>Revision</th>

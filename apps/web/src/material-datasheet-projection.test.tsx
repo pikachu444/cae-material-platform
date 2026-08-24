@@ -1,7 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MaterialDatasheetProjection } from "./material-datasheet-projection";
+import {
+  MaterialDatasheetProjection,
+  curvePresentationLabel,
+} from "./material-datasheet-projection";
 import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const tableId = "91000000-0000-4000-8000-000000000001";
@@ -63,8 +66,8 @@ const curveAttribute = {
     ...metadata("91000000-0000-4000-8000-000000000015", curveId),
     content: {
       ...densityAttribute.current_revision.content,
-      key: "stress_strain",
-      name: "Stress–strain curve",
+      key: "observed_tensile_curve",
+      name: "Observed tensile response",
       data_type: "curve" as const,
       required: false,
       quantity_semantics: null,
@@ -215,7 +218,7 @@ describe("MaterialDatasheetProjection", () => {
     expect(screen.queryByText("metal")).toBeNull();
     expect(screen.queryByText(/mass density/)).toBeNull();
     expect(screen.queryByText("Original and normalized quantity")).toBeNull();
-    expect(screen.queryByText("Stress–strain curve")).toBe(null);
+    expect(screen.queryByText("Observed tensile response")).toBe(null);
     expect(screen.queryByText("Internal note")).toBeNull();
   });
 
@@ -223,7 +226,7 @@ describe("MaterialDatasheetProjection", () => {
     render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="evidence"/>);
 
     expect(await screen.findByRole("combobox", { name: "Material data view" })).toBeTruthy();
-    expect(screen.getByText("Stress–strain curve")).toBeTruthy();
+    expect(screen.getByText("Observed tensile response")).toBeTruthy();
     expect(screen.getByText("Curve available")).toBeTruthy();
     expect(screen.getByText("Internal note")).toBeTruthy();
     expect(screen.getByText("Technical-only evidence")).toBeTruthy();
@@ -233,6 +236,9 @@ describe("MaterialDatasheetProjection", () => {
   it("loads a curve only through its exact Record revision and reports absent legacy metadata honestly", async () => {
     render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="curves"/>);
 
+    expect(await screen.findByRole("heading", { name: "Available curves" })).toBeTruthy();
+    expect(screen.getByText("Measured tensile curve")).toBeTruthy();
+    expect(screen.queryByText("Observed tensile response")).toBeNull();
     expect(await screen.findByText("This revision has no recorded channel or deviation metadata.")).toBeTruthy();
     expect(mocks.previewCurve).toHaveBeenCalledWith(
       expect.anything(),
@@ -243,6 +249,18 @@ describe("MaterialDatasheetProjection", () => {
     expect(screen.queryByText("Curve available")).toBeNull();
     expect(screen.getByText("Metadata not recorded")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
+  });
+
+  it("maps only the registered curve keys to beginner-readable presentation labels", () => {
+    expect(
+      curvePresentationLabel("observed_tensile_curve", "Stored label"),
+    ).toBe("Measured tensile curve");
+    expect(
+      curvePresentationLabel("replicate_statistics_curve", "Stored label"),
+    ).toBe("Repeated-test average and variation");
+    expect(curvePresentationLabel("forming_limit_curve", "Forming limit curve")).toBe(
+      "Forming limit curve",
+    );
   });
 
   it("keeps Test Data view-only until exact Material and State context qualifies Process handoff", async () => {
@@ -359,6 +377,7 @@ describe("MaterialDatasheetProjection", () => {
         "Exact Material and State context is required to continue.",
       ),
     ).toBeTruthy();
+    expect(screen.getByRole("img", { name: /Measured tensile curve:/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
     expect(onNavigate).not.toHaveBeenCalled();
     expect(loadModelingSession()).toBeNull();

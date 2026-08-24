@@ -1,0 +1,2594 @@
+{
+  "schemaVersion": "cmp.issue-262.fe07a.simulation-output-correction.v1",
+  "issue": "#262",
+  "unit": "FE-07A Materials",
+  "status": "OWNER_APPROVED_CORRECTION_COMPLETE_UNMERGED",
+  "browserZoomPercent": 100,
+  "devicePixelRatio": 1,
+  "states": [
+    "materials-browse",
+    "material-test-data",
+    "material-simulation-data",
+    "material-solver-card",
+    "material-curves"
+  ],
+  "bindingContract": "cmp.processing-output 1.5.0 exact bound revision",
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ],
+  "afterMeasurements": [
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 702,
+        "width": 1350,
+        "height": 610,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 702,
+        "width": 288,
+        "height": 610,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 702,
+        "width": 1054,
+        "height": 610,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "content": {
+        "left": 303,
+        "right": 1356,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1053,
+        "height": 131.5,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1356,
+        "top": 142.09375,
+        "bottom": 694,
+        "width": 1053,
+        "height": 551.90625,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 552,
+        "scrollHeight": 552
+      }
+    },
+    {
+      "state": "material-test-data",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 1675
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 1675
+      }
+    },
+    {
+      "state": "material-simulation-data",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 1472
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 1472
+      }
+    },
+    {
+      "state": "material-solver-card",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 1129
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 1129
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 184,
+        "bottom": 742,
+        "width": 1054,
+        "height": 558,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 558,
+        "scrollHeight": 1400
+      },
+      "related": {
+        "left": 315,
+        "right": 1345,
+        "top": 1146.21875,
+        "bottom": 1571.8125,
+        "width": 1030,
+        "height": 425.59375,
+        "clientWidth": 1030,
+        "scrollWidth": 1030,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 184,
+        "bottom": 742,
+        "width": 1054,
+        "height": 558,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 558,
+        "scrollHeight": 1400
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 834,
+        "width": 1424,
+        "height": 742,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 834,
+        "width": 288,
+        "height": 742,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 834,
+        "width": 1128,
+        "height": 742,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "content": {
+        "left": 303,
+        "right": 1430,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1127,
+        "height": 131.5,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1430,
+        "top": 142.09375,
+        "bottom": 826,
+        "width": 1127,
+        "height": 683.90625,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 684,
+        "scrollHeight": 684
+      }
+    },
+    {
+      "state": "material-test-data",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 1655
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 1655
+      }
+    },
+    {
+      "state": "material-simulation-data",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 1505
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 1505
+      }
+    },
+    {
+      "state": "material-solver-card",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 1129
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 1129
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 184,
+        "bottom": 874,
+        "width": 1128,
+        "height": 690,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 690,
+        "scrollHeight": 1428
+      },
+      "related": {
+        "left": 315,
+        "right": 1419,
+        "top": 1174.84375,
+        "bottom": 1600.4375,
+        "width": 1104,
+        "height": 425.59375,
+        "clientWidth": 1104,
+        "scrollWidth": 1104,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 184,
+        "bottom": 874,
+        "width": 1128,
+        "height": 690,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 690,
+        "scrollHeight": 1428
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1014,
+        "width": 1904,
+        "height": 922,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1014,
+        "width": 288,
+        "height": 922,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1014,
+        "width": 1608,
+        "height": 922,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "content": {
+        "left": 303,
+        "right": 1910,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1607,
+        "height": 131.5,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1910,
+        "top": 142.09375,
+        "bottom": 1006,
+        "width": 1607,
+        "height": 863.90625,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 864,
+        "scrollHeight": 864
+      }
+    },
+    {
+      "state": "material-test-data",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 1655
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 1655
+      }
+    },
+    {
+      "state": "material-simulation-data",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      }
+    },
+    {
+      "state": "material-solver-card",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 1129
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 1129
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 184,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 870,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 870,
+        "scrollHeight": 1500
+      },
+      "related": {
+        "left": 315,
+        "right": 1899,
+        "top": 1246.84375,
+        "bottom": 1672.4375,
+        "width": 1584,
+        "height": 425.59375,
+        "clientWidth": 1584,
+        "scrollWidth": 1584,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 184,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 870,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 870,
+        "scrollHeight": 1500
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1374,
+        "width": 2544,
+        "height": 1282,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1374,
+        "width": 287.984375,
+        "height": 1282,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1374,
+        "width": 2248.015625,
+        "height": 1282,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 2247.015625,
+        "height": 131.5,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 142.09375,
+        "bottom": 1366,
+        "width": 2247.015625,
+        "height": 1223.90625,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 1224,
+        "scrollHeight": 1224
+      }
+    },
+    {
+      "state": "material-test-data",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1655
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1655
+      }
+    },
+    {
+      "state": "material-simulation-data",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      }
+    },
+    {
+      "state": "material-solver-card",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 184,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1230,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1230,
+        "scrollHeight": 1644
+      },
+      "related": {
+        "left": 314.984375,
+        "right": 2539,
+        "top": 1390.84375,
+        "bottom": 1816.4375,
+        "width": 2224.015625,
+        "height": 425.59375,
+        "clientWidth": 2224,
+        "scrollWidth": 2224,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 184,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1230,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1230,
+        "scrollHeight": 1644
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2094,
+        "width": 3824,
+        "height": 2002,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2094,
+        "width": 288,
+        "height": 2002,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2094,
+        "width": 3528,
+        "height": 2002,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "content": {
+        "left": 303,
+        "right": 3830,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 3527,
+        "height": 131.5,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3830,
+        "top": 142.09375,
+        "bottom": 2086,
+        "width": 3527,
+        "height": 1943.90625,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 1944,
+        "scrollHeight": 1944
+      }
+    },
+    {
+      "state": "material-test-data",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      }
+    },
+    {
+      "state": "material-simulation-data",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      }
+    },
+    {
+      "state": "material-solver-card",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 184,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1950,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1950,
+        "scrollHeight": 1950
+      },
+      "related": {
+        "left": 315,
+        "right": 3819,
+        "top": 1494.84375,
+        "bottom": 1920.4375,
+        "width": 3504,
+        "height": 425.59375,
+        "clientWidth": 3504,
+        "scrollWidth": 3504,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 184,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1950,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1950,
+        "scrollHeight": 1950
+      }
+    }
+  ],
+  "baseline": {
+    "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/before/originals/material-simulation-data-1920x1080.png",
+    "sha256": "b0e4a3a93f5ab9d07ca956543518287101f881577f1e98d27309124fc6f769c8",
+    "width": 1920,
+    "height": 1080
+  },
+  "fhdComparison": {
+    "name": "material-simulation-data-1920x1080.png",
+    "changedPixels": 463006,
+    "changedPercent": 22.3286,
+    "differenceBounds": [
+      10,
+      133,
+      1899,
+      1076
+    ]
+  },
+  "images": [
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "802f7362e2f283eab3f88aaffda0cb5b3574bdd8ef9b6d732b28943db910d3ab",
+      "width": 1066,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "eac11126e6e156c719c7cb6fb01ecc61e57d96041dd33a3b6d0f0d5ddaea04e8",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "4edee7e5bcad2d2c5e11495ef0b4fe831db6b4cf598c27f187affef086d858b4",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "de7979b4342e56117435f6bf1dbafa1bd0637fd896cf3080db08304f33716b22",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "4abfd197164a051aab7546a1a1b78fd62e698719bf4b8de4268ef2406a48e676",
+      "width": 1140,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "34c2b40bbe81af457f99865c0bd4b617e502e7183454513e20fdf50b6786d543",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "6aff4c57c7ea5b113e4b68dd05012239215aeca9dd050e3c835761388873865c",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "ace0208cea20635ab76762cf9d4b442afbd9df90eac95879e8e85520147d5f1c",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "8b60ecc5f7d40307cb351c1ec43ad42d5356dcdda0a8b6e84eb101dabf8e661d",
+      "width": 1620,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "841bc4e253616dbab5bb6058dab7aafcc4a08e6313f3b57584557692d30cf7f4",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "46a690aa48f8baebbebbe845da1855c29418a28173ff639de891a1c43afb93d6",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "4dd581113d54a5c532fa87d674ab661af3701588e302e72c3866c0989d8f1358",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "785e8273a2448069e72cf837bea12d8e7a9b4283b35b04c8d7799448c77280d5",
+      "width": 2260,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "da89d157afafe8878d4c0d6b23779571bd34a5c62c9efe4e8c611b823ab99b4b",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "885014069c4ce61b3767c811ec82f9e6cd36ad7cfae87272668d567ddec0083e",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "0f8767e97ab8df4ab6b78e55a378373c51f2f74a1c0fe39f065eaae1152d4866",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "784b137d777131dd8aca5ac18fbefadbe67834efba2e135dc7f090a23d0e6a88",
+      "width": 3540,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "401a6ca717685b5932e08af471f9c41db0e4f40fa200e730bea64a5c53b36c01",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "694f4420d3994603f03722b644a0ba6148cf1e6dc46d3c8a8151253efda3a351",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "56b9986ac30f2aea23c79b707d78c20eaed132b3ad4f0b0d14ea7269d99ee81d",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1366x768-graph-preview-100pct.png",
+      "sha256": "b974157153caf5d424e3f0fd1c49d2ab816fbf44b2ea65ea13cf4664d540c845",
+      "width": 1066,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1366x768-header-100pct.png",
+      "sha256": "3a86e24dcde27aec323d684ac4c228e6ea6a6679199e7888d77840eddc464cb5",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1366x768-navigator-100pct.png",
+      "sha256": "7f1228e3309e3e0d3923b57420aad57a03c32f98536acb974fd95f2aed3363fb",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1366x768-table-form-100pct.png",
+      "sha256": "8a9e244b5eafd086ec9246cec8d20e52eb2123bc4e7350bedd5fe94c9c3ed339",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1440x900-graph-preview-100pct.png",
+      "sha256": "1f46726cd45067ad8b55a94e354ee3d5f1052b3da6582b0b0f2606d609750584",
+      "width": 1140,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1440x900-header-100pct.png",
+      "sha256": "1291c6f51859af3b2739edb790564f16fb5ab05345db956a40934ab8bb4d1bbd",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1440x900-navigator-100pct.png",
+      "sha256": "eed17fa315793a14e33545a9954e0d9cd0e202eb7df8cbd72910724a510c1f63",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1440x900-table-form-100pct.png",
+      "sha256": "430b4922bc74e663e9fe5bc9941b4b22644e3b1b505f2ab90034a103a3f693c5",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1920x1080-graph-preview-100pct.png",
+      "sha256": "86ee8decb5683576e57821134597897b6c78910225876409bb127e95f28668c3",
+      "width": 1620,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1920x1080-header-100pct.png",
+      "sha256": "7cdb3bb46a0387c059c0f08178a860d046497d91f810d17e4694e804043021b9",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1920x1080-navigator-100pct.png",
+      "sha256": "affac3a0ab4cfbd2d4e9c414d181d6ba2bd035e960a3e1bc90ec8483606bd231",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-1920x1080-table-form-100pct.png",
+      "sha256": "8e7608afea6234dfb89f40ce06efb7cdd3f1f40b40634c28a6739e816812452c",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-2560x1440-graph-preview-100pct.png",
+      "sha256": "c9927dd28114238a9b917a5003a65e00872a7434044cd688980cd8a8fef92650",
+      "width": 2260,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-2560x1440-header-100pct.png",
+      "sha256": "bf4a6104850fae9f956a448050461d3893c336ca000ae68c198b9fbf7869745f",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-2560x1440-navigator-100pct.png",
+      "sha256": "b4ab16c405a6b84ee2461474cd916aa31b3f6e181fb720c9d06b5d1f481a9b8d",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-2560x1440-table-form-100pct.png",
+      "sha256": "3971efe2aee6aaafd7c6d487e267c0efe2e55d5bab4338e2dbab2da6a3c7dcbd",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-3840x2160-graph-preview-100pct.png",
+      "sha256": "262893c66ee67171f715a0d9b00990ac2f7821e8d73b705ac85bdaf8094f4873",
+      "width": 3540,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-3840x2160-header-100pct.png",
+      "sha256": "74c17d20da720f2421d4820ffc4cd67e1c4309fa5518466ca74f0087d89a0c29",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-3840x2160-navigator-100pct.png",
+      "sha256": "fd2042abe59f56e81b6b32f0c8d96fb195d4fd7726b24d262af3480fa6e7199f",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-simulation-data-3840x2160-table-form-100pct.png",
+      "sha256": "d229bd628dab261a9f1f5b813864ed2a650f34e95d081effef4e202f92bee91e",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1366x768-graph-preview-100pct.png",
+      "sha256": "3c98fae4e2343792472c0f779f31ccaaa59aa3ae2d4652599f2c0c9382326d02",
+      "width": 1066,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1366x768-header-100pct.png",
+      "sha256": "544d32c456cbc22398e41079554469de24bed99e87b57cc6b078a9f97c6d0d99",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1366x768-navigator-100pct.png",
+      "sha256": "7fa8b918ae60f41b9466a41458d35bb8ead73dbfe981d62a2b49b60d19e68c5b",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1366x768-table-form-100pct.png",
+      "sha256": "7ea811d1da154b66603d74be47c2bda8e2d72fdf7971c71dcebe02b9748e4997",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1440x900-graph-preview-100pct.png",
+      "sha256": "859f46770aa5eb21c78b9e14a17498145840909cf7d7cf99b367a536c23c3bbd",
+      "width": 1140,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1440x900-header-100pct.png",
+      "sha256": "cd0eb7ad70b434590d0588734d3b75280458d827bb92f4378c3994f420d12ddf",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1440x900-navigator-100pct.png",
+      "sha256": "f523da7c5668967aa70f8700022992dc1ba36003c31b87a7b3a54e6084483aee",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1440x900-table-form-100pct.png",
+      "sha256": "a0709b7355836c2ca2f0e95e0ad3b66fc9835864231b7668470640aa80398188",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1920x1080-graph-preview-100pct.png",
+      "sha256": "442af80d9cdba24ca95b16b2efd0966dffbfa343fa6aa39b857f948cf35a226a",
+      "width": 1620,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1920x1080-header-100pct.png",
+      "sha256": "4c34c9a6e3f8eb37f09b3974b9e21ee87152742f68d11bd116d63d4717f0dee4",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1920x1080-navigator-100pct.png",
+      "sha256": "4da51a12628fdb2edc66cbb29a4c4521f0480959a15c1dc34540a52a8d7e58d6",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-1920x1080-table-form-100pct.png",
+      "sha256": "1e886ae75981edc1c24956314ec63f610553291393c335db19a725014ef21e02",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-2560x1440-graph-preview-100pct.png",
+      "sha256": "a98f8e3b863e9dcd78d6df49f63162d173d59c78a18806fc2ffa39fd32d8114f",
+      "width": 2260,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-2560x1440-header-100pct.png",
+      "sha256": "95e0d49a6f7d986a327ae73d663933fc9ba88fd61fd5cf890d6e9b316fe13c63",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-2560x1440-navigator-100pct.png",
+      "sha256": "7e6208d7dd7476c5bc5e7345fba736322e3bac67857a7d9d3eb9629eda2c468d",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-2560x1440-table-form-100pct.png",
+      "sha256": "eab57b82d8e30e83f0bd7f01f848638ce7cc114d24a6f07d1877075fd131130e",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-3840x2160-graph-preview-100pct.png",
+      "sha256": "3738fc9c54c450eeecaae10ed0d5a7d8a75f2b72569f3287394995e8e1480a5d",
+      "width": 3540,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-3840x2160-header-100pct.png",
+      "sha256": "4598d7d05870e4063ca96e4ccd44da2420a25668e4d5127ec0e753b03bdb2bc1",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-3840x2160-navigator-100pct.png",
+      "sha256": "f0375550e31940bda0a5c9f0d59145889679d4d9c2e1756203a787337dc625b1",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-solver-card-3840x2160-table-form-100pct.png",
+      "sha256": "46f177aea09a63fe21ea26cfc5cd3c2ff4409e07aaccbc2b0b7c468c0e13dbc7",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1366x768-header-100pct.png",
+      "sha256": "4b8887729e98d9295277ed662eaed4a5f0d6faed97e1f4b4df16129cd5c4648c",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1366x768-navigator-100pct.png",
+      "sha256": "ba0c2e0c1d65bd5c1eed5c87a5646819383d06616778ab752af5e678aa7701d3",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1366x768-table-form-100pct.png",
+      "sha256": "691bbb09e48abf58eb897f6e06a3e9576cc1d5a2b2210160985d4feed3523175",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1440x900-header-100pct.png",
+      "sha256": "56b323ae535f5d9eb53b95554dcdde7f243fcf67ff3996fb11d7a65fb05ce9e3",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1440x900-navigator-100pct.png",
+      "sha256": "2b59a65589c3c9a760ec4a9aa664087dac53c4cdfb0247fffe1d13010624a0c7",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1440x900-table-form-100pct.png",
+      "sha256": "c8e3f2b6076110b3beced00bcc55f87c9b41a91030995725d15a23fc022454b7",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1920x1080-header-100pct.png",
+      "sha256": "0eafb2a4599b74a13041f5ad9b52128002157940b9c7f45834b1f379d788867d",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1920x1080-navigator-100pct.png",
+      "sha256": "cf99d9e45325439e95cb6bbe1b5acbae04ff862c51158b042628df314d84a7c1",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-1920x1080-table-form-100pct.png",
+      "sha256": "48e1b6e51aaa3a2707268df4333f6d2908f5abadf9b7985dfa1276b87dd86b90",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-2560x1440-header-100pct.png",
+      "sha256": "01e1753662ff8d9c4f9f8fd740bcdc1b929a4cc380c112097c2ffed61568aafb",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-2560x1440-navigator-100pct.png",
+      "sha256": "09750e26dc9f8b12a4c03f7f2d41de7bad303365f4c30b880e5c6c74376dd7ab",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-2560x1440-table-form-100pct.png",
+      "sha256": "9140219b833fdfd6300940b174db8c70563250717eca7dedfbd640c89c2d3cfb",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-3840x2160-header-100pct.png",
+      "sha256": "5097849d9f7a36e3b48a31c6be58d5011f478d2ab251c993d1def826a007e698",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-3840x2160-navigator-100pct.png",
+      "sha256": "f04898128783be32008a7889f5f9480e76f6c94740de446c1b19cf506660c1bd",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/material-test-data-3840x2160-table-form-100pct.png",
+      "sha256": "27493572840194df785e2d308e0efb926315a4269afdf62e2d2feb2bfdb2d246",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1366x768-header-100pct.png",
+      "sha256": "0923cabd978f3de6f6b546e3834112c2a5ddb924db6b60e432f5d0a947003e1a",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1366x768-navigator-100pct.png",
+      "sha256": "05068ce3a0d315b56958ab2dce14e088abdb2bde8b1410f6141b1ef8018bb6e3",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1366x768-table-form-100pct.png",
+      "sha256": "9dd22c5fc9897864f17593080023bbe659fe7ef003cac5cdae6d6051a2cb3443",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1440x900-header-100pct.png",
+      "sha256": "37ad14966f6fb564142eb6b8edef66096e5a58880a03b881744dc279c87e0e16",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1440x900-navigator-100pct.png",
+      "sha256": "23d4970a39bdd4bbfd66ce29dbcb41cb024a4e4bd094c6c97bdf15974a1c3486",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1440x900-table-form-100pct.png",
+      "sha256": "bc92a4fcef2c11b9265e4a7297cd268d43eaa9ca6b4803a5d2ca212b1a1d7e8f",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1920x1080-header-100pct.png",
+      "sha256": "bb633aa3aad80ebd97575b0fa1f6891dc8c765b7ba878ae8d26ba45b6c87a6cd",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1920x1080-navigator-100pct.png",
+      "sha256": "030732fc61eb810ff7064352cb434020226c93e3cbdcb9dd84af44d6abc1f269",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-1920x1080-table-form-100pct.png",
+      "sha256": "5b4a62a00db02fc312db4c77c54ad14bdea83b9f87c261b0bf18be4870362717",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-2560x1440-header-100pct.png",
+      "sha256": "07d60a5699bfd638a1491387322f4c5c6e376fb3c6a3dadb209b1cd5623a7404",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-2560x1440-navigator-100pct.png",
+      "sha256": "d6e29042a5996ce008bcbe52ac7266139a5cf11b07a733f7710d12ade4ac9c41",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-2560x1440-table-form-100pct.png",
+      "sha256": "6217cc05ebc6efa7d150592c899ca03e6be8925210637cb9ee22b5bc9d7cd85c",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-3840x2160-header-100pct.png",
+      "sha256": "56bfefdfffb4b1812e3c97fbb247a91fb2476fd8c304397f70a2593296b789ad",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-3840x2160-navigator-100pct.png",
+      "sha256": "54dd598fe687895ae0f5b465c4992570fbcbab2ef39d69629b4dd0b4cf3bf4eb",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/crops/materials-browse-3840x2160-table-form-100pct.png",
+      "sha256": "940088f06ae223f7c2b163eac7861f9682bd51c1f916cbd757e3f0f2a73c5275",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-1366x768.png",
+      "sha256": "84630841961a8d68301fc91d1957e045a1cd5e8459954f126d64d077fe95fd12",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-1440x900.png",
+      "sha256": "d155b04ba9b725729a3a49bbadc761459ea33e706822db5d087e52e52536347d",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-1920x1080.png",
+      "sha256": "923bcbd94b5d575f4577a66d50286d3d3df25080ec67ac5cba4dd2ee4dd5f3e8",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-2560x1440.png",
+      "sha256": "2032e3414616d8b04608d65a62651a18a2b070dd3c9c8a0683890b348ebc9b74",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-3840x2160.png",
+      "sha256": "8bee99b05e9926f60452d28c1e7af2d982050854aae2053fab1695afaf121ee7",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-simulation-data-1366x768.png",
+      "sha256": "72fa43043e8716e46f70c7da21d4b33073368a586407c8baaf40b78b724e288c",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-simulation-data-1440x900.png",
+      "sha256": "252b4d80b8088963cf597400bcf509f6246ecfeed5be66dc74e8a97368ce4d9a",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-simulation-data-1920x1080.png",
+      "sha256": "6d8edb58b9b29f36f07c7a010513557484532502d24367f1805bd50c6ae76bbd",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-simulation-data-2560x1440.png",
+      "sha256": "978f2e3abb5422f23bb8a57336fafbfb2bdeecdc35adf63b606d86bcc7b12a46",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-simulation-data-3840x2160.png",
+      "sha256": "711682b2df2f3517694f4106df9fcf7844c54ad4619ee18ae485234302676a86",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-solver-card-1366x768.png",
+      "sha256": "c4b23cfb73a29774a3cbb6264093a156ea2237153736c461ef4d871d00441144",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-solver-card-1440x900.png",
+      "sha256": "88c6eeb3ddb7c741d7ba7144bd3e0d115c98e9e0c5b65b11e2e77c79eff141b7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-solver-card-1920x1080.png",
+      "sha256": "0363d00ee28c5f74ca4f63af5d10e4f21eb58c0978b7db7f981c7826424838d0",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-solver-card-2560x1440.png",
+      "sha256": "d9a362813b22ebcb4e66a32365f47355f13e0d24c8ac5c025ac29b403ad83a60",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-solver-card-3840x2160.png",
+      "sha256": "d9c6e45eb03b44d1faa7f347d3157971816d0d32cae3b80fba11972a8c0379c6",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-test-data-1366x768.png",
+      "sha256": "75100ffe00eefd35402a0ead67b514e279deaab6382b530cdc7e0b0a912850c5",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-test-data-1440x900.png",
+      "sha256": "1260a4059a4f757592ff70258d88f1e03eca2a34f3922ec4ab500102adf968d9",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-test-data-1920x1080.png",
+      "sha256": "ef5a13fc51280c8d92ffbbb18ef52e7a34b7b6e6ba50af70fdfc78b68320edaf",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-test-data-2560x1440.png",
+      "sha256": "50e80eb85c2bc5cd472271e783511d0f3b4ad703df7d3936ef59ca29efb157f3",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-test-data-3840x2160.png",
+      "sha256": "6b7a35ea335ac02e5d2dbfcf8b6cbc90b99a56670d715a297168dc1218696408",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/materials-browse-1366x768.png",
+      "sha256": "f3f6cf4bed10f8cde92c2ccbc2da1c4ef4f9a80f24087b861f0547747d5547e0",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/materials-browse-1440x900.png",
+      "sha256": "47775d75374ac387efd44833961c30c02742dfdc057070dec3e65c196726714b",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/materials-browse-1920x1080.png",
+      "sha256": "023b7e66fdf336ae145fcafee8f0d72b12912d706b85ea8e76b04d83541afc52",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/materials-browse-2560x1440.png",
+      "sha256": "53f83badd7f55c3cdd28089bd260b8642e4a74a334ae1eb411a38c43e6642812",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/materials-browse-3840x2160.png",
+      "sha256": "6198fd242f1cf122a90928eaa0cab0d141ecf821d24e96e53037f23703f676fe",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/before/crops/material-simulation-data-1920x1080-graph-preview-100pct.png",
+      "sha256": "4c3b19ff11c084c1db5de0cabb1ea92d3038287c1324d085b0b176ad5dbd3fcf",
+      "width": 1620,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/before/crops/material-simulation-data-1920x1080-header-100pct.png",
+      "sha256": "c646737c9292ea5cd84101d8c452447c59c5138290c487ca5ad51f052f818d08",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/before/crops/material-simulation-data-1920x1080-navigator-100pct.png",
+      "sha256": "e36d504603cf60c7b9a68c1c3c2972863ac0c7c537c96b47b8d584fc59a89222",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/before/crops/material-simulation-data-1920x1080-table-form-100pct.png",
+      "sha256": "edb24b873e8184dd9a612acbb20d84214c109652eba2da31ff0ec01259568541",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/before/originals/material-simulation-data-1920x1080.png",
+      "sha256": "b0e4a3a93f5ab9d07ca956543518287101f881577f1e98d27309124fc6f769c8",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

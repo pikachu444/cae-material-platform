@@ -129,7 +129,8 @@ describe("CurveContractChart", () => {
     expect(container.querySelector(".contract-curve-heading")?.textContent).not.toContain(
       declared.record_revision_id.slice(0, 8),
     );
-    expect(screen.getByText(/original % · normalized 1 · display %/)).toBeTruthy();
+    const channelUnits = screen.getByText(/original % · normalized 1 · display %/);
+    expect(channelUnits.closest("details")?.open).toBe(false);
     expect(screen.getAllByText(/student_t\.mean_two_sided/).length).toBeGreaterThanOrEqual(2);
     fireEvent.keyDown(plot, { key: "ArrowRight" });
     expect(screen.getByText(/Engineering strain: 1 %/)).toBeTruthy();
@@ -144,7 +145,8 @@ describe("CurveContractChart", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Open in Modeling" }));
     expect(onOpenModeling).toHaveBeenCalledWith(source);
-    fireEvent.click(screen.getByText("Curve source"));
+    fireEvent.click(screen.getByText("Curve source and technical details"));
+    expect(channelUnits.closest("details")?.open).toBe(true);
     expect(screen.queryByText("Evidence")).toBeNull();
     expect(screen.getByText("urn:cmp:test-data:normalized-parquet:1.1.0")).toBeTruthy();
     expect(screen.getByText("b".repeat(64))).toBeTruthy();
@@ -156,6 +158,7 @@ describe("CurveContractChart", () => {
     expect(screen.getAllByText("View only")).toHaveLength(1);
     expect(screen.queryByText("Declared curve contract")).toBeNull();
     expect(screen.queryByText("Statistical and envelope curves are view-only.")).toBeNull();
+    expect(screen.queryByText("No deviation recorded")).toBeNull();
     expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
 
     const absent: CatalogCurvePreviewResponse = {

@@ -132,16 +132,20 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & hist
    `Test Data`, `Simulation Data`, `Solver Cards`는 서로 같은 수준의 네 범주이며 저장 위치나 처리 순서를
    강제하는 계층이 아니다.
 2. Search 결과의 **Material**과 Browse 결과의 **Name**에는 사람이 읽는 이름만 표시하고, 각 결과의
-   **Code**에는 Catalog external key를 표시한다.
-   Code가 없으면 em dash를 표시하며 grade로 해석하지 않는다. 이름·Code·설명·text Attribute 검색과
+   **Material code**에는 Catalog external key를 표시한다.
+   Material code가 없으면 em dash를 표시하며 grade로 해석하지 않는다. 이름·Material code·설명·text Attribute 검색과
    facet 결과, 전체 건수는 같은 서버 범위의 query에서 읽는다.
 3. `Technical Data`는 Material, Material State와 적용 가능한 물성을, `Test Data`는 Specimen, Test Run과
    exact canonical 측정 데이터/곡선을 뜻한다. `Simulation Data`는 Processing Output, selected Material
    Model, Neutral Material처럼 구체적인 유형을 표시하고, `Solver Cards`는 solver-ready target artifact를
    뜻한다. 항목을 누르면 같은 가운데 Materials workspace에서 exact revision datasheet를 연다. Simulation
-   Data 상세의 **Type**에서 구체 유형을 확인하며 Processing Output에는 실제 결과 타입, 입력 조건, 결과,
-   exact source data만 표시한다. Solver Card는 target, format, unit system, release, exact revision과 review
-   상태·다운로드를 native preview 위에 표시하고, preview는 펼치거나 접은 뒤 자체 스크롤로 읽는다.
+   Data 항목의 구체 유형과 해당 계약에 맞는 내용을 확인한다. Processing Output은 Catalog 요약값이 아니라 연결된
+   exact Output revision을 검증해 읽고, 실제 선택 결과 곡선을 중심으로 선택 모델, fitted parameter와 bounds,
+   저장된 선택 결정의 fit metric, convergence/identifiability, 주요 scalar·workup 결정을 표시한다. 처리 단계,
+   UUID, hash와 candidate별 상대 RMSE를 포함한 전체 진단은 접힌 **Revision history and technical details**에서
+   확인한다. Solver Card는 target, format, unit system, release, exact revision과 review
+   상태·다운로드를 native preview 위에 표시하고, preview는 펼치거나 접은 뒤 자체 스크롤로 읽는다. Exact
+   source와 provenance 값은 접힌 **Exact source and technical details**에서 확인한다.
 4. Material Overview의 **Key properties**는 단위가 포함된 label/value 쌍으로 읽는다. **Applicable
    conditions and material states**에는 Temperature, Strain rate, State, Manufacturing route가 각각
    표시된다. 대표 응답은 저장된 curve contract가 축 quantity와 단위를 확정할 수 있을 때만 나타난다.
@@ -149,11 +153,15 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & hist
    `Simulation Data`, `Solver Cards`로 묶는다. Test Data에는 exact Technical Data 연결이 필요하고,
    Simulation Data와 Solver Card는 저장되어 검토된 exact link가 있을 때만 보인다. 서로 다른 constitutive
    family나 FLD를 downstream 항목에 자동 연결하지 않는다.
-6. Test Data detail에서는 test kind, condition, channel/axis quantity와 단위를 확인한다. 저장된 measured
-   curve가 있으면 같은 datasheet에서 그 곡선을 확인한다. Material·State·Test Data revision provenance가
+6. Test Data detail에서는 pinned canonical JSON의 원본 channel 배열로 그린 실제 측정 곡선과 point 값을 먼저
+   확인한다. 그래프와 값 표는 channel/axis quantity와 원본 단위를 유지하며, **Download exact Test Data JSON**은
+   같은 exact revision artifact를 내려받는다. 아래의 scalar Layout은 보조 요약이며 CSV action은
+   **Download summary CSV**로 구분한다. Material·State·Test Data revision provenance가
    모두 확정된 Test Data만 **Open in Modeling**을 제공하며 legacy 또는 미확정 곡선은 view-only다.
 7. Simulation Data는 **Processing Output**, **Selected Material Model**, **Neutral Material**을 구분하고
-   직접 연결된 Test Data 또는 Processing Output 관계를 표시한다. Solver Card detail은 solver, version,
+   각 binding의 실제 계약만 표시하며, 직접 연결된 Test Data 또는 Processing Output 관계를 표시한다.
+   Processing Output의 **Linked records**는 relation, record code, type, exact revision만 간결하게 표시한다.
+   Solver Card detail은 solver, version,
    unit system, release state와 현재 가능한 preview/download/create action을 표시한다. 지원되지 않는 mapping은
    가짜 create/download 대신 block reason을 보여 준다.
 8. **Back**, **Forward**, **Reload**, **Results**를 사용해도 이전 query, filter, sort, Browse 위치, 선택한
@@ -178,10 +186,15 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & hist
 14. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
    range를 적용할 수 있다. 두 결과의 **Compare**를 체크한 뒤 **Compare 2**를 누르면 선택한 Layout
    순서로 exact current Record revision을 나란히 비교한다.
-15. **Curves**에서 현재 Record revision의 곡선을 선택하면 같은 화면의 큰 그래프에서 채널 이름,
-    축 역할, 원본/정규화·표시 단위와 기록된 통계 band 의미를 확인할 수 있다. **Curve source**는 exact
-    Record/Artifact revision과 digest, source와 calculation chain을 펼쳐 보여 준다. 정확히 연결된
-    Test Data 곡선만 **Open in Modeling**으로 전달된다. 통계 envelope와 provenance가 없는 legacy
+15. **Curves**에서 **Available curves** 목록의 현재 Record revision 곡선을 선택하면 선택 identity에서 같은
+    화면의 큰 그래프로 이어지는 구성으로 채널 이름,
+    축 역할, 표시 단위와 기록된 통계 band 의미를 확인할 수 있다. 원본/정규화·표시 단위와 **Curve source
+    and technical details**는 접힌 영역에서 exact Record/Artifact revision과 digest, source와 calculation
+    chain과 함께 확인한다. 정확히 연결된
+    Test Data 곡선만 **Open in Modeling**으로 전달된다. 저장 key `observed_tensile_curve`는
+    **Measured tensile curve**, `replicate_statistics_curve`는 **Repeated-test average and variation**으로
+    표시하고, 아래 source 표의 exact Test Data 입력은 **Measured test input**으로 표시하지만 저장된
+    key, binding kind, exact revision 계약은 바꾸지 않는다. 통계 envelope와 provenance가 없는 legacy
     곡선은 view-only이며 Fit 입력으로 추정하지 않는다.
 
 

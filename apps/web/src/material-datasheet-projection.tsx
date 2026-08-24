@@ -61,6 +61,14 @@ function familyLabel(value: string | null | undefined): string {
   return value?.trim() || "Unclassified";
 }
 
+export function curvePresentationLabel(key: string, fallback: string): string {
+  if (key === "observed_tensile_curve") return "Measured tensile curve";
+  if (key === "replicate_statistics_curve") {
+    return "Repeated-test average and variation";
+  }
+  return fallback;
+}
+
 function valueText(value: ConfigurableRecordValue | null): { primary: string; secondary: string | null } {
   if (!value) return { primary: "—", secondary: null };
   if (value.data_type === "number") {
@@ -393,21 +401,35 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
     const selected = curveValues.find((item) => item.attribute.attribute_definition_id === selectedCurveId) ?? curveValues[0];
     const selectedId = selected?.attribute.attribute_definition_id ?? "";
     const selectedPreview = curvePreviews[selectedId];
-    return <section className="layout-projection curve-layout-projection">
-      <div className="detail-section-heading"><h2>{selectedLayout.name}</h2></div>
+    const selectedLabel = selected
+      ? curvePresentationLabel(
+          selected.attribute.current_revision.content.key,
+          selected.attribute.current_revision.content.name,
+        )
+      : "Curve";
+    return <section className="layout-projection curve-layout-projection" aria-labelledby="available-curves-title">
       <div className="material-curve-browser">
-        <div className="material-curve-list" role="list" aria-label="Available curves">
-          {curveValues.map((item) => {
-            const id = item.attribute.attribute_definition_id;
-            const preview = curvePreviews[id];
-            return <div key={id} role="listitem"><button type="button" className={id === selectedId ? "active" : ""} aria-current={id === selectedId ? "true" : undefined} onClick={() => setSelectedCurveId(id)}>
-              <strong>{item.attribute.current_revision.content.name}</strong>
-              {preview ? preview.curve_metadata.metadata_state === "absent" ? <span>Metadata not recorded</span> : preview.modeling_use === "fit_input" ? <span>Exact Test Data · Fit input</span> : null : curveErrors[id] ? <span>Preview unavailable</span> : <span>Loading metadata…</span>}
-            </button></div>;
-          })}
+        <div className="material-curve-selection">
+          <div className="material-curve-selection-heading">
+            <h2 id="available-curves-title">Available curves</h2>
+          </div>
+          <div className="material-curve-list" role="list" aria-labelledby="available-curves-title">
+            {curveValues.map((item) => {
+              const id = item.attribute.attribute_definition_id;
+              const preview = curvePreviews[id];
+              const label = curvePresentationLabel(
+                item.attribute.current_revision.content.key,
+                item.attribute.current_revision.content.name,
+              );
+              return <div key={id} role="listitem"><button type="button" className={id === selectedId ? "active" : ""} aria-current={id === selectedId ? "true" : undefined} onClick={() => setSelectedCurveId(id)}>
+                <strong>{label}</strong>
+                {preview ? preview.curve_metadata.metadata_state === "absent" ? <span>Metadata not recorded</span> : preview.modeling_use === "fit_input" ? <span>Exact Test Data · Fit input</span> : null : curveErrors[id] ? <span>Preview unavailable</span> : <span>Loading metadata…</span>}
+              </button></div>;
+            })}
+          </div>
         </div>
         <div className="material-curve-main">
-          {selectedPreview ? <Suspense fallback={<p className="loading-state" role="status">Loading curve chart…</p>}><CurveContractChart preview={selectedPreview} title={selected.attribute.current_revision.content.name} onOpenModeling={onNavigate && modelingContext?.material && modelingContext.materialState ? (source) => openInModeling(source, selectedPreview, selected.attribute.current_revision.content.name) : undefined} modelingUnavailableReason={onNavigate && selectedPreview.modeling_use === "fit_input" && selectedPreview.modeling_source && (!modelingContext?.material || !modelingContext.materialState) ? "Exact Material and State context is required to continue." : undefined}/></Suspense>
+          {selectedPreview ? <Suspense fallback={<p className="loading-state" role="status">Loading curve chart…</p>}><CurveContractChart preview={selectedPreview} title={selectedLabel} onOpenModeling={onNavigate && modelingContext?.material && modelingContext.materialState ? (source) => openInModeling(source, selectedPreview, selectedLabel) : undefined} modelingUnavailableReason={onNavigate && selectedPreview.modeling_use === "fit_input" && selectedPreview.modeling_source && (!modelingContext?.material || !modelingContext.materialState) ? "Exact Material and State context is required to continue." : undefined}/></Suspense>
             : curveErrors[selectedId] ? <div className="ux-notice error" role="alert"><strong>Curve preview is unavailable.</strong><p>{curveErrors[selectedId]}</p></div>
               : <p className="loading-state" role="status">Loading exact curve metadata…</p>}
         </div>
@@ -423,7 +445,8 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
         : recordKind === "neutral_material"
           ? "Neutral Material details"
           : selectedLayout?.name ?? "Properties";
-    return <section className="layout-projection"><div className="detail-section-heading"><h2>{projectionTitle}</h2><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</section>;
+    const downloadLabel = recordKind === "test_data" ? "Download summary CSV" : "Download CSV";
+    return <section className="layout-projection"><div className="detail-section-heading"><h2>{projectionTitle}</h2><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>{downloadLabel}</button></div>{content}</section>;
   }
 
   return <details className="ux-disclosure layout-projection"><summary>Additional data and technical values</summary><div className="layout-selector-row"><label className="ux-field">View<select className="ux-select" aria-label="Material data view" value={selectedLayout.layout_id} onChange={(event) => setLayoutId(event.target.value)}>{layouts.map((layout) => <option key={layout.layout_id} value={layout.layout_id}>{layout.name}</option>)}</select></label><span className="ux-meta">{selectedLayout.description ?? "Saved display order and sections"}</span><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</details>;

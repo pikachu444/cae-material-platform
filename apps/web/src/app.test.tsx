@@ -293,7 +293,7 @@ describe("Material Catalog workbench", () => {
     expect(materialHeader).toBeTruthy();
     expect(materialHeader?.getAttribute("aria-sort")).toBe("ascending");
     expect(within(materialHeader!).getByRole("button", { name: "Material" }).hasAttribute("aria-sort")).toBe(false);
-    const codeHeader = screen.getByRole("columnheader", { name: /^Code/ });
+    const codeHeader = screen.getByRole("columnheader", { name: /^Material code/ });
     expect(within(codeHeader).queryByRole("button")).toBeNull();
     expect(codeHeader.hasAttribute("aria-sort")).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Family" }));

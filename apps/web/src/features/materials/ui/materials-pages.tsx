@@ -75,6 +75,15 @@ import {
   trueStressPlasticStrainResponseFromNativeCard,
   type MaterialExperience,
 } from "../api/load-material-experience";
+import {
+  loadExactProcessingOutput,
+  type ExactProcessingOutput,
+} from "../api/load-exact-processing-output";
+import {
+  ProcessingOutputDetail,
+  ProcessingOutputEvidence,
+} from "./processing-output-detail";
+import { ExactTestDataDetail } from "./exact-test-data-detail";
 
 const materialsBrowseTreeModule = import("../../../materials-browse-tree");
 const MaterialsBrowseTree = lazy(() =>
@@ -261,6 +270,48 @@ function RelatedExactRecordList({
         </section>
       ))}
     </div>
+  );
+}
+
+function ExactLinkedRecordTable({
+  items,
+  onNavigate,
+}: {
+  items: RelatedExactRecord[];
+  onNavigate: (path: string) => void;
+}) {
+  return (
+    <table className="ux-table exact-record-link-table">
+      <thead>
+        <tr>
+          <th>Relation</th>
+          <th>Record</th>
+          <th>Type</th>
+          <th>Exact revision</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item) => (
+          <tr key={item.id}>
+            <td>{item.label}</td>
+            <td>
+              <button
+                className="exact-record-link-button"
+                type="button"
+                onClick={() => onNavigate(exactRecordPath(
+                  item.endpoint.record_id,
+                  item.endpoint.record_revision_id,
+                ))}
+              >
+                {item.endpoint.external_key ?? item.endpoint.name}
+              </button>
+            </td>
+            <td>{domainKindLabel(nodeBindings(item.endpoint)[0]?.kind)}</td>
+            <td>r{item.endpoint.revision_no}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -1188,7 +1239,7 @@ function ExactSolverCardDelivery({
       )}
       {evidence ? (
         <details className="ux-disclosure">
-          <summary>Exact source evidence</summary>
+          <summary>Exact source and technical details</summary>
           <dl className="evidence-grid">
             <dt>Source type</dt>
             <dd>
@@ -1351,9 +1402,7 @@ export function MaterialDetailPage({
         ? experience.catalogRecord.current_revision
         : material?.current_revision;
     publishWorkspaceStatus({
-      selection: material
-        ? `${material.current_revision.content.name} · Code ${material.current_revision.content.material_code ?? "—"}`
-        : "Material record",
+      selection: material ? (activeTab === "curves" ? "Curves" : "Material") : "Material record",
       revision: selectedRevision
         ? `r${selectedRevision.revision_no}`
         : "Loading revision",
@@ -1361,7 +1410,7 @@ export function MaterialDetailPage({
       warnings: error ? "1 workspace error" : "0 warnings",
       connection: error ? "degraded" : "online",
     });
-  }, [error, exactPin, experience]);
+  }, [activeTab, error, exactPin, experience]);
 
   if (loading)
     return (
@@ -1469,10 +1518,12 @@ export function MaterialDetailPage({
         <div>
           <h1>{displayName}</h1>
           {displayDescription?.trim() ? <p>{displayDescription}</p> : null}
-          <div className="material-detail-meta">
-            <span>Code {displayCode ?? "—"}</span>
-            <span>{content.material_family ?? content.material_class}</span>
-          </div>
+          {activeTab !== "curves" ? (
+            <div className="material-detail-meta">
+              <span>Code {displayCode ?? "—"}</span>
+              <span>{content.material_family ?? content.material_class}</span>
+            </div>
+          ) : null}
         </div>
         <div className="card-action-row">
           {preferredCard ? (
@@ -1780,9 +1831,6 @@ export function MaterialDetailPage({
         ) : null}
         {activeTab === "curves" ? (
           <>
-            <div className="detail-section-heading">
-              <h2>Curves</h2>
-            </div>
             {catalogRoot ? (
               <MaterialDatasheetProjection
                 config={config}
@@ -1794,7 +1842,7 @@ export function MaterialDetailPage({
                 modelingContext={modelingContext}
               />
             ) : null}
-            <table className="ux-table">
+            <table className="ux-table" aria-label="Modeling inputs">
               <thead>
                 <tr>
                   <th>Modeling input</th>
@@ -1829,7 +1877,7 @@ export function MaterialDetailPage({
                       <td>{domainKindLabel(binding.kind)}</td>
                       <td>
                         {binding.kind === "test_data"
-                          ? "Observed input"
+                          ? "Measured test input"
                           : binding.kind === "processing_output"
                             ? "Processed curve"
                             : "Fitted response"}
@@ -2064,6 +2112,11 @@ export function ExactRecordDatasheetPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [processingOutput, setProcessingOutput] =
+    useState<ExactProcessingOutput | null>(null);
+  const [processingLoading, setProcessingLoading] = useState(false);
+  const [processingError, setProcessingError] = useState<string | null>(null);
+  const [processingAttempt, setProcessingAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -2103,23 +2156,9 @@ export function ExactRecordDatasheetPage({
     };
   }, [attempt, config, recordId, revisionId]);
 
-  useEffect(() => {
-    publishWorkspaceStatus({
-      selection:
-        record?.current_revision.content.name ?? "Exact catalog record",
-      revision: record
-        ? `r${record.current_revision.revision_no} · exact`
-        : "Loading revision",
-      jobs: "No active job",
-      warnings: error ? "1 workspace error" : "0 warnings",
-      connection: error ? "degraded" : "online",
-    });
-  }, [error, record]);
-
-  const related = directRelatedRecords(graph, recordId, revisionId);
-  const modelingContext = exactModelingContext(graph);
+  const rootBinding = graph ? nodeBindings(graph.root)[0] : undefined;
+  const rootBindingKind = rootBinding?.kind;
   const recordType = graph ? relatedRecordTypeLabel(graph.root) : "Record";
-  const rootBindingKind = graph ? nodeBindings(graph.root)[0]?.kind : undefined;
   const semanticHeaderKinds = new Set([
     "test_data",
     "processing_output",
@@ -2137,6 +2176,54 @@ export function ExactRecordDatasheetPage({
     : graph?.root.data_category === "simulation_data"
       ? "Simulation Data"
       : recordType;
+
+  useEffect(() => {
+    let active = true;
+    if (rootBindingKind !== "processing_output" || !rootBinding) {
+      setProcessingOutput(null);
+      setProcessingError(null);
+      setProcessingLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+    setProcessingLoading(true);
+    setProcessingError(null);
+    void loadExactProcessingOutput(
+      config,
+      rootBinding.object_id,
+      rootBinding.revision_id,
+    ).then((value) => {
+      if (!active) return;
+      setProcessingOutput(value);
+      setProcessingLoading(false);
+    }).catch((cause: unknown) => {
+      if (!active) return;
+      setProcessingOutput(null);
+      setProcessingError(messageFor(cause));
+      setProcessingLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [config, processingAttempt, rootBinding?.object_id, rootBinding?.revision_id, rootBindingKind]);
+
+  useEffect(() => {
+    publishWorkspaceStatus({
+      selection: record
+        ? (usesSemanticHeader ? semanticPageTitle : "Exact record")
+        : "Exact catalog record",
+      revision: record
+        ? `r${record.current_revision.revision_no} · exact`
+        : "Loading revision",
+      jobs: "No active job",
+      warnings: error || processingError ? "1 workspace error" : "0 warnings",
+      connection: error || processingError ? "degraded" : "online",
+    });
+  }, [error, processingError, record, semanticPageTitle, usesSemanticHeader]);
+
+  const related = directRelatedRecords(graph, recordId, revisionId);
+  const modelingContext = exactModelingContext(graph);
   const solverCard = graph ? solverCardSummaryFromEndpoint(graph.root) : null;
   const hasCurveValues = Boolean(
     record?.current_revision.content.values.some(
@@ -2210,27 +2297,54 @@ export function ExactRecordDatasheetPage({
               {!usesSemanticHeader && record.current_revision.content.description ? (
                 <p>{record.current_revision.content.description}</p>
               ) : null}
-              <div className="material-detail-meta">
-                <span>Type {recordType}</span>
-                <span>
-                  Code {record.current_revision.content.external_key ?? "—"}
-                </span>
-              </div>
+              {!usesSemanticHeader ? (
+                <div className="material-detail-meta">
+                  <span>Type {recordType}</span>
+                  <span>
+                    Code {record.current_revision.content.external_key ?? "—"}
+                  </span>
+                </div>
+              ) : null}
             </div>
             <div className="exact-revision-mark">
               <strong>r{record.current_revision.revision_no}</strong>
               <span>Immutable</span>
             </div>
           </header>
-          {!record.current_revision.content.values.length && !solverCard ? (
+          {!record.current_revision.content.values.length &&
+          !solverCard &&
+          rootBindingKind !== "processing_output" &&
+          rootBindingKind !== "test_data" ? (
             <div className="ux-empty">
               <strong>No values in this revision.</strong>
-              <p>Revision details remain available in Evidence.</p>
             </div>
           ) : null}
-          {solverCard ? (
+          {rootBindingKind === "test_data" && rootBinding ? (
+            <ExactTestDataDetail
+              config={config}
+              documentId={rootBinding.object_id}
+              revisionId={rootBinding.revision_id}
+            />
+          ) : rootBindingKind === "processing_output" ? (
+            processingLoading ? (
+              <p className="loading-state">Loading exact Processing Output…</p>
+            ) : processingError ? (
+              <div className="ux-notice error" role="alert">
+                {processingError}
+                <button
+                  className="ux-button tertiary"
+                  type="button"
+                  onClick={() => setProcessingAttempt((current) => current + 1)}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : processingOutput ? (
+              <ProcessingOutputDetail data={processingOutput} />
+            ) : null
+          ) : solverCard ? (
             <ExactSolverCardDelivery config={config} card={solverCard} />
-          ) : (
+          ) : rootBindingKind !== "test_data" ? (
             <MaterialDatasheetProjection
               config={config}
               tableId={record.table_id}
@@ -2239,7 +2353,17 @@ export function ExactRecordDatasheetPage({
               mode="properties"
               recordKind={rootBindingKind}
             />
-          )}
+          ) : null}
+          {rootBindingKind === "test_data" ? (
+            <MaterialDatasheetProjection
+              config={config}
+              tableId={record.table_id}
+              recordId={record.record_id}
+              revisionId={revisionId}
+              mode="properties"
+              recordKind={rootBindingKind}
+            />
+          ) : null}
           {hasCurveValues ? (
             <MaterialDatasheetProjection
               config={config}
@@ -2256,16 +2380,22 @@ export function ExactRecordDatasheetPage({
             aria-labelledby="exact-record-related-title"
           >
             <div className="detail-section-heading">
-              <h2 id="exact-record-related-title">Related data</h2>
+              <h2 id="exact-record-related-title">
+                {rootBindingKind === "processing_output" ? "Linked records" : "Related data"}
+              </h2>
             </div>
             {related.length ? (
-              <RelatedExactRecordList items={related} onNavigate={onNavigate} />
+              rootBindingKind === "processing_output" ? (
+                <ExactLinkedRecordTable items={related} onNavigate={onNavigate} />
+              ) : (
+                <RelatedExactRecordList items={related} onNavigate={onNavigate} />
+              )
             ) : (
-              <p className="ux-meta">No directly linked data.</p>
+              <p className="ux-meta">No directly linked records.</p>
             )}
           </section>
           <details className="ux-disclosure">
-            <summary>Revision history and evidence</summary>
+            <summary>Revision history and technical details</summary>
             <h3>Revisions</h3>
             <ul className="related-record-list">
               {revisions.map((revision) => (
@@ -2297,6 +2427,7 @@ export function ExactRecordDatasheetPage({
               <dt>Change reason</dt>
               <dd>{record.current_revision.change_reason}</dd>
             </dl>
+            {processingOutput ? <ProcessingOutputEvidence data={processingOutput} /> : null}
           </details>
         </>
       ) : null}
