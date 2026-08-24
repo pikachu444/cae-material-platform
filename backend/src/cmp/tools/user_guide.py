@@ -64,6 +64,7 @@ _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-210-scalar-distribution-fitting/visual-evidence.yaml",
     "docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml",
     "docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml",
+    "docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/visual-evidence.yaml",
 )
 _IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
 _CURRENT_PRODUCT_EVIDENCE_MANIFEST = (

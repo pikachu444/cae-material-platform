@@ -1,0 +1,52 @@
+{
+  "state": "access",
+  "url": "http://127.0.0.1:5174/administration/access",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "devicePixelRatio": 1,
+  "visualViewportScale": 1,
+  "document": {
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "clientHeight": 900,
+    "scrollHeight": 900
+  },
+  "shell": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 900
+  },
+  "administration": {
+    "x": 0,
+    "y": 50,
+    "width": 1440,
+    "height": 782
+  },
+  "taskbar": {
+    "x": 0,
+    "y": 50,
+    "width": 1440,
+    "height": 43
+  },
+  "workspace": {
+    "x": 24.46875,
+    "y": 117,
+    "width": 1391.0625,
+    "height": 314.1875
+  },
+  "primary": {
+    "x": 24.46875,
+    "y": 117,
+    "width": 1391.0625,
+    "height": 314.1875
+  },
+  "secondary": {
+    "x": 38.46875,
+    "y": 200.1875,
+    "width": 1363.0625,
+    "height": 216
+  }
+}

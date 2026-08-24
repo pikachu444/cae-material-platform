@@ -1,4 +1,4 @@
-version: 26
+version: 27
 shell:
   product_header_px: {compact: 46, standard: 50, large: 54}
   generic_command_status_bands: absent
@@ -36,17 +36,23 @@ items:
     route: /activity
     guide: 10-navigation-and-troubleshooting.md
 administration_workspace:
-  task: Issue #159 task 2; Issue #161 semantic-button follow-up; Issue #184 semantic three-pane production transplant; Issue #208 Definition Bundle plan/apply; Issue #289 Database design workflow
+  task: Issue #262 FE-07B Administration architecture and UI refinement, preserving Issue #208 Format Definition plan/apply and Issue #289 Database workflow contracts
   routes:
     overview: /administration
     database_design: /administration/database
-    definition_bundles: /administration/schema-bundles
+    format_definitions: /administration/schema-bundles
     records_and_registration: /administration/records
     users_and_access: /administration/access
     legacy_schema: /catalog/schema
     legacy_records: /catalog/records
   access: authorized-workspace-menu-only
   normal_navigation: [Materials, Modeling, Activity]
+  taskbar: [Database, Format definitions, Records, Access, Open Materials]
+  exact_url_state:
+    database: [database_id, database_revision_id, profile_id, profile_revision_id, table_id, table_revision_id, object_kind, object_id, object_revision_id, record_id, record_revision_id]
+    records: [table_id, table_revision_id, folder_id, folder_revision_id, record_id, record_revision_id]
+    format_definitions: [application_id]
+    missing_or_mismatched_coordinate: fail-closed-without-latest-first-item-global-output-or-other-session-fallback
   button_semantics:
     primitive: ux-button
     primary_action: ux-accent
@@ -57,12 +63,12 @@ administration_workspace:
     states: [hover, focus-visible, disabled, aria-busy]
     route_and_command_behavior: unchanged
   database_design:
-    topology: [object-navigator, identity-revision-list, property-editor, adjacent-real-record-preview]
-    wide_allocation: flexible-object-list-with-bounded-property-form-and-preview
+    topology: [database-profile-table-scope, definition-object-navigator, identity-revision-list, property-editor-or-record-preview]
+    wide_allocation: flexible-object-list-with-bounded-property-form-and-preview-only-at-2560-and-3840
     objects: [Database, Profile, Table, Attribute, Layout, Subset, Link Type]
-    lifecycle: [add, edit-as-new-revision, duplicate-as-r1-draft, delete-unused-unpublished-r1-draft, check, publish-not-configured]
+    lifecycle: [add, edit-as-new-revision, duplicate-as-r1-draft, delete-unused-unpublished-r1-draft, check]
     delete_recovery: preserve-selection-and-explain-publication-revision-reference-or-dependency-block
-  definition_bundles:
+  format_definitions:
     topology: [bounded-source-pane, elastic-locally-scrollable-plan-table, bounded-detail-and-confirmation-pane]
     visible_when: Administrator
     denied_roles: [User, Reviewer]
@@ -81,15 +87,30 @@ administration_workspace:
     confirmation: [bundle-version, source-sha256, plan-fingerprint, action-counts, explicit-checkbox]
     apply_request: [artifact-id, artifact-sha256, plan-fingerprint, delete-missing-false, fresh-idempotency-key]
     client_actions_in_apply: forbidden
-    completion: [immutable-application-read-back, exact-results, source-evidence, checksum-verified-export]
+    completion: [immutable-application-read-back, exact-results, checksum-and-provenance, checksum-verified-export]
     recovery: [local-preflight-focus, retain-source-context, new-source-explicit-reset, stale-plan-plan-again, never-replay-apply, refresh-read-back, request-correlation]
   records:
-    topology: [table-navigator, record-list-or-import-table, bounded-registration-form]
+    topology: [compact-search-and-filter-row, dominant-record-results, intentional-bounded-record-or-import-editor]
     modes: [single-entry, multiple-rows]
     sources: [CSV, TSV, XLSX]
     mapping: [source-column, selected-attribute, value-type, original-unit, existing-material-state]
     validation: [required-value, value-type, unit, duplicate-code, per-row-correction]
     publication: published-revisions-only-in-material-database-search
+    revision_action: create-new-immutable-revision-from-explicit-exact-record-revision
+    database_handoff: exact-table-folder-record-and-revision-coordinates
+  access:
+    topology: [dominant-assignment-table, intentional-compact-add-or-edit-surface]
+    columns: [subject-or-team, role, effective-capabilities, row-action]
+    mutations: [grant-supported-role, revoke-exact-assignment]
+  ownership:
+    public_boundary: apps/web/src/features/administration/index.ts
+    routes: apps/web/src/features/administration/routes/administration-workspace.tsx
+    route_state: apps/web/src/features/administration/model/administration-route-state.ts
+    database: apps/web/src/features/administration/database-design
+    format_definitions: apps/web/src/features/administration/definition-bundles
+    records: apps/web/src/features/administration/records
+    access: apps/web/src/features/administration/access
+    root_compatibility_reexports_remove_in: Issue #263
 materials_workspace:
   task: UXC-01 server-scoped Find correction on DUI-02 workspace; Issue #246 Task 1 category integration; Issue #262 FE-07A Materials architecture and UI refinement
   routes:

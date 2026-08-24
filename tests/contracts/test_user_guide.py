@@ -389,7 +389,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 1821
+    assert report.duplicate_image_group_count == 1837
 
 
 @pytest.mark.parametrize(
@@ -525,14 +525,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
 
     manifest_source = manifest["source_commit"]
     capture_source = manifest["visual_evidence"]["capture_source"]
-    issue298_source = "ae93058d61f4a229addbcb746a50a86689639f6f+issue298-worktree"
-    issue289_source = "a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree"
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
     issue262_source = (
         "5de648936887422191b08ed227b5680015f16a22"
         "+issue262-owner-correction-worktree"
+    )
+    issue262_fe07b_source = (
+        "1333c64553c884fcc9187f39d862cd2146880dc5"
+        "+issue262-fe07b-worktree"
     )
     assert manifest["version"] == 137
     assert manifest["scope"] == "issue-262-fe07a-materials-architecture-ui"
@@ -556,8 +558,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         capture_source,
         issue262_source,
-        issue298_source,
-        issue289_source,
+        issue262_fe07b_source,
         issue260_source,
         fe04d_source,
         fe04e_source,
@@ -590,10 +591,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     new_issue_246_captures = {
         "material-database-categories-1440",
         "material-database-linked-test-1440",
-        "administration-schema-bundle-1440",
     }
+    historically_new_issue_246_schema_captures = {"administration-schema-bundle-1440"}
     new_issue_253_captures = {"demo-session-recovery-1440"}
-    new_issue_262_captures = {
+    new_issue_262_fe07a_captures = {
         "materials-search-1366",
         "materials-search-1440",
         "materials-search-1920",
@@ -610,6 +611,36 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "material-curves-1920",
         "material-curves-2560",
         "material-curves-3840",
+    }
+    new_issue_262_fe07b_captures = {
+        "administration-schema-bundle-1440",
+        "administration-database-1366",
+        "administration-database-1440",
+        "administration-database-1920",
+        "administration-database-2560",
+        "administration-database-3840",
+        "administration-database-preview-1366",
+        "administration-database-preview-1440",
+        "administration-database-preview-1920",
+        "administration-database-preview-2560",
+        "administration-database-preview-3840",
+        "administration-records-1366",
+        "administration-records-1440",
+        "administration-records-1920",
+        "administration-records-2560",
+        "administration-records-3840",
+        "administration-access-1366",
+        "administration-access-1440",
+        "administration-access-1920",
+        "administration-access-2560",
+        "administration-access-3840",
+    }
+    historically_new_issue_289_preview_captures = {
+        "administration-database-preview-1366",
+        "administration-database-preview-1440",
+        "administration-database-preview-1920",
+        "administration-database-preview-2560",
+        "administration-database-preview-3840",
     }
     retained_issue_206_captures = {
         "materials-scroll-long-1366",
@@ -650,22 +681,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-export-approximation-blocked",
         "modeling-export-delivered",
     }
-    new_issue_289_captures = {
-        "administration-database-1366",
-        "administration-database-1440",
-        "administration-database-1920",
-        "administration-database-2560",
-        "administration-database-3840",
-        "administration-database-preview-1366",
-        "administration-database-preview-1440",
-        "administration-database-preview-1920",
-        "administration-database-preview-2560",
-        "administration-database-preview-3840",
-    }
-    new_issue_289_only_captures = {
-        capture_id for capture_id in new_issue_289_captures if "preview" in capture_id
-    }
-    retained_issue_289_captures = new_issue_289_captures - new_issue_289_only_captures
     new_issue_259_fe04d_captures = {
         "MOD-PROCESS-CURRENT-LINEAR-1366",
         "MOD-PROCESS-CURRENT-MANUAL-1366",
@@ -693,9 +708,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - historically_new_issue_206_captures
         - new_issue_210_captures
         - new_issue_246_captures
+        - historically_new_issue_246_schema_captures
         - new_issue_253_captures
         - new_issue_209_captures
-        - new_issue_289_only_captures
+        - historically_new_issue_289_preview_captures
     )
     assert {
         prior_source,
@@ -722,7 +738,15 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "capture_issue_262_fe07a_visual_evidence.py" in issue_262_provenance["command"]
     assert "query-error retention/retry" in issue_262_provenance["command"]
-    assert new_issue_262_captures == set(issue_262_provenance["ids"])
+    assert new_issue_262_fe07a_captures == set(issue_262_provenance["ids"])
+    issue_262_fe07b_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == issue262_fe07b_source
+    )
+    assert "issue262-administration-visual.spec.ts" in issue_262_fe07b_provenance["command"]
+    assert "actual demo API" in issue_262_fe07b_provenance["command"]
+    assert new_issue_262_fe07b_captures == set(issue_262_fe07b_provenance["ids"])
     issue_210_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -762,23 +786,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "native Python Playwright 1.62" in issue_309_provenance["command"]
     assert "Data to Process to Data" in issue_309_provenance["command"]
     assert new_issue_309_captures == set(issue_309_provenance["ids"])
-    issue_298_provenance = next(
-        provenance
-        for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == issue298_source
-    )
-    assert "--only-administration-database" in issue_298_provenance["command"]
-    assert issue_298_provenance["refrozen_base_commit"] == (
-        "5e6ebf5484d601f0487539dde8d579f4b03a4ee8"
-    )
-    assert new_issue_289_only_captures == set(issue_298_provenance["ids"])
-    issue_289_provenance = next(
-        provenance
-        for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == issue289_source
-    )
-    assert "--only-administration-database" in issue_289_provenance["command"]
-    assert retained_issue_289_captures == set(issue_289_provenance["ids"])
     issue_259_fe04e_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -868,10 +875,18 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert (
         "pending exact-revision DP780 Selected model and Solver card reviews" in activity["fixture"]
     )
-    for capture_id in ("administration-access-1366", "administration-access-1440"):
+    for capture_id in (
+        "administration-access-1366",
+        "administration-access-1440",
+        "administration-access-1920",
+        "administration-access-2560",
+        "administration-access-3840",
+    ):
         capture = captures[capture_id]
-        assert capture["workflow"] == "user-reviewer-administrator-task-preset-assignment"
-        assert "feature checkbox editing is absent" in capture["fixture"]
+        assert capture["workflow"] == (
+            "inspect-effective-access-and-grant-revoke-exact-assignment"
+        )
+        assert "subject, role, effective capabilities and row-level Revoke" in capture["fixture"]
     for capture_id in (
         "modeling-export-1366",
         "modeling-export-1440",

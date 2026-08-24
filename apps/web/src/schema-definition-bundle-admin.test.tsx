@@ -244,9 +244,11 @@ describe("SchemaDefinitionBundleAdmin", () => {
 
   it("uploads, plans, keyboard-inspects, explicitly applies, reads back, and exports exact evidence", async () => {
     const user = userEvent.setup();
+    const onNavigate = vi.fn();
     render(
       <SchemaDefinitionBundleAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onNavigate={onNavigate}
         onOpenConnection={() => undefined}
       />,
     );
@@ -277,16 +279,19 @@ describe("SchemaDefinitionBundleAdmin", () => {
     await user.click(confirmation);
     await user.click(screen.getByRole("button", { name: "Apply exact plan" }));
 
-    expect(await screen.findByText("Bundle applied and read back")).toBeTruthy();
+    expect(await screen.findByText("Exact application read back")).toBeTruthy();
     expect(mocks.apply).toHaveBeenCalledWith(expect.anything(), {
       artifact_id: artifactId,
       artifact_sha256: sha256,
       plan_fingerprint: planFingerprint,
     });
     expect(mocks.readBack).toHaveBeenCalledWith(expect.anything(), applicationId);
+    expect(onNavigate).toHaveBeenCalledWith(
+      `/administration/schema-bundles?application_id=${applicationId}`,
+    );
 
     await user.click(screen.getByRole("button", { name: "Export verified source" }));
-    expect(await screen.findByText("synthetic_dependency_chain-1.0.0.json downloaded")).toBeTruthy();
+    expect(await screen.findByText(`synthetic_dependency_chain-1.0.0.json · ${"9".repeat(64)}`)).toBeTruthy();
     expect(mocks.download).toHaveBeenCalledWith(
       expect.anything(),
       "synthetic_dependency_chain",
@@ -465,19 +470,19 @@ describe("SchemaDefinitionBundleAdmin", () => {
         "Apply returned an application, but success is withheld until immutable read-back completes.",
       ),
     ).toBeTruthy();
-    expect(screen.queryByText("Bundle applied and read back")).toBeNull();
+    expect(screen.queryByText("Exact application read back")).toBeNull();
     expect(screen.queryByRole("button", { name: "Export verified source" })).toBeNull();
     expect(window.sessionStorage.getItem("cmp.schema-definition-bundle-administration.v1")).toContain(
       applicationId,
     );
 
     await user.click(screen.getByRole("button", { name: "Read applied result" }));
-    expect(await screen.findByText("Bundle applied and read back")).toBeTruthy();
+    expect(await screen.findByText("Exact application read back")).toBeTruthy();
     expect(mocks.apply).toHaveBeenCalledOnce();
     expect(mocks.readBack).toHaveBeenCalledTimes(2);
   });
 
-  it("restores an immutable application after refresh without storing source bytes", async () => {
+  it("restores the immutable application pinned by the route before session recovery", async () => {
     window.sessionStorage.setItem(
       "cmp.schema-definition-bundle-administration.v1",
       JSON.stringify({
@@ -485,17 +490,18 @@ describe("SchemaDefinitionBundleAdmin", () => {
         artifactSha256: sha256,
         bundleKey: application.bundle_key,
         bundleVersion: application.bundle_version,
-        applicationId,
+        applicationId: "stale-session-application",
       }),
     );
     render(
       <SchemaDefinitionBundleAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={`?application_id=${applicationId}`}
         onOpenConnection={() => undefined}
       />,
     );
 
-    expect(await screen.findByText("Bundle applied and read back")).toBeTruthy();
+    expect(await screen.findByText("Exact application read back")).toBeTruthy();
     expect(mocks.readBack).toHaveBeenCalledWith(expect.anything(), applicationId);
     expect(window.sessionStorage.getItem("cmp.schema-definition-bundle-administration.v1")).not.toContain(
       "record_schemas",

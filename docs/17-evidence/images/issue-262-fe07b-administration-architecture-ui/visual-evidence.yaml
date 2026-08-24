@@ -1,0 +1,394 @@
+schema_version: 1
+issue: 262
+unit: FE-07B Administration architecture and UI refinement
+status: owner-correction-implemented-main-visual-pass-independent-audit-pass
+baseline:
+  source_commit: 1333c64553c884fcc9187f39d862cd2146880dc5
+  source_role: FE-07A merged base and pre-FE-07B Administration state
+  administration_source: docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/originals
+  format_definition_source: docs/17-evidence/images/issue-208-schema-bundle-administration
+after:
+  source_commit: 1333c64553c884fcc9187f39d862cd2146880dc5+issue262-fe07b-worktree
+  originals: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals
+  crops: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops
+  measurements: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/measurements
+  format_definitions: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions
+environment:
+  data: preserved deterministic synthetic non-production demo
+  web: current-worktree Vite at http://127.0.0.1:5174
+  api: actual demo API reached through the current Vite proxy
+  canonical_compose_preflight: rejected-foreign-worktree-owner-without-mutation
+  browser: Chromium via Playwright
+  browser_zoom_percent: 100
+  device_pixel_ratio: 1
+capture_policy:
+  css_viewports: [1366x768, 1440x900, 1920x1080, 2560x1440, 3840x2160]
+  states: [database-layout-editor, database-exact-record-preview, records-exact-revision, format-definition-plan, access-reviewer-assignment]
+  after_original_count: 25
+  direct_crop_count: 100
+  geometry_measurement_count: 25
+  scale: direct-1-to-1-source-pixels-no-resampling
+  original_resolution_review: all-originals-and-representative-crops-complete-by-main
+  physical_windows_4k_claim: false
+journey:
+  - open Administration Database and explicitly choose Demo Material Records
+  - select Layout stable identity and exact Layout revision
+  - preview DP780 Record stable identity and exact Record r2
+  - reload the exact URL without latest or first-item substitution
+  - open the same exact Table Folder Record coordinates in Records
+  - create a Record r1 then revise it to r2 and retain the returned exact read-back after reload
+  - inspect a checksummed Format Definition plan and immutable application coordinate
+  - grant then revoke one exact Reviewer assignment and verify the assignment list read-back
+contracts:
+  stable_identity_and_revision: [database_id, profile_id, table_id, attribute_definition_id, layout_id, subset_id, link_type_id, folder_id, record_id, current_revision.id, current_revision.revision_no, current_revision.content_hash]
+  exact_url_state: [database_revision_id, profile_revision_id, table_revision_id, object_revision_id, folder_revision_id, record_revision_id, application_id]
+  record_values: [attribute_definition_id, attribute_definition_revision_id, folder_revision_id, values]
+  format_definition: [source_artifact.artifact_id, source_artifact.artifact_sha256, plan_fingerprint, application_id, results.id, results.revision_id, results.content_hash]
+  forbidden_fallbacks: [latest, first-item, global-output, other-session]
+ownership:
+  public_boundary: apps/web/src/features/administration/index.ts
+  route_composition: apps/web/src/features/administration/routes/administration-workspace.tsx
+  route_state: apps/web/src/features/administration/model/administration-route-state.ts
+  database: apps/web/src/features/administration/database-design
+  format_definitions: apps/web/src/features/administration/definition-bundles
+  records: apps/web/src/features/administration/records
+  access: apps/web/src/features/administration/access
+  temporary_root_compatibility_reexports: remove-under-issue-263
+supporting_images:
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1366x768-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1366x768-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1366x768-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1366x768-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1440x900-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1440x900-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1440x900-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1440x900-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1920x1080-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1920x1080-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1920x1080-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1920x1080-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-2560x1440-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-2560x1440-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-2560x1440-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-2560x1440-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-3840x2160-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-3840x2160-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-3840x2160-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-3840x2160-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1920x1080-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1920x1080-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1920x1080-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1920x1080-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-2560x1440-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-2560x1440-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-2560x1440-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-2560x1440-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-3840x2160-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-3840x2160-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-3840x2160-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-3840x2160-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1366x768-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1366x768-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1366x768-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1366x768-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1920x1080-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1920x1080-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1920x1080-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1920x1080-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-2560x1440-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-2560x1440-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-2560x1440-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-2560x1440-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1366x768-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1366x768-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1366x768-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1366x768-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1440x900-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1440x900-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1440x900-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1440x900-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1920x1080-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1920x1080-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1920x1080-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1920x1080-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-2560x1440-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-2560x1440-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-2560x1440-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-2560x1440-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-3840x2160-header.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-3840x2160-primary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-3840x2160-secondary.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-3840x2160-taskbar.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-applied-1440x900.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-confirmation-1440x900.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1366x768-form-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1366x768-header-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1366x768-navigator-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1366x768-table-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1440x900-form-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1440x900-header-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1440x900-navigator-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1440x900-table-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1920x1080-form-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1920x1080-header-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1920x1080-navigator-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1920x1080-table-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-2560x1440-form-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-2560x1440-header-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-2560x1440-navigator-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-2560x1440-table-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-3840x2160-form-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-3840x2160-header-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-3840x2160-navigator-crop.png
+  - path: docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-3840x2160-table-crop.png
+allowed_duplicate_groups:
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-header-crop.png
+      - docs/17-evidence/images/issue-246-source-v2-categories/after/crops/issue246-source-plan-1366x768-header-crop.png
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/schema-bundles/administration-schema-bundle-plan-1366x768-header-crop.png
+      - docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/crops/administration-header-1366x768-100pct.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1366x768-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1366x768-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1366x768-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1366x768-header-crop.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1440x900-header-crop.png
+      - docs/17-evidence/images/issue-246-source-v2-categories/after/crops/issue246-source-plan-1440x900-header-crop.png
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/schema-bundles/administration-schema-bundle-plan-1440x900-header-crop.png
+      - docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/crops/administration-header-1440x900-100pct.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1440x900-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1440x900-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1440x900-header-crop.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1920x1080-header-crop.png
+      - docs/17-evidence/images/issue-246-source-v2-categories/after/crops/issue246-source-plan-1920x1080-header-crop.png
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/schema-bundles/administration-schema-bundle-plan-1920x1080-header-crop.png
+      - docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/crops/administration-header-1920x1080-100pct.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-1920x1080-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1920x1080-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1920x1080-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-1920x1080-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1920x1080-header-crop.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-2560x1440-header-crop.png
+      - docs/17-evidence/images/issue-246-source-v2-categories/after/crops/issue246-source-plan-2560x1440-header-crop.png
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/schema-bundles/administration-schema-bundle-plan-2560x1440-header-crop.png
+      - docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/crops/administration-header-2560x1440-100pct.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-2560x1440-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-2560x1440-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-2560x1440-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-2560x1440-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-2560x1440-header-crop.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-3840x2160-header-crop.png
+      - docs/17-evidence/images/issue-246-source-v2-categories/after/crops/issue246-source-plan-3840x2160-header-crop.png
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/schema-bundles/administration-schema-bundle-plan-3840x2160-header-crop.png
+      - docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/crops/administration-header-3840x2160-100pct.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-access-3840x2160-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-3840x2160-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-3840x2160-header.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-3840x2160-header-crop.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1366x768.png
+      - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/original.png
+      - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1366x768/original.png
+      - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/original.png
+      - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1366x768/original.png
+      - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1366x768/original.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1366x768.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1440x900.png
+      - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/original.png
+      - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1440x900/original.png
+      - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/original.png
+      - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1440x900/original.png
+      - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1440x900/original.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1920x1080.png
+      - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/original.png
+      - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/administration-preview/1920x1080/original.png
+      - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1920x1080/original.png
+      - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-preview/1920x1080/original.png
+      - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1920x1080/original.png
+      - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1920x1080/original.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1920x1080.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-taskbar.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1366x768-taskbar.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-primary.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-primary.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1440x900-taskbar.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1440x900-taskbar.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1920x1080-taskbar.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-1920x1080-taskbar.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-2560x1440-taskbar.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-2560x1440-taskbar.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-3840x2160-taskbar.png
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-taskbar.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-schema-bundle-plan-1440x900.png
+      - docs/user-guide/images/current/administration-schema-bundle-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-access-1366x768.png
+      - docs/user-guide/images/current/administration-access-1366x768.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-access-1440x900.png
+      - docs/user-guide/images/current/administration-access-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-access-1920x1080.png
+      - docs/user-guide/images/current/administration-access-1920x1080.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-access-2560x1440.png
+      - docs/user-guide/images/current/administration-access-2560x1440.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-access-3840x2160.png
+      - docs/user-guide/images/current/administration-access-3840x2160.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-1366x768.png
+      - docs/user-guide/images/current/administration-database-1366x768.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-1440x900.png
+      - docs/user-guide/images/current/administration-database-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-1920x1080.png
+      - docs/user-guide/images/current/administration-database-1920x1080.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-2560x1440.png
+      - docs/user-guide/images/current/administration-database-2560x1440.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-3840x2160.png
+      - docs/user-guide/images/current/administration-database-3840x2160.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-preview-1366x768.png
+      - docs/user-guide/images/current/administration-database-preview-1366x768.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-preview-1440x900.png
+      - docs/user-guide/images/current/administration-database-preview-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-preview-1920x1080.png
+      - docs/user-guide/images/current/administration-database-preview-1920x1080.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-preview-2560x1440.png
+      - docs/user-guide/images/current/administration-database-preview-2560x1440.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-database-preview-3840x2160.png
+      - docs/user-guide/images/current/administration-database-preview-3840x2160.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-records-1366x768.png
+      - docs/user-guide/images/current/administration-records-1366x768.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-records-1440x900.png
+      - docs/user-guide/images/current/administration-records-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-records-1920x1080.png
+      - docs/user-guide/images/current/administration-records-1920x1080.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-records-2560x1440.png
+      - docs/user-guide/images/current/administration-records-2560x1440.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-records-3840x2160.png
+      - docs/user-guide/images/current/administration-records-3840x2160.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1366x768.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1366x768.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1366x768.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1440x900.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1440x900.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1440x900.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1920x1080.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1920x1080.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1920x1080.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-2560x1440.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-2560x1440.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-2560x1440.png
+  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+    images:
+      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-3840x2160.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-3840x2160.png
+      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-3840x2160.png
+verification:
+  frontend_vitest: pass-432
+  frontend_guard: pass-zero-violations-15-baseline-warnings
+  production_build_and_bundle_budget: pass
+  focused_live_playwright: pass-five-viewport-2-actual-api-3-correction-rerun-1
+  documentation_contract_tests: pass-user-guide-cli-and-corrected-contract-targets
+  user_guide_and_doc_impact: pass
+  diff_check: pass
+acceptance:
+  carbon_information_hierarchy: pass-main
+  comsol_engineering_task_flow: pass-main
+  sap_responsive_composition: pass-main
+  horizontal_page_overflow: zero-all-25-measurements
+  exact_reload_read_back: pass-actual-api
+  immutable_revision_language: pass-create-r3-from-r2
+  product_owner_fhd_geometry: pending
+  independent_balanced_audit: pass-after-bounded-legacy-route-shell-correction
+  publication: owner-authorized-commit-push-draft-pr-no-merge

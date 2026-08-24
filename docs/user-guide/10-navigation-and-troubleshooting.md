@@ -9,16 +9,18 @@ Material State의 exact revision 문맥을 공유합니다.
 | **Modeling** | 시험 데이터 선택, 처리 결과 확인, 모델 비교·선택, 카드 전달 준비 |
 | **Activity** | 재개할 작업, 검토 요청, 최근 결과 |
 
-**Administration**은 우측 workspace menu의 role-gated 항목입니다. Table/Attribute/Layout/Subset/
-Link Type, Schema Definition Bundle과 사용자 기능 권한을 관리합니다. Administrator는
-**Definition bundles**에서 JSON 파일을 upload-plan-confirm-apply 순서로 처리하고, User와 Reviewer는
-이 작업을 사용할 수 없습니다. `/catalog/*`, `/datasets/*`의 기존 deep link는 보존하지만
+**Administration**은 role-gated workspace입니다. taskbar의 `Database | Format definitions | Records |
+Access`에서 Database/Profile/Table/Folder/Record, Attribute/Layout/Subset/Link Type, 형식 정의와
+사용자 기능 권한을 관리합니다. Administrator는 **Format definitions**에서 JSON 파일을
+upload-plan-confirm-apply 순서로 처리하고, User와 Reviewer는 이 작업을 사용할 수 없습니다.
+`/catalog/*`, `/datasets/*`의 기존 deep link는 보존하지만
 일반 사용자의 전역 메뉴에는 나타나지 않습니다.
 
 ## 권장 이동 순서
 
-1. **Materials**에서 이름/grade를 검색하거나 **Browse Tree**의 Database → Profile → Table →
-   Folder → Record를 탐색합니다.
+1. **Materials**에서 이름/grade를 검색하거나 **Browse Tree**의 Technical Data, Test Data,
+   Simulation Data, Solver Cards와 그 데이터 항목을 탐색합니다. 저장 구조는 Administration에서
+   Database → Profile → Table → Folder → Record 순서로 관리합니다.
 2. Material 상세의 `Overview | Properties | Curves | CAE Cards | Evidence`를 검토합니다.
 3. 카드가 있으면 Header 또는 CAE Cards에서 native preview/download를 실행합니다.
 4. 카드가 없을 때 **Modeling → Data**에서 JSON/CSV/XLSX와 channel/unit을 고정합니다.

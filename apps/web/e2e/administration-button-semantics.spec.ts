@@ -64,6 +64,9 @@ test("Administration uses one shared semantic button hierarchy across its three 
 
   await page.goto("/administration/database");
   await expect(page.getByRole("heading", { name: "Database design", exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Table", exact: true }).selectOption({
+    label: "Demo Material Records · r1",
+  });
   await expect(page.getByText(/^\d+ shown$/)).toBeVisible();
   await expect(page.locator(".administration-workspace .button.primary")).toHaveCount(0);
   const addTable = page.getByRole("button", { name: "Add Table", exact: true });
@@ -77,22 +80,12 @@ test("Administration uses one shared semantic button hierarchy across its three 
   const editorFooter = page.locator(".schema-property-editor .property-sheet footer");
   const check = editorFooter.getByRole("button", { name: "Check", exact: true });
   const saveDraft = editorFooter.getByRole("button", { name: "Save draft", exact: true });
-  const publish = editorFooter.getByRole("button", {
-    name: "Publish — Not configured",
-    exact: true,
-  });
   await expect(check).toHaveClass("ux-button");
-  await expect(saveDraft).toHaveClass("ux-button");
-  await expect(publish).toHaveClass("ux-button primary");
-  await expect(publish).toBeDisabled();
-  await expect(publish).toHaveAttribute(
-    "title",
-    "Publication is not configured in Database design. The draft remains unchanged.",
-  );
+  await expect(saveDraft).toHaveClass("ux-button primary");
+  await expect(editorFooter.getByRole("button", { name: "Publish — Not configured" })).toHaveCount(0);
   await expect(editorFooter.locator(".ux-button.primary")).toHaveCount(1);
   await expectSharedGeometry(check);
   await expectSharedGeometry(saveDraft);
-  await expectSharedGeometry(publish);
   await addTable.focus();
   expect(await addTable.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
   const focusStyle = await buttonStyle(addTable);
@@ -101,9 +94,12 @@ test("Administration uses one shared semantic button hierarchy across its three 
   await captureState(page, "database-primary-focus");
 
   await page.goto("/administration/records");
-  await expect(page.getByRole("heading", { name: "Single entry or multiple rows", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /^\d+ records$/ })).toBeVisible();
-  await page.getByRole("button", { name: "Multiple rows", exact: true }).click();
+  await page.getByRole("combobox", { name: "Table", exact: true }).selectOption({
+    label: "Demo Material Records",
+  });
+  await expect(page.locator(".catalog-record-list .section-heading span")).toHaveText(/^\d+ records$/);
+  await page.getByRole("button", { name: "Register rows", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Register multiple rows", exact: true })).toBeVisible();
   const readColumns = page.getByRole("button", { name: "Read columns", exact: true });
   const registerRows = page.getByRole("button", { name: "Register checked rows", exact: true });
   await expect(readColumns).toHaveClass("ux-button");
@@ -119,12 +115,7 @@ test("Administration uses one shared semantic button hierarchy across its three 
   await expect(page.locator(".administration-workspace .button.primary")).toHaveCount(0);
 
   await page.goto("/administration/access");
-  await expect(page.getByRole("heading", { name: "Choose what each team can do", exact: true })).toBeVisible();
-  await page.getByRole("combobox", { name: "Role", exact: true }).selectOption("reviewer");
-  const createAssignment = page.getByRole("button", { name: "Create assignment", exact: true });
-  await createAssignment.scrollIntoViewIfNeeded();
-  await expect(createAssignment).toHaveClass("ux-button primary");
-  await expectSharedGeometry(createAssignment);
+  await expect(page.getByRole("heading", { name: "Assignments", exact: true })).toBeVisible();
   const revoke = page.getByRole("button", { name: "Revoke", exact: true }).first();
   await revoke.scrollIntoViewIfNeeded();
   await expect(revoke).toHaveClass("ux-button danger");
@@ -134,6 +125,12 @@ test("Administration uses one shared semantic button hierarchy across its three 
   expect(dangerStyle.color).toBe("rgb(166, 41, 41)");
   await revoke.hover();
   await captureState(page, "access-danger-hover");
+  await page.getByRole("button", { name: "Add assignment", exact: true }).click();
+  await page.getByRole("combobox", { name: "Role", exact: true }).selectOption("reviewer");
+  const createAssignment = page.getByRole("button", { name: "Create assignment", exact: true });
+  await createAssignment.scrollIntoViewIfNeeded();
+  await expect(createAssignment).toHaveClass("ux-button primary");
+  await expectSharedGeometry(createAssignment);
 
   await page.route("**/api/v1/product-access/assignments", async (route) => {
     if (route.request().method() !== "POST") {

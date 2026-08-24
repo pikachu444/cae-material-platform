@@ -5,17 +5,17 @@ Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Su
 
 ## 지금 사용할 수 있는 Catalog schema designer
 
-1. 우측 workspace menu에서 **Administration → Database design**을 연다. `/catalog/schema`는
-   같은 Administration 화면으로 연결되는 호환 주소다.
-2. 왼쪽 **Objects**에서 Database, Profile, Table, Attribute, Layout, Subset 또는 Link Type을 고른다. 가운데 목록과
-   오른쪽 속성 화면은 같은 identity와 `rN` 선택을 유지한다.
-3. **Current database**를 바꾸면 Profile 목록이 그 Database 기준으로 다시 조회된다. **Current table**을
-   바꾸면 Attribute, Layout, Subset과 Record 미리보기가 해당 Table 기준으로 바뀐다.
+1. **Administration → Database**를 연다. Database, Format definitions, Records, Access는 같은
+   Administration taskbar에서 이동하며, `/catalog/schema`는 Database로 연결되는 호환 주소다.
+2. 왼쪽에서 **Database → Profile → Table**을 순서대로 고른 뒤 **Definition objects**에서 Attribute,
+   Layout, Subset 또는 Link Type을 연다. 가운데 목록과 오른쪽 속성 화면은 같은 identity와 `rN` 선택을 유지한다.
+3. **Database**를 바꾸면 Profile 목록이 그 Database 기준으로 다시 조회된다. **Table**을 바꾸면
+   Attribute, Layout, Subset과 Record 미리보기가 해당 Table 기준으로 바뀐다.
 4. **Add Database**, **Add Profile**, **Add Table** 또는 **Add Attribute**를 누른 뒤, 표시명·참조 key·사용자에게 필요한 입력 안내만
    작성한다. 수치 Attribute는 무엇을 뜻하는 수치인지와 표준 단위를 함께 입력하고, Record reference는
    연결할 Table을 고정한다.
 5. **Add layout**은 선택한 Attribute의 exact revision과 순서를 datasheet Layout에 저장하고,
-   **Add subset**은 현재 Table의 검색 보기를 만든다. **Preview datasheet**는 서버에서 조회한 실제 Record
+   **Add subset**은 현재 Table의 검색 보기를 만든다. **Preview record**는 서버에서 조회한 실제 Record
    한 건을 읽기 전용으로 보여 주며 값이 없을 때 임의 예시를 만들지 않는다.
 6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
    두 Table의 현재 정의 revision이 함께 고정된다.
@@ -25,16 +25,18 @@ Database와 Profile을 먼저 만들고, 그 안에 Table, Attribute, Layout, Su
    원본을 그대로 두고, 무엇을 먼저 정리해야 하는지 오류로 알려 준다.
 
 Administration에서는 한 작업 묶음의 다음 주요 동작 하나만 파란색으로 강조한다. 기존 정의를
-편집할 때 **Check**와 **Save draft**는 보조 동작이다. Database design의 **Publish — Not configured**는
-의도적으로 비활성화되어 있으며, Check가 성공해도 초안은 게시되지 않는다. 여러 행 등록에서는
+편집할 때 **Check**와 **Save draft**는 보조 동작이다. Database design은 backend 계약이 제공하지 않는
+일반 Publish 명령을 표시하지 않으며, Check가 성공해도 초안은 게시되지 않는다. 여러 행 등록에서는
 검사가 끝나기 전 **Register checked rows**가 흐리게 비활성화되며, 모든 행이 유효해진 뒤에만 실행할
 수 있다. 녹색은 저장 성공 같은 상태 표시에만 사용한다.
 
-넓은 화면에서는 Database design shell과 정의 목록이 viewport를 활용하고, Objects navigator와 속성
-form은 읽기 좋은 폭을 유지한다. 미리보기를 열면 Database design 작업 영역이 네 pane을 수용할 만큼
-넓을 때 속성 form 옆에 실제 Record가 나타난다. 브라우저 전체 폭이 아니라 이 feature의 가용 폭을
-기준으로 하므로, 더 좁은 작업 영역에서는 같은 오른쪽 pane을 미리보기로 바꾸며 **Close preview**로
-편집기로 돌아간다. 같은 화면을
+Database design shell과 정의 목록은 viewport를 활용하고, scope navigator와 속성 form은 읽기 좋은
+폭을 유지한다. 2560px와 3840px에서는 속성 form 옆의 bounded 비교 영역에 실제 Record가 나타난다.
+1920px 이하에서는 네 개의 좁은 pane을 만들지 않고 오른쪽 편집기를 미리보기로 바꾸며 **Close preview**로
+편집기로 돌아간다. 선택한 Database/Profile/Table과 정의의 stable ID·exact revision ID는 주소에
+고정되며, Record 미리보기에는 exact Record revision도 함께 고정된다. 주소를 새로고침해도 같은
+정의와 Record를 다시 읽고, 식별자가 없거나 맞지 않으면 다른 항목을 대신 열지 않고 오류를 표시한다.
+같은 화면을
 [2560×1440](images/current/administration-database-2560x1440.png)과
 [3840×2160](images/current/administration-database-3840x2160.png)에서도 확인할 수 있다.
 
@@ -50,9 +52,9 @@ revision을 유지한다.
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
 Record나 과거 revision을 바꾸지 않는다.
 
-### JSON Schema 정의 bundle을 계획하고 적용하기
+### Format definitions에서 JSON Schema bundle 계획·적용하기
 
-여러 record schema를 한 번에 준비하는 Administrator는 **Administration → Definition bundles**에서
+여러 record schema를 한 번에 준비하는 Administrator는 **Administration → Format definitions**에서
 다음 입력 중 하나를 선택한다.
 
 - canonical bundle JSON 한 개
@@ -63,9 +65,9 @@ Record나 과거 revision을 바꾸지 않는다.
 여러 파일을 고르면 화면이 경로를 정렬하고 각 파일의 SHA-256을 포함한 하나의 결정론적 source-set
 envelope를 만든다. 화면은 MIME, 1 byte–64 MiB 크기, 안전한 상대 경로와 JSON 구조를 먼저 확인한 뒤
 그 exact bytes를 immutable Artifact로 올린다. 선택 영역에는 파일 수, source 종류, bundle/version,
-record schema 수와 unit profile 수가 보인다. 내부 Artifact ID와 checksum은 **Source evidence**에서만
-확인한다. 이 source adapter는 입력 형식을 canonical Catalog 계약으로 바꾸는 경계이며 Material Model
-IR이나 selected model을 만들지 않는다.
+record schema 수와 unit profile 수가 보인다. 내부 Artifact ID와 checksum은 **Checksum and
+provenance**에서 확인한다. 이 source adapter는 입력 형식을 canonical Catalog 계약으로 바꾸는 경계이며
+Material Model IR이나 selected model을 만들지 않는다.
 
 서버는 현재 Catalog와 비교한 `Create`, `Update`, `No change`, `Conflict`, `Error` 계획을 보여 준다.
 같은 source set 안에서 선언하고 checksum을 검증한 파일과 record `$id`만 참조할 수 있다. 지원하지
@@ -78,22 +80,25 @@ IR이나 selected model을 만들지 않는다.
 변경 개수를 다시 대조하고 명시적으로 확인한 뒤에만 적용한다. 서버는 현재 상태를 다시 계획하여 전체
 revision·publication과 추적 증거를 한 번에 저장하고, bundle에 없는 객체는 삭제하지 않는다.
 
-성공 후 화면은 immutable application을 다시 읽고 checksum과 source 증거를 검증한 export만 내려받게
-한다. 새로고침은 source/application 좌표만 복구하며 파일 내용이나 token을 저장하지 않는다. Stale
-plan이면 기존 Apply를 반복하지 말고 **Plan again**으로 새 계획을 확인한다. API 경계와 운영 복구 절차는
+성공 후 화면은 immutable application을 다시 읽고 checksum과 provenance를 검증한 export만 내려받게
+한다. `application_id`가 포함된 주소를 새로고침하면 그 exact application을 다시 읽으며 파일 내용이나
+token은 저장하지 않는다. Stale plan이면 기존 Apply를 반복하지 말고 **Plan again**으로 새 계획을
+확인한다. API 경계와 운영 복구 절차는
 [관리자 가이드](../admin-guide/index.md#21-schema-definition-bundle-계획적용내보내기)를 참고한다.
 
 
 ## Catalog Record 등록·검색·비교
 
-1. 일반 탐색은 **Materials → Browse Tree**를 사용한다. 새 Folder/Record를 관리하는 고급 작업은
-   `/catalog/records`를 열고 Table과 datasheet Layout을 선택한다.
+1. 일반 탐색은 **Materials → Browse Tree**를 사용한다. 새 Folder/Record를 관리하는 작업은
+   **Administration → Records**를 열고 Table과 datasheet Layout을 선택한다. `/catalog/records`는
+   같은 화면으로 연결되는 호환 주소다.
 2. 필요하면 왼쪽 **New Folder**에서 root 또는 parent Folder를 만든다. cycle은 거부된다.
 3. **New record**를 누르고 이름, 외부 key, Folder와 Layout 순서의 Attribute 값을 입력한다.
 4. 수치값은 원본 값·원본 단위 문자열·정규화 값이 모두 보이도록 입력한다. normalized unit과
    quantity semantics는 Attribute revision에서 가져오며 숨겨서 바꾸지 않는다.
-5. **Create Record revision 1**을 선택한다. 수정할 때는 검색 결과를 열고 **Save new immutable
-   revision**을 선택한다. 기존 revision은 덮어쓰지 않는다.
+5. **Create Record revision 1**을 선택한다. 수정할 때는 검색 결과나 Database의 **Open in Records**에서
+   exact Record revision을 연다. 화면의 **Create revision N from revision N-1**을 확인한 뒤
+   **Save new immutable revision**을 선택하며 기존 revision은 덮어쓰지 않는다.
 6. 이름·설명·text Attribute, Folder, discrete facet 또는 normalized 수치 범위로 검색한다.
 7. 현재 검색을 이름과 함께 Subset revision으로 저장하고, 저장된 chip으로 다시 적용한다.
 8. 두 revision 이상인 Record를 열면 revision 1과 current 사이의 Attribute 차이를 확인한다.
@@ -105,14 +110,18 @@ plan이면 기존 Apply를 반복하지 말고 **Plan again**으로 새 계획�
    **Register checked rows**를 누른다. 이미 데이터가 연결된 재료 상태는 검색 결과에서 기존 Record를
    열어 수정한다. 등록 과정에서 기존 재료나 상태를 자동으로 만들거나 덮어쓰지 않는다.
 
-![여러 행 물성 데이터 등록](images/current/administration-records-1440x900.png)
+![검색 결과가 중심인 Records 작업 영역](images/current/administration-records-1440x900.png)
 
-같은 등록 화면은 [1366×768](images/current/administration-records-1366x768.png),
+같은 검색 결과 화면은 [1366×768](images/current/administration-records-1366x768.png),
 [1920×1080](images/current/administration-records-1920x1080.png),
 [2560×1440](images/current/administration-records-2560x1440.png),
 [3840×2160](images/current/administration-records-3840x2160.png)에서도 확인할 수 있다. shell은 전체
-viewport를 사용하지만 검색·등록 작업 묶음과 입력 form은 가운데의 읽기 좋은 범위에 남으며, 원본
-파일과 행 검사 명령을 첫 화면에 유지한다.
+viewport를 사용하고 검색 결과가 남는 영역을 차지한다. Record 입력 form은 **New record** 또는 결과 행을
+선택할 때만 열리고 읽기 좋은 폭에 머문다. 검색·facet·Record 목록은 같은 server-scoped query를 공유하며
+이름, Code, Revision을 별도 열로 표시한다. 주소에는 exact Table·Folder·Record identity와 revision이
+고정되며 새로고침 후에도 같은 revision을 다시 읽는다. 존재하지 않는 좌표에서는 current, 첫 항목 또는
+다른 session의 Record로 대체하지 않는다. **Multiple rows**를 열면 원본 파일과 행 검사 명령이 같은
+작업 영역에 나타난다.
 
 아래 화면은 실제 Docker API와 PostgreSQL에 저장한 DP600 및 AA6061-T6 Record를 조회한 결과다.
 왼쪽 facet은 재료군별 건수를 집계하고, 가운데 검색 결과는 각 Record의 current revision을 표시하며,
@@ -125,6 +134,16 @@ DP600의 Young's modulus를 210 GPa에서 205 GPa로 바꾸면 기존 값을 덮
 
 file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & history** 또는 **Advanced**에서 확인한다.
 일반 입력 화면에는 내부 식별자가 표시되지 않는다.
+
+### Access assignment 관리
+
+**Administration → Access**는 현재 assignment를 먼저 표시한다. 각 행에서 subject/team, role,
+effective capabilities를 함께 확인하고 해당 assignment만 **Revoke**할 수 있다. **Add assignment**를
+선택할 때만 compact 입력 영역이 열리며, subject/team과 실제 role을 고른 뒤 저장한다. Reviewer,
+Administrator, User의 capability는 backend가 반환한 role consequence를 그대로 사용하며 개별 기능을
+임의로 조합하지 않는다.
+
+![현재 역할과 유효 capability를 함께 보는 Access](images/current/administration-access-1920x1080.png)
 
 ## Materials 검색·Browse와 exact Record Link 사용
 

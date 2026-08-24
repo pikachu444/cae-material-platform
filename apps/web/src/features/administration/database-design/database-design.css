@@ -1,7 +1,6 @@
 .catalog-schema-editor {
-  --schema-object-nav-size: clamp(13rem, 15vw, 17rem);
-  --schema-object-list-size: clamp(20rem, 27vw, 34rem);
-  --schema-property-size: clamp(26rem, 40vw, 50rem);
+  --schema-object-nav-size: clamp(16.5rem, 17vw, 19rem);
+  --schema-property-size: clamp(30rem, 39vw, 54rem);
   container-name: database-design;
   container-type: inline-size;
   min-width: 0;
@@ -38,9 +37,9 @@
 
 .catalog-schema-editor .schema-editor-grid {
   grid-template-columns:
-    minmax(13rem, var(--schema-object-nav-size))
-    minmax(23rem, 1fr)
-    minmax(26rem, var(--schema-property-size));
+    minmax(16.5rem, var(--schema-object-nav-size))
+    minmax(24rem, 1fr)
+    minmax(30rem, var(--schema-property-size));
   min-height: 0;
   height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 7.5rem);
 }
@@ -60,6 +59,40 @@
 
 .catalog-schema-editor .schema-object-navigator {
   padding: var(--ux-pane-padding) var(--ux-space-3);
+}
+
+.catalog-schema-editor .schema-scope-sequence {
+  display: grid;
+  gap: var(--ux-space-3);
+  margin-bottom: var(--ux-space-5);
+  padding-bottom: var(--ux-space-4);
+  border-bottom: 1px solid var(--ux-border-strong);
+}
+
+.catalog-schema-editor .schema-scope-step {
+  display: grid;
+  gap: var(--ux-space-1);
+}
+
+.catalog-schema-editor .schema-scope-step > button {
+  width: max-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-label);
+  text-align: left;
+}
+
+.catalog-schema-editor .schema-scope-step > button.active {
+  color: var(--ux-accent-strong);
+}
+
+.catalog-schema-editor .schema-scope-step > select {
+  width: 100%;
+  min-height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
 }
 
 .catalog-schema-editor .schema-table-context {
@@ -168,6 +201,18 @@
   border-bottom: 1px solid var(--ux-border);
 }
 
+.schema-preview-record-picker {
+  display: grid;
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-3) 0;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.schema-preview-record-picker select {
+  color: var(--ux-text);
+}
+
 .schema-record-preview > header p,
 .schema-record-preview > header h3,
 .schema-record-preview > footer,
@@ -227,7 +272,7 @@
 }
 
 .schema-record-preview > footer {
-  justify-content: start;
+  justify-content: space-between;
   margin-top: var(--ux-space-5);
   padding-top: var(--ux-space-3);
   border-top: 1px solid var(--ux-border);
@@ -271,13 +316,13 @@
   border-top: 1px solid var(--ux-border);
 }
 
-@container database-design (min-width: 88rem) {
+@container database-design (min-width: 150rem) {
   .catalog-schema-editor .schema-editor-grid:has(.schema-record-preview) {
     grid-template-columns:
-      minmax(13rem, var(--schema-object-nav-size))
-      minmax(20rem, 1fr)
-      minmax(27rem, var(--schema-property-size))
-      minmax(28rem, 50rem);
+      minmax(16.5rem, var(--schema-object-nav-size))
+      minmax(28rem, 1fr)
+      minmax(34rem, 46rem)
+      minmax(42rem, 1.2fr);
   }
 
   .catalog-schema-editor .schema-editor-grid:has(.schema-record-preview) .schema-property-editor {
@@ -300,7 +345,7 @@
   }
 
   .catalog-schema-editor .schema-editor-grid {
-    grid-template-columns: minmax(12rem, 15rem) minmax(18rem, 0.9fr) minmax(23rem, 1.1fr);
+    grid-template-columns: minmax(14rem, 16rem) minmax(20rem, 0.9fr) minmax(26rem, 1.1fr);
     height: auto;
     min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 10rem);
   }

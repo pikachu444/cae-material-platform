@@ -1,0 +1,52 @@
+{
+  "state": "database",
+  "url": "http://127.0.0.1:5174/administration/database?table_id=1df98273-50e7-493b-b2d3-180eab11c09a&table_revision_id=d2356221-3d5b-4d26-86f3-a25d6ceb8a90&object_kind=layouts&object_id=5226c48b-c33d-4f08-946c-3f15b28a98ae&object_revision_id=a7b8e919-ef53-4f45-a566-7839366daf4f",
+  "viewport": {
+    "width": 1366,
+    "height": 768
+  },
+  "devicePixelRatio": 1,
+  "visualViewportScale": 1,
+  "document": {
+    "clientWidth": 1366,
+    "scrollWidth": 1366,
+    "clientHeight": 768,
+    "scrollHeight": 768
+  },
+  "shell": {
+    "x": 0,
+    "y": 0,
+    "width": 1366,
+    "height": 768
+  },
+  "administration": {
+    "x": 0,
+    "y": 50,
+    "width": 1366,
+    "height": 687
+  },
+  "taskbar": {
+    "x": 0,
+    "y": 50,
+    "width": 1366,
+    "height": 43
+  },
+  "workspace": {
+    "x": 23.21875,
+    "y": 117,
+    "width": 1319.5625,
+    "height": 596
+  },
+  "primary": {
+    "x": 287.21875,
+    "y": 183,
+    "width": 522.828125,
+    "height": 529
+  },
+  "secondary": {
+    "x": 810.046875,
+    "y": 183,
+    "width": 532.734375,
+    "height": 529
+  }
+}

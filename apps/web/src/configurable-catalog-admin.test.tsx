@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -56,6 +56,8 @@ const secondDatabase = {
     content: { key: "testing", name: "Testing database", description: null },
   },
 };
+
+const exactTableSearch = `?table_id=${table.table_id}&object_kind=tables&object_id=${table.table_id}`;
 
 function attributeFor(
   sourceTable: typeof table,
@@ -249,6 +251,7 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
       />,
     );
@@ -284,6 +287,7 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
         productMode
       />,
@@ -294,10 +298,12 @@ describe("ConfigurableCatalogAdmin", () => {
     ).toBeTruthy();
     expect(screen.getByLabelText("Database objects")).toBeTruthy();
     expect(
-      (screen.getByLabelText("Current table") as HTMLSelectElement).value,
+      (screen.getByLabelText("Table") as HTMLSelectElement).value,
     ).toBe(table.table_id);
     await user.click(screen.getByRole("button", { name: "Link Types" }));
     await user.click(screen.getByRole("button", { name: "Add Link Type" }));
+    await user.selectOptions(screen.getByLabelText("From table"), table.table_id);
+    await user.selectOptions(screen.getByLabelText("To table"), table.table_id);
     await user.click(
       screen.getByRole("button", { name: "Save new Link Type" }),
     );
@@ -321,20 +327,20 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
         productMode
       />,
     );
 
     await screen.findByRole("heading", { name: "Database design" });
-    await user.click(screen.getByRole("button", { name: "Tables" }));
+    await user.click(screen.getByRole("button", { name: "Table" }));
     const check = screen.getByRole("button", { name: "Check" });
     const save = screen.getByRole("button", { name: "Save draft" });
-    const publish = screen.getByRole("button", { name: "Publish — Not configured" });
     expect(check.className).toBe("ux-button");
-    expect(save.className).toBe("ux-button");
-    expect((publish as HTMLButtonElement).disabled).toBe(true);
-    expect(publish.closest("footer")?.querySelectorAll(".ux-button.primary")).toHaveLength(1);
+    expect(save.className).toBe("ux-button primary");
+    expect(screen.queryByRole("button", { name: "Publish — Not configured" })).toBeNull();
+    expect(save.closest("footer")?.querySelectorAll(".ux-button.primary")).toHaveLength(1);
     const name = screen.getByRole("textbox", { name: "Display name" });
     await user.clear(name);
     await user.type(name, "Engineering materials");
@@ -382,12 +388,13 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
         productMode
       />,
     );
 
-    const tableSelector = await screen.findByLabelText("Current table");
+    const tableSelector = await screen.findByLabelText("Table");
     await waitFor(() =>
       expect(mocks.listAttributes).toHaveBeenCalledWith(
         expect.anything(),
@@ -409,23 +416,23 @@ describe("ConfigurableCatalogAdmin", () => {
     expect(screen.queryByText("Material family")).toBeNull();
   });
 
-  it("shows an actionable empty state instead of an empty Current table selector", async () => {
+  it("keeps the empty Table scope actionable", async () => {
     mocks.listTables.mockResolvedValue({ data: { items: [] }, etag: null });
 
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
         productMode
       />,
     );
 
-    expect(await screen.findByText("No tables yet")).toBeTruthy();
-    expect(screen.queryByLabelText("Current table")).toBeNull();
-    expect(
-      (screen.getByRole("button", { name: "Add Table" }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(false);
+    expect(await screen.findByText("No tables are available for this selection.")).toBeTruthy();
+    expect((screen.getByLabelText("Table") as HTMLSelectElement).value).toBe("");
+    await waitFor(() => expect(
+      (screen.getByRole("button", { name: "Add Table" }) as HTMLButtonElement).disabled,
+    ).toBe(false));
   });
 
   it("queries Profiles from the exact selected Database instead of a first-item fallback", async () => {
@@ -438,12 +445,13 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={`?database_id=${database.database_id}&object_kind=databases&object_id=${database.database_id}`}
         onOpenConnection={() => undefined}
         productMode
       />,
     );
 
-    const databaseSelector = await screen.findByLabelText("Current database");
+    const databaseSelector = await screen.findByLabelText("Database");
     await waitFor(() =>
       expect(mocks.listProfiles).toHaveBeenCalledWith(
         expect.anything(),
@@ -459,8 +467,7 @@ describe("ConfigurableCatalogAdmin", () => {
     );
   });
 
-  it("opens the first authorized real Record in an adjacent read-only preview", async () => {
-    const user = userEvent.setup();
+  it("opens an explicitly selected real Record in an adjacent read-only preview", async () => {
     const originalManufacturer = attributeFor(table, "Manufacturer at capture", "51");
     const historicalRevision = originalManufacturer.current_revision;
     const manufacturer = {
@@ -544,15 +551,17 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={`?table_id=${table.table_id}&object_kind=layouts&object_id=51000000-0000-4000-8000-000000000009&record_id=50000000-0000-4000-8000-000000000001&record_revision_id=50000000-0000-4000-8000-000000000002`}
         onOpenConnection={() => undefined}
         onNavigate={onNavigate}
         productMode
       />,
     );
 
-    await screen.findByRole("heading", { name: "Materials" });
-    await user.click(screen.getByRole("button", { name: "Preview datasheet" }));
-    expect(screen.getByLabelText("Adjacent datasheet preview")).toBeTruthy();
+    const preview = await screen.findByLabelText("Adjacent datasheet preview");
+    expect(
+      within(preview).getByRole("heading", { name: "Original datasheet" }),
+    ).toBeTruthy();
     expect(screen.getByText("DP780")).toBeTruthy();
     expect(screen.getByText("Manufacturer at capture")).toBeTruthy();
     expect(screen.getByText("North Mill")).toBeTruthy();
@@ -571,6 +580,7 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
         productMode
       />,
@@ -622,6 +632,7 @@ describe("ConfigurableCatalogAdmin", () => {
     render(
       <ConfigurableCatalogAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={exactTableSearch}
         onOpenConnection={() => undefined}
         productMode
       />,

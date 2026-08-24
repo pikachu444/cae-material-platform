@@ -159,7 +159,7 @@ async function captureFiveViewports(page: Page): Promise<void> {
     await page.locator(".application-menu-bar").screenshot({
       path: join(evidenceDirectory, `${name}-header-crop.png`),
     });
-    await page.locator(".administration-navigation").screenshot({
+    await page.locator(".administration-taskbar").screenshot({
       path: join(evidenceDirectory, `${name}-navigator-crop.png`),
     });
     await page.locator(".schema-bundle-plan").screenshot({
@@ -187,7 +187,7 @@ async function captureFiveViewports(page: Page): Promise<void> {
         },
         shell: rect(".application-shell"),
         administration: rect(".administration-workspace"),
-        navigator: rect(".administration-navigation"),
+        navigator: rect(".administration-taskbar"),
         source: rect(".schema-bundle-source"),
         plan: rect(".schema-bundle-plan"),
         detail: rect(".schema-bundle-detail"),
@@ -312,7 +312,7 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   });
 
   await page.goto("/administration/schema-bundles");
-  await expect(page.getByRole("heading", { name: "Definition bundles", exact: true })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Format definition workflow", exact: true })).toBeVisible();
   await page.getByLabel("Definition bundle").setInputFiles(bundleFixture);
   await expect(page.getByText("synthetic_dependency_chain", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Upload and plan" }).click();
@@ -348,7 +348,7 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   }
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Apply exact plan" }).click();
-  await expect(page.getByText("Bundle applied and read back", { exact: true })).toBeVisible();
+  await expect(page.getByText("Exact application read back", { exact: true })).toBeVisible();
   expect(applyBody).toEqual({
     artifact_id: artifactId,
     artifact_sha256: sourceSha256,
@@ -362,7 +362,7 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   await page.getByRole("button", { name: "Export verified source" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("synthetic_dependency_chain-1.0.0.json");
-  await expect(page.getByText(`Verified SHA-256: ${exportSha256}`, { exact: true })).toBeVisible();
+  await expect(page.getByText(`synthetic_dependency_chain-1.0.0.json · ${exportSha256}`, { exact: true })).toBeVisible();
   if (evidenceDirectory) {
     await page.screenshot({
       path: join(evidenceDirectory, "administration-schema-bundle-applied-1440x900.png"),
@@ -370,7 +370,7 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   }
 
   await page.reload();
-  await expect(page.getByText("Bundle applied and read back", { exact: true })).toBeVisible();
+  await expect(page.getByText("Exact application read back", { exact: true })).toBeVisible();
   expect(readBackCount).toBe(2);
 
   productRole = "reviewer";

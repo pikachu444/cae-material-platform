@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -172,17 +172,18 @@ describe("ConfigurableCatalogRecords", () => {
 
   it("sends the entered value and unit while leaving standard-value derivation to the service", async () => {
     const user = userEvent.setup();
+    const onNavigate = vi.fn();
     render(
       <ConfigurableCatalogRecords
         config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
-        onNavigate={() => undefined}
+        locationSearch={`?table_id=${table.table_id}&table_revision_id=${table.current_revision.id}`}
+        onNavigate={onNavigate}
         onOpenConnection={() => undefined}
       />,
     );
 
-    expect(
-      await screen.findByRole("heading", { name: "Create Record" }),
-    ).toBeTruthy();
+    await user.click(await screen.findByRole("button", { name: "New record" }));
+    expect(await screen.findByRole("heading", { name: "Create Record" })).toBeTruthy();
     await user.type(screen.getByLabelText("Name"), "DP600 Sheet");
     const original = screen.getByRole("spinbutton", { name: "Entered value" });
     const unit = screen.getByRole("textbox", { name: "Entered unit" });
@@ -210,6 +211,91 @@ describe("ConfigurableCatalogRecords", () => {
         }),
       }),
     );
+    expect(onNavigate).toHaveBeenCalledWith(
+      `/administration/records?table_id=${table.table_id}&table_revision_id=${table.current_revision.id}&record_id=${record.record_id}&record_revision_id=${record.current_revision.id}`,
+    );
+  });
+
+  it("keeps a requested new-record task open when Attribute definitions finish loading", async () => {
+    let resolveAttributes!: (value: {
+      data: { items: typeof modulus[] };
+      etag: null;
+    }) => void;
+    const delayedAttributes = new Promise<{
+      data: { items: typeof modulus[] };
+      etag: null;
+    }>((resolve) => {
+      resolveAttributes = resolve;
+    });
+    mocks.attributes.mockReturnValue(delayedAttributes);
+    const user = userEvent.setup();
+
+    render(
+      <ConfigurableCatalogRecords
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        locationSearch={`?table_id=${table.table_id}&table_revision_id=${table.current_revision.id}`}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "New record" }));
+    expect(screen.getByRole("heading", { name: "Create Record" })).toBeTruthy();
+    await act(async () => {
+      resolveAttributes({ data: { items: [modulus] }, etag: null });
+      await delayedAttributes;
+    });
+    expect(await screen.findByRole("group", { name: "Young's modulus *" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Create Record" })).toBeTruthy();
+    await user.type(screen.getByLabelText("Name"), "Delayed definition record");
+    await user.type(screen.getByRole("spinbutton", { name: "Entered value" }), "210000000000");
+    await user.click(screen.getByRole("button", { name: "Create record" }));
+    await waitFor(() => expect(mocks.createRecord).toHaveBeenCalledOnce());
+  });
+
+  it("preserves exact Record values when the Table definition refreshes", async () => {
+    const onNavigate = vi.fn();
+    const locationSearch =
+      `?table_id=${table.table_id}`
+      + `&table_revision_id=${table.current_revision.id}`
+      + `&record_id=${record.record_id}`
+      + `&record_revision_id=${record.current_revision.id}`;
+    const view = render(
+      <ConfigurableCatalogRecords
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        locationSearch={locationSearch}
+        onNavigate={onNavigate}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Create revision 2 from revision 1",
+      }),
+    ).toBeTruthy();
+    expect(
+      (screen.getByRole("spinbutton", { name: "Entered value" }) as HTMLInputElement).value,
+    ).toBe("210000");
+    expect(
+      (screen.getByRole("textbox", { name: "Entered unit" }) as HTMLInputElement).value,
+    ).toBe("MPa");
+
+    view.rerender(
+      <ConfigurableCatalogRecords
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        locationSearch={locationSearch}
+        onNavigate={onNavigate}
+        onOpenConnection={() => undefined}
+      />,
+    );
+    await waitFor(() => expect(mocks.attributes).toHaveBeenCalledTimes(2));
+    expect(
+      (screen.getByRole("spinbutton", { name: "Entered value" }) as HTMLInputElement).value,
+    ).toBe("210000");
+    expect(
+      (screen.getByRole("textbox", { name: "Entered unit" }) as HTMLInputElement).value,
+    ).toBe("MPa");
   });
 
   it("rechecks a corrected immutable file before registering every row", async () => {
@@ -269,13 +355,14 @@ describe("ConfigurableCatalogRecords", () => {
     render(
       <ConfigurableCatalogRecords
         config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        locationSearch={`?table_id=${table.table_id}&table_revision_id=${table.current_revision.id}`}
         onNavigate={() => undefined}
         onOpenConnection={() => undefined}
       />,
     );
 
-    await screen.findByRole("heading", { name: "Create Record" });
-    await user.click(screen.getByRole("button", { name: "Multiple rows" }));
+    await user.click(await screen.findByRole("button", { name: "Register rows" }));
+    expect(await screen.findByRole("heading", { name: "Register multiple rows" })).toBeTruthy();
     const readColumns = screen.getByRole("button", { name: "Read columns" });
     const registerRows = screen.getByRole("button", { name: "Register checked rows" });
     expect(readColumns.className).toBe("ux-button");
@@ -318,5 +405,20 @@ describe("ConfigurableCatalogRecords", () => {
     await waitFor(() =>
       expect(mocks.publishRegistration).toHaveBeenCalledOnce(),
     );
+  });
+
+  it("rejects an unavailable exact Table revision instead of substituting the current revision", async () => {
+    render(
+      <ConfigurableCatalogRecords
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        locationSearch={`?table_id=${table.table_id}&table_revision_id=unavailable-revision`}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    expect(await screen.findByText("The exact Table revision in this route is not available.")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "New record" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(mocks.createRecord).not.toHaveBeenCalled();
   });
 });

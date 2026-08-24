@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,6 +9,12 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 const evidenceDirectory = process.env.CMP_ISSUE246_EVIDENCE_DIR;
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const sourceRoot = join(repositoryRoot, "fixtures/schema-definition-bundle/source-v2");
+const canonicalTestData = JSON.parse(
+  readFileSync(
+    join(repositoryRoot, "contracts/examples/positive/canonical-test-data.json"),
+    "utf8",
+  ),
+);
 const sourceFiles = [
   join(sourceRoot, "catalog-schema-bundle.manifest.json"),
   ...readdirSync(join(sourceRoot, "record-schemas"))
@@ -523,7 +529,7 @@ async function captureState(
       path: join(cropDirectory, `${stem}-header-crop.png`),
     });
     if (state === "source-plan") {
-      await page.locator(".administration-navigation").screenshot({
+      await page.locator(".administration-taskbar").screenshot({
         path: join(cropDirectory, `${stem}-navigator-crop.png`),
       });
       await page.locator(".schema-bundle-source").screenshot({
@@ -573,7 +579,7 @@ async function captureState(
         ),
         navigator: rect(
           captureStateName === "source-plan"
-            ? ".administration-navigation"
+            ? ".administration-taskbar"
             : ".materials-left-pane",
         ),
         central: rect(
@@ -676,6 +682,12 @@ test("Materials keeps four peer categories in its established tree and exact dir
         facets: [],
       });
     }
+    if (
+      path ===
+      `/api/v1/test-data-documents/${tensile.domain_binding.object_id}/revisions/${tensile.domain_binding.revision_id}/content`
+    ) {
+      return fulfillJson(route, canonicalTestData);
+    }
     const selectedRecord = path.match(/\/api\/v1\/catalog\/records\/([^/]+)$/);
     if (selectedRecord) {
       const selected = records.find((item) => item.record_id === selectedRecord[1]) ?? technical;
@@ -741,7 +753,10 @@ test("Materials keeps four peer categories in its established tree and exact dir
   await page.getByRole("row", { name: /Room-temperature tensile test/ }).click();
 
   await expect(page).toHaveURL(new RegExp(`/materials/records/${tensile.record_id}/revisions/${tensile.current_revision.id}$`));
-  await expect(page.getByRole("heading", { name: "Room-temperature tensile test", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Test Data", level: 1 })).toBeVisible();
+  await expect(
+    categories.getByRole("treeitem", { name: /Room-temperature tensile test/ }),
+  ).toHaveAttribute("aria-selected", "true");
   await expect(page.getByText("23", { exact: true })).toBeVisible();
   await expect(page.getByText("degC", { exact: true })).toBeVisible();
   await expect(page.getByText("182.4", { exact: true })).toBeVisible();
@@ -756,7 +771,7 @@ test("Materials keeps four peer categories in its established tree and exact dir
   await expect(related.getByText("LS-DYNA MAT_024 card", { exact: true })).toHaveCount(0);
   await expect(related.getByRole("button", { name: /PA66-GF30 Technical Data.*r1/ })).toBeVisible();
   await captureState(page, "detail", async () => {
-    await expect(page.getByRole("heading", { name: "Room-temperature tensile test", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Test Data", level: 1 })).toBeVisible();
   });
 });
 

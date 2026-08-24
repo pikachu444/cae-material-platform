@@ -1,0 +1,52 @@
+{
+  "state": "records",
+  "url": "http://127.0.0.1:5174/administration/records?table_id=1df98273-50e7-493b-b2d3-180eab11c09a&table_revision_id=d2356221-3d5b-4d26-86f3-a25d6ceb8a90",
+  "viewport": {
+    "width": 3840,
+    "height": 2160
+  },
+  "devicePixelRatio": 1,
+  "visualViewportScale": 1,
+  "document": {
+    "clientWidth": 3840,
+    "scrollWidth": 3840,
+    "clientHeight": 2160,
+    "scrollHeight": 2160
+  },
+  "shell": {
+    "x": 0,
+    "y": 0,
+    "width": 3840,
+    "height": 2160
+  },
+  "administration": {
+    "x": 0,
+    "y": 46,
+    "width": 3840,
+    "height": 2112.171875
+  },
+  "taskbar": {
+    "x": 0,
+    "y": 46,
+    "width": 3840,
+    "height": 43
+  },
+  "workspace": {
+    "x": 32,
+    "y": 113,
+    "width": 3776,
+    "height": 2021.171875
+  },
+  "primary": {
+    "x": 32,
+    "y": 310.171875,
+    "width": 3776,
+    "height": 1824
+  },
+  "secondary": {
+    "x": 55.1875,
+    "y": 388.546875,
+    "width": 3729.625,
+    "height": 89.1875
+  }
+}

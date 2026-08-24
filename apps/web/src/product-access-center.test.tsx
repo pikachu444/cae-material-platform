@@ -96,10 +96,11 @@ describe("ProductAccessCenter", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: "Choose what each team can do" });
+    await screen.findByRole("heading", { name: "Assignments" });
+    await user.click(screen.getByRole("button", { name: "Add assignment" }));
     await user.selectOptions(screen.getByLabelText("Role"), "reviewer");
-    expect(screen.getByText(/request changes, approve, or publish/i)).toBeTruthy();
-    expect(screen.getByText(/Included tasks:.*Model approval/i)).toBeTruthy();
+    expect(screen.getByText(/Model approval/, { selector: "#role-task-summary span" })).toBeTruthy();
+    expect(screen.getByText("Effective capabilities", { selector: "#role-task-summary strong" })).toBeTruthy();
     expect(screen.queryByRole("group", { name: "Feature grants" })).toBeNull();
     await user.click(screen.getByRole("button", { name: "Create assignment" }));
 
@@ -135,7 +136,8 @@ describe("ProductAccessCenter", () => {
     expect(mocks.listAssignments).not.toHaveBeenCalled();
   });
 
-  it("keeps identity and classification policy vocabulary out of product Administration", async () => {
+  it("shows contract-backed assignment identity and policy fields only when requested", async () => {
+    const user = userEvent.setup();
     render(
       <ProductAccessCenter
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
@@ -144,11 +146,14 @@ describe("ProductAccessCenter", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Choose what each team can do" })).toBeTruthy();
-    expect(screen.getByLabelText(/User or team name/)).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Assignments" })).toBeTruthy();
     expect(screen.queryByLabelText("Group issuer")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Add assignment" }));
+    expect(screen.getByLabelText("Subject type")).toBeTruthy();
+    expect(screen.getByLabelText("Group issuer")).toBeTruthy();
+    expect(screen.getByLabelText("Group name")).toBeTruthy();
     expect(screen.queryByLabelText("Principal ID")).toBeNull();
-    expect(screen.queryByLabelText("Maximum classification")).toBeNull();
+    expect(screen.getByLabelText("Maximum classification")).toBeTruthy();
     expect(screen.queryByText("legacy compatible")).toBeNull();
   });
 
@@ -184,7 +189,9 @@ describe("ProductAccessCenter", () => {
       />,
     );
 
-    const create = await screen.findByRole("button", { name: "Create assignment" });
+    await screen.findByRole("heading", { name: "Assignments" });
+    await user.click(screen.getByRole("button", { name: "Add assignment" }));
+    const create = screen.getByRole("button", { name: "Create assignment" });
     const revoke = screen.getByRole("button", { name: "Revoke" });
     expect(create.className).toBe("ux-button primary");
     expect(create.getAttribute("aria-busy")).toBe("false");
@@ -217,6 +224,6 @@ describe("ProductAccessCenter", () => {
       });
       await pendingGrant;
     });
-    await waitFor(() => expect(screen.getByRole("button", { name: "Create assignment" })).toBeTruthy());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Add assignment" })).toBeTruthy());
   });
 });

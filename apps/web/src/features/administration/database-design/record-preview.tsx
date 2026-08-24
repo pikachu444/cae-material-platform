@@ -23,16 +23,24 @@ function valueText(value: ConfigurableRecordValue | undefined): string {
 
 export function RecordPreview({
   record,
+  records,
+  selectedRecordId,
   layout,
   attributes,
   attributeRevisions,
   onClose,
+  onOpenRecord,
+  onSelectRecord,
 }: {
   record: ConfigurableCatalogRecordResponse | null;
+  records: ConfigurableCatalogRecordResponse[];
+  selectedRecordId: string;
   layout: ConfigurableLayoutResponse | null;
   attributes: ConfigurableAttributeResponse[];
   attributeRevisions: ConfigurableAttributeRevision[];
   onClose: () => void;
+  onOpenRecord?: () => void;
+  onSelectRecord: (recordId: string) => void;
 }) {
   const fields = layout?.items.length
     ? layout.items.map((item) => ({
@@ -56,14 +64,22 @@ export function RecordPreview({
   return (
     <aside className="schema-record-preview" aria-label="Adjacent datasheet preview">
       <header>
-        <div>
-          <p>Read-only record preview</p>
-          <h3>{layout?.name ?? "Current Table fields"}</h3>
-        </div>
+        <h3>{layout?.name ?? "Current Table fields"}</h3>
         <button className="ux-button tertiary" type="button" onClick={onClose}>
           Close preview
         </button>
       </header>
+      <label className="schema-preview-record-picker">
+        Record
+        <select value={selectedRecordId} onChange={(event) => onSelectRecord(event.target.value)}>
+          <option value="">Choose a saved Record</option>
+          {records.map((item) => (
+            <option key={item.record_id} value={item.record_id}>
+              {item.current_revision.content.name} · r{item.current_revision.revision_no}
+            </option>
+          ))}
+        </select>
+      </label>
       {record ? (
         <>
           <div className="schema-preview-identity">
@@ -82,7 +98,6 @@ export function RecordPreview({
                 <div key={`${item.attribute_definition_id}:${item.attribute_definition_revision_id}`}>
                   <dt>
                     {definition?.content.name ?? "Unavailable Attribute revision"}
-                    <small>Attribute r{definition?.revision_no ?? "—"}</small>
                   </dt>
                   <dd>{valueText(value)}</dd>
                 </div>
@@ -92,14 +107,20 @@ export function RecordPreview({
         </>
       ) : (
         <div className="schema-preview-empty" role="status">
-          <strong>No saved Record is available for this Table.</strong>
-          <p>The preview will use the first authorized real Record; it never fabricates values.</p>
+          <strong>{records.length ? "Choose a saved Record to preview." : "No saved Record is available for this Table."}</strong>
         </div>
       )}
       <footer>
-        {layout
-          ? `Layout r${layout.revision.revision_no} · ${fields.length} exact Attribute revision pins`
-          : `${fields.length} current Attribute definitions`}
+        <span>
+          {layout
+            ? `Layout r${layout.revision.revision_no} · ${fields.length} exact Attribute revision pins`
+            : `${fields.length} current Attribute definitions`}
+        </span>
+        {record && onOpenRecord ? (
+          <button className="ux-button" onClick={onOpenRecord} type="button">
+            Open in Records
+          </button>
+        ) : null}
       </footer>
     </aside>
   );

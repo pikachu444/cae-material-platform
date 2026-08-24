@@ -27,18 +27,34 @@ test("Database design previews a real Record, preserves a blocked selection, and
   await page.goto("/administration/database");
 
   await expect(page.getByRole("heading", { name: "Database design", exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Table", exact: true }).selectOption({
+    label: "Demo Material Records · r1",
+  });
   await expect(page.getByRole("button", { name: "Attributes", exact: true })).toContainText("14");
   await expect(page.getByRole("button", { name: "Layouts", exact: true })).toContainText("1");
+  await page.getByRole("button", { name: "Layouts", exact: true }).click();
+  await page.getByRole("region", { name: "Layouts list", exact: true }).getByRole("button").first().click();
 
-  await page.getByRole("button", { name: "Preview datasheet", exact: true }).click();
+  await page.getByRole("button", { name: "Preview record", exact: true }).click();
   const preview = page.getByLabel("Adjacent datasheet preview");
   await expect(preview).toBeVisible();
+  const dp780Option = preview.locator("option").filter({ hasText: "DP780 synthetic reference steel" });
+  await preview.getByRole("combobox", { name: "Record", exact: true }).selectOption(
+    (await dp780Option.getAttribute("value")) ?? "",
+  );
   await expect(preview.getByText("DP780 synthetic reference steel", { exact: true })).toBeVisible();
   await expect(preview.getByText("CMP-DEMO-DP780", { exact: true })).toBeVisible();
   await expect(preview.getByText("Layout r1 · 14 exact Attribute revision pins", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/table_id=.+&table_revision_id=.+&object_kind=layouts&object_id=.+&object_revision_id=.+&record_id=.+&record_revision_id=.+/);
+  await page.reload();
+  await expect(page.getByLabel("Adjacent datasheet preview")).toBeVisible();
+  await expect(page.getByLabel("Adjacent datasheet preview").getByText("DP780 synthetic reference steel", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Adjacent datasheet preview").getByText("CMP-DEMO-DP780", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close preview", exact: true }).first().click();
 
+  await page.getByRole("button", { name: "Table", exact: true }).click();
   const seededTable = page.getByRole("button", { name: /Demo Material Records.*r1/ });
+  await seededTable.click();
   await expect(seededTable).toHaveClass(/active/);
   await page.getByRole("button", { name: "Delete draft", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Delete unpublished draft?" })).toBeVisible();

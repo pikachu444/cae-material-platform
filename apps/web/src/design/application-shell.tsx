@@ -43,7 +43,12 @@ export function publishWorkspaceCommandState(command: string): void {
 function workspaceFor(path: string): "materials" | "modeling" | "activity" | "administration" | "other" {
   if (path.startsWith("/modeling") || path.startsWith("/datasets") || path.startsWith("/models")) return "modeling";
   if (path.startsWith("/activity") || path.startsWith("/jobs-reviews") || path.startsWith("/governance") || path.startsWith("/exports")) return "activity";
-  if (path.startsWith("/administration") || path.startsWith("/access")) return "administration";
+  if (
+    path.startsWith("/administration")
+    || path.startsWith("/access")
+    || path === "/catalog/schema"
+    || path === "/catalog/records"
+  ) return "administration";
   if (path.startsWith("/materials") || path.startsWith("/catalog")) return "materials";
   return "other";
 }
@@ -216,11 +221,12 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
     { label: "Modeling", target: "/modeling", active: workspace === "modeling" },
     { label: "Activity", target: "/activity", active: workspace === "activity" },
   ];
+  const showWorkspaceCommandBar = workspace !== "administration";
   const connection = browserOnline ? serviceConnection : "offline";
   const connectionLabel = connection === "online" ? "Online" : connection === "degraded" ? "Service unavailable" : "Offline";
 
   return (
-    <div className="application-shell">
+    <div className={showWorkspaceCommandBar ? "application-shell" : "application-shell workspace-command-bar-omitted"}>
       <header className="application-menu-bar" data-focus-region="application" ref={menuRef} tabIndex={-1}>
         <button className="application-brand" type="button" onClick={() => navigate("/materials")} aria-label="CAE Material Platform home">
           <span className="application-mark" aria-hidden="true">CMP</span>
@@ -263,12 +269,12 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
           </details>
         </div>
       </header>
-      <section className="workspace-command-bar" aria-label={`${commandModel.title} commands`} data-focus-region="commands" ref={commandRef} tabIndex={-1}>
+      {showWorkspaceCommandBar ? <section className="workspace-command-bar" aria-label={`${commandModel.title} commands`} data-focus-region="commands" ref={commandRef} tabIndex={-1}>
         <h1>{commandModel.title}</h1>
         <div className="workspace-command-group">
           {commandModel.commands.map((command) => <button key={command.label} className={command.active ? "workspace-command active" : "workspace-command"} type="button" disabled={Boolean(command.disabledReason)} title={command.disabledReason} aria-disabled={command.disabledReason ? "true" : undefined} onClick={command.action}>{command.label}</button>)}
         </div>
-      </section>
+      </section> : null}
       <main className="application-workspace" data-focus-region="workspace" ref={mainRef} tabIndex={-1}>{children}</main>
       <footer className="application-status-bar" role="status" aria-live="polite" data-focus-region="status" ref={statusRef} tabIndex={-1}>
         <span className="status-selection">{status.selection}</span>
