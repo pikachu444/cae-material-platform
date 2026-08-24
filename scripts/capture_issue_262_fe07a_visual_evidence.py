@@ -669,6 +669,7 @@ def _capture_bounded_matrix(
             "Declared curve contract",
             "Statistical and envelope curves are view-only.",
             "Statistical curve · View only",
+            "View only",
         ):
             if removed in curve_panel.inner_text():
                 raise EvidenceError(f"redundant Curves copy remains: {removed}")
@@ -1058,8 +1059,8 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     curves_modeling_available = bool(
         page.get_by_role("button", name="Open in Modeling", exact=True).count()
     )
-    if "View only" not in page.locator(".material-tab-panel").inner_text():
-        raise EvidenceError("unqualified configured curves are not visibly view-only")
+    if "View only" in page.locator(".material-tab-panel").inner_text():
+        raise EvidenceError("Curves retains the redundant View only header label")
 
     start = page.get_by_role("button", name="Start Modeling", exact=True)
     start.click()

@@ -124,6 +124,7 @@ describe("CurveContractChart", () => {
     const { container } = render(<CurveContractChart preview={declared} title="Observed tensile" onOpenModeling={onOpenModeling}/>);
 
     const plot = screen.getByRole("img", { name: "Observed tensile: Engineering stress by Engineering strain" });
+    expect(screen.getByText("Fit input")).toBeTruthy();
     expect(screen.getByText("Engineering strain [%]")).toBeTruthy();
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
     expect(container.querySelector(".contract-curve-heading")?.textContent).not.toContain(
@@ -155,7 +156,7 @@ describe("CurveContractChart", () => {
   it("keeps statistical envelopes view-only and does not infer metadata for an absent legacy curve", () => {
     const statistical: CatalogCurvePreviewResponse = { ...declared, modeling_use: "view_only", modeling_source: null };
     const { rerender } = render(<CurveContractChart preview={statistical} title="Replicate statistics"/>);
-    expect(screen.getAllByText("View only")).toHaveLength(1);
+    expect(screen.queryByText("View only")).toBeNull();
     expect(screen.queryByText("Declared curve contract")).toBeNull();
     expect(screen.queryByText("Statistical and envelope curves are view-only.")).toBeNull();
     expect(screen.queryByText("No deviation recorded")).toBeNull();
@@ -169,6 +170,7 @@ describe("CurveContractChart", () => {
       curve_series: null,
     };
     rerender(<CurveContractChart preview={absent} title="Historical curve"/>);
+    expect(screen.queryByText("View only")).toBeNull();
     expect(screen.queryByText("Curve available")).toBeNull();
     expect(screen.getByText("This revision has no recorded channel or deviation metadata.")).toBeTruthy();
     expect(screen.queryByRole("img")).toBeNull();

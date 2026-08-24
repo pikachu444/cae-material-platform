@@ -128,7 +128,7 @@ export function CurveContractChart({
 
   if (preview.curve_metadata.metadata_state === "absent" || !model) {
     return <article className="contract-curve absent" aria-label={`${title} curve metadata unavailable`}>
-      <div className="contract-curve-heading"><div><h3>{title}</h3></div><span>View only</span></div>
+      <div className="contract-curve-heading"><div><h3>{title}</h3></div></div>
       <div className="ux-empty compact" role="status"><strong>This revision has no recorded channel or deviation metadata.</strong><p>The stored curve remains available, but axes, units, bands, and Fit eligibility are not inferred.</p></div>
       <details className="ux-disclosure curve-evidence"><summary>Curve source and technical details</summary><dl><dt>Record revision</dt><dd><code>{preview.record_revision_id}</code></dd><dt>Artifact SHA-256</dt><dd><code>{preview.curve_metadata.artifact.sha256}</code></dd></dl></details>
     </article>;
@@ -194,7 +194,7 @@ export function CurveContractChart({
     : "Use Left and Right Arrow keys to inspect points. Escape clears the tooltip.";
 
   return <article className="contract-curve">
-    <div className="contract-curve-heading"><div><h3>{title}</h3></div><span>{preview.modeling_use === "fit_input" ? "Fit input" : "View only"}</span></div>
+    <div className="contract-curve-heading"><div><h3>{title}</h3></div>{preview.modeling_use === "fit_input" ? <span>Fit input</span> : null}</div>
     <div className="contract-curve-frame">
       <svg
         className="contract-curve-svg"
