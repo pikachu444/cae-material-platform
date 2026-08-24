@@ -1024,10 +1024,11 @@ function ExactSolverCardDelivery({
 }) {
   const [evidence, setEvidence] = useState<SolverCardEvidence | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"preview" | "download" | null>(null);
+  const [busy, setBusy] = useState<"download" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [previewExpanded, setPreviewExpanded] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -1035,9 +1036,15 @@ function ExactSolverCardDelivery({
     setPreview(null);
     setError(null);
     setAcknowledged(false);
-    void loadSolverCardEvidence(config, card)
-      .then((result) => {
-        if (active) setEvidence(result);
+    setPreviewExpanded(false);
+    void Promise.all([
+      loadSolverCardEvidence(config, card),
+      previewSolverCardText(config, card),
+    ])
+      .then(([evidenceResult, previewResult]) => {
+        if (!active) return;
+        setEvidence(evidenceResult);
+        setPreview(previewResult.data);
       })
       .catch((cause: unknown) => {
         if (active) setError(messageFor(cause));
@@ -1046,19 +1053,6 @@ function ExactSolverCardDelivery({
       active = false;
     };
   }, [attempt, card, config]);
-
-  async function openPreview(): Promise<void> {
-    setBusy("preview");
-    setError(null);
-    try {
-      const result = await previewSolverCardText(config, card);
-      setPreview(result.data);
-    } catch (cause: unknown) {
-      setError(messageFor(cause));
-    } finally {
-      setBusy(null);
-    }
-  }
 
   async function download(): Promise<void> {
     if (!evidence || evidence.disposition === "blocked") return;
@@ -1091,18 +1085,12 @@ function ExactSolverCardDelivery({
     busy !== null ||
     blocked ||
     (reviewRequired && !acknowledged);
-  const availability = !evidence
-    ? "Checking…"
-    : blocked
-      ? "Download blocked"
-      : reviewRequired
-        ? "Review required"
-        : "Preview and download";
-
   return (
-    <section className="exact-solver-card-delivery">
+    <section
+      className={`exact-solver-card-delivery${previewExpanded ? " preview-expanded" : ""}`}
+    >
       <div className="detail-section-heading">
-        <h2>Solver card delivery</h2>
+        <h2>Solver Card details</h2>
       </div>
       {evidence ? (
         <dl className="exact-solver-card-properties">
@@ -1125,9 +1113,15 @@ function ExactSolverCardDelivery({
             <dd>{evidence.lifecycleState.replaceAll("_", " ")}</dd>
           </div>
           <div>
-            <dt>Availability</dt>
-            <dd>{availability}</dd>
+            <dt>Exact revision</dt>
+            <dd>r{evidence.revisionNo}</dd>
           </div>
+          {reviewRequired ? (
+            <div>
+              <dt>Review required</dt>
+              <dd>{reviewItems.join(", ") || "Delivery mapping"}</dd>
+            </div>
+          ) : null}
         </dl>
       ) : error ? null : (
         <p className="delivery-progress-line" role="status">
@@ -1144,21 +1138,13 @@ function ExactSolverCardDelivery({
           <input
             type="checkbox"
             name="exact-card-delivery-acknowledgement"
-            checked={acknowledged}
-            onChange={(event) => setAcknowledged(event.target.checked)}
-          />
-          Review {reviewItems.join(", ") || "the delivery notes"} before download.
+          checked={acknowledged}
+          onChange={(event) => setAcknowledged(event.target.checked)}
+        />
+          Reviewed
         </label>
       ) : null}
       <div className="card-action-row">
-        <button
-          className="ux-button"
-          type="button"
-          disabled={!evidence || busy !== null}
-          onClick={() => void openPreview()}
-        >
-          {busy === "preview" ? "Loading preview…" : `Preview ${card.extension}`}
-        </button>
         <button
           className="ux-button primary"
           type="button"
@@ -1170,6 +1156,15 @@ function ExactSolverCardDelivery({
             : blocked
               ? "Download blocked"
               : `Download ${card.extension}`}
+        </button>
+        <button
+          className="ux-button"
+          type="button"
+          disabled={preview === null}
+          aria-expanded={previewExpanded}
+          onClick={() => setPreviewExpanded((current) => !current)}
+        >
+          {previewExpanded ? "Collapse preview" : "Expand preview"}
         </button>
       </div>
       {error ? (
@@ -1184,7 +1179,13 @@ function ExactSolverCardDelivery({
           </button>
         </div>
       ) : null}
-      {preview !== null ? <NativeCardPreview text={preview} /> : null}
+      {preview !== null ? (
+        <NativeCardPreview text={preview} />
+      ) : error ? null : (
+        <p className="delivery-progress-line" role="status">
+          Loading exact solver card preview…
+        </p>
+      )}
       {evidence ? (
         <details className="ux-disclosure">
           <summary>Exact source evidence</summary>
@@ -1907,7 +1908,7 @@ export function MaterialDetailPage({
           <>
             <div className="detail-section-heading">
               <div>
-                <h2>Related records and workflow</h2>
+                <h2>Linked records</h2>
               </div>
               <button
                 className="ux-button"
@@ -1919,15 +1920,14 @@ export function MaterialDetailPage({
             </div>
             <div className="evidence-overview">
               <section>
-                <h3>Related Records</h3>
                 {relatedLinks.length ? (
                   <table className="ux-table">
                     <thead>
                       <tr>
-                        <th>Relationship</th>
-                        <th>Record</th>
+                        <th>Relation</th>
+                        <th>Target record</th>
                         <th>Type</th>
-                        <th>Revision</th>
+                        <th>Exact revision</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1963,8 +1963,10 @@ export function MaterialDetailPage({
                   </p>
                 )}
               </section>
-              <section>
-                <h3>Workflow</h3>
+            </div>
+            <details className="ux-disclosure full-lineage">
+              <summary>Full lineage</summary>
+              <div className="ux-disclosure-body">
                 <table className="ux-table">
                   <thead>
                     <tr>
@@ -1998,8 +2000,8 @@ export function MaterialDetailPage({
                       ))}
                   </tbody>
                 </table>
-              </section>
-            </div>
+              </div>
+            </details>
             {catalogRoot ? (
               <MaterialDatasheetProjection
                 config={config}
@@ -2117,6 +2119,24 @@ export function ExactRecordDatasheetPage({
   const related = directRelatedRecords(graph, recordId, revisionId);
   const modelingContext = exactModelingContext(graph);
   const recordType = graph ? relatedRecordTypeLabel(graph.root) : "Record";
+  const rootBindingKind = graph ? nodeBindings(graph.root)[0]?.kind : undefined;
+  const semanticHeaderKinds = new Set([
+    "test_data",
+    "processing_output",
+    "material_model",
+    "neutral_material",
+    "solver_card",
+    "neutral_solver_card",
+  ]);
+  const usesSemanticHeader = rootBindingKind
+    ? semanticHeaderKinds.has(rootBindingKind)
+    : false;
+  const semanticPageTitle = rootBindingKind === "solver_card" ||
+    rootBindingKind === "neutral_solver_card"
+    ? "Solver Card"
+    : graph?.root.data_category === "simulation_data"
+      ? "Simulation Data"
+      : recordType;
   const solverCard = graph ? solverCardSummaryFromEndpoint(graph.root) : null;
   const hasCurveValues = Boolean(
     record?.current_revision.content.values.some(
@@ -2183,12 +2203,13 @@ export function ExactRecordDatasheetPage({
           <header className="exact-record-header">
             <div>
               <h1 id="exact-record-title">
-                {record.current_revision.content.name}
+                {usesSemanticHeader
+                  ? semanticPageTitle
+                  : record.current_revision.content.name}
               </h1>
-              <p>
-                {record.current_revision.content.description ??
-                  "No record description is available."}
-              </p>
+              {!usesSemanticHeader && record.current_revision.content.description ? (
+                <p>{record.current_revision.content.description}</p>
+              ) : null}
               <div className="material-detail-meta">
                 <span>Type {recordType}</span>
                 <span>
@@ -2201,22 +2222,24 @@ export function ExactRecordDatasheetPage({
               <span>Immutable</span>
             </div>
           </header>
-          {!record.current_revision.content.values.length ? (
+          {!record.current_revision.content.values.length && !solverCard ? (
             <div className="ux-empty">
               <strong>No values in this revision.</strong>
               <p>Revision details remain available in Evidence.</p>
             </div>
           ) : null}
-          <MaterialDatasheetProjection
-            config={config}
-            tableId={record.table_id}
-            recordId={record.record_id}
-            revisionId={revisionId}
-            mode="properties"
-          />
           {solverCard ? (
             <ExactSolverCardDelivery config={config} card={solverCard} />
-          ) : null}
+          ) : (
+            <MaterialDatasheetProjection
+              config={config}
+              tableId={record.table_id}
+              recordId={record.record_id}
+              revisionId={revisionId}
+              mode="properties"
+              recordKind={rootBindingKind}
+            />
+          )}
           {hasCurveValues ? (
             <MaterialDatasheetProjection
               config={config}

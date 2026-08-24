@@ -533,10 +533,14 @@ export function MaterialSearchPage({
           shellClassName="materials-result-scroll-shell"
           aria-label="Browse results"
         >
-          <table className="materials-result-table" aria-label="Data results">
+          <table
+            className="materials-result-table materials-browse-result-table"
+            aria-label="Data results"
+          >
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Code</th>
                 <th>Category</th>
                 <th>Description</th>
                 <th>Revision</th>
@@ -559,12 +563,9 @@ export function MaterialSearchPage({
                       onClick={() => void selectBrowseResult(record)}
                     >
                       <span>{record.current_revision.content.name}</span>
-                      <small>
-                        {record.current_revision.content.external_key ??
-                          "No external code"}
-                      </small>
                     </button>
                   </td>
+                  <td>{record.current_revision.content.external_key ?? "—"}</td>
                   <td>{browseCategoryLabel(category)}</td>
                   <td>{record.current_revision.content.description ?? "—"}</td>
                   <td>r{record.current_revision.revision_no}</td>

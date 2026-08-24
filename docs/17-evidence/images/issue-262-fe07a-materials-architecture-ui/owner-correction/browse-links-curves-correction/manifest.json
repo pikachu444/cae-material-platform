@@ -1,0 +1,2086 @@
+{
+  "schemaVersion": "cmp.issue-262.fe07a.browse-links-curves-correction.v1",
+  "issue": "#262",
+  "unit": "FE-07A Materials",
+  "status": "OWNER_APPROVED_BOUNDED_CORRECTION_COMPLETE_UNMERGED",
+  "browserZoomPercent": 100,
+  "devicePixelRatio": 1,
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ],
+  "states": [
+    "materials-browse",
+    "material-source-history",
+    "material-curves"
+  ],
+  "afterMeasurements": [
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 702,
+        "width": 1350,
+        "height": 610,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 702,
+        "width": 288,
+        "height": 610,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 702,
+        "width": 1054,
+        "height": 610,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "content": {
+        "left": 303,
+        "right": 1356,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1053,
+        "height": 131.5,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1356,
+        "top": 142.09375,
+        "bottom": 694,
+        "width": 1053,
+        "height": 551.90625,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 552,
+        "scrollHeight": 552
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 185.390625,
+        "bottom": 742,
+        "width": 1054,
+        "height": 556.609375,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 557,
+        "scrollHeight": 1540
+      },
+      "related": {
+        "left": 315,
+        "right": 1345,
+        "top": 1287.8125,
+        "bottom": 1713.40625,
+        "width": 1030,
+        "height": 425.59375,
+        "clientWidth": 1030,
+        "scrollWidth": 1030,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 185.390625,
+        "bottom": 742,
+        "width": 1054,
+        "height": 556.609375,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 557,
+        "scrollHeight": 1540
+      }
+    },
+    {
+      "state": "material-source-history",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 185.390625,
+        "bottom": 742,
+        "width": 1054,
+        "height": 556.609375,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 557,
+        "scrollHeight": 588
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 185.390625,
+        "bottom": 742,
+        "width": 1054,
+        "height": 556.609375,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 557,
+        "scrollHeight": 588
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 834,
+        "width": 1424,
+        "height": 742,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 834,
+        "width": 288,
+        "height": 742,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 834,
+        "width": 1128,
+        "height": 742,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "content": {
+        "left": 303,
+        "right": 1430,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1127,
+        "height": 131.5,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1430,
+        "top": 142.09375,
+        "bottom": 826,
+        "width": 1127,
+        "height": 683.90625,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 684,
+        "scrollHeight": 684
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 185.390625,
+        "bottom": 874,
+        "width": 1128,
+        "height": 688.609375,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 689,
+        "scrollHeight": 1593
+      },
+      "related": {
+        "left": 315,
+        "right": 1419,
+        "top": 1340.625,
+        "bottom": 1766.21875,
+        "width": 1104,
+        "height": 425.59375,
+        "clientWidth": 1104,
+        "scrollWidth": 1104,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 185.390625,
+        "bottom": 874,
+        "width": 1128,
+        "height": 688.609375,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 689,
+        "scrollHeight": 1593
+      }
+    },
+    {
+      "state": "material-source-history",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 185.390625,
+        "bottom": 874,
+        "width": 1128,
+        "height": 688.609375,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 689,
+        "scrollHeight": 689
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 185.390625,
+        "bottom": 874,
+        "width": 1128,
+        "height": 688.609375,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 689,
+        "scrollHeight": 689
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1014,
+        "width": 1904,
+        "height": 922,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1014,
+        "width": 288,
+        "height": 922,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1014,
+        "width": 1608,
+        "height": 922,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "content": {
+        "left": 303,
+        "right": 1910,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1607,
+        "height": 131.5,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1910,
+        "top": 142.09375,
+        "bottom": 1006,
+        "width": 1607,
+        "height": 863.90625,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 864,
+        "scrollHeight": 864
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 185.390625,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 868.609375,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 869,
+        "scrollHeight": 1665
+      },
+      "related": {
+        "left": 315,
+        "right": 1899,
+        "top": 1412.625,
+        "bottom": 1838.21875,
+        "width": 1584,
+        "height": 425.59375,
+        "clientWidth": 1584,
+        "scrollWidth": 1584,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 185.390625,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 868.609375,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 869,
+        "scrollHeight": 1665
+      }
+    },
+    {
+      "state": "material-source-history",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 185.390625,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 868.609375,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 869,
+        "scrollHeight": 869
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 185.390625,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 868.609375,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 869,
+        "scrollHeight": 869
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1374,
+        "width": 2544,
+        "height": 1282,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1374,
+        "width": 287.984375,
+        "height": 1282,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1374,
+        "width": 2248.015625,
+        "height": 1282,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 2247.015625,
+        "height": 131.5,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 142.09375,
+        "bottom": 1366,
+        "width": 2247.015625,
+        "height": 1223.90625,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 1224,
+        "scrollHeight": 1224
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 185.390625,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1228.609375,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1229,
+        "scrollHeight": 1809
+      },
+      "related": {
+        "left": 314.984375,
+        "right": 2539,
+        "top": 1556.625,
+        "bottom": 1982.21875,
+        "width": 2224.015625,
+        "height": 425.59375,
+        "clientWidth": 2224,
+        "scrollWidth": 2224,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 185.390625,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1228.609375,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1229,
+        "scrollHeight": 1809
+      }
+    },
+    {
+      "state": "material-source-history",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 185.390625,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1228.609375,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1229,
+        "scrollHeight": 1229
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 185.390625,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1228.609375,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1229,
+        "scrollHeight": 1229
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2094,
+        "width": 3824,
+        "height": 2002,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2094,
+        "width": 288,
+        "height": 2002,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2094,
+        "width": 3528,
+        "height": 2002,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "content": {
+        "left": 303,
+        "right": 3830,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 3527,
+        "height": 131.5,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3830,
+        "top": 142.09375,
+        "bottom": 2086,
+        "width": 3527,
+        "height": 1943.90625,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 1944,
+        "scrollHeight": 1944
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 185.390625,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1948.609375,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1949,
+        "scrollHeight": 1949
+      },
+      "related": {
+        "left": 315,
+        "right": 3819,
+        "top": 1660.625,
+        "bottom": 2086.21875,
+        "width": 3504,
+        "height": 425.59375,
+        "clientWidth": 3504,
+        "scrollWidth": 3504,
+        "clientHeight": 425,
+        "scrollHeight": 425
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 185.390625,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1948.609375,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1949,
+        "scrollHeight": 1949
+      }
+    },
+    {
+      "state": "material-source-history",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 185.390625,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1948.609375,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1949,
+        "scrollHeight": 1949
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 185.390625,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1948.609375,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1949,
+        "scrollHeight": 1949
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "name": "materials-browse-1366x768.png",
+      "changedPixels": 11246,
+      "changedPercent": 1.072,
+      "differenceBounds": [
+        466,
+        153,
+        1311,
+        264
+      ]
+    },
+    {
+      "name": "materials-browse-1440x900.png",
+      "changedPixels": 11280,
+      "changedPercent": 0.8704,
+      "differenceBounds": [
+        466,
+        153,
+        1385,
+        264
+      ]
+    },
+    {
+      "name": "materials-browse-1920x1080.png",
+      "changedPixels": 0,
+      "changedPercent": 0.0,
+      "differenceBounds": null
+    },
+    {
+      "name": "materials-browse-2560x1440.png",
+      "changedPixels": 14204,
+      "changedPercent": 0.3853,
+      "differenceBounds": [
+        466,
+        153,
+        2505,
+        264
+      ]
+    },
+    {
+      "name": "materials-browse-3840x2160.png",
+      "changedPixels": 13989,
+      "changedPercent": 0.1687,
+      "differenceBounds": [
+        466,
+        153,
+        3785,
+        264
+      ]
+    },
+    {
+      "name": "material-source-history-1366x768.png",
+      "changedPixels": 120892,
+      "changedPercent": 11.5235,
+      "differenceBounds": [
+        315,
+        97,
+        1348,
+        736
+      ]
+    },
+    {
+      "name": "material-source-history-1440x900.png",
+      "changedPixels": 132964,
+      "changedPercent": 10.2596,
+      "differenceBounds": [
+        315,
+        203,
+        1419,
+        870
+      ]
+    },
+    {
+      "name": "material-source-history-1920x1080.png",
+      "changedPixels": 176304,
+      "changedPercent": 8.5023,
+      "differenceBounds": [
+        315,
+        203,
+        1899,
+        839
+      ]
+    },
+    {
+      "name": "material-source-history-2560x1440.png",
+      "changedPixels": 225176,
+      "changedPercent": 6.1083,
+      "differenceBounds": [
+        315,
+        203,
+        2539,
+        839
+      ]
+    },
+    {
+      "name": "material-source-history-3840x2160.png",
+      "changedPixels": 323095,
+      "changedPercent": 3.8953,
+      "differenceBounds": [
+        315,
+        97,
+        3822,
+        839
+      ]
+    },
+    {
+      "name": "material-curves-1366x768.png",
+      "changedPixels": 39961,
+      "changedPercent": 3.8091,
+      "differenceBounds": [
+        315,
+        374,
+        1331,
+        742
+      ]
+    },
+    {
+      "name": "material-curves-1440x900.png",
+      "changedPixels": 49042,
+      "changedPercent": 3.7841,
+      "differenceBounds": [
+        315,
+        374,
+        1405,
+        873
+      ]
+    },
+    {
+      "name": "material-curves-1920x1080.png",
+      "changedPixels": 147452,
+      "changedPercent": 7.1109,
+      "differenceBounds": [
+        315,
+        374,
+        1899,
+        1054
+      ]
+    },
+    {
+      "name": "material-curves-2560x1440.png",
+      "changedPixels": 314531,
+      "changedPercent": 8.5322,
+      "differenceBounds": [
+        315,
+        374,
+        2539,
+        1400
+      ]
+    },
+    {
+      "name": "material-curves-3840x2160.png",
+      "changedPixels": 588420,
+      "changedPercent": 7.0942,
+      "differenceBounds": [
+        314,
+        97,
+        3822,
+        2134
+      ]
+    }
+  ],
+  "images": [
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "49e39e89949f33245c605d77523e12e8b38f28c3d5da5071db3ff64e71ad1c42",
+      "width": 1066,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "5e4d480392335a2fc70fb8ff5ebe6a9da5068e35769d38ad82b7047b169e687d",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "4edee7e5bcad2d2c5e11495ef0b4fe831db6b4cf598c27f187affef086d858b4",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "9f3d52c9045febdda400106b07816921bc8941ed0c6abd388fc59ee9d0283310",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "c3c6f1d26fe4046b273c705e1eb3baeeca13022d3a19814119f738ac90247afc",
+      "width": 1140,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "09343b7e6c3c24513cb0d08623afaf6165528a5e39be7cda646688092541c9d2",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "6aff4c57c7ea5b113e4b68dd05012239215aeca9dd050e3c835761388873865c",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "0eadd506d8fd8177a7ff7688e0a712965e91027700fab38329bfe75f2acb02e8",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "25f30ef8f613cd0bd6b55fce6ac969c3a8142bccfe4151b5a45f736e197c721e",
+      "width": 1620,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "9aea30f582a2e8043222c3b6c0a5f6c728547249600e9f398b61a387f26cc437",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "46a690aa48f8baebbebbe845da1855c29418a28173ff639de891a1c43afb93d6",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "cdcd4ebc9e93d2f715cbe781387039618bca6ce910e09ac7a422d67782c682b0",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "e283a7741c5506086fc2b2f7b0eb6f8daa859f1fc053ed9da96e26a077bf638f",
+      "width": 2260,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "7813de6bcc98262e8ade548ce99b0884d9eef3565d1b3c8207bb49027392d3d6",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "885014069c4ce61b3767c811ec82f9e6cd36ad7cfae87272668d567ddec0083e",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "09ce3860f18e39bdec1120a5ecd01efdcdbc08d3bd4cf43e9f41609b8e80d23c",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "84d79c0aaa932507372a6d801eefa48935a3ead484785c790eab30c292f05bab",
+      "width": 3540,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "0779704f5fc22d95e7076168ff475c7a039e3c9dd39f16a128a7b7176ef7e7df",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "694f4420d3994603f03722b644a0ba6148cf1e6dc46d3c8a8151253efda3a351",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "8cf2806df63fe6537236da959ec8667f2d17f29ce686ff542c517efff2909496",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1366x768-header-100pct.png",
+      "sha256": "5e4d480392335a2fc70fb8ff5ebe6a9da5068e35769d38ad82b7047b169e687d",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1366x768-navigator-100pct.png",
+      "sha256": "4edee7e5bcad2d2c5e11495ef0b4fe831db6b4cf598c27f187affef086d858b4",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1366x768-table-form-100pct.png",
+      "sha256": "a3d67ec79baca07757f52ff74fce7eee8026792380f1093dce971c9f9427f4f7",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1440x900-header-100pct.png",
+      "sha256": "4ce1cfe4191d90bc0b8d710fdafaad92234ff2de3bf5bef67b29e6003262388e",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1440x900-navigator-100pct.png",
+      "sha256": "6aff4c57c7ea5b113e4b68dd05012239215aeca9dd050e3c835761388873865c",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1440x900-table-form-100pct.png",
+      "sha256": "6c5acb16d9afce50ef16d8b6ee3b753dc5d6d4a49dde718404ab1949b3c9980a",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1920x1080-header-100pct.png",
+      "sha256": "0c3863425dd75c9716aeb907d5655d2f8c3cd08bdeb0c023f7bd1e2fadd60e77",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1920x1080-navigator-100pct.png",
+      "sha256": "46a690aa48f8baebbebbe845da1855c29418a28173ff639de891a1c43afb93d6",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-1920x1080-table-form-100pct.png",
+      "sha256": "7e4265632b86df039130c1d5ebb5d34f4e9bb3e26c2e3c28589c3f895b648fd0",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-2560x1440-header-100pct.png",
+      "sha256": "5fb0f60ca40b4190cc0673fc570b48310e38c8350d1fc6199857517def050de0",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-2560x1440-navigator-100pct.png",
+      "sha256": "885014069c4ce61b3767c811ec82f9e6cd36ad7cfae87272668d567ddec0083e",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-2560x1440-table-form-100pct.png",
+      "sha256": "7c8567e16b6f3e1054ac0adf9784650b6e38039976f138005d946dac189640f5",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-3840x2160-header-100pct.png",
+      "sha256": "06b35fcfdd133987173b09b97235330eee91d0c19b5d17e9587f73b6b76c4de8",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-3840x2160-navigator-100pct.png",
+      "sha256": "694f4420d3994603f03722b644a0ba6148cf1e6dc46d3c8a8151253efda3a351",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/material-source-history-3840x2160-table-form-100pct.png",
+      "sha256": "a51570ee4bf1c2c1f9452935df1987dd87f100d1003dc72f565fba6622cab9ae",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1366x768-header-100pct.png",
+      "sha256": "0923cabd978f3de6f6b546e3834112c2a5ddb924db6b60e432f5d0a947003e1a",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1366x768-navigator-100pct.png",
+      "sha256": "ba73dfce2a36adbbc7ceacd2cda0eafa620f220c61696f8f10ee2208ac09381a",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1366x768-table-form-100pct.png",
+      "sha256": "de14d9f83e605ea57a4da107807b8315410e8df2ca7212bbdba9742486cafdeb",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1440x900-header-100pct.png",
+      "sha256": "37ad14966f6fb564142eb6b8edef66096e5a58880a03b881744dc279c87e0e16",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1440x900-navigator-100pct.png",
+      "sha256": "cea78f0427afeeb2e123c32d031401ce570575a71f06f1dab0cbbf442ad91551",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1440x900-table-form-100pct.png",
+      "sha256": "6185806f6658c4d41a5a7d65d6462b0b6ad868f60f6f9ab834a96ca5cd916066",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1920x1080-header-100pct.png",
+      "sha256": "bb633aa3aad80ebd97575b0fa1f6891dc8c765b7ba878ae8d26ba45b6c87a6cd",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1920x1080-navigator-100pct.png",
+      "sha256": "305a347487955b0892f96291367eaa206a1a5a6fb900919047b5a8857007ef0f",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-1920x1080-table-form-100pct.png",
+      "sha256": "a4d5bc35c0ec3ab3413e54dba6cdfa63ad2e39f86c5f863f7ea366c78e9e14b4",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-2560x1440-header-100pct.png",
+      "sha256": "07d60a5699bfd638a1491387322f4c5c6e376fb3c6a3dadb209b1cd5623a7404",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-2560x1440-navigator-100pct.png",
+      "sha256": "da345a2cce6b30dbfaf8b3dbe1892b11dc7294ef993cbe0afbbc5466d0747df7",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-2560x1440-table-form-100pct.png",
+      "sha256": "6ac6bfae7eca22de7baa728e656a95a5975688576058d196d4767255eb341e13",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-3840x2160-header-100pct.png",
+      "sha256": "56bfefdfffb4b1812e3c97fbb247a91fb2476fd8c304397f70a2593296b789ad",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-3840x2160-navigator-100pct.png",
+      "sha256": "a7fbd66aaa1b3cdc832fec371ff57c23877570572600f8c42e47595ee02ce58b",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/crops/materials-browse-3840x2160-table-form-100pct.png",
+      "sha256": "48dc2fd8b8c014de76f1dbf506c1e032556f958f35f1c8a7e2de6943fa673541",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-curves-1366x768.png",
+      "sha256": "7490891b9b7631d60a6644a85ac3a0011750fd4d5fadd9c321e47c24115e12de",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-curves-1440x900.png",
+      "sha256": "626879f667e10aded0c1a7bb91834403e07164052bc3b9a1b8c5f7a808ab21b7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-curves-1920x1080.png",
+      "sha256": "858be79a31654f9b00ff87919f49af98c166e04ce7827fd0669a9cf71ad453bb",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-curves-2560x1440.png",
+      "sha256": "1b31df215f78b955879e4f69325abc95774eaf805cc630e7137d423a7e16427f",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-curves-3840x2160.png",
+      "sha256": "a4a1af959a0927f9e8871b98c257b930dce5e357c386846b38d02137bad105cc",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-source-history-1366x768.png",
+      "sha256": "42d941654a9554d9d3f9f73bec51ad82212b0c8c9409b57ab1b4cfc665aac403",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-source-history-1440x900.png",
+      "sha256": "e2d9d85333b839a609f9ce66e945d1ef161d2ac8103d1582c3c8146a0eab87d8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-source-history-1920x1080.png",
+      "sha256": "c449f26082c6f814abd8212d7417997014106b6b4e033913d006231716360a8b",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-source-history-2560x1440.png",
+      "sha256": "9100e19b4b8050cbca3ccb4ef1575a61ce33b8255be5037a426ba909086d9dcf",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/material-source-history-3840x2160.png",
+      "sha256": "bd5b3f49279551c378762073f5367c237496ae0bf472006d77044a0be74d3ef8",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/materials-browse-1366x768.png",
+      "sha256": "cf5d5228a6a296c734bbb251071f4c72ae4fef924d0a901ddc3f34c07e618fd8",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/materials-browse-1440x900.png",
+      "sha256": "ff0695d2e8ec2a6d47bf58b5ec3131fd959022dadbc1a025b2ad939e086c8d6c",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/materials-browse-1920x1080.png",
+      "sha256": "111c63f79644d692a606e326bcd20ce124742f64c34b70a8717c4833a638d858",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/materials-browse-2560x1440.png",
+      "sha256": "bb28683c712745c649decdd88aba94b10f82c6ec48c90bf9d6050f232b3dc345",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/after/originals/materials-browse-3840x2160.png",
+      "sha256": "111a10926f65d2767b4753cd91687947f6d2289e59196e51f00b4518587829ab",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "a989b1560bc3576ee3e5dbfde071aefbdf001cfc4dbd04cb2e40e904f25e0fb1",
+      "width": 1066,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "5e4d480392335a2fc70fb8ff5ebe6a9da5068e35769d38ad82b7047b169e687d",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "4edee7e5bcad2d2c5e11495ef0b4fe831db6b4cf598c27f187affef086d858b4",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "d5b6ecf13311ca37838f8f1ad1d2abbc1e70f26bc31bf81bce019b0fabcf9b87",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "8883af90eee101fe590160fec4e34f1328ab8ef390a128f79d5efc85dc13b3d3",
+      "width": 1140,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "09343b7e6c3c24513cb0d08623afaf6165528a5e39be7cda646688092541c9d2",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "6aff4c57c7ea5b113e4b68dd05012239215aeca9dd050e3c835761388873865c",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "4ab46e9b3e5246ab989cb2ae201c8fa6a2469638ed198a34b3e93ff2fba9a38f",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "1a0a43b2da0ae7bf491ff9f0722ede42753df08c3d59ff24f92259da12b276c9",
+      "width": 1620,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "9aea30f582a2e8043222c3b6c0a5f6c728547249600e9f398b61a387f26cc437",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "46a690aa48f8baebbebbe845da1855c29418a28173ff639de891a1c43afb93d6",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "d1b2e12093355da1dc4a04c9bbaeba6972d8b57eb663c47b8ec2bd579471b36d",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "25952f5bc238113474d6e4d3878979eca92d5677bfbea88bee429c1126879d73",
+      "width": 2260,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "7813de6bcc98262e8ade548ce99b0884d9eef3565d1b3c8207bb49027392d3d6",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "885014069c4ce61b3767c811ec82f9e6cd36ad7cfae87272668d567ddec0083e",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "9a0fde143e0ac8a395e769cc8fa73c049c4cad37dc95e52279f3c0ee6b14df19",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "d9dc5284a7f9d51281d05ae6c3e9f2d79d7f295d6f77013dcaa70a42f7e86480",
+      "width": 3540,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "06b35fcfdd133987173b09b97235330eee91d0c19b5d17e9587f73b6b76c4de8",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "694f4420d3994603f03722b644a0ba6148cf1e6dc46d3c8a8151253efda3a351",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "1e0d06acaf090682119a132941845eb794b7353e01b7d9bb2cb28ab7f3c9fee7",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1366x768-header-100pct.png",
+      "sha256": "fd7ad088be5ee835c2fc5c12021c8260dd4230df49e8b92de8958aeef530b025",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1366x768-navigator-100pct.png",
+      "sha256": "4edee7e5bcad2d2c5e11495ef0b4fe831db6b4cf598c27f187affef086d858b4",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1366x768-table-form-100pct.png",
+      "sha256": "3c1f2006578bac6e0e8f92a3a976c3dc100f72b9d67552c3964d3cb2abb71ebe",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1440x900-header-100pct.png",
+      "sha256": "4ce1cfe4191d90bc0b8d710fdafaad92234ff2de3bf5bef67b29e6003262388e",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1440x900-navigator-100pct.png",
+      "sha256": "6aff4c57c7ea5b113e4b68dd05012239215aeca9dd050e3c835761388873865c",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1440x900-table-form-100pct.png",
+      "sha256": "c22ab6486fc263454879c759b33efab106d0de623f8196e32b13b647c678eb28",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1920x1080-header-100pct.png",
+      "sha256": "0c3863425dd75c9716aeb907d5655d2f8c3cd08bdeb0c023f7bd1e2fadd60e77",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1920x1080-navigator-100pct.png",
+      "sha256": "46a690aa48f8baebbebbe845da1855c29418a28173ff639de891a1c43afb93d6",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-1920x1080-table-form-100pct.png",
+      "sha256": "684e8f9552d8ee1c3b48eeeb6330218709259710b428812a40048b9085bfc6d8",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-2560x1440-header-100pct.png",
+      "sha256": "5fb0f60ca40b4190cc0673fc570b48310e38c8350d1fc6199857517def050de0",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-2560x1440-navigator-100pct.png",
+      "sha256": "885014069c4ce61b3767c811ec82f9e6cd36ad7cfae87272668d567ddec0083e",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-2560x1440-table-form-100pct.png",
+      "sha256": "abefb16c8b12085d9dee62ed1d5be1d68d0ca10400e5c8a9f03b5e6b85042c3a",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-3840x2160-header-100pct.png",
+      "sha256": "0779704f5fc22d95e7076168ff475c7a039e3c9dd39f16a128a7b7176ef7e7df",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-3840x2160-navigator-100pct.png",
+      "sha256": "694f4420d3994603f03722b644a0ba6148cf1e6dc46d3c8a8151253efda3a351",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/material-source-history-3840x2160-table-form-100pct.png",
+      "sha256": "280fa825ee981aa1a3d82cd41e0164cbe7acfbc65e0b9440c68cd75c25a929e6",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1366x768-header-100pct.png",
+      "sha256": "0923cabd978f3de6f6b546e3834112c2a5ddb924db6b60e432f5d0a947003e1a",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1366x768-navigator-100pct.png",
+      "sha256": "ba73dfce2a36adbbc7ceacd2cda0eafa620f220c61696f8f10ee2208ac09381a",
+      "width": 300,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1366x768-table-form-100pct.png",
+      "sha256": "74d949db4b76330ec6440aa69257ddef8ed3b29bf3595b1bd200e7553c9fb199",
+      "width": 1066,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1440x900-header-100pct.png",
+      "sha256": "37ad14966f6fb564142eb6b8edef66096e5a58880a03b881744dc279c87e0e16",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1440x900-navigator-100pct.png",
+      "sha256": "cea78f0427afeeb2e123c32d031401ce570575a71f06f1dab0cbbf442ad91551",
+      "width": 300,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1440x900-table-form-100pct.png",
+      "sha256": "b91b31243ab29c7593a773b2ca7222c09a0391942b361da6c80a46a1e210e41a",
+      "width": 1140,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1920x1080-header-100pct.png",
+      "sha256": "bb633aa3aad80ebd97575b0fa1f6891dc8c765b7ba878ae8d26ba45b6c87a6cd",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1920x1080-navigator-100pct.png",
+      "sha256": "305a347487955b0892f96291367eaa206a1a5a6fb900919047b5a8857007ef0f",
+      "width": 300,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-1920x1080-table-form-100pct.png",
+      "sha256": "a4d5bc35c0ec3ab3413e54dba6cdfa63ad2e39f86c5f863f7ea366c78e9e14b4",
+      "width": 1620,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-2560x1440-header-100pct.png",
+      "sha256": "07d60a5699bfd638a1491387322f4c5c6e376fb3c6a3dadb209b1cd5623a7404",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-2560x1440-navigator-100pct.png",
+      "sha256": "da345a2cce6b30dbfaf8b3dbe1892b11dc7294ef993cbe0afbbc5466d0747df7",
+      "width": 300,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-2560x1440-table-form-100pct.png",
+      "sha256": "d442bf47a088978e04fad85c1ecdea2da4c91faef6e60013170a8f10e9549d3e",
+      "width": 2260,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-3840x2160-header-100pct.png",
+      "sha256": "56bfefdfffb4b1812e3c97fbb247a91fb2476fd8c304397f70a2593296b789ad",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-3840x2160-navigator-100pct.png",
+      "sha256": "a7fbd66aaa1b3cdc832fec371ff57c23877570572600f8c42e47595ee02ce58b",
+      "width": 300,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/crops/materials-browse-3840x2160-table-form-100pct.png",
+      "sha256": "59a5aaf55b5c89ad3205482433d9abb811557dff9a70539397ff00c0c9f2a02e",
+      "width": 3540,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-curves-1366x768.png",
+      "sha256": "73f2dcb149a953152c5fb8b971f806b9d43ceb21ca59201ee34309432aa3c587",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-curves-1440x900.png",
+      "sha256": "701749e7221f8158bd397f9c66b24790947f9869c24672d8f07a62af49b088b0",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-curves-1920x1080.png",
+      "sha256": "a9bd392da1d982d45e79d0d1eab66086e595cbe00f73e5e38a5ddee410261936",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-curves-2560x1440.png",
+      "sha256": "3fe38ff6e70d7b6f37da778eece2473aa7e87c56ced4b2fbe15ca25e63df0286",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-curves-3840x2160.png",
+      "sha256": "0e941e1de232c809b15839d61df2b3e4673a360a2944819c3a757c8945db453d",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-source-history-1366x768.png",
+      "sha256": "19f64a26dc097f95b4631ceda7ad9d12cbdc3fb04a705312ae14fa7e0d5678df",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-source-history-1440x900.png",
+      "sha256": "ac0686ebf2238c9e9faf846b3f0ce35fb1a86a1f8626006882c3f4fcf593a122",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-source-history-1920x1080.png",
+      "sha256": "97c94b8aceb2637a9cb5707dbbf29ee8130d3a951c3caa93496170fbcdce0940",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-source-history-2560x1440.png",
+      "sha256": "28aeb7a9c6120971cf0cfca27e623f489997ca57809f076161a57f00dbdaf925",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/material-source-history-3840x2160.png",
+      "sha256": "20929bebd25345a36e6a1ccd046d6c5f4e77e89237f8d78f0ca1c2bba42602c8",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/materials-browse-1366x768.png",
+      "sha256": "e80d5f6a891d300e72c6d9e53089a665d3a0a57475f5026d5f91031b741d8e11",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/materials-browse-1440x900.png",
+      "sha256": "239e4840222b0f4393df6805f1e144e3d36a07df10ee6be3d1613b622e10b244",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/materials-browse-1920x1080.png",
+      "sha256": "111c63f79644d692a606e326bcd20ce124742f64c34b70a8717c4833a638d858",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/materials-browse-2560x1440.png",
+      "sha256": "21ffed837aaa1bc95e1ab3ae376f484b7c194f6c8d742fea8471fcb4672d3347",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/browse-links-curves-correction/before/originals/materials-browse-3840x2160.png",
+      "sha256": "e312311339d7aa94a146f0095296e36d248d52c3df505c0fa3483673ae704e4d",
+      "width": 3840,
+      "height": 2160
+    }
+  ]
+}

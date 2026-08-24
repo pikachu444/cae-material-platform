@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ExactRecordDatasheetPage } from "./features/materials";
@@ -212,7 +212,7 @@ describe("ExactRecordDatasheetPage", () => {
       table_id: "table-card",
       name: "DP780 OpenRadioss native card",
       external_key: "CMP-CARD-DP780",
-      data_category: "solver_cards",
+      data_category: "simulation_data",
       domain_binding: {
         binding_id: "binding-card",
         record_id: "record-card",
@@ -250,7 +250,15 @@ describe("ExactRecordDatasheetPage", () => {
           return response({
             mapping_report_sha256: "b".repeat(64),
             exportable: true,
-            report: { items: [] },
+            report: {
+              items: [{
+                name: "post_necking_extension",
+                ir_path: "/properties/post_necking_extension",
+                target_representation: "*PLASTIC extrapolation",
+                status: "approximated",
+                detail: "Review the bounded extension.",
+              }],
+            },
           });
         if (url.includes("/neutral-solver-cards/card-1?revision_id=card-revision-2"))
           return response({
@@ -274,6 +282,8 @@ describe("ExactRecordDatasheetPage", () => {
               },
             },
           });
+        if (url.includes("/neutral-solver-cards/card-1/preview?revision_id=card-revision-2"))
+          return new Response("*MATERIAL, NAME=CMP_DEMO_DP780_NEUTRAL\n*ELASTIC\n210000., 0.3\n");
         throw new Error(`Unexpected request: ${url}`);
       }),
     );
@@ -287,16 +297,29 @@ describe("ExactRecordDatasheetPage", () => {
       />,
     );
 
-    expect(
-      await screen.findByRole("heading", { name: "Solver card delivery" }),
-    ).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Solver Card", level: 1 })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Simulation Data", level: 1 })).toBeNull();
+    expect(await screen.findByRole("heading", { name: "Solver Card details" })).toBeTruthy();
+    expect(screen.queryByText("Released solver-ready target artifact.")).toBeNull();
+    expect(screen.getByLabelText("Native solver card preview").textContent).toContain("*MATERIAL");
     expect(await screen.findByText("OpenRadioss 2025")).toBeTruthy();
     expect(screen.getByText("Native ASCII .rad")).toBeTruthy();
     expect(screen.getByText("kg · m · s")).toBeTruthy();
     expect(screen.getByText("published")).toBeTruthy();
-    expect(screen.getByText("Preview and download")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Preview .rad" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Download .rad" })).toBeTruthy();
+    expect(screen.getByText("r2")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Preview .rad" })).toBeNull();
+    expect(screen.getByText("Review required")).toBeTruthy();
+    expect(screen.getByText("Post-necking extension")).toBeTruthy();
+    expect(screen.queryByText("Review Post-necking extension before download.")).toBeNull();
+    const reviewed = screen.getByRole("checkbox", { name: "Reviewed" });
+    const download = screen.getByRole("button", { name: "Download .rad" }) as HTMLButtonElement;
+    expect(download.disabled).toBe(true);
+    fireEvent.click(reviewed);
+    expect(download.disabled).toBe(false);
+    const expand = screen.getByRole("button", { name: "Expand preview" });
+    expect(expand.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(expand);
+    expect(screen.getByRole("button", { name: "Collapse preview" }).getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByText("Neutral Material")).toBeTruthy();
     expect(screen.getByText("neutral-revision-3")).toBeTruthy();
   });

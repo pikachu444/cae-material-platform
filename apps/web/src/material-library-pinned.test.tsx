@@ -364,7 +364,11 @@ describe("pinned Material detail", () => {
     render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="evidence" exactPin={pin} onNavigate={onNavigate} />);
 
     expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Related records and workflow", level: 2 })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Linked records", level: 2 })).toBeTruthy();
+    expect(screen.getByText("No related records are visible in the current view.")).toBeTruthy();
+    const lineage = screen.getByText("Full lineage").closest("details");
+    expect(lineage?.open).toBe(false);
+    expect(screen.queryByRole("heading", { name: "Workflow" })).toBeNull();
     expect(screen.queryByText("Follow related records and the exact material workflow; open technical identifiers only when needed.")).toBeNull();
     expect(screen.getByText("Property source").nextElementSibling?.textContent).toBe("fixture");
     fireEvent.click(screen.getByRole("tab", { name: "Source & history" }));

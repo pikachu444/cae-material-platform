@@ -106,7 +106,19 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(relatedContextText).toContain("Revision");
     expect(relatedContextText).toContain("Related");
     await page.getByRole("tab", { name: "Source & history", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Related records and workflow", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Linked records", exact: true })).toBeVisible();
+    const linkedRecordsTable = page.locator(".evidence-overview table");
+    if (await linkedRecordsTable.count()) {
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Relation", exact: true })).toBeVisible();
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Target record", exact: true })).toBeVisible();
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Type", exact: true })).toBeVisible();
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Exact revision", exact: true })).toBeVisible();
+    } else {
+      await expect(page.getByText("No related records are visible in the current view.", { exact: true })).toBeVisible();
+    }
+    await expect(page.getByText("Full lineage", { exact: true })).toBeVisible();
+    await expect(page.locator("details.full-lineage")).not.toHaveAttribute("open", "");
+    await expect(page.getByRole("heading", { name: "Workflow", exact: true })).toHaveCount(0);
     await expect(page.getByText("Follow related records and the exact material workflow; open technical identifiers only when needed.", { exact: true })).toHaveCount(0);
     await expect(page.locator(".material-tab-panel")).toContainText(expectedReference);
     await page.getByRole("tab", { name: "Overview", exact: true }).click();
@@ -420,7 +432,7 @@ test("an exact approved Tensile revision opens its directly linked selected mode
   await expect(fastTensile).toContainText("r1");
   await fastTensile.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: representativeDp780Tests[3], level: 1 })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Test Data", level: 1 })).toBeVisible({ timeout: 30_000 });
 
   const selectedModelName = "DP780 elastoplasticity · selected tabulated model · synthetic reference";
   const selectedModel = page.getByRole("region", { name: "Related data" }).getByRole("button").filter({ hasText: selectedModelName });
@@ -428,5 +440,10 @@ test("an exact approved Tensile revision opens its directly linked selected mode
   await expect(selectedModel).toHaveCount(1);
   await expect(selectedModel).toContainText("r1");
   await selectedModel.click();
-  await expect(page.getByRole("heading", { name: selectedModelName, level: 1 })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Simulation Data", level: 1 })).toBeVisible({ timeout: 30_000 });
+  const selectedModelDetail = page.locator(".exact-record-datasheet");
+  await expect(selectedModelDetail.getByRole("heading", { name: "Selected Material Model details" })).toBeVisible();
+  await expect(selectedModelDetail.getByText("Test setup", { exact: true })).toHaveCount(0);
+  await expect(selectedModelDetail.getByText("Specimen", { exact: true })).toHaveCount(0);
+  await expect(selectedModelDetail.getByText("Measured curve coverage", { exact: true })).toHaveCount(0);
 });

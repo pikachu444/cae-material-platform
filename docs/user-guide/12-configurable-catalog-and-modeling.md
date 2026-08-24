@@ -123,7 +123,7 @@ DP600의 Young's modulus를 210 GPa에서 205 GPa로 바꾸면 기존 값을 덮
 생성한다. 아래 비교는 원본 단위 문자열과 정규화된 Pa 값을 함께 보존한 결과다.
 
 
-file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** 또는 **Advanced**에서 확인한다.
+file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & history** 또는 **Advanced**에서 확인한다.
 일반 입력 화면에는 내부 식별자가 표시되지 않는다.
 
 ## Materials 검색·Browse와 exact Record Link 사용
@@ -131,13 +131,17 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** �
 1. 일반 사용자는 `/materials`에서 **Search** 또는 **Browse**로 시작한다. Browse의 `Technical Data`,
    `Test Data`, `Simulation Data`, `Solver Cards`는 서로 같은 수준의 네 범주이며 저장 위치나 처리 순서를
    강제하는 계층이 아니다.
-2. Search 결과의 **Material**에는 사람이 읽는 재료 이름만, **Code**에는 Catalog external key를 표시한다.
+2. Search 결과의 **Material**과 Browse 결과의 **Name**에는 사람이 읽는 이름만 표시하고, 각 결과의
+   **Code**에는 Catalog external key를 표시한다.
    Code가 없으면 em dash를 표시하며 grade로 해석하지 않는다. 이름·Code·설명·text Attribute 검색과
    facet 결과, 전체 건수는 같은 서버 범위의 query에서 읽는다.
 3. `Technical Data`는 Material, Material State와 적용 가능한 물성을, `Test Data`는 Specimen, Test Run과
    exact canonical 측정 데이터/곡선을 뜻한다. `Simulation Data`는 Processing Output, selected Material
    Model, Neutral Material처럼 구체적인 유형을 표시하고, `Solver Cards`는 solver-ready target artifact를
-   뜻한다. 항목을 누르면 같은 가운데 Materials workspace에서 exact revision datasheet를 연다.
+   뜻한다. 항목을 누르면 같은 가운데 Materials workspace에서 exact revision datasheet를 연다. Simulation
+   Data 상세의 **Type**에서 구체 유형을 확인하며 Processing Output에는 실제 결과 타입, 입력 조건, 결과,
+   exact source data만 표시한다. Solver Card는 target, format, unit system, release, exact revision과 review
+   상태·다운로드를 native preview 위에 표시하고, preview는 펼치거나 접은 뒤 자체 스크롤로 읽는다.
 4. Material Overview의 **Key properties**는 단위가 포함된 label/value 쌍으로 읽는다. **Applicable
    conditions and material states**에는 Temperature, Strain rate, State, Manufacturing route가 각각
    표시된다. 대표 응답은 저장된 curve contract가 축 quantity와 단위를 확정할 수 있을 때만 나타난다.
@@ -160,7 +164,8 @@ file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** �
    링크 흐름으로 탐색한다. Fit run/candidate는 Modeling 또는 Activity, selected model은 Simulation Data,
    Material Model IR은 Advanced/Source & history, 생성된 카드는 Solver Cards에서 확인한다.
 10. Table → Folder → Record 저장 위치, 데이터 형식 또는 Link Type을 관리해야 하면 **Administration**을
-    연다. 여러 hop의 provenance는 별도 Navigator가 아니라 **Source & history**의 Workflow에서 확인한다.
+    연다. **Source & history**의 **Linked records**는 relation, target record, type, exact revision으로
+    직접 연결된 Record Link만 표시한다. 여러 hop의 provenance는 접힌 **Full lineage**에서 확인한다.
 11. 새 링크는 Administration에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
     endpoint를 전진시키려면 기존 링크를 덮어쓰지 않고 같은 stable Link의 새 revision을 만든다.
 12. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을

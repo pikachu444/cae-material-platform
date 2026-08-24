@@ -240,7 +240,7 @@ describe("MaterialDatasheetProjection", () => {
       record.current_revision.id,
       curveId,
     );
-    expect(screen.getByText("Curve available")).toBeTruthy();
+    expect(screen.queryByText("Curve available")).toBeNull();
     expect(screen.getByText("Metadata not recorded")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
   });

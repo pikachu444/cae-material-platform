@@ -153,7 +153,9 @@ describe("CurveContractChart", () => {
   it("keeps statistical envelopes view-only and does not infer metadata for an absent legacy curve", () => {
     const statistical: CatalogCurvePreviewResponse = { ...declared, modeling_use: "view_only", modeling_source: null };
     const { rerender } = render(<CurveContractChart preview={statistical} title="Replicate statistics"/>);
-    expect(screen.getByText("Statistical and envelope curves are view-only.")).toBeTruthy();
+    expect(screen.getAllByText("View only")).toHaveLength(1);
+    expect(screen.queryByText("Declared curve contract")).toBeNull();
+    expect(screen.queryByText("Statistical and envelope curves are view-only.")).toBeNull();
     expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
 
     const absent: CatalogCurvePreviewResponse = {
@@ -164,7 +166,7 @@ describe("CurveContractChart", () => {
       curve_series: null,
     };
     rerender(<CurveContractChart preview={absent} title="Historical curve"/>);
-    expect(screen.getByText("Curve available")).toBeTruthy();
+    expect(screen.queryByText("Curve available")).toBeNull();
     expect(screen.getByText("This revision has no recorded channel or deviation metadata.")).toBeTruthy();
     expect(screen.queryByRole("img")).toBeNull();
   });

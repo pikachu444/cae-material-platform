@@ -128,7 +128,7 @@ export function CurveContractChart({
 
   if (preview.curve_metadata.metadata_state === "absent" || !model) {
     return <article className="contract-curve absent" aria-label={`${title} curve metadata unavailable`}>
-      <div className="contract-curve-heading"><div><h3>{title}</h3><p>Curve available</p></div><span>View only</span></div>
+      <div className="contract-curve-heading"><div><h3>{title}</h3></div><span>View only</span></div>
       <div className="ux-empty compact" role="status"><strong>This revision has no recorded channel or deviation metadata.</strong><p>The stored curve remains available, but axes, units, bands, and Fit eligibility are not inferred.</p></div>
       <details className="ux-disclosure curve-evidence"><summary>Curve source</summary><dl><dt>Record revision</dt><dd><code>{preview.record_revision_id}</code></dd><dt>Artifact SHA-256</dt><dd><code>{preview.curve_metadata.artifact.sha256}</code></dd></dl></details>
     </article>;
@@ -194,7 +194,7 @@ export function CurveContractChart({
     : "Use Left and Right Arrow keys to inspect points. Escape clears the tooltip.";
 
   return <article className="contract-curve">
-    <div className="contract-curve-heading"><div><h3>{title}</h3><p>{preview.curve_metadata.metadata_state === "declared" ? "Declared curve contract" : "Reviewed legacy contract"}</p></div><span>{preview.modeling_use === "fit_input" ? "Fit input" : "View only"}</span></div>
+    <div className="contract-curve-heading"><div><h3>{title}</h3></div><span>{preview.modeling_use === "fit_input" ? "Fit input" : "View only"}</span></div>
     <div className="curve-channel-summary" id={descriptionId}>
       <span>{channelSummary(model.independent)}</span>
       <span>{channelSummary(model.dependent)}</span>
@@ -242,9 +242,9 @@ export function CurveContractChart({
       {model.band ? <button type="button" aria-pressed={showBand} className={showBand ? "" : "hidden"} onClick={() => setShowBand((current) => !current)}><i className="confidence"/>{model.band.label}</button> : <span>No deviation recorded</span>}
     </div>
     {model.band ? <p className="curve-band-meaning">{deviationMeaning(model.band.lower)} · explicit lower/upper bounds</p> : null}
-    <div className="contract-curve-actions">
-      {preview.modeling_use === "fit_input" && preview.modeling_source && onOpenModeling ? <button type="button" className="ux-button secondary" onClick={() => onOpenModeling(preview.modeling_source!)}>Open in Modeling</button> : <span>{preview.modeling_use === "view_only" ? "Statistical and envelope curves are view-only." : modelingUnavailableReason ?? "No exact Fit source is available."}</span>}
-    </div>
+    {preview.modeling_use === "view_only" ? null : <div className="contract-curve-actions">
+      {preview.modeling_use === "fit_input" && preview.modeling_source && onOpenModeling ? <button type="button" className="ux-button secondary" onClick={() => onOpenModeling(preview.modeling_source!)}>Open in Modeling</button> : <span>{modelingUnavailableReason ?? "No exact Fit source is available."}</span>}
+    </div>}
     <details className="ux-disclosure curve-evidence"><summary>Curve source</summary><dl>
       <dt>Definition SHA-256</dt><dd><code>{preview.curve_metadata.definition_sha256}</code></dd>
       <dt>Owning revision</dt><dd><code>{preview.curve_metadata.owning_revision.entity_type}:{preview.curve_metadata.owning_revision.entity_id}@{preview.curve_metadata.owning_revision.revision_id}</code></dd>

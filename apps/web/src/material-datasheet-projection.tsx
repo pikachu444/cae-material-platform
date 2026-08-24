@@ -15,6 +15,7 @@ import type {
   ConfigurableLayoutResponse,
   ConfigurableRecordValue,
   CatalogCurvePreviewResponse,
+  DomainBindingKind,
   DomainRevisionBinding,
 } from "./types";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
@@ -37,6 +38,7 @@ interface Props {
   recordId: string;
   mode: ProjectionMode;
   revisionId?: string;
+  recordKind?: DomainBindingKind;
   onNavigate?: (path: string) => void;
   modelingContext?: {
     material?: ModelingSessionRecordRef;
@@ -172,7 +174,7 @@ async function downloadLayoutCsv(
   }
 }
 
-export function MaterialDatasheetProjection({ config, tableId, recordId, mode, revisionId, onNavigate, modelingContext }: Props) {
+export function MaterialDatasheetProjection({ config, tableId, recordId, mode, revisionId, recordKind, onNavigate, modelingContext }: Props) {
   const [record, setRecord] = useState<ConfigurableCatalogRecordResponse | null>(null);
   const [attributes, setAttributes] = useState<ConfigurableAttributeResponse[]>([]);
   const [layouts, setLayouts] = useState<ConfigurableLayoutResponse[]>([]);
@@ -249,8 +251,27 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
 
   const values = useMemo(() => {
     const projected = layoutValues.filter((item) => included(mode, item.attribute));
-    return mode === "curves" ? projected.filter((item) => item.value !== null) : projected;
-  }, [layoutValues, mode]);
+    if (mode === "curves") return projected.filter((item) => item.value !== null);
+    if (
+      mode === "properties" &&
+      ["processing_output", "material_model", "neutral_material"].includes(
+        recordKind ?? "",
+      )
+    ) {
+      const simulationKeys = new Set([
+        "data_type",
+        "condition",
+        "result_summary",
+        "source_record",
+      ]);
+      return projected.filter(
+        (item) =>
+          item.value !== null &&
+          simulationKeys.has(item.attribute.current_revision.content.key),
+      );
+    }
+    return projected;
+  }, [layoutValues, mode, recordKind]);
 
   const curveValues = useMemo(() => values.filter((item): item is ProjectedValue & {
     value: Extract<ConfigurableRecordValue, { data_type: "curve" }>;
@@ -350,7 +371,16 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
 
   const displayValues = mode === "evidence" ? [...values, ...technicalValues] : values;
   const sections = [...new Set(displayValues.map((item) => item.section))];
-  const content = <div className="layout-projection-content">{sections.map((section) => <section key={section}><h3>{section}</h3><table className="ux-table layout-projection-table"><thead><tr><th>Property</th><th>Value</th><th>Unit</th></tr></thead><tbody>{displayValues.filter((item) => item.section === section).map((item) => {
+  const sectionLabel = (section: string): string => {
+    if (!["processing_output", "material_model", "neutral_material"].includes(recordKind ?? "")) return section;
+    return {
+      Overview: "Result type",
+      "Test conditions": "Input conditions",
+      Results: "Result",
+      "Source data": "Exact source data",
+    }[section] ?? section;
+  };
+  const content = <div className="layout-projection-content">{sections.map((section) => <section key={section}><h3>{sectionLabel(section)}</h3><table className="ux-table layout-projection-table"><thead><tr><th>Property</th><th>Value</th><th>Unit</th></tr></thead><tbody>{displayValues.filter((item) => item.section === section).map((item) => {
     const text = valueText(item.value);
     const definition = item.attribute.current_revision.content;
     const primary = definition.key === "material_class" && item.value && "value" in item.value
@@ -372,7 +402,7 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
             const preview = curvePreviews[id];
             return <div key={id} role="listitem"><button type="button" className={id === selectedId ? "active" : ""} aria-current={id === selectedId ? "true" : undefined} onClick={() => setSelectedCurveId(id)}>
               <strong>{item.attribute.current_revision.content.name}</strong>
-              <span>{preview ? preview.curve_metadata.metadata_state === "absent" ? "Metadata not recorded" : preview.modeling_use === "fit_input" ? "Exact Test Data · Fit input" : "Statistical curve · View only" : curveErrors[id] ? "Preview unavailable" : "Loading metadata…"}</span>
+              {preview ? preview.curve_metadata.metadata_state === "absent" ? <span>Metadata not recorded</span> : preview.modeling_use === "fit_input" ? <span>Exact Test Data · Fit input</span> : null : curveErrors[id] ? <span>Preview unavailable</span> : <span>Loading metadata…</span>}
             </button></div>;
           })}
         </div>
@@ -386,7 +416,14 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
   }
 
   if (mode !== "evidence") {
-    return <section className="layout-projection"><div className="detail-section-heading"><h2>{selectedLayout?.name ?? "Properties"}</h2><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</section>;
+    const projectionTitle = recordKind === "processing_output"
+      ? "Processing Output details"
+      : recordKind === "material_model"
+        ? "Selected Material Model details"
+        : recordKind === "neutral_material"
+          ? "Neutral Material details"
+          : selectedLayout?.name ?? "Properties";
+    return <section className="layout-projection"><div className="detail-section-heading"><h2>{projectionTitle}</h2><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</section>;
   }
 
   return <details className="ux-disclosure layout-projection"><summary>Additional data and technical values</summary><div className="layout-selector-row"><label className="ux-field">View<select className="ux-select" aria-label="Material data view" value={selectedLayout.layout_id} onChange={(event) => setLayoutId(event.target.value)}>{layouts.map((layout) => <option key={layout.layout_id} value={layout.layout_id}>{layout.name}</option>)}</select></label><span className="ux-meta">{selectedLayout.description ?? "Saved display order and sections"}</span><button className="ux-button tertiary" type="button" onClick={() => record && void downloadLayoutCsv(config, record, selectedLayout, values)}>Download CSV</button></div>{content}</details>;
