@@ -144,7 +144,8 @@ describe("CurveContractChart", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Open in Modeling" }));
     expect(onOpenModeling).toHaveBeenCalledWith(source);
-    fireEvent.click(screen.getByText("Evidence"));
+    fireEvent.click(screen.getByText("Curve source"));
+    expect(screen.queryByText("Evidence")).toBeNull();
     expect(screen.getByText("urn:cmp:test-data:normalized-parquet:1.1.0")).toBeTruthy();
     expect(screen.getByText("b".repeat(64))).toBeTruthy();
   });

@@ -1778,8 +1778,8 @@
     },
     {
       "name": "material-curves-1920x1080.png",
-      "changedPixels": 134560,
-      "changedPercent": 6.4892,
+      "changedPixels": 134655,
+      "changedPercent": 6.4938,
       "differenceBounds": [
         303,
         97,
@@ -1835,14 +1835,14 @@
     {
       "state": "Curves",
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1920x1080.png",
-      "sha256": "1ffacf5f08c89b192cfa71b055ba53a0a193770c78a865a96adbf9c2b2073dc1",
+      "sha256": "a9bd392da1d982d45e79d0d1eab66086e595cbe00f73e5e38a5ddee410261936",
       "width": 1920,
       "height": 1080
     },
     {
       "state": "Source & history",
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-source-history-1920x1080.png",
-      "sha256": "1ef9a03c18ac8036cd3992596b7784d0f8c339ccf296330c7a30c40ffe81e0c7",
+      "sha256": "97c94b8aceb2637a9cb5707dbbf29ee8130d3a951c3caa93496170fbcdce0940",
       "width": 1920,
       "height": 1080
     }
@@ -2373,7 +2373,7 @@
     },
     {
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1920x1080.png",
-      "sha256": "1ffacf5f08c89b192cfa71b055ba53a0a193770c78a865a96adbf9c2b2073dc1",
+      "sha256": "a9bd392da1d982d45e79d0d1eab66086e595cbe00f73e5e38a5ddee410261936",
       "width": 1920,
       "height": 1080
     },
@@ -2421,7 +2421,7 @@
     },
     {
       "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-source-history-1920x1080.png",
-      "sha256": "1ef9a03c18ac8036cd3992596b7784d0f8c339ccf296330c7a30c40ffe81e0c7",
+      "sha256": "97c94b8aceb2637a9cb5707dbbf29ee8130d3a951c3caa93496170fbcdce0940",
       "width": 1920,
       "height": 1080
     },
@@ -3024,6 +3024,546 @@
       "sha256": "33c5739590b71d7ff50bebef7e0b3463f4a4fe0dfa679fd1ac9ba4390a1a8d81",
       "width": 3840,
       "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "bee7372cce81d04cf6113950f37df6a167bf0205f320e121190f60b4e20c40f2",
+      "width": 1046,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "5e4d480392335a2fc70fb8ff5ebe6a9da5068e35769d38ad82b7047b169e687d",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "3603ac762789087513c10b30a1eb8557ddf609410654c3e4ce8105863db8b4f9",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "9d6a15fc5552d6c1f5ffea5d57266ef3c1a13146c703af71aec0457579e7181b",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "f2ed89c48e1d4da9d63d3f4e793e6a00d0b13eaedf1f9c612c657be7bd8e78c2",
+      "width": 1120,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "09343b7e6c3c24513cb0d08623afaf6165528a5e39be7cda646688092541c9d2",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "a565e915add1dcdcd66d3c0b023bb69cb7a98e5f1ef098b055a1dd31f7a7499b",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "a6c58817a2cfcb46ea3aabea185e71c7753da92e9ab1cf5eb62b59918ae125cb",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "ee5a3b4ccf94a969f7794033b0421a7f3249f247269155db2363bf98422c3d0b",
+      "width": 1600,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "9aea30f582a2e8043222c3b6c0a5f6c728547249600e9f398b61a387f26cc437",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "e24c20a60f835338bf3955797a1bffb62272e422c4e1a839884f9d25e3b03b61",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "9495178288a950ca51f3ed0988f353c72f14fa41511fc599d023af07ef779fc7",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "dc3fc90e5c9c9de4505189f38e218e2b9068b98c34d5c3901ca5a66805a27379",
+      "width": 2240,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "7813de6bcc98262e8ade548ce99b0884d9eef3565d1b3c8207bb49027392d3d6",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "10a4c8d289e8b809cc4d039684c26aad4969b357a88116cb045c303894fbb927",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "c53824dde199bd30739235c9e3077f1f2076409321ea1a99b39e6d30464b3f43",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "6fd812db3f9388b81baba8f50b57f50b67339c4be152d4a716624c0bcad6564c",
+      "width": 3520,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "06b35fcfdd133987173b09b97235330eee91d0c19b5d17e9587f73b6b76c4de8",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "d40d60b1520902fe447315418f05670989195b8aa9d978ae38420377b66b75b2",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "5f3358d672989cd609e228a3e228686c2106aaf5e0aa8c902a7a549246321da6",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1366x768-header-100pct.png",
+      "sha256": "fd7ad088be5ee835c2fc5c12021c8260dd4230df49e8b92de8958aeef530b025",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1366x768-navigator-100pct.png",
+      "sha256": "3a56852c5babad1332e7f129d681eca0265c0726857d21568c8ce77967f265c6",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1366x768-table-form-100pct.png",
+      "sha256": "f053be8d8c40d9bf46295c54f5d7f0bdbba6035ddf9136c2ddabed7b10d9ea10",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1440x900-header-100pct.png",
+      "sha256": "4ce1cfe4191d90bc0b8d710fdafaad92234ff2de3bf5bef67b29e6003262388e",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1440x900-navigator-100pct.png",
+      "sha256": "13cfceab1bf35d0a4ad3f8fde2322255e835f70afd85606004602eeba391ebce",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1440x900-table-form-100pct.png",
+      "sha256": "faf487e5d0726516c7c4ce6d8f6b78062acfa4c5323137450eec8fe2b969c5cc",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1920x1080-header-100pct.png",
+      "sha256": "0c3863425dd75c9716aeb907d5655d2f8c3cd08bdeb0c023f7bd1e2fadd60e77",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1920x1080-navigator-100pct.png",
+      "sha256": "4cc28c9d787d7a69a1cf3a1b31fa0d64ca236f6b478e009c2915d83d1956451e",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1920x1080-table-form-100pct.png",
+      "sha256": "dacf38adefb3e69770102ef5d7b5134f5012e6d51477220f0503fc7cf0e2074f",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-2560x1440-header-100pct.png",
+      "sha256": "5fb0f60ca40b4190cc0673fc570b48310e38c8350d1fc6199857517def050de0",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-2560x1440-navigator-100pct.png",
+      "sha256": "76bf27604cb10a220446072fddc47117b0e8714c5c5fdfc2227bf40e44252300",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-2560x1440-table-form-100pct.png",
+      "sha256": "8fab9776401f0bf25f00f49a0a4dcbf9faa4ae7d2cd3f6c25a1298f1ffa31bf8",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-3840x2160-header-100pct.png",
+      "sha256": "0779704f5fc22d95e7076168ff475c7a039e3c9dd39f16a128a7b7176ef7e7df",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-3840x2160-navigator-100pct.png",
+      "sha256": "5c4796da73018155e17d80dc08d346a7f398988dc29253386ba7193d60b8aa84",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-3840x2160-table-form-100pct.png",
+      "sha256": "eed729fcce9ca21830c4943beac8d96013581ebaba86d6b65545c3f26d23e27d",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-1366x768.png",
+      "sha256": "73f2dcb149a953152c5fb8b971f806b9d43ceb21ca59201ee34309432aa3c587",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-1440x900.png",
+      "sha256": "701749e7221f8158bd397f9c66b24790947f9869c24672d8f07a62af49b088b0",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-1920x1080.png",
+      "sha256": "a9bd392da1d982d45e79d0d1eab66086e595cbe00f73e5e38a5ddee410261936",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-2560x1440.png",
+      "sha256": "3fe38ff6e70d7b6f37da778eece2473aa7e87c56ced4b2fbe15ca25e63df0286",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-3840x2160.png",
+      "sha256": "0e941e1de232c809b15839d61df2b3e4673a360a2944819c3a757c8945db453d",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-source-history-1366x768.png",
+      "sha256": "19f64a26dc097f95b4631ceda7ad9d12cbdc3fb04a705312ae14fa7e0d5678df",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-source-history-1440x900.png",
+      "sha256": "ac0686ebf2238c9e9faf846b3f0ce35fb1a86a1f8626006882c3f4fcf593a122",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-source-history-1920x1080.png",
+      "sha256": "97c94b8aceb2637a9cb5707dbbf29ee8130d3a951c3caa93496170fbcdce0940",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-source-history-2560x1440.png",
+      "sha256": "28aeb7a9c6120971cf0cfca27e623f489997ca57809f076161a57f00dbdaf925",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-source-history-3840x2160.png",
+      "sha256": "20929bebd25345a36e6a1ccd046d6c5f4e77e89237f8d78f0ca1c2bba42602c8",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "bee7372cce81d04cf6113950f37df6a167bf0205f320e121190f60b4e20c40f2",
+      "width": 1046,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "5e4d480392335a2fc70fb8ff5ebe6a9da5068e35769d38ad82b7047b169e687d",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "3603ac762789087513c10b30a1eb8557ddf609410654c3e4ce8105863db8b4f9",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "9d6a15fc5552d6c1f5ffea5d57266ef3c1a13146c703af71aec0457579e7181b",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "f2ed89c48e1d4da9d63d3f4e793e6a00d0b13eaedf1f9c612c657be7bd8e78c2",
+      "width": 1120,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "09343b7e6c3c24513cb0d08623afaf6165528a5e39be7cda646688092541c9d2",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "a565e915add1dcdcd66d3c0b023bb69cb7a98e5f1ef098b055a1dd31f7a7499b",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "a6c58817a2cfcb46ea3aabea185e71c7753da92e9ab1cf5eb62b59918ae125cb",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "c4c69192f63b5ad924a408ca98e47f2e3ff4ccee9d3e4a533320a74253009c1f",
+      "width": 1600,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "9aea30f582a2e8043222c3b6c0a5f6c728547249600e9f398b61a387f26cc437",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "e24c20a60f835338bf3955797a1bffb62272e422c4e1a839884f9d25e3b03b61",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "9495178288a950ca51f3ed0988f353c72f14fa41511fc599d023af07ef779fc7",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "e5356167539a3e10d188f943cb734e74de5994c38583b2020cd08d1c1a8086e6",
+      "width": 2240,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "7813de6bcc98262e8ade548ce99b0884d9eef3565d1b3c8207bb49027392d3d6",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "10a4c8d289e8b809cc4d039684c26aad4969b357a88116cb045c303894fbb927",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "c53824dde199bd30739235c9e3077f1f2076409321ea1a99b39e6d30464b3f43",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "6fd812db3f9388b81baba8f50b57f50b67339c4be152d4a716624c0bcad6564c",
+      "width": 3520,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "06b35fcfdd133987173b09b97235330eee91d0c19b5d17e9587f73b6b76c4de8",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "d40d60b1520902fe447315418f05670989195b8aa9d978ae38420377b66b75b2",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "e90953f4d4b53b6e24eb6a970f227c126c9d7dfe3a40dc8358a6b267a681b448",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1366x768-header-100pct.png",
+      "sha256": "fd7ad088be5ee835c2fc5c12021c8260dd4230df49e8b92de8958aeef530b025",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1366x768-navigator-100pct.png",
+      "sha256": "3b9866abbc4c16f8a90b3aac0985f3bef3c74f6d0aee928c9ff1f097001cd017",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1366x768-table-form-100pct.png",
+      "sha256": "49f890b0058bcac14d89663c8cfc91e31cdbf59673c36a161ba6f28a5fee8d14",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1440x900-header-100pct.png",
+      "sha256": "4ce1cfe4191d90bc0b8d710fdafaad92234ff2de3bf5bef67b29e6003262388e",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1440x900-navigator-100pct.png",
+      "sha256": "34655e4491b862a6b3f592728c16740e4c185fadbd0fb2e76a883aabc1bdffab",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1440x900-table-form-100pct.png",
+      "sha256": "08ef74b19cb53e9093b17d29ea54d544317d886754628285214f9a7a84a7307d",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1920x1080-header-100pct.png",
+      "sha256": "0c3863425dd75c9716aeb907d5655d2f8c3cd08bdeb0c023f7bd1e2fadd60e77",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1920x1080-navigator-100pct.png",
+      "sha256": "4fd653e5df9a4c17edddd171a2f1ece0140c9a877effddc0cb4d1a160be61ae5",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1920x1080-table-form-100pct.png",
+      "sha256": "95dd9edd1ec701c72a8117a7662796be0e555eb6d987d7aacad97000cc30bed6",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-2560x1440-header-100pct.png",
+      "sha256": "5fb0f60ca40b4190cc0673fc570b48310e38c8350d1fc6199857517def050de0",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-2560x1440-navigator-100pct.png",
+      "sha256": "d046e95a74e182cfac86c3feab4068dad163789d6c74731bdc3cf2b15d560ec2",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-2560x1440-table-form-100pct.png",
+      "sha256": "839294230af9e5baf327499853d94bb021c1ba57a2df78219b0884d67349fde1",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-3840x2160-header-100pct.png",
+      "sha256": "0779704f5fc22d95e7076168ff475c7a039e3c9dd39f16a128a7b7176ef7e7df",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-3840x2160-navigator-100pct.png",
+      "sha256": "86b6f3c4563f61c1a78d622eeae9d9977fd9acc5fffe6924743634cc577ea74f",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-3840x2160-table-form-100pct.png",
+      "sha256": "8abb9b8374a743dbc47ad41ab26f515b033280386a8a05dc4f85f273aca457b3",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-1366x768.png",
+      "sha256": "73f2dcb149a953152c5fb8b971f806b9d43ceb21ca59201ee34309432aa3c587",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-1440x900.png",
+      "sha256": "701749e7221f8158bd397f9c66b24790947f9869c24672d8f07a62af49b088b0",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-1920x1080.png",
+      "sha256": "1ffacf5f08c89b192cfa71b055ba53a0a193770c78a865a96adbf9c2b2073dc1",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-2560x1440.png",
+      "sha256": "e89e21dfbb6f7db2c8efaca64e087868a82f6c3e6337f66ea688e9015b94317a",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-3840x2160.png",
+      "sha256": "0f078315ab8966c05c83f6efb10df30b718a828d556306c1a6eff0d9c76991db",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-source-history-1366x768.png",
+      "sha256": "db1d9064a80d084828c1d3f5a87dea9cf073f0c0f8eaea2c94b3ba89596fc5cb",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-source-history-1440x900.png",
+      "sha256": "de6c3bbbdb70f5787975b31df680f674694d167fcb01246b196f2c32ba510937",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-source-history-1920x1080.png",
+      "sha256": "1ef9a03c18ac8036cd3992596b7784d0f8c339ccf296330c7a30c40ffe81e0c7",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-source-history-2560x1440.png",
+      "sha256": "379ba3b49c7735cbbf4ddb3d53499de9a0ccd9e2a1943070d60a08ebd6451546",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-source-history-3840x2160.png",
+      "sha256": "fbbc0632b7e9daf2795da86691e3e3aa3ed5da12e42ae9d52fd92802b95f30e3",
+      "width": 3840,
+      "height": 2160
     }
   ],
   "allowed_duplicate_groups": [
@@ -3496,15 +4036,184 @@
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1366x768-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-graph-preview-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1366x768-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1366x768-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1366x768-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1440x900-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-graph-preview-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1440x900-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1440x900-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1440x900-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1920x1080-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-graph-preview-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-1920x1080-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-1920x1080-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-1920x1080-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-2560x1440-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-graph-preview-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
         "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-2560x1440-header-100pct.png"
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-2560x1440-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-2560x1440-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-2560x1440-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-3840x2160-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-graph-preview-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-graph-preview-100pct.png"
       ]
     },
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
         "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-3840x2160-header-100pct.png"
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-curves-3840x2160-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-curves-3840x2160-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-curves-3840x2160-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1366x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1440x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/crops/material-detail-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-1920x1080-header-100pct.png"
       ]
     },
     {
@@ -3615,36 +4324,48 @@
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/before/originals/material-curves-1366x768.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1366x768.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-1366x768.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-1366x768.png",
         "docs/user-guide/images/current/material-curves-1366x768.png"
       ]
     },
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/before/originals/material-curves-1440x900.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1440x900.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-1440x900.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-1440x900.png",
         "docs/user-guide/images/current/material-curves-1440x900.png"
       ]
     },
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/before/originals/material-curves-1920x1080.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1920x1080.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-1920x1080.png",
         "docs/user-guide/images/current/material-curves-1920x1080.png"
       ]
     },
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/before/originals/material-curves-2560x1440.png",
-        "docs/user-guide/images/current/material-curves-2560x1440.png"
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-2560x1440.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-2560x1440.png"
       ]
     },
     {
       "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
       "images": [
-        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/before/originals/material-curves-3840x2160.png",
-        "docs/user-guide/images/current/material-curves-3840x2160.png"
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-3840x2160.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/originals/material-curves-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-source-history-1920x1080.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-source-history-1920x1080.png"
       ]
     },
     {
@@ -3722,6 +4443,34 @@
       "images": [
         "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/before/originals/materials-search-3840x2160.png",
         "docs/user-guide/images/current/materials-search-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-2560x1440-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/crops/material-source-history-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/before/crops/material-source-history-3840x2160-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-2560x1440.png",
+        "docs/user-guide/images/current/material-curves-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/consistency-correction/after/originals/material-curves-3840x2160.png",
+        "docs/user-guide/images/current/material-curves-3840x2160.png"
       ]
     }
   ]

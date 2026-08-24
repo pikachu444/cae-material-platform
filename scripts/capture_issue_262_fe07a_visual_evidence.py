@@ -16,6 +16,7 @@ from playwright.sync_api import Browser, Page, Route, sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui"
 CORRECTION = EVIDENCE / "owner-correction"
+CONSISTENCY = CORRECTION / "consistency-correction"
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
 CAPTURE = runpy.run_path(str(ROOT / "scripts/capture_current_product.py"))
 
@@ -33,6 +34,11 @@ OWNER_REPORT_STATES = (
     ("Curves", "material-curves-1920x1080.png"),
     ("Source & history", "material-source-history-1920x1080.png"),
 )
+
+CONSISTENCY_STATES: dict[str, tuple[str, ...]] = {
+    "material-curves": ("header", "navigator", "table-form", "graph-preview"),
+    "material-source-history": ("header", "navigator", "table-form"),
+}
 
 # The current-guide manifest is cumulative. Keep the complete literal output
 # roster for the documentation checker even though FE-07A promotes only the
@@ -364,9 +370,9 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
     source_history = page.get_by_role("tab", name="Source & history", exact=True)
     source_history.click()
     page.wait_for_url(lambda url: "/evidence" in url, timeout=30_000)
-    page.get_by_role("heading", name="Lineage and evidence", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role(
+        "heading", name="Related records and workflow", exact=True
+    ).wait_for(timeout=30_000)
     _settle(page)
     if source_history.get_attribute("aria-selected") != "true":
         raise EvidenceError("Source & history is not the active tab")
@@ -390,6 +396,78 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
     }
     page.context.close()
     return result
+
+
+def _capture_consistency_matrix(
+    browser: Browser,
+    base_url: str,
+    phase: str,
+) -> list[dict[str, Any]]:
+    target = CONSISTENCY / phase / "originals"
+    measurements: list[dict[str, Any]] = []
+    expected_curve_summary = "Evidence" if phase == "before" else "Curve source"
+    expected_source_heading = (
+        "Lineage and evidence"
+        if phase == "before"
+        else "Related records and workflow"
+    )
+    helper = (
+        "Follow related records and the exact material workflow; open technical "
+        "identifiers only when needed."
+    )
+    for width, height in VIEWPORTS:
+        suffix = _viewport(width, height)
+        page = CAPTURE["_new_page"](browser, base_url, width, height)
+        errors: list[str] = []
+        page.on("pageerror", lambda error, values=errors: values.append(str(error)))
+        _open_browse(page, base_url)
+        _open_search(page)
+        _open_detail(page)
+
+        page.get_by_role("tab", name="Curves", exact=True).click()
+        page.get_by_role("heading", name="Curves", exact=True).wait_for(timeout=30_000)
+        _settle(page)
+        summaries = page.locator("details.curve-evidence > summary")
+        summaries.first.wait_for(timeout=30_000)
+        summary_texts = [text.strip() for text in summaries.all_inner_texts()]
+        if not summary_texts or set(summary_texts) != {expected_curve_summary}:
+            raise EvidenceError(
+                f"curve source summary drifted in {phase}: {summary_texts}"
+            )
+        measurements.append(_measure(page, "material-curves", width, height))
+        _screenshot(page, target / f"material-curves-{suffix}.png", width, height)
+
+        source_history = page.get_by_role("tab", name="Source & history", exact=True)
+        source_history.click()
+        page.wait_for_url(lambda url: "/evidence" in url, timeout=30_000)
+        page.get_by_role(
+            "heading", name=expected_source_heading, exact=True
+        ).wait_for(timeout=30_000)
+        _settle(page)
+        if source_history.get_attribute("aria-selected") != "true":
+            raise EvidenceError(f"Source & history is not active in {phase}")
+        helper_count = page.get_by_text(helper, exact=True).count()
+        if (phase == "before" and helper_count != 1) or (
+            phase == "after" and helper_count != 0
+        ):
+            raise EvidenceError(
+                f"Source & history helper-copy state drifted in {phase}: {helper_count}"
+            )
+        measurements.append(
+            _measure(page, "material-source-history", width, height)
+        )
+        _screenshot(
+            page,
+            target / f"material-source-history-{suffix}.png",
+            width,
+            height,
+        )
+        if errors:
+            raise EvidenceError(
+                f"browser page errors in {phase} consistency capture at {suffix}: {errors}"
+            )
+        page.context.close()
+    return measurements
 
 
 def _capture_recovery(browser: Browser, base_url: str) -> dict[str, Any]:
@@ -827,6 +905,29 @@ def _write_crops() -> None:
                         image.crop(_crop_box(region, width, height)).save(target)
 
 
+def _write_consistency_crops() -> None:
+    for phase in ("before", "after"):
+        originals = CONSISTENCY / phase / "originals"
+        crops = CONSISTENCY / phase / "crops"
+        crops.mkdir(parents=True, exist_ok=True)
+        for state, regions in CONSISTENCY_STATES.items():
+            for width, height in VIEWPORTS:
+                source = originals / f"{state}-{_viewport(width, height)}.png"
+                if not source.is_file():
+                    raise EvidenceError(f"missing {phase} consistency original: {source}")
+                with Image.open(source) as image:
+                    if image.size != (width, height):
+                        raise EvidenceError(
+                            f"consistency original size drift: {source} {image.size}"
+                        )
+                    for region in regions:
+                        target = (
+                            crops
+                            / f"{state}-{_viewport(width, height)}-{region}-100pct.png"
+                        )
+                        image.crop(_crop_box(region, width, height)).save(target)
+
+
 def _image_record(path: Path) -> dict[str, Any]:
     with Image.open(path) as image:
         width, height = image.size
@@ -949,6 +1050,50 @@ def _write_manifest(
     )
 
 
+def _write_consistency_manifest(measurements: list[dict[str, Any]]) -> None:
+    images = sorted(
+        [path for path in CONSISTENCY.rglob("*.png") if path.is_file()],
+        key=lambda path: path.as_posix(),
+    )
+    comparisons = []
+    for state in CONSISTENCY_STATES:
+        for width, height in VIEWPORTS:
+            name = f"{state}-{_viewport(width, height)}.png"
+            comparisons.append(
+                _comparison(
+                    CONSISTENCY / "before/originals" / name,
+                    CONSISTENCY / "after/originals" / name,
+                )
+            )
+    manifest = {
+        "schemaVersion": "cmp.issue-262.fe07a.consistency-correction.v1",
+        "issue": "#262",
+        "unit": "FE-07A Materials",
+        "status": "BOUNDED_CONSISTENCY_CORRECTION_COMPLETE_UNMERGED",
+        "browserZoomPercent": 100,
+        "devicePixelRatio": 1,
+        "viewports": [_viewport(width, height) for width, height in VIEWPORTS],
+        "states": list(CONSISTENCY_STATES),
+        "afterMeasurements": measurements,
+        "comparisons": comparisons,
+        "images": [_image_record(path) for path in images],
+    }
+    (CONSISTENCY / "manifest.json").write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _promote_consistency_curve_captures() -> None:
+    current = ROOT / "docs/user-guide/images/current"
+    originals = CONSISTENCY / "after/originals"
+    for width, height in VIEWPORTS:
+        name = f"material-curves-{_viewport(width, height)}.png"
+        source = originals / name
+        if not source.is_file():
+            raise EvidenceError(f"missing corrected current-guide capture: {source}")
+        shutil.copy2(source, current / name)
+
+
 def _stage_correction_before() -> None:
     source = CORRECTION / "after/originals"
     if not source.is_dir():
@@ -969,9 +1114,12 @@ def main() -> int:
     parser.add_argument("--base-url", default="http://127.0.0.1:5173")
     parser.add_argument("--manifest-only", action="store_true")
     parser.add_argument("--owner-report-only", action="store_true")
+    parser.add_argument("--consistency-phase", choices=("before", "after"))
     args = parser.parse_args()
     CORRECTION.mkdir(parents=True, exist_ok=True)
     if args.manifest_only:
+        if (CONSISTENCY / "after/originals").is_dir():
+            _promote_consistency_curve_captures()
         current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
         _write_manifest(
             current["measurements"],
@@ -996,6 +1144,37 @@ def main() -> int:
             owner_report_verification,
         )
         print("FE-07A owner report ready: five 1920x1080 originals verified.")
+        return 0
+    if args.consistency_phase:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                measurements = _capture_consistency_matrix(
+                    browser, args.base_url, args.consistency_phase
+                )
+                if args.consistency_phase == "after":
+                    owner_report_verification = _capture_owner_report(
+                        browser, args.base_url
+                    )
+            finally:
+                browser.close()
+        if args.consistency_phase == "after":
+            _write_consistency_crops()
+            _write_consistency_manifest(measurements)
+            _promote_consistency_curve_captures()
+            current = json.loads(
+                (CORRECTION / "manifest.json").read_text(encoding="utf-8")
+            )
+            _write_manifest(
+                current["measurements"],
+                current["recovery"],
+                current["continuity"],
+                owner_report_verification,
+            )
+        print(
+            "FE-07A consistency evidence ready: "
+            f"{args.consistency_phase}, {len(measurements)} geometry records."
+        )
         return 0
     _stage_correction_before()
     with sync_playwright() as playwright:

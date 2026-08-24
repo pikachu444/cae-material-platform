@@ -1907,11 +1907,7 @@ export function MaterialDetailPage({
           <>
             <div className="detail-section-heading">
               <div>
-                <h2>Lineage and evidence</h2>
-                <p>
-                  Follow related records and the exact material workflow; open
-                  technical identifiers only when needed.
-                </p>
+                <h2>Related records and workflow</h2>
               </div>
               <button
                 className="ux-button"

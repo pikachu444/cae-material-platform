@@ -106,6 +106,8 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(relatedContextText).toContain("Revision");
     expect(relatedContextText).toContain("Related");
     await page.getByRole("tab", { name: "Source & history", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Related records and workflow", exact: true })).toBeVisible();
+    await expect(page.getByText("Follow related records and the exact material workflow; open technical identifiers only when needed.", { exact: true })).toHaveCount(0);
     await expect(page.locator(".material-tab-panel")).toContainText(expectedReference);
     await page.getByRole("tab", { name: "Overview", exact: true }).click();
     if (materialCode === "CMP-DEMO-DP780") {
