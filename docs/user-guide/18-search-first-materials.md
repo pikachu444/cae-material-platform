@@ -36,11 +36,11 @@ Browse Tree에서도 저장된 자료를 찾을 수 있습니다.
 
 ### 네 데이터 범주에서 exact linked item 찾기
 
-`/materials`의 기존 **Browse** 트리는 `Materials Database → Engineering Materials` 아래에
-`Technical Data | Test Data | Simulation Data | Solver Cards`를 서로 같은 수준의 branch로 표시하고
-그 아래에 개별 항목을 둡니다. 범주를 선택하면 가운데 목록이 바뀌고, 목록의 항목을 한 번 누르면
-같은 가운데 영역에서 상세 정보를 엽니다. 상세의 **Related data**에는 현재 exact revision의 직접
-링크만 범주별로 나타납니다.
+`/materials`의 **Browse** 트리는 `Technical Data | Test Data | Simulation Data | Solver Cards`를
+서로 같은 수준의 범주로 표시하고 그 아래에 개별 항목을 둡니다. 범주를 선택하면 가운데 목록이
+바뀌고, 목록의 항목을 한 번 누르면 같은 가운데 영역에서 상세 정보를 엽니다. Material Detail의
+각 판단 탭에는 현재 exact revision에 직접 연결된 **Related data** 또는 **Exact source records**만
+나타납니다.
 Table/Folder/Record 저장 위치와 데이터 형식은 **Administration**, 여러 단계의 실제 추적은
 **Evidence**의 Workflow에서 확인합니다.
 
@@ -56,6 +56,10 @@ reviewed link가 있을 때만 표시되며, 서로 다른 constitutive family�
 
 Navigator divider를 끌어 폭을 조절하거나 접을 수 있습니다. 배치는 같은 브라우저에서 reload해도
 유지되며 **Reset display density**로는 바뀌지 않습니다.
+
+검색어, facet, 정렬, 페이지, Navigator mode와 선택은 URL에 남습니다. exact Material/Record를 연 뒤
+reload하거나 **Results**로 돌아와도 같은 검색과 선택을 다시 읽습니다. 요청한 exact revision을 읽지
+못하면 이전 결과와 선택을 지운 채 다른 자료로 바꾸지 않고 원인과 **Retry**를 표시합니다.
 
 | 상태 | 캡처 |
 | --- | --- |
@@ -346,3 +350,13 @@ Materials contract evidence, and the five CSS viewport originals at browser zoom
 original-resolution review passed the Carbon hierarchy, COMSOL engineering flow and SAP responsive
 logic checks. Physical Windows 4K readability remains the #223 gate; no Materials URL, revision,
 download or fail-closed contract is changed by this provenance entry.
+
+### Issue #262 FE-07A Materials architecture and UI evidence provenance
+
+The FE-07A Materials responsibility extraction and semantic refinement are recorded in
+[`Issue #262 FE-07A evidence`](../17-evidence/issue-262-fe07a-materials-architecture-ui.md) and its
+[`structured image manifest`](../17-evidence/images/issue-262-fe07a-materials-architecture-ui/manifest.json).
+The packet preserves the server-scoped query, exact Material/Record pins, reload/read-back, recovery,
+Results return continuity and exact Start Modeling handoff. It contains search, Browse, detail and curve
+states at the five required CSS viewports with direct 100%-pixel crops. Automated 3840×2160 geometry does
+not claim physical Windows 4K readability; #223 remains the physical gate.

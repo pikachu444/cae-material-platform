@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MaterialDatasheetProjection } from "./material-datasheet-projection";
+import {
+  MaterialDatasheetProjection,
+  curvePresentationLabel,
+} from "./material-datasheet-projection";
+import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const tableId = "91000000-0000-4000-8000-000000000001";
 const recordId = "91000000-0000-4000-8000-000000000002";
@@ -62,8 +66,8 @@ const curveAttribute = {
     ...metadata("91000000-0000-4000-8000-000000000015", curveId),
     content: {
       ...densityAttribute.current_revision.content,
-      key: "stress_strain",
-      name: "Stress–strain curve",
+      key: "observed_tensile_curve",
+      name: "Observed tensile response",
       data_type: "curve" as const,
       required: false,
       quantity_semantics: null,
@@ -214,7 +218,7 @@ describe("MaterialDatasheetProjection", () => {
     expect(screen.queryByText("metal")).toBeNull();
     expect(screen.queryByText(/mass density/)).toBeNull();
     expect(screen.queryByText("Original and normalized quantity")).toBeNull();
-    expect(screen.queryByText("Stress–strain curve")).toBe(null);
+    expect(screen.queryByText("Observed tensile response")).toBe(null);
     expect(screen.queryByText("Internal note")).toBeNull();
   });
 
@@ -222,7 +226,7 @@ describe("MaterialDatasheetProjection", () => {
     render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="evidence"/>);
 
     expect(await screen.findByRole("combobox", { name: "Material data view" })).toBeTruthy();
-    expect(screen.getByText("Stress–strain curve")).toBeTruthy();
+    expect(screen.getByText("Observed tensile response")).toBeTruthy();
     expect(screen.getByText("Curve available")).toBeTruthy();
     expect(screen.getByText("Internal note")).toBeTruthy();
     expect(screen.getByText("Technical-only evidence")).toBeTruthy();
@@ -232,6 +236,9 @@ describe("MaterialDatasheetProjection", () => {
   it("loads a curve only through its exact Record revision and reports absent legacy metadata honestly", async () => {
     render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="curves"/>);
 
+    expect(await screen.findByRole("heading", { name: "Available curves" })).toBeTruthy();
+    expect(screen.getByText("Measured tensile curve")).toBeTruthy();
+    expect(screen.queryByText("Observed tensile response")).toBeNull();
     expect(await screen.findByText("This revision has no recorded channel or deviation metadata.")).toBeTruthy();
     expect(mocks.previewCurve).toHaveBeenCalledWith(
       expect.anything(),
@@ -239,9 +246,180 @@ describe("MaterialDatasheetProjection", () => {
       record.current_revision.id,
       curveId,
     );
-    expect(screen.getByText("Curve available")).toBeTruthy();
+    expect(screen.queryByText("Curve available")).toBeNull();
     expect(screen.getByText("Metadata not recorded")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
+  });
+
+  it("maps only the registered curve keys to beginner-readable presentation labels", () => {
+    expect(
+      curvePresentationLabel("observed_tensile_curve", "Stored label"),
+    ).toBe("Measured tensile curve");
+    expect(
+      curvePresentationLabel("replicate_statistics_curve", "Stored label"),
+    ).toBe("Repeated-test average and variation");
+    expect(curvePresentationLabel("forming_limit_curve", "Forming limit curve")).toBe(
+      "Forming limit curve",
+    );
+  });
+
+  it("keeps Test Data view-only until exact Material and State context qualifies Process handoff", async () => {
+    clearModelingSession();
+    const onNavigate = vi.fn();
+    const source = {
+      binding_id: "92000000-0000-4000-8000-000000000001",
+      record_id: recordId,
+      record_revision_id: record.current_revision.id,
+      kind: "test_data" as const,
+      object_id: "92000000-0000-4000-8000-000000000002",
+      revision_id: "92000000-0000-4000-8000-000000000003",
+      workbench_path: "/modeling",
+    };
+    mocks.previewCurve.mockResolvedValue({
+      data: {
+        record_id: recordId,
+        record_revision_id: record.current_revision.id,
+        attribute_definition_id: curveId,
+        curve_available: true,
+        modeling_use: "fit_input",
+        modeling_source: source,
+        curve_metadata: {
+          contract_version: "1.0.0",
+          metadata_state: "declared",
+          definition_sha256: "c".repeat(64),
+          definition: {
+            definition_version: "1.0.0",
+            channels: [
+              {
+                key: "strain.engineering",
+                label: "Engineering strain",
+                quantity_semantics: "strain.engineering",
+                axis_role: "independent",
+                unit_contract: "common",
+                dimension: "strain",
+                original_units: [
+                  {
+                    unit: "1",
+                    scale_to_normalized: "1",
+                    offset_to_normalized: "0",
+                  },
+                ],
+                normalized_unit: "1",
+                display_unit: "1",
+                display_scale: "1",
+                display_offset: "0",
+                value_basis: "normalized",
+              },
+              {
+                key: "stress.engineering",
+                label: "Engineering stress",
+                quantity_semantics: "stress.engineering",
+                axis_role: "dependent",
+                unit_contract: "common",
+                dimension: "force_per_area",
+                original_units: [
+                  {
+                    unit: "Pa",
+                    scale_to_normalized: "1",
+                    offset_to_normalized: "0",
+                  },
+                ],
+                normalized_unit: "Pa",
+                display_unit: "MPa",
+                display_scale: "0.000001",
+                display_offset: "0",
+                value_basis: "derived",
+              },
+            ],
+            deviations: [],
+          },
+          owning_revision: {
+            entity_type: "test_data_document",
+            entity_id: source.object_id,
+            revision_id: source.revision_id,
+          },
+          artifact: {
+            artifact_id: "92000000-0000-4000-8000-000000000004",
+            sha256: "d".repeat(64),
+            schema_ref: "urn:cmp:test-data:normalized-parquet:1.1.0",
+            media_type: "application/vnd.apache.parquet",
+          },
+          sources: [],
+          provenance: [],
+        },
+        curve_series: {
+          point_count: 3,
+          returned_point_count: 3,
+          sampled: false,
+          indices: [0, 1, 2],
+          channels: [
+            { key: "strain.engineering", values: [0, 0.01, 0.02] },
+            { key: "stress.engineering", values: [0, 200e6, 300e6] },
+          ],
+          deviations: [],
+          source_counts: [],
+        },
+      },
+      etag: null,
+    });
+
+    const unqualified = render(
+      <MaterialDatasheetProjection
+        config={{ baseUrl: "/api/v1", accessToken: "test" }}
+        tableId={tableId}
+        recordId={recordId}
+        mode="curves"
+        onNavigate={onNavigate}
+      />,
+    );
+    expect(
+      await screen.findByText(
+        "Exact Material and State context is required to continue.",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByRole("img", { name: /Measured tensile curve:/ })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Open in Modeling" })).toBeNull();
+    expect(onNavigate).not.toHaveBeenCalled();
+    expect(loadModelingSession()).toBeNull();
+    unqualified.unmount();
+
+    render(
+      <MaterialDatasheetProjection
+        config={{ baseUrl: "/api/v1", accessToken: "test" }}
+        tableId={tableId}
+        recordId={recordId}
+        mode="curves"
+        onNavigate={onNavigate}
+        modelingContext={{
+          material: {
+            id: "material-1",
+            revisionId: "material-r2",
+            revisionNo: 2,
+            label: "DP780",
+          },
+          materialState: {
+            id: "state-1",
+            revisionId: "state-r3",
+            revisionNo: 3,
+            label: "Room temperature",
+          },
+        }}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Open in Modeling" }),
+    );
+    expect(onNavigate).toHaveBeenCalledWith(
+      `/modeling?stage=process&family=metal&material_id=material-1&material_revision_id=material-r2&material_state_id=state-1&material_state_revision_id=state-r3&source_document_id=${source.object_id}&source_revision_id=${source.revision_id}`,
+    );
+    expect(loadModelingSession()).toMatchObject({
+      contextSelectionRequired: false,
+      material: { id: "material-1", revisionId: "material-r2" },
+      materialState: { id: "state-1", revisionId: "state-r3" },
+      testData: { id: source.object_id, revisionId: source.revision_id },
+      workspace: { activeStage: "process" },
+    });
   });
 
   it("downloads human-readable active Layout CSV without internal identifiers", async () => {

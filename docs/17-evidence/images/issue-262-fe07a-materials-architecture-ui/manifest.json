@@ -1,0 +1,3429 @@
+{
+  "schemaVersion": "cmp.issue-262.fe07a.visual-evidence.v1",
+  "issue": "#262",
+  "unit": "FE-07A Materials",
+  "status": "READY_FOR_OWNER_VISUAL_GEOMETRY_APPROVAL",
+  "browserZoomPercent": 100,
+  "devicePixelRatio": 1,
+  "display": "Playwright Chromium CSS viewports; no claim of physical Windows 4K readability",
+  "viewports": [
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+  ],
+  "states": [
+    "materials-search",
+    "materials-browse",
+    "material-detail",
+    "material-curves"
+  ],
+  "measurements": [
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 702,
+        "width": 1350,
+        "height": 610,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 702,
+        "width": 288,
+        "height": 610,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 702,
+        "width": 1054,
+        "height": 610,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "content": {
+        "left": 303,
+        "right": 1356,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1053,
+        "height": 131.5,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1356,
+        "top": 142.09375,
+        "bottom": 694,
+        "width": 1053,
+        "height": 551.90625,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 552,
+        "scrollHeight": 552
+      }
+    },
+    {
+      "state": "materials-search",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 141,
+        "bottom": 751,
+        "width": 1350,
+        "height": 610,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 141,
+        "bottom": 751,
+        "width": 288,
+        "height": 610,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 141,
+        "bottom": 751,
+        "width": 1054,
+        "height": 610,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 610,
+        "scrollHeight": 610
+      },
+      "content": {
+        "left": 303,
+        "right": 1356,
+        "top": 191.09375,
+        "bottom": 257.09375,
+        "width": 1053,
+        "height": 66,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 66,
+        "scrollHeight": 66
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1356,
+        "top": 191.09375,
+        "bottom": 743,
+        "width": 1053,
+        "height": 551.90625,
+        "clientWidth": 1053,
+        "scrollWidth": 1053,
+        "clientHeight": 552,
+        "scrollHeight": 552
+      }
+    },
+    {
+      "state": "material-detail",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 315,
+        "right": 1345,
+        "top": 229.6875,
+        "bottom": 782.25,
+        "width": 1030,
+        "height": 552.5625,
+        "clientWidth": 1030,
+        "scrollWidth": 1030,
+        "clientHeight": 553,
+        "scrollHeight": 553
+      },
+      "related": {
+        "left": 315,
+        "right": 1345,
+        "top": 814.25,
+        "bottom": 1274.140625,
+        "width": 1030,
+        "height": 459.890625,
+        "clientWidth": 1030,
+        "scrollWidth": 1030,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 217.6875,
+        "bottom": 742,
+        "width": 1054,
+        "height": 524.3125,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 524,
+        "scrollHeight": 1068
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1358,
+        "top": 92,
+        "bottom": 742,
+        "width": 1350,
+        "height": 650,
+        "clientWidth": 1350,
+        "scrollWidth": 1350,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 742,
+        "width": 288,
+        "height": 650,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "main": {
+        "left": 303,
+        "right": 1357,
+        "top": 92,
+        "bottom": 742,
+        "width": 1054,
+        "height": 650,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 650,
+        "scrollHeight": 650
+      },
+      "content": {
+        "left": 303,
+        "right": 1357,
+        "top": 217.6875,
+        "bottom": 742,
+        "width": 1054,
+        "height": 524.3125,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 524,
+        "scrollHeight": 1737
+      },
+      "related": {
+        "left": 315,
+        "right": 1345,
+        "top": 1482.390625,
+        "bottom": 1942.28125,
+        "width": 1030,
+        "height": 459.890625,
+        "clientWidth": 1030,
+        "scrollWidth": 1030,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1357,
+        "top": 217.6875,
+        "bottom": 742,
+        "width": 1054,
+        "height": 524.3125,
+        "clientWidth": 1054,
+        "scrollWidth": 1054,
+        "clientHeight": 524,
+        "scrollHeight": 1737
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 834,
+        "width": 1424,
+        "height": 742,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 834,
+        "width": 288,
+        "height": 742,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 834,
+        "width": 1128,
+        "height": 742,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "content": {
+        "left": 303,
+        "right": 1430,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1127,
+        "height": 131.5,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1430,
+        "top": 142.09375,
+        "bottom": 826,
+        "width": 1127,
+        "height": 683.90625,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 684,
+        "scrollHeight": 684
+      }
+    },
+    {
+      "state": "materials-search",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 141,
+        "bottom": 883,
+        "width": 1424,
+        "height": 742,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 141,
+        "bottom": 883,
+        "width": 288,
+        "height": 742,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 141,
+        "bottom": 883,
+        "width": 1128,
+        "height": 742,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 742,
+        "scrollHeight": 742
+      },
+      "content": {
+        "left": 303,
+        "right": 1430,
+        "top": 191.09375,
+        "bottom": 257.09375,
+        "width": 1127,
+        "height": 66,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 66,
+        "scrollHeight": 66
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1430,
+        "top": 191.09375,
+        "bottom": 875,
+        "width": 1127,
+        "height": 683.90625,
+        "clientWidth": 1127,
+        "scrollWidth": 1127,
+        "clientHeight": 684,
+        "scrollHeight": 684
+      }
+    },
+    {
+      "state": "material-detail",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 315,
+        "right": 1419,
+        "top": 229.6875,
+        "bottom": 782.25,
+        "width": 1104,
+        "height": 552.5625,
+        "clientWidth": 1104,
+        "scrollWidth": 1104,
+        "clientHeight": 553,
+        "scrollHeight": 553
+      },
+      "related": {
+        "left": 315,
+        "right": 1419,
+        "top": 814.25,
+        "bottom": 1274.140625,
+        "width": 1104,
+        "height": 459.890625,
+        "clientWidth": 1104,
+        "scrollWidth": 1104,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 217.6875,
+        "bottom": 874,
+        "width": 1128,
+        "height": 656.3125,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 656,
+        "scrollHeight": 1068
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1432,
+        "top": 92,
+        "bottom": 874,
+        "width": 1424,
+        "height": 782,
+        "clientWidth": 1424,
+        "scrollWidth": 1424,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 874,
+        "width": 288,
+        "height": 782,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "main": {
+        "left": 303,
+        "right": 1431,
+        "top": 92,
+        "bottom": 874,
+        "width": 1128,
+        "height": 782,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 782,
+        "scrollHeight": 782
+      },
+      "content": {
+        "left": 303,
+        "right": 1431,
+        "top": 217.6875,
+        "bottom": 874,
+        "width": 1128,
+        "height": 656.3125,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 656,
+        "scrollHeight": 1789
+      },
+      "related": {
+        "left": 315,
+        "right": 1419,
+        "top": 1535.203125,
+        "bottom": 1995.09375,
+        "width": 1104,
+        "height": 459.890625,
+        "clientWidth": 1104,
+        "scrollWidth": 1104,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1431,
+        "top": 217.6875,
+        "bottom": 874,
+        "width": 1128,
+        "height": 656.3125,
+        "clientWidth": 1128,
+        "scrollWidth": 1128,
+        "clientHeight": 656,
+        "scrollHeight": 1789
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1014,
+        "width": 1904,
+        "height": 922,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1014,
+        "width": 288,
+        "height": 922,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1014,
+        "width": 1608,
+        "height": 922,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "content": {
+        "left": 303,
+        "right": 1910,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 1607,
+        "height": 131.5,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1910,
+        "top": 142.09375,
+        "bottom": 1006,
+        "width": 1607,
+        "height": 863.90625,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 864,
+        "scrollHeight": 864
+      }
+    },
+    {
+      "state": "materials-search",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 141,
+        "bottom": 1063,
+        "width": 1904,
+        "height": 922,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 141,
+        "bottom": 1063,
+        "width": 288,
+        "height": 922,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 141,
+        "bottom": 1063,
+        "width": 1608,
+        "height": 922,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 922,
+        "scrollHeight": 922
+      },
+      "content": {
+        "left": 303,
+        "right": 1910,
+        "top": 191.09375,
+        "bottom": 257.09375,
+        "width": 1607,
+        "height": 66,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 66,
+        "scrollHeight": 66
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 1910,
+        "top": 191.09375,
+        "bottom": 1055,
+        "width": 1607,
+        "height": 863.90625,
+        "clientWidth": 1607,
+        "scrollWidth": 1607,
+        "clientHeight": 864,
+        "scrollHeight": 864
+      }
+    },
+    {
+      "state": "material-detail",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 315,
+        "right": 1899,
+        "top": 229.6875,
+        "bottom": 782.25,
+        "width": 1584,
+        "height": 552.5625,
+        "clientWidth": 1584,
+        "scrollWidth": 1584,
+        "clientHeight": 553,
+        "scrollHeight": 553
+      },
+      "related": {
+        "left": 315,
+        "right": 1899,
+        "top": 814.25,
+        "bottom": 1274.140625,
+        "width": 1584,
+        "height": 459.890625,
+        "clientWidth": 1584,
+        "scrollWidth": 1584,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 217.6875,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 836.3125,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 836,
+        "scrollHeight": 1068
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 1912,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1904,
+        "height": 962,
+        "clientWidth": 1904,
+        "scrollWidth": 1904,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 1054,
+        "width": 288,
+        "height": 962,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "main": {
+        "left": 303,
+        "right": 1911,
+        "top": 92,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 962,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 962,
+        "scrollHeight": 962
+      },
+      "content": {
+        "left": 303,
+        "right": 1911,
+        "top": 217.6875,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 836.3125,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 836,
+        "scrollHeight": 1861
+      },
+      "related": {
+        "left": 315,
+        "right": 1899,
+        "top": 1607.203125,
+        "bottom": 2067.09375,
+        "width": 1584,
+        "height": 459.890625,
+        "clientWidth": 1584,
+        "scrollWidth": 1584,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 1911,
+        "top": 217.6875,
+        "bottom": 1054,
+        "width": 1608,
+        "height": 836.3125,
+        "clientWidth": 1608,
+        "scrollWidth": 1608,
+        "clientHeight": 836,
+        "scrollHeight": 1861
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1374,
+        "width": 2544,
+        "height": 1282,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1374,
+        "width": 287.984375,
+        "height": 1282,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1374,
+        "width": 2248.015625,
+        "height": 1282,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 2247.015625,
+        "height": 131.5,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 142.09375,
+        "bottom": 1366,
+        "width": 2247.015625,
+        "height": 1223.90625,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 1224,
+        "scrollHeight": 1224
+      }
+    },
+    {
+      "state": "materials-search",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 141,
+        "bottom": 1423,
+        "width": 2544,
+        "height": 1282,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 141,
+        "bottom": 1423,
+        "width": 287.984375,
+        "height": 1282,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 141,
+        "bottom": 1423,
+        "width": 2248.015625,
+        "height": 1282,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1282,
+        "scrollHeight": 1282
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 191.09375,
+        "bottom": 257.09375,
+        "width": 2247.015625,
+        "height": 66,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 66,
+        "scrollHeight": 66
+      },
+      "related": null,
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2550,
+        "top": 191.09375,
+        "bottom": 1415,
+        "width": 2247.015625,
+        "height": 1223.90625,
+        "clientWidth": 2247,
+        "scrollWidth": 2247,
+        "clientHeight": 1224,
+        "scrollHeight": 1224
+      }
+    },
+    {
+      "state": "material-detail",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 314.984375,
+        "right": 2539,
+        "top": 229.6875,
+        "bottom": 782.25,
+        "width": 2224.015625,
+        "height": 552.5625,
+        "clientWidth": 2224,
+        "scrollWidth": 2224,
+        "clientHeight": 553,
+        "scrollHeight": 553
+      },
+      "related": {
+        "left": 314.984375,
+        "right": 2539,
+        "top": 814.25,
+        "bottom": 1274.140625,
+        "width": 2224.015625,
+        "height": 459.890625,
+        "clientWidth": 2224,
+        "scrollWidth": 2224,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 217.6875,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1196.3125,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1196,
+        "scrollHeight": 1196
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 2552,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2544,
+        "height": 1322,
+        "clientWidth": 2544,
+        "scrollWidth": 2544,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "navigator": {
+        "left": 9,
+        "right": 296.984375,
+        "top": 92,
+        "bottom": 1414,
+        "width": 287.984375,
+        "height": 1322,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "main": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 92,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1322,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1322,
+        "scrollHeight": 1322
+      },
+      "content": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 217.6875,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1196.3125,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1196,
+        "scrollHeight": 2005
+      },
+      "related": {
+        "left": 314.984375,
+        "right": 2539,
+        "top": 1751.203125,
+        "bottom": 2211.09375,
+        "width": 2224.015625,
+        "height": 459.890625,
+        "clientWidth": 2224,
+        "scrollWidth": 2224,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 302.984375,
+        "right": 2551,
+        "top": 217.6875,
+        "bottom": 1414,
+        "width": 2248.015625,
+        "height": 1196.3125,
+        "clientWidth": 2248,
+        "scrollWidth": 2248,
+        "clientHeight": 1196,
+        "scrollHeight": 2005
+      }
+    },
+    {
+      "state": "materials-browse",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2094,
+        "width": 3824,
+        "height": 2002,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2094,
+        "width": 288,
+        "height": 2002,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2094,
+        "width": 3528,
+        "height": 2002,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "content": {
+        "left": 303,
+        "right": 3830,
+        "top": 142.09375,
+        "bottom": 273.59375,
+        "width": 3527,
+        "height": 131.5,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 132,
+        "scrollHeight": 132
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3830,
+        "top": 142.09375,
+        "bottom": 2086,
+        "width": 3527,
+        "height": 1943.90625,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 1944,
+        "scrollHeight": 1944
+      }
+    },
+    {
+      "state": "materials-search",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 141,
+        "bottom": 2143,
+        "width": 3824,
+        "height": 2002,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 141,
+        "bottom": 2143,
+        "width": 288,
+        "height": 2002,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 141,
+        "bottom": 2143,
+        "width": 3528,
+        "height": 2002,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2002,
+        "scrollHeight": 2002
+      },
+      "content": {
+        "left": 303,
+        "right": 3830,
+        "top": 191.09375,
+        "bottom": 257.09375,
+        "width": 3527,
+        "height": 66,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 66,
+        "scrollHeight": 66
+      },
+      "related": null,
+      "localScroll": {
+        "left": 303,
+        "right": 3830,
+        "top": 191.09375,
+        "bottom": 2135,
+        "width": 3527,
+        "height": 1943.90625,
+        "clientWidth": 3527,
+        "scrollWidth": 3527,
+        "clientHeight": 1944,
+        "scrollHeight": 1944
+      }
+    },
+    {
+      "state": "material-detail",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 315,
+        "right": 3819,
+        "top": 229.6875,
+        "bottom": 782.25,
+        "width": 3504,
+        "height": 552.5625,
+        "clientWidth": 3504,
+        "scrollWidth": 3504,
+        "clientHeight": 553,
+        "scrollHeight": 553
+      },
+      "related": {
+        "left": 315,
+        "right": 3819,
+        "top": 814.25,
+        "bottom": 1274.140625,
+        "width": 3504,
+        "height": 459.890625,
+        "clientWidth": 3504,
+        "scrollWidth": 3504,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 217.6875,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1916.3125,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1916,
+        "scrollHeight": 1916
+      }
+    },
+    {
+      "state": "material-curves",
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "pageOverflowX": 0,
+      "workspace": {
+        "left": 8,
+        "right": 3832,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3824,
+        "height": 2042,
+        "clientWidth": 3824,
+        "scrollWidth": 3824,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "navigator": {
+        "left": 9,
+        "right": 297,
+        "top": 92,
+        "bottom": 2134,
+        "width": 288,
+        "height": 2042,
+        "clientWidth": 288,
+        "scrollWidth": 288,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "main": {
+        "left": 303,
+        "right": 3831,
+        "top": 92,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 2042,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 2042,
+        "scrollHeight": 2042
+      },
+      "content": {
+        "left": 303,
+        "right": 3831,
+        "top": 217.6875,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1916.3125,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1916,
+        "scrollHeight": 2109
+      },
+      "related": {
+        "left": 315,
+        "right": 3819,
+        "top": 1855.203125,
+        "bottom": 2315.09375,
+        "width": 3504,
+        "height": 459.890625,
+        "clientWidth": 3504,
+        "scrollWidth": 3504,
+        "clientHeight": 459,
+        "scrollHeight": 459
+      },
+      "localScroll": {
+        "left": 303,
+        "right": 3831,
+        "top": 217.6875,
+        "bottom": 2134,
+        "width": 3528,
+        "height": 1916.3125,
+        "clientWidth": 3528,
+        "scrollWidth": 3528,
+        "clientHeight": 1916,
+        "scrollHeight": 2109
+      }
+    }
+  ],
+  "recovery": {
+    "state": "query-error-recovery",
+    "viewport": "1440x900",
+    "retainedRows": true,
+    "retainedSelection": true,
+    "retryRecovered": true,
+    "originalUrl": "http://127.0.0.1:5173/materials?q=DP780&table=1df98273-50e7-493b-b2d3-180eab11c09a&mode=filters&selected=e58543c2-2c1c-4aa1-89c4-92f290e9155b",
+    "recoveredUrl": "http://127.0.0.1:5173/materials?q=DP780+recovery+check&table=1df98273-50e7-493b-b2d3-180eab11c09a&mode=filters"
+  },
+  "continuity": {
+    "searchUrl": "http://127.0.0.1:5173/materials?q=DP780&table=1df98273-50e7-493b-b2d3-180eab11c09a&mode=filters&selected=e58543c2-2c1c-4aa1-89c4-92f290e9155b",
+    "exactUrl": "http://127.0.0.1:5173/materials/e58543c2-2c1c-4aa1-89c4-92f290e9155b?record_id=2ea5807c-ab29-4cb5-b042-e81431193ffa&record_revision_id=185a85b0-4121-4228-9a61-051921e584c6&material_revision_id=bf316782-aa6c-4927-bfe6-92b3a94464b7",
+    "exactPins": {
+      "record_id": "2ea5807c-ab29-4cb5-b042-e81431193ffa",
+      "record_revision_id": "185a85b0-4121-4228-9a61-051921e584c6",
+      "material_revision_id": "bf316782-aa6c-4927-bfe6-92b3a94464b7"
+    },
+    "reloadReadBack": true,
+    "returnUrl": "http://127.0.0.1:5173/materials?q=DP780&table=1df98273-50e7-493b-b2d3-180eab11c09a&mode=filters&selected=e58543c2-2c1c-4aa1-89c4-92f290e9155b",
+    "handoffOutcome": "start-modeling-exact-context"
+  },
+  "comparisons": [
+    {
+      "name": "materials-search-1366x768.png",
+      "changedPixels": 2,
+      "changedPercent": 0.0002,
+      "differenceBounds": [
+        303,
+        158,
+        304,
+        166
+      ]
+    },
+    {
+      "name": "materials-search-1440x900.png",
+      "changedPixels": 0,
+      "changedPercent": 0.0,
+      "differenceBounds": null
+    },
+    {
+      "name": "materials-search-1920x1080.png",
+      "changedPixels": 13,
+      "changedPercent": 0.0006,
+      "differenceBounds": [
+        17,
+        158,
+        304,
+        244
+      ]
+    },
+    {
+      "name": "materials-search-2560x1440.png",
+      "changedPixels": 15,
+      "changedPercent": 0.0004,
+      "differenceBounds": [
+        17,
+        158,
+        304,
+        244
+      ]
+    },
+    {
+      "name": "materials-search-3840x2160.png",
+      "changedPixels": 13,
+      "changedPercent": 0.0002,
+      "differenceBounds": [
+        17,
+        158,
+        304,
+        244
+      ]
+    },
+    {
+      "name": "materials-browse-1366x768.png",
+      "changedPixels": 14978,
+      "changedPercent": 1.4277,
+      "differenceBounds": [
+        9,
+        659,
+        1195,
+        764
+      ]
+    },
+    {
+      "name": "materials-browse-1440x900.png",
+      "changedPixels": 12346,
+      "changedPercent": 0.9526,
+      "differenceBounds": [
+        9,
+        172,
+        296,
+        834
+      ]
+    },
+    {
+      "name": "materials-browse-1920x1080.png",
+      "changedPixels": 12341,
+      "changedPercent": 0.5951,
+      "differenceBounds": [
+        9,
+        971,
+        296,
+        1014
+      ]
+    },
+    {
+      "name": "materials-browse-2560x1440.png",
+      "changedPixels": 12388,
+      "changedPercent": 0.336,
+      "differenceBounds": [
+        9,
+        123,
+        330,
+        1374
+      ]
+    },
+    {
+      "name": "materials-browse-3840x2160.png",
+      "changedPixels": 12346,
+      "changedPercent": 0.1488,
+      "differenceBounds": [
+        9,
+        172,
+        296,
+        2094
+      ]
+    },
+    {
+      "name": "material-detail-1366x768.png",
+      "changedPixels": 117154,
+      "changedPercent": 11.1672,
+      "differenceBounds": [
+        9,
+        235,
+        1357,
+        742
+      ]
+    },
+    {
+      "name": "material-detail-1440x900.png",
+      "changedPixels": 148214,
+      "changedPercent": 11.4363,
+      "differenceBounds": [
+        9,
+        235,
+        1431,
+        874
+      ]
+    },
+    {
+      "name": "material-detail-1920x1080.png",
+      "changedPixels": 202259,
+      "changedPercent": 9.754,
+      "differenceBounds": [
+        9,
+        235,
+        1911,
+        1054
+      ]
+    },
+    {
+      "name": "material-detail-2560x1440.png",
+      "changedPixels": 323446,
+      "changedPercent": 8.774,
+      "differenceBounds": [
+        9,
+        235,
+        2551,
+        1414
+      ]
+    },
+    {
+      "name": "material-detail-3840x2160.png",
+      "changedPixels": 525583,
+      "changedPercent": 6.3366,
+      "differenceBounds": [
+        9,
+        235,
+        3831,
+        2134
+      ]
+    },
+    {
+      "name": "material-curves-1366x768.png",
+      "changedPixels": 77279,
+      "changedPercent": 7.3663,
+      "differenceBounds": [
+        9,
+        235,
+        1357,
+        742
+      ]
+    },
+    {
+      "name": "material-curves-1440x900.png",
+      "changedPixels": 91340,
+      "changedPercent": 7.0478,
+      "differenceBounds": [
+        9,
+        235,
+        1431,
+        874
+      ]
+    },
+    {
+      "name": "material-curves-1920x1080.png",
+      "changedPixels": 122866,
+      "changedPercent": 5.9253,
+      "differenceBounds": [
+        9,
+        235,
+        1911,
+        1054
+      ]
+    },
+    {
+      "name": "material-curves-2560x1440.png",
+      "changedPixels": 265349,
+      "changedPercent": 7.1981,
+      "differenceBounds": [
+        9,
+        235,
+        2551,
+        1414
+      ]
+    },
+    {
+      "name": "material-curves-3840x2160.png",
+      "changedPixels": 537865,
+      "changedPercent": 6.4847,
+      "differenceBounds": [
+        9,
+        235,
+        3831,
+        2134
+      ]
+    }
+  ],
+  "images": [
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "846a64477a1de4f0a74c86114949c256dfea3fc5d9fa1f8ba47f2634bdbac326",
+      "width": 1046,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "75841cc73ea69e67079776ff891202d3eb5c62c25645bc4883bb295451e79a9b",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "e142b5b6baef5d1ba2596b0947828b9ddba0444115ed82280792e2d6225fc80e",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "a95b2a743e710f05ac87f6b98840c95c5084370a125b4112be345f788d159ec7",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "5580eb5cb9881de2e0e176a7e3a33aeb0736238105d012ff60bc5a3e2bddc33f",
+      "width": 1120,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "5f9bc6b1889a57b4cb8e371696f67d99fa0564bcef8a31a848fc41236e6967e0",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "410adf0d6870b8e433f6dc924e069cae32881e2f13755dbe7cff768398660583",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "83b7b6d7e54d82a091602607fe3c8f92058ae42249577a6f863cb83fae2917d5",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "9ba51b233c99efc613dadcc41a42b6f098e8be3a40e21a14f8c72aff32cbd61b",
+      "width": 1600,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "48eb71ab2fcdbe39bb60389f86062d726533101d805cf9be6324789193a46699",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "afcf8b0a0ad8a6e57c0b5083c1455ba663c2dde0cc3cc173a40dcf23f3d0cbb6",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "600e5b33b29b15be4be0be9cebafb3e957efa4134b40476d147ccc4731bd0a09",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "9430c79602a8973543251a5e4a878781b8dae5b2480f2f620c1578d924dbaeeb",
+      "width": 2240,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "512efede0aec67c5a8243027d4003999a2930cad142594a7ecbb2b57a2373d60",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "25686eb65e0313718d3a994f5fef20f9c0f3dace60bbc313b0c22a6eed883cfe",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "81a1fcd2cabd7d832a216cc70fd4afabdfa1081c21ed5a8e2f348918e450652e",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "6236a5a8c7fddabc5929710a2ba7e10e62801d1b9e1a8b1100d9a25217fde896",
+      "width": 3520,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "349cb724723db8a13db122d249aef58597ebb1c3d7655dc4c779b16fec4cf17c",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "50f037389ac23bc21223bdeead65a0a362bb34200937e3f4eac6c207dd77a5c8",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "7418c7216eca9611e0729692f0b27f2ddb646081bf5e828ef5668cd8b6363183",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1366x768-graph-preview-100pct.png",
+      "sha256": "dd9226ebdc98cc74354094f67b326de748b9c1aeb824d2e15fe4278f924ecd10",
+      "width": 1046,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1366x768-header-100pct.png",
+      "sha256": "75841cc73ea69e67079776ff891202d3eb5c62c25645bc4883bb295451e79a9b",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1366x768-navigator-100pct.png",
+      "sha256": "094fbc412b930bd772e145938b1231406873ea4be71b0522d77c5a86f586e812",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1366x768-table-form-100pct.png",
+      "sha256": "c0272ee8fffe1f71e07ce5cc467baf2c0e23ca90be9ec47bb3bcf40b08f20465",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1440x900-graph-preview-100pct.png",
+      "sha256": "61b6abc05b732196d97128f0493983d4015f82181116fca3e313a6b52c2a0c04",
+      "width": 1120,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1440x900-header-100pct.png",
+      "sha256": "5f9bc6b1889a57b4cb8e371696f67d99fa0564bcef8a31a848fc41236e6967e0",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1440x900-navigator-100pct.png",
+      "sha256": "6f4c9a3c7e9db5edea7d29f9fe29c3109429a97ac6a3a08721e685ab60e1de02",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1440x900-table-form-100pct.png",
+      "sha256": "380fe56403e414046e94ef892d2f5b5cccaffe2c46a6b7266acf94a9807a2868",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1920x1080-graph-preview-100pct.png",
+      "sha256": "e0a651fe4e389649b1400b13f938208a19e694a5170bad138d65611af848244f",
+      "width": 1600,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1920x1080-header-100pct.png",
+      "sha256": "48eb71ab2fcdbe39bb60389f86062d726533101d805cf9be6324789193a46699",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1920x1080-navigator-100pct.png",
+      "sha256": "80dd50c5e227e193782848c38cb4b9b83c51ac6b971f00e39a2083bb05fdfe2e",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1920x1080-table-form-100pct.png",
+      "sha256": "dc2cf75b446c73535355e42b7f46ad05cc5f82fd2dc47eafef5a7fb7b81a1798",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-2560x1440-graph-preview-100pct.png",
+      "sha256": "4993374b3c750e02679330763f2f0129de185d21a0b0500bf5683be7a6f28bae",
+      "width": 2240,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-2560x1440-header-100pct.png",
+      "sha256": "512efede0aec67c5a8243027d4003999a2930cad142594a7ecbb2b57a2373d60",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-2560x1440-navigator-100pct.png",
+      "sha256": "a7cf4d0f3eff61e08f2283fabefc573779705daf3e1792a98da2071ad44adb6c",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-2560x1440-table-form-100pct.png",
+      "sha256": "c1ed2f1190ff6a2f94ab15d149765be9c3cebe021a90cd005496bc6d7e9c8480",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-3840x2160-graph-preview-100pct.png",
+      "sha256": "bcbbc243ece7da5b524a24afc6f4c509c309506331252ed0055ebecb6035702b",
+      "width": 3520,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-3840x2160-header-100pct.png",
+      "sha256": "349cb724723db8a13db122d249aef58597ebb1c3d7655dc4c779b16fec4cf17c",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-3840x2160-navigator-100pct.png",
+      "sha256": "949056871561e1dc1712908ccc7b9b1886c4e94da5d905c60b600c72eb5458f2",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-3840x2160-table-form-100pct.png",
+      "sha256": "ae43405e575d34b6cca540e50b8b8d31c888e3aa13d998eaf425c49f5a32bfb0",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1366x768-header-100pct.png",
+      "sha256": "e02077672a17b8d844ac1287cb2e262c1ee8ef1940494fa0bea087ac9f09584a",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1366x768-navigator-100pct.png",
+      "sha256": "bd30c80831fb45ab1a8784e712250b1986bc98adbb4342952acf678a1026b134",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1366x768-table-form-100pct.png",
+      "sha256": "ae2219b5ea19cb7bdf8dc057190d92c7e6daa4c7ac78399358f039bd4c958167",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1440x900-header-100pct.png",
+      "sha256": "f657f12948fdb17707591ccc0ecb5828088a8336499c45fd0bc0a184b8eb48e9",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1440x900-navigator-100pct.png",
+      "sha256": "881699b35d92cb9d573ba6f9b6806e084fd52072694e3e5e6b48ddd7fedfee24",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1440x900-table-form-100pct.png",
+      "sha256": "1a2d69c9e8a4c1239c804b0d66ebbb0f98817773ff08643dcff27d041e83a2ae",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1920x1080-header-100pct.png",
+      "sha256": "763397b507e9ad5981be63403d6d6e85cbc23a6471ddac5d0f22f6c3598c9711",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1920x1080-navigator-100pct.png",
+      "sha256": "00d528522b82a3c67060bf2c1e05558c6f7a752dcb6db8c0a10b71a021e8fa4f",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1920x1080-table-form-100pct.png",
+      "sha256": "5b978cca920b58f8a5062787af364497739e553f0c5b9f9f1f62188cd0595969",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-2560x1440-header-100pct.png",
+      "sha256": "a177da438eaef4cde9e8c1cf3fac0cd731c3e147cdba1a8698a4bac326604082",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-2560x1440-navigator-100pct.png",
+      "sha256": "f6b6140afb7534bb71e493e042a48258393949f39305b2ad1b8f7093bf485225",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-2560x1440-table-form-100pct.png",
+      "sha256": "183f5ed06131c1318ca64f6558d2686394ee07c68fcb68b86404d304622009e7",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-3840x2160-header-100pct.png",
+      "sha256": "d5733f6b2688e5b86d4fa26548f5af47c7f2231c83aec68e24f1fc2d98c00698",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-3840x2160-navigator-100pct.png",
+      "sha256": "37730dae27e9ed933008dd1b5abf1f117ae9476a71d58efab89b8c1a0536bef1",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-3840x2160-table-form-100pct.png",
+      "sha256": "22d2c9c8d95fee73a850c213a6091047275456fe75ff6575e43c7bcff19ce2af",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1366x768-header-100pct.png",
+      "sha256": "44ae2fcba8fa3637b0a448cad24bb83f8d3742d2bd9f820b0aa8674cf181fd71",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1366x768-navigator-100pct.png",
+      "sha256": "129688ce37d6b8061a6d6365a3f4656249dbee112e7c96787a5487cd622f3e4a",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1366x768-table-form-100pct.png",
+      "sha256": "c33caf6559dd212310bf1c8920e366db5427cb809d5823dac297430c0ec8196c",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1440x900-header-100pct.png",
+      "sha256": "c20544a726f45e10216ef26b27aa2b22f4d0ca87e31312845e1948fe2e844a76",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1440x900-navigator-100pct.png",
+      "sha256": "6566630b5911d732f5ae6adc1458d002e8c7900aee5c966408bca6e2a2b2be04",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1440x900-table-form-100pct.png",
+      "sha256": "f11482f3c6fd72a7a089872e14c22b5e193ab0205d1a17367af0e8798f6471a3",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1920x1080-header-100pct.png",
+      "sha256": "c66211cfeb701beb727d0cb5c832f5a1833901c02384fee220a541f7f29ddbe2",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1920x1080-navigator-100pct.png",
+      "sha256": "93a4039e7a7c5b7d5cbc098b93a9af31df83d897f320a4a142511591483c892c",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1920x1080-table-form-100pct.png",
+      "sha256": "068c44c15f10d6829cbb70dc5d1ac18b7360198d0b334ed8b5e4d2435ebd270f",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-2560x1440-header-100pct.png",
+      "sha256": "63f4f6d8e1244c8b16740e8314548364dbfdec4052cf5c7f63715d3b2c0adcf8",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-2560x1440-navigator-100pct.png",
+      "sha256": "36a7c1a2480cc19dc5b0740a9863c5fe11c6f496ad454ccbadaf466e397b87eb",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-2560x1440-table-form-100pct.png",
+      "sha256": "3fda36d6e29336f45febd02f2a46c4ab64f4fbd1fc12364ec3839558296b0d4f",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-3840x2160-header-100pct.png",
+      "sha256": "2b75ebeafb8d3fc488993bcdb52188a0e08f77f62a3412be49629994aad7755a",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-3840x2160-navigator-100pct.png",
+      "sha256": "62fbd7130703fddf0d94d591e13b8faa27a187d8f0a67ec4f6f5f32975520f81",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-3840x2160-table-form-100pct.png",
+      "sha256": "17426696ee9d0a6a4adba9c6130bd3723129962e52af762986d523282d75ed27",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/exceptions/materials-search-error-1440x900.png",
+      "sha256": "1d6c5929a38c8ebaec62c592c01b1394a4ae9a38f8f26d22bb97cd2c59cfba75",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/exceptions/materials-search-recovered-1440x900.png",
+      "sha256": "c8edf0b13036280f03f72401e689e864f99f43cb5b8a5eeeb72d097e8b183b91",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-1366x768.png",
+      "sha256": "a966c9c4cd82495c4db733e3644f80226f5df041bfd9a945e90808b4ec008862",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-1440x900.png",
+      "sha256": "a8b288e2e399353921d3d736ebfd5ee5101fd06041f27b584e9acff2a95283ba",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-1920x1080.png",
+      "sha256": "71c07b8382d3884ebc184a8a96041d779093c36329b80d54ae6e4c1deed56ce7",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-2560x1440.png",
+      "sha256": "e37071f6f3b8e13cba83c76047cc92640508ac0ae8c9b88a0c76edbd5b3d2e34",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-3840x2160.png",
+      "sha256": "05006474563b594ac23edc503b6c970290896dc08404830f584dfc5cbb28ecd9",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-1366x768.png",
+      "sha256": "00a05ea727f297a5aa3a0fe0da524926f653cee77af8bdabbd3d929aa17d07d3",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-1440x900.png",
+      "sha256": "acba6f04dd5071bcdc15673da49855266d7b6dcbe80633f5a80ee012a8b6d266",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-1920x1080.png",
+      "sha256": "dd577c00953fde87345a87ceb46b6fe4a17d1c77801d410508e7dc415c57250e",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-2560x1440.png",
+      "sha256": "ff767befdf64e04cf746f76e668b0eae0b51891b36384ef3d55a2184ba1684e9",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-3840x2160.png",
+      "sha256": "100cae2ae811647179e84918cbdce1c8168bb38a3b1511833f5ffa4f07c6ca39",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-browse-1366x768.png",
+      "sha256": "4a1dbb26a0b89c51864baab21d25282a767e8eea88390fbd45a4974e791a970a",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-browse-1440x900.png",
+      "sha256": "b6b09fab189101dfaae4a1bc542849fb61a7e3493e12038715e3541bae79e884",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-browse-1920x1080.png",
+      "sha256": "5ffb7cc34867dd75f9304093156e5912b077d47b25d96a02f932ef7c5f904d29",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-browse-2560x1440.png",
+      "sha256": "22e93d203e8cbd4f07fecb481b444074d44418e6519b972f8f2d3656069476ce",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-browse-3840x2160.png",
+      "sha256": "d1f2ecc78e501988e7d9c9c54f6dcf6fb5f14163e2d37860172ce888bb132898",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-1366x768.png",
+      "sha256": "92fcb1e46c1734c2b90d2c997394808bcbc64a1e0376a6151d9070a343b90d32",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-1440x900.png",
+      "sha256": "ca0624d9e5d7449b65f30e2350c4bbb461fdad2f0db080d70044abfb1d8edba6",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-1920x1080.png",
+      "sha256": "7e676868a52c716c4d35882bb22b0ffd991c74b506ab10f9ee3b42fdb84434a1",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-2560x1440.png",
+      "sha256": "d5f8d0d90d651dcddf7d3cca8179f675ea5a717bd2dd6f4dad0affacefff33a2",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-3840x2160.png",
+      "sha256": "9a5354c2bcb523accf48cbb10411821c53a388572ddd9e169fd95b7a5c5c50cc",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1366x768-graph-preview-100pct.png",
+      "sha256": "c1cd9ad93fd55dcab1a61501395c932fe786825b4a325c62b05489f44d238e94",
+      "width": 1046,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1366x768-header-100pct.png",
+      "sha256": "75841cc73ea69e67079776ff891202d3eb5c62c25645bc4883bb295451e79a9b",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1366x768-navigator-100pct.png",
+      "sha256": "29e8cc35d95bb62dc09cce4caa462b4335c75473913b26de9a034ff73cecc3a6",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1366x768-table-form-100pct.png",
+      "sha256": "c2d1f5c989ea56d7f2a4f77039f53849c6330c26702e67b9c6410d1178f7daf9",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1440x900-graph-preview-100pct.png",
+      "sha256": "c3a43f3620a800972cc440483feac83cee58c2ed26066e9096e8530323a12c8a",
+      "width": 1120,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1440x900-header-100pct.png",
+      "sha256": "5f9bc6b1889a57b4cb8e371696f67d99fa0564bcef8a31a848fc41236e6967e0",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1440x900-navigator-100pct.png",
+      "sha256": "dba43d2b61c46024f05a04c193a9786cbc57c9219ba766ef67fecee458865ecf",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1440x900-table-form-100pct.png",
+      "sha256": "1e04a5b63c59a15f08539fc6d04eb2847221922d69fb630e4040a7f112b29750",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1920x1080-graph-preview-100pct.png",
+      "sha256": "384dbc8806198bd81df741173d431f43a3d49a9ac345bca77885cc9923ecd50b",
+      "width": 1600,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1920x1080-header-100pct.png",
+      "sha256": "48eb71ab2fcdbe39bb60389f86062d726533101d805cf9be6324789193a46699",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1920x1080-navigator-100pct.png",
+      "sha256": "fba948d232204afe0a31e616abefa09aa3ff8fb87c107b54cda9db40177a8fad",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1920x1080-table-form-100pct.png",
+      "sha256": "f06bb1fd0435711188ad0556b2814484692fe823bfdd1d76609b44bb0a38b1e6",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-2560x1440-graph-preview-100pct.png",
+      "sha256": "c2cc179bd67a510c5324d0b5caebdc9201204835ddb5fb3412788984c394d124",
+      "width": 2240,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-2560x1440-header-100pct.png",
+      "sha256": "512efede0aec67c5a8243027d4003999a2930cad142594a7ecbb2b57a2373d60",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-2560x1440-navigator-100pct.png",
+      "sha256": "3d6a4ab06afa85204b89a9c564719622c48ac8e6763bb6a7d412a6c7bd814339",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-2560x1440-table-form-100pct.png",
+      "sha256": "e2b67b534776f2f142540165bc1836c85524b150bd7988bae4b37d73c0587f3c",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-3840x2160-graph-preview-100pct.png",
+      "sha256": "8bcf0534a5945f2ace96824dfa5286bca299d9589a4a7548a31708d670bbdcf9",
+      "width": 3520,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-3840x2160-header-100pct.png",
+      "sha256": "349cb724723db8a13db122d249aef58597ebb1c3d7655dc4c779b16fec4cf17c",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-3840x2160-navigator-100pct.png",
+      "sha256": "fc0a69f849a68d84415dfd59622b913854e004ba09429027500f0a3ee5f3d257",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-3840x2160-table-form-100pct.png",
+      "sha256": "2cc3b50dfa77b80e4865128e920ac7d81ddbdd7bd95c71a1729a1af6e5f80299",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1366x768-graph-preview-100pct.png",
+      "sha256": "92731960d857203fc42cec82ba8370c7187e2207d114873737bab29e483d55b8",
+      "width": 1046,
+      "height": 323
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1366x768-header-100pct.png",
+      "sha256": "75841cc73ea69e67079776ff891202d3eb5c62c25645bc4883bb295451e79a9b",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1366x768-navigator-100pct.png",
+      "sha256": "815c2ffa7df803569b32d204557d04eb4bd6fd719568186c00b883b60f1e6f44",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1366x768-table-form-100pct.png",
+      "sha256": "a4cced0ac651e1c6c4a24958e9850374d526b19e959409733c0192ac1cf4b19e",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1440x900-graph-preview-100pct.png",
+      "sha256": "1269a9a6c0cfb1d04b6fffeefd684e95e93601eab9b54d0c98373588174a7ae7",
+      "width": 1120,
+      "height": 378
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1440x900-header-100pct.png",
+      "sha256": "5f9bc6b1889a57b4cb8e371696f67d99fa0564bcef8a31a848fc41236e6967e0",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1440x900-navigator-100pct.png",
+      "sha256": "cc074ed6a0c6d3304cd1c37201d4f8112c9b5db767aafc7ccb29ab7e4a82bd47",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1440x900-table-form-100pct.png",
+      "sha256": "e44f468ede839782a9c375c51a2f9b836a737009ca4e1a7e430bb723b88ab00f",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1920x1080-graph-preview-100pct.png",
+      "sha256": "655870a2c5f41735db4f37ff23d284e6e55116a4a894de3340b67048326bedcc",
+      "width": 1600,
+      "height": 454
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1920x1080-header-100pct.png",
+      "sha256": "48eb71ab2fcdbe39bb60389f86062d726533101d805cf9be6324789193a46699",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1920x1080-navigator-100pct.png",
+      "sha256": "286708cf73dfd6b7a6016e9b8dae2c9e1a21c749f4ba5aa496264943401febbf",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1920x1080-table-form-100pct.png",
+      "sha256": "5c62847372e539c55f25f305040563db25e80e86ec8a3409d853ec965ded427a",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-2560x1440-graph-preview-100pct.png",
+      "sha256": "afca21ccaea712a9b4690bc6aae262edc081b0b5db6a6130f3a078add400702d",
+      "width": 2240,
+      "height": 605
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-2560x1440-header-100pct.png",
+      "sha256": "512efede0aec67c5a8243027d4003999a2930cad142594a7ecbb2b57a2373d60",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-2560x1440-navigator-100pct.png",
+      "sha256": "c1ee3db4c236025c3ad4645dfce23a8e54cacf4324e6c48164783d6c45fccec6",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-2560x1440-table-form-100pct.png",
+      "sha256": "18ae395d45dc959553e6dd362d8bed2fd6b62e4003c738149ea7191fb5dddba3",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-3840x2160-graph-preview-100pct.png",
+      "sha256": "ff7e0a46f49a4bcd06edbaf6085b1c002e0b45dd39293d15655b81486d63cb20",
+      "width": 3520,
+      "height": 907
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-3840x2160-header-100pct.png",
+      "sha256": "349cb724723db8a13db122d249aef58597ebb1c3d7655dc4c779b16fec4cf17c",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-3840x2160-navigator-100pct.png",
+      "sha256": "e3189e060270e1f5ec493d52e20bbcdbad26c322e18c25b5b4a50762afd1fb35",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-3840x2160-table-form-100pct.png",
+      "sha256": "53150ff4501af690e05d93e0e8c8ad05125c320990cacd15edbac351a796d557",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1366x768-header-100pct.png",
+      "sha256": "e02077672a17b8d844ac1287cb2e262c1ee8ef1940494fa0bea087ac9f09584a",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1366x768-navigator-100pct.png",
+      "sha256": "57d205dcd50f98e6449e0f423970a7c1c31e2ef1fb7a8642ef19ded380a6af85",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1366x768-table-form-100pct.png",
+      "sha256": "ae2219b5ea19cb7bdf8dc057190d92c7e6daa4c7ac78399358f039bd4c958167",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1440x900-header-100pct.png",
+      "sha256": "f657f12948fdb17707591ccc0ecb5828088a8336499c45fd0bc0a184b8eb48e9",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1440x900-navigator-100pct.png",
+      "sha256": "338db0258a56e2806f8859182714e023c70b2a1495a66bc2cf642222fbad5293",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1440x900-table-form-100pct.png",
+      "sha256": "1a2d69c9e8a4c1239c804b0d66ebbb0f98817773ff08643dcff27d041e83a2ae",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1920x1080-header-100pct.png",
+      "sha256": "763397b507e9ad5981be63403d6d6e85cbc23a6471ddac5d0f22f6c3598c9711",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1920x1080-navigator-100pct.png",
+      "sha256": "563d2a49ae4e14222aa76e348d2c9bd07ee2a50ca93f0dad35a75872a9ed03f9",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1920x1080-table-form-100pct.png",
+      "sha256": "5b978cca920b58f8a5062787af364497739e553f0c5b9f9f1f62188cd0595969",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-2560x1440-header-100pct.png",
+      "sha256": "10b155b0ab5f85468b241f24a954ed465d34dace4d55f477ea4d4acfc94c1c90",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-2560x1440-navigator-100pct.png",
+      "sha256": "aab5218856a1841d5380a1f33b8cc270ae8713d467de52cc01bcb4edd082c0f1",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-2560x1440-table-form-100pct.png",
+      "sha256": "183f5ed06131c1318ca64f6558d2686394ee07c68fcb68b86404d304622009e7",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-3840x2160-header-100pct.png",
+      "sha256": "d5733f6b2688e5b86d4fa26548f5af47c7f2231c83aec68e24f1fc2d98c00698",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-3840x2160-navigator-100pct.png",
+      "sha256": "0cb6e9b765ce881f071888365f16a9a8dc1aa9af8c1cc246e671755c37c33b59",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-3840x2160-table-form-100pct.png",
+      "sha256": "22d2c9c8d95fee73a850c213a6091047275456fe75ff6575e43c7bcff19ce2af",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1366x768-header-100pct.png",
+      "sha256": "44ae2fcba8fa3637b0a448cad24bb83f8d3742d2bd9f820b0aa8674cf181fd71",
+      "width": 1366,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1366x768-navigator-100pct.png",
+      "sha256": "3d7baba8e06e68a2e467fb03f607b69e39eff35656188f6630fb4e38239f0f97",
+      "width": 320,
+      "height": 618
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1366x768-table-form-100pct.png",
+      "sha256": "c33caf6559dd212310bf1c8920e366db5427cb809d5823dac297430c0ec8196c",
+      "width": 1046,
+      "height": 295
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1440x900-header-100pct.png",
+      "sha256": "c20544a726f45e10216ef26b27aa2b22f4d0ca87e31312845e1948fe2e844a76",
+      "width": 1440,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1440x900-navigator-100pct.png",
+      "sha256": "6566630b5911d732f5ae6adc1458d002e8c7900aee5c966408bca6e2a2b2be04",
+      "width": 320,
+      "height": 750
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1440x900-table-form-100pct.png",
+      "sha256": "f11482f3c6fd72a7a089872e14c22b5e193ab0205d1a17367af0e8798f6471a3",
+      "width": 1120,
+      "height": 372
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1920x1080-header-100pct.png",
+      "sha256": "c66211cfeb701beb727d0cb5c832f5a1833901c02384fee220a541f7f29ddbe2",
+      "width": 1920,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1920x1080-navigator-100pct.png",
+      "sha256": "8ba8422d0601952ea964f24f9bdabc6be8812a9aaa88af6548f003409161a4f8",
+      "width": 320,
+      "height": 930
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1920x1080-table-form-100pct.png",
+      "sha256": "068c44c15f10d6829cbb70dc5d1ac18b7360198d0b334ed8b5e4d2435ebd270f",
+      "width": 1600,
+      "height": 476
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-2560x1440-header-100pct.png",
+      "sha256": "63f4f6d8e1244c8b16740e8314548364dbfdec4052cf5c7f63715d3b2c0adcf8",
+      "width": 2560,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-2560x1440-navigator-100pct.png",
+      "sha256": "662ac3b3ec42f7563f9c51e9b9e4999bacf9fcb76074c1e5021b2c50b4d6ab17",
+      "width": 320,
+      "height": 1290
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-2560x1440-table-form-100pct.png",
+      "sha256": "3fda36d6e29336f45febd02f2a46c4ab64f4fbd1fc12364ec3839558296b0d4f",
+      "width": 2240,
+      "height": 685
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-3840x2160-header-100pct.png",
+      "sha256": "2b75ebeafb8d3fc488993bcdb52188a0e08f77f62a3412be49629994aad7755a",
+      "width": 3840,
+      "height": 150
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-3840x2160-navigator-100pct.png",
+      "sha256": "364bacf6b2a58169e110934a984aa9d200275c53a13211c09e1d312464fda367",
+      "width": 320,
+      "height": 2010
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-3840x2160-table-form-100pct.png",
+      "sha256": "17426696ee9d0a6a4adba9c6130bd3723129962e52af762986d523282d75ed27",
+      "width": 3520,
+      "height": 1103
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-1366x768.png",
+      "sha256": "7dd8611a6a4da773157837ebc1eecf6551a8bb68f158b91cc7d8b1a1ae9788b3",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-1440x900.png",
+      "sha256": "e6d00d2ccab747e65c4de6816f47dbbeda28b3e73ada904658428e8a9fd84e30",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-1920x1080.png",
+      "sha256": "6879f0794e8f8d5a1c93326cefad5d771744ea2bf0eaf3a8718fc8a5d92a2131",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-2560x1440.png",
+      "sha256": "bc01d523b0c42b0d5880445d91ae50f92c2aedaf72f8a6b3d31c479268db1537",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-3840x2160.png",
+      "sha256": "70bfe4bd51a707fcaaa8046a73b9fbecb2d44731397c23325e20a26f84b702eb",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-1366x768.png",
+      "sha256": "cdcb5d71e590f7dcce920d5b5aa506a5f523b0507ec7d4312aa5cd2e4c83bf3b",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-1440x900.png",
+      "sha256": "93265a78736d634f19f43e7bd5de66dc03eead9c419aeb816370833113fa15e7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-1920x1080.png",
+      "sha256": "ac6273fb81b949e9eb0eee0ba6321647897b838f07b14a58bd46717db3a1e2a2",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-2560x1440.png",
+      "sha256": "816060a64e2afc58d5196f94da9a9d89d5da91f5cb5d2292118518961eef5436",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-3840x2160.png",
+      "sha256": "c28f9e879c1ba69d4c7998695e08ddd44dac84b14a53fcbeb23b0f24e45f9d47",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-browse-1366x768.png",
+      "sha256": "8494872380ce988a2d0b750c0ac8b16cd1635f2a116b6ce5afe2a36bbf53d658",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-browse-1440x900.png",
+      "sha256": "64f11c800eb288645b7342df0690ad84122b933351c29a1afeea254ecff33119",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-browse-1920x1080.png",
+      "sha256": "90b7f5a57d99ed79f6be0e139a6965376404be51f89c87de50fc1c7b96812252",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-browse-2560x1440.png",
+      "sha256": "28335eef60ced7ad58e6eb648e267dd7fff329d1d5144362d15c72b0be76e255",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-browse-3840x2160.png",
+      "sha256": "a3dd15dce155bcb964fec71f971af8a3390b7520c672e75efc07009c929999c9",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-1366x768.png",
+      "sha256": "7d725f91a074e150bf924b3685316a5165bbe5f11d6281f038d93577d7587c5c",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-1440x900.png",
+      "sha256": "ca0624d9e5d7449b65f30e2350c4bbb461fdad2f0db080d70044abfb1d8edba6",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-1920x1080.png",
+      "sha256": "ccdfd663d7a68b0504960f8f44f981945b668525d9153154593a915f9e0a5645",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-2560x1440.png",
+      "sha256": "51bcd32f2921163658dd86f399caca84f218e3efe01419e2932d5474cadebd85",
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-3840x2160.png",
+      "sha256": "f7530dc286d42c964fec8e44502b69e0f9081c3079d81c6d01ff7c38d815eac9",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "path": "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/recon-materials-1440x900.png",
+      "sha256": "64f11c800eb288645b7342df0690ad84122b933351c29a1afeea254ecff33119",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "allowed_duplicate_groups": [
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/materials-live/material-detail-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/3840x2160/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1366x768.png",
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-2560x1440.png",
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/canonical/materials-search-3840x2160.png",
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/before/canonical/materials-search-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/live/material-detail-1440x900.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/1440x900/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-m2-materials-css-ownership/after/live/material-detail-1920x1080.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/1920x1080/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/1366x768/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1366x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/1366x768/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/1440x900/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1440x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/1920x1080/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-1920x1080-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/2560x1440/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-2560x1440-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/2560x1440/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-detail-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/material-detail/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/3840x2160/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-curves-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/material-detail-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-curves-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/material-detail-3840x2160-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/1366x768/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-curves/1440x900/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/material-curves-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1366x768/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/1366x768/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1366x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/1366x768/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1440x900/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/1440x900/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1440x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1920x1080/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/1920x1080/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1920x1080-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/1920x1080/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/2560x1440/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/2560x1440/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-2560x1440-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-2560x1440-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-2560x1440.png",
+        "docs/user-guide/images/current/materials-search-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/3840x2160/header.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/3840x2160/header.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-3840x2160-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/materials-search/2560x1440/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/materials-search/3840x2160/original.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-3840x2160.png",
+        "docs/user-guide/images/current/materials-search-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1366x768-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1366x768-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1366x768-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1366x768-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1440x900-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1440x900-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1440x900-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1440x900-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1920x1080-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1920x1080-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-1920x1080-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-1920x1080-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-2560x1440-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-2560x1440-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-3840x2160-header-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-3840x2160-header-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-browse-3840x2160-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-browse-3840x2160-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1366x768-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1366x768-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1440x900-navigator-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1440x900-navigator-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1440x900-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1440x900-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-1920x1080-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-1920x1080-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-2560x1440-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-2560x1440-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/crops/materials-search-3840x2160-table-form-100pct.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/crops/materials-search-3840x2160-table-form-100pct.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-1366x768.png",
+        "docs/user-guide/images/current/material-curves-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-1440x900.png",
+        "docs/user-guide/images/current/material-curves-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-1920x1080.png",
+        "docs/user-guide/images/current/material-curves-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-2560x1440.png",
+        "docs/user-guide/images/current/material-curves-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-curves-3840x2160.png",
+        "docs/user-guide/images/current/material-curves-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-1366x768.png",
+        "docs/user-guide/images/current/material-detail-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-1440x900.png",
+        "docs/user-guide/images/current/material-detail-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-1920x1080.png",
+        "docs/user-guide/images/current/material-detail-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-2560x1440.png",
+        "docs/user-guide/images/current/material-detail-2560x1440.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/material-detail-3840x2160.png",
+        "docs/user-guide/images/current/material-detail-3840x2160.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-browse-1440x900.png",
+        "docs/user-guide/images/current/materials-browse-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-1366x768.png",
+        "docs/user-guide/images/current/materials-search-1366x768.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-1440x900.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-search-1440x900.png",
+        "docs/user-guide/images/current/materials-search-1440x900.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/after/originals/materials-search-1920x1080.png",
+        "docs/user-guide/images/current/materials-search-1920x1080.png"
+      ]
+    },
+    {
+      "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+      "images": [
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/originals/materials-browse-1440x900.png",
+        "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/before/recon-materials-1440x900.png"
+      ]
+    }
+  ]
+}

@@ -123,50 +123,78 @@ DP600의 Young's modulus를 210 GPa에서 205 GPa로 바꾸면 기존 값을 덮
 생성한다. 아래 비교는 원본 단위 문자열과 정규화된 Pa 값을 함께 보존한 결과다.
 
 
-file/curve 값과 다른 레코드 연결의 상세 식별자는 **Evidence** 또는 **Advanced**에서 확인한다.
+file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & history** 또는 **Advanced**에서 확인한다.
 일반 입력 화면에는 내부 식별자가 표시되지 않는다.
 
-## Material Database와 exact Record Link 사용
+## Materials 검색·Browse와 exact Record Link 사용
 
-1. 일반 사용자의 시작점은 `/materials`다. 동일한 Materials
-   workspace의 **Browse**로 들어오는 호환 주소다. 기존 `Materials Database → Engineering Materials`
-   Tree 아래에서 `Technical Data`, `Test Data`, `Simulation Data`, `Solver Cards`를 서로 같은 수준의
-   네 범주로 보여 준다. 이 범주는 저장 위치나 처리 순서를 강제하는 계층이 아니다.
-2. 범주를 펼치면 그 아래에 개별 항목이 나타난다. `Technical Data`는 규격과 재료 사실,
-   `Test Data`는 실험과 측정 곡선, `Simulation Data`는 선택한 모델과 유도 결과, `Solver Cards`는
-   release된 solver-ready artifact를 뜻한다. 범주를 누르면 가운데에 목록이 나오고, 목록의 항목을
-   한 번 누르면 같은 가운데 영역에서 exact revision datasheet를 연다.
-3. 상세 화면의 **Related data**는 현재 exact revision에 직접 연결된 항목만 네 범주별로
-   묶어 보여 준다. Test Data에는 Technical Data 연결이 필요하다. 반면 Simulation Data나 Solver Card는
-   실제 reviewed exact link가 있을 때만 보이며, elastoplasticity와 viscoelasticity를 서로 잇거나 FLD를
-   downstream 항목에 자동 연결하지 않는다.
-4. `Technical Data → tensile Test Data → selected elastoplastic model → Solver Card`와
+1. 일반 사용자는 `/materials`에서 **Search** 또는 **Browse**로 시작한다. Browse의 `Technical Data`,
+   `Test Data`, `Simulation Data`, `Solver Cards`는 서로 같은 수준의 네 범주이며 저장 위치나 처리 순서를
+   강제하는 계층이 아니다.
+2. Search 결과의 **Material**과 Browse 결과의 **Name**에는 사람이 읽는 이름만 표시하고, 각 결과의
+   **Material code**에는 Catalog external key를 표시한다.
+   Material code가 없으면 em dash를 표시하며 grade로 해석하지 않는다. 이름·Material code·설명·text Attribute 검색과
+   facet 결과, 전체 건수는 같은 서버 범위의 query에서 읽는다.
+3. `Technical Data`는 Material, Material State와 적용 가능한 물성을, `Test Data`는 Specimen, Test Run과
+   exact canonical 측정 데이터/곡선을 뜻한다. `Simulation Data`는 Processing Output, selected Material
+   Model, Neutral Material처럼 구체적인 유형을 표시하고, `Solver Cards`는 solver-ready target artifact를
+   뜻한다. 항목을 누르면 같은 가운데 Materials workspace에서 exact revision datasheet를 연다. Simulation
+   Data 항목의 구체 유형과 해당 계약에 맞는 내용을 확인한다. Processing Output은 Catalog 요약값이 아니라 연결된
+   exact Output revision을 검증해 읽고, 실제 선택 결과 곡선을 중심으로 선택 모델, fitted parameter와 bounds,
+   저장된 선택 결정의 fit metric, convergence/identifiability, 주요 scalar·workup 결정을 표시한다. 처리 단계,
+   UUID, hash와 candidate별 상대 RMSE를 포함한 전체 진단은 접힌 **Revision history and technical details**에서
+   확인한다. Solver Card는 target, format, unit system, release, exact revision과 review
+   상태·다운로드를 native preview 위에 표시하고, preview는 펼치거나 접은 뒤 자체 스크롤로 읽는다. Exact
+   source와 provenance 값은 접힌 **Exact source and technical details**에서 확인한다.
+4. Material Overview의 **Key properties**는 단위가 포함된 label/value 쌍으로 읽는다. **Applicable
+   conditions and material states**에는 Temperature, Strain rate, State, Manufacturing route가 각각
+   표시된다. 대표 응답은 저장된 curve contract가 축 quantity와 단위를 확정할 수 있을 때만 나타난다.
+5. **Related data**는 현재 exact revision에 직접 연결된 항목만 `Technical Data`, `Test Data`,
+   `Simulation Data`, `Solver Cards`로 묶는다. Test Data에는 exact Technical Data 연결이 필요하고,
+   Simulation Data와 Solver Card는 저장되어 검토된 exact link가 있을 때만 보인다. 서로 다른 constitutive
+   family나 FLD를 downstream 항목에 자동 연결하지 않는다.
+6. Test Data detail에서는 pinned canonical JSON의 원본 channel 배열로 그린 실제 측정 곡선과 point 값을 먼저
+   확인한다. 그래프와 값 표는 channel/axis quantity와 원본 단위를 유지하며, **Download exact Test Data JSON**은
+   같은 exact revision artifact를 내려받는다. 아래의 scalar Layout은 보조 요약이며 CSV action은
+   **Download summary CSV**로 구분한다. Material·State·Test Data revision provenance가
+   모두 확정된 Test Data만 **Open in Modeling**을 제공하며 legacy 또는 미확정 곡선은 view-only다.
+7. Simulation Data는 **Processing Output**, **Selected Material Model**, **Neutral Material**을 구분하고
+   각 binding의 실제 계약만 표시하며, 직접 연결된 Test Data 또는 Processing Output 관계를 표시한다.
+   Processing Output의 **Linked records**는 relation, record code, type, exact revision만 간결하게 표시한다.
+   Solver Card detail은 solver, version,
+   unit system, release state와 현재 가능한 preview/download/create action을 표시한다. 지원되지 않는 mapping은
+   가짜 create/download 대신 block reason을 보여 준다.
+8. **Back**, **Forward**, **Reload**, **Results**를 사용해도 이전 query, filter, sort, Browse 위치, 선택한
+   exact item과 tab이 유지된다. Modeling으로 이동할 수 있는 항목은 이미 알려진 Material, State/condition,
+   Test Data revision context를 전달하므로 다시 선택하지 않는다.
+9. `Technical Data → tensile Test Data → selected elastoplastic model → Solver Card`와
    `Technical Data → DMA Test Data → selected linear viscoelastic model → Solver Card`는 서로 독립적인
-   링크 흐름으로 탐색할 수 있다. Fit run/candidate는 Modeling 또는 Activity, selected model은
-   Simulation Data, Material Model IR은 Advanced/Evidence, 생성된 카드는 Solver Cards에서 확인한다.
-5. Table → Folder → Record 저장 위치나 데이터 형식을 관리해야 하면 **Administration**을 연다. Folder
-   하위 노드는 펼칠 때 실제 PostgreSQL에서 지연 로딩된다. 여러 hop의 provenance는 별도 Navigator가
-   아니라 **Evidence**의 Workflow에서 확인한다.
-6. 이름·external key·설명·text Attribute로 검색하거나 **Saved Subsets**의 revisioned 검색 조건을
-   적용한다. 검색 결과와 직접 링크는 exact Record revision을 열며 주소에는
-   `/materials/records/{record_id}/revisions/{revision_id}`로 열린다. 기존
-   `/materials/records/{record_id}/revisions/{revision_id}` deep link도 같은 datasheet로 연결된다.
-7. 새 링크는 Administration에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
-   endpoint를 전진시키려면 기존 링크를 덮어쓰지 않고 같은 stable Link의 새 revision을 만든다.
-8. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
-   추가한다.
+   링크 흐름으로 탐색한다. Fit run/candidate는 Modeling 또는 Activity, selected model은 Simulation Data,
+   Material Model IR은 Advanced/Source & history, 생성된 카드는 Solver Cards에서 확인한다.
+10. Table → Folder → Record 저장 위치, 데이터 형식 또는 Link Type을 관리해야 하면 **Administration**을
+    연다. **Source & history**의 **Linked records**는 relation, target record, type, exact revision으로
+    직접 연결된 Record Link만 표시한다. 여러 hop의 provenance는 접힌 **Full lineage**에서 확인한다.
+11. 새 링크는 Administration에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
+    endpoint를 전진시키려면 기존 링크를 덮어쓰지 않고 같은 stable Link의 새 revision을 만든다.
+12. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
+    추가한다.
 
 
-9. **Datasheet** 탭을 열면 관리자가 정의한 Layout section과 순서로 typed Attribute가 표시된다.
+13. **Datasheet** 탭을 열면 관리자가 정의한 Layout section과 순서로 typed Attribute가 표시된다.
    number 값은 원본 값/단위와 normalized 값/단위, quantity semantics를 함께 표시한다. 여러 Layout이
    있으면 우측 Layout 선택기로 datasheet 구성을 바꾼다.
-10. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
+14. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
    range를 적용할 수 있다. 두 결과의 **Compare**를 체크한 뒤 **Compare 2**를 누르면 선택한 Layout
    순서로 exact current Record revision을 나란히 비교한다.
-11. **Curves**에서 현재 Record revision의 곡선을 선택하면 같은 화면의 큰 그래프에서 채널 이름,
-    축 역할, 원본/정규화·표시 단위와 기록된 통계 band 의미를 확인할 수 있다. **Evidence**는 exact
-    Record/Artifact revision과 digest, source와 calculation chain을 펼쳐 보여 준다. 정확히 연결된
-    Test Data 곡선만 **Open in Modeling**으로 전달된다. 통계 envelope와 provenance가 없는 legacy
+15. **Curves**에서 **Available curves** 목록의 현재 Record revision 곡선을 선택하면 선택 identity에서 같은
+    화면의 큰 그래프로 이어지는 구성으로 채널 이름,
+    축 역할, 표시 단위와 기록된 통계 band 의미를 확인할 수 있다. 원본/정규화·표시 단위와 **Curve source
+    and technical details**는 접힌 영역에서 exact Record/Artifact revision과 digest, source와 calculation
+    chain과 함께 확인한다. 정확히 연결된
+    Test Data 곡선만 **Open in Modeling**으로 전달된다. 저장 key `observed_tensile_curve`는
+    **Measured tensile curve**, `replicate_statistics_curve`는 **Repeated-test average and variation**으로
+    표시하고, 아래 source 표의 exact Test Data 입력은 **Measured test input**으로 표시하지만 저장된
+    key, binding kind, exact revision 계약은 바꾸지 않는다. 통계 envelope와 provenance가 없는 legacy
     곡선은 view-only이며 Fit 입력으로 추정하지 않는다.
 
 

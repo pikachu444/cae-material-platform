@@ -26,6 +26,7 @@ function responseFor(status: "exact" | "approximated" | "unsupported", exportabl
     headers: new Headers({ "content-type": "application/json" }),
     json: async () => ({
       solver_card_id: card.id,
+      material_model_id: "model-1",
       target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" },
       solver_material_id: 301,
       current_revision: {
@@ -34,6 +35,7 @@ function responseFor(status: "exact" | "approximated" | "unsupported", exportabl
         classification: "internal",
         revision_no: 1,
         lifecycle_state: "draft",
+        provenance: { source_material_model_revision_id: "model-r1" },
         content: { card_title: "DP780", card_sha256: "a".repeat(64) },
         mapping_report: {
           exportable,

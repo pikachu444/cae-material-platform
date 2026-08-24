@@ -43,12 +43,12 @@ describe("solver-card delivery policy", () => {
 
   it("projects review identity from the loaded Solver Card revision, not the summary", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue({ ok: true, status: 200, headers: new Headers({ "content-type": "application/json" }), json: async () => ({
-      solver_card_id: "card-1", target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" }, solver_material_id: 301,
-      current_revision: { id: "loaded-card-r2", content_hash: "c".repeat(64), classification: "restricted", revision_no: 2, lifecycle_state: "draft", content: { card_title: "DP780", card_sha256: "a".repeat(64) }, mapping_report: { exportable: true, mapping_report_sha256: "b".repeat(64), items: [] } },
+      solver_card_id: "card-1", material_model_id: "model-1", target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" }, solver_material_id: 301,
+      current_revision: { id: "loaded-card-r2", content_hash: "c".repeat(64), classification: "restricted", revision_no: 2, lifecycle_state: "draft", content: { card_title: "DP780", card_sha256: "a".repeat(64) }, mapping_report: { exportable: true, mapping_report_sha256: "b".repeat(64), items: [] }, provenance: { source_material_model_revision_id: "model-r3" } },
     }) } as Response);
     vi.stubGlobal("fetch", fetchMock);
     const evidence = await loadSolverCardEvidence({ baseUrl: "/api/v1", accessToken: "token" }, { id: "card-1", revisionId: "stale-summary-r1", kind: "solver_card", label: "DP780", solver: "OpenRadioss", extension: ".rad" });
-    expect(evidence).toMatchObject({ reviewRevisionId: "loaded-card-r2", reviewContentHash: "c".repeat(64), reviewClassification: "restricted", reviewAggregateType: "exporting.solver_card" });
+    expect(evidence).toMatchObject({ source: { kind: "material_model", id: "model-1", revisionId: "model-r3" }, reviewRevisionId: "loaded-card-r2", reviewContentHash: "c".repeat(64), reviewClassification: "restricted", reviewAggregateType: "exporting.solver_card" });
     vi.unstubAllGlobals();
   });
 
@@ -74,6 +74,7 @@ describe("solver-card delivery policy", () => {
             revision_no: 3,
             lifecycle_state: "draft",
             content: {
+              neutral_material_revision_id: "neutral-r2",
               card_sha256: "a".repeat(64),
               mapping_statuses: {},
               solver_material_id: 301,
@@ -90,6 +91,7 @@ describe("solver-card delivery policy", () => {
     );
 
     expect(evidence).toMatchObject({
+      source: { kind: "neutral_material", id: "neutral-1", revisionId: "neutral-r2" },
       reviewRevisionId: "neutral-card-r3",
       reviewContentHash: "d".repeat(64),
       reviewAggregateType: "exporting.neutral_solver_card",

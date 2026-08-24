@@ -26,8 +26,9 @@ async function expectMaterialsReady(page: Page): Promise<void> {
 async function openMaterialFilters(page: Page): Promise<void> {
   const search = page.getByRole("textbox", { name: "Search materials" });
   if ((await search.count()) === 0) {
-    await expect(page.getByText("Expand a category to browse its data.", { exact: true })).toBeVisible({ timeout: 30_000 });
-    await page.getByRole("button", { name: "Filters", exact: true }).click();
+    const filters = page.getByRole("button", { name: "Filters", exact: true });
+    await expect(filters).toBeVisible({ timeout: 30_000 });
+    await filters.click();
   }
   await expect(search).toBeVisible({ timeout: 15_000 });
   await expectMaterialsReady(page);
@@ -79,7 +80,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(normalResultsText).not.toMatch(staleHumanNames);
     expect(normalResultsText).toContain(expectedName);
     expect(normalResultsText).toMatch(expectedReference);
-    expect(normalResultsText).toContain("not validated for engineering use");
+    expect(normalResultsText).not.toContain("not validated for engineering use");
     const normalResultsSurfaceText = await page.locator(".materials-results").innerText();
     expect(normalResultsSurfaceText).not.toMatch(forbiddenNormalTechnicalLabels);
     expect(normalResultsSurfaceText).toContain(expectedName);
@@ -94,9 +95,8 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(normalDetailText).not.toMatch(/clean product demo|local demo|fixture/i);
     expect(normalDetailText).not.toMatch(staleHumanNames);
     expect(normalDetailText).toContain(expectedName);
-    expect(normalDetailText).toMatch(expectedReference);
     const normalDetailHeaderText = await page.locator(".material-detail-header").innerText();
-    const relatedContextText = await page.getByRole("region", { name: "Related exact records" }).innerText();
+    const relatedContextText = await page.getByRole("region", { name: "Related data" }).innerText();
     const normalStatusBarText = await page.locator(".application-status-bar").innerText();
     expect(normalDetailHeaderText).not.toMatch(forbiddenNormalTechnicalLabels);
     expect(relatedContextText).not.toMatch(forbiddenNormalTechnicalLabels);
@@ -105,6 +105,23 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(normalDetailHeaderText).toMatch(/Request review|Waiting for review|Approved|Changes requested/);
     expect(relatedContextText).toContain("Revision");
     expect(relatedContextText).toContain("Related");
+    await page.getByRole("tab", { name: "Source & history", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Linked records", exact: true })).toBeVisible();
+    const linkedRecordsTable = page.locator(".evidence-overview table");
+    if (await linkedRecordsTable.count()) {
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Relation", exact: true })).toBeVisible();
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Target record", exact: true })).toBeVisible();
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Type", exact: true })).toBeVisible();
+      await expect(linkedRecordsTable.getByRole("columnheader", { name: "Exact revision", exact: true })).toBeVisible();
+    } else {
+      await expect(page.getByText("No related records are visible in the current view.", { exact: true })).toBeVisible();
+    }
+    await expect(page.getByText("Full lineage", { exact: true })).toBeVisible();
+    await expect(page.locator("details.full-lineage")).not.toHaveAttribute("open", "");
+    await expect(page.getByRole("heading", { name: "Workflow", exact: true })).toHaveCount(0);
+    await expect(page.getByText("Follow related records and the exact material workflow; open technical identifiers only when needed.", { exact: true })).toHaveCount(0);
+    await expect(page.locator(".material-tab-panel")).toContainText(expectedReference);
+    await page.getByRole("tab", { name: "Overview", exact: true }).click();
     if (materialCode === "CMP-DEMO-DP780") {
       for (const representativeTest of representativeDp780Tests) {
         expect(relatedContextText).toContain(representativeTest);
@@ -118,6 +135,8 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     expect(normalTreeText).not.toMatch(staleHumanNames);
     expect(normalTreeText).toContain(expectedName);
     if (materialCode === "CMP-DEMO-DP780") {
+      const exactMaterialRevisionId = new URL(page.url()).searchParams.get("material_revision_id");
+      expect(exactMaterialRevisionId).toBeTruthy();
       await page.getByRole("treeitem", { name: /Solver Cards/ }).click();
       await expect(page.locator(".materials-left-pane")).toContainText(dp780SolverCardRecord, {
         timeout: 15_000,
@@ -129,12 +148,19 @@ test("clean demo exposes Search-first material-family journeys and progressive b
         .getByRole("button", { name: "Start Modeling", exact: true });
       await expect(startModeling).toBeVisible();
       await startModeling.click();
-      await expect(page).toHaveURL(/\/modeling\?stage=data&family=metal$/);
-      const modelingResults = page.getByRole("region", { name: "Test Data results" });
-      await expect(modelingResults).toBeVisible({ timeout: 30_000 });
-      await expect(
-        modelingResults.locator('[data-document-key^="CMP-DEMO-DP780-TEST-JSON"]'),
-      ).toHaveCount(3);
+      await expect(page).toHaveURL(/\/modeling\?stage=data&family=metal&material_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+&material_state_id=[0-9a-f-]+&material_state_revision_id=[0-9a-f-]+$/);
+      await expect(page.getByRole("heading", { name: "Select Test Data" })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByText("No Test Data selected", { exact: true })).toBeVisible();
+      const exactSession = await page.evaluate(() =>
+        JSON.parse(window.sessionStorage.getItem("cmp.modeling.recent-session.v4") ?? "null"),
+      ) as {
+        material?: { revisionId?: string };
+        materialState?: { revisionId?: string };
+        contextSelectionRequired?: boolean;
+      } | null;
+      expect(exactSession?.material?.revisionId).toBe(exactMaterialRevisionId);
+      expect(exactSession?.materialState?.revisionId).toBeTruthy();
+      expect(exactSession?.contextSelectionRequired).toBe(false);
     }
     await page.goto("/materials");
     await openMaterialFilters(page);
@@ -149,7 +175,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await expect(dp780Row).toHaveCount(1);
   await dp780Row.press("Enter");
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
-  const relatedRecord = page.getByRole("region", { name: "Related exact records" }).getByRole("button").filter({ hasText: representativeDp780Tests[0] });
+  const relatedRecord = page.getByRole("region", { name: "Related data" }).getByRole("button").filter({ hasText: representativeDp780Tests[0] });
   await expect(relatedRecord).toBeVisible({ timeout: 15_000 });
   await expect(relatedRecord).toHaveCount(1);
   await expect(relatedRecord).toContainText("r1");
@@ -246,8 +272,8 @@ test("Materials workspaces use the viewport and expose exact direct links across
     expect(detailGeometry.left).toBeLessThanOrEqual(8);
     expect(detailGeometry.width).toBeGreaterThanOrEqual(width - 1);
     expect(detailGeometry.width).toBeLessThanOrEqual(width + 1);
-    await expect(page.getByText("No representative curve preview.", { exact: true })).toBeVisible();
-    const related = page.getByRole("region", { name: "Related exact records" });
+    await expect(page.getByText("No representative curve preview.", { exact: true })).toHaveCount(0);
+    const related = page.getByRole("region", { name: "Related data" });
     const fastTensile = related.getByRole("button").filter({ hasText: "DP780 tensile · 23 °C · 0.067 s⁻¹" });
     await expect(fastTensile).toHaveCount(1);
     await expect(fastTensile).toContainText("r1");
@@ -400,13 +426,13 @@ test("an exact approved Tensile revision opens its directly linked selected mode
   await page.getByRole("row").filter({ hasText: "CMP-DEMO-DP780" }).getByRole("button").click();
   await expect(page.getByRole("heading", { name: "DP780 synthetic reference steel", level: 1 })).toBeVisible({ timeout: 30_000 });
 
-  const related = page.getByRole("region", { name: "Related exact records" });
+  const related = page.getByRole("region", { name: "Related data" });
   const fastTensile = related.getByRole("button").filter({ hasText: representativeDp780Tests[3] });
   await expect(fastTensile).toHaveCount(1);
   await expect(fastTensile).toContainText("r1");
   await fastTensile.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: representativeDp780Tests[3], level: 1 })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Test Data", level: 1 })).toBeVisible({ timeout: 30_000 });
 
   const selectedModelName = "DP780 elastoplasticity · selected tabulated model · synthetic reference";
   const selectedModel = page.getByRole("region", { name: "Related data" }).getByRole("button").filter({ hasText: selectedModelName });
@@ -414,5 +440,10 @@ test("an exact approved Tensile revision opens its directly linked selected mode
   await expect(selectedModel).toHaveCount(1);
   await expect(selectedModel).toContainText("r1");
   await selectedModel.click();
-  await expect(page.getByRole("heading", { name: selectedModelName, level: 1 })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Simulation Data", level: 1 })).toBeVisible({ timeout: 30_000 });
+  const selectedModelDetail = page.locator(".exact-record-datasheet");
+  await expect(selectedModelDetail.getByRole("heading", { name: "Selected Material Model details" })).toBeVisible();
+  await expect(selectedModelDetail.getByText("Test setup", { exact: true })).toHaveCount(0);
+  await expect(selectedModelDetail.getByText("Specimen", { exact: true })).toHaveCount(0);
+  await expect(selectedModelDetail.getByText("Measured curve coverage", { exact: true })).toHaveCount(0);
 });

@@ -1,7 +1,7 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./material-library";
+import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./features/materials";
 import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const materialId = "material-1";
@@ -146,7 +146,7 @@ function textResponse(data: string, status = 200): Response {
   return new Response(data, { status, headers: { "Content-Type": "text/plain" } });
 }
 
-function exactGraph(mismatch = false, withCard = false) {
+function exactGraph(mismatch = false, withCard = false, withTestData = false) {
   const binding = {
     binding_id: "binding-1",
     record_id: recordId,
@@ -180,10 +180,29 @@ function exactGraph(mismatch = false, withCard = false) {
       workbench_path: "/exports",
     },
   };
-  return { root, nodes: withCard ? [root, card] : [root], links: [] };
+  const testData = {
+    ...root,
+    record_id: "test-data-record-1",
+    record_revision_id: "test-data-record-revision-1",
+    name: "Pinned tensile measurement",
+    domain_binding: {
+      binding_id: "test-data-binding-1",
+      record_id: "test-data-record-1",
+      record_revision_id: "test-data-record-revision-1",
+      kind: "test_data",
+      object_id: "test-data-1",
+      revision_id: "test-data-revision-1",
+      workbench_path: "/modeling?stage=data&test_data_id=test-data-1&test_data_revision_id=test-data-revision-1",
+    },
+  };
+  return {
+    root,
+    nodes: [root, ...(withCard ? [card] : []), ...(withTestData ? [testData] : [])],
+    links: [],
+  };
 }
 
-function installFetch(mismatch = false, withCard = false) {
+function installFetch(mismatch = false, withCard = false, withTestData = false) {
   const cardEndpoint = `/api/v1/neutral-solver-cards/${cardId}`;
   const exactRevision = `?revision_id=${cardRevisionId}`;
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
@@ -209,7 +228,7 @@ function installFetch(mismatch = false, withCard = false) {
         workbench_path: `/materials/${materialId}`,
       });
     }
-    if (url.includes(`/catalog/workflow-explorer/${recordId}/revisions/${recordRevision1}`)) return response(exactGraph(mismatch, withCard));
+    if (url.includes(`/catalog/workflow-explorer/${recordId}/revisions/${recordRevision1}`)) return response(exactGraph(mismatch, withCard, withTestData));
     if (url.includes(`/catalog/workflow-explorer/${recordId}/revisions/${recordRevision2}`)) {
       const root = {
         record_id: recordId,
@@ -285,9 +304,9 @@ describe("pinned Material detail", () => {
     });
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
-    const workspaceStatusUpdates: Array<{ revision?: string }> = [];
+    const workspaceStatusUpdates: Array<{ selection?: string; revision?: string }> = [];
     const observeWorkspaceStatus = (event: Event) => {
-      const detail = (event as CustomEvent<{ revision?: string }>).detail;
+      const detail = (event as CustomEvent<{ selection?: string; revision?: string }>).detail;
       workspaceStatusUpdates.push(detail);
     };
     window.addEventListener("cmp:workspace-status", observeWorkspaceStatus);
@@ -298,11 +317,15 @@ describe("pinned Material detail", () => {
     await waitFor(() => expect(workspaceStatusUpdates.some(({ revision }) => revision === "r3")).toBe(true));
     const pinnedWorkspaceStatus = workspaceStatusUpdates.find(({ revision }) => revision === "r3");
     expect(pinnedWorkspaceStatus?.revision).toBe("r3");
+    expect(pinnedWorkspaceStatus?.selection).toBe("Material");
     expect(pinnedWorkspaceStatus?.revision).not.toMatch(/\bdraft\b/i);
     const detailHeaderText = screen.getByRole("heading", { name: "Pinned Catalog r1", level: 1 }).closest("header")?.textContent ?? "";
     expect(detailHeaderText).not.toMatch(/\bdraft\b/i);
     expect(detailHeaderText).toContain("Request review");
-    const relatedContextText = screen.getByLabelText("Related exact records").textContent ?? "";
+    expect(detailHeaderText).toContain("Pinned Catalog r1 description");
+    expect(screen.getByRole("tab", { name: "Source & history" })).toBeTruthy();
+    expect(screen.queryByRole("tab", { name: "Evidence" })).toBeNull();
+    const relatedContextText = screen.getByLabelText("Related data").textContent ?? "";
     expect(relatedContextText).not.toMatch(/\bdraft\b/i);
     expect(relatedContextText).toContain("Revision");
     expect(relatedContextText).toContain("r3");
@@ -319,15 +342,21 @@ describe("pinned Material detail", () => {
     window.removeEventListener("cmp:workspace-status", observeWorkspaceStatus);
   });
 
-  it("starts Modeling with the exact pinned Material revision in the browser session", async () => {
+  it("starts Modeling from CAE Cards with the exact pinned Material and State revisions", async () => {
     installFetch();
     const onNavigate = vi.fn();
-    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="overview" exactPin={pin} onNavigate={onNavigate} />);
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="cards" exactPin={pin} onNavigate={onNavigate} />);
 
     expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Start Modeling" }));
+    fireEvent.click(
+      within(screen.getByRole("tabpanel")).getByRole("button", {
+        name: "Start Modeling",
+      }),
+    );
 
-    expect(onNavigate).toHaveBeenCalledWith("/modeling?stage=data&family=metal");
+    expect(onNavigate).toHaveBeenCalledWith(
+      `/modeling?stage=data&family=metal&material_id=${materialId}&material_revision_id=${materialRevision1}&material_state_id=state-${stateRevision1}&material_state_revision_id=${stateRevision1}`,
+    );
     expect(loadModelingSession()).toMatchObject({
       version: 4,
       materialFamily: "metal",
@@ -337,9 +366,45 @@ describe("pinned Material detail", () => {
         revisionNo: 1,
         label: "Pinned Material r1",
       },
+      materialState: {
+        id: `state-${stateRevision1}`,
+        revisionId: stateRevision1,
+        revisionNo: 1,
+        label: "Pinned State r1",
+      },
+      contextSelectionRequired: false,
       workspace: { activeStage: "data" },
     });
     expect(loadModelingSession()?.material?.revisionId).not.toBe(materialRevision2);
+  });
+
+  it("labels Source & history without changing the internal evidence route key", async () => {
+    installFetch();
+    const onNavigate = vi.fn();
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="evidence" exactPin={pin} onNavigate={onNavigate} />);
+
+    expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Linked records", level: 2 })).toBeTruthy();
+    expect(screen.getByText("No related records are visible in the current view.")).toBeTruthy();
+    const lineage = screen.getByText("Full lineage").closest("details");
+    expect(lineage?.open).toBe(false);
+    expect(screen.queryByRole("heading", { name: "Workflow" })).toBeNull();
+    expect(screen.queryByText("Follow related records and the exact material workflow; open technical identifiers only when needed.")).toBeNull();
+    expect(screen.getByText("Property source").nextElementSibling?.textContent).toBe("fixture");
+    fireEvent.click(screen.getByRole("tab", { name: "Source & history" }));
+    expect(onNavigate).toHaveBeenCalledWith(expect.stringContaining("/evidence"));
+  });
+
+  it("presents exact Test Data workflow bindings as measured inputs without changing their contract kind", async () => {
+    installFetch(false, false, true);
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="curves" exactPin={pin} onNavigate={vi.fn()} />);
+
+    expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
+    const modelingInputs = screen.getByRole("table", { name: "Modeling inputs" });
+    expect(within(modelingInputs).getByText("Pinned tensile measurement")).toBeTruthy();
+    expect(within(modelingInputs).getByText("Test Data")).toBeTruthy();
+    expect(within(modelingInputs).getByText("Measured test input")).toBeTruthy();
+    expect(within(modelingInputs).queryByText("Observed input")).toBeNull();
   });
 
   it("fails closed when the exact workflow binding does not match the pin", async () => {

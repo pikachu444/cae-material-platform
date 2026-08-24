@@ -124,7 +124,7 @@ def test_catalog_material_families_remain_fixture_text_and_allowed_values() -> N
 
 def test_demo_density_fixture_is_supported_si_and_non_production() -> None:
     assert _SEED_FULL_DEMO._DEMO_METAL_DENSITY_FIXTURE == ("7850", "kg/m^3", "7850")
-    assert "not validated for engineering use" in _SEED_FULL_DEMO._METAL_CATALOG_DESCRIPTION
+    assert _SEED_FULL_DEMO._METAL_CATALOG_DESCRIPTION is None
 
 
 def test_catalog_attribute_contract_repairs_units_and_semantics_idempotently() -> None:

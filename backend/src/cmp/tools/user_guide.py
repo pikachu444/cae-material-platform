@@ -52,6 +52,8 @@ _STRUCTURED_IMAGE_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/manifest.json",
     "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/manifest.json",
     "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json",
+    "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/manifest.json",
+    "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/manifest.json",
 )
 _STRUCTURED_IMAGE_MANIFEST_GLOBS: tuple[str, ...] = ()
 _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (

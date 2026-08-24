@@ -184,6 +184,7 @@ describe("MaterialsBrowseTree", () => {
     expect(within(tree).getByRole("treeitem", { name: /Solver Cards/ })).toBeTruthy();
     expect(within(tree).getByRole("treeitem", { name: /DP780 Sheet/ })).toBeTruthy();
     expect(within(tree).queryByRole("treeitem", { name: /Material Records/ })).toBeNull();
+    expect(screen.queryByText("Expand a category to browse its data.")).toBeNull();
 
     await user.click(within(tree).getByRole("treeitem", { name: /Test Data/ }));
     expect(await within(tree).findByRole("treeitem", { name: /Room-temperature tensile test/ })).toBeTruthy();
