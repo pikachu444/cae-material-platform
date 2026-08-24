@@ -183,6 +183,28 @@ def test_candidate_manifest_digest_changes_when_a_component_is_substituted() -> 
     assert candidate_manifest_sha256(candidate) != candidate_manifest_sha256(substituted)
 
 
+def test_released_package_digest_rejects_line_ending_substitution() -> None:
+    repository = MemoryReleaseRepository()
+    value = repository.create(
+        command=command(),
+        manifest_id=UUID("30000000-0000-4000-8000-000000000021"),
+        release_id=UUID("30000000-0000-4000-8000-000000000020"),
+        occurred_at=NOW,
+        actor_id=ACTOR,
+    )
+    lf_package = b"{\n }"
+    manifest = replace(
+        value.manifest,
+        package_sha256=hashlib.sha256(lf_package).hexdigest(),
+        package_size_bytes=len(lf_package),
+    )
+    value = replace(value, manifest=manifest, package_text=lf_package.decode("utf-8"))
+
+    assert len(b"{\r\n}") == value.manifest.package_size_bytes
+    with pytest.raises(ReleaseConflict, match="package digest"):
+        replace(value, package_text="{\r\n}")
+
+
 def test_release_service_allocates_immutable_identity_and_enforces_publish_scope() -> None:
     repository = MemoryReleaseRepository()
     ids = iter(

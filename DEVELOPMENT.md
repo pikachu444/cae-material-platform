@@ -34,8 +34,8 @@ Production 시험 표준, 재료 모델, optimizer, solver mapping과 validation
 - Python `3.12.14`
 - [uv](https://docs.astral.sh/uv/) `0.12.5`
 - Node.js `24.19.0` LTS와 npm `11.17.0`
-- Docker Desktop/Engine과 Docker Compose
-- Windows에서는 WSL 2 기반 Linux container 권장
+- full integration gate용 Docker Desktop/Engine과 Docker Compose
+- Windows에서 container를 사용할 때는 WSL 2 기반 Linux container 권장
 
 `.python-version`과 `.node-version`이 로컬 개발 기준을 기록합니다. 먼저 설치된 도구 버전을
 확인한 뒤 잠금 파일을 바꾸지 않는 방식으로 환경을 준비합니다.
@@ -163,13 +163,24 @@ uv run pytest tests/integration
 npm run build --workspace @cmp/web
 npm run test:web
 uv run cmp-check-user-guide --root .
+uv run python scripts/repository_tasks.py ci --host-only
 ```
 
 GNU Make 사용 환경에서는 `make lint`, `make typecheck`, `make test`, `make web-build`,
 `make web-test`, `make docs-screenshots`, `make install-hooks`, `make verify-hooks`,
 `make pre-publish`, `make ci`를 사용할 수 있습니다. `make pre-publish`는 결정적 검사만 수행합니다.
 `make pre-publish-review`는 모델 비용이 발생하는 명시적 opt-in 명령이므로 사용자의 사전 승인이
-있을 때만 실행합니다.
+있을 때만 실행합니다. `make ci`와 `scripts/ci.sh`는 아래의 운영체제 중립 CLI를 그대로 호출하며
+검사 순서나 실패 전파를 별도로 정의하지 않습니다.
+
+```powershell
+uv run python scripts/repository_tasks.py ci --host-only
+```
+
+Docker 없는 host-only 실행은 `container_service` marker 대상의 정확한 제외 개수를 출력한 뒤 나머지
+검사를 실행합니다. `--host-only`와 `--require-container-tests`는 함께 사용할 수 없습니다. CLI는
+사용자가 지정한 uv 환경 변수를 보존하고, 지정하지 않은 cache·가상환경·임시 경로는 uv와 Python
+표준 라이브러리의 운영체제별 기본 위치를 사용합니다. `/tmp` 경로를 합성하지 않습니다.
 
 ## 6. PostgreSQL integration gate
 
@@ -179,11 +190,14 @@ DB를 test DSN으로 지정하지 마십시오.
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml --profile test up -d postgres-test
 $env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres"
-uv run pytest -m postgresql tests/integration -ra
+uv run pytest -m container_service tests/integration -ra
+uv run python scripts/repository_tasks.py ci --require-container-tests
 ```
 
-이 suite는 temporary database/role을 생성·삭제합니다. 0 failure, 0 skip이 기준이며 고정된 test
-개수에 의존하지 않습니다.
+`postgresql`은 DB 요구사항을, `container_service`는 저장소 CI가 준비하는 외부 서비스 경계를
+표시합니다. 현재 PostgreSQL integration module은 두 marker를 함께 가져야 하며 CLI는 marker drift를
+오류로 처리합니다. 이 suite는 temporary database/role을 생성·삭제합니다. 0 failure, 0 skip이
+기준이며 고정된 test 개수에 의존하지 않습니다.
 
 ## 7. 문서와 화면 변경
 

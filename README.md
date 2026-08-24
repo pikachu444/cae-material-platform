@@ -152,6 +152,10 @@ npm run test:web
 uv run cmp-check-user-guide --root .
 ```
 
+운영체제 중립 전체 검증 진입점은 `uv run python scripts/repository_tasks.py ci`입니다. Docker 없이
+실행하는 Windows 호스트 검증은 `--host-only`를 지정하며, 출력에 `container_service` 제외 개수가
+명시됩니다. `make ci`와 `scripts/ci.sh`는 같은 Python task CLI를 호출하는 호환 wrapper입니다.
+
 전체 명령은 [개발 가이드](DEVELOPMENT.md), 사용자 화면 확인 방법은
 [사용자 가이드](docs/user-guide/index.md)를 따릅니다. 개발 변경 전에는 [AGENTS.md](AGENTS.md)와
 정확한 GitHub issue를 읽으십시오. 완료된 작업 이력은 Git과 병합된 issue/PR에서 확인합니다.

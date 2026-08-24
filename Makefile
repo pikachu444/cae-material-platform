@@ -1,6 +1,4 @@
 UV ?= uv
-export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
-export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
 .PHONY: bootstrap demo demo-verify demo-e2e demo-scale-e2e demo-down development-environment-preflight compose-preflight lint typecheck check-architecture check-contracts docs-capture docs-screenshots docs-impact install-hooks verify-hooks pre-publish pre-publish-review generate-client release-quality performance-acceptance performance-fixture performance-production-scale soak-fault-acceptance governed-storage-acceptance product-pilot-acceptance \
@@ -132,4 +130,4 @@ run-worker-once:
 	$(UV) run cmp-worker --once --json
 
 ci:
-	bash scripts/ci.sh
+	$(UV) run python scripts/repository_tasks.py ci

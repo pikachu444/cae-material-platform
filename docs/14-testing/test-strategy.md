@@ -237,9 +237,23 @@ exact Run/Candidate/diagnostics lineage in PostgreSQL, append r2/r3 on one stabl
 revision-owned evidence in the browser, and prove that an earlier Solver Card payload and SHA-256
 do not change after a later promotion.
 
+## Cross-platform repository CI and byte boundaries
+
+`uv run python scripts/repository_tasks.py ci` is the authoritative task sequence on Linux and
+Windows; Make and bash are compatibility wrappers only. Repository-owned text that participates in
+the `contract_echo` package digest is checked out as LF through `.gitattributes`. Canonical JSON
+serialization likewise produces deterministic repository text bytes.
+
+This text policy does not apply to uploaded raw bytes or released package bytes. Their SHA-256 and
+size are computed from the exact received or emitted byte sequence, so CRLF and LF payloads remain
+different immutable artifacts. Tests exercise a CRLF checkout separately from raw/released-byte
+substitution and never normalize an immutable payload to make a digest pass.
+
 ## T-31 PostgreSQL integration prerequisites
 
-The PostgreSQL-marked suites are intentionally conditional. They are skipped when
+The PostgreSQL integration modules carry both `postgresql` and `container_service`. The first marker
+states the database contract; the second identifies tests that the repository CI must provision with
+an external service. They are conditional when invoked directly and are skipped when
 `CMP_TEST_POSTGRES_DSN` is not set; a skipped result is not a passing database verification.
 The DSN must point to a reachable disposable PostgreSQL 16+ server and be accepted by
 SQLAlchemy/psycopg. Never use a production, shared development, or otherwise valuable database.
@@ -274,24 +288,29 @@ Use this disposable owner DSN for the marked suites:
 
 ```powershell
 $env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres"
-uv run pytest -m postgresql tests/integration -ra
+uv run pytest -m container_service tests/integration -ra
 ```
 
-The P0-1 pass condition is **zero failures and zero PostgreSQL-marked skips**. The previously
-observed `62 skipped` is a snapshot of the current collected suite, not a stable expected count;
-new migrations/modules may add tests. With the same environment variable still set, execute the
-CI-equivalent suite:
+The P0-1 pass condition is **zero failures and zero container-service skips**. The exact count is
+collected at runtime rather than fixed because migrations and modules may add tests. With the same
+environment variable still set, execute the CI-equivalent suite:
 
 ```powershell
-& "C:\Program Files\Git\bin\bash.exe" scripts/ci.sh
+uv run python scripts/repository_tasks.py ci --require-container-tests
 ```
 
 On a shell with GNU Make, the equivalent commands are:
 
 ```bash
 CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres make test-postgresql
-CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres make ci
+CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres \
+  uv run python scripts/repository_tasks.py ci --require-container-tests
 ```
+
+The GitHub Actions Linux job provisions only `postgres-test` and runs this same command. The Windows
+job does not require Docker and runs `uv run python scripts/repository_tasks.py ci --host-only`; its
+log includes the marker name and exact exclusion count. Marker collection is scoped to
+`tests/integration`, and any `postgresql and not container_service` item fails before the pytest step.
 
 The test owner needs permission to create an isolated temporary database and application role.
 Tests migrate each temporary database to `head`, exercise non-owner RLS paths, and remove the
@@ -315,8 +334,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml down -v
 `down -v` permanently removes only the explicitly disposable local demo volume when this canonical
 composition is used. Do not copy this teardown command to another project or production context.
 
-Docker is not required by the Python test implementation itself; another disposable PostgreSQL 16+
-server is acceptable when the same owner privileges and isolation rules are satisfied. The live
+Docker is not required by host-only CI or by the Python test implementation itself; another
+disposable PostgreSQL 16+ server is acceptable when the same owner privileges and isolation rules are
+satisfied. The live
 P0-1 gate completed on 2026-07-27: the marker suite recorded 62 passed with zero skips or failures,
 and the CI-equivalent run recorded 452 Python tests plus 21 Vitest tests. The count may grow; skip
 zero and failure zero remain the contract. Evidence is recorded in `IMPLEMENTATION_STATUS.md`.

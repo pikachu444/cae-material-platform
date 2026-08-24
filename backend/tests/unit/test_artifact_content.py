@@ -175,6 +175,34 @@ def test_filesystem_promotes_streams_lists_and_never_replaces_content_key(
     asyncio.run(run())
 
 
+def test_filesystem_preserves_crlf_as_immutable_raw_bytes(tmp_path: Path) -> None:
+    payload = b"original,line\r\n1,2\r\n"
+    normalized = payload.replace(b"\r\n", b"\n")
+    digest = hashlib.sha256(payload).hexdigest()
+    staging_key = f"staging/{ORG}/{PROJECT}/{uuid4()}.raw"
+    final_key = content_object_key(
+        ORG, PROJECT, DataClassification.INTERNAL, digest
+    )
+    store = FilesystemMultipartObjectStore(tmp_path / "objects with spaces")
+
+    async def run() -> None:
+        await store.write_for_testing(staging_key, payload)
+        stored = await store.promote(
+            source_key=staging_key,
+            target_key=final_key,
+            expected_sha256=digest,
+            expected_size_bytes=len(payload),
+        )
+        observed = bytearray()
+        async for chunk in store.stream(final_key):
+            observed.extend(chunk)
+        assert bytes(observed) == payload
+        assert stored.sha256 == digest
+        assert stored.sha256 != hashlib.sha256(normalized).hexdigest()
+
+    asyncio.run(run())
+
+
 def test_filesystem_stages_large_derived_stream_with_digest_and_size_fencing(
     tmp_path: Path,
 ) -> None:

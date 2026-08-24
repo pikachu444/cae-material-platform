@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 POSTGRES_DSN = os.getenv("CMP_TEST_POSTGRES_DSN")
 pytestmark = [
     pytest.mark.postgresql,
+    pytest.mark.container_service,
     pytest.mark.skipif(
         not POSTGRES_DSN,
         reason="set CMP_TEST_POSTGRES_DSN to an isolated PostgreSQL admin URL",

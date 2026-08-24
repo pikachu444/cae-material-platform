@@ -32,7 +32,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
 | Exchange | CSV/TSV/XLSX governed import와 versioned Test Data JSON; DMA frequency-temperature sweep(temperature/frequency/storage/loss, optional tan delta)와 FLD(minor/major strain)의 atomic whole-file validation, actionable row/cell diagnostics, idempotent retry, exact Raw/Profile/Run/Dataset/Material provenance; Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
-| Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
+| Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구, Make/bash 호환 wrapper와 Linux full/Windows host-only CI가 공유하는 운영체제 중립 Python task CLI. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
 
 Engineering 수치와 solver 결과는 bounded synthetic `reference/non-production` 범위입니다.
 Production 표준, plugin, solver correlation과 validation threshold는 domain approval 전까지
@@ -83,6 +83,7 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
+uv run python scripts/repository_tasks.py ci --host-only
 uv run pytest tests/contracts
 npm run build --workspace @cmp/web
 npm run test:web

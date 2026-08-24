@@ -69,6 +69,7 @@ addopts = "-ra --strict-markers"
 pythonpath = ["backend/src", "sdk/python/src", "generated/python"]
 testpaths = ["backend/tests", "tests"]
 markers = [
+  "container_service: requires a repository-CI-provisioned container service or equivalent isolated external service",
   "postgresql: requires CMP_TEST_POSTGRES_DSN and an isolated PostgreSQL database",
 ]
 

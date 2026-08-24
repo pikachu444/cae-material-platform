@@ -18,6 +18,7 @@ PREVIOUS_REVISION = "20260928_097_issue207_bundle"
 CURRENT_REVISION = "20260929_098_issue210_dist"
 pytestmark = [
     pytest.mark.postgresql,
+    pytest.mark.container_service,
     pytest.mark.skipif(
         not POSTGRES_DSN,
         reason="set CMP_TEST_POSTGRES_DSN to an isolated PostgreSQL admin URL",
