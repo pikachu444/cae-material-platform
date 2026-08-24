@@ -52,10 +52,9 @@ test("disposable 1,000-record fixture proves Materials scale without persistent 
   await page.goto(`/materials?q=${scaleQuery}`);
   await expect(page.getByRole("heading", { name: "Materials", level: 1 })).toBeVisible();
   await expect(page.getByRole("button", { name: "Browse" })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByText("Expand a category to browse its data.", { exact: true })).toBeVisible({
-    timeout: 30_000,
-  });
-  await page.getByRole("button", { name: "Filters" }).click();
+  const filters = page.getByRole("button", { name: "Filters" });
+  await expect(filters).toBeVisible({ timeout: 30_000 });
+  await filters.click();
   await waitForMaterials(page);
   const rows = page.locator(".materials-result-table tbody tr");
   await expect(page.locator(".materials-results-header .ux-meta").first()).toHaveText(
@@ -149,7 +148,7 @@ test("disposable 1,000-record fixture proves Materials scale without persistent 
       level: 1,
     }),
   ).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("No representative curve preview.", { exact: true })).toBeVisible();
+  await expect(page.getByText("No representative curve preview.", { exact: true })).toHaveCount(0);
 
   await page.goBack();
   await waitForMaterials(page);

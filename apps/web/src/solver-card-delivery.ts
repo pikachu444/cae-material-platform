@@ -27,6 +27,11 @@ export type DeliveryMappingDisposition = "direct" | "review" | "blocked";
 
 export interface SolverCardEvidence {
   card: SolverCardSummary;
+  source: {
+    kind: "material_model" | "neutral_material";
+    id: string;
+    revisionId: string;
+  };
   target: ExportTarget;
   lifecycleState: string;
   revisionNo: number;
@@ -149,6 +154,11 @@ export async function loadSolverCardEvidence(
     const report = value.current_revision.mapping_report;
     return {
       card,
+      source: {
+        kind: "material_model",
+        id: value.material_model_id,
+        revisionId: value.current_revision.provenance.source_material_model_revision_id,
+      },
       target: value.target,
       lifecycleState: value.current_revision.lifecycle_state,
       revisionNo: value.current_revision.revision_no,
@@ -177,6 +187,11 @@ export async function loadSolverCardEvidence(
     : mappingItemsFromStatuses(value.current_revision.content.mapping_statuses);
   return {
     card,
+    source: {
+      kind: "neutral_material",
+      id: value.neutral_material_id,
+      revisionId: value.current_revision.content.neutral_material_revision_id,
+    },
     target: value.target,
     lifecycleState: value.current_revision.lifecycle_state,
     revisionNo: value.current_revision.revision_no,

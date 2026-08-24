@@ -1,6 +1,6 @@
 # Issue #262 FE-07A Materials architecture and UI refinement
 
-Status: Main implementation, visual/runtime acceptance and canonical independent Balanced audit complete; Product Owner visual/geometry approval and merge approval pending.
+Status: The owner-approved minor correction is implemented with affected runtime and five-viewport acceptance complete. The canonical independent Balanced follow-up review accepted the bounded result with no material findings. Merge remains forbidden.
 
 Scope is FE-07A Materials only. Administration FE-07B, Modeling behavior, backend contracts, database data and released artifacts are unchanged.
 
@@ -12,7 +12,7 @@ Scope is FE-07A Materials only. Administration FE-07B, Modeling behavior, backen
 | Browse and selection | Complete four-peer-category tree, keyboard navigation and exact item selection; presentation retained a redundant bottom helper. | Preserved categories, focus, local scroll and result/detail selection. Removed only the redundant helper. |
 | URL and return continuity | Partial ownership: query parsing, URL serialization, exact pins and session return data were embedded in the root surface. | Materials route state owns query/facet/sort/page/mode/selection, exact Material/Record pins, safe return paths and Browse selection continuity. |
 | Exact detail, record and solver-card loading | Complete domain behavior with loading/error boundaries, but loaders and graph/card lineage assembly lived beside Activity UI. | Feature API owns exact/unpinned experience loading, immutable revision filtering, graph verification, representative curves and card lineage. No `latest`, first-item or cross-session fallback was added. |
-| Datasheet information hierarchy | Partial: repeated kickers and a separate global Related data region created redundant scanning and a large internal void at 2560/3840. Curves repeated the same linked records without distinguishing their decisions. | Related data is adjacent to the active Overview/Properties/Curves decision. Curves distinguish `Modeling input` from immutable `Exact source records`; CAE delivery is labeled `CAE card applicability`; Evidence retains lineage. |
+| Datasheet information hierarchy | Partial: repeated kickers and a separate global Related data region created redundant scanning and a large internal void at 2560/3840. Curves repeated the same linked records without distinguishing their decisions. | Related data is adjacent to the active Overview/Properties/Curves decision. Curves distinguish `Modeling input` from immutable `Exact source records`; CAE delivery is labeled `CAE card applicability`; `Source & history` retains lineage. |
 | Root ownership | Missing FE-07A boundary: the 1,855-line root file owned Materials and Activity. | `material-library.tsx` is 524 lines and owns Activity only. Materials has public `index`, route-state/model, query API, experience loader, controller and page UI boundaries. |
 
 The structural extraction and semantic Materials normalization form one coherent FE-07A change: the state/API ownership move supplies the controller boundaries that the refined UI consumes, while the public routes, DOM contracts needed by regression tests, exact identity and server semantics stay preserved.
@@ -108,7 +108,7 @@ All 20 measurements have zero page horizontal overflow. The Navigator remains 28
 
 | Axis | Result | Judgment |
 | --- | --- | --- |
-| Carbon-level information hierarchy | pass | Flat pane/divider grammar, restrained blue task emphasis, compact tabs and identity-first headings remain. Redundant kickers/helper copy were removed; Evidence keeps technical lineage. |
+| Carbon-level information hierarchy | pass | Flat pane/divider grammar, restrained blue task emphasis, compact tabs and identity-first headings remain. Redundant kickers/helper copy were removed; `Source & history` keeps technical lineage. |
 | COMSOL-style engineering task flow | pass | Search/Browse → exact selection → identity/condition/source/curve → card applicability/lineage → exact preview/download or Start Modeling reads as one task. Modeling input and immutable source actions are distinct. |
 | SAP-style responsive/wide-screen composition | pass | Navigator and prose remain bounded while results, graph and exact-record tables use the available workspace. Related data is adjacent rather than stranded below a wide-screen void. |
 
@@ -138,6 +138,87 @@ The 2026-08-24 audit used Vercel's current official `web-interface-guidelines` s
 
 The permanent `cmp-local-demo` composition belonged to another worktree and was rejected as stale by preflight. Its containers were stopped without deleting volumes. Evidence used the disposable current-worktree project above; no reset, reseed, `down -v` or released-data mutation occurred.
 
+## Consolidated owner correction
+
+The correction preserves the published FE-07A architecture and exact contracts while revising the normal Materials decision surface as one bounded unit:
+
+- Search now has separate `Material` and `Code` columns. Material contains only the human-facing name; Code contains the exact Catalog `external_key` projected as `material_code`, or an em dash. Code is not described as a grade and is not sortable because the existing server/query contract does not advertise code sorting. The workspace status identifies it explicitly as `Code` rather than repeating an unexplained pale suffix.
+- Overview Key properties use a bounded definition layout with each label adjacent to its value. `Applicable conditions and material states` shows Temperature, Strain rate, State and Manufacturing route as explicit rows.
+- A representative response is shown only when a stored native artifact proves the response semantics. `True stress–plastic strain response` is projected only from the declared Abaqus `*PLASTIC` or OpenRadioss `/MAT/LAW36/` contracts; the current published Material has neither and therefore receives no fabricated response.
+- `Available solver cards` reads target, version, format, unit system, release and permitted action from the existing exact card contract. Generic instruction copy was removed.
+- `Related data` remains the canonical concept and groups only stored direct exact links under Technical Data, Test Data, Simulation Data and Solver Cards. Simulation entries use the concrete Processing Output, Selected Material Model or Neutral Material subtype. Selecting a link opens that exact revision in the central Materials workspace.
+- Exact Test Data detail projects test kind, condition and truthful channel/axis coverage and units, plus a measured curve when the record contains one. `Open in Modeling` is exposed only when the exact Material, State and Test Data provenance context is qualified. A qualified handoff pins those three exact revisions in both session state and the Modeling URL and opens Process; an unqualified record stays view-only with the exact missing-context reason.
+- Search, Browse, Detail and Curves no longer repeat headings, buttons, stage or selection through instructional helper copy. Redundant exact-card kickers and normal-surface revision fragments are also removed. Status, blocking cause, recovery, exact identity and engineering consequence text remain.
+
+### Exact click-flow record
+
+The deterministic live fixture completed every stored direct hop:
+
+1. Search `CMP-DEMO-DP780` selected the exact DP780 Material while displaying `DP780 synthetic reference steel` under Material and `CMP-DEMO-DP780` under Code.
+2. The exact Technical Data datasheet retained Material, Record and Material-revision pins through reload. Key properties and the exact Material State/condition were visible.
+3. A direct Test Data link opened Record `f7cc35f6-ffa4-4169-ab62-542da6e5df1d`, revision `ded50ad7-c14c-456f-b34b-234269d611e8`, and showed Tensile, 23 °C, strain rate, engineering-strain coverage and engineering-stress units.
+4. Browser Back/Forward returned to that same Test Data revision and the pinned Material. Results returned to the same search URL, selected row and table state.
+5. Start Modeling created a session at `stage=data&family=metal` carrying the exact Material revision and the unique exact Material State revision in session state and URL pins; reload preserved that context, so known context was not reselected. The provenance-qualified Test Data Process handoff is regression-proven with exact Material, State and Test Data revision pins; the published Test Data fixture lacks that qualification and remains view-only.
+6. A direct Simulation Data link opened Record `4adf586a-0837-4b9e-8c72-1a739549dc6a`, revision `330add2c-0f4b-4853-97b2-95a398c9f19c`, visibly typed as Processing Output with its condition and source relationship.
+7. The Solver Cards peer root opened Record `03c084fc-90eb-4736-8d0c-69c1b9b73072`, revision `378470c2-dfe6-4be5-9c46-5c183dd492d1`. The exact datasheet showed Abaqus 2025, `.inp`, `kg·m·s`, draft/review state, native preview, acknowledgement-gated download and exact source evidence.
+8. Query failure retained the last valid DP780 row and selection with Retry. Recovery reached the truthful empty result without console error, page overflow, clipping or overlap.
+
+### Bounded fixture and contract gaps
+
+- Published direct Test Data records contain test kind, condition and curve-coverage text but no stored curve value or Modeling source. Their exact datasheets correctly remain view-only. Lower-level regression proves the exact Process handoff when qualified context exists.
+- Published Material curve values are explicitly view-only, so this fixture has no provenance-qualified Materials `Open in Modeling` action.
+- No stored published direct link joins the Processing Output or selected Material Model to a Neutral Material or Solver Card. The exact Solver Card was therefore verified independently through the peer root; no missing link was inferred.
+- The Overview API has no family-neutral representative-response semantic. Projection is limited to the two exact native plastic-response declarations above, and the current Material omits the section instead of receiving a family guess.
+
+### Correction visual evidence
+
+The [owner-correction manifest](images/issue-262-fe07a-materials-architecture-ui/owner-correction/manifest.json) is `PARTIAL_PENDING_OWNER_VISUAL_GEOMETRY_APPROVAL`. It registers 20 before and 20 after originals, 70 before and 70 after direct 100%-pixel crops, and two recovery originals (182 PNGs total) at browser zoom 100%, DPR 1 and the five required CSS viewports. Main opened every original and crop at original resolution.
+
+| State | 1366×768 | 1440×900 | 1920×1080 | 2560×1440 | 3840×2160 |
+| --- | --- | --- | --- | --- | --- |
+| Search | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-search-1366x768.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-search-1440x900.png) | [owner review](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-search-1920x1080.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-search-2560x1440.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-search-3840x2160.png) |
+| Browse | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-1366x768.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-1440x900.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-1920x1080.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-2560x1440.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/materials-browse-3840x2160.png) |
+| Detail | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-detail-1366x768.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-detail-1440x900.png) | [owner review](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-detail-1920x1080.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-detail-2560x1440.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-detail-3840x2160.png) |
+| Curves | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1366x768.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1440x900.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1920x1080.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-2560x1440.png) | [after](images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-3840x2160.png) |
+
+All 20 correction measurements have zero page horizontal overflow. The 288 CSS px Navigator stays bounded while the result/datasheet/graph pane expands from 1,054 to 3,528 CSS px. The Key properties and condition forms remain bounded at wider viewports; result tables, related exact rows and graphs use the available comparison space. Local detail and curve scrolling remains inside the main pane.
+
+Q-01/Q-02 remain not applicable for the short seeded tree/result and stay covered by the dedicated overflow regression. Q-03, Q-05–Q-07, Q-09, Q-15, Q-19 and Q-20 pass against the correction originals and direct crops. Q-04, Q-08, Q-10–Q-14 and Q-16–Q-18 remain not applicable to this Materials unit. In particular, Q-19 passes because direct exact one-to-many links remain visible without inferred lineage, and Q-20 passes because forms stay readable while result, related-record and graph regions use wide-screen space without route-specific scaling.
+
+The three mandatory #249 axes pass Main review: Carbon-level hierarchy is strengthened by explicit identity and field grammar; COMSOL-style flow proceeds from exact selection through conditions and stored direct records to truthful downstream actions; SAP-style composition keeps forms bounded and makes results/graphs elastic across all five viewports. Automated 3840×2160 geometry is not physical Windows 4K readability; that record remains deferred to #223.
+
+### Correction verification
+
+| Gate | Result |
+| --- | --- |
+| Focused correction regression | pass — 3 files, 14 tests; independent reviewer rerun 4 files, 18 tests |
+| Full frontend unit/component/integration regression | pass — 72 files, 418 tests with one deterministic worker |
+| Frontend guard tests | pass — 17/17 |
+| Frontend guard | pass — 0 violations, 15 registered historical warnings; three resolved font-weight exceptions removed from the allowlist |
+| TypeScript and production build | pass — entry 258,379 bytes; Materials pages lazy chunk 70,156 bytes; zero production bundle warnings/errors |
+| Bundle budget | pass — 24/24 policy tests |
+| Storybook static build | pass |
+| Backend architecture guard | pass |
+| Live Compose/browser/reload/read-back | pass — current-worktree composition healthy and the exact state/return/handoff flow verified |
+| Targeted browser regression | pass — 9/9 |
+| Five-viewport correction capture | pass — 20 geometry records, 20 before/after pairs, 140 direct crops and 2 recovery originals; 182 registered PNGs |
+| User-guide checker | pass — 20 guides, 124 current captures and 9,047 registered images |
+| Documentation contract regression | pass — 143/143 |
+| Documentation impact and diff hygiene | pass — worktree impact check and `git diff --check` (line-ending notices only) |
+| Canonical independent Balanced correction review | **accepted** — no material findings after the bounded Test Data handoff correction |
+
+The canonical reviewer initially found that the fit-input callback could expose an incomplete Test Data handoff. The bounded correction now requires exact Material and State context, prevents session/navigation mutation when it is absent, pins every qualified context in the URL and session, and opens the Process path. Focused and deterministic regressions were rerun; the reviewer re-opened the final source and five-viewport evidence, verified all 182 image files/hashes and accepted the result with no material findings. Physical Windows 4K remains the separate #223 record.
+
+## Owner-approved minor correction
+
+The repeated normal-surface warning was not a React value branch. Its authoritative sources were the demo Material seed descriptions and their governed Catalog projections: `_MATERIAL_DESCRIPTION`, `_METAL_CATALOG_DESCRIPTION`, `_NON_METAL_MATERIAL_DESCRIPTION`, and the non-metal Catalog description fallback. Those demo-only descriptions are now absent. The generic Search and Material Detail renderers still show every genuine stored production description; no warning-string comparison, value-specific suppression or substitute summary was added.
+
+Material Detail now omits the summary paragraph when the stored description is absent instead of showing a generic fallback. The property source remains a labeled exact field on the existing internal `evidence` route. Only the user-facing tab label changes from `Evidence` to `Source & history`; the `MaterialTab` key, path, URL pins, session data and Materials-to-Modeling contracts are unchanged. The guide uses the same user-facing label.
+
+The owner-correction evidence was recaptured against the immediately preceding correction images. Its manifest status is `OWNER_APPROVED_MINOR_CORRECTION_COMPLETE_UNMERGED` and registers 20 measurements, 20 before/after comparisons, 140 direct 100%-pixel crops, two recovery originals and 182 PNGs at zoom 100%/DPR 1. Main opened the changed Search and Material Detail originals and their table/header/form crops at all five required viewports. The warning is absent, the Description cell truthfully shows an em dash, `Source & history` is visible without wrapping or clipping, and no page overflow, overlap or geometry regression is present. Carbon hierarchy, engineering task flow and responsive/wide-screen composition remain pass; physical Windows 4K remains #223.
+
+Affected verification is pass: 11 focused frontend tests, 18 seed tests, all five guided-demo scenarios, production TypeScript/Vite build with zero bundle warnings, frontend guard at zero violations, targeted Ruff, preserved-volume Compose reseed, the deterministic exact journey/capture, 143 documentation contract tests, guide integrity, documentation impact and diff hygiene. The canonical independent Balanced follow-up reviewer returned `APPROVED` with no material findings.
+
 ## Owner decision boundary
 
-The implementation and Main visual/geometry review are complete. Before merge, the Product Owner must open and approve the original 1920×1080, 2560×1440 and 3840×2160 Search/Browse/Detail/Curves comparisons. Merge remains forbidden until that explicit approval; #262 stays open because FE-07B is not part of this PR.
+The owner explicitly approved this exact minor visual correction; no additional visual approval is required for it. Commit, push and Draft PR #320 update are authorized after the canonical Balanced review and publication gates pass. Merge remains a separate owner decision and is forbidden in this task; #262 stays open because FE-07B is outside this PR.

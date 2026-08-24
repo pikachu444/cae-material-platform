@@ -42,6 +42,7 @@ import {
   downloadSolverCardArtifact,
   downloadSolverMappingArtifact,
   loadSolverCardEvidence,
+  mappingQuantityLabel,
   previewSolverCardText,
   recordDeliveryActivity,
   type SolverCardEvidence,
@@ -67,10 +68,11 @@ import {
   type MaterialTab,
 } from "../model/materials-route-state";
 import {
-  curveFromNativeCard,
   loadMaterialExperience,
   loadPinnedMaterialExperience,
   nodeBindings,
+  solverCardSummaryFromEndpoint,
+  trueStressPlasticStrainResponseFromNativeCard,
   type MaterialExperience,
 } from "../api/load-material-experience";
 
@@ -131,7 +133,7 @@ const tabs: ReadonlyArray<{ id: MaterialTab; label: string }> = [
   { id: "properties", label: "Properties" },
   { id: "curves", label: "Curves" },
   { id: "cards", label: "CAE Cards" },
-  { id: "evidence", label: "Evidence" },
+  { id: "evidence", label: "Source & history" },
 ];
 
 function messageFor(cause: unknown): string {
@@ -158,6 +160,67 @@ function relatedRecordGroups(items: RelatedExactRecord[]): Array<{
     .filter((group) => group.items.length > 0);
 }
 
+function relatedRecordTypeLabel(endpoint: ConfigurableLinkEndpoint): string {
+  const binding = nodeBindings(endpoint)[0];
+  if (binding) return domainKindLabel(binding.kind);
+  const fallbackByCategory: Partial<Record<CatalogDataCategory, string>> = {
+    technical_data: "Technical record",
+    test_data: "Test Data",
+    simulation_data: "Derived result",
+    solver_cards: "Solver Card",
+  };
+  const category = dataCategoryForEndpoint(endpoint);
+  return category ? fallbackByCategory[category] ?? "Related record" : "Related record";
+}
+
+function exactModelingContext(
+  graph: CatalogWorkflowGraphResponse | null,
+  materialStates: MaterialExperience["detail"]["states"] = [],
+): {
+  material?: { id: string; revisionId: string; revisionNo: number; label: string };
+  materialState?: {
+    id: string;
+    revisionId: string;
+    revisionNo: number;
+    label: string;
+  };
+} {
+  const uniqueReference = (kind: "material" | "material_state") => {
+    if (!graph) return undefined;
+    const candidates = [graph.root, ...graph.nodes].flatMap((node) =>
+      nodeBindings(node)
+        .filter((binding) => binding.kind === kind)
+        .map((binding) => ({
+          id: binding.object_id,
+          revisionId: binding.revision_id,
+          revisionNo: node.revision_no,
+          label: node.name,
+        })),
+    );
+    const unique = new Map(
+      candidates.map((candidate) => [
+        `${candidate.id}:${candidate.revisionId}`,
+        candidate,
+      ]),
+    );
+    return unique.size === 1 ? [...unique.values()][0] : undefined;
+  };
+  const graphState = uniqueReference("material_state");
+  const domainState =
+    !graphState && materialStates.length === 1
+      ? {
+          id: materialStates[0].material_state_id,
+          revisionId: materialStates[0].current_revision.id,
+          revisionNo: materialStates[0].current_revision.revision_no,
+          label: materialStates[0].current_revision.content.name,
+        }
+      : undefined;
+  return {
+    material: uniqueReference("material"),
+    materialState: graphState ?? domainState,
+  };
+}
+
 function RelatedExactRecordList({
   items,
   onNavigate,
@@ -169,7 +232,9 @@ function RelatedExactRecordList({
     <div className="related-record-groups">
       {relatedRecordGroups(items).map((group) => (
         <section className="related-record-group" key={group.label}>
-          <h3>{group.label}</h3>
+          <h3>
+            {group.label} <span className="ux-meta">{group.items.length}</span>
+          </h3>
           <ul className="related-record-list">
             {group.items.slice(0, 12).map((item) => (
               <li key={item.id}>
@@ -186,7 +251,8 @@ function RelatedExactRecordList({
                 >
                   <span>{item.endpoint.name}</span>
                   <small>
-                    {item.label} · r{item.endpoint.revision_no}
+                    {relatedRecordTypeLabel(item.endpoint)} · {item.label} · r
+                    {item.endpoint.revision_no}
                   </small>
                 </button>
               </li>
@@ -212,6 +278,21 @@ function formatPressure(value: number | null | undefined): string {
 function formatDensity(value: number | undefined): string {
   if (value === undefined) return "—";
   return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value)} kg/m³`;
+}
+
+function formatApplicabilityRange(
+  minimum: number | null | undefined,
+  maximum: number | null | undefined,
+  unit: string,
+): string {
+  if (minimum === null || minimum === undefined) {
+    return maximum === null || maximum === undefined
+      ? "—"
+      : `≤ ${maximum} ${unit}`;
+  }
+  if (maximum === null || maximum === undefined) return `≥ ${minimum} ${unit}`;
+  if (minimum === maximum) return `${minimum} ${unit}`;
+  return `${minimum}–${maximum} ${unit}`;
 }
 
 function sourceLabel(experience: MaterialExperience | undefined): string {
@@ -269,6 +350,12 @@ function modelingFamily(
 function startModeling(
   material: MaterialResponse,
   onNavigate: (path: string) => void,
+  materialState?: {
+    id: string;
+    revisionId: string;
+    revisionNo: number;
+    label: string;
+  },
 ): void {
   const family = modelingFamily(material);
   if (!family) return;
@@ -281,6 +368,8 @@ function startModeling(
       revisionNo: material.current_revision.revision_no,
       label: material.current_revision.content.name,
     },
+    materialState,
+    contextSelectionRequired: !materialState,
     workspace: {
       activeStage: "data",
       selectedDocumentIds: [],
@@ -290,7 +379,17 @@ function startModeling(
       settingsOpen: typeof window === "undefined" || window.innerWidth >= 1400,
     },
   });
-  onNavigate(`/modeling?stage=data&family=${family}`);
+  const query = new URLSearchParams({
+    stage: "data",
+    family,
+    material_id: material.material_id,
+    material_revision_id: material.current_revision.id,
+  });
+  if (materialState) {
+    query.set("material_state_id", materialState.id);
+    query.set("material_state_revision_id", materialState.revisionId);
+  }
+  onNavigate(`/modeling?${query.toString()}`);
 }
 
 function RepresentativeCurve({
@@ -305,15 +404,7 @@ function RepresentativeCurve({
   const frameRef = useRef<HTMLDivElement | null>(null);
   const frameSize = useResponsePlotSize(frameRef, normalizedPoints.length);
   if (normalizedPoints.length < 2)
-    return (
-      <div className="ux-empty compact">
-        <strong>No representative curve preview.</strong>
-        <p>
-          Open Curves or Browse Tree to inspect linked Test Data and model
-          records.
-        </p>
-      </div>
-    );
+    return null;
   return (
     <div ref={frameRef} className="material-curve-preview response-plot-frame">
       <ResponsePlotSvg
@@ -802,20 +893,316 @@ function triggerDownload(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-function SolverAvailability({ cards }: { cards: SolverCardSummary[] }) {
+function SolverAvailability({
+  config,
+  cards,
+  materialId,
+  onNavigate,
+}: {
+  config: ApiConfig;
+  cards: SolverCardSummary[];
+  materialId: string;
+  onNavigate: (path: string) => void;
+}) {
+  const [evidence, setEvidence] = useState<
+    Map<string, SolverCardEvidence> | null
+  >(null);
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!cards.length) {
+      setEvidence(new Map());
+      setLoadError(false);
+      return;
+    }
+    let active = true;
+    setEvidence(null);
+    setLoadError(false);
+    void Promise.allSettled(
+      cards.map((card) => loadSolverCardEvidence(config, card)),
+    ).then((results) => {
+      if (!active) return;
+      const loaded = new Map<string, SolverCardEvidence>();
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          loaded.set(cards[index].revisionId, result.value);
+        }
+      });
+      setEvidence(loaded);
+      setLoadError(loaded.size !== cards.length);
+    });
+    return () => {
+      active = false;
+    };
+  }, [attempt, cards, config]);
+
   if (!cards.length)
     return (
       <p className="ux-meta">No released reference card is available yet.</p>
     );
+  if (!evidence)
+    return (
+      <p className="delivery-progress-line" role="status">
+        Loading solver card state…
+      </p>
+    );
   return (
-    <ul className="solver-availability-list">
-      {cards.map((card) => (
-        <li key={card.id}>
-          <strong>{card.solver}</strong>
-          <span className="ux-meta">Native {card.extension}</span>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="solver-availability-list">
+        {cards.map((card) => {
+          const cardEvidence = evidence.get(card.revisionId);
+          return (
+            <li key={card.id}>
+              <dl>
+                <div>
+                  <dt>Target</dt>
+                  <dd>
+                    {cardEvidence
+                      ? `${card.solver} ${cardEvidence.target.version}`
+                      : card.solver}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Format</dt>
+                  <dd>Native ASCII {card.extension}</dd>
+                </div>
+                <div>
+                  <dt>Unit system</dt>
+                  <dd>
+                    {cardEvidence?.target.unit_system.replaceAll("_", " · ") ??
+                      "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Release state</dt>
+                  <dd>
+                    {cardEvidence?.lifecycleState.replaceAll("_", " ") ?? "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Action</dt>
+                  <dd>
+                    <button
+                      className="ux-button tertiary"
+                      type="button"
+                      onClick={() =>
+                        onNavigate(`/materials/${materialId}/cards/${card.id}`)
+                      }
+                    >
+                      Preview card
+                    </button>
+                  </dd>
+                </div>
+              </dl>
+            </li>
+          );
+        })}
+      </ul>
+      {loadError ? (
+        <div className="solver-availability-error" role="alert">
+          <span>Some solver card states could not be loaded.</span>
+          <button
+            className="ux-button tertiary"
+            type="button"
+            onClick={() => setAttempt((current) => current + 1)}
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function ExactSolverCardDelivery({
+  config,
+  card,
+}: {
+  config: ApiConfig;
+  card: SolverCardSummary;
+}) {
+  const [evidence, setEvidence] = useState<SolverCardEvidence | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [busy, setBusy] = useState<"preview" | "download" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [acknowledged, setAcknowledged] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setEvidence(null);
+    setPreview(null);
+    setError(null);
+    setAcknowledged(false);
+    void loadSolverCardEvidence(config, card)
+      .then((result) => {
+        if (active) setEvidence(result);
+      })
+      .catch((cause: unknown) => {
+        if (active) setError(messageFor(cause));
+      });
+    return () => {
+      active = false;
+    };
+  }, [attempt, card, config]);
+
+  async function openPreview(): Promise<void> {
+    setBusy("preview");
+    setError(null);
+    try {
+      const result = await previewSolverCardText(config, card);
+      setPreview(result.data);
+    } catch (cause: unknown) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function download(): Promise<void> {
+    if (!evidence || evidence.disposition === "blocked") return;
+    setBusy("download");
+    setError(null);
+    try {
+      const result = await downloadSolverCardArtifact(config, card);
+      triggerDownload(result.data.blob, result.data.filename);
+    } catch (cause: unknown) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const blockers =
+    evidence?.mappingItems
+      .filter((item) => item.status === "unsupported")
+      .map((item) => mappingQuantityLabel(item.name)) ?? [];
+  const reviewItems =
+    evidence?.mappingItems
+      .filter(
+        (item) => item.status === "approximated" || item.status === "ignored",
+      )
+      .map((item) => mappingQuantityLabel(item.name)) ?? [];
+  const blocked = evidence?.disposition === "blocked";
+  const reviewRequired = evidence?.disposition === "review";
+  const downloadDisabled =
+    !evidence ||
+    busy !== null ||
+    blocked ||
+    (reviewRequired && !acknowledged);
+  const availability = !evidence
+    ? "Checking…"
+    : blocked
+      ? "Download blocked"
+      : reviewRequired
+        ? "Review required"
+        : "Preview and download";
+
+  return (
+    <section className="exact-solver-card-delivery">
+      <div className="detail-section-heading">
+        <h2>Solver card delivery</h2>
+      </div>
+      {evidence ? (
+        <dl className="exact-solver-card-properties">
+          <div>
+            <dt>Target</dt>
+            <dd>
+              {card.solver} {evidence.target.version}
+            </dd>
+          </div>
+          <div>
+            <dt>Format</dt>
+            <dd>Native ASCII {card.extension}</dd>
+          </div>
+          <div>
+            <dt>Unit system</dt>
+            <dd>{evidence.target.unit_system.replaceAll("_", " · ")}</dd>
+          </div>
+          <div>
+            <dt>Release state</dt>
+            <dd>{evidence.lifecycleState.replaceAll("_", " ")}</dd>
+          </div>
+          <div>
+            <dt>Availability</dt>
+            <dd>{availability}</dd>
+          </div>
+        </dl>
+      ) : error ? null : (
+        <p className="delivery-progress-line" role="status">
+          Loading solver card state…
+        </p>
+      )}
+      {blocked ? (
+        <p className="ux-notice error" role="alert">
+          Download blocked: {blockers.join(", ") || "unsupported source values"}.
+        </p>
+      ) : null}
+      {reviewRequired ? (
+        <label className="delivery-acknowledgement">
+          <input
+            type="checkbox"
+            name="exact-card-delivery-acknowledgement"
+            checked={acknowledged}
+            onChange={(event) => setAcknowledged(event.target.checked)}
+          />
+          Review {reviewItems.join(", ") || "the delivery notes"} before download.
+        </label>
+      ) : null}
+      <div className="card-action-row">
+        <button
+          className="ux-button"
+          type="button"
+          disabled={!evidence || busy !== null}
+          onClick={() => void openPreview()}
+        >
+          {busy === "preview" ? "Loading preview…" : `Preview ${card.extension}`}
+        </button>
+        <button
+          className="ux-button primary"
+          type="button"
+          disabled={downloadDisabled}
+          onClick={() => void download()}
+        >
+          {busy === "download"
+            ? "Preparing…"
+            : blocked
+              ? "Download blocked"
+              : `Download ${card.extension}`}
+        </button>
+      </div>
+      {error ? (
+        <div className="ux-notice error" role="alert">
+          <span>{error}</span>
+          <button
+            className="ux-button tertiary"
+            type="button"
+            onClick={() => setAttempt((current) => current + 1)}
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+      {preview !== null ? <NativeCardPreview text={preview} /> : null}
+      {evidence ? (
+        <details className="ux-disclosure">
+          <summary>Exact source evidence</summary>
+          <dl className="evidence-grid">
+            <dt>Source type</dt>
+            <dd>
+              {evidence.source.kind === "neutral_material"
+                ? "Neutral Material"
+                : "Material Model"}
+            </dd>
+            <dt>Source ID</dt>
+            <dd>{evidence.source.id}</dd>
+            <dt>Source revision</dt>
+            <dd>{evidence.source.revisionId}</dd>
+          </dl>
+        </details>
+      ) : null}
+    </section>
   );
 }
 
@@ -840,12 +1227,12 @@ function domainKindLabel(kind: string | null | undefined): string {
     material_state: "Material state",
     specimen: "Specimen",
     test_run: "Test run",
-    test_data: "Test data",
-    processing_output: "Processing result",
-    material_model: "Selected model",
-    neutral_material: "Selected model",
-    solver_card: "Solver card",
-    neutral_solver_card: "Solver card",
+    test_data: "Test Data",
+    processing_output: "Processing Output",
+    material_model: "Selected Material Model",
+    neutral_material: "Neutral Material",
+    solver_card: "Solver Card",
+    neutral_solver_card: "Solver Card",
     release: "Released record",
   };
   return kind ? (labels[kind] ?? "Related record") : "Related record";
@@ -964,7 +1351,7 @@ export function MaterialDetailPage({
         : material?.current_revision;
     publishWorkspaceStatus({
       selection: material
-        ? `${material.current_revision.content.name} · ${material.current_revision.content.material_code ?? "No grade"}`
+        ? `${material.current_revision.content.name} · Code ${material.current_revision.content.material_code ?? "—"}`
         : "Material record",
       revision: selectedRevision
         ? `r${selectedRevision.revision_no}`
@@ -1024,6 +1411,11 @@ export function MaterialDetailPage({
     catalogRoot?.record_id,
     catalogRoot?.record_revision_id,
   );
+  const modelingContext = exactModelingContext(
+    experience.graph,
+    experience.detail.states,
+  );
+  const representativeResponse = experience.representativeResponse;
   const activePath = materialDetailPath(materialId, activeTab, exactPin);
   const navigateDetail = (path: string): void => {
     if (!exactPin || !path.startsWith(`/materials/${materialId}`)) {
@@ -1075,11 +1467,10 @@ export function MaterialDetailPage({
       <header className="material-detail-header">
         <div>
           <h1>{displayName}</h1>
-          <p>{displayDescription ?? "No summary is available."}</p>
+          {displayDescription?.trim() ? <p>{displayDescription}</p> : null}
           <div className="material-detail-meta">
-            <span>{displayCode ?? "No grade code"}</span>
+            <span>Code {displayCode ?? "—"}</span>
             <span>{content.material_family ?? content.material_class}</span>
-            <span>{sourceLabel(experience)}</span>
           </div>
         </div>
         <div className="card-action-row">
@@ -1102,7 +1493,9 @@ export function MaterialDetailPage({
             <button
               className="ux-button primary"
               type="button"
-              onClick={() => startModeling(material, onNavigate)}
+              onClick={() =>
+                startModeling(material, onNavigate, modelingContext.materialState)
+              }
             >
               Start Modeling
             </button>
@@ -1165,108 +1558,110 @@ export function MaterialDetailPage({
                       All properties
                     </button>
                   </div>
-                  <div className="overview-property-grid">
+                  <dl className="overview-property-list">
                     <div>
-                      <span>Density</span>
-                      <strong>
+                      <dt>Density</dt>
+                      <dd>
                         {formatDensity(property?.density_kg_per_m3)}
-                      </strong>
+                      </dd>
                     </div>
                     <div>
-                      <span>Young’s modulus</span>
-                      <strong>
+                      <dt>Young’s modulus</dt>
+                      <dd>
                         {formatPressure(property?.youngs_modulus_pa)}
-                      </strong>
+                      </dd>
                     </div>
                     <div>
-                      <span>Yield strength</span>
-                      <strong>
+                      <dt>Yield strength</dt>
+                      <dd>
                         {formatPressure(property?.yield_stress_pa)}
-                      </strong>
+                      </dd>
                     </div>
                     <div>
-                      <span>Poisson ratio</span>
-                      <strong>{property?.poisson_ratio ?? "—"}</strong>
+                      <dt>Poisson ratio</dt>
+                      <dd>{property?.poisson_ratio ?? "—"}</dd>
                     </div>
-                  </div>
+                  </dl>
                 </section>
-                <div className="overview-data-grid">
+                <div
+                  className={`overview-data-grid${representativeResponse ? "" : " conditions-only"}`}
+                >
+                  {representativeResponse ? (
+                    <section className="overview-section">
+                      <div className="detail-section-heading">
+                        <h2>True stress–plastic strain response</h2>
+                        <button
+                          className="ux-button tertiary"
+                          type="button"
+                          onClick={() =>
+                            onNavigate(
+                              materialDetailPath(
+                                materialId,
+                                "curves",
+                                exactPin,
+                              ),
+                            )
+                          }
+                        >
+                          All curves
+                        </button>
+                      </div>
+                      <div className="material-overview-response-cluster">
+                        <RepresentativeCurve
+                          points={representativeResponse.points}
+                        />
+                        <ResponsePointsTable
+                          points={representativeResponse.points}
+                        />
+                      </div>
+                    </section>
+                  ) : null}
                   <section className="overview-section">
-                    <div className="detail-section-heading">
-                      <h2>Linked material response</h2>
-                      <button
-                        className="ux-button tertiary"
-                        type="button"
-                        onClick={() =>
-                          onNavigate(
-                            materialDetailPath(materialId, "curves", exactPin),
-                          )
-                        }
-                      >
-                        All curves
-                      </button>
-                    </div>
-                    <div className="material-overview-response-cluster">
-                      <RepresentativeCurve
-                        points={experience.representativeCurve}
-                      />
-                      <ResponsePointsTable
-                        points={experience.representativeCurve}
-                      />
-                    </div>
-                  </section>
-                  <section className="overview-section">
-                    <h2>States and conditions</h2>
+                    <h2>Applicable conditions and material states</h2>
                     <dl className="condition-summary">
-                      <dt>Temperature</dt>
-                      <dd>
-                        {property?.applicability.temperature_min_k ?? "—"}–
-                        {property?.applicability.temperature_max_k ?? "—"} K
-                      </dd>
-                      <dt>Strain rate</dt>
-                      <dd>
-                        {property?.applicability.strain_rate_min_per_s ?? "—"}–
-                        {property?.applicability.strain_rate_max_per_s ?? "—"}{" "}
-                        /s
-                      </dd>
+                      <div>
+                        <dt>Temperature</dt>
+                        <dd>
+                          {formatApplicabilityRange(
+                            property?.applicability.temperature_min_k,
+                            property?.applicability.temperature_max_k,
+                            "K",
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Strain rate</dt>
+                        <dd>
+                          {formatApplicabilityRange(
+                            property?.applicability.strain_rate_min_per_s,
+                            property?.applicability.strain_rate_max_per_s,
+                            "/s",
+                          )}
+                        </dd>
+                      </div>
+                      {experience.detail.states.slice(0, 2).map((state) => (
+                        <div key={state.material_state_id}>
+                          <dt>State</dt>
+                          <dd>{state.current_revision.content.name}</dd>
+                          <dt>Manufacturing route</dt>
+                          <dd>
+                            {state.current_revision.content.manufacturing_route ??
+                              "—"}
+                          </dd>
+                        </div>
+                      ))}
                     </dl>
-                    {experience.detail.states.slice(0, 2).map((state) => (
-                      <p
-                        className="condition-state"
-                        key={state.material_state_id}
-                      >
-                        <strong>{state.current_revision.content.name}</strong>
-                        <span>
-                          {state.current_revision.content.manufacturing_route ??
-                            "Route not specified"}
-                        </span>
-                      </p>
-                    ))}
                   </section>
                 </div>
               </div>
               <aside>
-                <h2>CAE card applicability</h2>
-                <p>
-                  Check the native target and delivery notes before using a
-                  released card.
-                </p>
-                <SolverAvailability cards={experience.cards} />
-                <div className="solver-preview-links">
-                  {experience.cards.map((card) => (
-                    <button
-                      key={card.id}
-                      type="button"
-                      onClick={() =>
-                        navigateDetail(
-                          `/materials/${materialId}/cards/${card.id}`,
-                        )
-                      }
-                    >
-                      Preview {card.solver} {card.extension}
-                    </button>
-                  ))}
-                </div>
+                <h2>Available solver cards</h2>
+                <SolverAvailability
+                  config={config}
+                  cards={experience.cards}
+                  materialId={materialId}
+                  onNavigate={navigateDetail}
+                />
                 <button
                   className="ux-button tertiary"
                   type="button"
@@ -1278,15 +1673,11 @@ export function MaterialDetailPage({
             </div>
             <section
               className="material-linked-data"
-              aria-label="Related exact records"
+              aria-label="Related data"
             >
               <div className="detail-section-heading">
                 <div>
                   <h2 id="material-linked-data-title">Related data</h2>
-                  <p>
-                    Direct records for this exact revision, grouped by
-                    engineering use.
-                  </p>
                 </div>
                 <span className="ux-meta">
                   Revision r{selectedRevision.revision_no}
@@ -1365,12 +1756,11 @@ export function MaterialDetailPage({
             ) : null}
             <section
               className="material-linked-data compact"
-              aria-label="Related exact records"
+              aria-label="Related data"
             >
               <div className="detail-section-heading">
                 <div>
                   <h2 id="property-linked-data-title">Related data</h2>
-                  <p>Direct records for this exact revision.</p>
                 </div>
                 <span className="ux-meta">
                   Revision r{selectedRevision.revision_no}
@@ -1390,13 +1780,7 @@ export function MaterialDetailPage({
         {activeTab === "curves" ? (
           <>
             <div className="detail-section-heading">
-              <div>
-                <h2>Curves</h2>
-                <p>
-                  Inspect channel meaning, units, deviation evidence, and exact
-                  revision before opening eligible Test Data in Modeling.
-                </p>
-              </div>
+              <h2>Curves</h2>
             </div>
             {catalogRoot ? (
               <MaterialDatasheetProjection
@@ -1406,6 +1790,7 @@ export function MaterialDetailPage({
                 revisionId={exactPin?.recordRevisionId}
                 mode="curves"
                 onNavigate={onNavigate}
+                modelingContext={modelingContext}
               />
             ) : null}
             <table className="ux-table">
@@ -1454,16 +1839,10 @@ export function MaterialDetailPage({
             </table>
             <section
               className="material-linked-data compact"
-              aria-label="Related exact records"
+              aria-label="Related data"
             >
               <div className="detail-section-heading">
-                <div>
-                  <h2 id="curve-linked-data-title">Exact source records</h2>
-                  <p>
-                    Open the immutable Test Data and Simulation Data revisions
-                    behind these Modeling inputs.
-                  </p>
-                </div>
+                <h2 id="curve-linked-data-title">Exact source records</h2>
                 <span className="ux-meta">
                   Revision r{selectedRevision.revision_no}
                 </span>
@@ -1511,7 +1890,13 @@ export function MaterialDetailPage({
               <button
                 className="ux-button primary"
                 type="button"
-                onClick={() => startModeling(material, onNavigate)}
+                onClick={() =>
+                  startModeling(
+                    material,
+                    onNavigate,
+                    modelingContext.materialState,
+                  )
+                }
               >
                 Start Modeling
               </button>
@@ -1631,6 +2016,8 @@ export function MaterialDetailPage({
             <details className="ux-disclosure">
               <summary>Technical revision and provenance identifiers</summary>
               <dl className="evidence-grid">
+                <dt>Property source</dt>
+                <dd>{sourceLabel(experience)}</dd>
                 <dt>Material ID</dt>
                 <dd>{material.material_id}</dd>
                 <dt>Aggregate ID</dt>
@@ -1732,6 +2119,14 @@ export function ExactRecordDatasheetPage({
   }, [error, record]);
 
   const related = directRelatedRecords(graph, recordId, revisionId);
+  const modelingContext = exactModelingContext(graph);
+  const recordType = graph ? relatedRecordTypeLabel(graph.root) : "Record";
+  const solverCard = graph ? solverCardSummaryFromEndpoint(graph.root) : null;
+  const hasCurveValues = Boolean(
+    record?.current_revision.content.values.some(
+      (value) => value.data_type === "curve",
+    ),
+  );
   const navigator = (
     <aside className="materials-left-pane" aria-label="Materials Browse Tree">
       <div className="workspace-back-row">
@@ -1798,6 +2193,12 @@ export function ExactRecordDatasheetPage({
                 {record.current_revision.content.description ??
                   "No record description is available."}
               </p>
+              <div className="material-detail-meta">
+                <span>Type {recordType}</span>
+                <span>
+                  Code {record.current_revision.content.external_key ?? "—"}
+                </span>
+              </div>
             </div>
             <div className="exact-revision-mark">
               <strong>r{record.current_revision.revision_no}</strong>
@@ -1817,6 +2218,20 @@ export function ExactRecordDatasheetPage({
             revisionId={revisionId}
             mode="properties"
           />
+          {solverCard ? (
+            <ExactSolverCardDelivery config={config} card={solverCard} />
+          ) : null}
+          {hasCurveValues ? (
+            <MaterialDatasheetProjection
+              config={config}
+              tableId={record.table_id}
+              recordId={record.record_id}
+              revisionId={revisionId}
+              mode="curves"
+              onNavigate={onNavigate}
+              modelingContext={modelingContext}
+            />
+          ) : null}
           <section
             className="exact-record-related"
             aria-labelledby="exact-record-related-title"
@@ -2059,7 +2474,10 @@ export function SolverCardPreviewPage({
 
   const reviewRequired = evidence?.disposition === "review";
   const blocked = evidence?.disposition === "blocked";
-  const linkedResponsePoints = blocked ? [] : curveFromNativeCard(preview);
+  const linkedResponse = blocked
+    ? null
+    : trueStressPlasticStrainResponseFromNativeCard(preview);
+  const linkedResponsePoints = linkedResponse?.points ?? [];
   const downloadDisabled =
     loading ||
     downloading ||
@@ -2095,15 +2513,11 @@ export function SolverCardPreviewPage({
             >
               <EngineeringIcon name="back" /> <span>CAE Cards</span>
             </button>
-            <p className="ux-kicker">
-              {card?.solver ?? "Solver card"} · Native ASCII
-            </p>
             <h1>
               {card?.label ??
                 material?.current_revision.content.name ??
                 "Card preview"}
             </h1>
-            <p>Check the saved card and delivery details before downloading.</p>
           </div>
           <div className="card-action-row">
             <ReviewRequestAction
@@ -2139,7 +2553,6 @@ export function SolverCardPreviewPage({
             <LinkedResponseGraph points={linkedResponsePoints} />
           </section>
           <aside className="card-preview-actions">
-            <p className="ux-kicker">Delivery properties</p>
             <h2>{card?.solver ?? "Solver"}</h2>
             {evidence ? (
               <dl className="delivery-card-properties">

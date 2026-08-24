@@ -353,7 +353,9 @@ test("Materials ownership keeps exact search, card delivery, handoff, reload and
   await page.goto(`/materials/${noCardMaterialId}?record_id=${noCardRecordId}&record_revision_id=${noCardRecordRevisionId}&material_revision_id=${noCardMaterialRevisionId}`);
   await expect(page.getByRole("button", { name: "Start Modeling", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Start Modeling", exact: true }).click();
-  await expect(page).toHaveURL("/modeling?stage=data&family=metal");
+  await expect(page).toHaveURL(
+    `/modeling?stage=data&family=metal&material_id=${noCardMaterialId}&material_revision_id=${noCardMaterialRevisionId}`,
+  );
 
   const download = page.waitForEvent("download");
   await page.goto(`/materials/${materialId}/cards/${cardId}?record_id=${recordId}&record_revision_id=${recordRevisionId}&material_revision_id=${materialRevisionId}`);

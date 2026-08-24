@@ -101,7 +101,8 @@ export function MaterialSearchPage({
   } = controller;
   const [columnWidths, setColumnWidths] = useState({
     compare: 68,
-    material: 250,
+    material: 260,
+    code: 150,
     materialClass: 160,
     summary: 210,
   });
@@ -246,9 +247,6 @@ export function MaterialSearchPage({
               : `${totalCount ? `${offset + 1}–${Math.min(offset + materials.length, totalCount)} of ` : ""}${new Intl.NumberFormat().format(totalCount)} matches`}
           </p>
         </div>
-        <span className="ux-meta">
-          Click opens details · select up to 3 to compare
-        </span>
       </div>
       {error ? (
         <div className="ux-notice error" role="alert">
@@ -273,12 +271,7 @@ export function MaterialSearchPage({
       ) : null}
       {comparedMaterials.length > 1 ? (
         <div className="material-compare-strip">
-          <div>
-            <strong>Comparing {comparedMaterials.length} materials</strong>
-            <span className="ux-meta">
-              Selected materials remain available while you inspect results.
-            </span>
-          </div>
+          <strong>Comparing {comparedMaterials.length} materials</strong>
           {comparedMaterials.map((material) => (
             <dl key={material.material_id}>
               <dt>{material.name}</dt>
@@ -324,7 +317,7 @@ export function MaterialSearchPage({
       >
         {materials.length ? (
           <table
-            className="materials-result-table"
+            className="materials-result-table material-search-result-table"
             aria-label="Material results"
           >
             <colgroup>
@@ -351,10 +344,10 @@ export function MaterialSearchPage({
                 </th>
                 <th aria-sort={sortKey === "name" ? sortDirection : undefined}>
                   <button type="button" onClick={() => changeSort("name")}>
-                    Material / grade {sortIndicator("name")}
+                    Material {sortIndicator("name")}
                   </button>
                   <EngineeringColumnResizeHandle
-                    label="Material or grade"
+                    label="Material"
                     width={columnWidths.material}
                     min={180}
                     max={420}
@@ -362,6 +355,21 @@ export function MaterialSearchPage({
                       setColumnWidths((current) => ({
                         ...current,
                         material: width,
+                      }))
+                    }
+                  />
+                </th>
+                <th>
+                  Code
+                  <EngineeringColumnResizeHandle
+                    label="Code"
+                    width={columnWidths.code}
+                    min={110}
+                    max={260}
+                    onChange={(width) =>
+                      setColumnWidths((current) => ({
+                        ...current,
+                        code: width,
                       }))
                     }
                   />
@@ -409,7 +417,6 @@ export function MaterialSearchPage({
             </thead>
             <tbody>
               {materials.map((material) => {
-                const materialIdentity = `${material.name} · ${material.material_code ?? "No grade code"}`;
                 return (
                   <tr
                     key={material.material_id}
@@ -445,18 +452,16 @@ export function MaterialSearchPage({
                             ? "true"
                             : undefined
                         }
-                        title={materialIdentity}
+                        title={material.name}
                         onClick={(event) => {
                           event.stopPropagation();
                           openMaterial(material);
                         }}
                       >
                         <span>{material.name}</span>
-                        <small>
-                          {material.material_code ?? "No grade code"}
-                        </small>
                       </button>
                     </td>
+                    <td>{material.material_code ?? "—"}</td>
                     <td title={material.material_class}>
                       {familyLabel(material.material_class)}
                     </td>
@@ -520,7 +525,6 @@ export function MaterialSearchPage({
             data items
           </p>
         </div>
-        <span className="ux-meta">Click an item to open its details</span>
       </div>
       {browseResults?.items.length ? (
         <MaterialsScrollRegion

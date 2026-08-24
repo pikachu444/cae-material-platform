@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { MaterialDetailPage, SolverCardPreviewPage, type MaterialRevisionPin } from "./features/materials";
@@ -302,7 +302,10 @@ describe("pinned Material detail", () => {
     const detailHeaderText = screen.getByRole("heading", { name: "Pinned Catalog r1", level: 1 }).closest("header")?.textContent ?? "";
     expect(detailHeaderText).not.toMatch(/\bdraft\b/i);
     expect(detailHeaderText).toContain("Request review");
-    const relatedContextText = screen.getByLabelText("Related exact records").textContent ?? "";
+    expect(detailHeaderText).toContain("Pinned Catalog r1 description");
+    expect(screen.getByRole("tab", { name: "Source & history" })).toBeTruthy();
+    expect(screen.queryByRole("tab", { name: "Evidence" })).toBeNull();
+    const relatedContextText = screen.getByLabelText("Related data").textContent ?? "";
     expect(relatedContextText).not.toMatch(/\bdraft\b/i);
     expect(relatedContextText).toContain("Revision");
     expect(relatedContextText).toContain("r3");
@@ -319,15 +322,21 @@ describe("pinned Material detail", () => {
     window.removeEventListener("cmp:workspace-status", observeWorkspaceStatus);
   });
 
-  it("starts Modeling with the exact pinned Material revision in the browser session", async () => {
+  it("starts Modeling from CAE Cards with the exact pinned Material and State revisions", async () => {
     installFetch();
     const onNavigate = vi.fn();
-    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="overview" exactPin={pin} onNavigate={onNavigate} />);
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="cards" exactPin={pin} onNavigate={onNavigate} />);
 
     expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Start Modeling" }));
+    fireEvent.click(
+      within(screen.getByRole("tabpanel")).getByRole("button", {
+        name: "Start Modeling",
+      }),
+    );
 
-    expect(onNavigate).toHaveBeenCalledWith("/modeling?stage=data&family=metal");
+    expect(onNavigate).toHaveBeenCalledWith(
+      `/modeling?stage=data&family=metal&material_id=${materialId}&material_revision_id=${materialRevision1}&material_state_id=state-${stateRevision1}&material_state_revision_id=${stateRevision1}`,
+    );
     expect(loadModelingSession()).toMatchObject({
       version: 4,
       materialFamily: "metal",
@@ -337,9 +346,27 @@ describe("pinned Material detail", () => {
         revisionNo: 1,
         label: "Pinned Material r1",
       },
+      materialState: {
+        id: `state-${stateRevision1}`,
+        revisionId: stateRevision1,
+        revisionNo: 1,
+        label: "Pinned State r1",
+      },
+      contextSelectionRequired: false,
       workspace: { activeStage: "data" },
     });
     expect(loadModelingSession()?.material?.revisionId).not.toBe(materialRevision2);
+  });
+
+  it("labels Source & history without changing the internal evidence route key", async () => {
+    installFetch();
+    const onNavigate = vi.fn();
+    render(<MaterialDetailPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} activeTab="evidence" exactPin={pin} onNavigate={onNavigate} />);
+
+    expect(await screen.findByRole("heading", { name: "Pinned Catalog r1", level: 1 })).toBeTruthy();
+    expect(screen.getByText("Property source").nextElementSibling?.textContent).toBe("fixture");
+    fireEvent.click(screen.getByRole("tab", { name: "Source & history" }));
+    expect(onNavigate).toHaveBeenCalledWith(expect.stringContaining("/evidence"));
   });
 
   it("fails closed when the exact workflow binding does not match the pin", async () => {

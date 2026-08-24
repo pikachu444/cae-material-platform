@@ -109,10 +109,12 @@ export function CurveContractChart({
   preview,
   title,
   onOpenModeling,
+  modelingUnavailableReason,
 }: {
   preview: CatalogCurvePreviewResponse;
   title: string;
   onOpenModeling?: (source: NonNullable<CatalogCurvePreviewResponse["modeling_source"]>) => void;
+  modelingUnavailableReason?: string;
 }) {
   const descriptionId = useId();
   const liveId = useId();
@@ -192,7 +194,7 @@ export function CurveContractChart({
     : "Use Left and Right Arrow keys to inspect points. Escape clears the tooltip.";
 
   return <article className="contract-curve">
-    <div className="contract-curve-heading"><div><h3>{title}</h3><p>{preview.curve_metadata.metadata_state === "declared" ? "Declared curve contract" : "Reviewed legacy contract"} · revision {preview.record_revision_id.slice(0, 8)}</p></div><span>{preview.modeling_use === "fit_input" ? "Fit input" : "View only"}</span></div>
+    <div className="contract-curve-heading"><div><h3>{title}</h3><p>{preview.curve_metadata.metadata_state === "declared" ? "Declared curve contract" : "Reviewed legacy contract"}</p></div><span>{preview.modeling_use === "fit_input" ? "Fit input" : "View only"}</span></div>
     <div className="curve-channel-summary" id={descriptionId}>
       <span>{channelSummary(model.independent)}</span>
       <span>{channelSummary(model.dependent)}</span>
@@ -241,7 +243,7 @@ export function CurveContractChart({
     </div>
     {model.band ? <p className="curve-band-meaning">{deviationMeaning(model.band.lower)} · explicit lower/upper bounds</p> : null}
     <div className="contract-curve-actions">
-      {preview.modeling_use === "fit_input" && preview.modeling_source && onOpenModeling ? <button type="button" className="ux-button secondary" onClick={() => onOpenModeling(preview.modeling_source!)}>Open in Modeling</button> : <span>{preview.modeling_use === "view_only" ? "Statistical and envelope curves are view-only." : "No exact Fit source is available."}</span>}
+      {preview.modeling_use === "fit_input" && preview.modeling_source && onOpenModeling ? <button type="button" className="ux-button secondary" onClick={() => onOpenModeling(preview.modeling_source!)}>Open in Modeling</button> : <span>{preview.modeling_use === "view_only" ? "Statistical and envelope curves are view-only." : modelingUnavailableReason ?? "No exact Fit source is available."}</span>}
     </div>
     <details className="ux-disclosure curve-evidence"><summary>Evidence</summary><dl>
       <dt>Definition SHA-256</dt><dd><code>{preview.curve_metadata.definition_sha256}</code></dd>

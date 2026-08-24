@@ -126,6 +126,9 @@ describe("CurveContractChart", () => {
     const plot = screen.getByRole("img", { name: "Observed tensile: Engineering stress by Engineering strain" });
     expect(screen.getByText("Engineering strain [%]")).toBeTruthy();
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
+    expect(container.querySelector(".contract-curve-heading")?.textContent).not.toContain(
+      declared.record_revision_id.slice(0, 8),
+    );
     expect(screen.getByText(/original % · normalized 1 · display %/)).toBeTruthy();
     expect(screen.getAllByText(/student_t\.mean_two_sided/).length).toBeGreaterThanOrEqual(2);
     fireEvent.keyDown(plot, { key: "ArrowRight" });

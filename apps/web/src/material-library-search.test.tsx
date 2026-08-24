@@ -50,7 +50,7 @@ const material = (id: string, name: string) => ({
     lifecycle_state: "draft",
     content: {
       name,
-      material_code: `${name}-grade`,
+      material_code: `CODE-${name}`,
       material_class: "metal",
       material_family: "steel",
       description: `${name} description`,
@@ -257,9 +257,14 @@ describe("MaterialSearchPage navigator and results", () => {
     expect(screen.queryByText("Yield")).toBeNull();
 
     const materialSortButton = screen.getByRole("button", {
-      name: "Material / grade",
+      name: "Material",
     });
+    const codeHeader = screen.getByRole("columnheader", { name: /^Code/ });
     const familySortButton = screen.getByRole("button", { name: "Family" });
+    expect(codeHeader.querySelector("button")).toBeNull();
+    expect(codeHeader.hasAttribute("aria-sort")).toBe(false);
+    expect(screen.getByText("CODE-DP780")).toBeTruthy();
+    expect(screen.getByText("DP780 description")).toBeTruthy();
     expect(materialSortButton.querySelectorAll("svg")).toHaveLength(1);
     expect(familySortButton.querySelectorAll("svg")).toHaveLength(0);
     const ascendingPath = materialSortButton

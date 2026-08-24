@@ -243,7 +243,7 @@ export function useMaterialsSearchController(
   useEffect(() => {
     publishWorkspaceStatus({
       selection: selected
-        ? `${selected.name} · ${selected.material_code ?? "No grade"}`
+        ? `${selected.name} · Code ${selected.material_code ?? "—"}`
         : "No material selected",
       revision: selected
         ? `r${selected.record_revision_no}`

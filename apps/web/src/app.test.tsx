@@ -288,11 +288,14 @@ describe("Material Catalog workbench", () => {
     expect(screen.queryByText("Evidence source")).toBeNull();
     expect(screen.getByRole("navigation", { name: "Materials navigator modes" })).toBeTruthy();
     const materialHeader = screen.getAllByRole("columnheader").find((header) =>
-      within(header).queryByRole("button", { name: "Material / grade" }),
+      within(header).queryByRole("button", { name: "Material" }),
     );
     expect(materialHeader).toBeTruthy();
     expect(materialHeader?.getAttribute("aria-sort")).toBe("ascending");
-    expect(within(materialHeader!).getByRole("button", { name: "Material / grade" }).hasAttribute("aria-sort")).toBe(false);
+    expect(within(materialHeader!).getByRole("button", { name: "Material" }).hasAttribute("aria-sort")).toBe(false);
+    const codeHeader = screen.getByRole("columnheader", { name: /^Code/ });
+    expect(within(codeHeader).queryByRole("button")).toBeNull();
+    expect(codeHeader.hasAttribute("aria-sort")).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Family" }));
     await waitFor(() => expect(window.location.search).toContain("sort=material_class"));
     expect(screen.getByRole("columnheader", { name: /Family/ }).getAttribute("aria-sort")).toBe("ascending");
@@ -308,7 +311,7 @@ describe("Material Catalog workbench", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Material class" }), { target: { value: "metal" } });
     await waitFor(() => expect(window.location.search).toContain("q=DP780"));
     expect(window.location.search).toContain("family=metal");
-    fireEvent.click(screen.getByRole("button", { name: /Demo DP780 SteelDP780/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Demo DP780 Steel" }));
     await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
     expect(window.sessionStorage.getItem("cmp.materials.return-path")).toContain(`selected=${visibleMaterial.material_id}`);
     fireEvent.click(await screen.findByRole("button", { name: "Back to results" }));
@@ -735,7 +738,9 @@ describe("Material Catalog workbench", () => {
         }], links: [] });
       }
       if (url.includes("/bulk-export-candidates?")) throw new Error("Neutral graph card must not use bulk candidate fallback");
-      if (url.endsWith(exactNeutralCardPath(cardId, "/preview"))) return textResponse("/FUNCT/1\n0 450000000\n0.01 500000000\n0.02 550000000\n0.04 600000000\n0.08 620000000\n/END");
+      if (url.endsWith(exactNeutralCardPath(cardId, "/preview"))) return textResponse("/MAT/LAW36/1\n/FUNCT/1\n0 450000000\n0.01 500000000\n0.02 550000000\n0.04 600000000\n0.08 620000000\n/END");
+      if (url.endsWith(exactNeutralCardPath(cardId, "/mapping-report"))) return jsonResponse(neutralSolverMappingReport());
+      if (url.endsWith(exactNeutralCardPath(cardId))) return jsonResponse(neutralSolverCard(cardId));
       rejectUnpinnedNeutralCardRequest(url, cardId);
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -756,6 +761,15 @@ describe("Material Catalog workbench", () => {
     const responseRegion = screen.getByRole("region", { name: "Scrollable representative response points" });
     expect(responseRegion.getAttribute("tabindex")).toBe("0");
     expect(screen.getByText("Exact ordered series · 5 points")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "True stress–plastic strain response" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Available solver cards" })).toBeTruthy();
+    expect(await screen.findByText("Release state")).toBeTruthy();
+    expect(screen.getByText("OpenRadioss 2025")).toBeTruthy();
+    expect(screen.getByText("Native ASCII .rad")).toBeTruthy();
+    expect(screen.getByText("kg · m · s")).toBeTruthy();
+    expect(screen.getByText("draft")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Preview card" })).toBeTruthy();
+    expect(screen.queryByText(/Check the native target/)).toBeNull();
   });
 
   it("opens a material-owned native solver card preview without routing through bulk export", async () => {

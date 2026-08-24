@@ -23,7 +23,7 @@ from uuid import uuid4
 _MATERIAL_CODE = "CMP-DEMO-DP780"
 _STATE_NAME = "As received · synthetic reference"
 _MATERIAL_NAME = "DP780 synthetic reference steel"
-_MATERIAL_DESCRIPTION = "Synthetic reference data; not validated for engineering use."
+_MATERIAL_DESCRIPTION: str | None = None
 _STATE_DESCRIPTION = "Synthetic reference material state; not validated for engineering use."
 _STATE_MANUFACTURING_ROUTE = "Synthetic reference preparation; not for engineering use"
 _PROPERTY_SOURCE_REFERENCE = "Synthetic reference data"

@@ -180,11 +180,124 @@ describe("ExactRecordDatasheetPage", () => {
     expect(datasheetText).not.toMatch(/\bdraft\b/i);
     expect(datasheetText).toContain("revision 1");
     expect(datasheetText).toContain("Related data");
+    expect(datasheetText).toContain("Type Material");
     expect(datasheetText).toContain("Test Data");
     expect(datasheetText).toContain("Room tensile test");
+    expect(datasheetText).toContain("Test Data · uses · r1");
     expect(datasheetText).toContain("Solver Cards");
     expect(datasheetText).toContain("OpenRadioss material card");
+    expect(datasheetText).toContain("Solver Card · uses · r1");
     expect(datasheetText).not.toContain("Transitive viscoelastic model");
     expect(screen.queryByRole("button", { name: /record context pane/i })).toBeNull();
+  });
+
+  it("shows exact Solver Card target, release, actions, and source evidence", async () => {
+    const cardRevision = {
+      ...metadata("record-card-revision-1", 1),
+      aggregate_id: "record-card",
+      content: {
+        table_revision_id: "table-card-revision-1",
+        name: "DP780 OpenRadioss native card",
+        external_key: "CMP-CARD-DP780",
+        description: "Released solver-ready target artifact.",
+        folder_id: null,
+        folder_revision_id: null,
+        values: [],
+      },
+    };
+    const root = {
+      record_id: "record-card",
+      record_revision_id: "record-card-revision-1",
+      revision_no: 1,
+      table_id: "table-card",
+      name: "DP780 OpenRadioss native card",
+      external_key: "CMP-CARD-DP780",
+      data_category: "solver_cards",
+      domain_binding: {
+        binding_id: "binding-card",
+        record_id: "record-card",
+        record_revision_id: "record-card-revision-1",
+        kind: "neutral_solver_card",
+        object_id: "card-1",
+        revision_id: "card-revision-2",
+        workbench_path: "/exports",
+      },
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith("/catalog/records/record-card"))
+          return response({
+            record_id: "record-card",
+            table_id: "table-card",
+            current_revision: cardRevision,
+          });
+        if (url.endsWith("/catalog/records/record-card/revisions"))
+          return response({ items: [cardRevision] });
+        if (url.endsWith("/catalog/tables/table-card/attributes"))
+          return response({ items: [] });
+        if (url.endsWith("/catalog/tables/table-card/layouts"))
+          return response({ items: [] });
+        if (url.endsWith("/catalog/tables/table-card/folders"))
+          return response({ items: [] });
+        if (url.endsWith("/catalog/tables/table-card/records"))
+          return response({ items: [] });
+        if (url.includes("/catalog/explorer/tables")) return response({ items: [] });
+        if (url.includes("/catalog/workflow-explorer/"))
+          return response({ root, nodes: [root], links: [] });
+        if (url.includes("/neutral-solver-cards/card-1/mapping-report?revision_id=card-revision-2"))
+          return response({
+            mapping_report_sha256: "b".repeat(64),
+            exportable: true,
+            report: { items: [] },
+          });
+        if (url.includes("/neutral-solver-cards/card-1?revision_id=card-revision-2"))
+          return response({
+            solver_card_id: "card-1",
+            neutral_material_id: "neutral-1",
+            target: {
+              solver: "openradioss",
+              version: "2025",
+              unit_system: "kg_m_s",
+            },
+            current_revision: {
+              ...metadata("card-revision-2", 2),
+              aggregate_id: "card-1",
+              lifecycle_state: "published",
+              content: {
+                neutral_material_revision_id: "neutral-revision-3",
+                card_sha256: "a".repeat(64),
+                mapping_statuses: {},
+                solver_material_id: 301,
+                material_name: "DP780",
+              },
+            },
+          });
+        throw new Error(`Unexpected request: ${url}`);
+      }),
+    );
+
+    render(
+      <ExactRecordDatasheetPage
+        config={{ baseUrl: "/api/v1", accessToken: "test-token" }}
+        recordId="record-card"
+        revisionId="record-card-revision-1"
+        onNavigate={vi.fn()}
+      />,
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Solver card delivery" }),
+    ).toBeTruthy();
+    expect(await screen.findByText("OpenRadioss 2025")).toBeTruthy();
+    expect(screen.getByText("Native ASCII .rad")).toBeTruthy();
+    expect(screen.getByText("kg · m · s")).toBeTruthy();
+    expect(screen.getByText("published")).toBeTruthy();
+    expect(screen.getByText("Preview and download")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Preview .rad" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Download .rad" })).toBeTruthy();
+    expect(screen.getByText("Neutral Material")).toBeTruthy();
+    expect(screen.getByText("neutral-revision-3")).toBeTruthy();
   });
 });

@@ -869,10 +869,10 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
         <input className="ux-input" aria-label="Find in tree" value={draftFind} onChange={(event) => setDraftFind(event.target.value)} placeholder="Find data" />
         <button className="ux-button tertiary" type="submit">Find</button>
       </form>}
-      <div className="tree-search-status" aria-live="polite">
-        {scopeAvailability === "loading" ? <span>Finding Materials…</span> : scopeAvailability === "unavailable" ? <span>Materials are not available in this workspace.</span> : searchRecords ? <span>{subsetMode && folderMatchCount ? `${new Intl.NumberFormat().format(folderMatchCount)} folder ${folderMatchCount === 1 ? "match" : "matches"} · ` : ""}{new Intl.NumberFormat().format(searchTotal)} data matches{searchTotal > SEARCH_LIMIT ? ` · first ${SEARCH_LIMIT}` : ""}</span> : <span>{subsetMode ? "Choose a saved subset or table." : "Expand a category to browse its data."}</span>}
+      {scopeAvailability !== "ready" || searchRecords || subsetMode ? <div className="tree-search-status" aria-live="polite">
+        {scopeAvailability === "loading" ? <span>Finding Materials…</span> : scopeAvailability === "unavailable" ? <span>Materials are not available in this workspace.</span> : searchRecords ? <span>{subsetMode && folderMatchCount ? `${new Intl.NumberFormat().format(folderMatchCount)} folder ${folderMatchCount === 1 ? "match" : "matches"} · ` : ""}{new Intl.NumberFormat().format(searchTotal)} data matches{searchTotal > SEARCH_LIMIT ? ` · first ${SEARCH_LIMIT}` : ""}</span> : subsetMode ? <span>Choose a saved subset or table.</span> : null}
         {searchRecords ? <button type="button" onClick={findNext} disabled={!matchIndexes.length}>Find next</button> : null}
-      </div>
+      </div> : null}
       {error ? <div className="ux-notice error" role="alert">{error}</div> : null}
       <MaterialsScrollRegion
         id="materials-tree-scroll"

@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import runpy
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ from playwright.sync_api import Browser, Page, Route, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui"
+CORRECTION = EVIDENCE / "owner-correction"
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
 CAPTURE = runpy.run_path(str(ROOT / "scripts/capture_current_product.py"))
 
@@ -168,6 +170,12 @@ def _viewport(width: int, height: int) -> str:
 
 
 def _settle(page: Page) -> None:
+    # React can schedule the exact-link explorer request immediately after the
+    # first idle frame. Require a short stable idle window before measuring or
+    # capturing so a transient pre-request frame cannot pass the evidence gate.
+    for _ in range(2):
+        CAPTURE["_wait_for_settled"](page)
+        page.wait_for_timeout(250)
     CAPTURE["_wait_for_settled"](page)
     page.locator("footer[role='status']").filter(
         has_not_text="Loading materials"
@@ -215,10 +223,10 @@ def _open_detail(page: Page) -> None:
     page.get_by_role(
         "heading", name="DP780 synthetic reference steel", exact=True
     ).wait_for(timeout=30_000)
-    page.get_by_role("heading", name="CAE card applicability", exact=True).wait_for(
+    page.get_by_role("heading", name="Available solver cards", exact=True).wait_for(
         timeout=30_000
     )
-    page.get_by_label("Related exact records").wait_for(timeout=30_000)
+    page.get_by_label("Related data").wait_for(timeout=30_000)
     _settle(page)
 
 
@@ -249,7 +257,9 @@ def _measure(page: Page, state: str, width: int, height: int) -> dict[str, Any]:
             viewport: { width: innerWidth, height: innerHeight },
             devicePixelRatio,
             visualViewportScale: visualViewport?.scale || 1,
-            pageOverflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            pageOverflowX:
+              document.documentElement.scrollWidth -
+              document.documentElement.clientWidth,
             workspace: bounds('.resizable-workspace'),
             navigator: bounds('.navigator-panel'),
             main: bounds('.main-panel'),
@@ -290,7 +300,7 @@ def _screenshot(page: Page, path: Path, width: int, height: int) -> None:
 
 
 def _capture_matrix(browser: Browser, base_url: str) -> list[dict[str, Any]]:
-    after = EVIDENCE / "after/originals"
+    after = CORRECTION / "after/originals"
     measurements: list[dict[str, Any]] = []
     for width, height in VIEWPORTS:
         suffix = _viewport(width, height)
@@ -311,7 +321,7 @@ def _capture_matrix(browser: Browser, base_url: str) -> list[dict[str, Any]]:
 
         page.get_by_role("tab", name="Curves", exact=True).click()
         page.get_by_role("heading", name="Curves", exact=True).wait_for(timeout=30_000)
-        page.get_by_label("Related exact records").wait_for(timeout=30_000)
+        page.get_by_label("Related data").wait_for(timeout=30_000)
         _settle(page)
         measurements.append(_measure(page, "material-curves", width, height))
         _screenshot(page, after / f"material-curves-{suffix}.png", width, height)
@@ -347,7 +357,7 @@ def _capture_recovery(browser: Browser, base_url: str) -> dict[str, Any]:
         raise EvidenceError("failed query did not retain exact selection")
     _screenshot(
         page,
-        EVIDENCE / "after/exceptions/materials-search-error-1440x900.png",
+        CORRECTION / "after/exceptions/materials-search-error-1440x900.png",
         width,
         height,
     )
@@ -359,7 +369,7 @@ def _capture_recovery(browser: Browser, base_url: str) -> dict[str, Any]:
     _settle(page)
     _screenshot(
         page,
-        EVIDENCE / "after/exceptions/materials-search-recovered-1440x900.png",
+        CORRECTION / "after/exceptions/materials-search-recovered-1440x900.png",
         width,
         height,
     )
@@ -380,6 +390,31 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     page = CAPTURE["_new_page"](browser, base_url, 1440, 900)
     _open_browse(page, base_url)
     _open_search(page)
+    result_table = page.locator('table[aria-label="Material results"]')
+    headers = [
+        result_table.locator("thead th").nth(index).inner_text().strip()
+        for index in range(result_table.locator("thead th").count())
+    ]
+    if headers[:5] != ["Compare", "Material", "Code", "Family", "Description"]:
+        raise EvidenceError(f"search result semantics drifted: {headers}")
+    code_header = result_table.locator("thead th").nth(2)
+    if code_header.locator("button").count() or code_header.get_attribute("aria-sort"):
+        raise EvidenceError("Code sorting was added without a server sort contract")
+    row = result_table.locator("tbody tr").filter(has_text="DP780").first
+    cells = [row.locator("td").nth(index).inner_text().strip() for index in range(5)]
+    if cells[1] != "DP780 synthetic reference steel" or cells[2] != "CMP-DEMO-DP780":
+        raise EvidenceError(f"Material and Code columns are not exact: {cells}")
+    if "not validated for engineering use" in result_table.inner_text().lower():
+        raise EvidenceError("demo provenance warning remains in normal Search results")
+
+    query = page.get_by_role("textbox", name="Search materials")
+    query.fill("CMP-DEMO-DP780")
+    page.locator(".materials-search-form").get_by_role(
+        "button", name="Find", exact=True
+    ).click()
+    row = result_table.locator("tbody tr").filter(has_text="CMP-DEMO-DP780").first
+    row.wait_for(timeout=30_000)
+    page.wait_for_url(lambda url: "q=CMP-DEMO-DP780" in str(url), timeout=30_000)
     search_url = page.url
     _open_detail(page)
     exact_url = page.url
@@ -394,30 +429,270 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     _settle(page)
     if page.url != exact_url:
         raise EvidenceError(f"exact detail URL drifted after reload: {page.url}")
+    if page.get_by_role("tab", name="Source & history", exact=True).count() != 1:
+        raise EvidenceError("Source & history tab label is missing")
+    if page.get_by_role("tab", name="Evidence", exact=True).count():
+        raise EvidenceError("legacy Evidence tab label remains visible")
+    if "not validated for engineering use" in page.locator(
+        ".material-detail-header"
+    ).inner_text().lower():
+        raise EvidenceError("demo provenance warning remains in Material Detail header")
+    property_text = page.locator(".overview-property-list").inner_text()
+    condition_text = page.locator(".condition-summary").inner_text()
+    for required_label in (
+        "Density",
+        "Young’s modulus",  # noqa: RUF001 - exact user-facing label
+        "Yield strength",
+        "Poisson ratio",
+    ):
+        if required_label not in property_text:
+            raise EvidenceError(f"missing key property label {required_label!r}")
+    for required_label in (
+        "Temperature",
+        "Strain rate",
+        "State",
+        "Manufacturing route",
+    ):
+        if required_label not in condition_text:
+            raise EvidenceError(f"missing applicability label {required_label!r}")
+    condition_width = page.locator(".condition-summary").evaluate(
+        "element => element.getBoundingClientRect().width"
+    )
+    if condition_width > 560:
+        raise EvidenceError(f"condition form exceeds readable bound: {condition_width}")
+
+    material_related = page.get_by_label("Related data")
+    material_groups = [
+        material_related.locator(".related-record-group h3").nth(index).inner_text().strip()
+        for index in range(material_related.locator(".related-record-group h3").count())
+    ]
+    if material_groups != ["Test Data 6"]:
+        raise EvidenceError(f"unexpected direct Material links: {material_groups}")
+    direct_test = material_related.locator(".related-record-list button").filter(
+        has_text="23 °C · 0.0067"
+    ).first
+    direct_test.click()
+    page.get_by_role(
+        "heading",
+        name="DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
+        exact=True,
+    ).wait_for(timeout=30_000)
+    _settle(page)
+    test_url = page.url
+    test_text = page.locator(".exact-record-datasheet").inner_text()
+    for required_text in (
+        "Type Test Data",
+        "Data type",
+        "Tensile",
+        "Test conditions",
+        "23 °C; 0.0067 s⁻¹",
+        "Engineering strain: 0 to 0.14 1",
+        "Engineering stress: 0 to 775000000 Pa",
+    ):
+        if required_text not in test_text:
+            raise EvidenceError(f"exact Test Data is missing {required_text!r}")
+    direct_test_modeling_available = bool(
+        page.get_by_role("button", name="Open in Modeling", exact=True).count()
+    )
+    simulation = page.locator(".exact-record-datasheet .related-record-list button").filter(
+        has_text="selected Voce"
+    ).first
+    if "Processing Output" not in simulation.inner_text():
+        raise EvidenceError("Simulation Data does not show its Processing Output subtype")
+    simulation.click()
+    page.get_by_role(
+        "heading",
+        name="DP780 elastoplasticity · selected Voce result · synthetic reference",
+        exact=True,
+    ).wait_for(timeout=30_000)
+    _settle(page)
+    simulation_url = page.url
+    simulation_text = page.locator(".exact-record-datasheet").inner_text()
+    for required_text in (
+        "Type Processing Output",
+        "23 °C room-temperature tensile input",
+        "CMP-246-TENSILE-ROOM",
+    ):
+        if required_text not in simulation_text:
+            raise EvidenceError(f"Processing Output is missing {required_text!r}")
+    page.go_back()
+    page.get_by_role(
+        "heading",
+        name="DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
+        exact=True,
+    ).wait_for(timeout=30_000)
+    if page.url != test_url:
+        raise EvidenceError("Back did not restore the exact Test Data revision")
+    page.go_forward()
+    page.get_by_role(
+        "heading",
+        name="DP780 elastoplasticity · selected Voce result · synthetic reference",
+        exact=True,
+    ).wait_for(timeout=30_000)
+    if page.url != simulation_url:
+        raise EvidenceError("Forward did not restore the exact Processing Output revision")
+    page.reload()
+    page.get_by_role(
+        "heading",
+        name="DP780 elastoplasticity · selected Voce result · synthetic reference",
+        exact=True,
+    ).wait_for(timeout=30_000)
+    _settle(page)
+    page.go_back()
+    page.get_by_role(
+        "heading",
+        name="DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
+        exact=True,
+    ).wait_for(timeout=30_000)
+    page.go_back()
+    page.get_by_role(
+        "heading", name="DP780 synthetic reference steel", exact=True
+    ).wait_for(timeout=30_000)
+    _settle(page)
+    if page.url != exact_url:
+        raise EvidenceError(f"Material context drifted after exact direct hops: {page.url}")
+
+    page.get_by_role("tab", name="Curves", exact=True).click()
+    page.get_by_role("heading", name="Curves", exact=True).wait_for(timeout=30_000)
+    _settle(page)
+    curves_modeling_available = bool(
+        page.get_by_role("button", name="Open in Modeling", exact=True).count()
+    )
+    if "View only" not in page.locator(".material-tab-panel").inner_text():
+        raise EvidenceError("unqualified configured curves are not visibly view-only")
+
+    start = page.get_by_role("button", name="Start Modeling", exact=True)
+    start.click()
+    page.wait_for_url(lambda url: "/modeling" in str(url), timeout=30_000)
+    page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(
+        timeout=30_000
+    )
+    session = page.evaluate(
+        "JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || 'null')"
+    )
+    modeling_params = page.evaluate(
+        "Object.fromEntries(new URL(location.href).searchParams)"
+    )
+    if (
+        not session
+        or session.get("material", {}).get("revisionId")
+        != exact_params["material_revision_id"]
+        or not session.get("materialState", {}).get("revisionId")
+        or session.get("contextSelectionRequired") is not False
+    ):
+        raise EvidenceError(f"Modeling handoff lost exact known context: {session}")
+    expected_modeling_params = {
+        "stage": "data",
+        "family": "metal",
+        "material_id": session["material"]["id"],
+        "material_revision_id": session["material"]["revisionId"],
+        "material_state_id": session["materialState"]["id"],
+        "material_state_revision_id": session["materialState"]["revisionId"],
+    }
+    if modeling_params != expected_modeling_params:
+        raise EvidenceError(
+            "Modeling URL did not pin the exact known Material and State context: "
+            f"{modeling_params}"
+        )
+    modeling_url = page.url
+    page.reload()
+    page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(
+        timeout=30_000
+    )
+    restored_session = page.evaluate(
+        "JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || 'null')"
+    )
+    if (
+        not restored_session
+        or restored_session.get("material", {}).get("id")
+        != session["material"]["id"]
+        or restored_session.get("material", {}).get("revisionId")
+        != session["material"]["revisionId"]
+        or restored_session.get("materialState", {}).get("id")
+        != session["materialState"]["id"]
+        or restored_session.get("materialState", {}).get("revisionId")
+        != session["materialState"]["revisionId"]
+        or restored_session.get("contextSelectionRequired") is not False
+        or page.url != modeling_url
+    ):
+        raise EvidenceError(
+            "Modeling reload did not preserve exact Material and State context: "
+            f"{restored_session}"
+        )
+    page.go_back()
+    page.get_by_role("heading", name="Curves", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("tab", name="Overview", exact=True).click()
+    page.get_by_role("heading", name="Available solver cards", exact=True).wait_for(
+        timeout=30_000
+    )
+    _settle(page)
+
+    page.get_by_role("treeitem", name="Solver Cards", exact=True).click()
+    solver_record = page.get_by_role(
+        "treeitem",
+        name="DP780 Abaqus native material card · synthetic reference",
+        exact=True,
+    )
+    solver_record.wait_for(timeout=30_000)
+    solver_record.dblclick()
+    page.get_by_role("heading", name="Solver card delivery", exact=True).wait_for(
+        timeout=30_000
+    )
+    page.get_by_text("Abaqus 2025", exact=True).wait_for(timeout=30_000)
+    _settle(page)
+    solver_url = page.url
+    solver_text = page.locator(".exact-solver-card-delivery").inner_text()
+    for required_text in (
+        "Native ASCII .inp",
+        "kg · m · s",
+        "Release state",
+        "Review required",
+        "Exact source evidence",
+    ):
+        if required_text not in solver_text:
+            raise EvidenceError(f"Solver Card detail is missing {required_text!r}")
+    download = page.get_by_role("button", name="Download .inp", exact=True)
+    if not download.is_disabled():
+        raise EvidenceError(
+            "review-required Solver Card download is enabled before acknowledgement"
+        )
+    page.get_by_role("button", name="Preview .inp", exact=True).click()
+    page.locator(".native-card-preview").wait_for(timeout=30_000)
+    if "*MATERIAL" not in page.locator(".native-card-preview").inner_text():
+        raise EvidenceError("exact Solver Card native preview did not load")
+    acknowledgement = page.get_by_role("checkbox")
+    acknowledgement.check()
+    if download.is_disabled():
+        raise EvidenceError("reviewed Solver Card download did not become available")
+    page.reload()
+    page.get_by_role("heading", name="Solver card delivery", exact=True).wait_for(
+        timeout=30_000
+    )
+    page.get_by_text("Abaqus 2025", exact=True).wait_for(timeout=30_000)
+    _settle(page)
+    if page.url != solver_url:
+        raise EvidenceError("Solver Card exact URL drifted after reload")
+    page.go_back()
+    page.get_by_role(
+        "heading", name="DP780 synthetic reference steel", exact=True
+    ).wait_for(timeout=30_000)
+    page.go_forward()
+    page.get_by_role("heading", name="Solver card delivery", exact=True).wait_for(
+        timeout=30_000
+    )
+
     page.get_by_role("button", name="Results", exact=True).click()
     page.wait_for_url(
-        lambda url: "/materials?" in str(url) and "q=DP780" in str(url),
+        lambda url: "/materials?" in str(url) and "q=CMP-DEMO-DP780" in str(url),
         timeout=30_000,
     )
-    page.locator('table[aria-label="Material results"] tbody tr').filter(
-        has_text="DP780"
-    ).first.wait_for(timeout=30_000)
+    result_table.locator("tbody tr").filter(has_text="CMP-DEMO-DP780").first.wait_for(
+        timeout=30_000
+    )
     return_url = page.url
     if "selected=" not in return_url or "table=" not in return_url:
         raise EvidenceError(f"return path lost query/scope/selection: {return_url}")
 
-    _open_detail(page)
-    outcome = "exact-preview-or-download"
-    start = page.get_by_role("button", name="Start Modeling", exact=True)
-    if start.count() and start.is_visible():
-        start.click()
-        page.wait_for_url(lambda url: "/modeling" in str(url), timeout=30_000)
-        session = page.evaluate(
-            "JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || 'null')"
-        )
-        if not session or session.get("material", {}).get("revisionId") != exact_params["material_revision_id"]:
-            raise EvidenceError(f"Modeling handoff lost the exact Material revision: {session}")
-        outcome = "start-modeling-exact-context"
     page.context.close()
     return {
         "searchUrl": search_url,
@@ -425,7 +700,36 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
         "exactPins": exact_params,
         "reloadReadBack": True,
         "returnUrl": return_url,
-        "handoffOutcome": outcome,
+        "materialPropertiesAndConditions": True,
+        "directTestDataUrl": test_url,
+        "directTestDataTypeAndUnits": True,
+        "directTestDataModelingAvailable": direct_test_modeling_available,
+        "processingOutputUrl": simulation_url,
+        "processingOutputSubtypeAndSource": True,
+        "backForwardExactReadBack": True,
+        "configuredCurvesModelingAvailable": curves_modeling_available,
+        "startModelingUrl": modeling_url,
+        "startModelingExactMaterialAndState": True,
+        "solverCardUrl": solver_url,
+        "solverCardTargetReleasePreviewAndDownloadState": True,
+        "fixtureGaps": [
+            (
+                "Published direct Test Data records contain test kind, condition and "
+                "curve coverage text but no stored curve value/modeling source, so "
+                "their exact datasheets remain view-only."
+            ),
+            (
+                "The published Material curve values are explicitly view-only; no "
+                "provenance-qualified Materials Open in Modeling action exists in "
+                "this fixture."
+            ),
+            (
+                "No stored published direct link connects the Processing Output or "
+                "selected Material Model to a Neutral Material or Solver Card; the "
+                "exact Solver Card is verified independently through the Solver "
+                "Cards peer root."
+            ),
+        ],
     }
 
 
@@ -446,8 +750,8 @@ def _crop_box(region: str, width: int, height: int) -> tuple[int, int, int, int]
 
 def _write_crops() -> None:
     for phase in ("before", "after"):
-        originals = EVIDENCE / phase / "originals"
-        crops = EVIDENCE / phase / "crops"
+        originals = CORRECTION / phase / "originals"
+        crops = CORRECTION / phase / "crops"
         crops.mkdir(parents=True, exist_ok=True)
         for state, regions in STATES.items():
             for width, height in VIEWPORTS:
@@ -510,7 +814,10 @@ def _duplicate_groups() -> list[dict[str, Any]]:
     )
     groups = [
         {
-            "rationale": "Issue #262 retains independently addressable before/after, direct-crop and current-guide provenance for exact-hash evidence.",
+            "rationale": (
+                "Issue #262 retains independently addressable before/after, "
+                "direct-crop and current-guide provenance for exact-hash evidence."
+            ),
             "images": sorted(paths),
         }
         for paths in grouped.values()
@@ -535,7 +842,7 @@ def _write_manifest(
     images = sorted(
         [
             path
-            for path in EVIDENCE.rglob("*.png")
+            for path in CORRECTION.rglob("*.png")
             if path.is_file()
         ],
         key=lambda path: path.as_posix(),
@@ -546,15 +853,15 @@ def _write_manifest(
             name = f"{state}-{_viewport(width, height)}.png"
             comparisons.append(
                 _comparison(
-                    EVIDENCE / "before/originals" / name,
-                    EVIDENCE / "after/originals" / name,
+                    CORRECTION / "before/originals" / name,
+                    CORRECTION / "after/originals" / name,
                 )
             )
     manifest = {
-        "schemaVersion": "cmp.issue-262.fe07a.visual-evidence.v1",
+        "schemaVersion": "cmp.issue-262.fe07a.owner-correction.visual-evidence.v1",
         "issue": "#262",
         "unit": "FE-07A Materials",
-        "status": "READY_FOR_OWNER_VISUAL_GEOMETRY_APPROVAL",
+        "status": "OWNER_APPROVED_MINOR_CORRECTION_COMPLETE_UNMERGED",
         "browserZoomPercent": 100,
         "devicePixelRatio": 1,
         "display": "Playwright Chromium CSS viewports; no claim of physical Windows 4K readability",
@@ -567,9 +874,24 @@ def _write_manifest(
         "images": [_image_record(path) for path in images],
         "allowed_duplicate_groups": _duplicate_groups(),
     }
-    (EVIDENCE / "manifest.json").write_text(
+    (CORRECTION / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
+
+
+def _stage_correction_before() -> None:
+    source = CORRECTION / "after/originals"
+    if not source.is_dir():
+        source = EVIDENCE / "after/originals"
+    target = CORRECTION / "before/originals"
+    target.mkdir(parents=True, exist_ok=True)
+    for state in STATES:
+        for width, height in VIEWPORTS:
+            name = f"{state}-{_viewport(width, height)}.png"
+            original = source / name
+            if not original.is_file():
+                raise EvidenceError(f"missing owner-correction baseline: {original}")
+            shutil.copy2(original, target / name)
 
 
 def main() -> int:
@@ -577,12 +899,13 @@ def main() -> int:
     parser.add_argument("--base-url", default="http://127.0.0.1:5173")
     parser.add_argument("--manifest-only", action="store_true")
     args = parser.parse_args()
-    EVIDENCE.mkdir(parents=True, exist_ok=True)
+    CORRECTION.mkdir(parents=True, exist_ok=True)
     if args.manifest_only:
-        current = json.loads((EVIDENCE / "manifest.json").read_text(encoding="utf-8"))
+        current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
         _write_manifest(current["measurements"], current["recovery"], current["continuity"])
         print("FE-07A visual manifest refreshed from existing verified captures.")
         return 0
+    _stage_correction_before()
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:

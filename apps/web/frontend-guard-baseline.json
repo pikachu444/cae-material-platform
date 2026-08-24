@@ -2956,43 +2956,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "05cf6997f59fa8d3032a83f0b30fdc193e9e52f73dc780c0fec6808ae23ee04a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "08295d86e372250d95f49551a65dd85304e8bbcfb6ae9e59e90b84bdde0357d3",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "2e0031073fc4db99776f908970fd577d5d26203342f6a117797e86ad3c352068",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
       "fingerprint": "3f5ff49d8908e4ae282e4c241c9865ee673baa6e36c14e32e9969e4608b1fa00",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "620f03274dae4cfd9b8cbb55b2cfeb842625f08f29dceeb82d616bc72b73bb00",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3010,43 +2974,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "8da0723ef4bd25c736231dd0beedb010d283580baebcbf4c8f0eb75781dc05e0",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "ae6d6d0646283882dca9e5231e82a4d3d1cd880c31b95800cba51613b128fc23",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "de464cf650f11e82217adeb20b8c5e8f9882865e5be5627309d7d766b990db68",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
       "fingerprint": "f34b42b33fdcca24fadea57628cc5a0807adc1808703d51e032624b9cf376603",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "fdf4560a35042727f3fe4f455f88b1ee0f208ca859c444e50fb140f8c6b0c97f",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",

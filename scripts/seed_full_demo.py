@@ -42,14 +42,12 @@ _DEMO_WORKFLOW_FAMILY_VALUES = (
     "Solver card",
     "Release",
 )
-_NON_METAL_MATERIAL_DESCRIPTION = (
-    "Public synthetic T-60 reference data; not validated for engineering use."
-)
+_NON_METAL_MATERIAL_DESCRIPTION: str | None = None
 _NON_METAL_STATE_DESCRIPTION = "Synthetic T-60 reference state; not validated for engineering use."
 _SYNTHETIC_STATE_ROUTE = "Synthetic reference preparation; not for engineering use"
 _NON_METAL_SOURCE_REFERENCE = "Public synthetic T-60 reference data"
 _SYNTHETIC_APPLICABILITY_NOTE = "Synthetic reference conditions; not validated for engineering use."
-_METAL_CATALOG_DESCRIPTION = "Synthetic reference data; not validated for engineering use."
+_METAL_CATALOG_DESCRIPTION: str | None = None
 # The demo fixture stays in the supported SI unit so reseeding exercises the
 # typed Catalog contract without adding a production conversion rule.
 _DEMO_METAL_DENSITY_FIXTURE = ("7850", "kg/m^3", "7850")
@@ -1360,6 +1358,7 @@ def _ensure_catalog_binding(
         *,
         name: str | None = None,
         description: str | None = None,
+        update_description: bool = False,
     ) -> dict[str, Any]:
         content = dict(_content(record_to_place))
         folder_id = _id(folder, "folder_id")
@@ -1373,7 +1372,9 @@ def _ensure_catalog_binding(
             {**content, "values": list(values)},
         )
         name_match = name is None or content.get("name") == name
-        description_match = description is None or content.get("description") == description
+        description_match = (
+            not update_description or content.get("description") == description
+        )
         if already_placed and values_match and name_match and description_match:
             return dict(record_to_place)
         content["folder_id"] = folder_id
@@ -1382,7 +1383,7 @@ def _ensure_catalog_binding(
             content["values"] = list(values)
         if name is not None:
             content["name"] = name
-        if description is not None:
+        if update_description:
             content["description"] = description
         return api.post(
             f"/catalog/records/{_id(record_to_place, 'record_id')}/revisions",
@@ -1456,6 +1457,7 @@ def _ensure_catalog_binding(
             material_values,
             name=material_name,
             description=_METAL_CATALOG_DESCRIPTION,
+            update_description=True,
         )
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
@@ -1847,9 +1849,7 @@ def _ensure_catalog_material_projections(
             "table_revision_id": table_revision_id,
             "name": str(content.get("name") or material_code),
             "external_key": material_code,
-            "description": str(
-                content.get("description") or "Public synthetic non-metal reference."
-            ),
+            "description": content.get("description"),
             "folder_id": _id(folder, "folder_id"),
             "folder_revision_id": _revision_id(folder),
             "values": values,

@@ -24,7 +24,10 @@ export interface MaterialExperience {
   detail: MaterialDetail;
   graph: CatalogWorkflowGraphResponse | null;
   cards: SolverCardSummary[];
-  representativeCurve: Array<{ x: number; y: number }>;
+  representativeResponse: {
+    kind: "true_stress_true_plastic_strain";
+    points: Array<{ x: number; y: number }>;
+  } | null;
   catalogRecord: ConfigurableCatalogRecordResponse | null;
 }
 
@@ -38,6 +41,24 @@ function solverFor(
   if (normalized.includes("abaqus"))
     return { solver: "Abaqus", extension: ".inp" };
   return { solver: "Solver", extension: ".txt" };
+}
+
+export function solverCardSummaryFromEndpoint(
+  node: CatalogWorkflowGraphResponse["nodes"][number],
+): SolverCardSummary | null {
+  const binding = nodeBindings(node).find(
+    (candidate) =>
+      candidate.kind === "neutral_solver_card" ||
+      candidate.kind === "solver_card",
+  );
+  if (!binding) return null;
+  return {
+    id: binding.object_id,
+    revisionId: binding.revision_id,
+    kind: binding.kind as SolverCardSummary["kind"],
+    label: node.name,
+    ...solverFor(node.name),
+  };
 }
 
 export function nodeBindings(
@@ -62,21 +83,8 @@ function cardsFromGraph(
 ): SolverCardSummary[] {
   if (!graph) return [];
   return graph.nodes
-    .flatMap((node) => {
-      return nodeBindings(node)
-        .filter(
-          (binding) =>
-            binding.kind === "neutral_solver_card" ||
-            binding.kind === "solver_card",
-        )
-        .map((binding) => ({
-          id: binding.object_id,
-          revisionId: binding.revision_id,
-          kind: binding.kind as SolverCardSummary["kind"],
-          label: node.name,
-          ...solverFor(node.name),
-        }));
-    })
+    .map(solverCardSummaryFromEndpoint)
+    .filter((card): card is SolverCardSummary => card !== null)
     .sort((left, right) => left.solver.localeCompare(right.solver));
 }
 
@@ -144,6 +152,20 @@ export function curveFromNativeCard(
   return points;
 }
 
+export function trueStressPlasticStrainResponseFromNativeCard(source: string): {
+  kind: "true_stress_true_plastic_strain";
+  points: Array<{ x: number; y: number }>;
+} | null {
+  const hasDeclaredHardeningContract =
+    /(?:^|\n)\s*\*PLASTIC\b/i.test(source) ||
+    /(?:^|\n)\s*\/MAT\/LAW36\//i.test(source);
+  if (!hasDeclaredHardeningContract) return null;
+  const points = curveFromNativeCard(source);
+  return points.length >= 2
+    ? { kind: "true_stress_true_plastic_strain", points }
+    : null;
+}
+
 export async function loadMaterialExperience(
   config: ApiConfig,
   material: MaterialResponse,
@@ -184,22 +206,24 @@ export async function loadMaterialExperience(
   // Bulk-export candidate discovery is an internal Modeling surface.  Materials
   // cards must come only from the approved exact graph projection.
   const cards = await currentCards(config, material.material_id, graph);
-  let representativeCurve: Array<{ x: number; y: number }> = [];
+  let representativeResponse: MaterialExperience["representativeResponse"] =
+    null;
   if (includeCurve && cards.length) {
     const preferred =
       cards.find((card) => card.solver === "OpenRadioss") ?? cards[0];
     try {
       const preview = await previewExactSolverCardText(config, preferred);
-      representativeCurve = curveFromNativeCard(preview.data);
+      representativeResponse =
+        trueStressPlasticStrainResponseFromNativeCard(preview.data);
     } catch {
-      representativeCurve = [];
+      representativeResponse = null;
     }
   }
   return {
     detail: detailResult.data,
     graph,
     cards,
-    representativeCurve,
+    representativeResponse,
     catalogRecord: null,
   };
 }
@@ -283,16 +307,18 @@ export async function loadPinnedMaterialExperience(
     ),
   );
   const cards = await currentCards(config, materialId, graph);
-  let representativeCurve: Array<{ x: number; y: number }> = [];
+  let representativeResponse: MaterialExperience["representativeResponse"] =
+    null;
   if (includeCurve && cards.length) {
     const preferred =
       cards.find((card) => card.solver === "OpenRadioss") ?? cards[0];
     try {
       const preview = await previewExactSolverCardText(config, preferred);
-      representativeCurve = curveFromNativeCard(preview.data);
+      representativeResponse =
+        trueStressPlasticStrainResponseFromNativeCard(preview.data);
     } catch {
-      representativeCurve = [];
+      representativeResponse = null;
     }
   }
-  return { detail, graph, cards, representativeCurve, catalogRecord: record };
+  return { detail, graph, cards, representativeResponse, catalogRecord: record };
 }

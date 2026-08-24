@@ -748,9 +748,9 @@ test("Materials keeps four peer categories in its established tree and exact dir
   await expect(page.getByText("MPa", { exact: true })).toBeVisible();
   const related = page.locator(".exact-record-related");
   await expect(related).toBeVisible();
-  await expect(related.getByText("Technical Data", { exact: true })).toBeVisible();
+  await expect(related.getByText("Technical Data 1", { exact: true })).toBeVisible();
   await expect(related.getByText("PA66-GF30 Technical Data", { exact: true })).toBeVisible();
-  await expect(related.getByText("Simulation Data", { exact: true })).toBeVisible();
+  await expect(related.getByText("Simulation Data 1", { exact: true })).toBeVisible();
   await expect(related.getByText("Selected elastoplastic model", { exact: true })).toBeVisible();
   await expect(related.getByText("Selected linear viscoelastic model", { exact: true })).toHaveCount(0);
   await expect(related.getByText("LS-DYNA MAT_024 card", { exact: true })).toHaveCount(0);
