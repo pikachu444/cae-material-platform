@@ -52,6 +52,11 @@ class StackError(RuntimeError):
     """Expected operator-correctable stack failure."""
 
 
+def _platform_attribute(module: object, name: str) -> Any:
+    """Resolve an OS-specific stdlib attribute without cross-platform typing drift."""
+    return getattr(module, name)
+
+
 @dataclass(frozen=True, slots=True)
 class StackPaths:
     root: Path
@@ -526,10 +531,12 @@ def _read_state(options: StackOptions) -> HostState | None:
 
 def _process_token(pid: int) -> str:
     if os.name == "nt":
-        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        win_dll = cast(Any, _platform_attribute(ctypes, "WinDLL"))
+        get_last_error = cast(Any, _platform_attribute(ctypes, "get_last_error"))
+        kernel32 = win_dll("kernel32", use_last_error=True)
         process = kernel32.OpenProcess(0x1000, False, pid)
         if not process:
-            raise OSError(ctypes.get_last_error(), f"cannot open process {pid}")
+            raise OSError(get_last_error(), f"cannot open process {pid}")
         try:
             creation = ctypes.wintypes.FILETIME()
             exit_time = ctypes.wintypes.FILETIME()
@@ -542,7 +549,7 @@ def _process_token(pid: int) -> str:
                 ctypes.byref(kernel),
                 ctypes.byref(user),
             ):
-                raise OSError(ctypes.get_last_error(), f"cannot inspect process {pid}")
+                raise OSError(get_last_error(), f"cannot inspect process {pid}")
             value = (creation.dwHighDateTime << 32) | creation.dwLowDateTime
             return f"windows-filetime:{value}"
         finally:
@@ -779,7 +786,7 @@ def _start_process(
         "text": True,
     }
     if os.name == "nt":
-        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        kwargs["creationflags"] = int(getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0))
     else:
         kwargs["start_new_session"] = True
     try:

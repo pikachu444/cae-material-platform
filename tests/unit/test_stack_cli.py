@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from pathlib import Path
+from subprocess import CompletedProcess
 
 import pytest
 from cmp.tools import stack
@@ -318,9 +320,7 @@ def test_compose_status_reports_shared_urls_ports_and_managed_observability(
     monkeypatch.setattr(
         stack,
         "_run",
-        lambda *args, **kwargs: stack.subprocess.CompletedProcess(
-            args[0], 0, json.dumps(entries), ""
-        ),
+        lambda *args, **kwargs: CompletedProcess(args[0], 0, json.dumps(entries), ""),
     )
 
     status = stack._compose_status(options)
@@ -344,7 +344,7 @@ def test_compose_status_is_degraded_when_a_topology_service_is_missing(
     monkeypatch.setattr(
         stack,
         "_run",
-        lambda *args, **kwargs: stack.subprocess.CompletedProcess(
+        lambda *args, **kwargs: CompletedProcess(
             args[0],
             0,
             json.dumps([{"Service": "web", "State": "running", "Health": "healthy"}]),
@@ -377,10 +377,10 @@ def test_compose_doctor_runs_the_existing_environment_preflight(
     def completed(command: list[object], **_: object) -> object:
         rendered = [str(item) for item in command]
         commands.append(rendered)
-        return stack.subprocess.CompletedProcess(rendered, 0, "ok\n", "")
+        return CompletedProcess(rendered, 0, "ok\n", "")
 
     monkeypatch.setattr(stack, "_run", completed)
-    monkeypatch.setattr(stack.shutil, "which", lambda _: "docker")
+    monkeypatch.setattr(shutil, "which", lambda _: "docker")
 
     checks = stack._doctor(options)
 
