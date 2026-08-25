@@ -32,7 +32,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
 | Exchange | CSV/TSV/XLSX governed import와 versioned Test Data JSON; DMA frequency-temperature sweep(temperature/frequency/storage/loss, optional tan delta)와 FLD(minor/major strain)의 atomic whole-file validation, actionable row/cell diagnostics, idempotent retry, exact Raw/Profile/Run/Dataset/Material provenance; Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
-| Operations | versioned topology에서 생성되는 Compose demo, Docker·WSL 없는 Windows host PostgreSQL/API/worker/Node-free Web stack CLI, local/LAN URL·상태·로그·데이터 보존 경계, observability와 recovery·performance·security 검증 도구, Make/bash 호환 wrapper와 Linux full/Windows host-only CI가 공유하는 운영체제 중립 Python task CLI. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
+| Operations | versioned topology에서 생성되는 Compose demo, Docker·WSL 없는 Windows host PostgreSQL/API/worker/Node-free Web stack CLI, Windows 11 x64 user/machine scope offline bundle·checksum 검증·멱등 재설치·데이터 보존 제거·Private/Domain LocalSubnet Web 방화벽 경계, local/LAN URL·상태·로그, observability와 recovery·performance·security 검증 도구, Make/bash 호환 wrapper와 Linux full/Windows host-only CI가 공유하는 운영체제 중립 Python task CLI. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
 
 Engineering 수치와 solver 결과는 bounded synthetic `reference/non-production` 범위입니다.
 Production 표준, plugin, solver correlation과 validation threshold는 domain approval 전까지
@@ -88,6 +88,7 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
 uv run cmp-stack --profile demo --runtime compose doctor
 uv run cmp-stack --profile demo --runtime host --postgres-bin <PostgreSQL-16-bin> doctor
+uv run python scripts/build_windows_offline_bundle.py --profile demo --output-dir <bundle-dir>
 uv run python scripts/repository_tasks.py ci --host-only
 uv run pytest tests/contracts
 npm run build --workspace @cmp/web
