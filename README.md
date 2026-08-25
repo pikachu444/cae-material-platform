@@ -76,7 +76,16 @@ Administration은 Database → 목록 → 속성 편집의 3단 작업 화면을
 
 ## 5분 로컬 실행
 
-필수 도구는 Git과 Docker Desktop(Compose 포함)입니다. 저장소 루트에서 실행합니다.
+필수 도구는 Git과 Docker Desktop(Compose 포함)입니다. 저장소 루트에서 OS 공통 stack CLI를
+실행합니다.
+
+```powershell
+uv run cmp-stack --profile demo --runtime compose doctor
+uv run cmp-stack --profile demo --runtime compose up
+uv run cmp-stack --profile demo --runtime compose status
+```
+
+기존 직접 Compose 진입점도 같은 생성 파일을 사용하며 계속 호환됩니다.
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
@@ -100,10 +109,11 @@ test data, selected model, review request와 solver card까지 확인하려면
 사용하십시오.
 
 ```powershell
-docker compose -f deploy/compose/docker-compose.demo.yml down
+uv run cmp-stack --profile demo --runtime compose down
 ```
 
-Windows/WSL 설치와 문제 해결은 [Compose 실행 가이드](deploy/compose/README.md)를 참고하십시오.
+Docker·WSL 없는 Windows host 실행은 [공통 Stack CLI](deploy/stack/README.md), Compose 설치와 문제
+해결은 [Compose 실행 가이드](deploy/compose/README.md)를 참고하십시오.
 
 ### 외부에서 로컬 데모 접속
 

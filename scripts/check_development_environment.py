@@ -17,10 +17,11 @@ PYTHON_DOCKERFILE_PATTERN = re.compile(
     re.MULTILINE,
 )
 NODE_DOCKERFILE_PATTERN = re.compile(
-    r"^FROM node:(?P<version>\d+\.\d+\.\d+)-alpine3\.24@sha256:(?P<digest>[0-9a-f]{64})$",
+    r"^FROM node:(?P<version>\d+\.\d+\.\d+)-alpine3\.24@sha256:"
+    r"(?P<digest>[0-9a-f]{64})(?: AS [A-Za-z0-9_.-]+)?$",
     re.MULTILINE,
 )
-UV_INSTALL_PATTERN = re.compile(r'uv==(?P<version>\d+\.\d+\.\d+)')
+UV_INSTALL_PATTERN = re.compile(r"uv==(?P<version>\d+\.\d+\.\d+)")
 
 
 def _read_text(path: Path) -> str:

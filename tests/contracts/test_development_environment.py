@@ -22,6 +22,15 @@ def test_repository_declarations_are_aligned() -> None:
     assert environment.validate_repository(ROOT) == ()
 
 
+def test_node_runtime_pin_accepts_a_named_multistage_builder() -> None:
+    dockerfile = "FROM node:24.19.0-alpine3.24@sha256:" + "a" * 64 + " AS build\n"
+
+    match = environment.NODE_DOCKERFILE_PATTERN.search(dockerfile)
+
+    assert match is not None
+    assert match.group("version") == "24.19.0"
+
+
 def test_repository_check_reports_package_lock_drift(tmp_path: Path) -> None:
     for relative in (
         ".python-version",
@@ -40,9 +49,7 @@ def test_repository_check_reports_package_lock_drift(tmp_path: Path) -> None:
 
     package_lock = json.loads((tmp_path / "package-lock.json").read_text(encoding="utf-8"))
     package_lock["packages"][""]["engines"]["node"] = "24.18.0"
-    (tmp_path / "package-lock.json").write_text(
-        json.dumps(package_lock), encoding="utf-8"
-    )
+    (tmp_path / "package-lock.json").write_text(json.dumps(package_lock), encoding="utf-8")
 
     errors = environment.validate_repository(tmp_path)
 

@@ -32,7 +32,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | Curve metadata | contract `1.0.0`의 channel role/quantity/original·normalized·display unit, typed scalar·pointwise deviation, exact Artifact/revision/source/calculation provenance; current Parquet metadata와 schema별 legacy adapter를 Dataset·Test Data·Processing·Statistics·Catalog·Materials·Modeling에 연결 |
 | Exchange | CSV/TSV/XLSX governed import와 versioned Test Data JSON; DMA frequency-temperature sweep(temperature/frequency/storage/loss, optional tan delta)와 FLD(minor/major strain)의 atomic whole-file validation, actionable row/cell diagnostics, idempotent retry, exact Raw/Profile/Run/Dataset/Material provenance; Neutral Material JSON, deterministic package |
 | Governance | immutable review/release/artifact, exact revision, provenance/audit, organization/project 권한 |
-| Operations | Compose demo, worker/job, observability, recovery·performance·security 검증 도구, Make/bash 호환 wrapper와 Linux full/Windows host-only CI가 공유하는 운영체제 중립 Python task CLI. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
+| Operations | versioned topology에서 생성되는 Compose demo, Docker·WSL 없는 Windows host PostgreSQL/API/worker/Node-free Web stack CLI, local/LAN URL·상태·로그·데이터 보존 경계, observability와 recovery·performance·security 검증 도구, Make/bash 호환 wrapper와 Linux full/Windows host-only CI가 공유하는 운영체제 중립 Python task CLI. clean full-demo는 preview에서 선택한 fit evidence와 metal manual necking override를 exact revision으로 보존하고, DP780 selected model review request 하나와 Materials의 solver card preview·검토 후 다운로드를 검증 |
 
 Engineering 수치와 solver 결과는 bounded synthetic `reference/non-production` 범위입니다.
 Production 표준, plugin, solver correlation과 validation threshold는 domain approval 전까지
@@ -78,11 +78,16 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 - `docs/_incoming/2026-07-24-organic-ux-update/`의 유효 내용 흡수와 삭제는 #162 범위입니다.
 - 실제 identity provider/directory, 운영 object storage/KMS/WORM, credential rotation/outage,
   external receiver와 장시간 endurance는 production 환경 수용이 남아 있습니다.
+- Server stack은 Demo identity·seed와 누락된 external auth/secret을 fail-closed로 거부합니다. 다른 PC
+  브라우저의 실제 OIDC Code+PKCE login/callback은 별도 소유 이슈 #215가 아직 미구현이므로 Server
+  profile을 시작하지 않으며, Demo token이나 수동 bearer 입력으로 우회하지 않습니다.
 
 ## 검증 진입점
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
+uv run cmp-stack --profile demo --runtime compose doctor
+uv run cmp-stack --profile demo --runtime host --postgres-bin <PostgreSQL-16-bin> doctor
 uv run python scripts/repository_tasks.py ci --host-only
 uv run pytest tests/contracts
 npm run build --workspace @cmp/web
