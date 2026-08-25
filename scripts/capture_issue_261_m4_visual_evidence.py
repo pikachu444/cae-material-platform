@@ -34,7 +34,8 @@ DUPLICATE_IMAGE_ROOTS = (
     ROOT / "docs/user-guide/images/current",
 )
 DUPLICATE_GROUP_RATIONALE = (
-    "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; "
+    "Byte-identical before/after, crop, and prior-evidence files are equivalent existing "
+    "evidence bytes; "
     "no new capture is implied."
 )
 CAPTURE = runpy.run_path(str(ROOT / "scripts/capture_current_product.py"))
@@ -686,9 +687,7 @@ def _write_manifest(output: Path, *, accepted: bool) -> None:
                 )
     identical = sum(item["pixelIdentical"] for item in comparisons)
     original_comparisons = [item for item in comparisons if item["artifact"] == "original"]
-    duplicate_groups = current_duplicate_image_groups(
-        {record["path"] for record in registered}
-    )
+    duplicate_groups = current_duplicate_image_groups({record["path"] for record in registered})
     status = "ACCEPTED_MAIN_VISUAL_AND_RUNTIME" if accepted else "PENDING_MAIN_REVIEW"
     axis = "PASS_MAIN" if accepted else "PENDING_MAIN"
     manifest = {

@@ -16,12 +16,10 @@ from pathlib import Path
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
-
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
 import scripts.capture_current_product as capture  # noqa: E402
-
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
 OUTPUT = Path(__file__).resolve().parent / "after"
@@ -84,7 +82,11 @@ def prepare_data(page, base_url: str) -> dict[str, object]:
             "revisionNo": mapping.get("revisionNo"),
         },
         "selectedTestDataRefs": [
-            {"id": ref.get("id"), "revisionId": ref.get("revisionId"), "revisionNo": ref.get("revisionNo")}
+            {
+                "id": ref.get("id"),
+                "revisionId": ref.get("revisionId"),
+                "revisionNo": ref.get("revisionNo"),
+            }
             for ref in refs
             if isinstance(ref, dict)
         ],
@@ -188,7 +190,7 @@ def capture_stage(page, stage: str, width: int, height: int) -> dict[str, object
 
 def open_stage(page, stage: str) -> None:
     capture._open_modeling_stage(page, stage)
-    page.wait_for_url(re.compile(fr"stage={stage}"), timeout=30_000)
+    page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
     page.locator(".modeling-work-title h1").get_by_text(
         capture.STAGE_HEADINGS[stage], exact=True
     ).wait_for(timeout=30_000)

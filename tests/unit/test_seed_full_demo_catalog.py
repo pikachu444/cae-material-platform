@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from copy import deepcopy
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -416,14 +416,17 @@ class _CatalogBindingApi:
 
 
 def _ensure_test_binding(api: _CatalogBindingApi) -> dict[str, Any]:
-    return _SEED_FULL_DEMO._ensure_catalog_domain_binding(
-        api,
-        record_id="record-1",
-        record_revision_id="record-r1",
-        kind="neutral_material",
-        object_id="neutral-1",
-        revision_id="neutral-r1",
-        stage="Neutral Catalog projection",
+    return cast(
+        dict[str, Any],
+        _SEED_FULL_DEMO._ensure_catalog_domain_binding(
+            api,
+            record_id="record-1",
+            record_revision_id="record-r1",
+            kind="neutral_material",
+            object_id="neutral-1",
+            revision_id="neutral-r1",
+            stage="Neutral Catalog projection",
+        ),
     )
 
 
@@ -504,9 +507,7 @@ def test_baseline_model_selection_skips_newer_promoted_models() -> None:
 def test_ogden_repeat_seed_prefers_the_promoted_baseline_identity() -> None:
     promoted = {
         "material_model_id": "promoted-baseline-model",
-        "current_revision": {
-            "content": {"promotion_evidence": {"selection_id": "selection-1"}}
-        },
+        "current_revision": {"content": {"promotion_evidence": {"selection_id": "selection-1"}}},
     }
     unpromoted = {
         "material_model_id": "stale-unpromoted-model",
@@ -524,8 +525,6 @@ def test_ogden_repeat_seed_prefers_the_promoted_baseline_identity() -> None:
             )
         ),
         None,
-    ) or _SEED_FULL_DEMO._unpromoted_model(
-        models, promotion_fields=("promotion_evidence",)
-    )
+    ) or _SEED_FULL_DEMO._unpromoted_model(models, promotion_fields=("promotion_evidence",))
 
     assert selected is promoted
