@@ -9,6 +9,9 @@ LAYOUT = (ROOT / "apps/web/src/design/layout.css").read_text(encoding="utf-8")
 PRIMITIVES = (ROOT / "apps/web/src/design/primitives.css").read_text(encoding="utf-8")
 SHELL = (ROOT / "apps/web/src/design/shell.css").read_text(encoding="utf-8")
 LEGACY = (ROOT / "apps/web/src/styles.css").read_text(encoding="utf-8")
+ADMINISTRATION = (
+    ROOT / "apps/web/src/features/administration/ui/administration.css"
+).read_text(encoding="utf-8")
 METRICS = (ROOT / "apps/web/src/design/metrics.ts").read_text(encoding="utf-8")
 ACTIVE_CSS = "\n".join((TOKENS, LAYOUT, PRIMITIVES, SHELL, LEGACY))
 DESIGN_CSS = "\n".join(
@@ -100,25 +103,23 @@ def test_shared_typescript_metrics_replace_component_local_geometry() -> None:
 def test_administration_structure_has_one_active_owner() -> None:
     selectors = (
         ".administration-workspace {",
-        ".administration-navigation {",
+        ".administration-taskbar {",
         ".administration-content {",
-        ".administration-task-grid {",
-        ".administration-principle {",
+        ".administration-record-workbench {",
+        ".schema-editor-grid {",
     )
     for selector in selectors:
-        assert selector in LAYOUT
+        assert selector in ADMINISTRATION
+        assert selector not in LAYOUT
         assert selector not in LEGACY
 
 
 def test_administration_elastic_workgroups_keep_forms_on_shared_semantic_boundaries() -> None:
-    assert ".schema-editor-header," in LAYOUT
-    assert ".schema-editor-grid {" in LAYOUT
-    assert "minmax(0, var(--ux-navigator-default-inline-size))" in LAYOUT
-    assert "minmax(18rem, 1fr)" in LAYOUT
-    assert "var(--ux-readable-form-max-inline-size)" in LAYOUT
+    assert ".schema-editor-header," in ADMINISTRATION
+    assert ".schema-editor-grid {" in ADMINISTRATION
+    assert "minmax(0, var(--ux-navigator-default-inline-size))" in ADMINISTRATION
+    assert "minmax(18rem, 1fr)" in ADMINISTRATION
+    assert "var(--ux-readable-form-max-inline-size)" in ADMINISTRATION
 
-    assert ".administration-record-workbench" in LEGACY
-    assert "max-width: var(--ux-workspace-max-inline-size)" in LEGACY
-    assert "minmax(0, var(--ux-navigator-default-inline-size))" in LEGACY
-    assert "minmax(18rem, 1fr)" in LEGACY
-    assert "var(--ux-readable-form-max-inline-size)" in LEGACY
+    assert ".administration-record-workbench" in ADMINISTRATION
+    assert "max-width: var(--ux-workspace-max-inline-size)" in ADMINISTRATION

@@ -49,4 +49,19 @@ describe("ApplicationShell", () => {
     act(() => publishWorkspaceStatus({ connection: "degraded" }));
     expect(screen.getByText("Service unavailable")).toBeTruthy();
   });
+
+  it.each(["/catalog/schema", "/catalog/records"])(
+    "keeps the global navigation and omits the duplicate command bar for legacy Administration path %s",
+    (path) => {
+      render(<ApplicationShell path={path} navigate={vi.fn()}><p>administration workspace</p></ApplicationShell>);
+
+      const primary = screen.getByRole("navigation", { name: "Primary navigation" });
+      expect(screen.getByRole("button", { name: "Materials" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Modeling" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Activity" })).toBeTruthy();
+      expect(primary.querySelector('[aria-current="page"]')).toBeNull();
+      expect(screen.queryByRole("region", { name: "Materials commands" })).toBeNull();
+      expect(document.querySelector(".application-shell")?.classList.contains("workspace-command-bar-omitted")).toBe(true);
+    },
+  );
 });

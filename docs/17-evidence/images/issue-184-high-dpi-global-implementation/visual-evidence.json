@@ -808,13 +808,6 @@
     {
       "rationale": "Issue #184 keeps the production-density evidence original and the byte-identical current-guide copy as separate lifecycle records.",
       "images": [
-        "docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/administration-access-role-control-1366x768.png",
-        "docs/user-guide/images/current/administration-access-role-control-1366x768.png"
-      ]
-    },
-    {
-      "rationale": "Issue #184 keeps the production-density evidence original and the byte-identical current-guide copy as separate lifecycle records.",
-      "images": [
         "docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/administration-database-1366x768.png",
         "docs/user-guide/images/current/administration-database-1366x768.png"
       ]

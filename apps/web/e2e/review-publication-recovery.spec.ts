@@ -159,7 +159,7 @@ async function selectExactRecordEditor(
   await expect(resultButton).toContainText(`r${revisionNo}`);
   await resultButton.click();
   await expect(resultButton).toHaveClass(/active/, { timeout: 20_000 });
-  await expect(page.getByRole("heading", { name: `Edit revision ${revisionNo + 1}`, exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("heading", { name: `Create revision ${revisionNo + 1} from revision ${revisionNo}`, exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByLabel("Record code")).toHaveValue("CMP-DEMO-DP780");
   await expect(page.getByRole("textbox", { name: "Description", exact: true })).toHaveValue(description);
 }

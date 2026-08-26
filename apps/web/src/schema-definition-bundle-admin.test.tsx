@@ -244,49 +244,56 @@ describe("SchemaDefinitionBundleAdmin", () => {
 
   it("uploads, plans, keyboard-inspects, explicitly applies, reads back, and exports exact evidence", async () => {
     const user = userEvent.setup();
+    const onNavigate = vi.fn();
     render(
       <SchemaDefinitionBundleAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onNavigate={onNavigate}
         onOpenConnection={() => undefined}
       />,
     );
 
-    const input = await screen.findByLabelText("Definition bundle");
+    const input = await screen.findByLabelText("Format definition files");
     await user.upload(input, validFile());
     expect(await screen.findByText("2", { selector: "dd" })).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
+    await user.click(screen.getByRole("button", { name: "Preview changes (no write)" }));
 
-    expect(await screen.findByText("2 actions")).toBeTruthy();
+    expect(await screen.findByText("2 changes")).toBeTruthy();
     expect(mocks.plan).toHaveBeenCalledWith(expect.anything(), {
       artifact_id: artifactId,
       artifact_sha256: sha256,
     });
-    const secondRow = screen.getByRole("button", { name: longKey });
+    const secondRow = screen.getByRole("button", { name: "Long synthetic field" });
     expect(secondRow.title).toBe(longKey);
-    const firstRow = screen.getByRole("button", { name: "materials" });
+    const firstRow = screen.getByRole("button", { name: "Synthetic materials" });
     firstRow.focus();
     await user.keyboard("{ArrowDown}");
     expect(document.activeElement).toBe(secondRow);
-    expect(screen.getAllByText(longKey).length).toBeGreaterThan(1);
+    expect(screen.getByText(longKey)).toBeTruthy();
+    expect(screen.queryByText("Required next action")).toBeNull();
+    expect(screen.queryByText("Change 2")).toBeNull();
 
-    await user.click(screen.getByRole("button", { name: "Review exact plan" }));
+    await user.click(screen.getByRole("button", { name: "Apply 2 changes" }));
     expect(screen.getByText(planFingerprint)).toBeTruthy();
     const confirmation = screen.getByRole("checkbox", {
-      name: "I reviewed this exact version, checksum, and plan fingerprint.",
+      name: "I reviewed this definition version and its changes.",
     });
     await user.click(confirmation);
-    await user.click(screen.getByRole("button", { name: "Apply exact plan" }));
+    await user.click(screen.getByRole("button", { name: "Apply confirmed changes" }));
 
-    expect(await screen.findByText("Bundle applied and read back")).toBeTruthy();
+    expect(await screen.findByText("Verified immutable result")).toBeTruthy();
     expect(mocks.apply).toHaveBeenCalledWith(expect.anything(), {
       artifact_id: artifactId,
       artifact_sha256: sha256,
       plan_fingerprint: planFingerprint,
     });
     expect(mocks.readBack).toHaveBeenCalledWith(expect.anything(), applicationId);
+    expect(onNavigate).toHaveBeenCalledWith(
+      `/administration/schema-bundles?application_id=${applicationId}`,
+    );
 
-    await user.click(screen.getByRole("button", { name: "Export verified source" }));
-    expect(await screen.findByText("synthetic_dependency_chain-1.0.0.json downloaded")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Download applied definition files" }));
+    expect(await screen.findByText(`synthetic_dependency_chain-1.0.0.json · ${"9".repeat(64)}`)).toBeTruthy();
     expect(mocks.download).toHaveBeenCalledWith(
       expect.anything(),
       "synthetic_dependency_chain",
@@ -331,8 +338,8 @@ describe("SchemaDefinitionBundleAdmin", () => {
       />,
     );
 
-    await user.upload(await screen.findByLabelText("Definition bundle"), validFile());
-    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
+    await user.upload(await screen.findByLabelText("Format definition files"), validFile());
+    await user.click(screen.getByRole("button", { name: "Preview changes (no write)" }));
 
     expect(await screen.findByText("CMP-SCHEMA-BUNDLE-0014")).toBeTruthy();
     expect(
@@ -341,9 +348,9 @@ describe("SchemaDefinitionBundleAdmin", () => {
       ),
     ).toBeTruthy();
     expect(
-      screen.getByRole("button", { name: "Review exact plan" }),
+      screen.getByRole("button", { name: "Apply 1 change" }),
     ).toMatchObject({ disabled: true });
-    expect(screen.queryByText("Confirm the exact plan")).toBeNull();
+    expect(screen.queryByText("Apply these changes?")).toBeNull();
     expect(mocks.apply).not.toHaveBeenCalled();
   });
 
@@ -366,22 +373,22 @@ describe("SchemaDefinitionBundleAdmin", () => {
       />,
     );
 
-    const input = (await screen.findByLabelText("Definition bundle")) as HTMLInputElement;
+    const input = (await screen.findByLabelText("Format definition files")) as HTMLInputElement;
     await user.upload(input, validFile());
-    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
+    await user.click(screen.getByRole("button", { name: "Preview changes (no write)" }));
     await waitFor(() => expect(mocks.plan).toHaveBeenCalledOnce());
 
-    expect(input.disabled).toBe(true);
-    expect(screen.queryByRole("button", { name: "New bundle" })).toBeNull();
+    expect(screen.queryByLabelText("Format definition files")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Replace files" })).toBeNull();
 
     resolvePlan({ data: plan, etag: null, requestId: "deferred-plan-request" });
-    expect(await screen.findByText("2 actions")).toBeTruthy();
-    expect(input.disabled).toBe(true);
+    expect(await screen.findByText("2 changes")).toBeTruthy();
+    expect(screen.queryByLabelText("Format definition files")).toBeNull();
 
-    await user.click(screen.getByRole("button", { name: "New bundle" }));
-    expect(input.disabled).toBe(false);
-    expect(screen.queryByText("2 actions")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Review exact plan" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Replace files" }));
+    expect(await screen.findByLabelText("Format definition files")).toBeTruthy();
+    expect(screen.queryByText("2 changes")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Apply 2 changes" })).toBeNull();
     expect(window.sessionStorage.getItem("cmp.schema-definition-bundle-administration.v1")).toBeNull();
   });
 
@@ -400,7 +407,7 @@ describe("SchemaDefinitionBundleAdmin", () => {
     expect((await screen.findByRole("alert")).textContent).toContain(
       "Administrator access is required.",
     );
-    expect(screen.queryByLabelText("Definition bundle")).toBeNull();
+    expect(screen.queryByLabelText("Format definition files")).toBeNull();
     expect(screen.queryByRole("button", { name: /Apply/ })).toBeNull();
     expect(mocks.plan).not.toHaveBeenCalled();
   });
@@ -422,20 +429,20 @@ describe("SchemaDefinitionBundleAdmin", () => {
       />,
     );
 
-    await user.upload(await screen.findByLabelText("Definition bundle"), validFile());
-    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
-    await user.click(await screen.findByRole("button", { name: "Review exact plan" }));
+    await user.upload(await screen.findByLabelText("Format definition files"), validFile());
+    await user.click(screen.getByRole("button", { name: "Preview changes (no write)" }));
+    await user.click(await screen.findByRole("button", { name: "Apply 2 changes" }));
     await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Apply exact plan" }));
+    await user.click(screen.getByRole("button", { name: "Apply confirmed changes" }));
 
-    expect(await screen.findByText("The approved plan is stale.")).toBeTruthy();
+    expect(await screen.findByText("The reviewed changes are stale.")).toBeTruthy();
     expect(screen.getByText("Current Catalog snapshot")).toBeTruthy();
-    expect(screen.getByText("No client plan actions were applied.")).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Plan again" }));
+    expect(screen.getByText("No selected changes were applied.")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Compare again" }));
     await waitFor(() => expect(mocks.plan).toHaveBeenCalledTimes(2));
     expect(mocks.apply).toHaveBeenCalledOnce();
     expect(
-      (await screen.findByRole("button", { name: "Review exact plan" })) as HTMLButtonElement,
+      (await screen.findByRole("button", { name: "Apply 2 changes" })) as HTMLButtonElement,
     ).toMatchObject({ disabled: false });
   });
 
@@ -453,31 +460,31 @@ describe("SchemaDefinitionBundleAdmin", () => {
       />,
     );
 
-    await user.upload(await screen.findByLabelText("Definition bundle"), validFile());
-    await user.click(screen.getByRole("button", { name: "Upload and plan" }));
-    await user.click(await screen.findByRole("button", { name: "Review exact plan" }));
+    await user.upload(await screen.findByLabelText("Format definition files"), validFile());
+    await user.click(screen.getByRole("button", { name: "Preview changes (no write)" }));
+    await user.click(await screen.findByRole("button", { name: "Apply 2 changes" }));
     await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Apply exact plan" }));
+    await user.click(screen.getByRole("button", { name: "Apply confirmed changes" }));
 
     expect(await screen.findByText(/Application read-back is temporarily unavailable\./)).toBeTruthy();
     expect(
       screen.getByText(
-        "Apply returned an application, but success is withheld until immutable read-back completes.",
+        "The server applied changes, but completion is withheld until immutable verification succeeds.",
       ),
     ).toBeTruthy();
-    expect(screen.queryByText("Bundle applied and read back")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Export verified source" })).toBeNull();
+    expect(screen.queryByText("Verified immutable result")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Download applied definition files" })).toBeNull();
     expect(window.sessionStorage.getItem("cmp.schema-definition-bundle-administration.v1")).toContain(
       applicationId,
     );
 
-    await user.click(screen.getByRole("button", { name: "Read applied result" }));
-    expect(await screen.findByText("Bundle applied and read back")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Verify applied result" }));
+    expect(await screen.findByText("Verified immutable result")).toBeTruthy();
     expect(mocks.apply).toHaveBeenCalledOnce();
     expect(mocks.readBack).toHaveBeenCalledTimes(2);
   });
 
-  it("restores an immutable application after refresh without storing source bytes", async () => {
+  it("restores the immutable application pinned by the route before session recovery", async () => {
     window.sessionStorage.setItem(
       "cmp.schema-definition-bundle-administration.v1",
       JSON.stringify({
@@ -485,17 +492,18 @@ describe("SchemaDefinitionBundleAdmin", () => {
         artifactSha256: sha256,
         bundleKey: application.bundle_key,
         bundleVersion: application.bundle_version,
-        applicationId,
+        applicationId: "stale-session-application",
       }),
     );
     render(
       <SchemaDefinitionBundleAdmin
         config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        locationSearch={`?application_id=${applicationId}`}
         onOpenConnection={() => undefined}
       />,
     );
 
-    expect(await screen.findByText("Bundle applied and read back")).toBeTruthy();
+    expect(await screen.findByText("Verified immutable result")).toBeTruthy();
     expect(mocks.readBack).toHaveBeenCalledWith(expect.anything(), applicationId);
     expect(window.sessionStorage.getItem("cmp.schema-definition-bundle-administration.v1")).not.toContain(
       "record_schemas",
@@ -510,7 +518,7 @@ describe("inspectSchemaDefinitionBundleFile", () => {
       inspectSchemaDefinitionBundleFile(
         new File(["{}"], "bundle.json", { type: "text/plain" }),
       ),
-    ).rejects.toThrow("JSON Schema Definition Bundle");
+    ).rejects.toThrow("JSON format-definition files or a ZIP definition package");
     await expect(
       inspectSchemaDefinitionBundleFile(
         new File(["{"], "bundle.json", { type: "application/json" }),
@@ -532,7 +540,7 @@ describe("inspectSchemaDefinitionBundleFile", () => {
       inspectSchemaDefinitionBundleFile(
         new File(["{}"], "bundle.json", { type: "application/json" }),
       ),
-    ).rejects.toThrow("not a version 1.0.0");
+    ).rejects.toThrow("not a valid version 1.0.0 format-definition file");
   });
 
   it("builds one deterministic source-set Artifact from a manifest and referenced files", async () => {

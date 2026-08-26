@@ -20,6 +20,27 @@ result and this rubric. Evaluate full-screen task flow, topology, information pr
 tree/table/graph region, control-result continuity, overlap, clipping and overflow. Pixel-perfect
 copying and arbitrary fine-number tuning are not acceptance goals; measurements are safety rails.
 
+## Locked product-owner feedback trace
+
+Current, explicit product-owner feedback overrides a stale registered visual reference for the affected
+screen or state. Every user-visible change keeps one locked trace from implementation packet through
+publication. The trace records:
+
+| Required field | Contract |
+| --- | --- |
+| Actionable owner feedback | Preserve the exact actionable sentence. Omit insults, status requests and unrelated conversation, but do not shorten away a requested behavior, layout, term or affected screen. |
+| Target | Name every route, screen and state covered by the feedback and the approval packet. |
+| Implementation disposition | Record the concrete UI/behavior change, or a named issue/decision when the request is outside the current contract. |
+| Evidence | Link the live original-resolution capture and applicable interaction/read-back result. |
+| Review disposition | Record Main, canonical read-only reviewer and product-owner disposition separately. |
+
+All target screens and states in one approved scope remain one acceptance set. Completing or presenting
+only a convenient subset is not completion. After deterministic gates, Main opens every target original
+at original resolution and reconciles every trace row before requesting the canonical independent review.
+The product owner then gives an explicit final disposition before publication. Selector counts, DOM
+queries, measurements and passing tests are supporting evidence; none substitutes for the full-screen
+qualitative review or an unresolved owner-feedback row.
+
 ## UXC measurement and state evidence additions
 
 Every target route is measured at 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160 from a

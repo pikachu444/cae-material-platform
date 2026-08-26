@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -136,8 +137,12 @@ def _popen(
     capture: bool,
 ) -> subprocess.Popen[str]:
     creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
+    resolved = list(argv)
+    executable = shutil.which(resolved[0], path=environment.get("PATH"))
+    if executable is not None:
+        resolved[0] = executable
     return subprocess.Popen(
-        list(argv),
+        resolved,
         cwd=str(cwd),
         env=environment,
         stdin=None,

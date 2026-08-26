@@ -997,6 +997,9 @@ def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -
     assert "Do not call shell, MCP, browser, network, or other tools" in code
     assert "### docs/01-product/visual-acceptance-matrix.md" in visual
     assert "### docs/user-guide/screenshot-manifest.yaml" in visual
+    assert "images/current/materials-search-1440x900.png" in visual
+    assert "Issue #261 M1A20" not in visual
+    assert len(visual.encode("utf-8")) < 400_000
     assert "Do not call shell, MCP, browser, network, or other tools" in visual
 
 
