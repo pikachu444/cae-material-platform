@@ -245,6 +245,7 @@ from cmp.modules.testing.application.test_context import (
     TestContextService as _TestContextApplicationService,
 )
 from cmp.modules.testing.domain.reference_tensile import (
+    REFERENCE_TENSILE_METHOD_CODE,
     ReferenceTensionMode,
 )
 from cmp.modules.testing.domain.reference_tensile import (
@@ -1186,12 +1187,28 @@ def test_issue209_dma_fld_imports_persist_retry_and_diagnostics_in_postgresql(
     asyncio.run(exercise())
 
 
+def _catalog_hook_counts(engine: Engine) -> tuple[int, int, int]:
+    with engine.connect() as connection:
+        row = connection.execute(
+            sa.text(
+                "SELECT "
+                "(SELECT count(*) FROM governance.lifecycle_event "
+                " WHERE aggregate_type LIKE 'catalog.%'), "
+                "(SELECT count(*) FROM provenance.entity "
+                " WHERE reference_type LIKE 'catalog.%'), "
+                "(SELECT count(*) FROM audit.event WHERE action LIKE 'catalog.%')"
+            )
+        ).one()
+    return int(row[0]), int(row[1]), int(row[2])
+
+
 def test_material_state_property_revisions_are_immutable_tenant_scoped_and_provenanced(
     postgres: PostgresHarness,
 ) -> None:
     context = _context()
     write = _decision(context, Permission.CATALOG_WRITE)
     read = _decision(context, Permission.CATALOG_READ)
+    baseline_counts = _catalog_hook_counts(postgres.admin_engine)
     material = postgres.service.create_material(
         context,
         write,
@@ -1316,20 +1333,16 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
             material.id,
         )
 
-    with postgres.admin_engine.connect() as connection:
-        lifecycle_count = connection.scalar(
-            sa.text(
-                "SELECT count(*) FROM governance.lifecycle_event "
-                "WHERE aggregate_type LIKE 'catalog.%'"
-            )
-        )
-        provenance_count = connection.scalar(
-            sa.text("SELECT count(*) FROM provenance.entity WHERE reference_type LIKE 'catalog.%'")
-        )
-        audit_count = connection.scalar(
-            sa.text("SELECT count(*) FROM audit.event WHERE action LIKE 'catalog.%'")
-        )
-    assert lifecycle_count == provenance_count == audit_count == 5
+    current_counts = _catalog_hook_counts(postgres.admin_engine)
+    hook_deltas = tuple(
+        current - baseline
+        for current, baseline in zip(current_counts, baseline_counts, strict=True)
+    )
+    assert hook_deltas == (
+        5,
+        5,
+        5,
+    )
 
 
 def test_process_run_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
@@ -1769,11 +1782,20 @@ def test_test_run_context_pins_valid_calibration_and_rejects_stale_or_overlap(
             "create T40 specimen",
         ),
     )
-    method = postgres.testing.create_reference_tensile_method(
-        context,
-        testing_write,
-        CreateReferenceTensileMethod(DataClassification.INTERNAL, "create T40 method"),
+    method = next(
+        (
+            item
+            for item in postgres.testing.list_test_methods(context, testing_read)
+            if item.current.content.method_code == REFERENCE_TENSILE_METHOD_CODE
+        ),
+        None,
     )
+    if method is None:
+        method = postgres.testing.create_reference_tensile_method(
+            context,
+            testing_write,
+            CreateReferenceTensileMethod(DataClassification.INTERNAL, "create T40 method"),
+        )
     run = postgres.testing.create_reference_tensile_run(
         context,
         testing_write,

@@ -188,7 +188,7 @@ def test_issue210_upgrade_downgrade_reupgrade_and_immutable_revision() -> None:
     database = sa.create_engine(database_url, pool_pre_ping=True)
     try:
         command.upgrade(_config(database_url), PREVIOUS_REVISION)
-        command.upgrade(_config(database_url), "head")
+        command.upgrade(_config(database_url), CURRENT_REVISION)
         with database.connect() as connection:
             assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == (
                 CURRENT_REVISION
@@ -225,7 +225,7 @@ def test_issue210_upgrade_downgrade_reupgrade_and_immutable_revision() -> None:
             )
             assert isinstance(definition, str)
             assert "scalar_distribution" not in definition
-        command.upgrade(_config(database_url), "head")
+        command.upgrade(_config(database_url), CURRENT_REVISION)
         with database.connect() as connection:
             transaction = connection.begin()
             try:

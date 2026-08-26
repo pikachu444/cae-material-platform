@@ -12,6 +12,8 @@ from sqlalchemy.engine import URL, make_url
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRES_DSN = os.getenv("CMP_TEST_POSTGRES_DSN")
+PREVIOUS_REVISION = "20260926_095_issue205_units"
+CURRENT_REVISION = "20260927_096_issue206_curve"
 pytestmark = [
     pytest.mark.postgresql,
     pytest.mark.container_service,
@@ -61,7 +63,7 @@ def test_issue206_real_upgrade_downgrade_and_reupgrade() -> None:
     database_url = cluster_url.set(database=database_name)
     database = sa.create_engine(database_url, pool_pre_ping=True)
     try:
-        command.upgrade(_config(database_url), "20260926_095_issue205_units")
+        command.upgrade(_config(database_url), PREVIOUS_REVISION)
         with database.connect() as connection:
             legacy = _constraint(
                 connection, "ck_processing_recipe_revision_input_schema"
@@ -69,10 +71,10 @@ def test_issue206_real_upgrade_downgrade_and_reupgrade() -> None:
             assert "1.0.0" in legacy
             assert "1.1.0" not in legacy
 
-        command.upgrade(_config(database_url), "head")
+        command.upgrade(_config(database_url), CURRENT_REVISION)
         with database.connect() as connection:
             assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == (
-                "20260927_096_issue206_curve"
+                CURRENT_REVISION
             )
             current = _constraint(
                 connection, "ck_processing_recipe_revision_input_schema"
@@ -87,14 +89,14 @@ def test_issue206_real_upgrade_downgrade_and_reupgrade() -> None:
             assert "1.0.0" in pair and "1.1.0" in pair
             assert "1.0.0" in replicate and "1.1.0" in replicate
 
-        command.downgrade(_config(database_url), "20260926_095_issue205_units")
+        command.downgrade(_config(database_url), PREVIOUS_REVISION)
         with database.connect() as connection:
             restored = _constraint(
                 connection, "ck_processing_recipe_revision_input_schema"
             )
             assert "1.0.0" in restored
             assert "1.1.0" not in restored
-        command.upgrade(_config(database_url), "head")
+        command.upgrade(_config(database_url), CURRENT_REVISION)
     finally:
         database.dispose()
         with cluster.connect() as connection:
