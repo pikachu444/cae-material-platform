@@ -1,5 +1,10 @@
 # Local Docker Compose demo
 
+`docker-compose.demo.yml`은 `deploy/stack/topology.yaml`에서 생성됩니다. OS 공통 진입점은
+`uv run cmp-stack --profile demo --runtime compose <doctor|up|down|status|logs>`이며 기존 직접
+Compose 명령도 호환됩니다. Web image는 Node로 production assets을 build하지만 최종 runtime은
+Python `cmp-web` front door라 실행 중 Node나 Vite dev server를 사용하지 않습니다.
+
 This is an explicit development-only composition for the first product vertical slice:
 
 ```text

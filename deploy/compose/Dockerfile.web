@@ -1,4 +1,4 @@
-FROM node:24.19.0-alpine3.24@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43
+FROM node:24.19.0-alpine3.24@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS build
 
 WORKDIR /app
 
@@ -7,5 +7,32 @@ COPY apps/web/package.json ./apps/web/package.json
 RUN npm ci --workspaces --include-workspace-root
 
 COPY apps/web ./apps/web
+COPY scripts/check_web_bundle.mjs ./scripts/check_web_bundle.mjs
+RUN npm run build --workspace @cmp/web
 
-CMD ["npm", "run", "dev", "--workspace", "@cmp/web", "--", "--host", "0.0.0.0", "--port", "5173"]
+FROM python:3.12.14-slim-trixie@sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    PATH=/app/.venv/bin:$PATH \
+    CMP_WEB_STATIC_ROOT=/app/web \
+    CMP_WEB_API_TARGET=http://api:8000 \
+    CMP_WEB_HOST=0.0.0.0 \
+    CMP_WEB_PORT=5173
+
+RUN pip install --no-cache-dir "uv==0.12.5"
+
+COPY pyproject.toml uv.lock README.md ./
+COPY backend ./backend
+COPY sdk ./sdk
+COPY generated ./generated
+RUN uv sync --frozen --no-dev \
+    && rm -rf /root/.cache/uv \
+    && dpkg --force-depends --force-remove-essential --remove perl-base
+
+COPY --from=build /app/apps/web/dist /app/web
+
+CMD ["cmp-web"]

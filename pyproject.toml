@@ -44,6 +44,8 @@ required-version = "==0.12.5"
 [project.scripts]
 cmp-api = "cmp.apps.api:main"
 cmp-worker = "cmp.apps.worker:main"
+cmp-web = "cmp.apps.web:main"
+cmp-stack = "cmp.tools.stack:main"
 cmp-demo-bootstrap = "cmp.apps.demo:main"
 cmp-demo-seed = "cmp.apps.demo_seed:main"
 cmp-plugin-runner = "cmp_plugin_sdk.runner:main"

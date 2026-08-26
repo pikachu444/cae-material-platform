@@ -15,6 +15,7 @@ from uuid import UUID, uuid5
 import sqlalchemy as sa
 from sqlalchemy.engine import Connection
 
+from cmp.bootstrap.database import ensure_application_role, grant_application_privileges
 from cmp.bootstrap.demo_identity import (
     DEMO_GROUP,
     DEMO_ORGANIZATION_ID,
@@ -25,7 +26,9 @@ from cmp.bootstrap.demo_identity import (
 )
 from cmp.bootstrap.settings import Settings
 
-_APPLICATION_ROLE = "cmp_app"
+_ensure_application_role = ensure_application_role
+_grant_runtime_privileges = grant_application_privileges
+
 _BOOTSTRAP_PRINCIPAL_ID = UUID("d0000000-0000-4000-8000-000000000003")
 _BINDING_NAMESPACE = UUID("d0000000-0000-4000-8000-000000000004")
 _DEMO_ROLES = (
@@ -36,30 +39,6 @@ _DEMO_ROLES = (
     "cae_analyst",
     "auditor",
 )
-_SCHEMAS = (
-    "identity",
-    "revisioning",
-    "access_control",
-    "governance",
-    "jobs",
-    "plugin",
-    "artifact",
-    "provenance",
-    "events",
-    "audit",
-    "catalog",
-    "testing",
-    "datasets",
-    "processing",
-    "statistics",
-    "modeling",
-    "exporting",
-    "validation",
-)
-
-
-def _identifier(value: str) -> str:
-    return f'"{value.replace('"', '""')}"'
 
 
 def _required_environment(name: str) -> str:
@@ -67,74 +46,6 @@ def _required_environment(name: str) -> str:
     if not value:
         raise ValueError(f"{name} is required for the Docker Compose demo bootstrap")
     return value
-
-
-def _set_application_password(connection: Connection, password: str) -> None:
-    quoted = connection.execute(
-        sa.text("SELECT quote_literal(:password)"), {"password": password}
-    ).scalar_one()
-    connection.exec_driver_sql(f"ALTER ROLE {_APPLICATION_ROLE} PASSWORD {quoted}")
-
-
-def _ensure_application_role(connection: Connection, password: str) -> None:
-    exists = connection.execute(
-        sa.text("SELECT 1 FROM pg_roles WHERE rolname = :name"),
-        {"name": _APPLICATION_ROLE},
-    ).scalar_one_or_none()
-    if exists is None:
-        connection.exec_driver_sql(
-            "CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS"
-        )
-    connection.exec_driver_sql(
-        "ALTER ROLE cmp_app NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS"
-    )
-    _set_application_password(connection, password)
-
-
-def _grant_runtime_privileges(connection: Connection) -> None:
-    database = connection.execute(sa.text("SELECT current_database()")).scalar_one()
-    schema_names = ", ".join(_identifier(name) for name in _SCHEMAS)
-    connection.exec_driver_sql(
-        f"GRANT CONNECT ON DATABASE {_identifier(database)} TO {_APPLICATION_ROLE}"
-    )
-    connection.exec_driver_sql(f"GRANT USAGE ON SCHEMA {schema_names} TO {_APPLICATION_ROLE}")
-    connection.exec_driver_sql(
-        "GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity, "
-        "identity.role_binding, identity.product_access_assignment TO cmp_app"
-    )
-    for schema in (
-        "governance",
-        "jobs",
-        "plugin",
-        "artifact",
-        "events",
-        "catalog",
-        "testing",
-        "datasets",
-        "processing",
-        "statistics",
-        "modeling",
-        "exporting",
-        "validation",
-    ):
-        connection.exec_driver_sql(
-            f"GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA {_identifier(schema)} TO cmp_app"
-        )
-    for schema in ("provenance", "audit"):
-        connection.exec_driver_sql(
-            f"GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA {_identifier(schema)} TO cmp_app"
-        )
-    connection.exec_driver_sql(
-        "GRANT UPDATE ON provenance.activity, provenance.association TO cmp_app"
-    )
-    for schema in _SCHEMAS:
-        connection.exec_driver_sql(
-            f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA {_identifier(schema)} TO cmp_app"
-        )
-    for schema in ("access_control", "revisioning", "plugin", "artifact", "provenance", "audit"):
-        connection.exec_driver_sql(
-            f"GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA {_identifier(schema)} TO cmp_app"
-        )
 
 
 def _seed_demo_role_bindings(connection: Connection, issuer: str) -> None:
@@ -309,8 +220,8 @@ def bootstrap_demo_database(settings: Settings, *, application_password: str) ->
     engine = sa.create_engine(settings.database_url, pool_pre_ping=True)
     try:
         with engine.begin() as connection:
-            _ensure_application_role(connection, application_password)
-            _grant_runtime_privileges(connection)
+            ensure_application_role(connection, application_password)
+            grant_application_privileges(connection)
             _seed_demo_role_bindings(connection, identity.issuer)
     finally:
         engine.dispose()

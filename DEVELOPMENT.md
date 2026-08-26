@@ -62,12 +62,12 @@ uv run python scripts/check_development_environment.py
 
 ## 3. 전체 demo 실행
 
-가장 재현 가능한 실행 경로는 Compose입니다.
+Compose와 host process는 같은 versioned topology와 `cmp-stack` 명령을 사용합니다.
 
 ```powershell
-docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
-docker compose -f deploy/compose/docker-compose.demo.yml up --build -d
-docker compose -f deploy/compose/docker-compose.demo.yml ps --all
+uv run cmp-stack --profile demo --runtime compose doctor
+uv run cmp-stack --profile demo --runtime compose up
+uv run cmp-stack --profile demo --runtime compose status
 ```
 
 `postgres`와 `api`가 healthy이고 `migrate`, `reference-plugins`, `seed`가 0으로 종료되어야 합니다.
@@ -103,14 +103,16 @@ uv run python scripts/run_disposable_demo_test.py
 종료:
 
 ```powershell
-docker compose -f deploy/compose/docker-compose.demo.yml down
+uv run cmp-stack --profile demo --runtime compose down
 ```
 
 `make demo-down`과 위 `down` 명령은 컨테이너만 내리고 `cmp-local-demo` DB와 object-store volume을
 보존합니다. 영구 Demo에는 반복 검증 정리용 `down -v`를 사용하지 마십시오. 격리 runner만 자신이
 생성한 `cmp-demo-test-*` project에 `down -v`를 실행합니다.
 
-설치·port·migration·복구 문제는 [Compose 실행 가이드](deploy/compose/README.md)를 따릅니다.
+Docker·WSL 없는 Windows 실행, local/LAN URL과 데이터 위치는
+[공통 Stack CLI](deploy/stack/README.md), Compose 설치·port·migration·복구 문제는
+[Compose 실행 가이드](deploy/compose/README.md)를 따릅니다.
 
 ## 4. 현재 제품 확인 순서
 

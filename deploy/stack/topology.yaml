@@ -1,0 +1,324 @@
+schema_version: 1
+name: cmp-local-demo
+service_order:
+  - postgres
+  - migrate
+  - api
+  - worker
+  - reference-plugins
+  - seed
+  - web
+ports:
+  web:
+    host: 5173
+    target: 5173
+    exposure: private-lan-front-door
+  api:
+    host: 8000
+    target: 8000
+    exposure: loopback-only
+  postgres:
+    host: 54329
+    target: 5432
+    exposure: loopback-only
+  otlp:
+    host: 4318
+    target: 4318
+    exposure: loopback-only
+  metrics:
+    host: 8889
+    target: 8889
+    exposure: loopback-only
+volumes:
+  database: cmp_demo_postgres
+  objects: cmp_demo_objects
+profiles:
+  demo:
+    environment: demo
+    demo_identity: true
+    seed: true
+  server:
+    environment: production
+    demo_identity: false
+    seed: false
+    requires_external_auth: true
+    requires_external_secret_file: true
+    allow_unattested_plugins: false
+application_environment:
+  CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES: "16384"
+  CMP_BULK_EXPORT_EXTERNAL_MEMBER_MAXIMUM_BYTES: "67108864"
+  CMP_BULK_EXPORT_JOB_LEASE_SECONDS: "15"
+  CMP_UPLOAD_MAX_OBJECT_BYTES: "16777216"
+  CMP_UPLOAD_PART_BYTES: "8388608"
+host:
+  postgres_major: 16
+  postgres_executables:
+    - postgres
+    - initdb
+    - pg_ctl
+    - pg_isready
+    - psql
+    - createdb
+  execution_order:
+    - postgres
+    - migrate
+    - api
+    - worker
+    - reference-plugins
+    - seed
+    - web
+  external_services:
+    otel-collector:
+      mode: external-opt-in
+      endpoint_environment: OTEL_EXPORTER_OTLP_ENDPOINT
+      reason: host runtime does not manage a collector process
+  processes:
+    api:
+      command:
+        - "{python}"
+        - -m
+        - cmp.apps.api
+      health_path: /api/v1/health
+    worker:
+      command:
+        - "{python}"
+        - -m
+        - cmp.apps.worker
+    web:
+      command:
+        - "{python}"
+        - -m
+        - cmp.apps.web
+        - --root
+        - "{web_dist}"
+        - --api-target
+        - "http://127.0.0.1:{api_port}"
+        - --host
+        - "{listen_address}"
+        - --port
+        - "{web_port}"
+      health_path: /.cmp/health
+  migration_command:
+    - "{python}"
+    - -m
+    - alembic
+    - -c
+    - alembic.ini
+    - upgrade
+    - head
+  demo_bootstrap_command:
+    - "{python}"
+    - -m
+    - cmp.apps.demo
+  reference_plugin_check_command:
+    - "{python}"
+    - -c
+    - "from pathlib import Path; import sys; assert Path(sys.argv[1]).is_file()"
+    - "{root}/plugins/reference/contract_echo/dependency.lock"
+  demo_seed_commands:
+    - - "{python}"
+      - -m
+      - cmp.apps.demo_seed
+      - --api-base-url
+      - "http://127.0.0.1:{api_port}/api/v1"
+    - - "{python}"
+      - "{root}/scripts/seed_full_demo.py"
+      - --api-base-url
+      - "http://127.0.0.1:{api_port}/api/v1"
+compose:
+  name: cmp-local-demo
+  status:
+    running_services:
+      - otel-collector
+      - postgres
+      - api
+      - worker
+      - web
+    completed_services:
+      - migrate
+      - reference-plugins
+      - seed
+  services:
+    otel-collector:
+      image: otel/opentelemetry-collector-contrib:0.135.0
+      command:
+        - --config=/etc/otelcol-contrib/config.yaml
+      volumes:
+        - ../observability/otel-collector.demo.yaml:/etc/otelcol-contrib/config.yaml:ro
+      ports:
+        - 127.0.0.1:4318:4318
+        - 127.0.0.1:8889:8889
+    postgres-test:
+      image: postgres:16-alpine
+      profiles:
+        - test
+      environment:
+        POSTGRES_DB: postgres
+        POSTGRES_USER: cmp_test_owner
+        POSTGRES_HOST_AUTH_METHOD: trust
+      ports:
+        - 127.0.0.1:54330:5432
+      tmpfs:
+        - /var/lib/postgresql/data
+      healthcheck:
+        test:
+          - CMD-SHELL
+          - pg_isready -U cmp_test_owner -d postgres
+        interval: 2s
+        timeout: 3s
+        retries: 30
+    postgres:
+      image: postgres:16-alpine
+      environment:
+        POSTGRES_DB: cmp
+        POSTGRES_USER: cmp_owner
+        POSTGRES_PASSWORD: cmp_owner_development_only
+      ports:
+        - 127.0.0.1:54329:5432
+      volumes:
+        - cmp_demo_postgres:/var/lib/postgresql/data
+      healthcheck:
+        test:
+          - CMD-SHELL
+          - pg_isready -U cmp_owner -d cmp
+        interval: 3s
+        timeout: 3s
+        retries: 30
+    migrate:
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.api
+      command:
+        - sh
+        - -ec
+        - alembic -c alembic.ini upgrade head && cmp-demo-bootstrap
+      environment:
+        CMP_ENVIRONMENT: demo
+        CMP_DEMO_IDENTITY: "true"
+        CMP_DATABASE_URL: postgresql+psycopg://cmp_owner:cmp_owner_development_only@postgres:5432/cmp
+        CMP_DEMO_APP_DATABASE_PASSWORD: cmp_app_development_only
+      depends_on:
+        postgres:
+          condition: service_healthy
+      restart: "no"
+    api:
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.api
+      command:
+        - cmp-api
+      environment: &demo_application_environment
+        CMP_ENVIRONMENT: demo
+        CMP_DEMO_IDENTITY: "true"
+        CMP_API_HOST: 0.0.0.0
+        CMP_API_PORT: "8000"
+        CMP_DATABASE_URL: postgresql+psycopg://cmp_app:cmp_app_development_only@postgres:5432/cmp
+        CMP_UPLOAD_STORAGE_ROOT: /var/lib/cmp/object-store
+        CMP_UPLOAD_CAPABILITY_SECRET: demo-upload-capability-secret-not-for-production-2026
+        CMP_ARTIFACT_TRANSFER_SECRET: demo-artifact-transfer-secret-not-for-production-2026
+        OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+        CMP_OTEL_METRIC_EXPORT_INTERVAL_MS: "5000"
+      ports:
+        - 127.0.0.1:8000:8000
+      volumes:
+        - cmp_demo_objects:/var/lib/cmp/object-store
+      depends_on:
+        migrate:
+          condition: service_completed_successfully
+      healthcheck:
+        test:
+          - CMD
+          - python
+          - -c
+          - from urllib.request import urlopen; assert urlopen('http://127.0.0.1:8000/api/v1/health').status == 200
+        interval: 3s
+        timeout: 5s
+        retries: 30
+    worker:
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.api
+      command:
+        - cmp-worker
+      environment: *demo_application_environment
+      volumes:
+        - cmp_demo_objects:/var/lib/cmp/object-store
+      depends_on:
+        migrate:
+          condition: service_completed_successfully
+    restore-drill:
+      profiles:
+        - operations
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.restore
+      command:
+        - --source-url
+        - postgresql+psycopg://cmp_owner:cmp_owner_development_only@postgres:5432/cmp
+        - --object-store-root
+        - /var/lib/cmp/object-store
+        - --work-root
+        - /var/lib/cmp/restore-reports
+      volumes:
+        - cmp_demo_objects:/var/lib/cmp/object-store:ro
+        - ../../.cache/restore-drill:/var/lib/cmp/restore-reports
+      depends_on:
+        postgres:
+          condition: service_healthy
+        migrate:
+          condition: service_completed_successfully
+    reference-plugins:
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.api
+      command:
+        - sh
+        - -ec
+        - test -f /app/plugins/reference/contract_echo/dependency.lock
+      depends_on:
+        migrate:
+          condition: service_completed_successfully
+      restart: "no"
+    seed:
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.api
+      command:
+        - sh
+        - -ec
+        - cmp-demo-seed --api-base-url http://api:8000/api/v1 && python scripts/seed_full_demo.py --api-base-url http://api:8000/api/v1
+      environment:
+        CMP_DEMO_API_BASE_URL: http://api:8000/api/v1
+        CMP_DEMO_FIXTURE_STAMP: t60-reference
+      depends_on:
+        api:
+          condition: service_healthy
+        reference-plugins:
+          condition: service_completed_successfully
+      restart: "no"
+    web:
+      build:
+        context: ../..
+        dockerfile: deploy/compose/Dockerfile.web
+      environment:
+        CMP_WEB_API_TARGET: http://api:8000
+        CMP_WEB_HOST: 0.0.0.0
+        CMP_WEB_PORT: "5173"
+        CMP_WEB_STATIC_ROOT: /app/web
+      ports:
+        - "${CMP_STACK_LISTEN_ADDRESS:-127.0.0.1}:5173:5173"
+      depends_on:
+        api:
+          condition: service_healthy
+      healthcheck:
+        test:
+          - CMD
+          - python
+          - -c
+          - from urllib.request import urlopen; assert urlopen('http://127.0.0.1:5173/.cmp/health').status == 200
+        interval: 3s
+        timeout: 5s
+        retries: 30
+  volumes:
+    cmp_demo_postgres: null
+    cmp_demo_objects: null
