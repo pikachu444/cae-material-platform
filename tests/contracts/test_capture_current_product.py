@@ -452,8 +452,8 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 124
-    assert "administration-schema-bundle-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 123
+    assert "administration-format-definitions-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-categories-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-linked-test-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert PRODUCT_ACCESS_OUTPUTS == (
@@ -462,7 +462,6 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
         "administration-access-1920x1080.png",
         "administration-access-2560x1440.png",
         "administration-access-3840x2160.png",
-        "administration-access-role-control-1366x768.png",
     )
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in PRODUCT_ACCESS_OUTPUTS)
     assert all(name in CURRENT_CAPTURE_OUTPUTS for name in ADMINISTRATION_DATABASE_OUTPUTS)

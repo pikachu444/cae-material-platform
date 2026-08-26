@@ -312,6 +312,8 @@ def _validate_listen_address(value: str) -> ipaddress.IPv4Address:
         ipaddress.ip_network("172.16.0.0/12"),
         ipaddress.ip_network("192.168.0.0/16"),
     )
+    if address.is_loopback and address != ipaddress.ip_address("127.0.0.1"):
+        raise StackError("the supported loopback listen address is 127.0.0.1")
     if not address.is_loopback and not any(address in network for network in private_networks):
         raise StackError("listen address must be loopback or a Private/Domain LAN address")
     return address
@@ -413,6 +415,7 @@ def _doctor(options: StackOptions) -> list[DoctorCheck]:
                         "--quiet",
                     ],
                     cwd=options.paths.root,
+                    environment=_compose_environment(options),
                 )
                 and "valid"
             ),
@@ -425,6 +428,7 @@ def _doctor(options: StackOptions) -> list[DoctorCheck]:
                     options.paths.root / "scripts/check_compose_environment.py",
                 ],
                 cwd=options.paths.root,
+                environment=_compose_environment(options),
                 capture=True,
             ).stdout.strip(),
         )
@@ -891,15 +895,10 @@ def _host_up(options: StackOptions, *, open_browser: bool) -> None:
                 pass
         _stop_postgres(options, postgres_bin=options.postgres_bin)
         raise
-    web_port = _topology_port(options, "web")
-    url = f"http://{options.listen_address}:{web_port}"
-    identity = "synthetic-demo-only" if options.profile == "demo" else "external-oidc"
-    print(
-        f"CMP stack started: profile={options.profile} identity={identity} "
-        f"local=http://127.0.0.1:{web_port} lan={url}"
-    )
+    status = _access_status(options)
+    _print_started(options, status)
     if open_browser:
-        webbrowser.open(url)
+        webbrowser.open(cast(str, status["lan_url"]))
 
 
 def _stop_postgres(options: StackOptions, *, postgres_bin: Path | None) -> None:
@@ -997,6 +996,7 @@ def _host_logs(options: StackOptions, *, lines: int) -> None:
 
 def _access_status(options: StackOptions) -> dict[str, Any]:
     web_port = _topology_port(options, "web")
+    listen_address = str(_validate_listen_address(options.listen_address))
     loopback_names = ["api", "postgres"]
     if options.runtime == "compose":
         loopback_names.extend(("otlp", "metrics"))
@@ -1023,12 +1023,12 @@ def _access_status(options: StackOptions) -> dict[str, Any]:
             "configured_endpoint": os.environ.get(endpoint_environment) or None,
         }
     return {
-        "local_url": f"http://127.0.0.1:{web_port}",
-        "lan_url": f"http://{options.listen_address}:{web_port}",
-        "listen_address": options.listen_address,
+        "local_url": f"http://{listen_address}:{web_port}",
+        "lan_url": f"http://{listen_address}:{web_port}",
+        "listen_address": listen_address,
         "identity": "synthetic-demo-only" if options.profile == "demo" else "external-oidc",
         "remote_access": "local-only"
-        if options.listen_address == "127.0.0.1"
+        if listen_address == "127.0.0.1"
         else "requires Private/Domain LocalSubnet firewall rule",
         "exposed_ports": {"web": web_port},
         "loopback_ports": {name: _topology_port(options, name) for name in loopback_names},
@@ -1063,6 +1063,14 @@ def _compose_command(options: StackOptions, *arguments: str) -> list[str | Path]
     ]
 
 
+def _compose_environment(options: StackOptions) -> dict[str, str]:
+    """Bind Compose's published Web port to the same validated address shown in status."""
+    return {
+        **os.environ,
+        "CMP_STACK_LISTEN_ADDRESS": str(_validate_listen_address(options.listen_address)),
+    }
+
+
 def _parse_compose_ps(output: str) -> list[dict[str, Any]]:
     stripped = output.strip()
     if not stripped:
@@ -1085,6 +1093,7 @@ def _compose_status(options: StackOptions) -> dict[str, Any]:
     result = _run(
         _compose_command(options, "ps", "--all", "--format", "json"),
         cwd=options.paths.root,
+        environment=_compose_environment(options),
         capture=True,
     )
     entries = _parse_compose_ps(result.stdout)
@@ -1147,7 +1156,11 @@ def _compose_action(
             raise StackError(
                 "doctor failed: " + "; ".join(f"{c.name}: {c.detail}" for c in failures)
             )
-        _run(_compose_command(options, "up", "--build", "-d"), cwd=options.paths.root)
+        _run(
+            _compose_command(options, "up", "--build", "-d"),
+            cwd=options.paths.root,
+            environment=_compose_environment(options),
+        )
         status = _compose_status(options)
         if status["state"] != "running":
             raise StackError("Compose stack did not reach the topology status contract")
@@ -1155,13 +1168,18 @@ def _compose_action(
         if open_browser:
             webbrowser.open(cast(str, status["lan_url"]))
     elif command == "down":
-        _run(_compose_command(options, "down"), cwd=options.paths.root)
+        _run(
+            _compose_command(options, "down"),
+            cwd=options.paths.root,
+            environment=_compose_environment(options),
+        )
     elif command == "status":
         return _compose_status(options)
     elif command == "logs":
         _run(
             _compose_command(options, "logs", "--no-color", "--tail", str(lines)),
             cwd=options.paths.root,
+            environment=_compose_environment(options),
         )
     else:  # pragma: no cover - argparse constrains commands.
         raise StackError(f"unsupported Compose command: {command}")

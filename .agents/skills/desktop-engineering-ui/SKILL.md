@@ -44,6 +44,7 @@ Before calling a writer, the main orchestrator opens the exact approved images p
 resolution, inspects the current live/capture state and stores one bounded packet naming:
 
 - the user task and exact assets/screens;
+- the visual matrix's locked owner-feedback rows, with exact actionable sentences and every target state;
 - static region to component, event, state and data-source mapping;
 - region-by-region reference-to-current differences;
 - preserved behavior, loading/empty/blocked/error states and invalidation contracts;
@@ -90,7 +91,9 @@ at original resolution, repeats the region-by-region comparison, records resolve
 differences, and completes the 20개 정성 판정 항목 (Q-01~Q-20) once. Judge the whole screen before an isolated control:
 engineering credibility, information density, hierarchy, graph/table/tree dominance, whitespace,
 typography, meaningful wide-screen use and responsive continuity. Numeric or existence checks are only
-supporting evidence.
+supporting evidence. Reconcile every locked owner-feedback row before independent review; partial
+screen/state completion does not pass. Publication also requires the product owner's explicit final
+disposition for the complete target set.
 
 ## Independent review and approval
 

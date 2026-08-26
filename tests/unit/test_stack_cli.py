@@ -173,10 +173,32 @@ def test_server_profile_rejects_inherited_demo_or_plugin_environment(
         stack._server_environment_guard(os.environ)
 
 
-@pytest.mark.parametrize("address", ["0.0.0.0", "8.8.8.8", "169.254.1.1", "::1"])
+@pytest.mark.parametrize(
+    "address", ["0.0.0.0", "8.8.8.8", "169.254.1.1", "127.0.0.2", "::1"]
+)
 def test_listen_address_rejects_implicit_public_or_unsupported_bindings(address: str) -> None:
     with pytest.raises(stack.StackError):
         stack._validate_listen_address(address)
+
+
+@pytest.mark.parametrize("runtime", ["host", "compose"])
+def test_status_rejects_a_noncanonical_loopback_address(
+    tmp_path: Path, runtime: stack.Runtime
+) -> None:
+    base_options = _options(tmp_path, runtime=runtime)
+    options = stack.StackOptions(
+        profile=base_options.profile,
+        runtime=base_options.runtime,
+        paths=base_options.paths,
+        postgres_bin=base_options.postgres_bin,
+        listen_address="127.0.0.2",
+        auth_config=base_options.auth_config,
+        secret_file=base_options.secret_file,
+        json_output=base_options.json_output,
+    )
+
+    with pytest.raises(stack.StackError, match=r"supported loopback.*127\.0\.0\.1"):
+        stack._access_status(options)
 
 
 def test_host_state_contains_no_database_or_application_secret(tmp_path: Path) -> None:
@@ -251,6 +273,32 @@ def test_failed_up_stops_started_processes_and_postgres_without_deleting_data(
     assert not stack._state_path(options).exists()
 
 
+def test_host_up_reports_the_reachable_private_listener_urls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    base_options = _options(tmp_path)
+    options = stack.StackOptions(
+        profile=base_options.profile,
+        runtime=base_options.runtime,
+        paths=base_options.paths,
+        postgres_bin=base_options.postgres_bin,
+        listen_address="192.168.10.12",
+        auth_config=base_options.auth_config,
+        secret_file=base_options.secret_file,
+        json_output=base_options.json_output,
+    )
+    monkeypatch.setattr(stack, "_doctor", lambda _: [stack.DoctorCheck("all", "ok", "ok")])
+    monkeypatch.setattr(stack, "_runtime_environment", lambda _: ({}, stack._demo_secrets()))
+    monkeypatch.setattr(stack, "_host_execution_order", lambda _: [])
+
+    stack._host_up(options, open_browser=False)
+
+    output = capsys.readouterr().out
+    assert "local=http://192.168.10.12:5173" in output
+    assert "lan=http://192.168.10.12:5173" in output
+    assert "local=http://127.0.0.1:5173" not in output
+
+
 def test_ctrl_c_returns_standard_cancellation_exit_code(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -296,6 +344,7 @@ def test_status_reports_only_web_as_remote_front_door(tmp_path: Path) -> None:
 
     status = stack._host_status(options)
 
+    assert status["local_url"] == "http://192.168.10.12:5173"
     assert status["lan_url"] == "http://192.168.10.12:5173"
     assert status["exposed_ports"] == {"web": 5173}
     assert status["loopback_ports"] == {"api": 8000, "postgres": 54329}
@@ -311,22 +360,39 @@ def test_status_reports_only_web_as_remote_front_door(tmp_path: Path) -> None:
 def test_compose_status_reports_shared_urls_ports_and_managed_observability(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    options = _options(tmp_path, runtime="compose")
-    running = {"otel-collector", "postgres", "api", "worker", "web"}
-    completed = {"migrate", "reference-plugins", "seed"}
-    entries = [{"Service": name, "State": "running", "Health": "healthy"} for name in running] + [
-        {"Service": name, "State": "exited", "ExitCode": 0} for name in completed
-    ]
-    monkeypatch.setattr(
-        stack,
-        "_run",
-        lambda *args, **kwargs: CompletedProcess(args[0], 0, json.dumps(entries), ""),
+    base_options = _options(tmp_path, runtime="compose")
+    options = stack.StackOptions(
+        profile=base_options.profile,
+        runtime=base_options.runtime,
+        paths=base_options.paths,
+        postgres_bin=base_options.postgres_bin,
+        listen_address="192.168.10.12",
+        auth_config=base_options.auth_config,
+        secret_file=base_options.secret_file,
+        json_output=base_options.json_output,
     )
+    running = {"otel-collector", "postgres", "api", "worker", "web"}
+    completed_services = {"migrate", "reference-plugins", "seed"}
+    entries = [{"Service": name, "State": "running", "Health": "healthy"} for name in running] + [
+        {"Service": name, "State": "exited", "ExitCode": 0} for name in completed_services
+    ]
+    environments: list[dict[str, str]] = []
+
+    def completed_command(command: list[str], **kwargs: object) -> CompletedProcess[str]:
+        environment = kwargs.get("environment")
+        assert isinstance(environment, dict)
+        environments.append(environment)
+        return CompletedProcess(command, 0, json.dumps(entries), "")
+
+    monkeypatch.setattr(stack, "_run", completed_command)
 
     status = stack._compose_status(options)
 
     assert status["state"] == "running"
-    assert status["local_url"] == "http://127.0.0.1:5173"
+    assert status["local_url"] == "http://192.168.10.12:5173"
+    assert status["lan_url"] == "http://192.168.10.12:5173"
+    assert status["remote_access"] == "requires Private/Domain LocalSubnet firewall rule"
+    assert environments[0]["CMP_STACK_LISTEN_ADDRESS"] == "192.168.10.12"
     assert status["exposed_ports"] == {"web": 5173}
     assert status["loopback_ports"] == {
         "api": 8000,

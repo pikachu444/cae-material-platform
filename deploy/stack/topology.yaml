@@ -306,7 +306,7 @@ compose:
         CMP_WEB_PORT: "5173"
         CMP_WEB_STATIC_ROOT: /app/web
       ports:
-        - 5173:5173
+        - "${CMP_STACK_LISTEN_ADDRESS:-127.0.0.1}:5173:5173"
       depends_on:
         api:
           condition: service_healthy

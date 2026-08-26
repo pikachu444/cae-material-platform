@@ -575,3 +575,7 @@
     display: none;
   }
 }
+
+.application-shell.workspace-command-bar-omitted {
+  grid-template-rows: var(--ux-application-bar-height) minmax(0, 1fr) var(--ux-status-bar-height);
+}

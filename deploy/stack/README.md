@@ -11,6 +11,12 @@ uv run cmp-stack --profile demo --runtime compose logs
 uv run cmp-stack --profile demo --runtime compose down
 ```
 
+Compose와 host runtime은 기본적으로 Web을 `127.0.0.1`에만 bind합니다. 사설망 접속이 필요하면 두
+runtime 모두 `--listen-address <명시적인 private IPv4>`를 사용합니다. CLI는 이 주소를 검증한 뒤
+Compose의 실제 published port와 `status`의 LAN URL·remote-access 상태에 동일하게 적용합니다.
+사설 IP를 명시한 경우 Web은 그 주소 하나에만 bind하므로 local URL과 LAN URL 모두 실제로 접근
+가능한 같은 사설 IP를 표시합니다. `127.0.0.1`이나 모든 인터페이스가 함께 열렸다고 잘못 표시하지 않습니다.
+
 `deploy/compose/docker-compose.demo.yml`은 topology의 생성 결과입니다. 직접 고치지 않고 다음
 명령으로 drift를 확인하거나 변경된 topology를 반영합니다.
 

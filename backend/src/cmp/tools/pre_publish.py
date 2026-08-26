@@ -118,7 +118,6 @@ _VISUAL_REVIEW_INPUTS = (
     "docs/01-product/visual-acceptance-matrix.md",
     "docs/00-research/ux-reference-gallery/README.md",
     "docs/00-research/images/gui-reference/README.md",
-    "docs/user-guide/screenshot-manifest.yaml",
 )
 _HARD_GATE_CRITERIA = {
     "V-01",
@@ -949,6 +948,33 @@ def _embedded_review_materials(
                 f"### {relative}\n\n"
                 + (project / relative).read_text(encoding="utf-8")
             )
+        manifest = _manifest_capture_index(project)
+        selected_captures = []
+        manifest_root = (project / _SCREENSHOT_MANIFEST).parent
+        for image in change.current_images:
+            viewport = manifest.get(image)
+            if viewport is None:
+                raise PrePublishError(
+                    f"visual review image is not registered in the screenshot manifest: {image}"
+                )
+            relative = image.relative_to(manifest_root).as_posix()
+            repository_relative = image.relative_to(project).as_posix()
+            selected_captures.append(
+                {
+                    "image": relative,
+                    "width": viewport[0],
+                    "height": viewport[1],
+                    "sha256": change.image_hashes[repository_relative],
+                }
+            )
+        sections.append(
+            f"### {_SCREENSHOT_MANIFEST}\n\n"
+            + yaml.safe_dump(
+                {"captures": selected_captures},
+                allow_unicode=True,
+                sort_keys=False,
+            )
+        )
         materials = "\n\n".join(sections)
     size = len(materials.encode("utf-8"))
     if size > _MAX_EMBEDDED_REVIEW_BYTES:

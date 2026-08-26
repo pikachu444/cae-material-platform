@@ -16,6 +16,11 @@ For nontrivial frontend work, read only the relevant parts in this order:
 7. `.agents/skills/material-platform-frontend-architecture/SKILL.md`;
 8. `frontend-ui-engineering`, `desktop-engineering-ui`, and `webapp-testing` as applicable.
 
+For user-visible work, also use the visual matrix's **Locked product-owner feedback trace** as the
+canonical feedback/acceptance record. Preserve each actionable owner sentence and its complete target
+screen/state set through implementation, evidence and disposition. Do not mark a multi-screen scope
+complete from a partial packet or replace qualitative review with selector/count checks.
+
 Issue #249 is a cross-cutting program. Its documentation unit does not authorize production React/CSS
 changes, and its later units require a bounded issue and explicit owner priority. It does not silently
 reorder unrelated domain backlog work.
@@ -40,6 +45,8 @@ Before a nontrivial React/CSS change:
 - name the owned feature and current owner files;
 - list preserved API/domain/URL/revision/state/recovery contracts;
 - inspect affected tests and registered screenshots;
+- list exact current owner feedback, every target screen/state, and the required implementation,
+  evidence and disposition for each;
 - run the project-local frontend architecture skill;
 - state whether a registered hotspot gains responsibility;
 - separate structural movement from broad visual movement unless an owner-approved reason makes

@@ -39,7 +39,7 @@ notes:
   - "After #299, Issue #298 was refrozen onto main 5e6ebf5484d601f0487539dde8d579f4b03a4ee8. The complete apps/web tree, runtime inputs, the two Issue #298 production source files and the Issue #289 visual-evidence tree are byte-identical across the old and new bases. The actual capture base remains recorded below; the same route, state, input and source hashes permit evidence reuse without changing any registered image hash."
   - "Issue #261 M1A6 moves only historical CSS-1497–1499, the three complete Data curve-row label rule groups, from layout.css to the Data owner without changing declarations or order. The packet records five canonical normal originals, five focused primary originals, twenty direct 100%-pixel header/navigator/table/graph crops per phase, exact Data→Process→Data/reload identity and byte/pixel equivalence for the deterministic 30 pairs. The former frontend-guard blocker is resolved by merged PR #300; the candidate is refrozen onto main b561da5a and reuses evidence only while production source, route, state, input and registered hashes remain unchanged. The Product Owner 1920/2560/3840 original review remains pending, so Ready and merge are not authorized. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Issue #289 replaces the placeholder Database design surface with an exact-identity Administration workflow for Database, Profile, Table, Attribute, Layout, Subset and Link Type definitions. The registered five editor and five real-record preview originals preserve the established 1366×768 and 1440×900 behavior and add an adjacent fourth preview pane at 1920×1080, 2560×1440 and 3840×2160."
-  - "The primary live journey uses the real current-worktree API and dedicated PostgreSQL database: it reads exact seeded definitions, previews the DP780 synthetic record with exact Attribute and Layout revisions, proves a referenced seeded Table cannot be deleted while selection and explanation remain visible, duplicates a clean unpublished r1 Table, then physically deletes that unused draft and reads back its absence."
+  - "The primary live journey uses the real current-worktree API and dedicated PostgreSQL database: it reads exact seeded definitions, previews the DP780 synthetic record with exact Attribute and Layout revisions, proves a referenced seeded Table cannot be deleted while selection and explanation remain visible, duplicates a clean unpublished Revision 1 Table, then physically deletes that unused draft and reads back its absence."
   - "The issue-owned packet records five #280 before originals, twenty #280 direct before crops, ten final originals and twenty-five final direct 100%-pixel header, navigator, table, form and native record-preview crops. Main opened all final originals and crops at original resolution. The Product Owner approved the reviewed 1920×1080, 2560×1440 and 3840×2160 originals at original resolution on 2026-08-20; automated 3840×2160 geometry does not claim physical 4K readability."
   - "Issue #261 M1A5 moves only the 29 historical Library source-list selector rows in 21 complete rule groups, including the full-selector-proven historical HOLD row. Current guide PNGs and workflow copy remain unchanged; the packet records both Data routes at five viewports, exact revision identity, unchanged focusable local-scroll ownership, Process/reload recovery, direct crops and byte/pixel equivalence. The four-row fixture is not claimed as long-result overflow acceptance: its 2 px border/rounding difference makes Q-02/Q-09 not applicable. The Product Owner approved the reviewed primary-route 1920x1080, 2560x1440 and 3840x2160 originals at original resolution on 2026-08-20. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Issue #261 M1A4 moves only the Raw source table preview CSS owner. The current guide PNGs and workflow copy remain unchanged; the issue packet records primary/alias five-viewport before/after originals, direct header/controls/raw-table/graph crops, exact DP780 Test Data/Test Run pins, reload recovery, local scroll interactions and source-pixel equivalence. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
@@ -68,7 +68,7 @@ notes:
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. Main opened all eleven originals and twelve direct 100%-pixel header/navigator/Data-controls/graph crops at original resolution; the bounded rail and ribbon remain readable while the graph uses the available workspace. Automated 3840x2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
   - "Canonical current-source Compose was recreated without deleting the preserved volumes. Migrate, API, web and browser checks passed; the seed container completed its base demo seed before the follow-on existing Issue #246 domain-binding POST met an idempotency conflict. The unchanged seed command was not replayed, no data was reset, and the exact Data selection/read-back assertions passed against the preserved state."
   - "Issue #253 adds one current 1440x900 demo-session recovery image. Five live CSS viewports at browser zoom 100% and DPR 1 verified the unchanged recovery surface, no page overflow, and a successful Try again transition that replaced the failed session with a newly issued local-demo token. Timer, expired-token reload, persona preservation and demo-disabled boundaries are covered by deterministic frontend tests."
-  - "Issue #246 Task 1 replaces the current Definition bundles image and adds two current Materials images captured from `/materials`. The current directory contains 118 bounded public example images."
+  - "Issue #262 replaces the current Format definitions image and the five-viewport Database, preview, Records and Access images with the owner-corrected Administration states."
   - "The issue-owned packet is docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml. It retains both Product Owner-rejected interpretations as twenty before originals, forty before crops and ten before measurements, then records the final Materials-integrated candidate at five viewports with direct 100%-pixel crops, geometry, hashes and immutable references."
   - "The live browser journey proves `/materials` keeps the established explorer/result/datasheet design, shows 3 Technical Data, 9 Test Data, 3 Simulation Data and 1 Solver Card records, exposes readable engineering values and only exact direct links, excludes internal storage controls and forbidden DMA-to-elastoplasticity inference, and preserves the selected detail across reload."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1 with zero page horizontal overflow. The current Materials capture used a dedicated PostgreSQL database with the real API, worker and Vite frontend; no Materials HTTP route was mocked. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate."
@@ -83,7 +83,7 @@ notes:
   - "The canonical browser journey explicitly adds tensile.toe_zero_intercept@1.0.0, selects the estimation domain, previews offset/slope/R²/point count, proves an unacknowledged warning blocks save, resets acknowledgement on changed input, recovers through a clean domain, saves an immutable Processing Output r1 and reads that exact toe-compensated source in Fit Evidence."
   - "All five CSS viewports pass at browser zoom 100% and DPR 1. The 1440 warning state records a 14×14 checkbox, acknowledgement right edge 1056.546875 before Result left edge 1066.546875, and equal scroll/client dimensions for both warning labels; the corrected control no longer overlaps Result."
   - "The active Windows displays are 2560×1440 and 2560×1600 at 96 DPI and 100% scale. Automated 3840×2160 geometry does not claim physical 4K readability; #223 remains the final physical gate. The Balanced independent auditor approved exact implementation head 4ee1ccfd36fea109ac449474f354d2d86df93a76 with blocker 0, major 0 and material-minor 0 after the Advanced Recipe JSON and Undo/Redo acknowledgement corrections. The Product Owner approved the presented 1920×1080, 2560×1440 and 3840×2160 Process/Fit originals and supporting five-viewport geometry on 2026-08-13. PR #244 was squash-merged as aa009e5898a6e46577a80a7382bda2b7b17fd002; #209 is next."
-  - "Issue #208 adds the current 1440×900 Administration Definition bundles plan image from product-owner visual-correction commit 63176ec5a07647d598753d437fce4339d4f05ebb. The current directory contains 101 deterministic synthetic non-production images."
+  - "Issue #208 introduced the immutable Format definitions baseline; Issue #262 now owns the current 1440×900 review image."
   - "The issue-owned packet is docs/17-evidence/images/issue-208-schema-bundle-administration/visual-evidence.yaml: five plan originals, twenty direct 100%-pixel header/navigator/table/form crops, five numeric geometry records, and explicit confirmation and applied/read-back/export state originals. Main opened every original and crop at original resolution."
   - "The browser journey uses the contract-backed positive bundle fixture to verify upload-plan-confirm-apply-read-back-export, explicit source reset, arbitrary action count, keyboard row movement, long identity reachability, exact Apply body without client actions, refresh read-back and Reviewer denial. Unit/API tests separately cover invalid MIME/JSON/size/shape, migration-required confirmation blocking, source replacement isolation, stale re-plan, uncertain Apply read-back recovery, checksum mismatch and User/Reviewer API denial."
   - "Canonical Compose was rejected at preflight because the running cmp-local-demo project belongs to the preserved C:/SourceCodes/cae-material-platform-issue210 worktree. No container or data was changed, and the isolated Vite/contract-backed browser run is not represented as canonical Compose evidence."
@@ -831,8 +831,6 @@ allowed_duplicate_groups:
     images: [docs/user-guide/images/current/material-database-categories-1440x900.png, docs/17-evidence/images/issue-246-source-v2-categories/after/originals/issue246-categories-1440x900.png]
   - rationale: "Issue #246 keeps the registered current direct-link detail original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
     images: [docs/user-guide/images/current/material-database-linked-test-1440x900.png, docs/17-evidence/images/issue-246-source-v2-categories/after/originals/issue246-detail-1440x900.png]
-  - rationale: "Issue #246 keeps the registered current source-set plan original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
-    images: [docs/user-guide/images/current/administration-schema-bundle-1440x900.png, docs/17-evidence/images/issue-246-source-v2-categories/after/originals/issue246-source-plan-1440x900.png]
   - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
     images: [docs/user-guide/images/current/modeling-distribution-1366x768.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-1366x768.png]
   - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
@@ -843,10 +841,6 @@ allowed_duplicate_groups:
     images: [docs/user-guide/images/current/modeling-distribution-2560x1440.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-2560x1440.png]
   - rationale: "Issue #210 keeps the registered current original and its issue-owned after original byte-identical so product-guide and acceptance provenance remain independently addressable."
     images: [docs/user-guide/images/current/modeling-distribution-3840x2160.png, docs/17-evidence/images/issue-210-scalar-distribution-fitting/after/originals/modeling-distribution-3840x2160.png]
-  - rationale: "The immutable 1440px Users & access baseline and current normal capture are pixel-identical because the changed Create assignment and Revoke controls are below the initial viewport; separate 1366/1920/2560/3840 and state evidence shows the semantic change."
-    images:
-      - docs/17-evidence/images/issue-161-administration-button-semantics/before/access/administration-access-1440x900.png
-      - docs/user-guide/images/current/administration-access-1440x900.png
   - rationale: "Issue #161 independently direct-cropped its immutable Activity 1920 baseline; the source pixels match the retained Issue #160 accepted after crop exactly."
     images:
       - docs/17-evidence/images/issue-160-activity-density/crops/after/activity-1920x1080-local-scrollbar.png
@@ -2120,8 +2114,6 @@ allowed_duplicate_groups:
     images:
       - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-save-details-100pct.png
       - docs/17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-save-details-100pct.png
-  - rationale: "Issue #261 M3 retains the exact role-control original already registered by #184 and the current guide while preserving before/after evidence paths."
-    images: [docs/17-evidence/images/issue-184-high-dpi-global-implementation/after/standard/administration-access-role-control-1366x768.png, docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/originals/administration-access-role-control-1366x768.png, docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/before/originals/administration-access-role-control-1366x768.png, docs/user-guide/images/current/administration-access-role-control-1366x768.png]
   - rationale: "Issue #261 M3 retains this exact shared Administration header crop already registered by earlier evidence while preserving the new ownership paths."
     images: [docs/17-evidence/images/issue-208-schema-bundle-administration/administration-schema-bundle-plan-1366x768-header-crop.png, docs/17-evidence/images/issue-246-source-v2-categories/after/crops/issue246-source-plan-1366x768-header-crop.png, docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/crops/administration-header-1366x768-100pct.png]
   - rationale: "Issue #261 M3 retains this exact shared Administration header crop already registered by earlier evidence while preserving the new ownership paths."
@@ -2416,6 +2408,11 @@ visual_evidence:
   issue_208_after_original_count: 7
   issue_208_direct_crop_count: 20
   issue_208_geometry_measurement_count: 5
+  issue_262_fe07b_visual_status: owner_correction_implemented_main_pass_independent_audit_pass
+  issue_262_fe07b_after_original_count: 25
+  issue_262_fe07b_direct_crop_count: 100
+  issue_262_fe07b_geometry_measurement_count: 25
+  issue_262_fe07b_independent_review: pass_after_exact_folder_handoff_correction_no_findings
   issue_210_current_count: 5
   issue_210_before_original_count: 5
   issue_210_after_original_count: 10
@@ -2443,6 +2440,10 @@ visual_evidence:
   independent_read_only_review: required_issue309_exact_candidate_before_commit
   product_owner_review: task_owner_supplied_exact_issue309_scope_and_acceptance
 capture_provenance:
+  - source_commit: 1333c64553c884fcc9187f39d862cd2146880dc5+issue262-fe07b-worktree
+    captured_at: '2026-08-26'
+    command: 'Current-worktree Vite on 127.0.0.1:5174 proxying the preserved Docker web and actual demo API at 127.0.0.1:5173; issue262-administration-visual.spec.ts captures Database, Preview, Records and Access, while schema-definition-bundle-administration.spec.ts uses the canonical contract fixture and deterministic mocked API read-back for Format definitions. Playwright runs at browser zoom 100%, DPR 1 and CSS viewports 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160. The owner-corrected capture preserves Materials, Modeling and Activity plus one Database, Format definitions, Records and Access taskbar. The exact journey keeps No database selected while choosing the independent Demo Material Records Revision 1, opens Layout Version 1, selects DP780 Record Revision 2, creates and revises a Record with exact reload read-back, grants and removes one assignment, and completes choose/review/apply/verify read-back. Direct 100%-pixel header, taskbar, navigator/table and form/preview crops and geometry measurements are retained under the issue evidence directory. Rejected inspection captures are excluded.'
+    ids: [administration-format-definitions-1440, administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840, administration-database-preview-1366, administration-database-preview-1440, administration-database-preview-1920, administration-database-preview-2560, administration-database-preview-3840, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840]
   - source_commit: 5de648936887422191b08ed227b5680015f16a22+issue262-owner-correction-worktree
     captured_at: '2026-08-24'
     command: 'Disposable current-worktree Compose project cmp-issue262-visual with the existing database and named volumes preserved; uv run --with playwright==1.62.0 --with pillow python scripts/capture_issue_262_fe07a_visual_evidence.py --base-url http://127.0.0.1:5173 at browser zoom 100% and DPR 1. The flow captures Search, Browse, selected Material Detail and Curves at all five required viewports, creates direct 100%-pixel crops, verifies query-error retention/retry, browser Back/Forward/Reload, Results return, exact Material/State handoff, direct Test Data and Processing Output hops, and an exact Solver Card hop through its peer root. Unsupported fixture links are recorded rather than inferred.'
@@ -2451,16 +2452,6 @@ capture_provenance:
     captured_at: '2026-08-21'
     command: 'Canonical current-worktree Compose with preserved PostgreSQL/object data and only the web image rebuilt for after capture; native Python Playwright 1.62 task-local resolved-mapping drill using scripts.capture_current_product helpers at browser zoom 100% and DPR 1. The journey preserves three exact DP780 Test Data refs and one current document through Data to Process to Data and reload; proves invalid mapping blocks preview, repairs the mapping, reaches Columns ready, verifies Update preview focus, then measures the actual rendered SVG, tick/title/frame collisions and page overflow at five CSS viewports. The accepted 1366 after original is promoted to the current Modeling Data capture; 1440 through 3840 remain issue evidence and their existing current images are unchanged. The seed base phase completed before the preserved-volume Issue #246 binding met an idempotency conflict; no reset, deletion or unchanged replay was performed.'
     ids: [modeling-data-1366]
-  - source_commit: ae93058d61f4a229addbcb746a50a86689639f6f+issue298-worktree
-    refrozen_base_commit: 5e6ebf5484d601f0487539dde8d579f4b03a4ee8
-    refrozen_source_equivalence: pass_same_route_state_input_apps_web_tree_and_issue289_evidence_hash
-    captured_at: 'before 2026-08-20T13:26:25+09:00 through 13:26:32+09:00; after 2026-08-20T13:36:32+09:00 through 13:36:39+09:00'
-    command: 'Two disposable current-worktree Compose projects with real PostgreSQL 16, API, repeat-stable seed and web; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:32790 or :32791 --output .artifacts/issue-298-frontend-guard-297-correction/<before|after>/originals --only-administration-database at browser zoom 100% and DPR 1. The after environment also passed the Administration Database workflow and button-semantics browser specs. Both projects were removed with their own containers, volumes, local images and network. The preserved cmp-local-demo volume identities and eight core counts were equal before and after; canonical preflight rejected its foreign issue-261-m1a6 owner without mutation.'
-    ids: [administration-database-preview-1366, administration-database-preview-1440, administration-database-preview-1920, administration-database-preview-2560, administration-database-preview-3840]
-  - source_commit: a20808bfa933a68abb25aae3c1553b5d21c6358c+issue289-worktree
-    captured_at: '2026-08-20T10:01:07+09:00 through 2026-08-20T10:01:14+09:00'
-    command: 'Latest-main integration verification on a disposable PostgreSQL 16 database with the real integrated API on 127.0.0.1:8019 and Vite on 127.0.0.1:5189; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5189 --output .artifacts/issue-289-integration-a20808bf/originals --only-administration-database at browser zoom 100% and DPR 1. Both live browser specs passed. Nine captures were byte-identical to the registered owner-approved originals; the 1366 preview differed only in five antialiased pixels with maximum one-channel delta 1 and no visible or layout change. The registered originals were retained. Canonical Compose remained rejected because the running cmp-local-demo project belongs to another preserved checkout; no foreign container or data was changed.'
-    ids: [administration-database-1366, administration-database-1440, administration-database-1920, administration-database-2560, administration-database-3840]
   - source_commit: 4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree
     captured_at: '2026-08-19T02:50:30+09:00 through 2026-08-19T07:00:20+09:00'
     command: 'Canonical current-source Compose with the existing database, object data and named volumes preserved and only web rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard with --only-modeling-data-session, --only-modeling-process-fit-viewports, --only-modeling-export and --only-modeling-consistency at browser zoom 100% and DPR 1. The final Data/session rerun additionally proves the optional comparison action uses the Modeling action color and Browser/Related data peer headers align while each list retains local scrolling. The exact consistency evidence proves one focused Data curve in the normal state, deliberate optional graph comparison that returns to one curve when closed, one saved Process input to Fit, exact Fit-to-Export preparation, stage round trips and no first-item/latest fallback.'
@@ -2480,7 +2471,7 @@ capture_provenance:
   - source_commit: 971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4
     captured_at: '2026-08-14T06:15:30Z'
     command: 'Dedicated PostgreSQL database with the real API, worker and Vite frontend; CMP_DEMO_WEB_URL=http://127.0.0.1:5176 node scripts/capture_issue246_live_evidence.mjs at browser zoom 100% and DPR 1. The flow verifies 3/9/3/1 published category counts, populated tensile/DMA/FLD engineering values, exact direct links, reload persistence, absence of a DMA-to-elastoplasticity relation and absence of normal-surface storage controls without mocked HTTP routes.'
-    ids: [material-database-categories-1440, material-database-linked-test-1440, administration-schema-bundle-1440]
+    ids: [material-database-categories-1440, material-database-linked-test-1440]
   - source_commit: f8fe6ef85d345837a6252b6ba8b3b706ccbe009f
     captured_at: '2026-08-13T07:28:59.684318+00:00'
     command: 'Canonical current-source Compose; uv run --with playwright==1.62.0 --with pillow --with pyyaml python scripts/capture_issue209_visual_evidence.py --base-url http://127.0.0.1:5173. The flow saves and reloads exact DMA and FLD Test Data with governed import pins, records deterministic whole-file rejection without a Test Data revision, retries corrected immutable inputs, proves review reachability, excludes Fit/Prony/IR handoff, and captures five 100%-zoom DPR-1 CSS viewports plus direct 100%-pixel crops.'
@@ -2496,7 +2487,7 @@ capture_provenance:
   - source_commit: 97f850acf454a8fb6d8caeb8cf5e9ccb5d413a16
     captured_at: '2026-08-11'
     command: 'Accepted #184 canonical Compose capture at Standard, browser zoom 100%, and DPR 1. The routes recaptured for #206 were reassigned to the #206 source record, the five current Process method/recovery images were later refreshed and reassigned to Issue #259 FE-04D provenance, the seven current Fit candidate/recovery images were later refreshed and reassigned to FE-04E provenance, and the seven current Export preview/recovery images were later refreshed and reassigned to FE-04F provenance.'
-    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-records-1366, administration-records-1440, administration-records-1920, administration-records-2560, administration-records-3840, administration-access-1366, administration-access-1440, administration-access-1920, administration-access-2560, administration-access-3840, administration-access-role-control-1366]
+    ids: [activity-1366, activity-1440, activity-1920, activity-2560, activity-3840, activity-history-1440, activity-history-1920, activity-history-2560, activity-history-3840, activity-user-1440, activity-administrator-1440, activity-decision-error-1440, activity-recovery-1440, administration-access-role-control-1366]
 previous_capture_provenance:
   - source_commit: 31f9a3f+task3b-worktree
     captured_at: 2026-08-06T10:35:08
@@ -3292,157 +3283,150 @@ captures:
     image: images/current/activity-recovery-1440x900.png
     width: 1440
     height: 900
-  - id: administration-schema-bundle-1440
+  - id: administration-format-definitions-1440
     route: /administration/schema-bundles
-    workflow: assemble-seven-file-source-set-and-inspect-server-owned-change-plan
-    fixture: unchanged bounded source-v2 manifest plus six referenced record schemas, yielding six intended Tables, five intended Link Types, two visible unit profiles and the exact ten-error Task 2 unit boundary
-    image: images/current/administration-schema-bundle-1440x900.png
+    workflow: assemble-source-and-inspect-format-definition-change-plan
+    fixture: canonical synthetic definition files resolved by the deterministic contract route into 13 server-owned changes with source checksum, immutable Artifact coordinates and exact plan fingerprint
+    image: images/current/administration-format-definitions-1440x900.png
     width: 1440
     height: 900
   - id: administration-database-1366
     route: /administration/database
     workflow: exact-identity-schema-design-and-draft-commands
-    fixture: deterministic demo Administrator using the real API; seven exact definition collections, Table-scoped dependent definitions, explicit draft lifecycle and server-authorized create/edit/duplicate/delete commands
+    fixture: deterministic demo Administrator using the real API; No database selected, independent Record type Revision 1, selected Material overview Layout Version 1, exact field revision pins and explicit Preview/Save actions
     image: images/current/administration-database-1366x768.png
     width: 1366
     height: 768
   - id: administration-database-1440
     route: /administration/database
     workflow: exact-identity-schema-design-and-draft-commands
-    fixture: deterministic demo Administrator using the real API; seven exact definition collections, Table-scoped dependent definitions, explicit draft lifecycle and server-authorized create/edit/duplicate/delete commands
+    fixture: deterministic demo Administrator using the real API; No database selected, independent Record type Revision 1, selected Material overview Layout Version 1, exact field revision pins and explicit Preview/Save actions
     image: images/current/administration-database-1440x900.png
     width: 1440
     height: 900
   - id: administration-database-1920
     route: /administration/database
     workflow: exact-identity-schema-design-and-draft-commands
-    fixture: deterministic demo Administrator using the real API; seven exact definition collections, Table-scoped dependent definitions, explicit draft lifecycle and server-authorized create/edit/duplicate/delete commands
+    fixture: deterministic demo Administrator using the real API; No database selected, independent Record type Revision 1, selected Material overview Layout Version 1, exact field revision pins and explicit Preview/Save actions
     image: images/current/administration-database-1920x1080.png
     width: 1920
     height: 1080
   - id: administration-database-2560
     route: /administration/database
     workflow: exact-identity-schema-design-and-draft-commands
-    fixture: deterministic demo Administrator using the real API; bounded definition navigator and property editor with the central object table using the remaining full-viewport workspace
+    fixture: deterministic demo Administrator using the real API; No database selected, independent exact Record type and selected Layout with bounded navigator/form and an elastic object list
     image: images/current/administration-database-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-database-3840
     route: /administration/database
     workflow: exact-identity-schema-design-and-draft-commands
-    fixture: deterministic demo Administrator using the real API; bounded definition navigator and property editor with the central object table using the remaining full-viewport workspace
+    fixture: deterministic demo Administrator using the real API; No database selected, independent exact Record type and selected Layout with bounded navigator/form and an elastic object list
     image: images/current/administration-database-3840x2160.png
     width: 3840
     height: 2160
   - id: administration-database-preview-1366
     route: /administration/database
     workflow: exact-record-datasheet-preview-replaces-editor
-    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout Revision 1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
     image: images/current/administration-database-preview-1366x768.png
     width: 1366
     height: 768
   - id: administration-database-preview-1440
     route: /administration/database
     workflow: exact-record-datasheet-preview-replaces-editor
-    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout Revision 1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
     image: images/current/administration-database-preview-1440x900.png
     width: 1440
     height: 900
   - id: administration-database-preview-1920
     route: /administration/database
-    workflow: exact-record-datasheet-preview-adjacent-to-editor
-    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    workflow: exact-record-datasheet-preview-replaces-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout Revision 1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
     image: images/current/administration-database-preview-1920x1080.png
     width: 1920
     height: 1080
   - id: administration-database-preview-2560
     route: /administration/database
-    workflow: exact-record-datasheet-preview-adjacent-to-editor
-    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    workflow: exact-record-datasheet-preview-replaces-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout Revision 1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
     image: images/current/administration-database-preview-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-database-preview-3840
     route: /administration/database
-    workflow: exact-record-datasheet-preview-adjacent-to-editor
-    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout r1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
+    workflow: exact-record-datasheet-preview-replaces-editor
+    fixture: real DP780 synthetic Material Record resolved from the selected exact Table; Layout Revision 1 and fourteen exact Attribute revision pins, with no invented first-item or latest fallback
     image: images/current/administration-database-preview-3840x2160.png
     width: 3840
     height: 2160
   - id: administration-records-1366
     route: /administration/records
-    workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; immutable CSV/TSV/XLSX source controls and field/unit/material-state mapping entry
+    workflow: search-dominant-results-and-exact-record-read-back
+    fixture: real DP780 synthetic Material Record Revision 2 opened after exact Database handoff; the narrow switching surface keeps Display layout, Import records and the sole filled Create record action available above the exact editor
     image: images/current/administration-records-1366x768.png
     width: 1366
     height: 768
   - id: administration-records-1440
     route: /administration/records
-    workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; immutable CSV/TSV/XLSX source controls and field/unit/material-state mapping entry
+    workflow: search-dominant-results-and-exact-record-read-back
+    fixture: real DP780 synthetic Material Record Revision 2 opened after exact Database handoff; the narrow switching surface keeps Display layout, Import records and the sole filled Create record action available above the exact editor
     image: images/current/administration-records-1440x900.png
     width: 1440
     height: 900
   - id: administration-records-1920
     route: /administration/records
-    workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; immutable CSV/TSV/XLSX source controls and field/unit/material-state mapping entry
+    workflow: search-dominant-results-and-exact-record-read-back
+    fixture: real DP780 synthetic Material Record Revision 2 in readable Name, Material code, Revision and Status columns beside the exact revision editor after create/revise and reload verification
     image: images/current/administration-records-1920x1080.png
     width: 1920
     height: 1080
   - id: administration-records-2560
     route: /administration/records
-    workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; full shell with an elastic semantic three-pane registration/search workgroup and bounded property form
+    workflow: search-dominant-results-and-exact-record-read-back
+    fixture: real DP780 synthetic Material Record Revision 2; elastic server-scoped Name, Material code, Revision and Status results remain dominant beside the bounded exact editor, without a third inspector or latest fallback
     image: images/current/administration-records-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-records-3840
     route: /administration/records
-    workflow: select-table-layout-and-open-checked-multiple-row-registration
-    fixture: deterministic demo Administrator; full shell with an elastic semantic three-pane registration/search workgroup and bounded property form
+    workflow: search-dominant-results-and-exact-record-read-back
+    fixture: real DP780 synthetic Material Record Revision 2; elastic server-scoped Name, Material code, Revision and Status results remain dominant beside the bounded exact editor, without a third inspector or latest fallback
     image: images/current/administration-records-3840x2160.png
     width: 3840
     height: 2160
   - id: administration-access-1366
     route: /administration/access
-    workflow: user-reviewer-administrator-task-preset-assignment
-    fixture: deterministic demo Administrator viewing the Reviewer preset; technical feature checkbox editing is absent
+    workflow: inspect-active-access-and-grant-remove-exact-assignment
+    fixture: deterministic demo Administrator viewing actual assignments as Member, Role, server-derived Permissions and row-level Remove access
     image: images/current/administration-access-1366x768.png
-    width: 1366
-    height: 768
-  - id: administration-access-role-control-1366
-    route: /administration/access
-    workflow: role-control-popup-keyboard-selection-and-focus
-    fixture: deterministic demo Administrator opens the role preset control and retains the current selection without clipping
-    image: images/current/administration-access-role-control-1366x768.png
     width: 1366
     height: 768
   - id: administration-access-1440
     route: /administration/access
-    workflow: user-reviewer-administrator-task-preset-assignment
-    fixture: deterministic demo Administrator viewing the Reviewer preset; technical feature checkbox editing is absent
+    workflow: inspect-active-access-and-grant-remove-exact-assignment
+    fixture: deterministic demo Administrator viewing actual assignments as Member, Role, server-derived Permissions and row-level Remove access
     image: images/current/administration-access-1440x900.png
     width: 1440
     height: 900
   - id: administration-access-1920
     route: /administration/access
-    workflow: user-reviewer-administrator-task-preset-assignment
-    fixture: deterministic demo Administrator viewing the Reviewer preset; shared blue primary assignment action and semantic access controls
+    workflow: inspect-active-access-and-grant-remove-exact-assignment
+    fixture: deterministic demo Administrator viewing actual assignments as Member, Role, server-derived Permissions and row-level Remove access
     image: images/current/administration-access-1920x1080.png
     width: 1920
     height: 1080
   - id: administration-access-2560
     route: /administration/access
-    workflow: user-reviewer-administrator-task-preset-assignment
-    fixture: deterministic demo Administrator viewing the Reviewer preset; shared blue primary assignment action and danger-colored Revoke controls
+    workflow: inspect-active-access-and-grant-remove-exact-assignment
+    fixture: deterministic demo Administrator viewing actual assignments as Member, Role, server-derived Permissions and row-level Remove access
     image: images/current/administration-access-2560x1440.png
     width: 2560
     height: 1440
   - id: administration-access-3840
     route: /administration/access
-    workflow: user-reviewer-administrator-task-preset-assignment
-    fixture: deterministic demo Administrator viewing the Reviewer preset; shared blue primary assignment action and danger-colored Revoke controls
+    workflow: inspect-active-access-and-grant-remove-exact-assignment
+    fixture: deterministic demo Administrator viewing actual assignments as Member, Role, server-derived Permissions and row-level Remove access
     image: images/current/administration-access-3840x2160.png
     width: 3840
     height: 2160

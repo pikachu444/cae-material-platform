@@ -69,6 +69,40 @@ def test_make_and_bash_are_thin_wrappers_for_the_same_cli() -> None:
     assert "/tmp" not in script
 
 
+def test_command_runner_resolves_windows_command_shims_from_the_task_environment(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        tasks.shutil,
+        "which",
+        lambda command, *, path: "C:\\pinned-node\\npm.cmd"
+        if command == "npm" and path == "C:\\pinned-node"
+        else None,
+    )
+
+    class FakeProcess:
+        pass
+
+    def popen(argv: Sequence[str], **kwargs: object) -> FakeProcess:
+        observed["argv"] = tuple(argv)
+        observed["kwargs"] = kwargs
+        return FakeProcess()
+
+    monkeypatch.setattr(tasks.subprocess, "Popen", popen)
+
+    tasks._popen(
+        ("npm", "ci"),
+        cwd=ROOT,
+        environment={"PATH": "C:\\pinned-node"},
+        capture=False,
+    )
+
+    assert observed["argv"] == ("C:\\pinned-node\\npm.cmd", "ci")
+    assert cast(dict[str, object], observed["kwargs"])["shell"] is False
+
+
 def test_linux_and_windows_workflows_bootstrap_exact_tools_and_share_the_cli() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     windows = workflow.split("  windows-host-ci:", maxsplit=1)[1]

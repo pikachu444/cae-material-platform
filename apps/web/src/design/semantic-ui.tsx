@@ -1,6 +1,7 @@
 import {
   Fragment,
   createElement,
+  forwardRef,
   isValidElement,
   type HTMLAttributes,
   type ReactNode,
@@ -212,22 +213,23 @@ export interface EngineeringPaneProps
   label: string;
 }
 
-export function EngineeringPane({
-  label,
-  className,
-  children,
-  ...attributes
-}: EngineeringPaneProps) {
-  return (
-    <section
-      {...attributes}
-      className={classes("ux-engineering-pane", className)}
-      aria-label={requireVisibleLabel(label, "EngineeringPane")}
-    >
-      {children}
-    </section>
-  );
-}
+export const EngineeringPane = forwardRef<HTMLElement, EngineeringPaneProps>(
+  function EngineeringPane(
+    { label, className, children, ...attributes },
+    ref,
+  ) {
+    return (
+      <section
+        {...attributes}
+        ref={ref}
+        className={classes("ux-engineering-pane", className)}
+        aria-label={requireVisibleLabel(label, "EngineeringPane")}
+      >
+        {children}
+      </section>
+    );
+  },
+);
 
 export interface EngineeringSectionProps
   extends Omit<HTMLAttributes<HTMLElement>, "aria-label"> {

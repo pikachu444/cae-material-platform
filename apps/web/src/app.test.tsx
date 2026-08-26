@@ -583,14 +583,63 @@ describe("Material Catalog workbench", () => {
 
   it("opens task-oriented Administration without infrastructure or policy vocabulary", async () => {
     window.history.pushState({}, "", "/administration");
-    mockProductFetch(() => jsonResponse({}));
+    mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith("/product-access/me")) {
+        return jsonResponse({ feature_grants: ["schema_configuration"] });
+      }
+      if (
+        url.endsWith("/catalog/tables")
+        || url.endsWith("/catalog/databases")
+        || url.endsWith("/catalog/link-types")
+      ) {
+        return jsonResponse({ items: [] });
+      }
+      return jsonResponse({});
+    });
 
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Configure the material workspace" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Design the database/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Manage access/ })).toBeTruthy();
+    const primary = await screen.findByRole("navigation", { name: "Primary navigation" });
+    expect(within(primary).getByRole("button", { name: "Materials" })).toBeTruthy();
+    expect(within(primary).getByRole("button", { name: "Modeling" })).toBeTruthy();
+    expect(within(primary).getByRole("button", { name: "Activity" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Administration" })).toBeNull();
+    const tasks = await screen.findByRole("navigation", { name: "Administration tasks" });
+    expect(within(tasks).getByRole("button", { name: "Database" }).getAttribute("aria-current")).toBe("page");
+    expect(within(tasks).getByRole("button", { name: "Format definitions" })).toBeTruthy();
+    expect(within(tasks).getByRole("button", { name: "Records" })).toBeTruthy();
+    expect(within(tasks).getByRole("button", { name: "Access" })).toBeTruthy();
+    expect(within(tasks).queryByRole("button", { name: "Overview" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open Materials" })).toBeNull();
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS|principal ID|group issuer/i);
+  });
+
+  it("preserves an exact revision query on the legacy Records Administration route", async () => {
+    const query = "?table_id=table-1&record_id=record-1&revision_id=revision-3";
+    window.history.pushState({}, "", `/catalog/records${query}`);
+    mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith("/product-access/me")) {
+        return jsonResponse({ feature_grants: ["catalog_editing"] });
+      }
+      if (url.endsWith("/catalog/tables")) {
+        return jsonResponse({ items: [] });
+      }
+      return jsonResponse({ items: [] });
+    });
+
+    render(<App />);
+
+    const primary = await screen.findByRole("navigation", { name: "Primary navigation" });
+    expect(within(primary).getByRole("button", { name: "Materials" })).toBeTruthy();
+    expect(within(primary).getByRole("button", { name: "Modeling" })).toBeTruthy();
+    expect(within(primary).getByRole("button", { name: "Activity" })).toBeTruthy();
+    expect(screen.queryByRole("region", { name: "Materials commands" })).toBeNull();
+    const tasks = await screen.findByRole("navigation", { name: "Administration tasks" });
+    expect(within(tasks).getByRole("button", { name: "Records" }).getAttribute("aria-current")).toBe("page");
+    expect(within(tasks).getAllByRole("button")).toHaveLength(4);
+    expect(window.location.search).toBe(query);
   });
 
   it("opens a connected Tests hub that routes work through a Material context", async () => {
