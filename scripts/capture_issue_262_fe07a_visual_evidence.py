@@ -207,9 +207,9 @@ def _settle(page: Page) -> None:
         CAPTURE["_wait_for_settled"](page)
         page.wait_for_timeout(250)
     CAPTURE["_wait_for_settled"](page)
-    page.locator("footer[role='status']").filter(
-        has_not_text="Loading materials"
-    ).wait_for(timeout=30_000)
+    page.locator("footer[role='status']").filter(has_not_text="Loading materials").wait_for(
+        timeout=30_000
+    )
     visible_alerts = [
         page.get_by_role("alert").nth(index).inner_text()
         for index in range(page.get_by_role("alert").count())
@@ -234,12 +234,10 @@ def _open_search(page: Page) -> None:
     query = page.get_by_role("textbox", name="Search materials")
     query.wait_for(timeout=30_000)
     query.fill("DP780")
-    page.locator(".materials-search-form").get_by_role(
-        "button", name="Find", exact=True
-    ).click()
-    row = page.locator('table[aria-label="Material results"] tbody tr').filter(
-        has_text="DP780"
-    ).first
+    page.locator(".materials-search-form").get_by_role("button", name="Find", exact=True).click()
+    row = (
+        page.locator('table[aria-label="Material results"] tbody tr').filter(has_text="DP780").first
+    )
     row.wait_for(timeout=30_000)
     page.wait_for_url(lambda url: "q=DP780" in url and "selected=" in url, timeout=30_000)
     _settle(page)
@@ -250,12 +248,10 @@ def _open_detail(page: Page) -> None:
         has_text="DP780"
     ).first.click()
     page.locator(".material-detail-shell").wait_for(timeout=30_000)
-    page.get_by_role(
-        "heading", name="DP780 synthetic reference steel", exact=True
-    ).wait_for(timeout=30_000)
-    page.get_by_role("heading", name="Available solver cards", exact=True).wait_for(
+    page.get_by_role("heading", name="DP780 synthetic reference steel", exact=True).wait_for(
         timeout=30_000
     )
+    page.get_by_role("heading", name="Available solver cards", exact=True).wait_for(timeout=30_000)
     page.get_by_label("Related data").wait_for(timeout=30_000)
     page.wait_for_function(
         r"""() => ![...document.querySelectorAll('.materials-left-pane *')]
@@ -417,13 +413,21 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
     ):
         if required not in point_text:
             raise EvidenceError(f"Exact Test Data point values are missing {required!r}")
-    if not page.get_by_role("button", name="Download exact Test Data JSON", exact=True).is_visible():
+    if not page.get_by_role(
+        "button", name="Download exact Test Data JSON", exact=True
+    ).is_visible():
         raise EvidenceError("Exact Test Data JSON download is not visible")
     if page.get_by_role("button", name="Download CSV", exact=True).count():
         raise EvidenceError("Layout summary CSV is mislabeled as the exact measurements")
     points_box = exact_points.bounding_box()
-    if not points_box or points_box["y"] >= height or points_box["y"] + min(points_box["height"], 140) > height:
-        raise EvidenceError(f"Exact Test Data values are not recognizable without page scrolling: {points_box}")
+    if (
+        not points_box
+        or points_box["y"] >= height
+        or points_box["y"] + min(points_box["height"], 140) > height
+    ):
+        raise EvidenceError(
+            f"Exact Test Data values are not recognizable without page scrolling: {points_box}"
+        )
     _screenshot(page, after / "material-test-data-1920x1080.png", width, height)
 
     page.locator(".exact-record-datasheet .related-record-list button").filter(
@@ -454,9 +458,7 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
     )
     solver_record.wait_for(timeout=30_000)
     solver_record.dblclick()
-    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(timeout=30_000)
     page.get_by_label("Native solver card preview").wait_for(timeout=30_000)
     page.get_by_text("Abaqus 2025", exact=True).wait_for(timeout=30_000)
     _settle(page)
@@ -468,30 +470,34 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
         raise EvidenceError("Solver Card retains the rejected Evidence terminology")
     if page.locator(".status-selection").inner_text().strip() != "Solver Card":
         raise EvidenceError("Solver Card status bar retains the record description")
-    preview_shell = page.locator(
-        ".exact-solver-card-delivery > .preview-scroll-shell"
-    )
-    collapsed_height = preview_shell.evaluate(
-        "element => element.getBoundingClientRect().height"
-    )
+    preview_shell = page.locator(".exact-solver-card-delivery > .preview-scroll-shell")
+    collapsed_height = preview_shell.evaluate("element => element.getBoundingClientRect().height")
     page.get_by_role("button", name="Expand preview", exact=True).click()
     page.get_by_role("button", name="Collapse preview", exact=True).wait_for()
     page.wait_for_function(
-        "({ selector, height }) => document.querySelector(selector)?.getBoundingClientRect().height > height + 80",
-        arg={"selector": ".exact-solver-card-delivery > .preview-scroll-shell", "height": collapsed_height},
+        (
+            "({ selector, height }) => "
+            "document.querySelector(selector)?.getBoundingClientRect().height > height + 80"
+        ),
+        arg={
+            "selector": ".exact-solver-card-delivery > .preview-scroll-shell",
+            "height": collapsed_height,
+        },
     )
-    expanded_height = preview_shell.evaluate(
-        "element => element.getBoundingClientRect().height"
-    )
+    expanded_height = preview_shell.evaluate("element => element.getBoundingClientRect().height")
     page.get_by_role("button", name="Collapse preview", exact=True).click()
     page.get_by_role("button", name="Expand preview", exact=True).wait_for()
     page.wait_for_function(
-        "({ selector, height }) => Math.abs((document.querySelector(selector)?.getBoundingClientRect().height ?? 0) - height) < 2",
-        arg={"selector": ".exact-solver-card-delivery > .preview-scroll-shell", "height": collapsed_height},
+        (
+            "({ selector, height }) => Math.abs((document.querySelector(selector)"
+            "?.getBoundingClientRect().height ?? 0) - height) < 2"
+        ),
+        arg={
+            "selector": ".exact-solver-card-delivery > .preview-scroll-shell",
+            "height": collapsed_height,
+        },
     )
-    restored_height = preview_shell.evaluate(
-        "element => element.getBoundingClientRect().height"
-    )
+    restored_height = preview_shell.evaluate("element => element.getBoundingClientRect().height")
     if expanded_height <= collapsed_height or abs(restored_height - collapsed_height) >= 2:
         raise EvidenceError(
             "Solver Card preview expand/collapse geometry did not increase and restore"
@@ -505,16 +511,12 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
     if page.get_by_role("heading", name="Curves", exact=True).count():
         raise EvidenceError("Curves retains the redundant standalone heading")
     page.get_by_text("Measured tensile curve", exact=True).first.wait_for(timeout=30_000)
-    page.get_by_text(
-        "Repeated-test average and variation", exact=True
-    ).first.wait_for(timeout=30_000)
-    page.get_by_role("heading", name="Measured tensile curve", exact=True).wait_for(
+    page.get_by_text("Repeated-test average and variation", exact=True).first.wait_for(
         timeout=30_000
     )
+    page.get_by_role("heading", name="Measured tensile curve", exact=True).wait_for(timeout=30_000)
     modeling_inputs = page.get_by_role("table", name="Modeling inputs")
-    modeling_inputs.get_by_text("Measured test input", exact=True).first.wait_for(
-        timeout=30_000
-    )
+    modeling_inputs.get_by_text("Measured test input", exact=True).first.wait_for(timeout=30_000)
     if modeling_inputs.get_by_text("Observed input", exact=True).count():
         raise EvidenceError("Curves retains the internal observed-input presentation label")
     selection_box = page.locator(".material-curve-selection").bounding_box()
@@ -526,19 +528,27 @@ def _capture_owner_report(browser: Browser, base_url: str) -> dict[str, Any]:
         or selection_box["x"] + selection_box["width"] > main_box["x"] + 1
     ):
         raise EvidenceError(
-            f"Curve selection and selected graph are not one continuous region: {selection_box} {main_box}"
+            f"Curve selection and selected graph are not one continuous region: "
+            f"{selection_box} {main_box}"
         )
     if page.locator(".material-detail-header .material-detail-meta").count():
         raise EvidenceError("Curves header retains Code/material-family helper metadata")
     if page.get_by_text("No deviation recorded", exact=True).count():
         raise EvidenceError("Curves retains the empty deviation helper")
     summaries = page.locator("details.curve-evidence > summary")
-    if set(text.strip() for text in summaries.all_inner_texts()) != {"Curve source and technical details"}:
+    if set(text.strip() for text in summaries.all_inner_texts()) != {
+        "Curve source and technical details"
+    }:
         raise EvidenceError("Curves technical disclosure label drifted")
     if page.locator(".curve-channel-summary").first.is_visible():
-        raise EvidenceError("Curves exposes original/normalized/display unit metadata above the graph")
+        raise EvidenceError(
+            "Curves exposes original/normalized/display unit metadata above the graph"
+        )
     curve_status = page.locator(".status-selection").inner_text().strip()
-    if "synthetic reference" in curve_status.lower() or "selected voce result" in curve_status.lower():
+    if (
+        "synthetic reference" in curve_status.lower()
+        or "selected voce result" in curve_status.lower()
+    ):
         raise EvidenceError("Curves status bar retains the record description")
     _screenshot(page, after / "material-curves-1920x1080.png", width, height)
     if errors:
@@ -561,12 +571,10 @@ def _capture_consistency_matrix(
 ) -> list[dict[str, Any]]:
     target = CONSISTENCY / phase / "originals"
     measurements: list[dict[str, Any]] = []
-    expected_curve_summary = "Evidence" if phase == "before" else "Curve source and technical details"
-    expected_source_heading = (
-        "Lineage and evidence"
-        if phase == "before"
-        else "Linked records"
+    expected_curve_summary = (
+        "Evidence" if phase == "before" else "Curve source and technical details"
     )
+    expected_source_heading = "Lineage and evidence" if phase == "before" else "Linked records"
     helper = (
         "Follow related records and the exact material workflow; open technical "
         "identifiers only when needed."
@@ -587,31 +595,25 @@ def _capture_consistency_matrix(
         summaries.first.wait_for(timeout=30_000)
         summary_texts = [text.strip() for text in summaries.all_inner_texts()]
         if not summary_texts or set(summary_texts) != {expected_curve_summary}:
-            raise EvidenceError(
-                f"curve source summary drifted in {phase}: {summary_texts}"
-            )
+            raise EvidenceError(f"curve source summary drifted in {phase}: {summary_texts}")
         measurements.append(_measure(page, "material-curves", width, height))
         _screenshot(page, target / f"material-curves-{suffix}.png", width, height)
 
         source_history = page.get_by_role("tab", name="Source & history", exact=True)
         source_history.click()
         page.wait_for_url(lambda url: "/evidence" in url, timeout=30_000)
-        page.get_by_role(
-            "heading", name=expected_source_heading, exact=True
-        ).wait_for(timeout=30_000)
+        page.get_by_role("heading", name=expected_source_heading, exact=True).wait_for(
+            timeout=30_000
+        )
         _settle(page)
         if source_history.get_attribute("aria-selected") != "true":
             raise EvidenceError(f"Source & history is not active in {phase}")
         helper_count = page.get_by_text(helper, exact=True).count()
-        if (phase == "before" and helper_count != 1) or (
-            phase == "after" and helper_count != 0
-        ):
+        if (phase == "before" and helper_count != 1) or (phase == "after" and helper_count != 0):
             raise EvidenceError(
                 f"Source & history helper-copy state drifted in {phase}: {helper_count}"
             )
-        measurements.append(
-            _measure(page, "material-source-history", width, height)
-        )
+        measurements.append(_measure(page, "material-source-history", width, height))
         _screenshot(
             page,
             target / f"material-source-history-{suffix}.png",
@@ -643,9 +645,11 @@ def _capture_bounded_matrix(
         headers = [value.strip() for value in browse_table.locator("th").all_inner_texts()]
         if headers != ["Name", "Material code", "Category", "Description", "Revision"]:
             raise EvidenceError(f"Browse result columns drifted: {headers}")
-        dp780 = browse_table.locator("tbody tr").filter(
-            has_text="DP780 synthetic reference steel"
-        ).first
+        dp780 = (
+            browse_table.locator("tbody tr")
+            .filter(has_text="DP780 synthetic reference steel")
+            .first
+        )
         dp780.wait_for(timeout=30_000)
         cells = [value.strip() for value in dp780.locator("td").all_inner_texts()]
         if cells[0] != "DP780 synthetic reference steel" or cells[1] != "CMP-DEMO-DP780":
@@ -674,7 +678,9 @@ def _capture_bounded_matrix(
                 raise EvidenceError(f"redundant Curves copy remains: {removed}")
         summaries = page.locator("details.curve-evidence > summary")
         summaries.first.wait_for(timeout=30_000)
-        if set(text.strip() for text in summaries.all_inner_texts()) != {"Curve source and technical details"}:
+        if set(text.strip() for text in summaries.all_inner_texts()) != {
+            "Curve source and technical details"
+        }:
             raise EvidenceError("collapsed Curve source disclosure drifted")
         measurements.append(_measure(page, "material-curves", width, height))
         _screenshot(page, target / f"material-curves-{suffix}.png", width, height)
@@ -682,14 +688,10 @@ def _capture_bounded_matrix(
         source_history = page.get_by_role("tab", name="Source & history", exact=True)
         source_history.click()
         page.wait_for_url(lambda url: "/evidence" in url, timeout=30_000)
-        page.get_by_role("heading", name="Linked records", exact=True).wait_for(
-            timeout=30_000
-        )
+        page.get_by_role("heading", name="Linked records", exact=True).wait_for(timeout=30_000)
         _settle(page)
         linked_records = page.locator(".evidence-overview")
-        linked_headers = [
-            value.strip() for value in linked_records.locator("th").all_inner_texts()
-        ]
+        linked_headers = [value.strip() for value in linked_records.locator("th").all_inner_texts()]
         if linked_headers != ["Relation", "Target record", "Type", "Exact revision"]:
             raise EvidenceError(f"Linked records columns drifted: {linked_headers}")
         if linked_records.locator("tbody tr").count() == 0:
@@ -697,9 +699,7 @@ def _capture_bounded_matrix(
         lineage = page.locator("details.full-lineage")
         if lineage.count() != 1 or lineage.get_attribute("open") is not None:
             raise EvidenceError("Full lineage is missing or not collapsed by default")
-        measurements.append(
-            _measure(page, "material-source-history", width, height)
-        )
+        measurements.append(_measure(page, "material-source-history", width, height))
         _screenshot(
             page,
             target / f"material-source-history-{suffix}.png",
@@ -707,9 +707,7 @@ def _capture_bounded_matrix(
             height,
         )
         if errors:
-            raise EvidenceError(
-                f"browser page errors in bounded capture at {suffix}: {errors}"
-            )
+            raise EvidenceError(f"browser page errors in bounded capture at {suffix}: {errors}")
         page.context.close()
     return measurements
 
@@ -721,15 +719,11 @@ def _open_simulation_output(page: Page, base_url: str) -> None:
     page.get_by_label("Related data").locator(".related-record-list button").filter(
         has_text="23 °C · 0.0067"
     ).first.click()
-    page.get_by_role("heading", name="Test Data", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Test Data", exact=True).wait_for(timeout=30_000)
     page.locator(".exact-record-datasheet .related-record-list button").filter(
         has_text="selected Voce"
     ).first.click()
-    page.get_by_role("heading", name="Simulation Data", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Simulation Data", exact=True).wait_for(timeout=30_000)
     _assert_processing_output_detail(page)
     _settle(page)
 
@@ -806,9 +800,7 @@ def _capture_simulation_matrix(
         measurements.append(_measure(page, "material-curves", width, height))
         _screenshot(page, target / f"material-curves-{suffix}.png", width, height)
         if errors:
-            raise EvidenceError(
-                f"browser page errors in Simulation Data at {suffix}: {errors}"
-            )
+            raise EvidenceError(f"browser page errors in Simulation Data at {suffix}: {errors}")
         page.context.close()
     return measurements
 
@@ -826,14 +818,12 @@ def _capture_recovery(browser: Browser, base_url: str) -> dict[str, Any]:
     page.route("**/catalog/records:search", fail_query)
     query = page.get_by_role("textbox", name="Search materials")
     query.fill("DP780 recovery check")
-    page.locator(".materials-search-form").get_by_role(
-        "button", name="Find", exact=True
-    ).click()
+    page.locator(".materials-search-form").get_by_role("button", name="Find", exact=True).click()
     alert = page.get_by_role("alert")
     alert.wait_for(timeout=30_000)
-    retained = page.locator('table[aria-label="Material results"] tbody tr').filter(
-        has_text="DP780"
-    ).first
+    retained = (
+        page.locator('table[aria-label="Material results"] tbody tr').filter(has_text="DP780").first
+    )
     retained.wait_for(timeout=30_000)
     if retained.get_attribute("aria-selected") != "true":
         raise EvidenceError("failed query did not retain exact selection")
@@ -891,9 +881,7 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
 
     query = page.get_by_role("textbox", name="Search materials")
     query.fill("CMP-DEMO-DP780")
-    page.locator(".materials-search-form").get_by_role(
-        "button", name="Find", exact=True
-    ).click()
+    page.locator(".materials-search-form").get_by_role("button", name="Find", exact=True).click()
     row = result_table.locator("tbody tr").filter(has_text="CMP-DEMO-DP780").first
     row.wait_for(timeout=30_000)
     page.wait_for_url(lambda url: "q=CMP-DEMO-DP780" in str(url), timeout=30_000)
@@ -905,9 +893,9 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     if not required.issubset(exact_params):
         raise EvidenceError(f"exact detail pins are incomplete: {exact_params}")
     page.reload()
-    page.get_by_role(
-        "heading", name="DP780 synthetic reference steel", exact=True
-    ).wait_for(timeout=30_000)
+    page.get_by_role("heading", name="DP780 synthetic reference steel", exact=True).wait_for(
+        timeout=30_000
+    )
     _settle(page)
     if page.url != exact_url:
         raise EvidenceError(f"exact detail URL drifted after reload: {page.url}")
@@ -915,9 +903,10 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
         raise EvidenceError("Source & history tab label is missing")
     if page.get_by_role("tab", name="Evidence", exact=True).count():
         raise EvidenceError("legacy Evidence tab label remains visible")
-    if "not validated for engineering use" in page.locator(
-        ".material-detail-header"
-    ).inner_text().lower():
+    if (
+        "not validated for engineering use"
+        in page.locator(".material-detail-header").inner_text().lower()
+    ):
         raise EvidenceError("demo provenance warning remains in Material Detail header")
     property_text = page.locator(".overview-property-list").inner_text()
     condition_text = page.locator(".condition-summary").inner_text()
@@ -950,9 +939,11 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     ]
     if material_groups != ["Test Data 6"]:
         raise EvidenceError(f"unexpected direct Material links: {material_groups}")
-    direct_test = material_related.locator(".related-record-list button").filter(
-        has_text="23 °C · 0.0067"
-    ).first
+    direct_test = (
+        material_related.locator(".related-record-list button")
+        .filter(has_text="23 °C · 0.0067")
+        .first
+    )
     direct_test.click()
     page.get_by_role(
         "heading",
@@ -975,9 +966,11 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     direct_test_modeling_available = bool(
         page.get_by_role("button", name="Open in Modeling", exact=True).count()
     )
-    simulation = page.locator(".exact-record-datasheet .related-record-list button").filter(
-        has_text="selected Voce"
-    ).first
+    simulation = (
+        page.locator(".exact-record-datasheet .related-record-list button")
+        .filter(has_text="selected Voce")
+        .first
+    )
     if "Processing Output" not in simulation.inner_text():
         raise EvidenceError("Simulation Data does not show its Processing Output subtype")
     simulation.click()
@@ -990,7 +983,7 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     simulation_url = page.url
     simulation_text = page.locator(".exact-record-datasheet").inner_text()
     for required_text in (
-        "True stress–plastic strain result",
+        "True stress\N{EN DASH}plastic strain result",
         "Swift + Voce 50/50",
         "Fitted parameters",
         "Fit metric",
@@ -1045,9 +1038,9 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
         exact=True,
     ).wait_for(timeout=30_000)
     page.go_back()
-    page.get_by_role(
-        "heading", name="DP780 synthetic reference steel", exact=True
-    ).wait_for(timeout=30_000)
+    page.get_by_role("heading", name="DP780 synthetic reference steel", exact=True).wait_for(
+        timeout=30_000
+    )
     _settle(page)
     if page.url != exact_url:
         raise EvidenceError(f"Material context drifted after exact direct hops: {page.url}")
@@ -1064,19 +1057,14 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     start = page.get_by_role("button", name="Start Modeling", exact=True)
     start.click()
     page.wait_for_url(lambda url: "/modeling" in str(url), timeout=30_000)
-    page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(timeout=30_000)
     session = page.evaluate(
         "JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || 'null')"
     )
-    modeling_params = page.evaluate(
-        "Object.fromEntries(new URL(location.href).searchParams)"
-    )
+    modeling_params = page.evaluate("Object.fromEntries(new URL(location.href).searchParams)")
     if (
         not session
-        or session.get("material", {}).get("revisionId")
-        != exact_params["material_revision_id"]
+        or session.get("material", {}).get("revisionId") != exact_params["material_revision_id"]
         or not session.get("materialState", {}).get("revisionId")
         or session.get("contextSelectionRequired") is not False
     ):
@@ -1096,35 +1084,28 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
         )
     modeling_url = page.url
     page.reload()
-    page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(timeout=30_000)
     restored_session = page.evaluate(
         "JSON.parse(sessionStorage.getItem('cmp.modeling.recent-session.v4') || 'null')"
     )
     if (
         not restored_session
-        or restored_session.get("material", {}).get("id")
-        != session["material"]["id"]
+        or restored_session.get("material", {}).get("id") != session["material"]["id"]
         or restored_session.get("material", {}).get("revisionId")
         != session["material"]["revisionId"]
-        or restored_session.get("materialState", {}).get("id")
-        != session["materialState"]["id"]
+        or restored_session.get("materialState", {}).get("id") != session["materialState"]["id"]
         or restored_session.get("materialState", {}).get("revisionId")
         != session["materialState"]["revisionId"]
         or restored_session.get("contextSelectionRequired") is not False
         or page.url != modeling_url
     ):
         raise EvidenceError(
-            "Modeling reload did not preserve exact Material and State context: "
-            f"{restored_session}"
+            f"Modeling reload did not preserve exact Material and State context: {restored_session}"
         )
     page.go_back()
     page.get_by_role("heading", name="Available curves", exact=True).wait_for(timeout=30_000)
     page.get_by_role("tab", name="Overview", exact=True).click()
-    page.get_by_role("heading", name="Available solver cards", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Available solver cards", exact=True).wait_for(timeout=30_000)
     _settle(page)
 
     page.get_by_role("treeitem", name="Solver Cards", exact=True).click()
@@ -1135,12 +1116,8 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     )
     solver_record.wait_for(timeout=30_000)
     solver_record.dblclick()
-    page.get_by_role("heading", name="Solver Card", exact=True).wait_for(
-        timeout=30_000
-    )
-    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Solver Card", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(timeout=30_000)
     page.get_by_text("Abaqus 2025", exact=True).wait_for(timeout=30_000)
     _settle(page)
     solver_url = page.url
@@ -1178,21 +1155,17 @@ def _verify_continuity(browser: Browser, base_url: str) -> dict[str, Any]:
     if download.is_disabled():
         raise EvidenceError("reviewed Solver Card download did not become available")
     page.reload()
-    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(
-        timeout=30_000
-    )
+    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(timeout=30_000)
     page.get_by_text("Abaqus 2025", exact=True).wait_for(timeout=30_000)
     _settle(page)
     if page.url != solver_url:
         raise EvidenceError("Solver Card exact URL drifted after reload")
     page.go_back()
-    page.get_by_role(
-        "heading", name="DP780 synthetic reference steel", exact=True
-    ).wait_for(timeout=30_000)
-    page.go_forward()
-    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(
+    page.get_by_role("heading", name="DP780 synthetic reference steel", exact=True).wait_for(
         timeout=30_000
     )
+    page.go_forward()
+    page.get_by_role("heading", name="Solver Card details", exact=True).wait_for(timeout=30_000)
 
     page.get_by_role("button", name="Results", exact=True).click()
     page.wait_for_url(
@@ -1251,7 +1224,7 @@ def _assert_processing_output_detail(page: Page) -> None:
     detail.wait_for(timeout=30_000)
     text = detail.inner_text()
     for required in (
-        "True stress–plastic strain result",
+        "True stress\N{EN DASH}plastic strain result",
         "Selected model",
         "Swift + Voce 50/50",
         "Fitted parameters",
@@ -1263,9 +1236,11 @@ def _assert_processing_output_detail(page: Page) -> None:
     ):
         if required not in text:
             raise EvidenceError(f"Processing Output detail is missing {required!r}")
-    normal = "\n".join(page.locator(
-        ".exact-record-header, .processing-output-detail, .exact-record-related"
-    ).all_inner_texts())
+    normal = "\n".join(
+        page.locator(
+            ".exact-record-header, .processing-output-detail, .exact-record-related"
+        ).all_inner_texts()
+    )
     for forbidden in (
         "synthetic reference",
         "Test setup",
@@ -1278,18 +1253,21 @@ def _assert_processing_output_detail(page: Page) -> None:
         "Relative rmse 0.9274 %",
     ):
         if forbidden.lower() in normal.lower():
-            raise EvidenceError(
-                f"Processing Output normal surface retains {forbidden!r}"
-            )
+            raise EvidenceError(f"Processing Output normal surface retains {forbidden!r}")
     linked = page.locator(".exact-record-related")
-    if "Linked records" not in linked.inner_text() or "CMP-246-TENSILE-ROOM" not in linked.inner_text():
+    if (
+        "Linked records" not in linked.inner_text()
+        or "CMP-246-TENSILE-ROOM" not in linked.inner_text()
+    ):
         raise EvidenceError("Processing Output direct exact source identity is missing")
     evidence = page.get_by_text("Revision history and technical details", exact=True).locator("..")
     if evidence.evaluate("element => element.open"):
         raise EvidenceError("Processing Output technical details are open by default")
     technical_text = evidence.text_content() or ""
     if "Processing stages" not in technical_text or "0.9274 %" not in technical_text:
-        raise EvidenceError("Processing stages or candidate RMSE are missing from collapsed technical details")
+        raise EvidenceError(
+            "Processing stages or candidate RMSE are missing from collapsed technical details"
+        )
     plot = page.locator(".processing-output-chart")
     box = plot.bounding_box()
     if not box or box["width"] < 520 or box["height"] < 300:
@@ -1345,10 +1323,7 @@ def _write_consistency_crops() -> None:
                             f"consistency original size drift: {source} {image.size}"
                         )
                     for region in regions:
-                        target = (
-                            crops
-                            / f"{state}-{_viewport(width, height)}-{region}-100pct.png"
-                        )
+                        target = crops / f"{state}-{_viewport(width, height)}-{region}-100pct.png"
                         image.crop(_crop_box(region, width, height)).save(target)
 
 
@@ -1364,14 +1339,9 @@ def _write_bounded_crops() -> None:
                     raise EvidenceError(f"missing {phase} bounded original: {source}")
                 with Image.open(source) as image:
                     if image.size != (width, height):
-                        raise EvidenceError(
-                            f"bounded original size drift: {source} {image.size}"
-                        )
+                        raise EvidenceError(f"bounded original size drift: {source} {image.size}")
                     for region in regions:
-                        target = (
-                            crops
-                            / f"{state}-{_viewport(width, height)}-{region}-100pct.png"
-                        )
+                        target = crops / f"{state}-{_viewport(width, height)}-{region}-100pct.png"
                         image.crop(_crop_box(region, width, height)).save(target)
 
 
@@ -1401,8 +1371,7 @@ def _write_simulation_crops() -> None:
         with Image.open(baseline) as image:
             for region in SIMULATION_STATES[SIMULATION_STATE]:
                 image.crop(_crop_box(region, 1920, 1080)).save(
-                    baseline_crops
-                    / f"material-simulation-data-1920x1080-{region}-100pct.png"
+                    baseline_crops / f"material-simulation-data-1920x1080-{region}-100pct.png"
                 )
 
 
@@ -1421,14 +1390,7 @@ def _comparison(before: Path, after: Path) -> dict[str, Any]:
     with Image.open(before).convert("RGB") as left, Image.open(after).convert("RGB") as right:
         difference = ImageChops.difference(left, right)
         bbox = difference.getbbox()
-        changed = (
-            0
-            if bbox is None
-            else sum(
-                pixel != (0, 0, 0)
-                for pixel in difference.getdata()
-            )
-        )
+        changed = 0 if bbox is None else sum(pixel != (0, 0, 0) for pixel in difference.getdata())
         return {
             "name": before.name,
             "changedPixels": changed,
@@ -1483,11 +1445,7 @@ def _write_manifest(
     full_viewport_current: bool = True,
 ) -> None:
     images = sorted(
-        [
-            path
-            for path in CORRECTION.rglob("*.png")
-            if path.is_file()
-        ],
+        [path for path in CORRECTION.rglob("*.png") if path.is_file()],
         key=lambda path: path.as_posix(),
     )
     comparisons = []
@@ -1501,10 +1459,7 @@ def _write_manifest(
                 )
             )
     if not full_viewport_current:
-        images = [
-            CORRECTION / "after/originals" / name
-            for _, name in OWNER_REPORT_STATES
-        ]
+        images = [CORRECTION / "after/originals" / name for _, name in OWNER_REPORT_STATES]
     stale = {"status": "STALE_PENDING_RECAPTURE"}
     manifest = {
         "schemaVersion": "cmp.issue-262.fe07a.owner-correction.visual-evidence.v1",
@@ -1523,7 +1478,9 @@ def _write_manifest(
             if full_viewport_current
             else ["1920x1080"]
         ),
-        "states": list(STATES) if full_viewport_current else [state for state, _ in OWNER_REPORT_STATES],
+        "states": list(STATES)
+        if full_viewport_current
+        else [state for state, _ in OWNER_REPORT_STATES],
         "fullViewportEvidenceStatus": (
             "CURRENT" if full_viewport_current else "STALE_PENDING_RECAPTURE"
         ),
@@ -1608,9 +1565,7 @@ def _write_bounded_manifest(measurements: list[dict[str, Any]]) -> None:
         "comparisons": comparisons,
         "images": [_image_record(path) for path in images],
     }
-    (BOUNDED / "manifest.json").write_text(
-        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
-    )
+    (BOUNDED / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
 def _write_simulation_manifest(measurements: list[dict[str, Any]]) -> None:
@@ -1751,16 +1706,12 @@ def main() -> int:
             browser = playwright.chromium.launch(headless=True)
             try:
                 measurements = _capture_simulation_matrix(browser, args.base_url)
-                owner_report_verification = _capture_owner_report(
-                    browser, args.base_url
-                )
+                owner_report_verification = _capture_owner_report(browser, args.base_url)
             finally:
                 browser.close()
         _write_simulation_crops()
         _write_simulation_manifest(measurements)
-        current = json.loads(
-            (CORRECTION / "manifest.json").read_text(encoding="utf-8")
-        )
+        current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
         _write_manifest(
             current["measurements"],
             current["recovery"],
@@ -1778,17 +1729,13 @@ def main() -> int:
             browser = playwright.chromium.launch(headless=True)
             try:
                 measurements = _capture_bounded_matrix(browser, args.base_url)
-                owner_report_verification = _capture_owner_report(
-                    browser, args.base_url
-                )
+                owner_report_verification = _capture_owner_report(browser, args.base_url)
             finally:
                 browser.close()
         _write_bounded_crops()
         _write_bounded_manifest(measurements)
         _promote_bounded_current_guide()
-        current = json.loads(
-            (CORRECTION / "manifest.json").read_text(encoding="utf-8")
-        )
+        current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
         _write_manifest(
             current["measurements"],
             current["recovery"],
@@ -1808,18 +1755,14 @@ def main() -> int:
                     browser, args.base_url, args.consistency_phase
                 )
                 if args.consistency_phase == "after":
-                    owner_report_verification = _capture_owner_report(
-                        browser, args.base_url
-                    )
+                    owner_report_verification = _capture_owner_report(browser, args.base_url)
             finally:
                 browser.close()
         if args.consistency_phase == "after":
             _write_consistency_crops()
             _write_consistency_manifest(measurements)
             _promote_consistency_curve_captures()
-            current = json.loads(
-                (CORRECTION / "manifest.json").read_text(encoding="utf-8")
-            )
+            current = json.loads((CORRECTION / "manifest.json").read_text(encoding="utf-8"))
             _write_manifest(
                 current["measurements"],
                 current["recovery"],

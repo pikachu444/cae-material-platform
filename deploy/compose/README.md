@@ -170,13 +170,16 @@ repository root:
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml --profile test up -d postgres-test
 $env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres"
-uv run pytest -m postgresql tests/integration -ra
-& "C:\Program Files\Git\bin\bash.exe" scripts/ci.sh
+uv run pytest -m container_service tests/integration -ra
+uv run python scripts/repository_tasks.py ci --require-container-tests
 ```
 
-The marker suite must have zero failures and zero skips; do not treat the currently observed count
-of 62 as permanent. Do not substitute the non-owner `cmp_app` credentials and never point this
-variable at a production or shared database. The tests create/drop temporary databases and roles.
+The marker suite must have zero failures and zero skips. The task CLI collects and logs the exact
+`container_service` count on every run and rejects PostgreSQL marker drift; the count is not a
+hard-coded acceptance value. A Windows host without Docker uses
+`uv run python scripts/repository_tasks.py ci --host-only` and logs the exact exclusion count. Do not
+substitute the non-owner `cmp_app` credentials and never point this variable at a production or shared
+database. The tests create/drop temporary databases and roles.
 The `postgres-test` service publishes only `127.0.0.1:54330`, uses `trust` only inside this isolated
 test container, and stores its cluster in tmpfs. It must not be used as a deployment pattern.
 The full procedure and acceptance rule are in

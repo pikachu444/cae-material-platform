@@ -17,6 +17,7 @@ CURRENT_REVISION = "20260930_099_issue209_dma_fld"
 
 pytestmark = [
     pytest.mark.postgresql,
+    pytest.mark.container_service,
     pytest.mark.skipif(
         not POSTGRES_DSN,
         reason="set CMP_TEST_POSTGRES_DSN to an isolated PostgreSQL admin URL",
@@ -93,7 +94,7 @@ def test_issue209_upgrade_downgrade_reupgrade_and_direct_review_guard() -> None:
                 == "NO"
             )
 
-        command.upgrade(_config(database_url), "head")
+        command.upgrade(_config(database_url), CURRENT_REVISION)
         with database.connect() as connection:
             assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == (
                 CURRENT_REVISION
@@ -155,7 +156,7 @@ def test_issue209_upgrade_downgrade_reupgrade_and_direct_review_guard() -> None:
                 == "NO"
             )
 
-        command.upgrade(_config(database_url), "head")
+        command.upgrade(_config(database_url), CURRENT_REVISION)
         with database.begin() as connection:
             connection.execute(
                 sa.text(

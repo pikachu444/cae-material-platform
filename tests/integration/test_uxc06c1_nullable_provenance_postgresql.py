@@ -14,6 +14,7 @@ POSTGRES_DSN = os.getenv("CMP_TEST_POSTGRES_DSN")
 
 pytestmark = [
     pytest.mark.postgresql,
+    pytest.mark.container_service,
     pytest.mark.skipif(
         not POSTGRES_DSN,
         reason="CMP_TEST_POSTGRES_DSN is required for PostgreSQL integration",

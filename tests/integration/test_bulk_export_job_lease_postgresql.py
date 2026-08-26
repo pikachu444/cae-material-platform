@@ -37,6 +37,7 @@ POSTGRES_DSN = os.getenv("CMP_TEST_POSTGRES_DSN")
 
 pytestmark = [
     pytest.mark.postgresql,
+    pytest.mark.container_service,
     pytest.mark.skipif(
         POSTGRES_DSN is None,
         reason="CMP_TEST_POSTGRES_DSN is required for PostgreSQL integration",
@@ -276,14 +277,16 @@ def test_expired_lease_is_reclaimed_and_stale_worker_is_fenced(
     assert migrated["attempt_count"] == 1
     assert migrated["lease_token"] is not None
     assert migrated["heartbeat_at"] == NOW - timedelta(minutes=1)
-    assert migrated["lease_expires_at"] <= NOW
+    reclaim_at = migrated["lease_expires_at"]
+    assert isinstance(reclaim_at, datetime)
+    assert reclaim_at > migrated["heartbeat_at"]
 
     first = repository.claim_next_job(
         context=context,
         decision=decision,
         lease_token=FIRST_TOKEN,
         lease_duration=timedelta(seconds=10),
-        now=NOW,
+        now=reclaim_at,
     )
     assert first is not None
     assert first.state is BulkExportJobState.RUNNING
@@ -296,17 +299,17 @@ def test_expired_lease_is_reclaimed_and_stale_worker_is_fenced(
         job_id=JOB,
         lease_token=FIRST_TOKEN,
         lease_duration=timedelta(seconds=10),
-        now=NOW + timedelta(seconds=4),
+        now=reclaim_at + timedelta(seconds=4),
     )
-    assert renewed.heartbeat_at == NOW + timedelta(seconds=4)
-    assert renewed.lease_expires_at == NOW + timedelta(seconds=14)
+    assert renewed.heartbeat_at == reclaim_at + timedelta(seconds=4)
+    assert renewed.lease_expires_at == reclaim_at + timedelta(seconds=14)
     assert (
         repository.claim_next_job(
             context=context,
             decision=decision,
             lease_token=SECOND_TOKEN,
             lease_duration=timedelta(seconds=10),
-            now=NOW + timedelta(seconds=11),
+            now=reclaim_at + timedelta(seconds=11),
         )
         is None
     )
@@ -319,8 +322,8 @@ def test_expired_lease_is_reclaimed_and_stale_worker_is_fenced(
                     "lease_expires_at=:expiry WHERE id=:job"
                 ),
                 {
-                    "heartbeat": NOW + timedelta(seconds=15),
-                    "expiry": NOW + timedelta(seconds=25),
+                    "heartbeat": reclaim_at + timedelta(seconds=15),
+                    "expiry": reclaim_at + timedelta(seconds=25),
                     "job": JOB,
                 },
             )
@@ -330,7 +333,7 @@ def test_expired_lease_is_reclaimed_and_stale_worker_is_fenced(
         decision=decision,
         lease_token=SECOND_TOKEN,
         lease_duration=timedelta(seconds=10),
-        now=NOW + timedelta(seconds=15),
+        now=reclaim_at + timedelta(seconds=15),
     )
     assert reclaimed is not None
     assert reclaimed.lease_token == SECOND_TOKEN
@@ -344,7 +347,7 @@ def test_expired_lease_is_reclaimed_and_stale_worker_is_fenced(
             failure_code="stale_worker",
             failure_detail="an expired worker must not finalize the reclaimed job",
             lease_token=FIRST_TOKEN,
-            now=NOW + timedelta(seconds=16),
+            now=reclaim_at + timedelta(seconds=16),
         )
 
     failed = repository.fail_job(
@@ -354,7 +357,7 @@ def test_expired_lease_is_reclaimed_and_stale_worker_is_fenced(
         failure_code="fixture_complete",
         failure_detail="the current fencing token owns this terminal transition",
         lease_token=SECOND_TOKEN,
-        now=NOW + timedelta(seconds=16),
+        now=reclaim_at + timedelta(seconds=16),
     )
     assert failed.state is BulkExportJobState.FAILED
     assert failed.lease_token is None

@@ -17,7 +17,6 @@ from typing import Any
 
 from playwright.sync_api import Page
 
-
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = runpy.run_path(str(ROOT / "scripts/capture_issue_261_m4_visual_evidence.py"))
 TOPOLOGIES = tuple(HARNESS["TOPOLOGIES"])
@@ -27,9 +26,7 @@ SCHEMA = "cmp.issue-261.m6.visual-and-selector-evidence.v1"
 HANDOFF_PATH = ROOT / "scripts/fixtures/issue-261-residual-owner-boundary.json"
 INVENTORY_PATH = ROOT / "docs/17-evidence/issue-261-css-selector-inventory.json"
 FIXTURE_PATH = ROOT / "scripts/fixtures/issue-261-m6-zero-consumer-audit.json"
-DEFAULT_OUTPUT = (
-    ROOT / "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live"
-)
+DEFAULT_OUTPUT = ROOT / "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live"
 # The current-guide manifest remains a cumulative accepted image set. Keep this
 # declaration literal for the documentation checker; M6 promotes only the
 # matching Export original identified in screenshot-manifest.yaml.
@@ -474,7 +471,9 @@ def _check(output: Path) -> None:
         audit = json.loads((output / f"selector-runtime-{phase}.json").read_text(encoding="utf-8"))
         audit_viewports = audit["coverage"]["viewports"]
         required_viewports = [f"{width}x{height}" for width, height in VIEWPORTS]
-        if not audit_viewports or any(viewport not in required_viewports for viewport in audit_viewports):
+        if not audit_viewports or any(
+            viewport not in required_viewports for viewport in audit_viewports
+        ):
             raise EvidenceError(f"M6 {phase} selector audit viewport set drifted")
         if audit["coverage"]["snapshots"] != len(TOPOLOGIES) * len(audit_viewports):
             raise EvidenceError(f"M6 {phase} selector audit coverage drifted")
@@ -496,7 +495,10 @@ def main() -> int:
     parser.add_argument(
         "--selector-only",
         action="store_true",
-        help="Audit all settled route/state topologies at 1440x900 without replacing visual evidence.",
+        help=(
+            "Audit all settled route/state topologies at 1440x900 without replacing visual "
+            "evidence."
+        ),
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--compare", action="store_true")

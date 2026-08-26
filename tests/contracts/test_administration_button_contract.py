@@ -78,7 +78,11 @@ def test_database_edit_groups_have_only_one_primary_command() -> None:
 
     assert layout_editor.count('className="ux-button primary"') == 1
     assert '>\n          Save\n        </button>' in layout_editor
-    assert '<summary className="ux-button local-action" aria-label={`More actions for ${title}`}>More</summary>' in layout_editor
+    assert (
+        '<summary className="ux-button local-action" '
+        'aria-label={`More actions for ${title}`}>More</summary>'
+        in layout_editor
+    )
     assert layout_editor.count('className="ux-button local-action"') == 2
     assert 'className="ux-button local-action" type="button"' in source
     assert 'className="layout-drag-handle"' in layout_editor

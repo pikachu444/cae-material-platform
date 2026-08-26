@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import runpy
 import shutil
 import subprocess
@@ -950,7 +951,7 @@ def test_codex_exec_uses_ephemeral_read_only_no_hooks_and_handles_space_paths(
 
     command = captured["command"]
     assert command[:5] == [
-        "C:\\Program Files\\OpenAI Codex\\codex.exe",
+        str(Path("C:/Program Files/OpenAI Codex/codex.exe")),
         "exec",
         "--ephemeral",
         "--ignore-user-config",
@@ -996,6 +997,9 @@ def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -
     assert "Do not call shell, MCP, browser, network, or other tools" in code
     assert "### docs/01-product/visual-acceptance-matrix.md" in visual
     assert "### docs/user-guide/screenshot-manifest.yaml" in visual
+    assert "images/current/materials-search-1440x900.png" in visual
+    assert "Issue #261 M1A20" not in visual
+    assert len(visual.encode("utf-8")) < 400_000
     assert "Do not call shell, MCP, browser, network, or other tools" in visual
 
 
@@ -1025,6 +1029,7 @@ def test_codex_exec_token_usage_is_fail_closed(tmp_path: Path) -> None:
         CodexExecRunner(Path("codex"), "sha", process_runner=missing).run(request)
 
 
+@pytest.mark.skipif(os.name != "nt", reason="WindowsApps discovery is Windows-only")
 def test_windowsapps_discovery_requires_matching_runtime_and_sandbox_helpers(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
