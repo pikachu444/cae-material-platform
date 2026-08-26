@@ -177,6 +177,14 @@ FE-02는 기존 `ux-meta`, `ux-kicker`, `ux-notice`, `eyebrow`, `status-chip`, `
 
 repository-wide rewrite를 하지 않는다.
 
+### #331 — Legacy UI/CSS 최종 이관 및 제거
+
+- #261의 67행/65그룹 inventory를 seed로 latest main의 consumer와 owner를 다시 감사
+- 실제 사용 중인 legacy 문법을 semantic UI 또는 정확한 feature/shared owner로 이관
+- zero-consumer selector, import와 legacy file 제거
+- selector별 tiny task가 아니라 coherent route/family batch로 수행
+- 정상 화면 legacy inventory 0과 five-viewport 질적 검토를 #264 전에 완료
+
 ### FE-09 — 제품 전체 종료 검증
 
 - 주요 route/state의 behavior와 visual semantics 재검증
@@ -193,11 +201,12 @@ FE-00 → FE-01 → FE-02
             FE-03 → FE-04 → FE-05
                                 │
                                 ▼
-                      FE-06 → FE-07 → FE-08 → FE-09
+                      FE-06 → FE-07 → FE-08 → #331 → FE-09
 ```
 
 FE-01과 FE-02는 diff가 독립적이면 병행할 수 있다. FE-03은 FE-00이 병합된 뒤 시작한다. FE-05는
-FE-04의 behavior preservation이 확인되기 전에 시작하지 않는다.
+FE-04의 behavior preservation이 확인되기 전에 시작하지 않는다. #331은 FE-08이 실제 owner와
+compatibility 경계를 확정한 뒤 시작하고, FE-09(#264) 전에 끝낸다.
 
 ## 6. 사용자에게 보이는 변화
 
