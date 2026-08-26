@@ -9,6 +9,7 @@ import {
   FrontendGuardError,
   assertBaselineProvenance,
   evaluateGuard,
+  requiresBaselineProvenance,
   scanProject,
   validateBaseline,
 } from "./check_frontend_guard.mjs";
@@ -293,4 +294,13 @@ test("rejects a well-formed baseline whose source SHA is not the merge base", ()
     () => assertBaselineProvenance(baseline({ sourceSha: "b".repeat(40) }), "a".repeat(40)),
     (error) => error instanceof FrontendGuardError && error.code === "BASELINE_PROVENANCE",
   );
+});
+
+test("requires baseline provenance only for frontend guard relevant changes", () => {
+  assert.equal(requiresBaselineProvenance(new Set(["IMPLEMENTATION_STATUS.md", "docs/guide.md"])), false);
+  assert.equal(requiresBaselineProvenance(new Set(["backend/src/example.py"])), false);
+  assert.equal(requiresBaselineProvenance(new Set(["apps/web/src/app.tsx"])), true);
+  assert.equal(requiresBaselineProvenance(new Set(["apps/web/frontend-guard-baseline.json"])), true);
+  assert.equal(requiresBaselineProvenance(new Set(["scripts/check_frontend_guard.mjs"])), true);
+  assert.equal(requiresBaselineProvenance(new Set(["scripts/check_frontend_guard.test.mjs"])), true);
 });

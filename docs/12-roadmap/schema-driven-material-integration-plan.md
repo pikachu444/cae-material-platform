@@ -1,8 +1,8 @@
 # 스키마 기반 물성 DB 통합 계획
 
-상태: **승인된 기획 gate, 구현 진행 중**
+상태: **승인된 기획 gate, #246 잔여 범위 진행 전 배치 결정 대기**
 원기획 기준선: `main@63a076c`
-현재 대조 기준선: `main@6bff4c7`
+현재 대조 기준선: `main@5d7f65a`
 승인일: 2026-08-08
 상위 추적: [#117](https://github.com/pikachu444/cae-material-platform/issues/117)
 
@@ -68,15 +68,15 @@ positive/negative fixture와 함께 확정한다.
 
 | 영역 | 현재 구현 | 이번 계획의 실제 공백 | 처리 원칙 |
 | --- | --- | --- | --- |
-| Configurable Catalog | Database/Profile/Table/Attribute/Layout/Subset/Link Type, Record, 발행과 immutable revision | 동적 JSON 정의 bundle의 계약·계획·일괄 적용·내보내기 없음 | versioned Import Adapter와 기존 객체 projection으로 추가 |
-| Artifact/Provenance | immutable bytes/digest, exact revision lineage | source schema bundle부터 생성된 Catalog revision까지의 공통 lineage 없음 | 원본 보존 후 모든 생성 revision에 source를 고정 |
-| Unit | #205에서 등록·Test Data·Processing·Fit·Export가 쓰는 닫힌 공통 dimension/unit service와 versioned Unit Profile 구현 | 추가 solver unit system과 Unit Profile 관리 UI 없음 | exact profile revision/application trace를 유지하고 #214 전 production 기본값을 정하지 않음 |
-| Curve | canonical Test Data channel과 Catalog curve Artifact pointer | Catalog/Statistics/Fit가 공유하는 channel/deviation 계약 없음 | additive metadata와 과거 revision adapter |
-| Import | CSV/TSV/XLSX governed import와 versioned Test Data JSON | DMA sweep·FLD profile과 품질 정책 없음 | 기존 Raw Asset/Dataset/Test Data 수명주기 재사용 |
-| Statistics | mean, SD, median, MAD, IQR, 일부 confidence interval | distribution fitting, p05/p95 representative envelope 없음 | 후보·선택·계산 결과를 immutable revision으로 분리 |
-| Process/Fit | explicit Process methods, exact Fit input/selection/reload | toe compensation과 승인된 representative input 없음 | 원본 불변, explicit option, stale propagation |
+| Configurable Catalog | 기존 configurable objects와 #246 Task 1A의 source-v2 adapter, 객체형 `x-curve`, business-key/reference 해석, exact source export | 변경하지 않은 source-v2의 남은 단위와 실제 JSON 데이터 등록 | Task 2 단위와 Task 1B 등록을 기존 versioned adapter/object projection 위에 추가 |
+| Artifact/Provenance | immutable bytes/digest, exact revision lineage와 source-v2 원본 파일·JSON pointer·해시 보존 | 실제 데이터 등록 결과의 source-to-Record/Test Data lineage | Task 1A를 재작성하지 않고 Task 1B가 exact installed-format revision을 고정 |
+| Unit | #205 공통 dimension/Unit Profile과 #209의 `Hz` 구현 | `mm/min`, `tonne/mm3`, 추가 solver unit system과 Unit Profile 관리 UI | 앞의 두 단위는 #246 Task 2, solver profile/UI는 #214; production 기본값을 정하지 않음 |
+| Curve | #206 공통 channel/deviation 계약, source-v2 객체형 `x-curve` adapter와 기존 통계 projection | p05/p95 representative revision과 승인된 Fit 연결 | additive representative result/review 계약; 기존 Artifact·과거 revision 유지 |
+| Import | CSV/TSV/XLSX, versioned Test Data JSON, #209 DMA frequency-temperature/FLD governed import | installed format 기반 실제 JSON 다건 등록; `dma_strain_sweep` 전용 처리는 보류 | #246 Task 1B로 실제 등록, Task 2B로 명시적 미지원·후속 ownership 기록 |
+| Statistics | scalar distribution, common-grid piecewise-linear/no-extrapolation alignment, append-only outlier 판단, pointwise mean/95% CI와 exact Dataset/Test Run lineage | p05/p95 representative revision·review/approval/invalidation·approved representative exact revision→Fit selection | 기존 기반을 회귀검증하고 #211의 좁은 잔여만 추가 |
+| Process/Fit | explicit Process, toe compensation, exact Fit input/selection/reload와 calibration scope exact pinning | 승인된 representative exact revision을 Fit source로 선택하는 연결 | 원본 불변, explicit option, stale propagation을 재사용 |
 | Export | Abaqus/OpenRadioss preview/delivery, mapping status와 exact Unit Profile trace; 기존 `kg_m_s` bytes 보존 | governed text Template, LS-DYNA와 추가 solver unit system 없음 | 기존 renderer를 compatibility baseline으로 유지 |
-| Review/Release | 일부 Material/Solver Card Review와 release kernel | Record/Test Data/계산/Template subject와 복구 흐름 미완 | #160에 공통 subject 경계만 합침 |
+| Review/Release | #160의 Record/Test Data 검토·게시·복구와 기존 Material/Solver Card lifecycle | representative result와 Template subject의 구체 연결 | representative는 #211, Template는 #213/#214에서 기존 kernel 재사용 |
 | Identity | backend bearer/OIDC validation, permission과 RLS | SPA Code+PKCE login/callback/token lifecycle 없음 | 기존 User/Reviewer/Administrator preset 유지 |
 | Audit | append-only hash chain, query/export/integrity verifier | 제품 command wiring이 일부 validation/holdout에 한정 | 기반 재작성 없이 event coverage와 atomicity 보강 |
 
@@ -117,23 +117,34 @@ module 경계로 분해했다.
 | 9 | [#210](https://github.com/pikachu444/cae-material-platform/issues/210) | scalar distribution fitting | #205 |
 | 10 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
 | 11 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
-| 12 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import | #160, #184, #205~#207 |
-| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 | #209, 원본 패키지와 추적표 |
-| 14 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | representative envelope와 approved Fit input | #160, #184, #206, #210, #246 Task 3 |
+| 12 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import — PR #248 완료 | #160, #184, #205~#207 |
+| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 — Task 1A PR #250 완료, 잔여 OPEN | #209, 원본 패키지와 추적표 |
+| 14 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | p05/p95 representative revision·review/approval/invalidation·approved exact Fit selection | #160, #184, #206, #210, #246 Task 3; 기존 alignment/outlier/mean CI/exact pinning 재사용 |
 | 15 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, #246 Task 3, sandbox ADR |
 | 16 | [#214](https://github.com/pikachu444/cae-material-platform/issues/214) | LS-DYNA MAT_024·다중 단위·Template UI | #160, #184, #205, #213 |
 | 17 | [#215](https://github.com/pikachu444/cae-material-platform/issues/215) | SPA OIDC Code+PKCE | #160, #184, #246 Task 3 |
 | 18 | [#216](https://github.com/pikachu444/cae-material-platform/issues/216) | 제품 command audit wiring/coverage | #160, #184, #246 Task 3, 필요 시 #213/#215 |
 
-#195와 #196은 각각 polymer/elastomer Fit의 별도 deferred issue다. DMA import나 공통 Template 기반을
-이유로 자동 착수하지 않으며, family별 수치·입력·모델 상세 기획 승인이 필요하다.
+#195와 #196에는 각각 bounded synthetic `reference/non-production` 구현이 이미 있고,
+[#195 planning packet](issue-195-polymer-viscoelastic-fit-plan.md)과
+[#196 planning packet](issue-196-elastomer-hyperelastic-hyperviscoelastic-fit-plan.md)도 존재한다.
+두 이슈의 deferred 잔여는 해당 기반을 재작성하는 일이 아니라 family별 production 입력·정책·수치
+검증·계약 확장이다. 각 packet의 `OPEN_DECISION`, 기존 목표와 향후 범위를 유지하며, DMA import나
+공통 Template 기반을 이유로 자동 착수하지 않는다.
 
 ## 5. 권장 실행과 제한된 병렬화
 
 저장소의 기본 규칙은 `docs/13-delivery/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
-현재 첫 미완료 단위는 진행 중인 #209다. 이 원본 패키지를 `main`에 병합하는 것은 #209 완료가
-아니며, #209 작업 브랜치가 최신 `main`을 반영해 기존 Issue 범위만 완료하기 위한 선행 자료
-제공이다. #209가 병합된 뒤 #246으로 원본 대비 남은 차이를 닫고, 그 다음 #211을 시작한다.
+#209는 PR #248, main `3e642e8`에서 완료했고 #246 Task 1A도 PR #250, main `b9a82e9`에서
+완료했다. 현재 첫 미완료 단위는 추가 보완 배치 결정을 기다리는 #246이다. 승인된 #246 잔여를
+닫은 뒤 #211로 진행하며, #211은 이미 구현된 alignment·outlier·mean/95% CI·exact input pinning을
+재사용하고 pointwise p05/p95 representative revision, review/approval/invalidation과 approved
+representative exact revision→Fit selection만 구현한다.
+
+[#276](https://github.com/pikachu444/cae-material-platform/issues/276)은 Simulation Data 등록 결과를
+Modeling·solver-card 경로와 잇는 후보 후속이며 현재 `배치 결정 대기`다. native parent와 실행 순서는
+지정되지 않았고, 이 후보 등록 자체는 #117의 승인된 `#246 → #211 → #213 → #214 → #215 → #216
+→ #162 작업 1 → #162 작업 2 → #223` 순서를 바꾸지 않는다.
 
 제품 소유자가 별도 branch/worktree, 소유 파일과 shared contract 동결을 명시적으로 승인한 경우에만
 다음 병렬 묶음을 검토할 수 있다.
