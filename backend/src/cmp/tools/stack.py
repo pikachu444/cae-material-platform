@@ -312,6 +312,8 @@ def _validate_listen_address(value: str) -> ipaddress.IPv4Address:
         ipaddress.ip_network("172.16.0.0/12"),
         ipaddress.ip_network("192.168.0.0/16"),
     )
+    if address.is_loopback and address != ipaddress.ip_address("127.0.0.1"):
+        raise StackError("the supported loopback listen address is 127.0.0.1")
     if not address.is_loopback and not any(address in network for network in private_networks):
         raise StackError("listen address must be loopback or a Private/Domain LAN address")
     return address
@@ -999,6 +1001,7 @@ def _host_logs(options: StackOptions, *, lines: int) -> None:
 
 def _access_status(options: StackOptions) -> dict[str, Any]:
     web_port = _topology_port(options, "web")
+    listen_address = str(_validate_listen_address(options.listen_address))
     loopback_names = ["api", "postgres"]
     if options.runtime == "compose":
         loopback_names.extend(("otlp", "metrics"))
@@ -1026,11 +1029,11 @@ def _access_status(options: StackOptions) -> dict[str, Any]:
         }
     return {
         "local_url": f"http://127.0.0.1:{web_port}",
-        "lan_url": f"http://{options.listen_address}:{web_port}",
-        "listen_address": options.listen_address,
+        "lan_url": f"http://{listen_address}:{web_port}",
+        "listen_address": listen_address,
         "identity": "synthetic-demo-only" if options.profile == "demo" else "external-oidc",
         "remote_access": "local-only"
-        if options.listen_address == "127.0.0.1"
+        if listen_address == "127.0.0.1"
         else "requires Private/Domain LocalSubnet firewall rule",
         "exposed_ports": {"web": web_port},
         "loopback_ports": {name: _topology_port(options, name) for name in loopback_names},

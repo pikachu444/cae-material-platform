@@ -173,10 +173,32 @@ def test_server_profile_rejects_inherited_demo_or_plugin_environment(
         stack._server_environment_guard(os.environ)
 
 
-@pytest.mark.parametrize("address", ["0.0.0.0", "8.8.8.8", "169.254.1.1", "::1"])
+@pytest.mark.parametrize(
+    "address", ["0.0.0.0", "8.8.8.8", "169.254.1.1", "127.0.0.2", "::1"]
+)
 def test_listen_address_rejects_implicit_public_or_unsupported_bindings(address: str) -> None:
     with pytest.raises(stack.StackError):
         stack._validate_listen_address(address)
+
+
+@pytest.mark.parametrize("runtime", ["host", "compose"])
+def test_status_rejects_a_noncanonical_loopback_address(
+    tmp_path: Path, runtime: stack.Runtime
+) -> None:
+    base_options = _options(tmp_path, runtime=runtime)
+    options = stack.StackOptions(
+        profile=base_options.profile,
+        runtime=base_options.runtime,
+        paths=base_options.paths,
+        postgres_bin=base_options.postgres_bin,
+        listen_address="127.0.0.2",
+        auth_config=base_options.auth_config,
+        secret_file=base_options.secret_file,
+        json_output=base_options.json_output,
+    )
+
+    with pytest.raises(stack.StackError, match=r"supported loopback.*127\.0\.0\.1"):
+        stack._access_status(options)
 
 
 def test_host_state_contains_no_database_or_application_secret(tmp_path: Path) -> None:
