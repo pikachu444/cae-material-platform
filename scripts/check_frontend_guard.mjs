@@ -8,6 +8,11 @@ export const BASELINE_SCHEMA = "cmp.frontend-guard-baseline.v1";
 
 const SOURCE_ROOT = "apps/web/src";
 const DEFAULT_BASELINE = "apps/web/frontend-guard-baseline.json";
+const BASELINE_PROVENANCE_PATHS = new Set([
+  DEFAULT_BASELINE,
+  "scripts/check_frontend_guard.mjs",
+  "scripts/check_frontend_guard.test.mjs",
+]);
 const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".css"]);
 const CODE_EXTENSIONS = [".ts", ".tsx"];
@@ -175,6 +180,12 @@ export function assertBaselineProvenance(baseline, mergeBase) {
       `baseline sourceSha ${baseline.sourceSha} does not match origin/main merge-base ${mergeBase}`,
     );
   }
+}
+
+export function requiresBaselineProvenance(changedPaths) {
+  return [...changedPaths].some(
+    (path) => path.startsWith(`${SOURCE_ROOT}/`) || BASELINE_PROVENANCE_PATHS.has(path),
+  );
 }
 
 async function collectSourceFiles(projectRoot) {
@@ -752,13 +763,22 @@ async function collectGitChangeContext(projectRoot) {
   }
   const diff = execFileSync("git", ["diff", "--unified=0", "--no-ext-diff", "--find-renames", mergeBase], { cwd: root, encoding: "utf8", maxBuffer: 32 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
   const changed = parseDiff(diff);
+  const changedPaths = new Set(
+    execFileSync("git", ["diff", "--name-only", "-z", "--no-renames", mergeBase], {
+      cwd: root,
+      encoding: "utf8",
+      maxBuffer: 32 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "pipe"],
+    }).split("\0").filter(Boolean),
+  );
   const untracked = execFileSync("git", ["ls-files", "--others", "--exclude-standard"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).split(/\r?\n/).filter(Boolean);
   for (const path of untracked) {
+    changedPaths.add(path);
     if (!path.startsWith(`${SOURCE_ROOT}/`) || !SOURCE_EXTENSIONS.has(extname(path)) || EXCLUDED_SOURCE.test(path)) continue;
     const source = await readFile(resolve(root, path), "utf8");
     changed.set(path, new Set(source.split(/\r?\n/).map((_line, index) => index + 1)));
   }
-  return { changedLines: changed, mergeBase };
+  return { changedLines: changed, changedPaths, mergeBase };
 }
 
 export async function collectChangedLines(projectRoot) {
@@ -774,8 +794,8 @@ export async function runFrontendGuardCli({
 } = {}) {
   try {
     const baseline = JSON.parse(await readFile(resolve(projectRoot, baselinePath), "utf8"));
-    const { changedLines, mergeBase } = await collectGitChangeContext(projectRoot);
-    assertBaselineProvenance(baseline, mergeBase);
+    const { changedLines, changedPaths, mergeBase } = await collectGitChangeContext(projectRoot);
+    if (requiresBaselineProvenance(changedPaths)) assertBaselineProvenance(baseline, mergeBase);
     const baseFindings = await scanBaseFindings({ projectRoot, baseline, mergeBase, changedLines });
     const report = await evaluateGuard({ projectRoot, baseline, changedLines, baseFindings });
     if (json) stdout.write(`${JSON.stringify(report, null, 2)}\n`);
