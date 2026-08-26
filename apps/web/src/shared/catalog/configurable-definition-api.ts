@@ -130,7 +130,7 @@ export function searchConfigurableCatalogRecords(
       number_filters: [],
       facet_attribute_ids: [],
       offset: 0,
-      limit: 1,
+      limit: 50,
       published_only: false,
       sort_by: "name",
       sort_direction: "ascending",

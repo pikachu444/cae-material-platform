@@ -23,26 +23,16 @@
 }
 
 /* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#121; peers CSS-0121. */
-.administration-navigation .eyebrow {
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-/* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#122; peers CSS-0122, CSS-0123. */
-.administration-navigation nav button.active,
-.administration-navigation nav button.active:hover:not(:disabled) {
+.administration-taskbar nav button.active,
+.administration-taskbar nav button.active:hover:not(:disabled) {
   background: var(--ux-selection);
   color: var(--ux-text);
-  box-shadow: inset 2px 0 0 var(--ux-accent);
+  box-shadow: inset 0 -2px 0 var(--ux-accent);
 }
 
 /* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#124; peers CSS-0124. */
-.administration-navigation > .ux-button.tertiary {
-  margin-top: auto;
-  justify-content: flex-start;
+.administration-taskbar > .ux-button.tertiary {
+  margin-left: auto;
   padding-inline: var(--ux-space-2);
   color: var(--ux-text-muted);
   font-size: 12px;
@@ -1230,194 +1220,96 @@
 }
 
 .administration-workspace {
-  display: grid;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: none;
-  grid-template-columns: clamp(
-      var(--ux-navigator-min-inline-size),
-      15vw,
-      var(--ux-navigator-default-inline-size)
-    ) minmax(0, 1fr);
   min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
   background: var(--ux-canvas);
   color: var(--ux-text);
 }
 
-.administration-navigation {
+.administration-taskbar {
   display: flex;
-  align-self: stretch;
-  flex-direction: column;
-  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
-  gap: var(--ux-space-5);
-  padding: var(--ux-space-5) var(--ux-space-3);
-  border-right: 1px solid var(--ux-border);
+  align-items: stretch;
+  min-height: 42px;
+  padding: 0 clamp(16px, 1.7vw, 32px);
+  border-bottom: 1px solid var(--ux-border);
   background: var(--ux-surface);
   color: var(--ux-text);
 }
 
-.administration-navigation h2 {
-  margin: 2px 0 0;
+.administration-taskbar h1 {
+  display: flex;
+  align-items: center;
+  margin: 0 var(--ux-space-5) 0 0;
   color: var(--ux-text);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 650;
 }
 
-.administration-navigation nav {
-  display: grid;
-  gap: 0;
-  border-top: 1px solid var(--ux-border);
+.administration-taskbar nav {
+  display: flex;
+  align-items: stretch;
 }
 
-.administration-navigation nav button {
-  display: grid;
+.administration-taskbar nav button {
+  display: flex;
   align-items: center;
-  min-height: 34px;
-  gap: var(--ux-space-2);
-  grid-template-columns: 22px minmax(0, 1fr);
-  padding: 6px var(--ux-space-2);
+  min-height: 42px;
+  padding: 0 var(--ux-space-3);
   border: 0;
-  border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
   background: transparent;
   color: var(--ux-text-muted);
   font-size: 12.5px;
-  font-weight: 400;
-}
-
-.administration-navigation nav button > span:first-child {
-  color: var(--ux-text-subtle);
-  font-size: 11px;
-}
-
-.administration-navigation nav .administration-navigation-label {
-  color: inherit;
-  font-size: inherit;
   font-weight: 500;
 }
 
-.administration-navigation nav button:hover:not(:disabled) {
+.administration-taskbar nav button:hover:not(:disabled) {
   background: var(--ux-surface-subtle);
   color: var(--ux-text);
   box-shadow: none;
 }
 
-.administration-navigation nav button.active .administration-navigation-label {
-  font-weight: 600;
-}
-
 .administration-content {
+  flex: 1 1 auto;
   min-width: 0;
   padding: var(--ux-space-5) clamp(16px, 1.7vw, 32px);
 }
 
-.administration-task-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
-  border-top: 1px solid var(--ux-border);
-}
-
-.administration-task-grid > button {
-  display: grid;
-  align-items: center;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  gap: var(--ux-space-3);
-  min-height: 82px;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--ux-border);
-  border-radius: 0;
-  background: transparent;
-  color: var(--ux-text);
-  cursor: pointer;
-  text-align: left;
-}
-
-.administration-task-grid > button:hover {
-  border-color: var(--ux-border-strong);
-  background: var(--ux-selection);
-  box-shadow: none;
-}
-
-.administration-task-grid .workspace-choice-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--ux-border-strong);
-  border-radius: var(--ux-radius-control);
-  background: var(--ux-surface-subtle);
-  color: var(--ux-text-muted);
-  font-size: 11px;
-}
-
-.administration-task-grid small {
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.administration-task-grid strong {
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.administration-task-grid p {
-  margin: 0;
-  color: var(--ux-text-muted);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.administration-task-grid em {
-  grid-column: 3;
-  grid-row: 1;
-  align-self: center;
-  padding-right: var(--ux-space-2);
-  color: var(--ux-accent);
-  font-size: 12px;
-  font-style: normal;
-}
-
-.administration-principle {
-  margin-top: var(--ux-space-5);
-  padding: var(--ux-space-4) 0 0;
-  border: 0;
-  border-top: 1px solid var(--ux-border);
-  background: transparent;
-}
-
-.administration-principle h2 {
-  margin: 2px 0;
-  font-size: 15px;
-  font-weight: 650;
-}
-
 @media (max-width: 900px) {
-  .administration-workspace {
-      grid-template-columns: minmax(0, 1fr);
-    }
-}
+  .administration-taskbar {
+    overflow-x: auto;
+  }
 
-@media (max-width: 900px) {
-  .administration-navigation {
-      min-height: 0;
-    }
-}
+  .administration-taskbar h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
 
-@media (max-width: 900px) {
-  .administration-task-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
+  .administration-taskbar > .ux-button.tertiary {
+    margin-left: var(--ux-space-2);
+    white-space: nowrap;
+  }
 }
 
 .schema-bundle-workbench {
   min-width: 0;
+}
+
+.schema-bundle-workbench.ux-engineering-pane,
+.schema-bundle-plan.ux-engineering-pane {
+  gap: 0;
+  padding: 0;
+}
+
+.schema-bundle-source.ux-engineering-pane,
+.schema-bundle-detail.ux-engineering-pane {
+  gap: 0;
 }
 
 .schema-bundle-grid {
@@ -1468,6 +1360,8 @@
 }
 
 .schema-bundle-plan > header {
+  align-items: end;
+  flex-wrap: wrap;
   padding: var(--ux-pane-padding);
   padding-bottom: var(--ux-space-3);
 }
@@ -1479,7 +1373,7 @@
   margin: 0;
   color: var(--ux-text);
   font-size: var(--ux-data-font-size);
-  font-weight: 600;
+  font-weight: var(--ux-font-weight-heading);
 }
 
 .schema-bundle-source header span,
@@ -1491,18 +1385,18 @@
 
 .schema-bundle-file-field {
   display: grid;
-  gap: 6px;
+  gap: var(--ux-space-1);
   margin-top: var(--ux-space-4);
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-  font-weight: 500;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
 }
 
 .schema-bundle-file-field input {
   width: 100%;
   min-height: var(--ux-input-min-block-size);
   box-sizing: border-box;
-  padding: 5px 6px;
+  padding: var(--ux-space-1) var(--ux-space-2);
   font: inherit;
   font-size: var(--ux-data-font-size);
 }
@@ -1547,7 +1441,7 @@
   min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: var(--ux-metadata-font-size);
+  font-size: var(--ux-data-font-size);
 }
 
 .schema-bundle-summary dt,
@@ -1555,7 +1449,7 @@
 .schema-bundle-detail-body dt,
 .schema-bundle-error dt {
   color: var(--ux-text-muted);
-  font-weight: 500;
+  font-weight: var(--ux-font-weight-label);
 }
 
 .schema-bundle-technical dd {
@@ -1575,14 +1469,34 @@
 }
 
 .schema-bundle-counts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: end;
-  gap: 4px var(--ux-space-2);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(4.5rem, auto));
+  width: 100%;
+  margin: 0;
 }
 
-.schema-bundle-counts span {
+.schema-bundle-counts > div {
+  display: grid;
+  gap: var(--ux-space-1);
+  padding-inline: var(--ux-space-3);
+  border-inline-start: 1px solid var(--ux-border);
+}
+
+.schema-bundle-counts dt,
+.schema-bundle-counts dd {
+  margin: 0;
   white-space: nowrap;
+  font-size: var(--ux-data-font-size);
+}
+
+.schema-bundle-counts dt {
+  color: var(--ux-text-muted);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.schema-bundle-counts dd {
+  color: var(--ux-text);
+  font-variant-numeric: tabular-nums;
 }
 
 .schema-bundle-table-scroll {
@@ -1592,7 +1506,9 @@
 }
 
 .schema-bundle-table {
-  min-width: 650px;
+  width: 100%;
+  min-width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -1601,7 +1517,7 @@
   position: sticky;
   z-index: 1;
   top: 0;
-  font-weight: 600;
+  font-weight: var(--ux-font-weight-label);
   letter-spacing: 0;
 }
 
@@ -1648,7 +1564,7 @@
   background: transparent;
   color: var(--ux-text);
   font: inherit;
-  font-weight: 500;
+  font-weight: var(--ux-font-weight-label);
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1666,6 +1582,14 @@
 
 .schema-bundle-detail-body h4 {
   overflow-wrap: anywhere;
+}
+
+.schema-bundle-consequence {
+  margin: var(--ux-space-3) 0 0;
+  padding-bottom: var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+  font-size: var(--ux-data-font-size);
+  line-height: 1.45;
 }
 
 .schema-bundle-reasons {
@@ -1779,6 +1703,13 @@
   .schema-bundle-plan {
       min-height: 520px;
     }
+}
+
+.schema-bundle-completion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ux-space-2);
+  align-items: center;
 }
 
 @media (max-width: 900px) {
