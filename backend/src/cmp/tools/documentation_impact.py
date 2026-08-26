@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import posixpath
 import re
@@ -20,22 +19,39 @@ ImpactMode = Literal["staged", "range", "worktree"]
 _GUIDE_PREFIX = "docs/user-guide/"
 _SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
 _NAVIGATION_CONTRACT = "docs/user-guide/navigation-contract.yaml"
-_CURRENT_IMAGE_PREFIX = "docs/user-guide/images/current/"
 _EXCEPTION_PREFIX = "docs/14-testing/documentation-impact-exceptions/"
 _EXCEPTION_SCHEMA = "cmp.documentation-impact-exception.v1"
 _NON_USER_VISIBLE_CLASSIFICATION = "non-user-visible-foundation"
 _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION = "non-user-visible-structural-extraction"
-_CSS_VISUAL_PRESERVATION_SCHEMA = "cmp.documentation-impact.css-byte-identical.v1"
-_CSS_VISUAL_PRESERVATION_CLASSIFICATION = "behavior-preserving-css-migration"
-_CSS_VISUAL_PRESERVATION_MANIFEST = re.compile(
-    r"docs/17-evidence/images/issue-([1-9][0-9]*)-[^/]+/manifest\.json"
-)
-_CSS_VISUAL_PRESERVATION_ARTIFACT = re.compile(
-    r"(docs/17-evidence/images/issue-([1-9][0-9]*)-[^/]+)/(before|after)/.+"
-)
-_MANDATORY_CSS_VIEWPORTS = frozenset(
+_DOCUMENTATION_MANIFEST = "docs/documentation-manifest.yaml"
+_VISUAL_EVIDENCE_LIFECYCLES = frozenset({"current", "frozen", "transient"})
+_CURRENT_FIVE_VIEWPORTS = frozenset(
     {"1366x768", "1440x900", "1920x1080", "2560x1440", "3840x2160"}
 )
+_ISSUE_167_EXCEPTION_FILES = frozenset(
+    {
+        "docs/17-evidence/images/issue-289-administration-database-workflow/after/"
+        "originals/administration-database-1920x1080.png",
+        "docs/17-evidence/images/issue-289-administration-database-workflow/after/"
+        "originals/administration-database-2560x1440.png",
+        "docs/17-evidence/images/issue-289-administration-database-workflow/after/"
+        "originals/administration-database-3840x2160.png",
+    }
+)
+_ISSUE_167_DEPENDENCIES = frozenset(
+    {
+        "docs/01-product/service-reference-manifest.yaml",
+        "docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml",
+    }
+)
+_ISSUE_184_VISUAL_EVIDENCE = (
+    "docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json"
+)
+_ISSUE_184_ROOT = "docs/17-evidence/images/issue-184-high-dpi-global-implementation"
+# The approved #184 policy snapshot is immutable.  Tests may replace this named
+# constant with a temporary fixture commit; production must keep this SHA.
+_ISSUE_184_POLICY_BASE = "94d8a1cdefa104fb41865171093b0657966b159f"
+_ISSUE_223_PREFIX = "docs/17-evidence/images/issue-223-"
 _SHARED_DESIGN_PREFIX = "apps/web/src/design/"
 _PRESERVED_FOUNDATION_FILES = {
     "apps/web/src/design/primitives.css",
@@ -59,8 +75,6 @@ class DocumentationImpactReport:
     exempted_visual_files: tuple[str, ...]
     exception_issue: str | None
     requirements: tuple[str, ...]
-    byte_identical_visual_files: tuple[str, ...] = ()
-    visual_preservation_issue: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,26 +105,16 @@ class _ValidatedDocumentationImpactException:
 
 
 @dataclass(frozen=True, slots=True)
-class _CssVisualMatch:
-    current: str
-    before: str
-    after: str
+class _VisualEvidenceException:
+    lifecycle: str
+    paths: tuple[str, ...]
 
 
 @dataclass(frozen=True, slots=True)
-class _CssVisualPreservation:
-    path: str
-    issue: str
-    source_sha: str
-    classification: str
-    visual_files: tuple[str, ...]
-    visual_file_sha256: tuple[tuple[str, str], ...]
-    current_matches: tuple[_CssVisualMatch, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class _ValidatedCssVisualPreservation:
-    evidence: _CssVisualPreservation
+class _VisualEvidenceConfig:
+    raster_extensions: frozenset[str]
+    roots: tuple[tuple[str, str], ...]
+    exceptions: tuple[_VisualEvidenceException, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -327,175 +331,9 @@ def _unique_json_mapping(pairs: list[tuple[str, object]]) -> dict[str, object]:
 def _read_json_mapping(path: Path, field: str) -> dict[str, Any]:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_json_mapping)
-    except (OSError, json.JSONDecodeError, DocumentationImpactError) as error:
+    except (OSError, UnicodeError, json.JSONDecodeError, DocumentationImpactError) as error:
         raise DocumentationImpactError(f"cannot read {field}: {error}") from error
     return _mapping(raw, field)
-
-
-def _parse_css_visual_preservation(
-    path: str,
-    manifest: Mapping[str, Any],
-) -> _CssVisualPreservation:
-    raw = manifest.get("documentation_impact")
-    data = _mapping(raw, f"{path} documentation_impact")
-    expected_keys = {
-        "schema_version",
-        "issue",
-        "source_sha",
-        "classification",
-        "visual_files",
-        "visual_file_sha256",
-        "current_matches",
-    }
-    if set(data) != expected_keys:
-        raise DocumentationImpactError(
-            f"{path} documentation_impact keys must be exactly {', '.join(sorted(expected_keys))}"
-        )
-    if data["schema_version"] != _CSS_VISUAL_PRESERVATION_SCHEMA:
-        raise DocumentationImpactError(
-            f"{path} documentation_impact has an unsupported schema_version"
-        )
-    if data["classification"] != _CSS_VISUAL_PRESERVATION_CLASSIFICATION:
-        raise DocumentationImpactError(f"{path} documentation_impact classification is not allowed")
-    issue = data["issue"]
-    match = _CSS_VISUAL_PRESERVATION_MANIFEST.fullmatch(path)
-    if (
-        match is None
-        or not isinstance(issue, str)
-        or not re.fullmatch(r"#[1-9][0-9]*", issue)
-        or issue[1:] != match.group(1)
-    ):
-        raise DocumentationImpactError(
-            f"{path} documentation_impact issue must match its issue evidence directory"
-        )
-    source_sha = data["source_sha"]
-    if not isinstance(source_sha, str) or re.fullmatch(r"[0-9a-f]{40}", source_sha) is None:
-        raise DocumentationImpactError(
-            f"{path} documentation_impact source_sha must be a lowercase 40-character SHA"
-        )
-    visual_files = _path_list(data["visual_files"], f"{path} documentation_impact.visual_files")
-    if any(PurePosixPath(item).suffix.lower() != ".css" for item in visual_files):
-        raise DocumentationImpactError(
-            f"{path} documentation_impact can cover only production CSS files"
-        )
-    raw_visual_hashes = _mapping(
-        data["visual_file_sha256"], f"{path} documentation_impact.visual_file_sha256"
-    )
-    if set(raw_visual_hashes) != set(visual_files):
-        raise DocumentationImpactError(
-            f"{path} documentation_impact.visual_file_sha256 must exactly match visual_files"
-        )
-    visual_file_sha256: list[tuple[str, str]] = []
-    for visual_path in visual_files:
-        digest = raw_visual_hashes[visual_path]
-        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
-            raise DocumentationImpactError(
-                f"{path} documentation_impact.visual_file_sha256 has an invalid SHA-256"
-            )
-        visual_file_sha256.append((visual_path, digest))
-    raw_matches = data["current_matches"]
-    if not isinstance(raw_matches, list) or not raw_matches:
-        raise DocumentationImpactError(
-            f"{path} documentation_impact.current_matches must be a non-empty list"
-        )
-    current_matches: list[_CssVisualMatch] = []
-    for index, raw_match in enumerate(raw_matches):
-        item = _mapping(raw_match, f"{path} documentation_impact.current_matches[{index}]")
-        if set(item) != {"current", "before", "after"}:
-            raise DocumentationImpactError(
-                f"{path} documentation_impact.current_matches[{index}] keys must be exactly "
-                "after, before, current"
-            )
-        current_matches.append(
-            _CssVisualMatch(
-                current=_canonical_artifact_path(
-                    item["current"],
-                    f"{path} documentation_impact.current_matches[{index}].current",
-                ),
-                before=_canonical_artifact_path(
-                    item["before"],
-                    f"{path} documentation_impact.current_matches[{index}].before",
-                ),
-                after=_canonical_artifact_path(
-                    item["after"],
-                    f"{path} documentation_impact.current_matches[{index}].after",
-                ),
-            )
-        )
-    for field in ("current", "before", "after"):
-        paths = [getattr(item, field) for item in current_matches]
-        if len(paths) != len(set(paths)):
-            raise DocumentationImpactError(
-                f"{path} documentation_impact.current_matches repeats a {field} path"
-            )
-    return _CssVisualPreservation(
-        path=path,
-        issue=issue,
-        source_sha=source_sha,
-        classification=data["classification"],
-        visual_files=visual_files,
-        visual_file_sha256=tuple(visual_file_sha256),
-        current_matches=tuple(current_matches),
-    )
-
-
-def _load_changed_css_visual_preservation(
-    project: Path,
-    evidence: set[str],
-) -> _CssVisualPreservation | None:
-    candidates: list[_CssVisualPreservation] = []
-    for path in sorted(evidence):
-        if _CSS_VISUAL_PRESERVATION_MANIFEST.fullmatch(path) is None:
-            continue
-        manifest = _read_json_mapping(project / path, path)
-        if "documentation_impact" not in manifest:
-            continue
-        candidates.append(_parse_css_visual_preservation(path, manifest))
-    if len(candidates) <= 1:
-        return candidates[0] if candidates else None
-
-    current_hash_candidates = [
-        candidate
-        for candidate in candidates
-        if all(
-            (project / path).is_file()
-            and hashlib.sha256((project / path).read_bytes()).hexdigest() == expected_digest
-            for path, expected_digest in candidate.visual_file_sha256
-        )
-    ]
-    if len(current_hash_candidates) != 1:
-        raise DocumentationImpactError(
-            "exactly one CSS visual-preservation manifest must match the current CSS hashes"
-        )
-
-    current = current_hash_candidates[0]
-    current_visual_files = set(current.visual_files)
-    for historical in candidates:
-        if historical is current:
-            continue
-        committed = subprocess.run(
-            ["git", "cat-file", "-e", f"HEAD:{historical.path}"],
-            cwd=project,
-            check=False,
-            capture_output=True,
-        )
-        unchanged = subprocess.run(
-            ["git", "diff", "--quiet", "HEAD", "--", historical.path],
-            cwd=project,
-            check=False,
-            capture_output=True,
-        )
-        if committed.returncode != 0 or unchanged.returncode != 0:
-            raise DocumentationImpactError(
-                f"{historical.path} non-current CSS visual-preservation manifest must be "
-                "committed and unchanged"
-            )
-        if not set(historical.visual_files) <= current_visual_files:
-            raise DocumentationImpactError(
-                f"{historical.path} historical CSS visual-preservation manifest must cover "
-                "only visual files included in the current proof"
-            )
-    return current
 
 
 class _UniqueKeyLoader(yaml.SafeLoader):
@@ -526,6 +364,198 @@ def _mapping(value: object, field: str) -> dict[str, Any]:
     if not isinstance(value, dict) or not all(isinstance(key, str) for key in value):
         raise DocumentationImpactError(f"{field} must be a mapping")
     return value
+
+
+def _path_is_under(path: str, root: str) -> bool:
+    return path == root or path.startswith(f"{root}/")
+
+
+def _exception_path_matches(path: str, configured: str) -> bool:
+    # Configured file exceptions are exact paths; only directory exceptions
+    # authorize descendants.  A trailing slash is not canonical, so normal
+    # directory nesting is unambiguous.
+    if PurePosixPath(configured).suffix.lower() in {".png", ".jpg", ".jpeg"}:
+        return path == configured
+    return _path_is_under(path, configured)
+
+
+def _parse_visual_evidence_config(raw: object, field: str) -> _VisualEvidenceConfig:
+    manifest = _mapping(raw, field)
+    if manifest.get("version") != 3:
+        raise DocumentationImpactError(f"{field} must use version 3")
+    data = _mapping(manifest.get("visual_evidence"), f"{field} visual_evidence")
+    expected_keys = {"raster_extensions", "roots", "exceptions"}
+    if set(data) != expected_keys:
+        raise DocumentationImpactError(
+            f"{field} visual_evidence keys must be exactly {', '.join(sorted(expected_keys))}"
+        )
+
+    extensions = data["raster_extensions"]
+    if not isinstance(extensions, list) or not extensions:
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.raster_extensions must be a non-empty list"
+        )
+    if any(not isinstance(item, str) for item in extensions):
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.raster_extensions entries must be strings"
+        )
+    normalized_extensions = tuple(item.lower() for item in extensions)
+    expected_extensions = (".jpeg", ".jpg", ".png")
+    if tuple(sorted(normalized_extensions)) != expected_extensions:
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.raster_extensions must be exactly "
+            ".png, .jpg, .jpeg"
+        )
+    if len(set(normalized_extensions)) != len(normalized_extensions):
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.raster_extensions contains duplicate entries"
+        )
+
+    raw_roots = _mapping(data["roots"], f"{field} visual_evidence.roots")
+    if set(raw_roots) != _VISUAL_EVIDENCE_LIFECYCLES:
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.roots must define current, frozen, and transient"
+        )
+    roots: dict[str, str] = {}
+    for lifecycle in ("current", "frozen", "transient"):
+        roots[lifecycle] = _canonical_artifact_path(
+            raw_roots[lifecycle], f"{field} visual_evidence.roots.{lifecycle}"
+        )
+    if len(set(roots.values())) != len(roots):
+        raise DocumentationImpactError(
+            f"{field} visual_evidence lifecycle roots must be distinct"
+        )
+    root_items = tuple(roots.items())
+    for index, (left_name, left_root) in enumerate(root_items):
+        for right_name, right_root in root_items[index + 1 :]:
+            if _path_is_under(left_root, right_root) or _path_is_under(right_root, left_root):
+                raise DocumentationImpactError(
+                    f"{field} visual_evidence lifecycle roots overlap: "
+                    f"{left_name}={left_root}, {right_name}={right_root}"
+                )
+
+    raw_exceptions = data["exceptions"]
+    if not isinstance(raw_exceptions, list):
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.exceptions must be a list"
+        )
+    exceptions: list[_VisualEvidenceException] = []
+    exception_paths: list[str] = []
+    for index, raw_exception in enumerate(raw_exceptions):
+        item = _mapping(raw_exception, f"{field} visual_evidence.exceptions[{index}]")
+        if set(item) != {"lifecycle", "paths"}:
+            raise DocumentationImpactError(
+                f"{field} visual_evidence.exceptions[{index}] keys must be exactly "
+                "lifecycle, paths"
+            )
+        lifecycle = item["lifecycle"]
+        if lifecycle not in _VISUAL_EVIDENCE_LIFECYCLES:
+            raise DocumentationImpactError(
+                f"{field} visual_evidence.exceptions[{index}] has an unknown lifecycle"
+            )
+        if lifecycle == "transient":
+            raise DocumentationImpactError(
+                f"{field} visual_evidence.exceptions[{index}] cannot make transient evidence usable"
+            )
+        raw_paths = item["paths"]
+        if not isinstance(raw_paths, list) or not raw_paths:
+            raise DocumentationImpactError(
+                f"{field} visual_evidence.exceptions[{index}].paths must be a non-empty list"
+            )
+        paths = tuple(
+            _canonical_artifact_path(
+                path,
+                f"{field} visual_evidence.exceptions[{index}].paths[{path_index}]",
+            )
+            for path_index, path in enumerate(raw_paths)
+        )
+        if len(set(paths)) != len(paths):
+            raise DocumentationImpactError(
+                f"{field} visual_evidence.exceptions[{index}].paths contains duplicate entries"
+            )
+        if any(not _path_is_under(path, roots["frozen"]) for path in paths):
+            raise DocumentationImpactError(
+                f"{field} visual_evidence.exceptions[{index}] may only nest the frozen root"
+            )
+        exceptions.append(_VisualEvidenceException(lifecycle=lifecycle, paths=paths))
+        exception_paths.extend(paths)
+
+    if len(set(exception_paths)) != len(exception_paths):
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.exceptions contains duplicate paths"
+        )
+    for index, left in enumerate(exception_paths):
+        for right in exception_paths[index + 1 :]:
+            if _path_is_under(left, right) or _path_is_under(right, left):
+                raise DocumentationImpactError(
+                    f"{field} visual_evidence.exceptions have ambiguous overlap: "
+                    f"{left}, {right}"
+                )
+
+    expected_exceptions = {
+        "current": frozenset(_ISSUE_167_EXCEPTION_FILES),
+        "frozen": frozenset({_ISSUE_184_ROOT}),
+    }
+    actual_exceptions = {
+        item.lifecycle: frozenset(item.paths) for item in exceptions
+    }
+    if (
+        len(exceptions) != len(expected_exceptions)
+        or actual_exceptions != expected_exceptions
+    ):
+        raise DocumentationImpactError(
+            f"{field} visual_evidence.exceptions must exactly match the approved current and "
+            "frozen exception policy"
+        )
+    return _VisualEvidenceConfig(
+        raster_extensions=frozenset(normalized_extensions),
+        roots=root_items,
+        exceptions=tuple(exceptions),
+    )
+
+
+_DEFAULT_VISUAL_EVIDENCE_CONFIG = _VisualEvidenceConfig(
+    raster_extensions=frozenset({".png", ".jpg", ".jpeg"}),
+    roots=(
+        ("current", "docs/user-guide/images/current"),
+        ("frozen", "docs/17-evidence/images"),
+        ("transient", ".artifacts"),
+    ),
+    exceptions=(
+        _VisualEvidenceException(
+            lifecycle="current",
+            paths=tuple(sorted(_ISSUE_167_EXCEPTION_FILES)),
+        ),
+        _VisualEvidenceException(lifecycle="frozen", paths=(_ISSUE_184_ROOT,)),
+    ),
+)
+
+
+def _load_visual_evidence_config(project: Path) -> _VisualEvidenceConfig:
+    path = project / _DOCUMENTATION_MANIFEST
+    if not path.exists():
+        # Small contract fixtures predate the repository manifest and exercise
+        # only source classification.  The real checkout always carries the
+        # manifest; missing fixture metadata uses the same strict defaults.
+        return _DEFAULT_VISUAL_EVIDENCE_CONFIG
+    try:
+        raw = yaml.load(path.read_text(encoding="utf-8"), Loader=_UniqueKeyLoader)
+    except (OSError, UnicodeError, yaml.YAMLError, DocumentationImpactError) as error:
+        raise DocumentationImpactError(f"cannot read {_DOCUMENTATION_MANIFEST}: {error}") from error
+    return _parse_visual_evidence_config(raw, _DOCUMENTATION_MANIFEST)
+
+
+def _visual_evidence_lifecycle(
+    path: str,
+    config: _VisualEvidenceConfig,
+) -> str | None:
+    for exception in config.exceptions:
+        if any(_exception_path_matches(path, configured) for configured in exception.paths):
+            return exception.lifecycle
+    for lifecycle, root in config.roots:
+        if _path_is_under(path, root):
+            return lifecycle
+    return None
 
 
 def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
@@ -689,266 +719,6 @@ def _load_changed_exception(
     except (OSError, yaml.YAMLError, DocumentationImpactError) as error:
         raise DocumentationImpactError(f"cannot read {path}: {error}") from error
     return _parse_exception(path, raw)
-
-
-def _validate_css_visual_preservation(
-    project: Path,
-    preservation: _CssVisualPreservation,
-    entries: Mapping[str, bool],
-    visual_files: set[str],
-) -> _ValidatedCssVisualPreservation:
-    declared_visual = set(preservation.visual_files)
-    if declared_visual != visual_files:
-        raise DocumentationImpactError(
-            f"{preservation.path} documentation_impact.visual_files must exactly match "
-            "the changed production visual sources"
-        )
-    if any(not entries.get(path, False) for path in declared_visual):
-        raise DocumentationImpactError(
-            f"{preservation.path} documentation_impact visual files must be current changes"
-        )
-    for path in declared_visual:
-        source = project / path
-        if not source.is_file() or source.suffix.lower() != ".css":
-            raise DocumentationImpactError(
-                f"{preservation.path} documentation_impact target is not current CSS: {path}"
-            )
-    for path, expected_digest in preservation.visual_file_sha256:
-        actual_digest = hashlib.sha256((project / path).read_bytes()).hexdigest()
-        if actual_digest != expected_digest:
-            raise DocumentationImpactError(
-                f"{preservation.path} documentation_impact CSS SHA-256 differs: {path}"
-            )
-
-    ancestor = subprocess.run(
-        ["git", "merge-base", "--is-ancestor", preservation.source_sha, "HEAD"],
-        cwd=project,
-        check=False,
-        capture_output=True,
-    )
-    if ancestor.returncode != 0:
-        raise DocumentationImpactError(
-            f"{preservation.path} documentation_impact source_sha is not an ancestor of HEAD"
-        )
-    for path in declared_visual:
-        changed = subprocess.run(
-            ["git", "diff", "--quiet", preservation.source_sha, "--", path],
-            cwd=project,
-            check=False,
-        )
-        if changed.returncode == 0:
-            raise DocumentationImpactError(
-                f"{preservation.path} documentation_impact CSS is unchanged from source_sha: {path}"
-            )
-        if changed.returncode != 1:
-            raise DocumentationImpactError(
-                f"{preservation.path} cannot compare CSS with source_sha: {path}"
-            )
-
-    manifest = _read_json_mapping(project / preservation.path, preservation.path)
-    if manifest.get("implementation_base") != preservation.source_sha:
-        raise DocumentationImpactError(
-            f"{preservation.path} implementation_base must equal documentation_impact source_sha"
-        )
-    if manifest.get("browser_zoom_percent") != 100:
-        raise DocumentationImpactError(f"{preservation.path} must record browser_zoom_percent 100")
-    if manifest.get("device_pixel_ratio") != 1 or manifest.get("density") != "standard":
-        raise DocumentationImpactError(
-            f"{preservation.path} must record DPR 1 and standard density"
-        )
-
-    raw_images = manifest.get("images")
-    if not isinstance(raw_images, list) or not raw_images:
-        raise DocumentationImpactError(f"{preservation.path} images must be a non-empty list")
-    images_by_path: dict[str, dict[str, Any]] = {}
-    original_paths: dict[str, set[str]] = {"before": set(), "after": set()}
-    for index, raw_image in enumerate(raw_images):
-        image = _mapping(raw_image, f"{preservation.path} images[{index}]")
-        raw_path = image.get("path")
-        if not isinstance(raw_path, str):
-            raise DocumentationImpactError(f"{preservation.path} images[{index}].path must be text")
-        image_path = _canonical_artifact_path(raw_path, f"{preservation.path} images[{index}].path")
-        if image_path in images_by_path:
-            raise DocumentationImpactError(f"{preservation.path} repeats image path {image_path}")
-        images_by_path[image_path] = image
-        phase = image.get("phase")
-        if image.get("kind") == "original" and phase in original_paths:
-            original_paths[phase].add(image_path)
-
-    raw_pairs = manifest.get("original_pairs")
-    if not isinstance(raw_pairs, list) or not raw_pairs:
-        raise DocumentationImpactError(
-            f"{preservation.path} original_pairs must be a non-empty list"
-        )
-    pairs_by_name: dict[str, dict[str, Any]] = {}
-    for index, raw_pair in enumerate(raw_pairs):
-        pair = _mapping(raw_pair, f"{preservation.path} original_pairs[{index}]")
-        name = pair.get("name")
-        if not isinstance(name, str) or not name or PurePosixPath(name).name != name:
-            raise DocumentationImpactError(
-                f"{preservation.path} original_pairs[{index}].name must be a filename"
-            )
-        if name in pairs_by_name:
-            raise DocumentationImpactError(f"{preservation.path} repeats original pair {name}")
-        pairs_by_name[name] = pair
-
-    screenshot_path = project / _SCREENSHOT_MANIFEST
-    if not entries.get(_SCREENSHOT_MANIFEST, False):
-        raise DocumentationImpactError(
-            f"{preservation.path} requires a changed {_SCREENSHOT_MANIFEST}"
-        )
-    try:
-        screenshot_manifest = _mapping(
-            yaml.safe_load(screenshot_path.read_text(encoding="utf-8")),
-            _SCREENSHOT_MANIFEST,
-        )
-    except (OSError, yaml.YAMLError) as error:
-        raise DocumentationImpactError(f"cannot read {_SCREENSHOT_MANIFEST}: {error}") from error
-    raw_captures = screenshot_manifest.get("captures")
-    if not isinstance(raw_captures, list):
-        raise DocumentationImpactError(f"{_SCREENSHOT_MANIFEST} captures must be a list")
-    registered_current: set[str] = set()
-    for index, raw_capture in enumerate(raw_captures):
-        capture = _mapping(raw_capture, f"{_SCREENSHOT_MANIFEST} captures[{index}]")
-        capture_image = capture.get("image")
-        if isinstance(capture_image, str):
-            registered_current.add(f"{_GUIDE_PREFIX}{capture_image}")
-    raw_allowances = screenshot_manifest.get("allowed_duplicate_groups")
-    if not isinstance(raw_allowances, list):
-        raise DocumentationImpactError(
-            f"{_SCREENSHOT_MANIFEST} allowed_duplicate_groups must be a list"
-        )
-    duplicate_groups: list[set[str]] = []
-    for index, raw_allowance in enumerate(raw_allowances):
-        allowance = _mapping(
-            raw_allowance, f"{_SCREENSHOT_MANIFEST} allowed_duplicate_groups[{index}]"
-        )
-        images = allowance.get("images")
-        if isinstance(images, list) and all(isinstance(item, str) for item in images):
-            duplicate_groups.append(set(images))
-
-    matched_before: set[str] = set()
-    matched_after: set[str] = set()
-    matched_names: set[str] = set()
-    normal_viewports: set[str] = set()
-    for match in preservation.current_matches:
-        if not match.current.startswith(_CURRENT_IMAGE_PREFIX):
-            raise DocumentationImpactError(
-                f"{preservation.path} current match must use {_CURRENT_IMAGE_PREFIX}: "
-                f"{match.current}"
-            )
-        if entries.get(match.current, False):
-            raise DocumentationImpactError(
-                f"{preservation.path} byte-identical proof requires an unchanged current PNG: "
-                f"{match.current}"
-            )
-        if match.current not in registered_current:
-            raise DocumentationImpactError(
-                f"{preservation.path} current match is not a registered guide capture: "
-                f"{match.current}"
-            )
-        before_evidence = _CSS_VISUAL_PRESERVATION_ARTIFACT.fullmatch(match.before)
-        after_evidence = _CSS_VISUAL_PRESERVATION_ARTIFACT.fullmatch(match.after)
-        issue_number = preservation.issue.removeprefix("#")
-        if (
-            before_evidence is None
-            or after_evidence is None
-            or before_evidence.group(3) != "before"
-            or after_evidence.group(3) != "after"
-            or before_evidence.group(1) != after_evidence.group(1)
-            or before_evidence.group(2) != issue_number
-            or after_evidence.group(2) != issue_number
-        ):
-            raise DocumentationImpactError(
-                f"{preservation.path} before/after matches must reuse one same-issue evidence root"
-            )
-        if any(
-            PurePosixPath(path).suffix.lower() != ".png"
-            for path in (
-                match.current,
-                match.before,
-                match.after,
-            )
-        ):
-            raise DocumentationImpactError(
-                f"{preservation.path} byte-identical matches must be PNG files"
-            )
-        before_entry = images_by_path.get(match.before)
-        after_entry = images_by_path.get(match.after)
-        if (
-            before_entry is None
-            or before_entry.get("kind") != "original"
-            or before_entry.get("phase") != "before"
-            or after_entry is None
-            or after_entry.get("kind") != "original"
-            or after_entry.get("phase") != "after"
-        ):
-            raise DocumentationImpactError(
-                f"{preservation.path} matches must reference registered before/after originals"
-            )
-        if before_entry.get("viewport") != after_entry.get("viewport") or before_entry.get(
-            "state"
-        ) != after_entry.get("state"):
-            raise DocumentationImpactError(
-                f"{preservation.path} before/after match metadata differs"
-            )
-        name = PurePosixPath(match.before).name
-        if PurePosixPath(match.after).name != name or PurePosixPath(match.current).name != name:
-            raise DocumentationImpactError(
-                f"{preservation.path} current/before/after filenames must match"
-            )
-        matched_pair = pairs_by_name.get(name)
-        if matched_pair is None or matched_pair.get("byte_equal") is not True:
-            raise DocumentationImpactError(
-                f"{preservation.path} match lacks a byte_equal original pair: {name}"
-            )
-        paths = [project / item for item in (match.current, match.before, match.after)]
-        if any(not path.is_file() for path in paths):
-            raise DocumentationImpactError(
-                f"{preservation.path} byte-identical match target is missing: {name}"
-            )
-        values = [path.read_bytes() for path in paths]
-        if not (values[0] == values[1] == values[2]):
-            raise DocumentationImpactError(
-                f"{preservation.path} current/before/after bytes differ: {name}"
-            )
-        digest = hashlib.sha256(values[0]).hexdigest()
-        if (
-            before_entry.get("sha256") != digest
-            or after_entry.get("sha256") != digest
-            or matched_pair.get("before_sha256") != digest
-            or matched_pair.get("after_sha256") != digest
-        ):
-            raise DocumentationImpactError(
-                f"{preservation.path} registered SHA-256 differs from actual bytes: {name}"
-            )
-        required_group = {match.current, match.before, match.after}
-        if not any(required_group <= group for group in duplicate_groups):
-            raise DocumentationImpactError(
-                f"{preservation.path} match is absent from one registered duplicate group: {name}"
-            )
-        matched_before.add(match.before)
-        matched_after.add(match.after)
-        matched_names.add(name)
-        if before_entry.get("state") == "normal":
-            viewport = before_entry.get("viewport")
-            if isinstance(viewport, str):
-                normal_viewports.add(viewport)
-
-    if matched_before != original_paths["before"] or matched_after != original_paths["after"]:
-        raise DocumentationImpactError(
-            f"{preservation.path} current_matches must cover every registered original"
-        )
-    if matched_names != set(pairs_by_name):
-        raise DocumentationImpactError(
-            f"{preservation.path} current_matches must cover every original pair"
-        )
-    if not _MANDATORY_CSS_VIEWPORTS <= normal_viewports:
-        missing = sorted(_MANDATORY_CSS_VIEWPORTS - normal_viewports)
-        raise DocumentationImpactError(
-            f"{preservation.path} byte-identical proof is missing mandatory viewports: {missing}"
-        )
-    return _ValidatedCssVisualPreservation(evidence=preservation)
 
 
 def _production_source_paths(project: Path) -> Iterable[Path]:
@@ -3772,34 +3542,327 @@ def _merge_base(project: Path) -> str:
     return merge_base
 
 
+def _read_git_json_mapping(project: Path, revision: str, path: str) -> dict[str, Any]:
+    try:
+        result = subprocess.run(
+            ["git", "show", f"{revision}:{path}"],
+            cwd=project,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, UnicodeError) as error:
+        raise DocumentationImpactError(f"cannot read {path} at base {revision}: {error}") from error
+    if result.returncode != 0:
+        raise DocumentationImpactError(f"cannot read {path} at base {revision}")
+    try:
+        raw = json.loads(result.stdout, object_pairs_hook=_unique_json_mapping)
+    except (json.JSONDecodeError, DocumentationImpactError) as error:
+        raise DocumentationImpactError(f"cannot read {path} at base {revision}: {error}") from error
+    return _mapping(raw, path)
+
+
+def _git_path_exists(project: Path, revision: str, path: str) -> bool:
+    result = subprocess.run(
+        ["git", "cat-file", "-e", f"{revision}:{path}"],
+        cwd=project,
+        check=False,
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def _issue_184_add_only_allowlist(project: Path | None, merge_base: str | None) -> set[str]:
+    if project is None or merge_base is None:
+        return set()
+    # The dynamic PR merge-base is intentionally not policy authority.  It is
+    # used below only to reject modifications and validate read-back deltas.
+    manifest = _read_git_json_mapping(project, _ISSUE_184_POLICY_BASE, _ISSUE_184_VISUAL_EVIDENCE)
+    completeness = _mapping(
+        manifest.get("full_screen_density_completeness"),
+        f"{_ISSUE_184_VISUAL_EVIDENCE} full_screen_density_completeness",
+    )
+    allowed: set[str] = set()
+    for density in ("compact", "standard", "large"):
+        item = _mapping(
+            completeness.get(density),
+            f"{_ISSUE_184_VISUAL_EVIDENCE} full_screen_density_completeness.{density}",
+        )
+        missing = item.get("missing")
+        if not isinstance(missing, list) or len(missing) != 10:
+            raise DocumentationImpactError(
+                f"{_ISSUE_184_VISUAL_EVIDENCE} base {density} missing list must contain "
+                "exactly 10 names"
+            )
+        for index, name in enumerate(missing):
+            if (
+                not isinstance(name, str)
+                or PurePosixPath(name).name != name
+                or "\\" in name
+                or PurePosixPath(name).suffix.lower() != ".png"
+            ):
+                raise DocumentationImpactError(
+                    f"{_ISSUE_184_VISUAL_EVIDENCE} base {density} missing[{index}] "
+                    "must be a PNG filename"
+                )
+            allowed.add(f"{_ISSUE_184_ROOT}/after/{density}/{name}")
+    if len(allowed) != 30:
+        raise DocumentationImpactError(
+            f"{_ISSUE_184_VISUAL_EVIDENCE} base missing lists must derive exactly 30 paths"
+        )
+    return allowed
+
+
+def _issue_184_manifest_missing(
+    project: Path,
+    added_paths: set[str],
+    merge_base: str | None,
+) -> None:
+    path = project / _ISSUE_184_VISUAL_EVIDENCE
+    if not path.is_file():
+        raise DocumentationImpactError(
+            f"{_ISSUE_184_VISUAL_EVIDENCE} must remain readable after an allowed addition"
+        )
+    manifest = _read_json_mapping(path, _ISSUE_184_VISUAL_EVIDENCE)
+    completeness = _mapping(
+        manifest.get("full_screen_density_completeness"),
+        f"{_ISSUE_184_VISUAL_EVIDENCE} full_screen_density_completeness",
+    )
+    for added in sorted(added_paths):
+        match = re.fullmatch(
+            rf"{re.escape(_ISSUE_184_ROOT)}/after/(compact|standard|large)/([^/]+\.png)",
+            added,
+            re.IGNORECASE,
+        )
+        if match is None:
+            continue
+        density, name = match.group(1), match.group(2)
+        target = project / Path(*added.split("/"))
+        if not target.is_file() or target.is_symlink():
+            raise DocumentationImpactError(f"{added} must be present after an allowed addition")
+        item = _mapping(
+            completeness.get(density),
+            f"{_ISSUE_184_VISUAL_EVIDENCE} full_screen_density_completeness.{density}",
+        )
+        missing = item.get("missing")
+        if not isinstance(missing, list):
+            raise DocumentationImpactError(
+                f"{_ISSUE_184_VISUAL_EVIDENCE} {density} missing state must be a list"
+            )
+        if name in missing:
+            raise DocumentationImpactError(
+                f"{added} remains listed as missing in {_ISSUE_184_VISUAL_EVIDENCE}"
+            )
+
+    if merge_base is None:
+        return
+    base_manifest = _read_git_json_mapping(project, merge_base, _ISSUE_184_VISUAL_EVIDENCE)
+    base_completeness = _mapping(
+        base_manifest.get("full_screen_density_completeness"),
+        f"{_ISSUE_184_VISUAL_EVIDENCE} base full_screen_density_completeness",
+    )
+    additions_by_density = {density: 0 for density in ("compact", "standard", "large")}
+    for added in sorted(added_paths):
+        match = re.fullmatch(
+            rf"{re.escape(_ISSUE_184_ROOT)}/after/(compact|standard|large)/([^/]+\.png)",
+            added,
+            re.IGNORECASE,
+        )
+        if match is not None:
+            additions_by_density[match.group(1)] += 1
+    for density, addition_count in additions_by_density.items():
+        if not addition_count:
+            continue
+        current_item = _mapping(
+            completeness.get(density),
+            f"{_ISSUE_184_VISUAL_EVIDENCE} full_screen_density_completeness.{density}",
+        )
+        base_item = _mapping(
+            base_completeness.get(density),
+            f"{_ISSUE_184_VISUAL_EVIDENCE} base full_screen_density_completeness.{density}",
+        )
+        current_present = current_item.get("present")
+        base_present = base_item.get("present")
+        if not isinstance(current_present, int) or isinstance(current_present, bool):
+            raise DocumentationImpactError(
+                f"{_ISSUE_184_VISUAL_EVIDENCE} {density} present count is unreadable"
+            )
+        if not isinstance(base_present, int) or isinstance(base_present, bool):
+            raise DocumentationImpactError(
+                f"{_ISSUE_184_VISUAL_EVIDENCE} base {density} present count is unreadable"
+            )
+        expected_present = base_present + addition_count
+        if current_present != expected_present:
+            raise DocumentationImpactError(
+                f"{_ISSUE_184_VISUAL_EVIDENCE} {density} present count must read back "
+                f"as {expected_present} after additions"
+            )
+
+
+def _issue_223_root(path: str) -> str | None:
+    if not path.startswith(_ISSUE_223_PREFIX):
+        return None
+    remainder = path.removeprefix(_ISSUE_223_PREFIX)
+    issue_root_name = remainder.split("/", 1)[0]
+    if not issue_root_name:
+        return None
+    return f"{_ISSUE_223_PREFIX}{issue_root_name}"
+
+
+def _validate_visual_evidence_changes(
+    entries: Mapping[str, bool],
+    config: _VisualEvidenceConfig,
+    *,
+    project: Path | None = None,
+    merge_base: str | None = None,
+) -> None:
+    changed = set(entries)
+    issue_184_paths = {
+        path
+        for path in changed
+        if _path_is_under(path, _ISSUE_184_ROOT)
+        and PurePosixPath(path).suffix.lower() in config.raster_extensions
+    }
+    issue_184_allowlist = (
+        _issue_184_add_only_allowlist(project, merge_base) if issue_184_paths else set()
+    )
+    issue_184_additions: set[str] = set()
+    for raw_path, current in entries.items():
+        path = raw_path.strip().replace("\\", "/")
+        if PurePosixPath(path).suffix.lower() not in config.raster_extensions:
+            continue
+        lifecycle = _visual_evidence_lifecycle(path, config)
+        if lifecycle is None or lifecycle == "transient":
+            continue
+        if path in _ISSUE_167_EXCEPTION_FILES:
+            if not all(entries.get(dependency, False) for dependency in _ISSUE_167_DEPENDENCIES):
+                raise DocumentationImpactError(
+                    f"current-product evidence exception requires both coupling manifests: {path}"
+                )
+            continue
+
+        if _path_is_under(path, _ISSUE_184_ROOT):
+            if current and path in issue_184_allowlist:
+                if (
+                    project is not None
+                    and merge_base is not None
+                    and _git_path_exists(project, merge_base, path)
+                ):
+                    raise DocumentationImpactError(
+                        f"issue-184 visual evidence permits additions only: {path}"
+                    )
+                issue_184_additions.add(path)
+                continue
+            if not current:
+                raise DocumentationImpactError(
+                    f"issue-184 frozen visual evidence permits additions only: {path}"
+                )
+            raise DocumentationImpactError(
+                "issue-184 visual evidence path is not in the base-derived 30 add-only "
+                f"allowlist: {path}"
+            )
+
+        issue_223_root = _issue_223_root(path)
+        if issue_223_root is not None:
+            if not current:
+                raise DocumentationImpactError(
+                    f"actual-device #223 visual evidence does not permit delete or rename: {path}"
+                )
+            coupling = {
+                f"{issue_223_root}/manifest.json",
+                f"{issue_223_root}/visual-evidence.yaml",
+            }
+            if not any(entries.get(path, False) for path in coupling):
+                raise DocumentationImpactError(
+                    "actual-device #223 visual evidence requires a same-root manifest "
+                    f"change: {path}"
+                )
+            continue
+
+        if lifecycle == "frozen":
+            raise DocumentationImpactError(f"frozen visual evidence is immutable: {path}")
+
+    if issue_184_additions:
+        if _ISSUE_184_VISUAL_EVIDENCE not in changed:
+            path = sorted(issue_184_additions)[0]
+            raise DocumentationImpactError(
+                f"issue-184 allowed additions require {_ISSUE_184_VISUAL_EVIDENCE}: {path}"
+            )
+        if project is not None:
+            _issue_184_manifest_missing(project, issue_184_additions, merge_base)
+
+
+def _current_changed_pngs(
+    entries: Mapping[str, bool],
+    config: _VisualEvidenceConfig,
+) -> set[str]:
+    roots = dict(config.roots)
+    current_root = roots["current"]
+    return {
+        path
+        for path, current in entries.items()
+        if current
+        and _path_is_under(path, current_root)
+        and PurePosixPath(path).suffix.lower() == ".png"
+    }
+
+
+def _has_current_five_viewport_family(paths: Iterable[str]) -> bool:
+    groups: dict[str, set[str]] = {}
+    pattern = re.compile(
+        r"^(?P<stem>.+?)[-_](?P<viewport>1366x768|1440x900|1920x1080|2560x1440|3840x2160)\.png$",
+        re.IGNORECASE,
+    )
+    for path in paths:
+        pure_path = PurePosixPath(path)
+        name = pure_path.name
+        match = pattern.fullmatch(name)
+        if match is not None:
+            key = f"{pure_path.parent}/{match.group('stem')}"
+            groups.setdefault(key, set()).add(match.group("viewport"))
+    return any(_CURRENT_FIVE_VIEWPORTS <= viewports for viewports in groups.values())
+
+
 def evaluate_documentation_impact(
     paths: Iterable[str] | Mapping[str, bool],
     *,
     exception: _ValidatedDocumentationImpactException | None = None,
-    visual_preservation: _ValidatedCssVisualPreservation | None = None,
     ignored_visual_files: Iterable[str] = (),
+    visual_evidence: _VisualEvidenceConfig | None = None,
+    project: Path | None = None,
+    merge_base: str | None = None,
 ) -> DocumentationImpactReport:
     if exception is not None and not isinstance(exception, _ValidatedDocumentationImpactException):
         raise DocumentationImpactError(
             "documentation-impact exceptions must pass repository validation"
         )
-    if visual_preservation is not None and not isinstance(
-        visual_preservation, _ValidatedCssVisualPreservation
-    ):
-        raise DocumentationImpactError(
-            "CSS visual-preservation evidence must pass repository validation"
-        )
     if isinstance(paths, Mapping):
         normalized_entries = {
-            path.strip().replace("\\", "/"): can_supply_evidence
+            path.strip().replace("\\", "/"): bool(can_supply_evidence)
             for path, can_supply_evidence in paths.items()
-            if path.strip()
+            if isinstance(path, str) and path.strip()
         }
         changed = set(normalized_entries)
-        evidence = {path for path, allowed in normalized_entries.items() if allowed}
+        evidence = {
+            path for path, can_supply_evidence in normalized_entries.items() if can_supply_evidence
+        }
     else:
         changed = _normalize(paths)
-        evidence = changed
+        normalized_entries = {path: True for path in changed}
+        evidence = set(changed)
+
+    config = visual_evidence or _DEFAULT_VISUAL_EVIDENCE_CONFIG
+    _validate_visual_evidence_changes(
+        normalized_entries,
+        config,
+        project=project,
+        merge_base=merge_base,
+    )
+    evidence = {
+        path
+        for path in evidence
+        if _visual_evidence_lifecycle(path, config) != "transient"
+    }
     ignored_visual = _normalize(ignored_visual_files)
     if ignored_visual - changed or any(not _is_visual_source(path) for path in ignored_visual):
         raise DocumentationImpactError(
@@ -3813,37 +3876,26 @@ def evaluate_documentation_impact(
         raise DocumentationImpactError(
             "documentation-impact exception lists a path that is not a changed visual source"
         )
-    byte_identical_visual = (
-        set(visual_preservation.evidence.visual_files) if visual_preservation else set()
-    )
-    if byte_identical_visual - set(visual):
-        raise DocumentationImpactError(
-            "CSS visual-preservation evidence lists a path that is not a changed visual source"
-        )
-    if byte_identical_visual & exempted_visual:
-        raise DocumentationImpactError(
-            "a visual source cannot use both an exception and byte-identical evidence"
-        )
-    visual_requiring_documentation = sorted(set(visual) - exempted_visual - byte_identical_visual)
+    visual_requiring_documentation = sorted(set(visual) - exempted_visual)
     guide_changed = any(
         path.startswith(_GUIDE_PREFIX) and path.endswith(".md") for path in evidence
     )
     manifest_changed = _SCREENSHOT_MANIFEST in evidence
-    png_changed = any(
-        path.startswith(_CURRENT_IMAGE_PREFIX) and path.lower().endswith(".png")
-        for path in evidence
-    )
+    current_pngs = _current_changed_pngs(normalized_entries, config)
     requirements: list[str] = []
 
-    if byte_identical_visual and not manifest_changed:
-        requirements.append("update docs/user-guide/screenshot-manifest.yaml")
     if visual_requiring_documentation:
         if not guide_changed:
             requirements.append("update a current docs/user-guide/*.md workflow")
         if not manifest_changed:
             requirements.append("update docs/user-guide/screenshot-manifest.yaml")
-        if not png_changed:
+        if not current_pngs:
             requirements.append("add or update a current user-guide PNG")
+        elif not _has_current_five_viewport_family(current_pngs):
+            requirements.append(
+                "add or update one complete current user-guide PNG family at "
+                "1366x768, 1440x900, 1920x1080, 2560x1440, and 3840x2160"
+            )
 
     app_changed = "apps/web/src/app.tsx" in changed
     if app_changed and _NAVIGATION_CONTRACT not in evidence:
@@ -3863,20 +3915,26 @@ def evaluate_documentation_impact(
         exempted_visual_files=tuple(sorted(exempted_visual)),
         exception_issue=exception.exception.issue if exception else None,
         requirements=(),
-        byte_identical_visual_files=tuple(sorted(byte_identical_visual)),
-        visual_preservation_issue=(
-            visual_preservation.evidence.issue if visual_preservation else None
-        ),
     )
 
 
 def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationImpactReport:
     project = root.resolve()
     entries = changed_entries(project, mode)
-    evidence = {path for path, can_supply_evidence in entries.items() if can_supply_evidence}
-    exception = _load_changed_exception(project, evidence)
-    visual_preservation = _load_changed_css_visual_preservation(project, evidence)
     merge_base = _merge_base(project)
+    config = _load_visual_evidence_config(project)
+    _validate_visual_evidence_changes(
+        entries,
+        config,
+        project=project,
+        merge_base=merge_base,
+    )
+    evidence = {
+        path
+        for path, can_supply_evidence in entries.items()
+        if can_supply_evidence and _visual_evidence_lifecycle(path, config) != "transient"
+    }
+    exception = _load_changed_exception(project, evidence)
     base_source_paths = _git_blob_paths(project, merge_base)
     current_source_paths = _current_source_paths(project, entries)
     declared_exception_visual = set(exception.visual_files) if exception is not None else set()
@@ -3906,22 +3964,12 @@ def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationIm
             merge_base,
             changed=validation_entries,
         )
-    validated_visual_preservation = None
-    if visual_preservation is not None:
-        validated_visual_preservation = _validate_css_visual_preservation(
-            project,
-            visual_preservation,
-            validation_entries,
-            {
-                path
-                for path, current in validation_entries.items()
-                if current and _is_visual_source(path)
-            },
-        )
     return evaluate_documentation_impact(
         entries,
         exception=validated_exception,
-        visual_preservation=validated_visual_preservation,
+        visual_evidence=config,
+        project=project,
+        merge_base=merge_base,
         ignored_visual_files=import_only_visual,
     )
 
@@ -3940,16 +3988,10 @@ def main() -> int:
         if report.exception_issue
         else ""
     )
-    preservation_note = (
-        f", {len(report.byte_identical_visual_files)} byte-identical CSS visual sources "
-        f"by {report.visual_preservation_issue}"
-        if report.visual_preservation_issue
-        else ""
-    )
     print(
         "documentation impact check passed: "
         f"{len(report.changed_files)} changed files, {len(report.visual_files)} visual sources"
-        f"{exception_note}{preservation_note}"
+        f"{exception_note}"
     )
     return 0
 

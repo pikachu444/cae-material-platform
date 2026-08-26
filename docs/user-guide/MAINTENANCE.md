@@ -20,6 +20,8 @@ navigation contract, current capture manifest, #167 reference manifest, 이미�
 
 ## 이미지 lifecycle
 
+- 이미지의 임시 검토·현재 승격·동결 보존과 복구 규칙은
+  [시각 증거 lifecycle](../16-repository/visual-evidence-lifecycle.md)에 정의합니다.
 - `docs/user-guide/images/current/`에는 manifest에 등록한 현재 product route 캡처만 둡니다.
 - #167의 승인 target은 `docs/17-evidence/images/issue-167-service-reference/`에 두고
   `docs/01-product/service-reference-manifest.yaml`로 등록합니다.

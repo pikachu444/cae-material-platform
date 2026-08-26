@@ -60,7 +60,7 @@ frontend UI 원칙, frontend architecture, visual acceptance matrix 순이다. �
 - exact-selector group, 동일 target/property cascade group, owned CSS의 same-selector peer;
 - deep descendant, `:has`, `!important`, raw color, literal weight, dead/duplicate/wide-workaround 후보.
 
-[`check_issue_261_css_inventory.mjs`](../../scripts/check_issue_261_css_inventory.mjs)는 두 legacy file과
+[`check_issue_261_css_inventory.mjs`](https://github.com/pikachu444/cae-material-platform/blob/94d8a1cdefa104fb41865171093b0657966b159f/scripts/check_issue_261_css_inventory.mjs)는 두 legacy file과
 모든 비교 CSS를 다시 파싱해 JSON을 byte-for-byte 검증한다. `--write`는 source가 의도적으로 바뀐
 다음 migration 단위에서만 사용한다.
 

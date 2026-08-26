@@ -5,7 +5,7 @@
 The bounded source relocation is accepted by Main after final packet inspection. Main visual/runtime
 acceptance is PASS; this report does not claim physical Windows 4K device readability or a separate
 Product Owner/device review. The durable evidence record is [the M1E5 image manifest](images/issue-261-m1e5-producer-routed-residual/manifest.json), and its validator is
-[`capture_issue_261_m1e5_visual_evidence.py`](../../scripts/capture_issue_261_m1e5_visual_evidence.py).
+[`capture_issue_261_m1e5_visual_evidence.py`](https://github.com/pikachu444/cae-material-platform/blob/94d8a1cdefa104fb41865171093b0657966b159f/scripts/capture_issue_261_m1e5_visual_evidence.py).
 
 ## Frozen packet
 

@@ -45,6 +45,7 @@
 - [ADR-0027 Bulk export bundle](0027-bulk-export-bundle.md)
 - [ADR-0032 Conditional OpenRadioss linear Prony export](0032-conditional-openradioss-linear-prony-export.md)
 - [ADR-0033 Recipe/Batch output promotion lineage](0033-recipe-batch-output-promotion-lineage.md)
+- [ADR-0035 Visual evidence lifecycle and recovery](0035-visual-evidence-lifecycle-and-recovery.md)
 
 ## 프론트엔드·제품
 
