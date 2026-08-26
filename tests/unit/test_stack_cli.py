@@ -273,6 +273,32 @@ def test_failed_up_stops_started_processes_and_postgres_without_deleting_data(
     assert not stack._state_path(options).exists()
 
 
+def test_host_up_reports_the_reachable_private_listener_urls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    base_options = _options(tmp_path)
+    options = stack.StackOptions(
+        profile=base_options.profile,
+        runtime=base_options.runtime,
+        paths=base_options.paths,
+        postgres_bin=base_options.postgres_bin,
+        listen_address="192.168.10.12",
+        auth_config=base_options.auth_config,
+        secret_file=base_options.secret_file,
+        json_output=base_options.json_output,
+    )
+    monkeypatch.setattr(stack, "_doctor", lambda _: [stack.DoctorCheck("all", "ok", "ok")])
+    monkeypatch.setattr(stack, "_runtime_environment", lambda _: ({}, stack._demo_secrets()))
+    monkeypatch.setattr(stack, "_host_execution_order", lambda _: [])
+
+    stack._host_up(options, open_browser=False)
+
+    output = capsys.readouterr().out
+    assert "local=http://192.168.10.12:5173" in output
+    assert "lan=http://192.168.10.12:5173" in output
+    assert "local=http://127.0.0.1:5173" not in output
+
+
 def test_ctrl_c_returns_standard_cancellation_exit_code(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

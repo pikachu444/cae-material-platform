@@ -895,15 +895,10 @@ def _host_up(options: StackOptions, *, open_browser: bool) -> None:
                 pass
         _stop_postgres(options, postgres_bin=options.postgres_bin)
         raise
-    web_port = _topology_port(options, "web")
-    url = f"http://{options.listen_address}:{web_port}"
-    identity = "synthetic-demo-only" if options.profile == "demo" else "external-oidc"
-    print(
-        f"CMP stack started: profile={options.profile} identity={identity} "
-        f"local=http://127.0.0.1:{web_port} lan={url}"
-    )
+    status = _access_status(options)
+    _print_started(options, status)
     if open_browser:
-        webbrowser.open(url)
+        webbrowser.open(cast(str, status["lan_url"]))
 
 
 def _stop_postgres(options: StackOptions, *, postgres_bin: Path | None) -> None:
