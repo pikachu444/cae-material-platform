@@ -36,6 +36,8 @@ Do not infer a redesign mandate from a request to improve one screen.
 Before implementation, return one bounded packet containing:
 
 - primary user journey and visible outcome;
+- exact current actionable product-owner feedback plus the complete target route/screen/state matrix;
+- implementation, evidence, Main review, independent review, and owner disposition for every matrix row;
 - change classes: behavior, structural, semantic visual, defect, primitive, or shell;
 - owned feature, current owner files, responsibilities, and dependencies;
 - registered hotspot impact;
@@ -47,7 +49,8 @@ Before implementation, return one bounded packet containing:
 - tests and five-viewport/interaction evidence;
 - compatibility, removal conditions, forbidden shortcuts, and escalation points.
 
-A file list or generic plan is insufficient.
+A file list or generic plan is insufficient. Keep the matrix locked through correction and publication;
+do not accept a convenient subset of its screens or shorten away an owner-requested behavior.
 
 ## Architecture decisions
 
