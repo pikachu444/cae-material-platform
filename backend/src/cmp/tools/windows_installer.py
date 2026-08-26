@@ -354,44 +354,67 @@ def _firewall_add_command(paths: InstallPaths) -> str:
     )
 
 
-def _firewall_delete_command(paths: InstallPaths) -> str:
-    return (
-        f'netsh advfirewall firewall delete rule name="{_FIREWALL_RULE}" dir=in '
-        f'program="{_firewall_program(paths)}" protocol=TCP localport=5173'
+def _powershell_literal(value: str | Path) -> str:
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def _owned_firewall_command(paths: InstallPaths, *, remove: bool) -> list[str]:
+    rule = _powershell_literal(_FIREWALL_RULE)
+    display = _powershell_literal(_FIREWALL_DISPLAY)
+    group = _powershell_literal(_FIREWALL_GROUP)
+    program = _powershell_literal(_firewall_program(paths))
+    script = f"""
+$ErrorActionPreference = 'Stop'
+$owned = @(
+  Get-NetFirewallRule -DisplayName {rule} -ErrorAction SilentlyContinue |
+    Where-Object {{
+      $_.Group -eq {group} -and $_.Description -eq {display} -and
+      $_.Direction -eq 'Inbound' -and
+      $_.Action -eq 'Allow' -and ($_.Profile -band 1) -eq 1 -and
+      ($_.Profile -band 2) -eq 2 -and ($_.Profile -band 4) -eq 0
+    }} |
+    Where-Object {{
+      $application = @($_ | Get-NetFirewallApplicationFilter)
+      $port = @($_ | Get-NetFirewallPortFilter)
+      $address = @($_ | Get-NetFirewallAddressFilter)
+      $matchingApplication = @($application | Where-Object {{ $_.Program -eq {program} }})
+      $matchingPort = @($port | Where-Object {{
+        "$($_.Protocol)" -in @('TCP', '6') -and "$($_.LocalPort)" -eq '5173'
+      }})
+      $matchingAddress = @($address | Where-Object {{
+        @($_.RemoteAddress) -contains 'LocalSubnet'
+      }})
+      $matchingApplication.Count -gt 0 -and $matchingPort.Count -gt 0 -and
+      $matchingAddress.Count -gt 0
+    }}
+)
+""".strip()
+    script += (
+        "\n$owned | Remove-NetFirewallRule -Confirm:$false -ErrorAction Stop"
+        if remove
+        else "\nif ($owned.Count -gt 0) { 'true' } else { 'false' }"
     )
+    return [
+        "powershell.exe",
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        script,
+    ]
+
+
+def _firewall_delete_command(paths: InstallPaths) -> str:
+    return subprocess.list2cmdline(_owned_firewall_command(paths, remove=True))
 
 
 def _firewall_exists(paths: InstallPaths) -> bool:
-    result = _run(
-        ["netsh", "advfirewall", "firewall", "show", "rule", f"name={_FIREWALL_RULE}"],
-        check=False,
-    )
-    output = result.stdout.lower()
-    return (
-        result.returncode == 0
-        and _FIREWALL_RULE.lower() in output
-        and _FIREWALL_DISPLAY.lower() in output
-        and _FIREWALL_GROUP.lower() in output
-        and str(_firewall_program(paths)).lower() in output
-    )
+    result = _run(_owned_firewall_command(paths, remove=False), check=False)
+    return result.returncode == 0 and result.stdout.strip().lower() == "true"
 
 
 def _delete_owned_firewall_rule(paths: InstallPaths, *, check: bool) -> None:
-    _run(
-        [
-            "netsh",
-            "advfirewall",
-            "firewall",
-            "delete",
-            "rule",
-            f"name={_FIREWALL_RULE}",
-            "dir=in",
-            f"program={_firewall_program(paths)}",
-            "protocol=TCP",
-            "localport=5173",
-        ],
-        check=check,
-    )
+    _run(_owned_firewall_command(paths, remove=True), check=check)
 
 
 def _configure_firewall(paths: InstallPaths, *, admin: bool) -> bool:

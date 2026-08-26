@@ -261,8 +261,10 @@ def test_admin_firewall_update_is_idempotent_and_bounded_to_web(
     assert installer._configure_firewall(paths, admin=True)
     rendered = [" ".join(command) for command in commands]
 
-    assert "delete rule name=CAE-Material-Platform-Web" in rendered[0]
-    assert "program=" in rendered[0] and "python.exe" in rendered[0]
+    assert "Remove-NetFirewallRule" in rendered[0]
+    assert "CAE Material Platform Offline Installer" in rendered[0]
+    assert "CAE Material Platform Web (installer-owned)" in rendered[0]
+    assert "LocalSubnet" in rendered[0] and "python.exe" in rendered[0]
     assert "add rule" in rendered[1]
     assert "localport=5173" in rendered[1]
     assert "profile=private,domain" in rendered[1]
@@ -281,26 +283,54 @@ def test_uninstall_deletes_only_the_owned_program_specific_firewall_rule(
     def capture(command: list[object], *, check: bool = True) -> CompletedProcess[str]:
         rendered = [str(value) for value in command]
         commands.append(rendered)
-        if "show" in rendered:
-            output = "\n".join(
-                (
-                    installer._FIREWALL_RULE,
-                    installer._FIREWALL_DISPLAY,
-                    installer._FIREWALL_GROUP,
-                    str(installer._firewall_program(paths)),
-                )
-            )
-            return CompletedProcess(rendered, 0, output, "")
+        if "Remove-NetFirewallRule" not in rendered[-1]:
+            return CompletedProcess(rendered, 0, "true\n", "")
         return CompletedProcess(rendered, 0, "Deleted 1 rule.", "")
 
     monkeypatch.setattr(installer, "_run", capture)
 
     installer._remove_firewall(paths, admin=True)
 
-    deletion = commands[-1]
-    assert deletion[4:6] == ["rule", f"name={installer._FIREWALL_RULE}"]
-    assert f"program={installer._firewall_program(paths)}" in deletion
-    assert "protocol=TCP" in deletion and "localport=5173" in deletion
+    deletion = commands[-1][-1]
+    assert "Remove-NetFirewallRule" in deletion
+    assert installer._FIREWALL_RULE in deletion
+    assert installer._FIREWALL_DISPLAY in deletion
+    assert installer._FIREWALL_GROUP in deletion
+    assert str(installer._firewall_program(paths)) in deletion
+    assert "LocalPort)\" -eq '5173'" in deletion
+    assert "RemoteAddress) -contains 'LocalSubnet'" in deletion
+
+
+def test_external_firewall_collision_is_not_selected_as_installer_owned(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paths = installer._scope_paths("machine", "0.38.0", _environment(tmp_path))
+    commands: list[list[str]] = []
+
+    def capture(command: list[object], *, check: bool = True) -> CompletedProcess[str]:
+        rendered = [str(value) for value in command]
+        commands.append(rendered)
+        return CompletedProcess(rendered, 0, "false\n", "")
+
+    monkeypatch.setattr(installer, "_run", capture)
+
+    assert not installer._firewall_exists(paths)
+    installer._delete_owned_firewall_rule(paths, check=False)
+
+    query = commands[0][-1]
+    deletion = commands[1][-1]
+    for discriminator in (
+        installer._FIREWALL_RULE,
+        installer._FIREWALL_DISPLAY,
+        installer._FIREWALL_GROUP,
+        str(installer._firewall_program(paths)),
+        "LocalSubnet",
+        "5173",
+    ):
+        assert discriminator in query
+        assert discriminator in deletion
+    assert "Remove-NetFirewallRule" not in query
+    assert "Remove-NetFirewallRule" in deletion
 
 
 def test_stop_entrypoint_maps_to_the_stack_down_contract(
