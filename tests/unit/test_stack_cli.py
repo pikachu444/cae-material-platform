@@ -318,6 +318,7 @@ def test_status_reports_only_web_as_remote_front_door(tmp_path: Path) -> None:
 
     status = stack._host_status(options)
 
+    assert status["local_url"] == "http://192.168.10.12:5173"
     assert status["lan_url"] == "http://192.168.10.12:5173"
     assert status["exposed_ports"] == {"web": 5173}
     assert status["loopback_ports"] == {"api": 8000, "postgres": 54329}
@@ -362,7 +363,7 @@ def test_compose_status_reports_shared_urls_ports_and_managed_observability(
     status = stack._compose_status(options)
 
     assert status["state"] == "running"
-    assert status["local_url"] == "http://127.0.0.1:5173"
+    assert status["local_url"] == "http://192.168.10.12:5173"
     assert status["lan_url"] == "http://192.168.10.12:5173"
     assert status["remote_access"] == "requires Private/Domain LocalSubnet firewall rule"
     assert environments[0]["CMP_STACK_LISTEN_ADDRESS"] == "192.168.10.12"

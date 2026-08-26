@@ -1028,7 +1028,7 @@ def _access_status(options: StackOptions) -> dict[str, Any]:
             "configured_endpoint": os.environ.get(endpoint_environment) or None,
         }
     return {
-        "local_url": f"http://127.0.0.1:{web_port}",
+        "local_url": f"http://{listen_address}:{web_port}",
         "lan_url": f"http://{listen_address}:{web_port}",
         "listen_address": listen_address,
         "identity": "synthetic-demo-only" if options.profile == "demo" else "external-oidc",
