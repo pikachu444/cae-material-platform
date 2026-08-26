@@ -8,6 +8,7 @@
   "devicePixelRatio": 1,
   "visualViewportScale": 1,
   "document": {
+    "scrollY": 0,
     "clientWidth": 2560,
     "scrollWidth": 2560,
     "clientHeight": 1440,
@@ -23,7 +24,7 @@
     "x": 0,
     "y": 50,
     "width": 2560,
-    "height": 1359
+    "height": 1349
   },
   "taskbar": {
     "x": 0,
@@ -35,18 +36,18 @@
     "x": 32,
     "y": 117,
     "width": 2496,
-    "height": 1268
+    "height": 1258
   },
   "primary": {
-    "x": 336,
-    "y": 183,
-    "width": 661.8125,
-    "height": 1201
+    "x": 352,
+    "y": 117,
+    "width": 352,
+    "height": 1257
   },
   "secondary": {
-    "x": 1733.8125,
-    "y": 183,
-    "width": 794.1875,
-    "height": 1201
+    "x": 704,
+    "y": 117,
+    "width": 1824,
+    "height": 1257
   }
 }

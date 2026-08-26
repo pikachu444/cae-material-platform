@@ -13,6 +13,19 @@ const viewports = [
   [3840, 2160],
 ] as const;
 
+const rejectedLegacyAdministrationSelectors = [
+  ".content-card",
+  ".hero-actions",
+  ".form-stack",
+  ".form-grid",
+  ".datasheet-field",
+  ".page-stack",
+  ".page-heading",
+  ".eyebrow",
+  ".status-badge",
+  ".count-chip",
+].join(",");
+
 type RouteCapture = {
   id: "database" | "database-preview" | "records" | "access";
   workspace: string;
@@ -34,7 +47,7 @@ const routeCaptures: Record<RouteCapture["id"], Omit<RouteCapture, "id">> = {
   records: {
     workspace: ".administration-record-workbench",
     primary: ".catalog-record-list",
-    secondary: ".record-result-table",
+    secondary: ".catalog-datasheet",
   },
   access: {
     workspace: ".administration-access-workbench",
@@ -91,6 +104,7 @@ async function captureRoute(
   await expect(page.locator(routeCapture.workspace)).toBeVisible();
   await expect(primary).toBeVisible();
   await expect(secondary).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 0));
   const primaryNavigation = page.getByRole("navigation", { name: "Primary navigation" });
   await expect(primaryNavigation.getByRole("button", { name: "Materials", exact: true })).toBeVisible();
   await expect(primaryNavigation.getByRole("button", { name: "Modeling", exact: true })).toBeVisible();
@@ -99,16 +113,7 @@ async function captureRoute(
   for (const task of ["Database", "Format definitions", "Records", "Access"]) {
     await expect(administrationTasks.getByRole("button", { name: task, exact: true })).toBeVisible();
   }
-  await page.screenshot({ path: join(originalDirectory, `${stem}.png`) });
-  await page.locator(".application-menu-bar").screenshot({
-    path: join(cropDirectory, `${stem}-header.png`),
-  });
-  await page.locator(".administration-taskbar").screenshot({
-    path: join(cropDirectory, `${stem}-taskbar.png`),
-  });
-  await primary.screenshot({ path: join(cropDirectory, `${stem}-primary.png`) });
-  await secondary.screenshot({ path: join(cropDirectory, `${stem}-secondary.png`) });
-
+  await expect(page.locator(rejectedLegacyAdministrationSelectors)).toHaveCount(0);
   const measurements = await page.evaluate(
     ({ workspaceSelector, primarySelector, secondarySelector, state }) => {
       const rect = (selector: string) => {
@@ -127,6 +132,7 @@ async function captureRoute(
         devicePixelRatio,
         visualViewportScale: visualViewport?.scale ?? null,
         document: {
+          scrollY,
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
           clientHeight: document.documentElement.clientHeight,
@@ -147,9 +153,20 @@ async function captureRoute(
       state: routeCapture.id,
     },
   );
+  await page.screenshot({ path: join(originalDirectory, `${stem}.png`) });
+  await page.locator(".application-menu-bar").screenshot({
+    path: join(cropDirectory, `${stem}-header.png`),
+  });
+  await page.locator(".administration-taskbar").screenshot({
+    path: join(cropDirectory, `${stem}-taskbar.png`),
+  });
+  await primary.screenshot({ path: join(cropDirectory, `${stem}-primary.png`) });
+  await secondary.screenshot({ path: join(cropDirectory, `${stem}-secondary.png`) });
+  await page.evaluate(() => window.scrollTo(0, 0));
   expect(measurements.visualViewportScale).toBe(1);
   expect(measurements.devicePixelRatio).toBe(1);
   expect(measurements.document.scrollWidth).toBe(measurements.document.clientWidth);
+  expect(measurements.taskbar?.y ?? -1).toBeGreaterThanOrEqual(0);
   expect(measurements.workspace).not.toBeNull();
   expect(measurements.primary?.width ?? 0).toBeGreaterThan(240);
   expect(measurements.secondary?.width ?? 0).toBeGreaterThan(280);
@@ -162,76 +179,124 @@ async function captureRoute(
 
 async function openExactDatabaseLayout(page: Page): Promise<void> {
   await page.goto("/administration/database");
-  await expect(page.getByRole("heading", { name: "Database design", exact: true })).toBeVisible();
-  await page.getByRole("combobox", { name: "Table", exact: true }).selectOption({
-    label: "Demo Material Records · r1",
+  await expect(page.getByRole("region", { name: "Database design", exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Record type", exact: true }).selectOption({
+    label: "Demo Material Records · Revision 1",
   });
   await page.getByRole("button", { name: "Layouts", exact: true }).click();
-  await page.getByRole("region", { name: "Layouts list", exact: true }).getByRole("button").first().click();
+  await page
+    .getByRole("region", { name: "Layouts list", exact: true })
+    .getByRole("button", { name: /^Material overview\b/ })
+    .click();
+  const version = page
+    .getByRole("region", { name: "Layouts list", exact: true })
+    .getByText("Version 1", { exact: true });
+  await expect(version).toBeVisible();
+  expect(
+    await version.evaluate((element) => {
+      const list = element.closest(".schema-object-list");
+      if (!list) return false;
+      return element.getBoundingClientRect().right <= list.getBoundingClientRect().right;
+    }),
+  ).toBeTruthy();
   await expect(page.locator(".schema-property-editor .property-sheet")).toBeVisible();
   await expect(page).toHaveURL(/table_revision_id=.+&object_kind=layouts&object_id=.+&object_revision_id=.+/);
 }
 
 async function openExactDatabaseRecord(page: Page): Promise<void> {
-  await page.getByRole("button", { name: "Preview record", exact: true }).click();
-  const preview = page.getByLabel("Adjacent datasheet preview");
+  await page.getByRole("button", { name: "Preview", exact: true }).click();
+  const preview = page.getByLabel("Datasheet preview");
   const option = preview.locator("option").filter({ hasText: "DP780 synthetic reference steel" });
-  await preview.getByRole("combobox", { name: "Record", exact: true }).selectOption(
-    (await option.getAttribute("value")) ?? "",
-  );
-  await expect(preview.getByText("DP780 synthetic reference steel", { exact: true })).toBeVisible();
+  const recordId = (await option.getAttribute("value")) ?? "";
+  const previewWith = preview.getByRole("combobox", { name: "Preview with", exact: true });
+  await previewWith.selectOption(recordId);
+  await expect(previewWith).toHaveValue(recordId);
+  await expect(option).toHaveText(/DP780 synthetic reference steel \(Draft, revision 2\)/);
   await expect(preview.getByText("CMP-DEMO-DP780", { exact: true })).toBeVisible();
+  await expect(preview.getByText("0.30", { exact: true })).toBeVisible();
+  await expect(preview.getByText("0.30 1", { exact: true })).toHaveCount(0);
   await expect(page).toHaveURL(/table_revision_id=.+&object_kind=layouts&object_id=.+&object_revision_id=.+&record_id=.+&record_revision_id=.+/);
 }
 
-test("FE-07B Administration exact journey remains usable across five viewports", async ({ page }) => {
-  test.skip(!evidenceDirectory, "Set CMP_ISSUE262_EVIDENCE_DIR for the bounded visual acceptance run.");
-  test.setTimeout(180_000);
-  await installAdministrator(page);
-  await page.route("**/api/v1/product-access/assignments", async (route) => {
-    if (route.request().method() !== "GET") {
-      await route.continue();
-      return;
-    }
-    const response = await route.fetch();
-    const body = (await response.json()) as {
-      items: Array<{ group_name?: string | null; revoked_at?: string | null }>;
-    };
-    await route.fulfill({
-      response,
-      json: {
-        ...body,
-        items: body.items.filter(
-          (item) => item.revoked_at === null && item.group_name?.startsWith("cmp-demo-"),
-        ),
-      },
+for (const [width, height] of viewports) {
+  test(`FE-07B Administration exact journey remains usable at ${width}x${height}`, async ({ page }) => {
+    test.skip(!evidenceDirectory, "Set CMP_ISSUE262_EVIDENCE_DIR for the bounded visual acceptance run.");
+    test.setTimeout(60_000);
+    await installAdministrator(page);
+    await page.route("**/api/v1/product-access/assignments", async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+      const response = await route.fetch();
+      const body = (await response.json()) as {
+        items: Array<{ group_name?: string | null; revoked_at?: string | null }>;
+      };
+      await route.fulfill({
+        response,
+        json: {
+          ...body,
+          items: body.items.filter(
+            (item) => item.revoked_at === null && item.group_name?.startsWith("cmp-demo-"),
+          ),
+        },
+      });
     });
-  });
 
-  for (const [width, height] of viewports) {
     await page.setViewportSize({ width, height });
     await openExactDatabaseLayout(page);
     await captureRoute(page, { id: "database", ...routeCaptures.database }, width, height);
     await openExactDatabaseRecord(page);
+    const previewScroll = page.locator(".schema-preview-fields");
+    const previewOverflow = await previewScroll.evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      overflowY: getComputedStyle(element).overflowY,
+      scrollHeight: element.scrollHeight,
+    }));
+    expect(previewOverflow.overflowY).toBe("auto");
+    if (previewOverflow.scrollHeight > previewOverflow.clientHeight) {
+      await previewScroll.evaluate((element) => { element.scrollTop = element.scrollHeight; });
+      expect(await previewScroll.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+      await previewScroll.evaluate((element) => { element.scrollTop = 0; });
+    }
     await captureRoute(page, { id: "database-preview", ...routeCaptures["database-preview"] }, width, height);
 
     await page.getByRole("button", { name: "Open in Records", exact: true }).click();
     await expect(page).toHaveURL(/\/administration\/records\?.*table_revision_id=.+&record_revision_id=.+/);
-    await expect(page.getByRole("heading", { name: /^Create revision \d+ from revision \d+$/ })).toBeVisible();
+    const recordEditor = page.getByRole("region", { name: "Edit DP780 synthetic reference steel", exact: true });
+    await expect(recordEditor.getByRole("heading", { name: "DP780 synthetic reference steel", exact: true })).toBeVisible();
+    await expect(recordEditor.getByText("Draft · Revision 2", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Record code", { exact: true })).toHaveValue("CMP-DEMO-DP780");
     await page.reload();
-    await expect(page.getByRole("heading", { name: /^Create revision \d+ from revision \d+$/ })).toBeVisible();
+    await expect(recordEditor.getByRole("heading", { name: "DP780 synthetic reference steel", exact: true })).toBeVisible();
+    await expect(recordEditor.getByText("Draft · Revision 2", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Record code", { exact: true })).toHaveValue("CMP-DEMO-DP780");
-    await page.getByRole("button", { name: "Close", exact: true }).click();
     await page
       .getByRole("textbox", { name: "Search", exact: true })
       .fill("CMP-DEMO-DP780");
     await page.getByRole("button", { name: "Search", exact: true }).click();
-    await expect(page.locator(".catalog-record-list .section-heading span")).toHaveText("1 records");
+    await expect(page.locator(".catalog-record-list .section-heading span")).toHaveText("1 record");
+    await expect(page.getByRole("button", { name: "Import records", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Create record", exact: true })).toBeVisible();
+    await expect(page.locator(".catalog-record-list")).toBeVisible();
+    await expect(page.locator(".catalog-datasheet")).toBeVisible();
+    await expect(page.locator(".ux-button.primary:visible")).toHaveText("Create record");
+    await expect(page.getByRole("button", { name: "Save new revision", exact: true })).not.toHaveClass(/primary/);
+    const recordEditorOverflow = await page.locator(".catalog-datasheet").evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      overflowY: getComputedStyle(element).overflowY,
+      scrollHeight: element.scrollHeight,
+    }));
+    expect(recordEditorOverflow.overflowY).toBe("auto");
+    if (recordEditorOverflow.scrollHeight > recordEditorOverflow.clientHeight) {
+      await page.locator(".catalog-datasheet").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+      expect(await page.locator(".catalog-datasheet").evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+      await page.locator(".catalog-datasheet").evaluate((element) => { element.scrollTop = 0; });
+    }
     await captureRoute(page, { id: "records", ...routeCaptures.records }, width, height);
 
     await page.goto("/administration/access");
-    await expect(page.getByRole("heading", { name: "Assignments", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Access", exact: true })).toBeVisible();
     await captureRoute(page, { id: "access", ...routeCaptures.access }, width, height);
-  }
-});
+  });
+}

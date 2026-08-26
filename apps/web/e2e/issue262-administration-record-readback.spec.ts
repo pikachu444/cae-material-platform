@@ -13,6 +13,8 @@ type SavedRecord = {
       name: string;
       external_key: string | null;
       description: string | null;
+      folder_id: string | null;
+      folder_revision_id: string | null;
       values: Array<{
         data_type: string;
         value?: string;
@@ -21,7 +23,7 @@ type SavedRecord = {
   };
 };
 
-async function installAdministrator(page: Page): Promise<void> {
+async function installAdministrator(page: Page): Promise<string> {
   const response = await page.request.get(
     `${webUrl}/api/v1/demo-identity/token?persona=administrator`,
   );
@@ -36,6 +38,7 @@ async function installAdministrator(page: Page): Promise<void> {
     },
     { accessToken: token },
   );
+  return token;
 }
 
 async function expectExactSavedRoute(page: Page, saved: SavedRecord): Promise<void> {
@@ -66,9 +69,12 @@ async function expectRecordReadBack(
 ): Promise<void> {
   await expect(
     page.getByRole("heading", {
-      name: `Create revision ${saved.current_revision.revision_no + 1} from revision ${saved.current_revision.revision_no}`,
+      name: saved.current_revision.content.name,
       exact: true,
     }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(`Draft · Revision ${saved.current_revision.revision_no}`, { exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(
     saved.current_revision.content.name,
@@ -88,7 +94,7 @@ test("Administration completes Database, exact Record, and Access read-back in o
   page,
 }) => {
   test.setTimeout(90_000);
-  await installAdministrator(page);
+  const accessToken = await installAdministrator(page);
 
   const suffix = `${Date.now()}-${test.info().workerIndex}`;
   const recordName = `Issue 262 read-back ${suffix}`;
@@ -98,21 +104,50 @@ test("Administration completes Database, exact Record, and Access read-back in o
   const revisedDescription = `${initialDescription} revised`;
 
   await page.goto("/administration/database");
-  await page.getByRole("combobox", { name: "Table", exact: true }).selectOption({
-    label: "Demo Material Records · r1",
+  await page.getByRole("combobox", { name: "Record type", exact: true }).selectOption({
+    label: "Demo Material Records · Revision 1",
   });
   await page.getByRole("button", { name: "Layouts", exact: true }).click();
-  await page.getByRole("region", { name: "Layouts list", exact: true }).getByRole("button").first().click();
-  await page.getByRole("button", { name: "Preview record", exact: true }).click();
-  const preview = page.getByLabel("Adjacent datasheet preview");
+  const materialOverview = page
+    .getByRole("region", { name: "Layouts list", exact: true })
+    .getByRole("button", { name: /^Material overview\b/ });
+  await materialOverview.click();
+  await expect(page.getByRole("heading", { name: "Material overview", exact: true })).toBeVisible();
+  const previewAction = page.getByRole("button", { name: "Preview", exact: true });
+  await expect(previewAction).toBeEnabled();
+  await previewAction.click();
+  const preview = page.getByLabel("Datasheet preview");
   const seededRecordOption = preview.locator("option").filter({
     hasText: "DP780 synthetic reference steel",
   });
-  await preview.getByRole("combobox", { name: "Record", exact: true }).selectOption(
-    (await seededRecordOption.getAttribute("value")) ?? "",
+  const seededRecordId = (await seededRecordOption.getAttribute("value")) ?? "";
+  expect(seededRecordId).not.toBe("");
+  await preview.getByRole("combobox", { name: "Preview with", exact: true }).selectOption(
+    seededRecordId,
   );
+  const selectedRecordResponse = await page.request.get(
+    `${webUrl}/api/v1/catalog/records/${encodeURIComponent(seededRecordId)}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  expect(selectedRecordResponse.ok()).toBeTruthy();
+  const selectedRecord = (await selectedRecordResponse.json()) as SavedRecord;
   await page.getByRole("button", { name: "Open in Records", exact: true }).click();
   await expect(page).toHaveURL(/\/administration\/records\?.*record_revision_id=.+/);
+  const previewHandoffUrl = new URL(page.url());
+  expect(previewHandoffUrl.searchParams.get("table_id")).toBe(selectedRecord.table_id);
+  expect(previewHandoffUrl.searchParams.get("table_revision_id")).toBe(
+    selectedRecord.current_revision.content.table_revision_id,
+  );
+  expect(previewHandoffUrl.searchParams.get("folder_id")).toBe(
+    selectedRecord.current_revision.content.folder_id,
+  );
+  expect(previewHandoffUrl.searchParams.get("folder_revision_id")).toBe(
+    selectedRecord.current_revision.content.folder_revision_id,
+  );
+  expect(previewHandoffUrl.searchParams.get("record_id")).toBe(selectedRecord.record_id);
+  expect(previewHandoffUrl.searchParams.get("record_revision_id")).toBe(
+    selectedRecord.current_revision.id,
+  );
   await expect(page.getByRole("textbox", { name: "Record code", exact: true })).toHaveValue(
     "CMP-DEMO-DP780",
   );
@@ -122,9 +157,9 @@ test("Administration completes Database, exact Record, and Access read-back in o
   );
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(page).toHaveURL(/\/administration\/records\?.*table_id=.+&table_revision_id=.+/);
-  await expect(page.locator(".catalog-record-list .section-heading span")).toHaveText(/^\d+ records$/);
-  await page.getByRole("button", { name: "New record", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Create Record", exact: true })).toBeVisible();
+  await expect(page.locator(".catalog-record-list .section-heading span")).toHaveText(/^\d+ records?$/);
+  await page.getByRole("button", { name: "Create record", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Create record", exact: true })).toBeVisible();
   await expect(page.getByRole("group", { name: "Material code *", exact: true })).toBeVisible();
 
   await page.getByRole("textbox", { name: "Name", exact: true }).fill(recordName);
@@ -134,7 +169,7 @@ test("Administration completes Database, exact Record, and Access read-back in o
     .getByRole("group", { name: "Material code *", exact: true })
     .getByRole("textbox")
     .fill(materialCode);
-  await expect(page.getByRole("button", { name: "Create record", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Save new record", exact: true })).toBeEnabled();
 
   const createResponsePromise = page.waitForResponse((response) => {
     const url = new URL(response.url());
@@ -143,7 +178,7 @@ test("Administration completes Database, exact Record, and Access read-back in o
       && /^\/api\/v1\/catalog\/tables\/[^/]+\/records$/.test(url.pathname)
     );
   });
-  await page.getByRole("button", { name: "Create record", exact: true }).click();
+  await page.getByRole("button", { name: "Save new record", exact: true }).click();
   const createResponse = await createResponsePromise;
   expect(createResponse.ok()).toBeTruthy();
   const created = (await createResponse.json()) as SavedRecord;
@@ -188,7 +223,7 @@ test("Administration completes Database, exact Record, and Access read-back in o
   await expectRecordReadBack(page, revised, materialCode);
 
   await page.goto(
-    `/catalog/records?table_id=${encodeURIComponent(revised.table_id)}&record_id=${encodeURIComponent(revised.record_id)}&revision_id=${encodeURIComponent(revised.current_revision.id)}`,
+    `/catalog/records?table_id=${encodeURIComponent(revised.table_id)}&table_revision_id=${encodeURIComponent(revised.current_revision.content.table_revision_id)}&record_id=${encodeURIComponent(revised.record_id)}&revision_id=${encodeURIComponent(revised.current_revision.id)}`,
   );
   const primaryNavigation = page.getByRole("navigation", { name: "Primary navigation" });
   await expect(primaryNavigation.getByRole("button", { name: "Materials", exact: true })).toBeVisible();
@@ -223,17 +258,20 @@ test("Administration completes Database, exact Record, and Access read-back in o
     "button",
     { name: "Database", exact: true },
   ).click();
-  await expect(page.getByRole("heading", { name: "Database design", exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Database design", exact: true })).toBeVisible();
   await page.getByRole("navigation", { name: "Administration tasks" }).getByRole(
     "button",
     { name: "Access", exact: true },
   ).click();
-  await expect(page.getByRole("heading", { name: "Assignments", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Access", exact: true })).toBeVisible();
+  for (const heading of ["Member", "Role", "Permissions", "Action"]) {
+    await expect(page.getByRole("columnheader", { name: heading, exact: true })).toBeVisible();
+  }
 
   const groupName = `issue262-demo-${suffix}`;
-  await page.getByRole("button", { name: "Add assignment", exact: true }).click();
+  await page.getByRole("button", { name: "Grant access", exact: true }).click();
   await page.getByRole("combobox", { name: "Role", exact: true }).selectOption("reviewer");
-  await page.getByRole("textbox", { name: "Group name", exact: true }).fill(groupName);
+  await page.getByRole("textbox", { name: "Team name", exact: true }).fill(groupName);
   await page.getByRole("textbox", { name: "Reason", exact: true }).fill(
     `FE-07B demonstration grant ${suffix}`,
   );
@@ -242,13 +280,13 @@ test("Administration completes Database, exact Record, and Access read-back in o
     return response.request().method() === "POST"
       && url.pathname === "/api/v1/product-access/assignments";
   });
-  await page.getByRole("button", { name: "Create assignment", exact: true }).click();
+  await page.getByRole("button", { name: "Grant access", exact: true }).click();
   expect((await grantResponsePromise).ok()).toBeTruthy();
   const assignmentRow = page.getByRole("row").filter({ hasText: groupName });
   await expect(assignmentRow).toContainText("Reviewer");
   await expect(assignmentRow).toContainText("Model approval");
 
-  await assignmentRow.getByRole("button", { name: "Revoke", exact: true }).click();
+  await assignmentRow.getByRole("button", { name: "Remove access", exact: true }).click();
   const revokePanel = page.locator(".access-revoke-panel");
   await revokePanel.getByRole("textbox", { name: "Reason", exact: true }).fill(
     `FE-07B demonstration cleanup ${suffix}`,
@@ -258,7 +296,7 @@ test("Administration completes Database, exact Record, and Access read-back in o
     return response.request().method() === "POST"
       && /\/api\/v1\/product-access\/assignments\/[^/]+\/revoke$/.test(url.pathname);
   });
-  await revokePanel.getByRole("button", { name: "Confirm revoke", exact: true }).click();
+  await revokePanel.getByRole("button", { name: "Remove access", exact: true }).click();
   expect((await revokeResponsePromise).ok()).toBeTruthy();
-  await expect(page.getByRole("row").filter({ hasText: groupName })).toContainText("Revoked");
+  await expect(page.getByRole("row").filter({ hasText: groupName })).toHaveCount(0);
 });

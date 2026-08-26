@@ -650,36 +650,9 @@
       "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
     },
     {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "f9a18d4b33f85b877a2bee0252796274985ff918e70b0fcb8fa0369b28965df4",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "05c776ae2f084453a038b5381a203f5cbb340963358e1c7b7c87003c598e7f04",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/primitives.css",
       "fingerprint": "07161b3f44be1eccf0658815ee713ce72678be3d157150dccb6a77dd17cf558c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "0951783190d424f5d7caf94986ba79ab9677cc0a92634f476419087a8fe1e94d",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -751,15 +724,6 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "283b436527d6a89cdfe3a43e33ae38b71f096960f21fb7a1899d2592b4950399",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
       "fingerprint": "2d958f99382a90e436b4536a41af0b411ff383ad27246aeeb1f2bb1bff28de02",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -769,25 +733,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "2eba52a2a5b1a33ca82cb72ef767dafa7e13c8f867cfa20ebb92b38370478750",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
       "fingerprint": "31ec9a9b9d6a20591aea2117c4b6b452c72b7a987fddc95704656f43b6316781",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "36907eb094fe8b5998162276db209a3a2095deb7e3a98d346a8c37b2e2bcd98a",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -1138,15 +1084,6 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "911f694a184835e18d2a1cacf112b53b894e8e496f4db539c43b87856fb49602",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
       "fingerprint": "9372da5723e583a9d1fb96d97b27c8253e63c1221d0929c415676d6f739f2b34",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -1157,15 +1094,6 @@
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/primitives.css",
       "fingerprint": "997905fa1ecf9c665d119415d0eaffa6de613d3a91f196fff37cb474c86eb32b",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "99c3d28ba1636e8c526d68ab14a07ec6628da7431b44c3519d62fbc4714362c2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -1301,15 +1229,6 @@
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/primitives.css",
       "fingerprint": "b8b9c7d95a988a745d6d15c4aca8967fff42898f1ededd76d5b69b4f4fbb48c0",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/primitives.css",
-      "fingerprint": "b9b41497959c973bdf2312b0136e8f0fa4b57192b68c37c9b1c976286d379de2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",

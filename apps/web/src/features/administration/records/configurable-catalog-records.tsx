@@ -39,6 +39,13 @@ import type {
   MaterialStateResponse,
 } from "./model";
 import { ReviewRequestAction } from "../../../review-request-action";
+import { publishWorkspaceStatus } from "../../../design/application-shell";
+import {
+  EngineeringPane,
+  SemanticStatus,
+  SemanticText,
+  WorkbenchMessage,
+} from "../../../design/semantic-ui";
 import {
   parseRecordsRouteSelection,
   recordsRoutePath,
@@ -86,6 +93,14 @@ function valueLabel(value: ConfigurableRecordValue): string {
     return value.value ? "Yes" : "No";
   }
   return String(value.value);
+}
+
+function recordCountLabel(count: number): string {
+  return `${count} ${count === 1 ? "record" : "records"}`;
+}
+
+function lifecycleLabel(value: ConfigurableCatalogRecordResponse): string {
+  return value.current_revision.lifecycle_state === "draft" ? "Draft" : "Published";
 }
 
 function emptyDraft(attribute: ConfigurableAttributeResponse): DraftValue {
@@ -223,7 +238,6 @@ export function ConfigurableCatalogRecords({
     useState<ConfigurableCatalogRecordResponse | null>(null);
   const [selectedEtag, setSelectedEtag] = useState("");
   const [selectedIsHistorical, setSelectedIsHistorical] = useState(false);
-  const [revisionCount, setRevisionCount] = useState(0);
   const [comparison, setComparison] =
     useState<ConfigurableCatalogRecordComparison | null>(null);
   const [query, setQuery] = useState("");
@@ -286,15 +300,35 @@ export function ConfigurableCatalogRecords({
     if (
       tableCandidate
       && requestedSelection.tableId === tableCandidate.table_id
-      && requestedSelection.tableRevisionId
-      && requestedSelection.tableRevisionId !== tableCandidate.current_revision.id
-    ) return null;
+    ) {
+      if (!requestedSelection.tableRevisionId) return null;
+      if (requestedSelection.tableRevisionId !== tableCandidate.current_revision.id) return null;
+    }
     return tableCandidate;
   }, [requestedSelection.tableId, requestedSelection.tableRevisionId, tableCandidate]);
+  const activeTableId = requestedSelection.tableId === tableId
+    ? table?.table_id ?? ""
+    : tableId;
   const layout = useMemo(
     () => layouts.find((item) => item.layout_id === layoutId) ?? null,
     [layoutId, layouts],
   );
+  const identifierAttribute = useMemo(
+    () => attributes.find((item) => item.current_revision.content.key === "material_code")
+      ?? attributes.find((item) => item.current_revision.content.business_key)
+      ?? null,
+    [attributes],
+  );
+  const identifierLabel = identifierAttribute?.current_revision.content.name ?? "Record code";
+
+  function recordIdentifierValue(record: ConfigurableCatalogRecordResponse): string {
+    if (!identifierAttribute) return record.current_revision.content.external_key ?? "—";
+    const value = record.current_revision.content.values.find((candidate) => (
+      candidate.attribute_definition_id === identifierAttribute.attribute_definition_id
+      && candidate.attribute_definition_revision_id === identifierAttribute.current_revision.id
+    ));
+    return value ? valueLabel(value) : "—";
+  }
   const selectedFolderCandidate = useMemo(
     () => folders.find((item) => item.folder_id === selectedFolderId) ?? null,
     [folders, selectedFolderId],
@@ -303,27 +337,37 @@ export function ConfigurableCatalogRecords({
     if (
       selectedFolderCandidate
       && requestedSelection.folderId === selectedFolderCandidate.folder_id
-      && requestedSelection.folderRevisionId
-      && requestedSelection.folderRevisionId !== selectedFolderCandidate.current_revision.id
-    ) return null;
+    ) {
+      if (!requestedSelection.folderRevisionId) return null;
+      if (requestedSelection.folderRevisionId !== selectedFolderCandidate.current_revision.id) return null;
+    }
     return selectedFolderCandidate;
   }, [requestedSelection.folderId, requestedSelection.folderRevisionId, selectedFolderCandidate]);
   const exactRouteError = useMemo(() => {
     if (tablesLoaded && requestedSelection.tableId) {
       const requestedTable = tables.find((item) => item.table_id === requestedSelection.tableId);
-      if (!requestedTable) return "The exact Table in this route is not available.";
+      if (!requestedTable) return "The exact Record type in this route is not available.";
+      if (!requestedSelection.tableRevisionId) {
+        return "Choose the exact Record type revision before using this link.";
+      }
       if (
         requestedSelection.tableRevisionId
         && requestedTable.current_revision.id !== requestedSelection.tableRevisionId
-      ) return "The exact Table revision in this route is not available.";
+      ) return "The exact Record type revision in this route is not available.";
     }
     if (definitionLoaded && requestedSelection.folderId) {
       const requestedFolder = folders.find((item) => item.folder_id === requestedSelection.folderId);
       if (!requestedFolder) return "The exact Folder in this route is not available for this Table.";
+      if (!requestedSelection.folderRevisionId) {
+        return "Choose the exact Folder revision before using this link.";
+      }
       if (
         requestedSelection.folderRevisionId
         && requestedFolder.current_revision.id !== requestedSelection.folderRevisionId
       ) return "The exact Folder revision in this route is not available.";
+    }
+    if (requestedSelection.recordId && !requestedSelection.recordRevisionId) {
+      return "Choose the exact Record revision before using this link.";
     }
     return null;
   }, [definitionLoaded, folders, requestedSelection, tables, tablesLoaded]);
@@ -444,7 +488,7 @@ export function ConfigurableCatalogRecords({
   }, [config, materialId]);
 
   const loadDefinition = useCallback(async () => {
-    if (!tableId || !config.accessToken.trim()) {
+    if (!activeTableId || !config.accessToken.trim()) {
       setAttributes([]);
       setLayouts([]);
       setLayoutId("");
@@ -465,10 +509,10 @@ export function ConfigurableCatalogRecords({
         folderResponse,
         subsetResponse,
       ] = await Promise.all([
-        listConfigurableCatalogAttributes(config, tableId),
-        listConfigurableCatalogLayouts(config, tableId),
-        listConfigurableCatalogFolders(config, tableId),
-        listConfigurableCatalogSubsets(config, tableId),
+        listConfigurableCatalogAttributes(config, activeTableId),
+        listConfigurableCatalogLayouts(config, activeTableId),
+        listConfigurableCatalogFolders(config, activeTableId),
+        listConfigurableCatalogSubsets(config, activeTableId),
       ]);
       setAttributes(attributeResponse.data.items);
       setLayouts(layoutResponse.data.items);
@@ -485,10 +529,10 @@ export function ConfigurableCatalogRecords({
       setDefinitionLoaded(true);
       setBusy(false);
     }
-  }, [config, tableId]);
+  }, [activeTableId, config]);
 
   const search = useCallback(async () => {
-    if (!tableId || !config.accessToken.trim()) {
+    if (!activeTableId || !config.accessToken.trim()) {
       setResults(null);
       return;
     }
@@ -496,7 +540,7 @@ export function ConfigurableCatalogRecords({
     setError(null);
     try {
       const response = await searchConfigurableCatalogRecords(config, {
-        table_id: tableId,
+        table_id: activeTableId,
         text: query.trim() || null,
         folder_id: folderFilter || null,
         discrete_filters: Object.entries(facetFilters).map(
@@ -535,7 +579,7 @@ export function ConfigurableCatalogRecords({
     numberMaximum,
     numberMinimum,
     query,
-    tableId,
+    activeTableId,
   ]);
 
   useEffect(() => void loadTables(), [loadTables]);
@@ -546,6 +590,17 @@ export function ConfigurableCatalogRecords({
     setSelectedFolderId(requestedSelection.folderId ?? "");
   }, [requestedSelection.folderId]);
   useEffect(() => void loadDefinition(), [loadDefinition]);
+  useEffect(() => {
+    publishWorkspaceStatus({
+      selection: table
+        ? `${table.current_revision.content.name} · Revision ${table.current_revision.revision_no}`
+        : "Records",
+      revision: "",
+      jobs: busy ? "Operation in progress" : "",
+      warnings: error || exactRouteError ? "1 action required" : "",
+      connection: "online",
+    });
+  }, [busy, error, exactRouteError, table]);
   useEffect(() => {
     setDrafts((current) =>
       Object.fromEntries(
@@ -561,18 +616,24 @@ export function ConfigurableCatalogRecords({
     const priorRecordId = previousRouteRecordId.current;
     previousRouteRecordId.current = requestedSelection.recordId;
     if (requestedSelection.recordId && !requestedSelection.tableId) {
-      setError("Choose the exact Table before opening a Record link.");
+      setError("Choose the exact Record type before opening a Record link.");
       return;
     }
     if (!requestedSelection.recordId) {
       if (priorRecordId) resetEditor(false);
       return;
     }
+    if (!requestedSelection.recordRevisionId || exactRouteError) {
+      setSelected(null);
+      setSelectedEtag("");
+      setSelectedIsHistorical(false);
+      setEntryMode("closed");
+      return;
+    }
     if (attributes.length === 0) return;
     if (
       selected?.record_id === requestedSelection.recordId
-      && (!requestedSelection.recordRevisionId
-        || selected.current_revision.id === requestedSelection.recordRevisionId)
+      && selected.current_revision.id === requestedSelection.recordRevisionId
     ) return;
     void selectRecord(
       requestedSelection.recordId,
@@ -580,6 +641,7 @@ export function ConfigurableCatalogRecords({
     );
   }, [
     attributes.length,
+    exactRouteError,
     requestedSelection.recordId,
     requestedSelection.recordRevisionId,
     requestedSelection.tableId,
@@ -591,7 +653,6 @@ export function ConfigurableCatalogRecords({
     setSelected(null);
     setSelectedEtag("");
     setSelectedIsHistorical(false);
-    setRevisionCount(0);
     setComparison(null);
     setRecordName("");
     setExternalKey("");
@@ -611,7 +672,7 @@ export function ConfigurableCatalogRecords({
 
   async function selectRecord(
     recordId: string,
-    recordRevisionId = "",
+    recordRevisionId: string,
   ): Promise<ConfigurableCatalogRecordResponse | null> {
     setBusy(true);
     setError(null);
@@ -621,11 +682,11 @@ export function ConfigurableCatalogRecords({
         listConfigurableCatalogRecordRevisions(config, recordId),
       ]);
       if (tableId && detail.data.table_id !== tableId) {
-        throw new Error("The selected Record does not belong to the exact Table in this route.");
+        throw new Error("The selected Record does not belong to the exact Record type in this route.");
       }
-      const requestedRevision = recordRevisionId
-        ? revisions.data.items.find((revision) => revision.id === recordRevisionId)
-        : detail.data.current_revision;
+      const requestedRevision = revisions.data.items.find(
+        (revision) => revision.id === recordRevisionId,
+      );
       if (!requestedRevision) {
         throw new Error("The exact Record revision is not available for this selection.");
       }
@@ -635,7 +696,6 @@ export function ConfigurableCatalogRecords({
       setEntryMode("single");
       setSelectedEtag(historical ? "" : (detail.etag ?? ""));
       setSelectedIsHistorical(historical);
-      setRevisionCount(revisions.data.items.length);
       setComparison(null);
       setRecordName(record.current_revision.content.name);
       setExternalKey(record.current_revision.content.external_key ?? "");
@@ -673,6 +733,22 @@ export function ConfigurableCatalogRecords({
       setSelected(null);
       setSelectedEtag("");
       setSelectedIsHistorical(false);
+      setError(message(caught));
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function selectCurrentRecord(
+    recordId: string,
+  ): Promise<ConfigurableCatalogRecordResponse | null> {
+    setBusy(true);
+    setError(null);
+    try {
+      const detail = await getConfigurableCatalogRecord(config, recordId);
+      return await selectRecord(recordId, detail.data.current_revision.id);
+    } catch (caught) {
       setError(message(caught));
       return null;
     } finally {
@@ -1066,8 +1142,8 @@ export function ConfigurableCatalogRecords({
 
   if (!config.accessToken.trim()) {
     return (
-      <section className="hero-card">
-        <h1>Sign in to open the Material Database</h1>
+      <EngineeringPane className={productMode ? "record-auth-required" : "hero-card"} label="Material Database sign-in">
+        <SemanticText semanticRole="sectionHeading" as="h1">Sign in to open the Material Database</SemanticText>
         <button
           className="ux-button primary"
           type="button"
@@ -1075,7 +1151,7 @@ export function ConfigurableCatalogRecords({
         >
           Try again
         </button>
-      </section>
+      </EngineeringPane>
     );
   }
 
@@ -1114,14 +1190,15 @@ export function ConfigurableCatalogRecords({
           </div>
         </section>
       ) : null}
-      {error || exactRouteError ? <div className="record-workbench-message error-banner">{error ?? exactRouteError}</div> : null}
-      {notice ? <div className="record-workbench-message success-banner">{notice}</div> : null}
+      {error || exactRouteError ? <WorkbenchMessage className="record-workbench-message" kind="error" title="Record action failed">{error ?? exactRouteError}</WorkbenchMessage> : null}
+      {notice ? <SemanticStatus className="record-workbench-message" status="success" label={notice} /> : null}
 
-      <section className="content-card catalog-search-panel">
-        <div className="form-grid">
-          <label>
-            Table
+      <EngineeringPane className="catalog-search-panel" label="Record scope and search">
+        <div className="record-scope-row">
+          <label className="ux-field">
+            Record type
             <select
+              className="ux-select"
               value={tableId}
               onChange={(event) => {
                 const nextTableId = event.target.value;
@@ -1138,122 +1215,45 @@ export function ConfigurableCatalogRecords({
                 }));
               }}
             >
-              <option value="">Choose a Table</option>
+              <option value="">Choose a record type</option>
               {tables.map((item) => (
                 <option key={item.table_id} value={item.table_id}>
-                  {item.current_revision.content.name}
+                  {item.current_revision.content.name} (Revision {item.current_revision.revision_no})
                 </option>
               ))}
             </select>
           </label>
-          <label>
+        </div>
+        <form
+          className="record-search-row"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void search();
+          }}
+        >
+          <label className="ux-field">
             Search
             <input
+              className="ux-input"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search records…"
+              placeholder={`Search by name or ${identifierLabel.toLowerCase()}…`}
             />
           </label>
-          <label>
-            Folder
-            <select
-              value={folderFilter}
-              onChange={(event) => setFolderFilter(event.target.value)}
-            >
-              <option value="">All folders</option>
-              {folders.map((folder) => (
-                <option key={folder.folder_id} value={folder.folder_id}>
-                  {folder.content.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Layout
-            <select
-              value={layoutId}
-              onChange={(event) => setLayoutId(event.target.value)}
-            >
-              <option value="">Use all current Attributes</option>
-              {layouts.map((item) => (
-                <option key={item.layout_id} value={item.layout_id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
           <button
-            className="ux-button primary record-search-action"
-            type="button"
-            onClick={() => void search()}
+            className="ux-button tertiary local-action record-search-action"
+            type="submit"
             disabled={busy}
           >
             Search
           </button>
-        </div>
-        <details className="record-filter-details">
-          <summary>More filters and saved views</summary>
-          <div className="range-filter-row">
-          <select
-            value={numberAttributeId}
-            onChange={(event) => setNumberAttributeId(event.target.value)}
-          >
-            <option value="">No numeric range</option>
-            {numberAttributes.map((attribute) => (
-              <option
-                key={attribute.attribute_definition_id}
-                value={attribute.attribute_definition_id}
-              >
-                {attribute.current_revision.content.name}
-              </option>
-            ))}
-          </select>
-          <input
-            value={numberMinimum}
-            onChange={(event) => setNumberMinimum(event.target.value)}
-            placeholder="Minimum in standard unit"
-          />
-          <input
-            value={numberMaximum}
-            onChange={(event) => setNumberMaximum(event.target.value)}
-            placeholder="Maximum in standard unit"
-          />
-          </div>
-          <div className="saved-subset-row">
-          <span>Saved Subsets</span>
-          {subsets.map((subset) => (
-            <button
-              className="filter-chip"
-              type="button"
-              key={subset.subset_id}
-              onClick={() => applySubset(subset)}
-            >
-              {subset.name}
-            </button>
-          ))}
-          <input
-            value={subsetName}
-            onChange={(event) => setSubsetName(event.target.value)}
-            placeholder="Save current search as…"
-          />
-          <button
-            className="ux-button tertiary"
-            type="button"
-            onClick={() => void saveSubset()}
-          >
-            Save
-          </button>
-          </div>
-        </details>
-      </section>
+        </form>
+      </EngineeringPane>
 
       {entryMode === "multiple" ? (
-        <section
-          className="content-card registration-panel"
-          aria-label="Record registration"
-        >
+        <EngineeringPane className="registration-panel" label="Record import">
           <div className="section-heading">
-            <h2>Register multiple rows</h2>
+            <SemanticText semanticRole="sectionHeading">Import multiple records</SemanticText>
             <button
               className="ux-button tertiary"
               type="button"
@@ -1264,9 +1264,10 @@ export function ConfigurableCatalogRecords({
           </div>
           <div className="registration-file-workflow">
             <div className="registration-source-fields">
-              <label>
+              <label className="ux-field">
                 Source file
                 <input
+                  className="ux-input"
                   type="file"
                   accept=".csv,.tsv,.xlsx"
                   onChange={(event) => {
@@ -1284,9 +1285,10 @@ export function ConfigurableCatalogRecords({
                   }}
                 />
               </label>
-              <label>
+              <label className="ux-field">
                 Header row
                 <input
+                  className="ux-input"
                   type="number"
                   min={1}
                   max={100}
@@ -1297,9 +1299,10 @@ export function ConfigurableCatalogRecords({
                 />
               </label>
               {bulkFormat === "csv" ? (
-                <label>
+                <label className="ux-field">
                   Column separator
                   <select
+                    className="ux-select"
                     value={bulkDelimiter}
                     onChange={(event) => setBulkDelimiter(event.target.value)}
                   >
@@ -1308,9 +1311,10 @@ export function ConfigurableCatalogRecords({
                   </select>
                 </label>
               ) : null}
-              <label>
+              <label className="ux-field">
                 Decimal separator
                 <select
+                  className="ux-select"
                   value={bulkDecimal}
                   onChange={(event) =>
                     setBulkDecimal(event.target.value as "." | ",")
@@ -1320,9 +1324,10 @@ export function ConfigurableCatalogRecords({
                   <option value=",">Comma</option>
                 </select>
               </label>
-              <label>
+              <label className="ux-field">
                 Existing material
                 <select
+                  className="ux-select"
                   value={materialId}
                   onChange={(event) => setMaterialId(event.target.value)}
                 >
@@ -1334,9 +1339,10 @@ export function ConfigurableCatalogRecords({
                   ))}
                 </select>
               </label>
-              <label>
+              <label className="ux-field">
                 Material state
                 <select
+                  className="ux-select"
                   value={materialStateId}
                   onChange={(event) => setMaterialStateId(event.target.value)}
                   disabled={!materialId}
@@ -1363,9 +1369,10 @@ export function ConfigurableCatalogRecords({
                   return (
                     <div className="registration-column" key={column}>
                       <strong>{column}</strong>
-                      <label>
+                      <label className="ux-field">
                         Use as
                         <select
+                          className="ux-select"
                           aria-label={`${column} field`}
                           value={target}
                           onChange={(event) =>
@@ -1401,9 +1408,10 @@ export function ConfigurableCatalogRecords({
                       </label>
                       {attribute?.current_revision.content.data_type ===
                       "number" ? (
-                        <label>
+                        <label className="ux-field">
                           Original unit
                           <input
+                            className="ux-input"
                             aria-label={`${column} original unit`}
                             value={
                               bulkUnits[column] ??
@@ -1426,14 +1434,14 @@ export function ConfigurableCatalogRecords({
                 })}
               </div>
             ) : null}
-            <div className="hero-actions">
+            <div className="ux-action-row">
               <button
                 className="ux-button"
                 type="button"
                 onClick={() => void previewBulkRegistration()}
                 disabled={busy || (!bulkFile && !bulkSource)}
               >
-                {bulkColumns.length ? "Check rows" : "Read columns"}
+                {bulkColumns.length ? "Validate records" : "Read file columns"}
               </button>
               <button
                 className="ux-button primary"
@@ -1441,7 +1449,7 @@ export function ConfigurableCatalogRecords({
                 onClick={() => void publishBulkRegistration()}
                 disabled={busy || !bulkPreview?.valid}
               >
-                Register checked rows
+                Import validated records
               </button>
             </div>
             {bulkPreview?.sample_rows.length ? (
@@ -1481,7 +1489,7 @@ export function ConfigurableCatalogRecords({
                 <h3>Rows to correct</h3>
                 {bulkPreview.errors.map((item, index) =>
                   bulkPreview.source_columns.includes(item.column) ? (
-                    <label key={`${item.row}-${item.column}-${index}`}>
+                    <label className="ux-field" key={`${item.row}-${item.column}-${index}`}>
                       <span>
                         <strong>
                           Row {item.row}, {item.column}
@@ -1489,6 +1497,7 @@ export function ConfigurableCatalogRecords({
                         · {item.message}
                       </span>
                       <input
+                        className="ux-input"
                         aria-label={`Correction for row ${item.row}, ${item.column}`}
                         value={bulkCorrections[item.row]?.[item.column] ?? ""}
                         onChange={(event) =>
@@ -1514,17 +1523,58 @@ export function ConfigurableCatalogRecords({
             )}
           </div>
           ) : null}
-        </section>
+      </EngineeringPane>
       ) : null}
 
       <div className={`catalog-record-grid ${entryMode === "single" ? "has-editor" : ""}`}>
-        <details className="content-card catalog-facets">
-          <summary>Facets and folders</summary>
-          <div className="section-heading">
-            <div>
-              <h2>{results?.total_count ?? 0} records</h2>
+        <details className="ux-engineering-pane catalog-facets">
+          <summary>Filters</summary>
+          <div className="record-filter-content">
+          <section className="record-filter-group">
+            <h3>Folder</h3>
+            <label className="ux-field">
+              Folder
+              <select className="ux-select" value={folderFilter} onChange={(event) => setFolderFilter(event.target.value)}>
+                <option value="">All folders</option>
+                {folders.map((folder) => (
+                  <option key={folder.folder_id} value={folder.folder_id}>
+                    {folder.content.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </section>
+          <section className="record-filter-group">
+            <h3>Attribute filters</h3>
+            <div className="range-filter-row">
+              <select
+                className="ux-select"
+                aria-label="Numeric field"
+                value={numberAttributeId}
+                onChange={(event) => setNumberAttributeId(event.target.value)}
+              >
+                <option value="">No numeric range</option>
+                {numberAttributes.map((attribute) => (
+                  <option key={attribute.attribute_definition_id} value={attribute.attribute_definition_id}>
+                    {attribute.current_revision.content.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                className="ux-input"
+                aria-label="Minimum"
+                value={numberMinimum}
+                onChange={(event) => setNumberMinimum(event.target.value)}
+                placeholder="Minimum in standard unit"
+              />
+              <input
+                className="ux-input"
+                aria-label="Maximum"
+                value={numberMaximum}
+                onChange={(event) => setNumberMaximum(event.target.value)}
+                placeholder="Maximum in standard unit"
+              />
             </div>
-          </div>
           {discreteAttributes.map((attribute) => {
             const buckets =
               results?.facets.filter(
@@ -1572,18 +1622,48 @@ export function ConfigurableCatalogRecords({
               </div>
             );
           })}
+          </section>
+          <section className="record-filter-group">
+            <h3>Saved views</h3>
+            <div className="saved-subset-row">
+              {subsets.map((subset) => (
+                <button
+                  className="ux-button tertiary local-action"
+                  type="button"
+                  key={subset.subset_id}
+                  onClick={() => applySubset(subset)}
+                >
+                  {subset.name}
+                </button>
+              ))}
+              <input
+                className="ux-input"
+                aria-label="View name"
+                value={subsetName}
+                onChange={(event) => setSubsetName(event.target.value)}
+                placeholder="Save current search as…"
+              />
+              <button
+                className="ux-button tertiary local-action"
+                type="button"
+                onClick={() => void saveSubset()}
+              >
+                Save view
+              </button>
+            </div>
+          </section>
           <div className="folder-maker">
             <div className="section-heading">
-              <h3>Folders</h3>
+              <h3>Manage folders</h3>
               <button
-                className="ux-button tertiary"
+                className="ux-button tertiary local-action"
                 type="button"
                 onClick={() => {
                   setSelectedFolderId("");
                   onNavigate(exactRecordsPath({ folderId: "", folderRevisionId: "" }));
                 }}
               >
-                New
+                New folder
               </button>
             </div>
             <div className="folder-admin-list">
@@ -1609,21 +1689,24 @@ export function ConfigurableCatalogRecords({
             {selectedFolder ? (
               <form
                 key={selectedFolder.current_revision.id}
-                className="form-stack"
+                className="ux-form"
                 onSubmit={(event) => void reviseFolder(event)}
               >
                 <input
+                  className="ux-input"
                   name="name"
                   defaultValue={selectedFolder.content.name}
                   aria-label="Folder name"
                   required
                 />
                 <textarea
+                  className="ux-textarea"
                   name="description"
                   defaultValue={selectedFolder.content.description ?? ""}
                   aria-label="Folder description"
                 />
                 <select
+                  className="ux-select"
                   name="parent"
                   defaultValue={selectedFolder.content.parent_folder_id ?? ""}
                 >
@@ -1638,9 +1721,9 @@ export function ConfigurableCatalogRecords({
                       </option>
                     ))}
                 </select>
-                <div className="hero-actions">
+                <div className="ux-action-row">
                   <button
-                    className="ux-button"
+                    className="ux-button tertiary local-action"
                     type="button"
                     disabled={busy}
                     onClick={() =>
@@ -1651,29 +1734,31 @@ export function ConfigurableCatalogRecords({
                       )
                     }
                   >
-                    Check
+                    Validate folder revision
                   </button>
                   <button
-                    className="ux-button"
+                    className="ux-button tertiary local-action"
                     type="submit"
                     disabled={busy}
                   >
-                    Save draft
+                    Save new folder revision
                   </button>
                 </div>
               </form>
             ) : exactRouteError ? null : (
               <form
-                className="form-stack"
+                className="ux-form"
                 onSubmit={(event) => void createFolder(event)}
               >
                 <input
+                  className="ux-input"
                   value={folderName}
                   onChange={(event) => setFolderName(event.target.value)}
                   placeholder="Folder name"
                   required
                 />
                 <select
+                  className="ux-select"
                   value={folderParentId}
                   onChange={(event) => setFolderParentId(event.target.value)}
                 >
@@ -1685,33 +1770,45 @@ export function ConfigurableCatalogRecords({
                   ))}
                 </select>
                 <button
-                  className="ux-button"
+                  className="ux-button tertiary local-action"
                   type="submit"
                   disabled={busy}
                 >
-                  Create Folder
+                  Create folder
                 </button>
               </form>
             )}
           </div>
+          </div>
         </details>
 
-        <section className="content-card catalog-record-list">
+        <EngineeringPane className="catalog-record-list" label="Record results">
           <div className="section-heading">
             <div>
-              <h2>
-                {table?.current_revision.content.name ?? "Select a Table"}
-              </h2>
-              <span>{results?.total_count ?? 0} records</span>
+              <SemanticText semanticRole="sectionHeading">
+                {table?.current_revision.content.name ?? "Select a record type"}
+              </SemanticText>
+              <SemanticText semanticRole="metadata">{recordCountLabel(results?.total_count ?? 0)}</SemanticText>
             </div>
             <div className="record-list-actions">
+              <label className="ux-field record-display-layout">
+                Display layout
+                <select className="ux-select" value={layoutId} onChange={(event) => setLayoutId(event.target.value)}>
+                  <option value="">All record type fields</option>
+                  {layouts.map((item) => (
+                    <option key={item.layout_id} value={item.layout_id}>
+                      {item.name} (Revision {item.revision.revision_no})
+                    </option>
+                  ))}
+                </select>
+              </label>
               <button
-                className="ux-button"
+                className="ux-button tertiary local-action"
                 type="button"
                 onClick={() => setEntryMode("multiple")}
                 disabled={!table}
               >
-                Register rows
+                Import records
               </button>
               <button
                 className="ux-button primary"
@@ -1719,15 +1816,16 @@ export function ConfigurableCatalogRecords({
                 onClick={() => resetEditor(true)}
                 disabled={!table}
               >
-                New record
+                Create record
               </button>
             </div>
           </div>
           <div className="record-result-table">
             <div className="record-result-heading" aria-hidden="true">
               <span>Name</span>
-              <span>Code</span>
+              <span>{identifierLabel}</span>
               <span>Revision</span>
+              <span>Status</span>
             </div>
             {results?.items.map((record) => (
               <button
@@ -1752,34 +1850,32 @@ export function ConfigurableCatalogRecords({
                   void selectRecord(record.record_id, record.current_revision.id);
                 }}
               >
-                <strong>{record.current_revision.content.name}</strong>
-                <span>{record.current_revision.content.external_key ?? "—"}</span>
-                <span>r{record.current_revision.revision_no}</span>
+                <span className="record-result-name">{record.current_revision.content.name}</span>
+                <span>{recordIdentifierValue(record)}</span>
+                <span>{record.current_revision.revision_no}</span>
+                <span>{lifecycleLabel(record)}</span>
               </button>
             ))}
             {!results?.items.length ? (
               <p className="muted">No records match this typed query.</p>
             ) : null}
           </div>
-        </section>
+        </EngineeringPane>
 
-        {entryMode === "single" ? <section className="content-card catalog-datasheet">
+        {entryMode === "single" ? <EngineeringPane className="catalog-datasheet" label={selected ? `Edit ${selected.current_revision.content.name}` : "Create record"}>
           <div className="section-heading">
             <div>
-              <h2>
-                {selected
-                  ? selectedIsHistorical
-                    ? `View exact revision ${selected.current_revision.revision_no}`
-                    : `Create revision ${selected.current_revision.revision_no + 1} from revision ${selected.current_revision.revision_no}`
-                  : "Create Record"}
-              </h2>
+              <SemanticText semanticRole="sectionHeading">
+                {selected ? selected.current_revision.content.name : "Create record"}
+              </SemanticText>
+              {selected ? <SemanticText semanticRole="metadata">{lifecycleLabel(selected)} · Revision {selected.current_revision.revision_no}</SemanticText> : null}
             </div>
             <div className="record-editor-actions">
             {selectedIsHistorical && selected ? (
               <button
-                className="ux-button"
+                className="ux-button tertiary local-action"
                 disabled={busy}
-                onClick={() => void selectRecord(selected.record_id).then((current) => {
+                onClick={() => void selectCurrentRecord(selected.record_id).then((current) => {
                   if (!current) return;
                   onNavigate(recordsRoutePath({
                     tableId: current.table_id,
@@ -1794,9 +1890,9 @@ export function ConfigurableCatalogRecords({
               >
                 Open current revision
               </button>
-            ) : selected ? <small>{revisionCount} revisions</small> : null}
+            ) : null}
             <button
-              className="ux-button tertiary"
+              className="ux-button tertiary local-action"
               type="button"
               onClick={() => resetEditor(false)}
             >
@@ -1805,29 +1901,32 @@ export function ConfigurableCatalogRecords({
             </div>
           </div>
           <form
-            className="form-stack"
+            className="ux-form"
             onSubmit={(event) => void saveRecord(event)}
           >
             <fieldset disabled={selectedIsHistorical} className="record-edit-fields">
-            <div className="form-grid">
-              <label>
+            <div className="ux-field-grid">
+              <label className="ux-field">
                 Name
                 <input
+                  className="ux-input"
                   value={recordName}
                   onChange={(event) => setRecordName(event.target.value)}
                   required
                 />
               </label>
-              <label>
+              <label className="ux-field">
                 Record code
                 <input
+                  className="ux-input"
                   value={externalKey}
                   onChange={(event) => setExternalKey(event.target.value)}
                 />
               </label>
-              <label>
+              <label className="ux-field">
                 Folder
                 <select
+                  className="ux-select"
                   value={recordFolderId}
                   onChange={(event) => setRecordFolderId(event.target.value)}
                 >
@@ -1840,9 +1939,10 @@ export function ConfigurableCatalogRecords({
                 </select>
               </label>
               {!selected ? (
-                <label>
+                <label className="ux-field">
                   Access level
                   <select
+                    className="ux-select"
                     value={classification}
                     onChange={(event) =>
                       setClassification(
@@ -1857,14 +1957,15 @@ export function ConfigurableCatalogRecords({
                 </label>
               ) : null}
             </div>
-            <label>
+            <label className="ux-field">
               Description
               <textarea
+                className="ux-textarea"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
               />
             </label>
-            <div className="datasheet-fields">
+            <div className="record-attribute-fields">
               {orderedAttributes.map((attribute) => {
                 const definition = attribute.current_revision.content;
                 const draft =
@@ -1873,51 +1974,56 @@ export function ConfigurableCatalogRecords({
                 return (
                   <fieldset
                     key={attribute.attribute_definition_id}
-                    className="datasheet-field"
+                    className="record-attribute-field"
                   >
-                    <legend>
-                      {definition.name}
-                      {definition.required ? " *" : ""}
-                    </legend>
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={draft.enabled}
-                        disabled={definition.required}
-                        onChange={(event) =>
-                          updateDraft(attribute.attribute_definition_id, {
-                            enabled: event.target.checked,
-                          })
-                        }
-                      />
-                      Include value
-                    </label>
+                    <legend className="sr-only">{definition.name}{definition.required ? " *" : ""}</legend>
+                    <div className="record-attribute-heading">
+                      <label className="ux-text-label" htmlFor={`record-attribute-${attribute.attribute_definition_id}`}>
+                        {definition.name}{definition.required ? " *" : ""}
+                      </label>
+                      <label className="ux-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={draft.enabled}
+                          disabled={definition.required}
+                          onChange={(event) =>
+                            updateDraft(attribute.attribute_definition_id, {
+                              enabled: event.target.checked,
+                            })
+                          }
+                        />
+                        Include
+                      </label>
+                    </div>
                     {draft.enabled ? (
-                      <AttributeEditor
-                        attribute={attribute}
-                        draft={draft}
-                        update={(patch) =>
-                          updateDraft(attribute.attribute_definition_id, patch)
-                        }
-                      />
+                      <div className="record-attribute-value">
+                        <AttributeEditor
+                          attribute={attribute}
+                          draft={draft}
+                          inputId={`record-attribute-${attribute.attribute_definition_id}`}
+                          update={(patch) =>
+                            updateDraft(attribute.attribute_definition_id, patch)
+                          }
+                        />
+                      </div>
                     ) : null}
                   </fieldset>
                 );
               })}
             </div>
             </fieldset>
-            <div className="hero-actions">
+            <div className="ux-action-row">
               <button
-                className="ux-button primary"
+                className="ux-button tertiary local-action"
                 type="submit"
                 disabled={busy || selectedIsHistorical || !recordName.trim()}
               >
-                {selected ? "Save new revision" : "Create record"}
+                {selected ? "Save new revision" : "Save new record"}
               </button>
               {selected ? (
                 <>
                   <button
-                    className="ux-button"
+                    className="ux-button tertiary local-action"
                     type="button"
                     disabled={busy}
                     onClick={() =>
@@ -1928,7 +2034,7 @@ export function ConfigurableCatalogRecords({
                       )
                     }
                   >
-                    Check
+                    Validate revision
                   </button>
                   <ReviewRequestAction
                     config={config}
@@ -2013,7 +2119,7 @@ export function ConfigurableCatalogRecords({
               </dl>
             </details>
           ) : null}
-        </section> : null}
+        </EngineeringPane> : null}
       </div>
     </div>
   );
@@ -2022,16 +2128,20 @@ export function ConfigurableCatalogRecords({
 function AttributeEditor({
   attribute,
   draft,
+  inputId,
   update,
 }: {
   attribute: ConfigurableAttributeResponse;
   draft: DraftValue;
+  inputId: string;
   update: (patch: Partial<DraftValue>) => void;
 }) {
   const definition = attribute.current_revision.content;
   if (definition.data_type === "boolean") {
     return (
       <select
+        className="ux-select"
+        id={inputId}
         value={draft.primary}
         onChange={(event) => update({ primary: event.target.value })}
       >
@@ -2043,6 +2153,8 @@ function AttributeEditor({
   if (definition.data_type === "discrete") {
     return (
       <select
+        className="ux-select"
+        id={inputId}
         value={draft.primary}
         onChange={(event) => update({ primary: event.target.value })}
         required={definition.required}
@@ -2060,6 +2172,8 @@ function AttributeEditor({
     return (
       <div className="number-value-grid">
         <input
+          className="ux-input"
+          id={inputId}
           type="number"
           step="any"
           value={draft.primary}
@@ -2069,6 +2183,7 @@ function AttributeEditor({
           required={definition.required}
         />
         <input
+          className="ux-input"
           value={draft.secondary}
           onChange={(event) => update({ secondary: event.target.value })}
           aria-label="Entered unit"
@@ -2084,6 +2199,8 @@ function AttributeEditor({
         <summary>Evidence file</summary>
         <div className="number-value-grid">
           <input
+            className="ux-input"
+            id={inputId}
             value={draft.primary}
             onChange={(event) => update({ primary: event.target.value })}
             aria-label="Evidence file reference"
@@ -2091,6 +2208,7 @@ function AttributeEditor({
             required={definition.required}
           />
           <input
+            className="ux-input"
             value={draft.secondary}
             onChange={(event) => update({ secondary: event.target.value })}
             aria-label="Evidence file checksum"
@@ -2108,6 +2226,8 @@ function AttributeEditor({
         <summary>Advanced exact record reference</summary>
         <div className="number-value-grid">
           <input
+            className="ux-input"
+            id={inputId}
             value={draft.primary}
             onChange={(event) => update({ primary: event.target.value })}
             aria-label="Target record reference"
@@ -2115,6 +2235,7 @@ function AttributeEditor({
             required={definition.required}
           />
           <input
+            className="ux-input"
             value={draft.secondary}
             onChange={(event) => update({ secondary: event.target.value })}
             aria-label="Target version reference"
@@ -2127,6 +2248,8 @@ function AttributeEditor({
   }
   return (
     <input
+      className="ux-input"
+      id={inputId}
       type={
         definition.data_type === "date"
           ? "date"

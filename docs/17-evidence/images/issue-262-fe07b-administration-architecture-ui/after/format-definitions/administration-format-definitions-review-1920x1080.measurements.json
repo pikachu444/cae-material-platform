@@ -21,7 +21,7 @@
     "x": 0,
     "y": 50,
     "width": 1920,
-    "height": 1010
+    "height": 1008
   },
   "navigator": {
     "x": 0,
@@ -31,26 +31,26 @@
   },
   "source": {
     "x": 32,
-    "y": 178,
+    "y": 176,
     "width": 352,
     "height": 857
   },
   "plan": {
     "x": 384,
-    "y": 178,
+    "y": 176,
     "width": 992,
     "height": 857
   },
   "detail": {
     "x": 1376,
-    "y": 178,
+    "y": 176,
     "width": 512,
     "height": 857
   },
   "table": {
     "x": 384,
-    "y": 244,
+    "y": 293.1875,
     "width": 992,
-    "height": 829
+    "height": 640
   }
 }

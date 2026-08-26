@@ -8,6 +8,7 @@
   "devicePixelRatio": 1,
   "visualViewportScale": 1,
   "document": {
+    "scrollY": 0,
     "clientWidth": 1366,
     "scrollWidth": 1366,
     "clientHeight": 768,
@@ -35,17 +36,17 @@
     "x": 23.21875,
     "y": 117,
     "width": 1319.5625,
-    "height": 314.1875
+    "height": 318.984375
   },
   "primary": {
     "x": 23.21875,
     "y": 117,
     "width": 1319.5625,
-    "height": 314.1875
+    "height": 318.984375
   },
   "secondary": {
     "x": 37.21875,
-    "y": 200.1875,
+    "y": 204.984375,
     "width": 1291.5625,
     "height": 216
   }

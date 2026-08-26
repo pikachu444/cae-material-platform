@@ -57,7 +57,7 @@ function defaultStatus(path: string): WorkspaceStatus {
   const workspace = workspaceFor(path);
   if (workspace === "modeling") return { selection: "Modeling session", revision: "Draft", jobs: "No active job", warnings: "0 warnings" };
   if (workspace === "activity") return { selection: "Current work queue", revision: "Current user", jobs: "No active job", warnings: "0 warnings" };
-  if (workspace === "administration") return { selection: "Administration", revision: "No shell draft", jobs: "No active job", warnings: "0 validation errors" };
+  if (workspace === "administration") return { selection: "Administration", revision: "", jobs: "", warnings: "" };
   if (workspace === "other") return { selection: "Workspace", revision: "Current context", jobs: "No active job", warnings: "0 warnings" };
   if (/^\/materials\/[^/]+/.test(path)) return { selection: "Material record", revision: "Current revision", jobs: "No active job", warnings: "0 warnings" };
   return { selection: "No material selected", revision: "Current records", jobs: "No active job", warnings: "0 warnings" };
@@ -277,10 +277,10 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
       </section> : null}
       <main className="application-workspace" data-focus-region="workspace" ref={mainRef} tabIndex={-1}>{children}</main>
       <footer className="application-status-bar" role="status" aria-live="polite" data-focus-region="status" ref={statusRef} tabIndex={-1}>
-        <span className="status-selection">{status.selection}</span>
-        <span>{status.revision}</span>
-        <span>{status.jobs}</span>
-        <span>{status.warnings}</span>
+        {status.selection ? <span className="status-selection">{status.selection}</span> : null}
+        {status.revision ? <span>{status.revision}</span> : null}
+        {status.jobs ? <span>{status.jobs}</span> : null}
+        {status.warnings ? <span>{status.warnings}</span> : null}
         <span className={`status-connection ${connection}`}><i aria-hidden="true" />{connectionLabel}</span>
       </footer>
     </div>

@@ -235,9 +235,8 @@ after_artifacts:
     - {state: source-plan, viewport: 2560x1440, kind: original, path: docs/17-evidence/images/issue-246-source-v2-categories/after/originals/issue246-source-plan-2560x1440.png, width: 2560, height: 1440, bytes: 166771, sha256: 3bc71abd16ec185c3b91f8960a50ebf81a8c625a1b94db94949834688faf6867}
     - {state: source-plan, viewport: 3840x2160, kind: original, path: docs/17-evidence/images/issue-246-source-v2-categories/after/originals/issue246-source-plan-3840x2160.png, width: 3840, height: 2160, bytes: 204521, sha256: a611fa8c8bb2421d7ff7f8de0e6a7a48cae411fb9965e34b8bff4a0317af5bae}
 guide_artifacts:
-  count: 3
-  note: 'byte-identical copies of the three final 1440x900 originals'
+  count: 2
+  note: 'byte-identical copies of the two retained Materials 1440x900 originals; the former current Administration image was superseded by Issue #262'
   files:
-    - {state: reference, viewport: 1440x900, kind: original, path: docs/user-guide/images/current/administration-schema-bundle-1440x900.png, width: 1440, height: 900, bytes: 99077, sha256: 74d6d19570704681b4683021cb3db6f2de4e56d55ce2c9c9f3fc629afb8f098e}
     - {state: reference, viewport: 1440x900, kind: original, path: docs/user-guide/images/current/material-database-categories-1440x900.png, width: 1440, height: 900, bytes: 116816, sha256: 4f6c1ae03466d935aedc27e593b0da3c31438e91da423e7430e7e261b5a1b02f}
     - {state: reference, viewport: 1440x900, kind: original, path: docs/user-guide/images/current/material-database-linked-test-1440x900.png, width: 1440, height: 900, bytes: 81262, sha256: 6f59996b0f8b04757345dc73466a356167bce1c8305937148f0cd67b09e9a1d5}

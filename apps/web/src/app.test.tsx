@@ -611,6 +611,7 @@ describe("Material Catalog workbench", () => {
     expect(within(tasks).getByRole("button", { name: "Records" })).toBeTruthy();
     expect(within(tasks).getByRole("button", { name: "Access" })).toBeTruthy();
     expect(within(tasks).queryByRole("button", { name: "Overview" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open Materials" })).toBeNull();
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS|principal ID|group issuer/i);
   });
 

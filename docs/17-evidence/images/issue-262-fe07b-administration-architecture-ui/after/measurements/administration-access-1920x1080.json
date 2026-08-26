@@ -8,6 +8,7 @@
   "devicePixelRatio": 1,
   "visualViewportScale": 1,
   "document": {
+    "scrollY": 0,
     "clientWidth": 1920,
     "scrollWidth": 1920,
     "clientHeight": 1080,
@@ -21,31 +22,31 @@
   },
   "administration": {
     "x": 0,
-    "y": 49,
+    "y": 50,
     "width": 1920,
-    "height": 1029
+    "height": 962
   },
   "taskbar": {
     "x": 0,
-    "y": 49,
+    "y": 50,
     "width": 1920,
     "height": 43
   },
   "workspace": {
     "x": 32,
-    "y": 116,
+    "y": 117,
     "width": 1856,
-    "height": 938
+    "height": 318.984375
   },
   "primary": {
     "x": 32,
-    "y": 116,
+    "y": 117,
     "width": 1856,
-    "height": 938
+    "height": 318.984375
   },
   "secondary": {
     "x": 46,
-    "y": 199.1875,
+    "y": 204.984375,
     "width": 1827,
     "height": 216
   }

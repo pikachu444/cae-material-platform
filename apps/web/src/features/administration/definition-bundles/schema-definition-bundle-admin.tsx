@@ -18,6 +18,7 @@ import {
   type ApiConfig,
 } from "./api";
 import { publishWorkspaceStatus } from "../../../design/application-shell";
+import { EngineeringPane, SemanticText } from "../../../design/semantic-ui";
 import {
   definitionBundleRoutePath,
   parseDefinitionBundleRouteSelection,
@@ -178,7 +179,7 @@ export async function inspectSchemaDefinitionBundleFiles(
     const tables = Array.isArray(manifest?.tables) ? manifest.tables : [];
     const unitProfiles = Array.isArray(manifest?.unit_profiles) ? manifest.unit_profiles : [];
     if (!manifest || manifest.document_type !== "cmp.catalog-schema-bundle" || !tables.length) {
-      throw new Error("The source-set envelope manifest is not a source-v2 bundle.");
+      throw new Error("The selected source set does not contain a valid source-v2 definition package.");
     }
     return {
       file: new File([files[0]!], files[0]!.name, { type: SOURCE_SET_MEDIA_TYPE }),
@@ -264,16 +265,16 @@ export async function inspectSchemaDefinitionBundleFiles(
   const file = files[0]!;
   const filename = file.name.trim();
   if (!filename || filename.includes("/") || filename.includes("\\")) {
-    throw new Error("Choose a JSON bundle with a safe, non-empty filename.");
+    throw new Error("Choose format-definition files with safe, non-empty filenames.");
   }
   if (!filename.toLowerCase().endsWith(".json") || !ACCEPTED_MEDIA_TYPES.has(file.type)) {
-    throw new Error("Choose a JSON Schema Definition Bundle file (.json).");
+    throw new Error("Choose JSON format-definition files or a ZIP definition package.");
   }
   if (file.size < 1) {
-    throw new Error("The definition bundle is empty.");
+    throw new Error("The selected definition file is empty.");
   }
   if (file.size > MAX_BUNDLE_BYTES) {
-    throw new Error("The definition bundle is larger than 64 MiB.");
+    throw new Error("The selected definition file is larger than 64 MiB.");
   }
 
   let document: unknown;
@@ -301,7 +302,7 @@ export async function inspectSchemaDefinitionBundleFiles(
     recordSchemas.length < 1
   ) {
     throw new Error(
-      "The JSON is not a version 1.0.0 Schema Definition Bundle with a scope, catalog, and at least one record schema.",
+      "The JSON is not a valid version 1.0.0 format-definition file with a scope, catalog, and at least one record type definition.",
     );
   }
 
@@ -375,10 +376,10 @@ function operationError(error: unknown, fallback: string): OperationError {
 
 function targetLabel(value: SchemaDefinitionBundlePlanAction["target_type"]): string {
   return {
-    bundle: "Bundle",
+    bundle: "Definition set",
     database: "Database",
-    profile: "Profile",
-    table: "Table",
+    profile: "Configuration",
+    table: "Record type",
     attribute: "Attribute",
     layout: "Layout",
     profile_table_placement: "Table placement",
@@ -388,6 +389,13 @@ function targetLabel(value: SchemaDefinitionBundlePlanAction["target_type"]): st
 
 function dispositionLabel(value: SchemaDefinitionBundlePlanAction["disposition"]): string {
   return value === "no-op" ? "No change" : `${value[0]?.toUpperCase()}${value.slice(1)}`;
+}
+
+function actionDisplayName(action: SchemaDefinitionBundlePlanAction): string {
+  const projectedName = action.projected?.name;
+  return typeof projectedName === "string" && projectedName.trim()
+    ? projectedName
+    : action.external_key;
 }
 
 function diagnosticForAction(
@@ -498,16 +506,22 @@ export function SchemaDefinitionBundleAdmin({
         ? `${application.bundle_key} ${application.bundle_version}`
         : plan?.bundle
           ? `${plan.bundle.bundle_key} ${plan.bundle.bundle_version}`
-          : "Definition bundles",
-      revision: application ? "Applied bundle" : plan ? "Plan not applied" : "No bundle selected",
+          : "Format definitions",
+      revision: application
+        ? "Verified result"
+        : plan
+          ? `${plan.actions.length} ${plan.actions.length === 1 ? "change" : "changes"} to review`
+          : fileSummary
+            ? "Files selected"
+            : "",
       jobs:
         phase === "uploading" || phase === "planning" || phase === "applying" || phase === "restoring"
           ? "Operation in progress"
-          : "No active job",
-      warnings: error ? "1 action required" : plan && !planApplicable ? "Plan blocked" : "0 validation errors",
+          : "",
+      warnings: error ? "1 action required" : plan && !planApplicable ? "Changes blocked" : "",
       connection: roleState === "error" ? "degraded" : "online",
     });
-  }, [application, error, phase, plan, planApplicable, roleState]);
+  }, [application, error, fileSummary, phase, plan, planApplicable, roleState]);
 
   useEffect(() => {
     let active = true;
@@ -573,7 +587,7 @@ export function SchemaDefinitionBundleAdmin({
         setPhase("ready");
       } catch (caught) {
         if (!active) return;
-        setError(operationError(caught, "The saved bundle state could not be restored."));
+        setError(operationError(caught, "The saved format-definition state could not be restored."));
         setRoleState((current) => (current === "checking" ? "error" : current));
         setPhase("failed");
       }
@@ -648,7 +662,7 @@ export function SchemaDefinitionBundleAdmin({
       });
     } catch (caught) {
       if (!operationIsCurrent(generation)) return;
-      setError(operationError(caught, "The bundle could not be uploaded and planned."));
+      setError(operationError(caught, "The selected files could not be uploaded and compared."));
       setPhase("failed");
     }
   }
@@ -680,7 +694,7 @@ export function SchemaDefinitionBundleAdmin({
       });
     } catch (caught) {
       if (!operationIsCurrent(generation)) return;
-      setError(operationError(caught, "The bundle could not be planned again."));
+      setError(operationError(caught, "The selected files could not be compared again."));
       setPhase("failed");
     }
   }
@@ -750,7 +764,7 @@ export function SchemaDefinitionBundleAdmin({
     } catch (caught) {
       if (!operationIsCurrent(generation)) return;
       if (appliedApplicationId) setApplicationRecoveryId(appliedApplicationId);
-      const nextError = operationError(caught, "The bundle could not be applied.");
+      const nextError = operationError(caught, "The format-definition changes could not be applied.");
       setError(nextError);
       setCorrelationId(nextError.correlationId);
       setConfirming(false);
@@ -776,7 +790,7 @@ export function SchemaDefinitionBundleAdmin({
         exported.source_artifact_id !== targetApplication.source_artifact.artifact_id ||
         exported.source_artifact_sha256 !== targetApplication.source_artifact.sha256
       ) {
-        throw new Error("The exported bundle does not match the applied source evidence.");
+        throw new Error("The downloaded definition files do not match the applied source evidence.");
       }
       const objectUrl = URL.createObjectURL(exported.blob);
       const anchor = document.createElement("a");
@@ -788,13 +802,13 @@ export function SchemaDefinitionBundleAdmin({
       setCorrelationId(exported.request_id ?? correlationId);
     } catch (caught) {
       if (!operationIsCurrent(generation)) return;
-      setError(operationError(caught, "The applied bundle could not be exported."));
+      setError(operationError(caught, "The applied definition files could not be downloaded."));
     } finally {
       if (operationIsCurrent(generation)) setExporting(false);
     }
   }
 
-  function startNewBundle(): void {
+  function startNewBundle(openPicker = false): void {
     beginOperation();
     clearRecovery();
     setFileSummary(null);
@@ -812,99 +826,110 @@ export function SchemaDefinitionBundleAdmin({
     setPhase("empty");
     onNavigate?.(definitionBundleRoutePath({ applicationId: "" }));
     if (fileInputRef.current) fileInputRef.current.value = "";
-    window.setTimeout(() => fileInputRef.current?.focus(), 0);
+    window.setTimeout(() => {
+      if (openPicker) fileInputRef.current?.click();
+      else fileInputRef.current?.focus();
+    }, 0);
   }
 
   const recoveryAction = useMemo(() => {
     if (error?.code === "CMP-CATALOG-0207" && artifact) {
-      return { label: "Plan again", run: planAgain };
+      return { label: "Compare again", run: planAgain };
     }
     if (applicationRecoveryId && !application) {
       return {
-        label: "Read applied result",
+        label: "Verify applied result",
         run: () => restoreApplication(applicationRecoveryId),
       };
     }
     if (application) {
       return {
-        label: "Restore applied result",
+        label: "Verify applied result again",
         run: () => restoreApplication(application.application_id),
       };
     }
-    if (artifact) return { label: "Plan again", run: planAgain };
-    if (fileSummary) return { label: "Retry upload and plan", run: uploadAndPlan };
+    if (artifact) return { label: "Compare again", run: planAgain };
+    if (fileSummary) return { label: "Retry change preview", run: uploadAndPlan };
     return null;
   }, [application, applicationRecoveryId, artifact, error?.code, fileSummary]);
 
   if (roleState === "checking") {
     return (
-      <section className="schema-bundle-workbench" aria-busy="true">
+      <EngineeringPane className="schema-bundle-workbench" label="Format definitions" aria-busy="true">
         <header className="schema-editor-header">
           <div>
-            <h2>Format definitions</h2>
+            <SemanticText semanticRole="sectionHeading">Format definitions</SemanticText>
             <p>Checking Administrator access…</p>
           </div>
         </header>
-      </section>
+      </EngineeringPane>
     );
   }
 
   if (roleState === "denied") {
     return (
-      <section className="schema-bundle-workbench">
+      <EngineeringPane className="schema-bundle-workbench" label="Format definitions">
         <header className="schema-editor-header">
           <div>
-            <h2>Format definitions</h2>
+            <SemanticText semanticRole="sectionHeading">Format definitions</SemanticText>
           </div>
         </header>
         <div className="ux-notice warning" role="alert">
           <strong>Administrator access is required.</strong>
-          <p>User and Reviewer roles cannot upload, plan, apply, read back, or export definition bundles.</p>
+          <p>User and Reviewer roles cannot choose, review, apply, verify, or download format-definition files.</p>
         </div>
-      </section>
+      </EngineeringPane>
     );
   }
 
   if (roleState === "error") {
     return (
-      <section className="schema-bundle-workbench">
+      <EngineeringPane className="schema-bundle-workbench" label="Format definitions">
         <header className="schema-editor-header">
           <div>
-            <h2>Format definitions</h2>
+            <SemanticText semanticRole="sectionHeading">Format definitions</SemanticText>
           </div>
           <button className="ux-button primary" type="button" onClick={onOpenConnection}>
             Check connection
           </button>
         </header>
         <div className="ux-notice error" role="alert">{error?.message}</div>
-      </section>
+      </EngineeringPane>
     );
   }
 
+  const activeStep = application
+    ? 4
+    : confirming || phase === "applying"
+      ? 3
+      : artifact || plan
+        ? 2
+        : 1;
+
   return (
-    <section className="schema-bundle-workbench" aria-busy={phase === "restoring"}>
+    <EngineeringPane className="schema-bundle-workbench" label="Format definitions" aria-busy={phase === "restoring"}>
       <div className="schema-bundle-flow-row">
         <ol className="schema-bundle-steps" aria-label="Format definition workflow">
-          <li aria-current={!artifact && !application ? "step" : undefined}>Select</li>
-          <li aria-current={artifact && !plan && !application ? "step" : undefined}>Plan</li>
-          <li aria-current={plan && !application ? "step" : undefined}>Apply</li>
-          <li aria-current={application ? "step" : undefined}>Read back</li>
+          <li aria-current={activeStep === 1 ? "step" : undefined}>1 Choose files</li>
+          <li aria-current={activeStep === 2 ? "step" : undefined}>2 Review changes</li>
+          <li aria-current={activeStep === 3 ? "step" : undefined}>3 Apply changes</li>
+          <li aria-current={activeStep === 4 ? "step" : undefined}>4 Verify result</li>
         </ol>
         {(plan || application || artifact || applicationRecoveryId) && !busy ? (
-          <button className="ux-button" type="button" onClick={startNewBundle}>
-            New bundle
+          <button className="ux-button tertiary local-action" type="button" onClick={() => startNewBundle(true)}>
+            Replace files
           </button>
         ) : null}
       </div>
 
       {error ? (
         <section className="ux-notice error schema-bundle-error" role="alert">
-          <strong>{error.code === "CMP-CATALOG-0207" ? "The approved plan is stale." : "Action required"}</strong>
+          <strong>{error.code === "CMP-CATALOG-0207" ? "The reviewed changes are stale." : "Action required"}</strong>
           <p>{error.message}</p>
           <dl>
-            <div><dt>Location</dt><dd>{error.code === "CMP-CATALOG-0207" ? "Current Catalog snapshot" : "Bundle operation"}</dd></div>
-            <div><dt>Impact</dt><dd>{application ? "The saved application remains available." : applicationRecoveryId ? "Apply returned an application, but success is withheld until immutable read-back completes." : "No client plan actions were applied."}</dd></div>
-            <div><dt>Next action</dt><dd>{recoveryAction?.label ?? "Choose a valid bundle file."}</dd></div>
+            <div><dt>Location</dt><dd>{error.code === "CMP-CATALOG-0207" ? "Current Catalog snapshot" : "Format-definition operation"}</dd></div>
+            <div><dt>Impact</dt><dd>{application ? "The verified result remains available." : applicationRecoveryId ? "The server applied changes, but completion is withheld until immutable verification succeeds." : "No selected changes were applied."}</dd></div>
+            <div><dt>Next action</dt><dd>{recoveryAction?.label ?? "Choose valid format-definition files."}</dd></div>
           </dl>
           {recoveryAction ? (
             <button className="ux-button primary" type="button" onClick={() => void recoveryAction.run()}>
@@ -915,50 +940,51 @@ export function SchemaDefinitionBundleAdmin({
       ) : null}
 
       <div className={`schema-bundle-grid ${!plan && !application && !artifact ? "source-only" : ""}`}>
-        <section className="schema-bundle-source" aria-labelledby="bundle-source-heading">
+        <EngineeringPane className="schema-bundle-source" label={artifact || fileSummary ? "Selected files" : "Choose files"}>
           <header>
-            <h3 id="bundle-source-heading">Select source</h3>
-            <span>{artifact ? "Verified source" : fileSummary?.sourceFormat ?? "JSON files or ZIP"}</span>
+            <SemanticText semanticRole="sectionHeading" as="h3">{artifact || fileSummary ? "Selected files" : "Choose files"}</SemanticText>
           </header>
-          <label className="schema-bundle-file-field">
-            Definition bundle
-            <input
-              ref={fileInputRef}
-              className="ux-input"
-              type="file"
-              accept=".json,.zip,application/json,application/schema+json,application/zip,application/vnd.cmp.catalog-schema-definition-bundle+json,application/vnd.cmp.catalog-schema-source-set+json,application/vnd.cmp.catalog-schema-source-set+zip"
-              multiple
-              disabled={busy || sourceLocked}
-              onChange={(event) => void chooseFile(event)}
-            />
-          </label>
+          {!sourceLocked ? (
+            <label className="ux-field schema-bundle-file-field">
+              Format definition files
+              <input
+                ref={fileInputRef}
+                className="ux-input"
+                type="file"
+                accept=".json,.zip,application/json,application/schema+json,application/zip,application/vnd.cmp.catalog-schema-definition-bundle+json,application/vnd.cmp.catalog-schema-source-set+json,application/vnd.cmp.catalog-schema-source-set+zip"
+                multiple
+                disabled={busy}
+                onChange={(event) => void chooseFile(event)}
+              />
+            </label>
+          ) : null}
           {fileSummary ? (
             <dl className="schema-bundle-summary">
               <div><dt>File</dt><dd>{fileSummary.file.name}</dd></div>
-              <div><dt>Source</dt><dd>{fileSummary.sourceFormat} · {fileSummary.fileCount} file{fileSummary.fileCount === 1 ? "" : "s"}</dd></div>
-              <div><dt>Bundle</dt><dd>{fileSummary.bundleKey}</dd></div>
-              <div><dt>Version</dt><dd>{fileSummary.bundleVersion}</dd></div>
-              <div><dt>Record schemas</dt><dd>{fileSummary.schemaCount}</dd></div>
-              <div><dt>Unit profiles</dt><dd>{fileSummary.unitProfileCount ?? "Server-verified"}</dd></div>
-              <div><dt>Classification</dt><dd><select aria-label="Source classification" value={fileSummary.classification} disabled={sourceLocked || busy} onChange={(event) => setFileSummary((current) => current ? { ...current, classification: event.target.value as DataClassification } : current)}>{[...CLASSIFICATIONS].map((value) => <option value={value} key={value}>{value.replace("_", " ")}</option>)}</select></dd></div>
+              <div><dt>File format</dt><dd>{fileSummary.sourceFormat} · {fileSummary.fileCount} file{fileSummary.fileCount === 1 ? "" : "s"}</dd></div>
+              <div><dt>Definition set</dt><dd>{fileSummary.bundleKey}</dd></div>
+              <div><dt>Definition version</dt><dd>{fileSummary.bundleVersion}</dd></div>
+              <div><dt>Record type definitions</dt><dd>{fileSummary.schemaCount}</dd></div>
+              <div><dt>Unit definitions</dt><dd>{fileSummary.unitProfileCount ?? "Server-verified"}</dd></div>
+              <div><dt>Data classification</dt><dd><select className="ux-select" aria-label="Data classification" value={fileSummary.classification} disabled={sourceLocked || busy} onChange={(event) => setFileSummary((current) => current ? { ...current, classification: event.target.value as DataClassification } : current)}>{[...CLASSIFICATIONS].map((value) => <option value={value} key={value}>{value.replace("_", " ")}</option>)}</select></dd></div>
             </dl>
           ) : plan?.bundle ? (
             <dl className="schema-bundle-summary">
-              <div><dt>Bundle</dt><dd>{plan.bundle.bundle_key}</dd></div>
-              <div><dt>Version</dt><dd>{plan.bundle.bundle_version}</dd></div>
-              <div><dt>Record schemas</dt><dd>{plan.bundle.record_schema_count}</dd></div>
-              <div><dt>Unit profiles</dt><dd>{plan.bundle.unit_profile_count}</dd></div>
-              <div><dt>Classification</dt><dd>{plan.bundle.scope.classification.replace("_", " ")}</dd></div>
+              <div><dt>Definition set</dt><dd>{plan.bundle.bundle_key}</dd></div>
+              <div><dt>Definition version</dt><dd>{plan.bundle.bundle_version}</dd></div>
+              <div><dt>Record type definitions</dt><dd>{plan.bundle.record_schema_count}</dd></div>
+              <div><dt>Unit definitions</dt><dd>{plan.bundle.unit_profile_count}</dd></div>
+              <div><dt>Data classification</dt><dd>{plan.bundle.scope.classification.replace("_", " ")}</dd></div>
             </dl>
           ) : application ? (
             <dl className="schema-bundle-summary">
-              <div><dt>Bundle</dt><dd>{application.bundle_key}</dd></div>
-              <div><dt>Version</dt><dd>{application.bundle_version}</dd></div>
+              <div><dt>Definition set</dt><dd>{application.bundle_key}</dd></div>
+              <div><dt>Definition version</dt><dd>{application.bundle_version}</dd></div>
               <div><dt>Applied</dt><dd>{new Date(application.applied_at).toLocaleString()}</dd></div>
-              <div><dt>Classification</dt><dd>{application.classification.replace("_", " ")}</dd></div>
+              <div><dt>Data classification</dt><dd>{application.classification.replace("_", " ")}</dd></div>
             </dl>
           ) : (
-            <p className="schema-bundle-empty">No source selected</p>
+            <p className="schema-bundle-empty">No files selected</p>
           )}
           {!plan && !application ? (
             <button
@@ -968,7 +994,7 @@ export function SchemaDefinitionBundleAdmin({
               aria-busy={phase === "uploading" || phase === "planning"}
               onClick={() => void uploadAndPlan()}
             >
-              {phase === "uploading" ? "Uploading…" : phase === "planning" ? "Planning…" : "Upload and plan"}
+              {phase === "uploading" ? "Uploading files…" : phase === "planning" ? "Comparing definitions…" : "Preview changes (no write)"}
             </button>
           ) : null}
           {artifact ? (
@@ -981,37 +1007,37 @@ export function SchemaDefinitionBundleAdmin({
               </dl>
             </details>
           ) : null}
-        </section>
+        </EngineeringPane>
 
         {plan || application || artifact ? <>
-        <section className="schema-bundle-plan" aria-labelledby="bundle-plan-heading">
+        <EngineeringPane className="schema-bundle-plan" label={application ? "Verified changes" : "Changes to review"}>
           <header>
             <div>
-              <h3 id="bundle-plan-heading">{application ? "Read-back results" : "Change plan"}</h3>
+              <SemanticText semanticRole="sectionHeading" as="h3">{application ? "Verified changes" : "Changes to review"}</SemanticText>
               <span>
                 {application
                   ? `${application.results.length} results`
                   : plan
-                    ? `${plan.actions.length} actions`
-                    : "No plan"}
+                    ? `${plan.actions.length} changes`
+                    : "No comparison"}
               </span>
             </div>
             {plan && !application ? (
-              <div className="schema-bundle-counts" aria-label="Plan counts">
-                <span>Create {plan.action_counts.create}</span>
-                <span>Update {plan.action_counts.update}</span>
-                <span>No change {plan.action_counts["no-op"]}</span>
-                <span className={plan.action_counts.conflict ? "blocked" : ""}>Conflict {plan.action_counts.conflict}</span>
-                <span className={plan.action_counts.error ? "blocked" : ""}>Error {plan.action_counts.error}</span>
-              </div>
+              <dl className="schema-bundle-counts" aria-label="Change summary">
+                <div><dt>Create</dt><dd>{plan.action_counts.create}</dd></div>
+                <div><dt>Update</dt><dd>{plan.action_counts.update}</dd></div>
+                <div><dt>No change</dt><dd>{plan.action_counts["no-op"]}</dd></div>
+                <div className={plan.action_counts.conflict ? "blocked" : ""}><dt>Conflict</dt><dd>{plan.action_counts.conflict}</dd></div>
+                <div className={plan.action_counts.error ? "blocked" : ""}><dt>Error</dt><dd>{plan.action_counts.error}</dd></div>
+              </dl>
             ) : null}
           </header>
           {phase === "restoring" ? <p className="schema-bundle-loading" role="status">Restoring the last valid server result…</p> : null}
           {plan || application ? (
-            <div className="schema-bundle-table-scroll" tabIndex={0} aria-label={application ? "Applied bundle results" : "Bundle plan actions"}>
+            <div className="schema-bundle-table-scroll" tabIndex={0} aria-label={application ? "Verified format-definition changes" : "Format-definition changes to review"}>
               <table className="ux-table schema-bundle-table">
                 <thead>
-                  <tr><th>Action</th><th>Object</th><th>Target</th><th>State</th></tr>
+                  <tr><th>Change</th><th>Definition type</th><th>Name</th><th>Current state</th></tr>
                 </thead>
                 <tbody>
                   {application
@@ -1044,7 +1070,7 @@ export function SchemaDefinitionBundleAdmin({
                               title={action.external_key}
                               onClick={() => setSelectedIndex(index)}
                               onKeyDown={(event) => moveRowFocus(event, index, plan.actions.length, setSelectedIndex)}
-                            >{action.external_key}</button>
+                            >{actionDisplayName(action)}</button>
                           </td>
                           <td>{action.current ? (action.current.published ? "Published" : "Draft") : "Not present"}</td>
                         </tr>
@@ -1053,31 +1079,34 @@ export function SchemaDefinitionBundleAdmin({
               </table>
             </div>
           ) : (
-            <div className="schema-bundle-plan-empty">No plan generated</div>
+            <div className="schema-bundle-plan-empty">No changes computed</div>
           )}
-        </section>
+        </EngineeringPane>
 
-        <aside className="schema-bundle-detail" aria-labelledby="bundle-detail-heading">
+        <aside className="ux-engineering-pane schema-bundle-detail" aria-label={application ? "Verified result" : confirming ? "Apply changes" : "Selected change"}>
           <header>
-            <h3 id="bundle-detail-heading">{application ? "Exact read-back" : confirming ? "Apply" : "Plan details"}</h3>
-            <span>{selectedPlanAction ? `Action ${selectedPlanAction.sequence}` : selectedResult ? `Result ${selectedResult.sequence}` : "No selection"}</span>
+            <SemanticText semanticRole="sectionHeading" as="h3">{application ? "Verified result" : confirming ? "Apply changes" : "Selected change"}</SemanticText>
           </header>
 
           {selectedPlanAction ? (() => {
             const diagnostic = diagnosticForAction(selectedPlanAction, plan?.diagnostics ?? []);
             return (
               <div className="schema-bundle-detail-body">
-                <h4>{selectedPlanAction.external_key}</h4>
+                <h4>{actionDisplayName(selectedPlanAction)}</h4>
+                <p className="schema-bundle-consequence">{diagnostic?.message ?? (selectedPlanAction.disposition === "no-op" ? "The current persisted definition already matches." : "A new immutable definition will be persisted only after confirmation.")}</p>
                 <dl>
-                  <div><dt>Decision</dt><dd>{dispositionLabel(selectedPlanAction.disposition)}</dd></div>
-                  <div><dt>Object</dt><dd>{targetLabel(selectedPlanAction.target_type)}</dd></div>
-                  <div><dt>Location</dt><dd>{diagnostic?.location ?? selectedPlanAction.parent_external_key ?? "Bundle root"}</dd></div>
-                  <div><dt>Impact</dt><dd>{diagnostic?.message ?? (selectedPlanAction.disposition === "no-op" ? "The current published definition already matches." : "The server will create a new immutable result only after confirmation.")}</dd></div>
-                  <div><dt>Next action</dt><dd>{diagnostic?.remediation ?? (planApplicable ? "Review the exact plan before applying." : "Resolve every conflict or error, then plan again.")}</dd></div>
+                  <div><dt>Change</dt><dd>{dispositionLabel(selectedPlanAction.disposition)}</dd></div>
+                  <div><dt>Definition type</dt><dd>{targetLabel(selectedPlanAction.target_type)}</dd></div>
                 </dl>
-                {selectedPlanAction.reason_codes.length ? (
-                  <p className="schema-bundle-reasons">Reason: {selectedPlanAction.reason_codes.join(", ")}</p>
-                ) : null}
+                <details className="ux-disclosure">
+                  <summary>Technical details</summary>
+                  <dl className="schema-bundle-technical">
+                    <div><dt>External key</dt><dd>{selectedPlanAction.external_key}</dd></div>
+                    <div><dt>Change sequence</dt><dd>{selectedPlanAction.sequence}</dd></div>
+                    <div><dt>Source location</dt><dd>{diagnostic?.location ?? selectedPlanAction.parent_external_key ?? "Definition set root"}</dd></div>
+                    <div><dt>Reason codes</dt><dd>{selectedPlanAction.reason_codes.join(", ") || "None"}</dd></div>
+                  </dl>
+                </details>
               </div>
             );
           })() : selectedResult ? (
@@ -1085,17 +1114,17 @@ export function SchemaDefinitionBundleAdmin({
               <h4>{selectedResult.external_key}</h4>
               <dl>
                 <div><dt>Outcome</dt><dd>{dispositionLabel(selectedResult.disposition)}</dd></div>
-                <div><dt>Object</dt><dd>{targetLabel(selectedResult.target_type)}</dd></div>
+                <div><dt>Definition type</dt><dd>{targetLabel(selectedResult.target_type)}</dd></div>
                 <div><dt>State</dt><dd>{selectedResult.published ? "Published exact revision" : "Recorded"}</dd></div>
-                <div><dt>Source location</dt><dd>{selectedResult.source_pointer}</dd></div>
               </dl>
               <details className="ux-disclosure">
-                <summary>Exact revision</summary>
+                <summary>Technical details</summary>
                 <dl className="schema-bundle-technical">
                   <div><dt>Aggregate</dt><dd>{selectedResult.aggregate_id ?? "Not applicable"}</dd></div>
                   <div><dt>Revision</dt><dd>{selectedResult.revision_id ?? "Not applicable"}</dd></div>
                   <div><dt>Content hash</dt><dd>{selectedResult.content_hash}</dd></div>
                   <div><dt>Source schema</dt><dd>{selectedResult.source_schema_id} · {selectedResult.source_schema_version}</dd></div>
+                  <div><dt>Source location</dt><dd>{selectedResult.source_pointer}</dd></div>
                 </dl>
               </details>
             </div>
@@ -1105,7 +1134,7 @@ export function SchemaDefinitionBundleAdmin({
 
           {plan && !application && plan.diagnostics.length ? (
             <details className="ux-disclosure schema-bundle-diagnostics" open={!plan.valid}>
-              <summary>Plan diagnostics ({plan.diagnostics.length})</summary>
+              <summary>Technical diagnostics ({plan.diagnostics.length})</summary>
               <ul>
                 {plan.diagnostics.map((diagnostic) => (
                   <li key={`${diagnostic.code}-${diagnostic.location}`}>
@@ -1125,7 +1154,7 @@ export function SchemaDefinitionBundleAdmin({
                 <p role="status">
                   {planMigrationRequired
                     ? "Apply is blocked because current Records require an approved migration before this schema change."
-                    : "Apply is blocked until the server returns a valid plan with no conflicts or errors."}
+                    : "Apply is blocked until the server returns a valid change preview with no conflicts or errors."}
                 </p>
               ) : null}
               <button
@@ -1137,29 +1166,34 @@ export function SchemaDefinitionBundleAdmin({
                   setConfirming(true);
                 }}
               >
-                Review exact plan
+                Apply {plan.actions.length} {plan.actions.length === 1 ? "change" : "changes"}
               </button>
             </footer>
           ) : null}
 
           {plan && !application && confirming ? (
             <section className="schema-bundle-confirmation" aria-labelledby="bundle-confirm-heading">
-              <h4 id="bundle-confirm-heading">Confirm the exact plan</h4>
-              <dl className="schema-bundle-technical">
-                <div><dt>Bundle</dt><dd>{plan.bundle?.bundle_key}</dd></div>
-                <div><dt>Version</dt><dd>{plan.bundle?.bundle_version}</dd></div>
-                <div><dt>Source SHA-256</dt><dd>{plan.source_artifact.sha256}</dd></div>
-                <div><dt>Plan fingerprint</dt><dd>{plan.plan_fingerprint}</dd></div>
+              <h4 id="bundle-confirm-heading">Apply these changes?</h4>
+              <dl className="schema-bundle-summary">
+                <div><dt>Definition set</dt><dd>{plan.bundle?.bundle_key}</dd></div>
+                <div><dt>Definition version</dt><dd>{plan.bundle?.bundle_version}</dd></div>
                 <div><dt>Changes</dt><dd>{plan.action_counts.create} create · {plan.action_counts.update} update · {plan.action_counts["no-op"]} no change</dd></div>
               </dl>
-              <label className="schema-bundle-confirm-check">
+              <label className="ux-checkbox schema-bundle-confirm-check">
                 <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} />
-                I reviewed this exact version, checksum, and plan fingerprint.
+                I reviewed this definition version and its changes.
               </label>
-              <footer>
-                <button className="ux-button" type="button" disabled={phase === "applying"} onClick={() => setConfirming(false)}>Back to plan</button>
+              <details className="ux-disclosure">
+                <summary>Technical details</summary>
+                <dl className="schema-bundle-technical">
+                  <div><dt>Source SHA-256</dt><dd>{plan.source_artifact.sha256}</dd></div>
+                  <div><dt>Plan fingerprint</dt><dd>{plan.plan_fingerprint}</dd></div>
+                </dl>
+              </details>
+              <footer className="ux-action-row">
+                <button className="ux-button tertiary local-action" type="button" disabled={phase === "applying"} onClick={() => setConfirming(false)}>Back to changes</button>
                 <button className="ux-button primary" type="button" disabled={!confirmed || phase === "applying"} aria-busy={phase === "applying"} onClick={() => void applyExactPlan()}>
-                  {phase === "applying" ? "Applying…" : "Apply exact plan"}
+                  {phase === "applying" ? "Applying changes…" : "Apply confirmed changes"}
                 </button>
               </footer>
             </section>
@@ -1167,15 +1201,18 @@ export function SchemaDefinitionBundleAdmin({
 
           {application ? (
             <section className="schema-bundle-completion" aria-live="polite">
-              <strong>Exact application read back</strong>
+              <strong>Verified immutable result</strong>
               <dl className="schema-bundle-readback-summary">
-                <div><dt>Bundle</dt><dd>{application.bundle_key} {application.bundle_version}</dd></div>
-                <div><dt>Application</dt><dd>{application.application_id}</dd></div>
+                <div><dt>Definition set</dt><dd>{application.bundle_key} {application.bundle_version}</dd></div>
+                <div><dt>Applied</dt><dd>{new Date(application.applied_at).toLocaleString()}</dd></div>
                 <div><dt>Results</dt><dd>{application.results.length}</dd></div>
               </dl>
-              <button className="ux-button primary" type="button" disabled={exporting} aria-busy={exporting} onClick={() => void exportBundle()}>
-                {exporting ? "Verifying export…" : "Export verified source"}
-              </button>
+              <div className="schema-bundle-completion-actions">
+                <button className="ux-button primary" type="button" disabled={exporting} aria-busy={exporting} onClick={() => void exportBundle()}>
+                  {exporting ? "Preparing download…" : "Download applied definition files"}
+                </button>
+                {onNavigate ? <button className="ux-button tertiary local-action" type="button" onClick={() => onNavigate("/materials")}>Open Materials</button> : null}
+              </div>
               {exportEvidence ? (
                 <p className="schema-bundle-export-status">{exportEvidence.filename} · {exportEvidence.sha256}</p>
               ) : null}
@@ -1195,6 +1232,6 @@ export function SchemaDefinitionBundleAdmin({
         </aside>
         </> : null}
       </div>
-    </section>
+    </EngineeringPane>
   );
 }

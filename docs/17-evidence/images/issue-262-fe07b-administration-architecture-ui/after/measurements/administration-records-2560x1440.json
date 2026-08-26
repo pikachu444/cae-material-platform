@@ -1,6 +1,6 @@
 {
   "state": "records",
-  "url": "http://127.0.0.1:5174/administration/records?table_id=1df98273-50e7-493b-b2d3-180eab11c09a&table_revision_id=d2356221-3d5b-4d26-86f3-a25d6ceb8a90",
+  "url": "http://127.0.0.1:5174/administration/records?table_id=1df98273-50e7-493b-b2d3-180eab11c09a&table_revision_id=d2356221-3d5b-4d26-86f3-a25d6ceb8a90&record_id=2ea5807c-ab29-4cb5-b042-e81431193ffa&record_revision_id=767e03a7-8f3d-4fb1-a925-c8e4b8bebd74",
   "viewport": {
     "width": 2560,
     "height": 1440
@@ -8,10 +8,11 @@
   "devicePixelRatio": 1,
   "visualViewportScale": 1,
   "document": {
+    "scrollY": 0,
     "clientWidth": 2560,
     "scrollWidth": 2560,
     "clientHeight": 1440,
-    "scrollHeight": 1440
+    "scrollHeight": 2056
   },
   "shell": {
     "x": 0,
@@ -21,32 +22,32 @@
   },
   "administration": {
     "x": 0,
-    "y": 46,
+    "y": 50,
     "width": 2560,
-    "height": 1392.171875
+    "height": 1371.390625
   },
   "taskbar": {
     "x": 0,
-    "y": 46,
+    "y": 50,
     "width": 2560,
     "height": 43
   },
   "workspace": {
     "x": 32,
-    "y": 113,
+    "y": 117,
     "width": 2496,
-    "height": 1301.171875
+    "height": 1280.390625
   },
   "primary": {
     "x": 32,
-    "y": 310.171875,
-    "width": 2496,
-    "height": 1104
+    "y": 339.390625,
+    "width": 1664,
+    "height": 1058
   },
   "secondary": {
-    "x": 55.1875,
-    "y": 388.546875,
-    "width": 2449.625,
-    "height": 89.1875
+    "x": 1696,
+    "y": 283.390625,
+    "width": 832,
+    "height": 1114
   }
 }

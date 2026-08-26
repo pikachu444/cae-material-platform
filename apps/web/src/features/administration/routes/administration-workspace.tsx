@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 
 import type { ApiConfig } from "../../../shared/api/http";
 import { publishWorkspaceStatus } from "../../../design/application-shell";
+import "../ui/administration.css";
 import "../ui/administration-fe07b.css";
 
 const ConfigurableCatalogAdmin = lazy(() =>
@@ -54,14 +55,14 @@ export function AdministrationWorkspace({
   section,
 }: AdministrationWorkspaceProps) {
   useEffect(() => {
-    if (section === "database") return;
+    if (section === "database" || section === "bundles" || section === "records") return;
     const selection = administrationTasks.find((task) => task.section === section)?.label ?? "Administration";
     const publish = window.setTimeout(() => {
       publishWorkspaceStatus({
         selection,
-        revision: "Governed configuration",
-        jobs: "No active job",
-        warnings: "0 validation errors",
+        revision: "",
+        jobs: "",
+        warnings: "",
         connection: "online",
       });
     });
@@ -84,9 +85,6 @@ export function AdministrationWorkspace({
             </button>
           ))}
         </nav>
-        <button className="ux-button tertiary" onClick={() => navigate("/materials")} type="button">
-          Open Materials
-        </button>
       </header>
       <section className="administration-content" data-administration-section={section}>
         <Suspense fallback={<p className="loading-state">Loading Administration…</p>}>

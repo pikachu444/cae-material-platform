@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import {
+  EngineeringPane,
+  SemanticStatus,
+  SemanticText,
+  WorkbenchMessage,
+} from "../../../design/semantic-ui";
+import {
   ApiError,
   getEffectiveProductAccess,
   grantProductAccess,
@@ -71,8 +77,8 @@ function errorMessage(error: unknown): string {
 
 function subjectLabel(assignment: ProductAccessAssignment): string {
   return assignment.subject_type === "principal"
-    ? `Principal ${assignment.principal_id ?? "unknown"}`
-    : `${assignment.group_name ?? "unknown group"} · ${assignment.group_issuer ?? "unknown issuer"}`;
+    ? assignment.principal_id ?? "Unknown member"
+    : assignment.group_name ?? "Unknown member";
 }
 
 function featureLabel(value: FeatureGrant): string {
@@ -106,7 +112,7 @@ export function ProductAccessCenter({
     "confidential",
   );
   const [organizationWide, setOrganizationWide] = useState(false);
-  const [reason, setReason] = useState("Assign product capabilities for the current project.");
+  const [reason, setReason] = useState("Grant role-based access for the current project.");
 
   const load = useCallback(async () => {
     if (!config.accessToken.trim()) {
@@ -153,7 +159,7 @@ export function ProductAccessCenter({
         expires_at: null,
         grant_reason: reason.trim(),
       });
-      setNotice(`Created ${result.data.product_role} assignment ${result.data.assignment_id.slice(0, 8)}.`);
+      setNotice(`Access granted to ${subjectLabel(result.data)}.`);
       setAssignmentEditorOpen(false);
       await load();
     } catch (caught) {
@@ -173,7 +179,7 @@ export function ProductAccessCenter({
         assignment.assignment_id,
         revokeReason.trim(),
       );
-      setNotice(`Revoked assignment ${assignment.assignment_id.slice(0, 8)}.`);
+      setNotice(`Access removed from ${subjectLabel(assignment)}. The assignment remains in history.`);
       setRevokeTarget(null);
       setRevokeReason("");
       await load();
@@ -186,17 +192,20 @@ export function ProductAccessCenter({
 
   if (!config.accessToken.trim()) {
     return (
-      <section className="empty-state">
-        <h2>Sign in before inspecting product access.</h2>
+      <EngineeringPane className="access-auth-required" label="Product access sign-in">
+        <SemanticText semanticRole="sectionHeading">Sign in before inspecting product access.</SemanticText>
         <button className="ux-button primary" type="button" onClick={onOpenConnection}>
           Try again
         </button>
-      </section>
+      </EngineeringPane>
     );
   }
 
+  const activeAssignments = assignments.filter((assignment) => !assignment.revoked_at);
+  const activeAssignmentCount = `${activeAssignments.length} active ${activeAssignments.length === 1 ? "assignment" : "assignments"}`;
+
   return (
-    <div className={productMode ? "page-stack administration-access-workbench" : "page-stack"}>
+    <div className={productMode ? "administration-access-workbench" : "page-stack"}>
       {!productMode ? <section className="page-heading">
         <div>
           <h2>Product roles & feature grants</h2>
@@ -208,9 +217,9 @@ export function ProductAccessCenter({
         {summary ? <span className="reference-chip">{summary.product_role}</span> : null}
       </section> : null}
 
-      {error ? <p className="error-notice" role="alert">{error}</p> : null}
-      {notice ? <p className="success-notice">{notice}</p> : null}
-      {loading ? <p className="loading-state">Loading product access…</p> : null}
+      {error ? <WorkbenchMessage kind="error" title="Access action failed">{error}</WorkbenchMessage> : null}
+      {notice ? <SemanticStatus status="success" label={notice} /> : null}
+      {loading ? <WorkbenchMessage kind="loading" title="Loading access">Reading current assignments…</WorkbenchMessage> : null}
 
       {summary && !productMode ? (
         <section className="content-card">
@@ -237,122 +246,124 @@ export function ProductAccessCenter({
 
       {summary?.product_role === "administrator" ? (
         <>
-          {(!productMode || assignmentEditorOpen) ? <section className={productMode ? "content-card access-assignment-panel" : "content-card"}>
+          {(!productMode || assignmentEditorOpen) ? <EngineeringPane className={productMode ? "access-assignment-panel" : "content-card"} label="Grant access">
             <div className="section-heading">
-              <h2>Add assignment</h2>
+              <SemanticText semanticRole="sectionHeading">Grant access</SemanticText>
               {productMode ? <button className="ux-button tertiary" type="button" onClick={() => setAssignmentEditorOpen(false)}>Close</button> : null}
             </div>
-            <form className="form-stack product-access-form" onSubmit={(event) => void submit(event)}>
-              <div className="form-grid">
-                <label>
-                  Subject type
-                  <select value={subjectType} onChange={(event) => setSubjectType(event.target.value as "principal" | "group")}>
-                    <option value="group">Identity-provider group</option>
-                    <option value="principal">Principal ID</option>
+            <form className="ux-form product-access-form" onSubmit={(event) => void submit(event)}>
+              <div className="ux-field-grid">
+                <label className="ux-field">
+                  Member type
+                  <select className="ux-select" value={subjectType} onChange={(event) => setSubjectType(event.target.value as "principal" | "group")}>
+                    <option value="group">Team</option>
+                    <option value="principal">User ID</option>
                   </select>
                 </label>
-                <label>
+                <label className="ux-field">
                   Role
-                  <select aria-describedby="role-task-summary" value={productRole} onChange={(event) => setProductRole(event.target.value as ProductRole)}>
+                  <select className="ux-select" aria-describedby="role-permissions" value={productRole} onChange={(event) => setProductRole(event.target.value as ProductRole)}>
                     <option value="user">User</option>
                     <option value="reviewer">Reviewer</option>
                     <option value="administrator">Administrator</option>
                   </select>
                 </label>
               </div>
-              <div className="access-effective-grants" id="role-task-summary" aria-live="polite">
-                <strong>Effective capabilities</strong>
-                <span>{rolePresets[productRole].grants.map(featureLabel).join(" · ")}</span>
+              <div className="access-effective-grants" id="role-permissions" aria-live="polite">
+                <SemanticText semanticRole="label">Permissions</SemanticText>
+                <SemanticText semanticRole="value">{rolePresets[productRole].grants.map(featureLabel).join(" · ")}</SemanticText>
               </div>
               {subjectType === "group" ? (
-                <div className="form-grid">
-                  <label>
-                    Group issuer
-                    <input value={groupIssuer} onChange={(event) => setGroupIssuer(event.target.value)} required />
+                <>
+                  <label className="ux-field">
+                    Team name
+                    <input className="ux-input" value={groupName} onChange={(event) => setGroupName(event.target.value)} required />
                   </label>
-                  <label>
-                    Group name
-                    <input value={groupName} onChange={(event) => setGroupName(event.target.value)} required />
-                  </label>
-                </div>
+                  <details className="ux-disclosure access-advanced">
+                    <summary>Advanced</summary>
+                    <label className="ux-field">
+                      Identity provider
+                      <input className="ux-input" value={groupIssuer} onChange={(event) => setGroupIssuer(event.target.value)} required />
+                    </label>
+                  </details>
+                </>
               ) : (
-                <label>
-                  Principal ID
-                  <input value={principalId} onChange={(event) => setPrincipalId(event.target.value)} required />
+                <label className="ux-field">
+                  User ID
+                  <input className="ux-input" value={principalId} onChange={(event) => setPrincipalId(event.target.value)} required />
                 </label>
               )}
-              <div className="form-grid">
-                <label>
+              <div className="ux-field-grid">
+                <label className="ux-field">
                   Maximum classification
-                  <select value={classification} onChange={(event) => setClassification(event.target.value as Exclude<DataClassification, "export_controlled">)}>
+                  <select className="ux-select" value={classification} onChange={(event) => setClassification(event.target.value as Exclude<DataClassification, "export_controlled">)}>
                     <option value="internal">Internal</option>
                     <option value="confidential">Confidential</option>
                     <option value="restricted">Restricted</option>
                   </select>
                 </label>
-                <label className="checkbox-label">
+                <label className="ux-checkbox">
                   <input type="checkbox" checked={organizationWide} onChange={(event) => setOrganizationWide(event.target.checked)} />
-                  Organization-wide assignment
+                  Grant across the organization
                 </label>
               </div>
-              <label>
+              <label className="ux-field">
                 Reason
-                <input value={reason} onChange={(event) => setReason(event.target.value)} required />
+                <input className="ux-input" value={reason} onChange={(event) => setReason(event.target.value)} required />
               </label>
-              <button className="ux-button primary" type="submit" disabled={saving} aria-busy={saving}>
-                {saving ? "Saving…" : "Create assignment"}
-              </button>
+              <div className="ux-action-row">
+                <button className="ux-button primary" type="submit" disabled={saving} aria-busy={saving}>
+                  {saving ? "Granting…" : "Grant access"}
+                </button>
+              </div>
             </form>
-          </section> : null}
+          </EngineeringPane> : null}
 
-          <section className="content-card access-assignments-table">
+          <EngineeringPane className={productMode ? "access-assignments-table" : "content-card access-assignments-table"} label="Active access assignments">
             <div className="section-heading">
               <div>
-                <h2>Assignments</h2>
-                <span>{assignments.length} assignments</span>
+                <SemanticText semanticRole="sectionHeading">Access</SemanticText>
+                <SemanticText semanticRole="metadata">{activeAssignmentCount}</SemanticText>
               </div>
-              {productMode && !assignmentEditorOpen && !revokeTarget ? <button className="ux-button primary" type="button" onClick={() => setAssignmentEditorOpen(true)}>Add assignment</button> : null}
+              {productMode && !assignmentEditorOpen && !revokeTarget ? <button className="ux-button primary" type="button" onClick={() => setAssignmentEditorOpen(true)}>Grant access</button> : null}
             </div>
-            <div className="assignment-table" role="table" aria-label="Product access assignments">
+            <div className="assignment-table" role="table" aria-label="Access grants">
               <div className="assignment-table-heading" role="row">
-                <span role="columnheader">Subject or team</span>
+                <span role="columnheader">Member</span>
                 <span role="columnheader">Role</span>
-                <span role="columnheader">Effective capabilities</span>
+                <span role="columnheader">Permissions</span>
                 <span role="columnheader">Action</span>
               </div>
-              {assignments.map((assignment) => (
+              {activeAssignments.map((assignment) => (
                 <div className="assignment-table-row" role="row" key={assignment.assignment_id}>
                   <span className="assignment-subject" role="cell">
                     <strong>{assignment.subject_type === "group" ? assignment.group_name : assignment.principal_id}</strong>
-                    <small>{assignment.subject_type === "group" ? assignment.group_issuer : "Principal"}</small>
                   </span>
                   <span role="cell">{rolePresets[assignment.product_role].label}</span>
                   <span className="assignment-capabilities" role="cell">
                     <small>{assignment.feature_grants.map(featureLabel).join(" · ") || "Read-only user"}</small>
                   </span>
-                  {assignment.revoked_at ? (
-                    <span role="cell">Revoked</span>
-                  ) : (
-                    <span role="cell"><button className="ux-button danger" type="button" disabled={saving} onClick={() => { setRevokeTarget(assignment); setRevokeReason(""); }}>
-                        Revoke
-                      </button></span>
-                  )}
+                  <span role="cell"><button className="ux-button danger" type="button" disabled={saving} onClick={() => { setRevokeTarget(assignment); setRevokeReason(""); }}>
+                      Remove access
+                    </button></span>
                 </div>
               ))}
             </div>
-          </section>
+          </EngineeringPane>
           {revokeTarget ? (
-            <section className="content-card access-revoke-panel" aria-label="Revoke assignment">
+            <EngineeringPane className={productMode ? "access-revoke-panel" : "content-card access-revoke-panel"} label="Remove access">
               <div className="section-heading">
-                <h2>Revoke {subjectLabel(revokeTarget)}</h2>
+                <SemanticText semanticRole="sectionHeading">Remove access for {subjectLabel(revokeTarget)}?</SemanticText>
                 <button className="ux-button tertiary" type="button" onClick={() => setRevokeTarget(null)}>Cancel</button>
               </div>
-              <label>
+              <label className="ux-field">
                 Reason
-                <input value={revokeReason} onChange={(event) => setRevokeReason(event.target.value)} required />
+                <input className="ux-input" value={revokeReason} onChange={(event) => setRevokeReason(event.target.value)} required />
               </label>
-              <button className="ux-button danger" type="button" disabled={saving || !revokeReason.trim()} onClick={() => void revoke(revokeTarget)}>Confirm revoke</button>
-            </section>
+              <div className="ux-action-row">
+                <button className="ux-button danger" type="button" disabled={saving || !revokeReason.trim()} onClick={() => void revoke(revokeTarget)}>Remove access</button>
+              </div>
+            </EngineeringPane>
           ) : null}
         </>
       ) : null}

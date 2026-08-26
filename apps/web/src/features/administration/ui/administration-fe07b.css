@@ -19,11 +19,18 @@
   border-radius: 0;
 }
 
-.administration-workspace .administration-record-workbench .catalog-search-panel > .form-grid {
+.administration-workspace .administration-record-workbench .record-scope-row {
   display: grid;
-  grid-template-columns: minmax(12rem, 15rem) minmax(18rem, 1fr) minmax(11rem, 14rem) minmax(12rem, 16rem) auto;
+  grid-template-columns: minmax(18rem, 24rem);
+  gap: var(--ux-space-3);
+}
+
+.administration-workspace .administration-record-workbench .record-search-row {
+  display: grid;
+  grid-template-columns: minmax(24rem, 48rem) auto;
   gap: var(--ux-space-3);
   align-items: end;
+  justify-content: start;
 }
 
 .administration-workspace .administration-record-workbench .record-search-action {
@@ -65,7 +72,7 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(24rem, 1fr);
   min-height: 0;
-  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 10.5rem);
+  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 13rem);
 }
 
 .administration-workspace .administration-record-workbench .catalog-facets {
@@ -77,7 +84,37 @@
 }
 
 .administration-workspace .administration-record-workbench .catalog-facets[open] {
-  max-height: min(40vh, 24rem);
+  max-height: min(48vh, 30rem);
+}
+
+.administration-workspace .administration-record-workbench .record-filter-content {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.7fr) minmax(26rem, 1.3fr) minmax(18rem, 1fr);
+  gap: var(--ux-space-5);
+  padding-top: var(--ux-space-4);
+}
+
+.administration-workspace .administration-record-workbench .record-filter-group {
+  min-width: 0;
+}
+
+.administration-workspace .administration-record-workbench .record-filter-group > h3,
+.administration-workspace .administration-record-workbench .folder-maker h3 {
+  margin: 0 0 var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.administration-workspace .administration-record-workbench .catalog-facets .range-filter-row,
+.administration-workspace .administration-record-workbench .catalog-facets .saved-subset-row {
+  display: flex;
+}
+
+.administration-workspace .administration-record-workbench .folder-maker {
+  grid-column: 1 / -1;
+  margin-top: 0;
+  padding-top: var(--ux-space-4);
+  border-top: 1px solid var(--ux-border);
 }
 
 .administration-workspace .administration-record-workbench .catalog-record-list {
@@ -93,12 +130,19 @@
   border-left: 1px solid var(--ux-border);
 }
 
+.administration-workspace .administration-record-workbench .catalog-record-list,
+.administration-workspace .administration-record-workbench .catalog-datasheet {
+  align-content: start;
+  gap: var(--ux-space-3);
+}
+
 .administration-workspace .administration-record-workbench .record-result-heading,
 .administration-workspace .administration-record-workbench .record-result {
   display: grid;
-  grid-template-columns: minmax(16rem, 1.3fr) minmax(10rem, 0.8fr) 6rem;
+  grid-template-columns: minmax(18rem, 36rem) minmax(12rem, 24rem) 8rem 8rem;
   gap: var(--ux-space-3);
   align-items: center;
+  justify-content: start;
 }
 
 .administration-workspace .administration-record-workbench .record-result-heading {
@@ -106,8 +150,8 @@
   padding: 0 var(--ux-space-4);
   border-bottom: 1px solid var(--ux-border-strong);
   color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-  font-weight: var(--ux-font-weight-table-heading);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
 }
 
 .administration-workspace .administration-record-workbench .record-result {
@@ -115,7 +159,6 @@
   padding: var(--ux-space-2) var(--ux-space-4);
 }
 
-.administration-workspace .administration-record-workbench .record-result > strong,
 .administration-workspace .administration-record-workbench .record-result > span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -123,8 +166,7 @@
   text-align: left;
 }
 
-.administration-workspace .administration-record-workbench .record-result > span:last-child {
-  text-align: right;
+.administration-workspace .administration-record-workbench .record-result > span:nth-child(3) {
   font-variant-numeric: tabular-nums;
 }
 
@@ -140,11 +182,69 @@
   gap: var(--ux-space-2);
 }
 
+.administration-workspace .administration-record-workbench .record-list-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.administration-workspace .administration-record-workbench .record-display-layout {
+  display: grid;
+  grid-template-columns: auto minmax(12rem, 18rem);
+  gap: var(--ux-space-2);
+  align-items: center;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.administration-workspace .administration-record-workbench .record-display-layout select {
+  min-height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
 .administration-workspace .administration-record-workbench .record-edit-fields {
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-fields {
+  display: grid;
+  border-top: 1px solid var(--ux-border-strong);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-field {
+  display: grid;
+  gap: var(--ux-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--ux-space-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-heading > .ux-text-label {
+  min-width: 0;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-heading .ux-checkbox {
+  flex: 0 0 auto;
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-value {
+  min-width: 0;
 }
 
 .administration-workspace .administration-record-workbench .catalog-datasheet > .section-heading,
@@ -208,22 +308,33 @@
 }
 
 @container administration-records (max-width: 99.9375rem) {
-  .administration-workspace .administration-record-workbench .catalog-search-panel > .form-grid {
-    grid-template-columns: minmax(11rem, 14rem) minmax(16rem, 1fr) minmax(10rem, 13rem) minmax(11rem, 14rem) auto;
+  .administration-workspace .administration-record-workbench .record-search-row {
+    grid-template-columns: minmax(20rem, 1fr) auto;
   }
 
-  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-facets,
-  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-record-list {
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-facets {
     display: none;
   }
 
   .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor {
-    grid-template-rows: minmax(30rem, 1fr);
+    grid-template-rows: auto minmax(30rem, 1fr);
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-record-list {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    overflow: visible;
+    border-bottom: 1px solid var(--ux-border);
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .record-result-table {
+    display: none;
   }
 
   .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-datasheet {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
     border-left: 0;
   }
 }
@@ -235,13 +346,17 @@
   container-type: inline-size;
 }
 
-.administration-workspace .administration-access-workbench > .content-card {
+.administration-workspace .administration-access-workbench > .ux-engineering-pane {
   padding: var(--ux-pane-padding);
   border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.administration-workspace .administration-access-workbench .access-advanced > .ux-field {
+  margin-top: var(--ux-space-3);
 }
 
 .administration-workspace .administration-access-workbench .access-effective-grants {
@@ -265,7 +380,7 @@
 .administration-workspace .administration-access-workbench .assignment-table-heading,
 .administration-workspace .administration-access-workbench .assignment-table-row {
   display: grid;
-  grid-template-columns: minmax(15rem, 0.8fr) minmax(8rem, 0.35fr) minmax(22rem, 1.5fr) minmax(6rem, auto);
+  grid-template-columns: minmax(15rem, 0.8fr) minmax(8rem, 0.35fr) minmax(22rem, 1.5fr) minmax(9rem, auto);
   gap: var(--ux-space-3);
   align-items: center;
   min-height: var(--ux-work-row-min-block-size);
@@ -325,7 +440,6 @@
   .administration-workspace .administration-access-workbench .access-assignments-table {
     grid-column: 1;
     grid-row: 1 / span 3;
-    min-height: calc(100vh - var(--ux-application-bar-height) - var(--ux-status-bar-height) - var(--ux-command-bar-height) - var(--ux-space-5));
     border-right: 1px solid var(--ux-border);
   }
 
@@ -342,9 +456,6 @@
     grid-row: 2;
   }
 
-  .administration-workspace .administration-access-workbench:not(:has(.access-assignment-panel)):not(:has(.access-revoke-panel)) .access-assignments-table {
-    min-height: calc(100vh - var(--ux-application-bar-height) - var(--ux-status-bar-height) - var(--ux-command-bar-height) - var(--ux-space-5));
-  }
 }
 
 @container administration-access (max-width: 99.9375rem) {
@@ -355,7 +466,7 @@
 
   .administration-workspace .administration-access-workbench .assignment-table-heading,
   .administration-workspace .administration-access-workbench .assignment-table-row {
-    grid-template-columns: minmax(13rem, 0.8fr) minmax(7rem, 0.35fr) minmax(18rem, 1.4fr) minmax(6rem, auto);
+    grid-template-columns: minmax(13rem, 0.8fr) minmax(7rem, 0.35fr) minmax(18rem, 1.4fr) minmax(9rem, auto);
   }
 }
 
@@ -370,29 +481,32 @@
 }
 
 .administration-workspace .schema-bundle-steps {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(8rem, 1fr));
-  width: min(100%, 48rem);
+  display: flex;
+  align-items: center;
+  width: min(100%, var(--ux-readable-text-max-inline-size));
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .administration-workspace .schema-bundle-steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-3);
   padding: var(--ux-space-2) var(--ux-space-3);
-  border-inline-start: 1px solid var(--ux-border);
   color: var(--ux-text-muted);
   font-size: var(--ux-data-font-size);
   font-weight: var(--ux-font-weight-label);
 }
 
-.administration-workspace .schema-bundle-steps li:last-child {
-  border-inline-end: 1px solid var(--ux-border);
+.administration-workspace .schema-bundle-steps li + li::before {
+  color: var(--ux-border-strong);
+  content: "→";
 }
 
 .administration-workspace .schema-bundle-steps li[aria-current="step"] {
-  border-bottom: 2px solid var(--ux-accent-strong);
   color: var(--ux-text);
+  font-weight: var(--ux-font-weight-heading);
 }
 
 .administration-workspace .schema-bundle-grid {
@@ -430,6 +544,21 @@
   max-height: none;
   border-top: 0;
   border-left: 1px solid var(--ux-border);
+}
+
+.administration-workspace .schema-bundle-table th:first-child,
+.administration-workspace .schema-bundle-table td:first-child {
+  width: 7rem;
+}
+
+.administration-workspace .schema-bundle-table th:nth-child(2),
+.administration-workspace .schema-bundle-table td:nth-child(2) {
+  width: 8.5rem;
+}
+
+.administration-workspace .schema-bundle-table th:last-child,
+.administration-workspace .schema-bundle-table td:last-child {
+  width: 7.5rem;
 }
 
 .administration-workspace .schema-bundle-readback-summary {
@@ -489,7 +618,7 @@
     grid-row: auto;
   }
 
-  .administration-workspace .administration-record-workbench .catalog-record-grid > .content-card,
+  .administration-workspace .administration-record-workbench .catalog-record-grid > .ux-engineering-pane,
   .administration-workspace .schema-bundle-source {
     border-right: 0;
   }
@@ -499,6 +628,6 @@
   }
 
   .administration-workspace .schema-bundle-steps {
-    grid-template-columns: repeat(4, minmax(6rem, 1fr));
+    flex-wrap: wrap;
   }
 }

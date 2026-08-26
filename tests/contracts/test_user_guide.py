@@ -382,14 +382,14 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 124
+    assert report.capture_count == 123
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 1837
+    assert report.duplicate_image_group_count == 1836
 
 
 @pytest.mark.parametrize(
@@ -613,7 +613,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "material-curves-3840",
     }
     new_issue_262_fe07b_captures = {
-        "administration-schema-bundle-1440",
+            "administration-format-definitions-1440",
         "administration-database-1366",
         "administration-database-1440",
         "administration-database-1920",
@@ -712,6 +712,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - new_issue_253_captures
         - new_issue_209_captures
         - historically_new_issue_289_preview_captures
+        - {"administration-format-definitions-1440"}
     )
     assert {
         prior_source,
@@ -884,9 +885,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     ):
         capture = captures[capture_id]
         assert capture["workflow"] == (
-            "inspect-effective-access-and-grant-revoke-exact-assignment"
+            "inspect-active-access-and-grant-remove-exact-assignment"
         )
-        assert "subject, role, effective capabilities and row-level Revoke" in capture["fixture"]
+        assert "Member, Role, server-derived Permissions and row-level Remove access" in capture[
+            "fixture"
+        ]
     for capture_id in (
         "modeling-export-1366",
         "modeling-export-1440",
@@ -939,10 +942,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 124
+    assert len(manifest["captures"]) == 123
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 124
+    assert len(list(current_images.glob("*.png"))) == 123
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 
