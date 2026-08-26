@@ -8,10 +8,71 @@ ROOT = Path(__file__).parents[2]
 AGENTS = ROOT / "AGENTS.md"
 AGENTS_MAX_BYTES = 16 * 1024
 BACKLOG = ROOT / "docs" / "13-delivery" / "backlog.md"
+PLAYBOOK = ROOT / "docs" / "16-repository" / "frontend-change-review-playbook.md"
 
 
 def test_root_agent_guidance_stays_within_context_budget() -> None:
     assert len(AGENTS.read_bytes()) <= AGENTS_MAX_BYTES
+    assert len(AGENTS.read_bytes()) < 13_327
+
+
+def test_issue_specific_high_dpi_history_lives_in_authoritative_playbook() -> None:
+    guidance = AGENTS.read_text(encoding="utf-8")
+    playbook = PLAYBOOK.read_text(encoding="utf-8")
+
+    for issue in ("#221", "#184", "#223", "#162"):
+        assert issue not in guidance
+
+    for required in (
+        (
+            "Check visibility, clipping, wrapping, exact identity/revision, interaction "
+            "reachability, and layout bounds."
+        ),
+        "Hidden text and measurements do not replace normal-surface usability.",
+        (
+            "Present the original 1920/2560/3840 comparison to the product owner and "
+            "do not merge before the owner checklist and visual geometry approval pass."
+        ),
+        "docs/16-repository/frontend-change-review-playbook.md",
+        "shared typography, control, row, spacing, pane, and plot tokens",
+        "route-specific 4K overrides",
+        "CSS `zoom`",
+        "blanket `transform: scale`",
+        "fabricated filler",
+        "non-uniform SVG stretching",
+    ):
+        assert required in guidance
+
+    assert PLAYBOOK.is_file()
+    for required in (
+        (
+            "Only #160 and #161 may carry an already-existing global layout or density "
+            "failure into #221."
+        ),
+        (
+            "#221 selects the shared implementation policy from representative five-viewport "
+            "evidence; #184 applies it to every route/state."
+        ),
+        "#223",
+        "Known geometry, clipping, overflow or interaction failures still block merge.",
+        "before/after evidence, exact affected routes/states, no new page-specific workaround",
+        "Automated viewport capture proves geometry, not physical readability.",
+        (
+            "This #221/#184 approval is not final actual-device readability when the physical "
+            "record is explicitly deferred to #223."
+        ),
+    ):
+        assert required in playbook
+
+
+def test_backlog_retains_temporary_input_owner_and_exit_guard() -> None:
+    backlog = BACKLOG.read_text(encoding="utf-8")
+
+    assert (
+        "`docs/_incoming/2026-07-24-organic-ux-update/`는 #162 전에는 읽거나 "
+        "삭제하지 않습니다."
+        in backlog
+    )
 
 
 def test_root_agent_guidance_keeps_authority_and_acceptance_boundaries() -> None:

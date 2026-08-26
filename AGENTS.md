@@ -10,7 +10,8 @@
   issue first. Use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
   Start architecture-decision lookup at [`adr/README.md`](adr/README.md).
   `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior. Do not bulk-read
-  archives or `docs/_incoming/`.
+  archives or incoming material; read or delete temporary input only when the backlog's temporary-input owner and
+  exit condition authorize it.
 - For schema-driven integration issues #204-#216 and #246, read the exact P/G rows in
   [`docs/02-requirements/schema-driven-requirement-traceability.md`](docs/02-requirements/schema-driven-requirement-traceability.md)
   and its linked source fixture before changing a contract or narrowing acceptance. Record and resolve a
@@ -66,24 +67,16 @@
   while extra space improves comparison or interaction; navigators, property forms, and prose retain
   readable bounds. A one-sided 1920 px work island, unrelated internal void, or tiny fixed-density UI at
   2560/3840 fails, as does uniformly stretching every row, sentence, form, or plot merely to fill space.
-- Only #160 and #161 may carry an already-existing global layout or density failure into #221. #221
-  selects the shared implementation policy from representative five-viewport evidence; #184 applies it
-  to every route/state. When an actual 4K display is unavailable, #221 and #184 may defer only the
-  physical-readability record to #223. Known geometry, clipping, overflow or interaction failures still
-  block merge. Carryover requires before/after evidence, exact affected routes/states, no new page-specific
-  workaround, and explicit product-owner disposition.
+- Carryover requires before/after evidence, exact affected routes/states, no new page-specific workaround,
+  and explicit product-owner disposition.
 - Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens.
   Do not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
   non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability.
-  #221 selects a provisional shared policy and #184 revalidates it across every route/state using the
-  five deterministic CSS viewports. Both record the available display, CSS viewport and device pixel
-  ratio without presenting emulation as actual hardware. #223 performs the final product-wide Windows
-  4K 100%, 150%, and 200% physical-readability gate.
-- Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout
-  bounds. Hidden text and measurements do not replace normal-surface usability. Present the original
-  1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and visual
-  geometry approval pass. This #221/#184 approval is not final actual-device readability when the
-  physical record is explicitly deferred to #223.
+- Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout bounds.
+- Hidden text and measurements do not replace normal-surface usability.
+- Present the original 1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and visual geometry approval pass.
+- See [frontend change review playbook](docs/16-repository/frontend-change-review-playbook.md) for the
+  authoritative high-DPI policy and historical handoff.
 
 ## Domain invariants
 
@@ -173,6 +166,3 @@ No generic EAV for core domain data, row-per-point storage for large curves, mut
 hidden conversion/resampling/smoothing/manual curve edits, direct plugin database access, in-process
 production plugin loading, silent solver approximation, unreviewed golden updates, or confidential test
 data in source control.
-
-`docs/_incoming/2026-07-24-organic-ux-update/` remains temporary #162 input. Do not read it early or
-delete it before #162 absorbs valid content and proves inbound links are zero.
