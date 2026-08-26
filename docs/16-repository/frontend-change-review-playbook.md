@@ -155,6 +155,24 @@ base/current CSS 계산값을 비교하며 새 selector를 자동 도출해 모�
 contact sheet만 보고 승인하지 않는다. test pass는 ownership, semantic hierarchy 또는 visual composition
 failure를 덮지 않는다.
 
+## High-DPI policy and historical handoff (authoritative)
+
+This section preserves the issue-specific safety and handoff history for high-DPI review. Only #160 and #161 may carry an already-existing global layout or density failure into #221.
+#221 selects the shared implementation policy from representative five-viewport evidence; #184 applies it to every route/state.
+When an actual 4K display is unavailable, #221 and #184 may defer only the physical-readability record to
+#223. Known geometry, clipping, overflow or interaction failures still block merge. Carryover requires
+before/after evidence, exact affected routes/states, no new page-specific workaround, and explicit
+product-owner disposition.
+
+Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens. Do
+not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
+non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability.
+
+#221 selects a provisional shared policy and #184 revalidates it across every route/state using the five
+deterministic CSS viewports. Both record the available display, CSS viewport and device pixel ratio without
+presenting emulation as actual hardware. #223 performs the final product-wide Windows 4K 100%, 150%, and
+200% physical-readability gate. This #221/#184 approval is not final actual-device readability when the physical record is explicitly deferred to #223.
+
 ## 8. Review disposition
 
 - `APPROVED`
