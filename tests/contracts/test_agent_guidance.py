@@ -19,6 +19,7 @@ def test_root_agent_guidance_keeps_authority_and_acceptance_boundaries() -> None
 
     for required in (
         "docs/13-delivery/backlog.md",
+        "adr/README.md",
         "docs/14-testing/product-work-acceptance.md",
         ".agents/skills/desktop-engineering-ui",
         "docs/01-product/visual-acceptance-matrix.md",
