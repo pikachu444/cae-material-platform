@@ -413,6 +413,7 @@ def _doctor(options: StackOptions) -> list[DoctorCheck]:
                         "--quiet",
                     ],
                     cwd=options.paths.root,
+                    environment=_compose_environment(options),
                 )
                 and "valid"
             ),
@@ -425,6 +426,7 @@ def _doctor(options: StackOptions) -> list[DoctorCheck]:
                     options.paths.root / "scripts/check_compose_environment.py",
                 ],
                 cwd=options.paths.root,
+                environment=_compose_environment(options),
                 capture=True,
             ).stdout.strip(),
         )
@@ -1063,6 +1065,14 @@ def _compose_command(options: StackOptions, *arguments: str) -> list[str | Path]
     ]
 
 
+def _compose_environment(options: StackOptions) -> dict[str, str]:
+    """Bind Compose's published Web port to the same validated address shown in status."""
+    return {
+        **os.environ,
+        "CMP_STACK_LISTEN_ADDRESS": str(_validate_listen_address(options.listen_address)),
+    }
+
+
 def _parse_compose_ps(output: str) -> list[dict[str, Any]]:
     stripped = output.strip()
     if not stripped:
@@ -1085,6 +1095,7 @@ def _compose_status(options: StackOptions) -> dict[str, Any]:
     result = _run(
         _compose_command(options, "ps", "--all", "--format", "json"),
         cwd=options.paths.root,
+        environment=_compose_environment(options),
         capture=True,
     )
     entries = _parse_compose_ps(result.stdout)
@@ -1147,7 +1158,11 @@ def _compose_action(
             raise StackError(
                 "doctor failed: " + "; ".join(f"{c.name}: {c.detail}" for c in failures)
             )
-        _run(_compose_command(options, "up", "--build", "-d"), cwd=options.paths.root)
+        _run(
+            _compose_command(options, "up", "--build", "-d"),
+            cwd=options.paths.root,
+            environment=_compose_environment(options),
+        )
         status = _compose_status(options)
         if status["state"] != "running":
             raise StackError("Compose stack did not reach the topology status contract")
@@ -1155,13 +1170,18 @@ def _compose_action(
         if open_browser:
             webbrowser.open(cast(str, status["lan_url"]))
     elif command == "down":
-        _run(_compose_command(options, "down"), cwd=options.paths.root)
+        _run(
+            _compose_command(options, "down"),
+            cwd=options.paths.root,
+            environment=_compose_environment(options),
+        )
     elif command == "status":
         return _compose_status(options)
     elif command == "logs":
         _run(
             _compose_command(options, "logs", "--no-color", "--tail", str(lines)),
             cwd=options.paths.root,
+            environment=_compose_environment(options),
         )
     else:  # pragma: no cover - argparse constrains commands.
         raise StackError(f"unsupported Compose command: {command}")

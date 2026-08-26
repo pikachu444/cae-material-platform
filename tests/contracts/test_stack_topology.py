@@ -131,7 +131,9 @@ def test_only_the_web_front_door_is_lan_exposed() -> None:
     compose = topology["compose"]["services"]
     assert compose["postgres"]["ports"] == ["127.0.0.1:54329:5432"]
     assert compose["api"]["ports"] == ["127.0.0.1:8000:8000"]
-    assert compose["web"]["ports"] == ["5173:5173"]
+    assert compose["web"]["ports"] == [
+        "${CMP_STACK_LISTEN_ADDRESS:-127.0.0.1}:5173:5173"
+    ]
 
 
 def test_server_profile_forbids_demo_identity_seed_and_unattested_plugins() -> None:
