@@ -14,7 +14,9 @@ from cmp.tools import stack
 from cmp.tools import windows_installer as installer
 
 
-def _bundle(tmp_path: Path, *, profile: str = "demo") -> tuple[Path, str]:
+def _bundle(
+    tmp_path: Path, *, profile: str = "demo", version: str = "0.38.0"
+) -> tuple[Path, str]:
     root = tmp_path / "bundle with spaces"
     payload = root / "payload"
     (payload / "python").mkdir(parents=True)
@@ -50,7 +52,7 @@ def _bundle(tmp_path: Path, *, profile: str = "demo") -> tuple[Path, str]:
     manifest = {
         "schema_version": 1,
         "profile": profile,
-        "product_version": "0.38.0",
+        "product_version": version,
         "platform": "windows-x64",
         "files": files,
     }
@@ -145,6 +147,127 @@ def test_already_elevated_install_uses_machine_scope_without_requesting_uac(
     assert record.scope == "machine"
     assert record.program.startswith(_environment(tmp_path)["ProgramFiles"])
     assert record.data.startswith(_environment(tmp_path)["ProgramData"])
+
+
+def test_machine_version_upgrade_retires_prior_program_and_rule_but_preserves_data(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first_root, first_digest = _bundle(tmp_path / "first", version="0.38.0")
+    second_root, second_digest = _bundle(tmp_path / "second", version="0.39.0")
+    environment = _environment(tmp_path)
+    retired: list[Path] = []
+    monkeypatch.setattr(installer, "_verify_windows_11_x64", lambda: "Windows 11 x64")
+    monkeypatch.setattr(installer, "_configure_firewall", lambda *args, **kwargs: True)
+    monkeypatch.setattr(
+        installer, "_remove_firewall", lambda paths, **kwargs: retired.append(paths.program)
+    )
+
+    first_record_path = installer.install(
+        bundle_root=first_root,
+        expected_manifest_sha256=first_digest,
+        listen_address="192.168.10.12",
+        environment=environment,
+        admin=True,
+        start=False,
+    )
+    first_record = installer._read_record(first_record_path)
+    sentinel = Path(first_record.data) / "preserve.me"
+    sentinel.write_text("immutable", encoding="utf-8")
+
+    second_record_path = installer.install(
+        bundle_root=second_root,
+        expected_manifest_sha256=second_digest,
+        listen_address=None,
+        environment=environment,
+        admin=True,
+        start=False,
+    )
+    second_record = installer._read_record(second_record_path)
+
+    assert second_record_path == first_record_path
+    assert second_record.version == "0.39.0"
+    assert second_record.listen_address == "192.168.10.12"
+    assert Path(second_record.program).is_dir()
+    assert not Path(first_record.program).exists()
+    assert retired == [Path(first_record.program)]
+    assert sentinel.read_text(encoding="utf-8") == "immutable"
+
+
+def test_non_admin_upgrade_stops_before_mutation_when_prior_owned_rule_exists(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first_root, first_digest = _bundle(tmp_path / "first", version="0.38.0")
+    second_root, second_digest = _bundle(tmp_path / "second", version="0.39.0")
+    environment = _environment(tmp_path)
+    monkeypatch.setattr(installer, "_verify_windows_11_x64", lambda: "Windows 11 x64")
+    monkeypatch.setattr(installer, "_configure_firewall", lambda *args, **kwargs: False)
+    monkeypatch.setattr(installer, "_firewall_exists", lambda paths: False)
+    record_path = installer.install(
+        bundle_root=first_root,
+        expected_manifest_sha256=first_digest,
+        listen_address=None,
+        environment=environment,
+        admin=False,
+        start=False,
+    )
+    first_record = installer._read_record(record_path)
+    monkeypatch.setattr(installer, "_firewall_exists", lambda paths: True)
+
+    with pytest.raises(installer.InstallerError, match="must be removed before upgrading"):
+        installer.install(
+            bundle_root=second_root,
+            expected_manifest_sha256=second_digest,
+            listen_address=None,
+            environment=environment,
+            admin=False,
+            start=False,
+        )
+
+    assert installer._read_record(record_path) == first_record
+    assert Path(first_record.program).is_dir()
+    second_paths = installer._scope_paths("user", "0.39.0", environment)
+    assert not second_paths.program.exists()
+
+
+def test_failed_version_retirement_restores_prior_record_and_removes_new_program(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    first_root, first_digest = _bundle(tmp_path / "first", version="0.38.0")
+    second_root, second_digest = _bundle(tmp_path / "second", version="0.39.0")
+    environment = _environment(tmp_path)
+    monkeypatch.setattr(installer, "_verify_windows_11_x64", lambda: "Windows 11 x64")
+    monkeypatch.setattr(installer, "_configure_firewall", lambda *args, **kwargs: False)
+    monkeypatch.setattr(installer, "_firewall_exists", lambda paths: False)
+    monkeypatch.setattr(installer, "_remove_firewall", lambda *args, **kwargs: None)
+    record_path = installer.install(
+        bundle_root=first_root,
+        expected_manifest_sha256=first_digest,
+        listen_address=None,
+        environment=environment,
+        admin=False,
+        start=False,
+    )
+    first_record = installer._read_record(record_path)
+
+    def fail_retirement(*args: object, **kwargs: object) -> None:
+        raise OSError("locked")
+
+    monkeypatch.setattr(installer, "_retire_previous_installation", fail_retirement)
+
+    with pytest.raises(installer.InstallerError, match="previous installation record was restored"):
+        installer.install(
+            bundle_root=second_root,
+            expected_manifest_sha256=second_digest,
+            listen_address=None,
+            environment=environment,
+            admin=False,
+            start=False,
+        )
+
+    assert installer._read_record(record_path) == first_record
+    assert Path(first_record.program).is_dir()
+    second_paths = installer._scope_paths("user", "0.39.0", environment)
+    assert not second_paths.program.exists()
 
 
 def test_server_install_generates_and_preserves_restricted_secrets(

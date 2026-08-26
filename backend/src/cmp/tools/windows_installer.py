@@ -181,11 +181,11 @@ def _verified_bundle(bundle_root: Path, expected_sha256: str) -> dict[str, Any]:
     return manifest
 
 
-def _safe_remove_program(path: Path, *, control: Path) -> None:
+def _safe_remove_program(path: Path, *, program_root: Path) -> None:
     resolved = path.resolve()
-    program_root = (control / "program").resolve()
+    resolved_root = program_root.resolve()
     try:
-        relative = resolved.relative_to(program_root)
+        relative = resolved.relative_to(resolved_root)
     except ValueError as error:
         raise InstallerError(
             f"refusing to replace a path outside the program root: {resolved}"
@@ -230,9 +230,9 @@ def _install_payload(
     staging = paths.program.with_name(paths.program.name + ".installing")
     previous = paths.program.with_name(paths.program.name + ".previous")
     if staging.exists():
-        _safe_remove_program(staging, control=paths.control)
+        _safe_remove_program(staging, program_root=paths.program.parent)
     if previous.exists():
-        _safe_remove_program(previous, control=paths.control)
+        _safe_remove_program(previous, program_root=paths.program.parent)
     staging.parent.mkdir(parents=True, exist_ok=True)
     try:
         shutil.copytree(payload, staging)
@@ -250,10 +250,10 @@ def _install_payload(
                 previous.replace(paths.program)
             raise
         if previous.exists():
-            _safe_remove_program(previous, control=paths.control)
+            _safe_remove_program(previous, program_root=paths.program.parent)
     except OSError as error:
         if staging.exists():
-            _safe_remove_program(staging, control=paths.control)
+            _safe_remove_program(staging, program_root=paths.program.parent)
         diagnosis = "execution policy or antivirus may have blocked the verified payload"
         raise InstallerError(f"program installation failed: {error}; {diagnosis}") from error
 
@@ -492,6 +492,52 @@ def _read_record(path: Path) -> InstallRecord:
     return record
 
 
+def _same_path(left: str | Path, right: Path) -> bool:
+    return os.path.normcase(str(Path(left).resolve())) == os.path.normcase(str(right.resolve()))
+
+
+def _validated_existing_paths(
+    record: InstallRecord,
+    *,
+    scope: Scope,
+    environment: Mapping[str, str],
+) -> InstallPaths:
+    expected = _scope_paths(record.scope, record.version, environment)
+    actual = {
+        "program": record.program,
+        "control": record.control,
+        "state": record.state,
+        "data": record.data,
+    }
+    expected_values = {
+        "program": expected.program,
+        "control": expected.control,
+        "state": expected.state,
+        "data": expected.data,
+    }
+    mismatches = sorted(
+        name for name, value in actual.items() if not _same_path(value, expected_values[name])
+    )
+    if record.scope != scope or record.firewall_rule != _FIREWALL_RULE or mismatches:
+        raise InstallerError(
+            "refusing to replace an installation record outside the selected installer scope: "
+            f"scope={record.scope} expected_scope={scope} mismatches={mismatches or 'none'}"
+        )
+    return expected
+
+
+def _retire_previous_installation(paths: InstallPaths, *, admin: bool) -> None:
+    if admin:
+        _remove_firewall(paths, admin=True)
+    elif _firewall_exists(paths):
+        raise InstallerError(
+            "the previous installer-owned firewall rule must be removed before upgrading; "
+            f"ask IT to run as administrator: {_firewall_delete_command(paths)}"
+        )
+    if paths.program.exists():
+        _safe_remove_program(paths.program, program_root=paths.program.parent)
+
+
 def _batch_quote(path: Path) -> str:
     value = str(path)
     if any(character in value for character in ('"', "\r", "\n")):
@@ -632,6 +678,11 @@ def install(
     paths = _scope_paths(scope, version, environment)
     existing_path = _record_path(paths.control)
     existing = _read_record(existing_path) if existing_path.is_file() else None
+    previous_paths = (
+        _validated_existing_paths(existing, scope=scope, environment=environment)
+        if existing is not None
+        else None
+    )
     if existing is not None and existing.profile != profile:
         raise InstallerError(
             "refusing to change an existing installation profile while preserving its data: "
@@ -640,6 +691,14 @@ def install(
         )
     selected_address = listen_address or (existing.listen_address if existing else "127.0.0.1")
     stack._validate_listen_address(selected_address)
+    upgrading = previous_paths is not None and not _same_path(previous_paths.program, paths.program)
+    if upgrading:
+        assert previous_paths is not None
+        if not admin and _firewall_exists(previous_paths):
+            raise InstallerError(
+                "the previous installer-owned firewall rule must be removed before upgrading; "
+                f"ask IT to run as administrator: {_firewall_delete_command(previous_paths)}"
+            )
     _log(paths, f"Verified {platform_detail}; installing profile={profile} scope={scope}")
     files = manifest.get("files")
     if not isinstance(files, dict):
@@ -665,6 +724,29 @@ def install(
     record_path = _write_record(paths, record)
     _write_entrypoints(paths, record_path)
     firewall = _configure_firewall(paths, admin=admin)
+    if upgrading:
+        assert previous_paths is not None
+        try:
+            _retire_previous_installation(previous_paths, admin=admin)
+        except (InstallerError, OSError) as error:
+            try:
+                _remove_firewall(paths, admin=admin)
+            except InstallerError:
+                pass
+            try:
+                if paths.program.exists():
+                    _safe_remove_program(paths.program, program_root=paths.program.parent)
+            except (InstallerError, OSError):
+                pass
+            if existing is not None:
+                _write_record(previous_paths, existing)
+                _write_entrypoints(previous_paths, existing_path)
+                if admin:
+                    _configure_firewall(previous_paths, admin=True)
+            raise InstallerError(
+                "version upgrade could not retire the previous installer-owned program; "
+                "the previous installation record was restored"
+            ) from error
     _log(
         paths,
         f"Installation ready: record={record_path} data_preserved={paths.data} "
