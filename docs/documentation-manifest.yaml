@@ -1,4 +1,4 @@
-version: 2
+version: 3
 policy:
   current: "현재 코드·경로·화면·운영 절차와 함께 갱신하는 문서"
   authoritative: "구현과 검수의 규범; 변경 전에 관련 요구사항·ADR·작업 근거를 확인"
@@ -47,3 +47,22 @@ rules:
       - "docs/14-testing/**/*.md"
       - "docs/15-governance/**/*.md"
       - "docs/16-repository/**/*.md"
+
+visual_evidence:
+  raster_extensions:
+    - ".png"
+    - ".jpg"
+    - ".jpeg"
+  roots:
+    current: "docs/user-guide/images/current"
+    frozen: "docs/17-evidence/images"
+    transient: ".artifacts"
+  exceptions:
+    - lifecycle: current
+      paths:
+        - "docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1920x1080.png"
+        - "docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-2560x1440.png"
+        - "docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-3840x2160.png"
+    - lifecycle: frozen
+      paths:
+        - "docs/17-evidence/images/issue-184-high-dpi-global-implementation"

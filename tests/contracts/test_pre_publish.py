@@ -5,12 +5,14 @@ import os
 import runpy
 import shutil
 import subprocess
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 import pytest
+from cmp.tools import pre_publish as pre_publish_module
 from cmp.tools.pre_publish import (
     ChangeSet,
     CodexExecRunner,
@@ -32,6 +34,59 @@ from cmp.tools.pre_publish import (
 )
 
 _ROOT = Path(__file__).parents[2]
+
+
+def _code_review_diff_arguments(change: ChangeSet) -> tuple[str, ...]:
+    return (
+        "diff",
+        "--no-ext-diff",
+        "--no-textconv",
+        "--unified=0",
+        f"{change.base_ref}...HEAD",
+        "--",
+        ".",
+        ":(exclude)**/*.md",
+        ":(exclude)**/*.png",
+        ":(exclude)**/*.jpg",
+        ":(exclude)**/*.jpeg",
+        ":(exclude)tests/**",
+        ":(exclude)backend/tests/**",
+        ":(exclude)contracts/examples/**",
+        ":(exclude)generated/**",
+        ":(exclude)scripts/capture*.py",
+        ":(exclude)scripts/seed_full_demo.py",
+        ":(exclude)**/*.test.ts",
+        ":(exclude)**/*.test.tsx",
+        ":(exclude)**/*.spec.ts",
+        ":(exclude)**/*.spec.tsx",
+    )
+
+
+def _synthetic_review_diff(change: ChangeSet) -> bytes:
+    return "".join(
+        (
+            f"diff --git a/{path} b/{path}\n"
+            f"--- a/{path}\n"
+            f"+++ b/{path}\n"
+            "@@ -1 +1 @@\n"
+            "+synthetic review fixture\n"
+        )
+        for path in change.changed_files
+    ).encode("utf-8")
+
+
+@contextmanager
+def _isolated_review_diff(change: ChangeSet) -> Iterator[None]:
+    original_git_bytes = pre_publish_module._git_bytes
+
+    def git_bytes(project: Path, arguments: Sequence[str]) -> bytes:
+        if tuple(arguments) == _code_review_diff_arguments(change):
+            return _synthetic_review_diff(change)
+        return original_git_bytes(project, arguments)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(pre_publish_module, "_git_bytes", git_bytes)
+        yield
 
 
 def _criteria() -> list[dict[str, object]]:
@@ -168,21 +223,22 @@ def _run(
         if events is not None:
             events.append("deterministic")
 
-    return run_pre_publish_pipeline(
-        _ROOT,
-        independent_reviews=independent_reviews,
-        runner=reviewer,
-        cache_root=tmp_path / "cache",
-        asset_root=asset_root,
-        documentation_check=documentation,
-        whitespace_check=whitespace,
-        deterministic_check=deterministic,
-        change_collector=collect,
-        change_revalidator=change_revalidator or (lambda _project: change),
-        worktree_reader=worktree_reader,
-        emit=lambda _message: None,
-        publication_target=publication_target,
-    )
+    with _isolated_review_diff(change):
+        return run_pre_publish_pipeline(
+            _ROOT,
+            independent_reviews=independent_reviews,
+            runner=reviewer,
+            cache_root=tmp_path / "cache",
+            asset_root=asset_root,
+            documentation_check=documentation,
+            whitespace_check=whitespace,
+            deterministic_check=deterministic,
+            change_collector=collect,
+            change_revalidator=change_revalidator or (lambda _project: change),
+            worktree_reader=worktree_reader,
+            emit=lambda _message: None,
+            publication_target=publication_target,
+        )
 
 
 def test_default_whitespace_check_uses_change_base_ref_and_read_only_git_args(
@@ -975,23 +1031,25 @@ def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -
             "tests/contracts/test_pre_publish.py",
         ),
     )
-    code = _prompt(
-        _ROOT,
-        _ROOT,
-        "docs/14-testing/review-prompts/code-review.md",
-        "code",
-        change,
-    )
-    visual = _prompt(
-        _ROOT,
-        _ROOT,
-        "docs/14-testing/review-prompts/visual-review.md",
-        "visual",
-        _change(visual=True),
-    )
+    with _isolated_review_diff(change):
+        code = _prompt(
+            _ROOT,
+            _ROOT,
+            "docs/14-testing/review-prompts/code-review.md",
+            "code",
+            change,
+        )
+        visual = _prompt(
+            _ROOT,
+            _ROOT,
+            "docs/14-testing/review-prompts/visual-review.md",
+            "visual",
+            _change(visual=True),
+        )
 
     assert "### AGENTS.md" in code
     assert "### Exact unified diff" in code
+    assert "diff --git a/backend/src/cmp/tools/pre_publish.py" in code
     assert "### Changed-test inventory" in code
     assert "test_codex_exec_token_usage_is_fail_closed" in code
     assert "Do not call shell, MCP, browser, network, or other tools" in code
@@ -999,6 +1057,7 @@ def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -
     assert "### docs/user-guide/screenshot-manifest.yaml" in visual
     assert "images/current/materials-search-1440x900.png" in visual
     assert "Issue #261 M1A20" not in visual
+    assert len(code.encode("utf-8")) < 400_000
     assert len(visual.encode("utf-8")) < 400_000
     assert "Do not call shell, MCP, browser, network, or other tools" in visual
 
