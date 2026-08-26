@@ -69,5 +69,5 @@ stop/start read-back을 실제 검증했다. #324 installer는 이 runtime을 �
 - Server bundle 입력·secret/ACL/fail-closed 계약은 자동 검증했다. 실제 SPA OIDC Code+PKCE login은
   #215가 미구현이므로 Server 기동과 다른 PC 로그인은 계속 외부 차단 gate다.
 
-이 세 항목은 Draft PR에서 숨기지 않으며 Ready/merge 전에 각각 가능한 환경과 선행 기능으로 다시
-실행해야 한다.
+이 세 항목은 PR에서 숨기지 않는다. 검토된 설치기 코드는 병합하되 #324를 OPEN으로 유지하고,
+각각 가능한 clean-PC·관리자/LAN 환경과 #215 선행 기능이 준비된 뒤 실환경 완료 조건으로 실행한다.
