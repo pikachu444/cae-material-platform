@@ -114,6 +114,17 @@ Docker·WSL 없는 Windows 실행, local/LAN URL과 데이터 위치는
 [공통 Stack CLI](deploy/stack/README.md), Compose 설치·port·migration·복구 문제는
 [Compose 실행 가이드](deploy/compose/README.md)를 따릅니다.
 
+Windows 11 x64 offline bundle은 연결된 Windows 빌드 환경에서만 생성합니다. 다음 명령은 #282 버전
+authority와 text-only manifest를 대조하고 각 archive의 SHA-256을 검증한 뒤 Python/PostgreSQL과
+production Web asset만 제품 payload에 넣습니다. Node/npm/uv는 build-only입니다.
+
+```powershell
+uv run python scripts/build_windows_offline_bundle.py --profile demo --output-dir C:\cmp-bundles
+```
+
+산출물과 실제 인증 값은 저장소에 추가하지 않습니다. 상세 절차와 Server 입력은
+[Windows bundle README](deploy/windows/README.md)를 따릅니다.
+
 ## 4. 현재 제품 확인 순서
 
 ### Material 검색과 card 다운로드

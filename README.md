@@ -115,6 +115,18 @@ uv run cmp-stack --profile demo --runtime compose down
 Docker·WSL 없는 Windows host 실행은 [공통 Stack CLI](deploy/stack/README.md), Compose 설치와 문제
 해결은 [Compose 실행 가이드](deploy/compose/README.md)를 참고하십시오.
 
+## Windows 11 x64 빠른 설치
+
+준비된 Demo offline bundle ZIP을 Windows 11 x64 PC에서 해제하고 `Install.cmd`를 한 번 실행합니다.
+인터넷, Docker·WSL, 관리자 권한이나 Node 설치는 필요하지 않습니다. 일반 실행은 user scope,
+이미 관리자로 실행 중인 경우만 machine scope를 자동 선택하며 설치기가 UAC를 요청하지 않습니다.
+설치가 끝나면 브라우저가 열리고 `DP780` 검색과 solver card 다운로드를 확인할 수 있습니다.
+
+설치 폴더의 `Start.cmd`, `Stop.cmd`, `Status.cmd`, `Uninstall.cmd`로 이후 실행을 관리합니다. 재설치와
+기본 제거는 PostgreSQL DB와 object data를 보존합니다. Server bundle은 실제 OIDC/S3 설정이 없으면
+Demo로 fallback하지 않고 중단합니다. bundle 생성, LAN 방화벽, Server 설정과 오류 진단은
+[Windows 오프라인 설치 가이드](docs/user-guide/19-windows-offline-installation.md)를 따르십시오.
+
 ### 외부에서 로컬 데모 접속
 
 Cloudflare Quick Tunnel을 사용하면 공유기 포트 포워딩 없이 현재 PC의 로컬 데모를 잠시 외부에

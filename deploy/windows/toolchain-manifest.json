@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "platform": "windows-x64",
+  "tools": {
+    "node": {
+      "archive": "node-v24.19.0-win-x64.zip",
+      "architecture": "x86_64",
+      "runtime": "build-only",
+      "sha256": "57f71ab3652e797d84acddc79c81cc9ff1c6ddb2a1974cdb83f00fee9bff4c73",
+      "url": "https://nodejs.org/download/release/v24.19.0/node-v24.19.0-win-x64.zip",
+      "version": "24.19.0"
+    },
+    "npm": {
+      "archive": "npm-11.17.0.tgz",
+      "architecture": "any",
+      "runtime": "build-only",
+      "sha256": "b290bbb35b9e72c3ef84edbe041f28c4479c4d9ee79f555817b8caafe7ce4bba",
+      "url": "https://registry.npmjs.org/npm/-/npm-11.17.0.tgz",
+      "version": "11.17.0"
+    },
+    "postgresql": {
+      "archive": "postgresql-16.15-1-windows-x64-binaries.zip",
+      "architecture": "x86_64",
+      "runtime": "product",
+      "sha256": "25e6fcdfb8caec38691bf461125e7564508760666f7b8e5dc6a5f0818f58f81e",
+      "url": "https://get.enterprisedb.com/postgresql/postgresql-16.15-1-windows-x64-binaries.zip",
+      "version": "16.15"
+    },
+    "python": {
+      "archive": "cpython-3.12.14+20260814-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+      "architecture": "x86_64",
+      "runtime": "product",
+      "sha256": "89f18f6932917163b74339ebcec2645c8e47ae7f1c5f2ac37f2b4f4cf3beb647",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260814/cpython-3.12.14%2B20260814-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+      "version": "3.12.14"
+    },
+    "uv": {
+      "archive": "uv-x86_64-pc-windows-msvc.zip",
+      "architecture": "x86_64",
+      "runtime": "build-only",
+      "sha256": "4c4d49d8738847d9b71ba319e49a5688c93eac0fe6204b1df24e98528dddf39a",
+      "url": "https://github.com/astral-sh/uv/releases/download/0.12.5/uv-x86_64-pc-windows-msvc.zip",
+      "version": "0.12.5"
+    }
+  }
+}
