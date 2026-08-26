@@ -18,6 +18,18 @@ const bundleBytes = readFileSync(bundleFixture);
 const sourceSha256 = createHash("sha256").update(bundleBytes).digest("hex");
 const planFingerprint = "b".repeat(64);
 const longKey = `representative_response_${"long_identity_".repeat(12)}end`;
+const rejectedLegacyAdministrationSelectors = [
+  ".content-card",
+  ".hero-actions",
+  ".form-stack",
+  ".form-grid",
+  ".datasheet-field",
+  ".page-stack",
+  ".page-heading",
+  ".eyebrow",
+  ".status-badge",
+  ".count-chip",
+].join(",");
 
 const actionDefinitions = [
   ["database", "synthetic_engineering", "create"],
@@ -153,13 +165,13 @@ async function captureFiveViewports(page: Page): Promise<void> {
     [3840, 2160],
   ] as const) {
     await page.setViewportSize({ width, height });
-    await expect(page.getByRole("heading", { name: "Change plan" })).toBeVisible();
-    const name = `administration-schema-bundle-plan-${width}x${height}`;
+    await expect(page.getByRole("heading", { name: "Changes to review" })).toBeVisible();
+    const name = `administration-format-definitions-review-${width}x${height}`;
     await page.screenshot({ path: join(evidenceDirectory, `${name}.png`) });
     await page.locator(".application-menu-bar").screenshot({
       path: join(evidenceDirectory, `${name}-header-crop.png`),
     });
-    await page.locator(".administration-navigation").screenshot({
+    await page.locator(".administration-taskbar").screenshot({
       path: join(evidenceDirectory, `${name}-navigator-crop.png`),
     });
     await page.locator(".schema-bundle-plan").screenshot({
@@ -187,7 +199,7 @@ async function captureFiveViewports(page: Page): Promise<void> {
         },
         shell: rect(".application-shell"),
         administration: rect(".administration-workspace"),
-        navigator: rect(".administration-navigation"),
+        navigator: rect(".administration-taskbar"),
         source: rect(".schema-bundle-source"),
         plan: rect(".schema-bundle-plan"),
         detail: rect(".schema-bundle-detail"),
@@ -312,17 +324,22 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   });
 
   await page.goto("/administration/schema-bundles");
-  await expect(page.getByRole("heading", { name: "Definition bundles", exact: true })).toBeVisible();
-  await page.getByLabel("Definition bundle").setInputFiles(bundleFixture);
+  await expect(page.getByRole("list", { name: "Format definition workflow", exact: true })).toBeVisible();
+  await page.getByLabel("Format definition files").setInputFiles(bundleFixture);
   await expect(page.getByText("synthetic_dependency_chain", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Upload and plan" }).click();
-  await expect(page.getByText("13 actions", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Preview changes (no write)" }).click();
+  await expect(page.locator(rejectedLegacyAdministrationSelectors)).toHaveCount(0);
+  await expect(page.getByText("13 changes", { exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Configuration", exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Record type", exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Profile", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Table", { exact: true })).toHaveCount(0);
 
-  const firstRow = page.getByRole("button", { name: "synthetic_engineering", exact: true });
+  const firstRow = page.getByRole("button", { name: "synthetic engineering", exact: true });
   await firstRow.focus();
   await page.keyboard.press("End");
-  await expect(page.getByRole("button", { name: "curve_tensile_test", exact: true })).toBeFocused();
-  await expect(page.getByRole("button", { name: longKey, exact: true })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: "curve tensile test", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: longKey.replaceAll("_", " "), exact: true })).toHaveAttribute(
     "title",
     longKey,
   );
@@ -336,7 +353,8 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
 
   await captureFiveViewports(page);
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.getByRole("button", { name: "Review exact plan" }).click();
+  await page.getByRole("button", { name: "Apply 13 changes", exact: true }).click();
+  await page.locator(".schema-bundle-confirmation").getByText("Technical details", { exact: true }).click();
   await expect(page.getByText(planFingerprint, { exact: true })).toBeVisible();
   if (evidenceDirectory) {
     await page.locator(".schema-bundle-detail").evaluate((element) => {
@@ -347,8 +365,8 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
     });
   }
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Apply exact plan" }).click();
-  await expect(page.getByText("Bundle applied and read back", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Apply confirmed changes" }).click();
+  await expect(page.getByText("Verified immutable result", { exact: true })).toBeVisible();
   expect(applyBody).toEqual({
     artifact_id: artifactId,
     artifact_sha256: sourceSha256,
@@ -359,10 +377,10 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   expect(readBackCount).toBe(1);
 
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export verified source" }).click();
+  await page.getByRole("button", { name: "Download applied definition files" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("synthetic_dependency_chain-1.0.0.json");
-  await expect(page.getByText(`Verified SHA-256: ${exportSha256}`, { exact: true })).toBeVisible();
+  await expect(page.getByText(`synthetic_dependency_chain-1.0.0.json · ${exportSha256}`, { exact: true })).toBeVisible();
   if (evidenceDirectory) {
     await page.screenshot({
       path: join(evidenceDirectory, "administration-schema-bundle-applied-1440x900.png"),
@@ -370,12 +388,12 @@ test("Administrator uploads, plans, confirms, applies, restores, and checksum-ve
   }
 
   await page.reload();
-  await expect(page.getByText("Bundle applied and read back", { exact: true })).toBeVisible();
+  await expect(page.getByText("Verified immutable result", { exact: true })).toBeVisible();
   expect(readBackCount).toBe(2);
 
   productRole = "reviewer";
   await page.reload();
   await expect(page.getByRole("alert")).toContainText("Administrator access is required.");
-  await expect(page.getByLabel("Definition bundle")).toHaveCount(0);
+  await expect(page.getByLabel("Format definition files")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Apply/ })).toHaveCount(0);
 });

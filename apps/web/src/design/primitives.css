@@ -480,6 +480,7 @@ select:focus {
 .ux-tab,
 .ux-input,
 .ux-select,
+.ux-textarea,
 .ux-result-row {
   min-height: var(--ux-interactive-min-block-size);
   border-radius: var(--ux-radius-control);
@@ -499,6 +500,11 @@ select:focus {
   font-weight: var(--ux-font-weight-control);
   box-shadow: var(--ux-shadow-none);
   cursor: pointer;
+}
+
+.ux-button.local-action {
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
 }
 
 .ux-button:hover:not(:disabled) {
@@ -547,13 +553,20 @@ select:focus {
 }
 
 .ux-input,
-.ux-select {
+.ux-select,
+.ux-textarea {
   width: 100%;
   min-height: var(--ux-input-min-block-size);
   padding: 0 var(--ux-space-3);
   border: 1px solid var(--ux-border-strong);
   background: var(--ux-surface);
   color: var(--ux-text);
+}
+
+.ux-textarea {
+  min-height: calc(var(--ux-input-min-block-size) * 2);
+  padding-block: var(--ux-space-2);
+  resize: vertical;
 }
 
 .ux-select {
@@ -568,7 +581,7 @@ select:focus {
   display: grid;
   gap: var(--ux-space-1);
   color: var(--ux-text);
-  font-weight: var(--ux-font-weight-heading);
+  font-weight: var(--ux-font-weight-label);
 }
 
 .ux-field small {
@@ -577,11 +590,62 @@ select:focus {
   font-weight: var(--ux-font-weight-metadata);
 }
 
+.ux-form,
+.ux-form-stack {
+  display: grid;
+  gap: var(--ux-space-4);
+}
+
+.ux-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ux-space-3) var(--ux-space-4);
+}
+
+.ux-field-grid > .wide {
+  grid-column: 1 / -1;
+}
+
+.ux-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ux-space-2);
+  min-height: var(--ux-input-min-block-size);
+  color: var(--ux-text);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.ux-checkbox input {
+  inline-size: 1rem;
+  block-size: 1rem;
+  margin: 0;
+  accent-color: var(--ux-accent);
+}
+
+.ux-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ux-space-2);
+}
+
+.ux-action-row.start {
+  justify-content: flex-start;
+}
+
+@media (max-width: 760px) {
+  .ux-field-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .ux-button:focus-visible,
 .ux-icon-button:focus-visible,
 .ux-tab:focus-visible,
 .ux-input:focus-visible,
 .ux-select:focus-visible,
+.ux-textarea:focus-visible,
 .ux-result-row:focus-visible,
 .ux-disclosure summary:focus-visible,
 .application-menu-bar button:focus-visible,
@@ -704,7 +768,8 @@ select:focus {
 }
 
 .ux-input:disabled,
-.ux-select:disabled {
+.ux-select:disabled,
+.ux-textarea:disabled {
   cursor: not-allowed;
   background: var(--ux-surface-subtle);
   color: var(--ux-text-muted);

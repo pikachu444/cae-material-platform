@@ -108,7 +108,6 @@ PRODUCT_ACCESS_OUTPUTS = (
         f"administration-access-{width}x{height}.png"
         for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
     ),
-    "administration-access-role-control-1366x768.png",
 )
 ADMINISTRATION_DATABASE_OUTPUTS = tuple(
     filename
@@ -262,7 +261,7 @@ CURRENT_CAPTURE_OUTPUTS = (
     "activity-administrator-1440x900.png",
     "activity-decision-error-1440x900.png",
     "activity-recovery-1440x900.png",
-    "administration-schema-bundle-1440x900.png",
+    "administration-format-definitions-1440x900.png",
     "administration-database-1366x768.png",
     "administration-database-1440x900.png",
     "administration-database-1920x1080.png",
@@ -283,7 +282,6 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-access-1920x1080.png",
     "administration-access-2560x1440.png",
     "administration-access-3840x2160.png",
-    "administration-access-role-control-1366x768.png",
 )
 STAGE_HEADINGS = {
     "data": "Select Test Data",
@@ -8786,15 +8784,14 @@ def _capture_product_access(browser: Browser, base_url: str, output: Path) -> No
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/administration/access")
-        page.get_by_role("heading", name="Choose what each team can do", exact=True).wait_for(
+        page.get_by_role("heading", name="Access", exact=True).wait_for(timeout=30_000)
+        page.get_by_role("table", name="Access grants", exact=True).wait_for(
             timeout=30_000
         )
-        page.get_by_role("combobox", name="Role", exact=True).select_option("reviewer")
-        included_tasks = page.get_by_text("Included tasks:", exact=False)
-        included_tasks.wait_for(timeout=30_000)
-        included_tasks.scroll_into_view_if_needed()
-        if page.get_by_role("group", name="Feature grants").count():
-            raise RuntimeError("product access must use task presets, not feature checkboxes")
+        for column in ("Member", "Role", "Permissions", "Action"):
+            page.get_by_role("columnheader", name=column, exact=True).wait_for(
+                timeout=30_000
+            )
         _capture(
             page,
             output / f"administration-access-{width}x{height}.png",
@@ -8802,23 +8799,6 @@ def _capture_product_access(browser: Browser, base_url: str, output: Path) -> No
             height,
         )
         page.context.close()
-
-    page = _new_page(browser, base_url, 1366, 768)
-    page.goto(f"{base_url}/administration/access")
-    page.get_by_role("heading", name="Choose what each team can do", exact=True).wait_for(
-        timeout=30_000
-    )
-    page.get_by_role("combobox", name="Role", exact=True).select_option("reviewer")
-    page.get_by_text("Included tasks:", exact=False).wait_for(timeout=30_000)
-    _capture(
-        page,
-        output / "administration-access-role-control-1366x768.png",
-        1366,
-        768,
-        focus_selector="#role-task-summary",
-    )
-    page.context.close()
-
 
 def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
     _capture_administration_database(browser, base_url, output)
@@ -8832,7 +8812,7 @@ def _preserve_issue_owned_contract_captures(output: Path) -> None:
     for name in (
         "material-database-categories-1440x900.png",
         "material-database-linked-test-1440x900.png",
-        "administration-schema-bundle-1440x900.png",
+        "administration-format-definitions-1440x900.png",
         "demo-session-recovery-1440x900.png",
     ):
         source = current / name

@@ -1,0 +1,633 @@
+.administration-workspace .administration-record-workbench {
+  min-height: 0;
+  container-name: administration-records;
+  container-type: inline-size;
+}
+
+.administration-workspace .administration-record-workbench .record-workbench-message {
+  min-height: var(--ux-interactive-min-block-size);
+  margin: 0;
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  border-width: 0 0 1px;
+  border-radius: 0;
+  font-size: var(--ux-data-font-size);
+}
+
+.administration-workspace .administration-record-workbench .catalog-search-panel {
+  padding: var(--ux-space-3) var(--ux-pane-padding);
+  border-width: 0 0 1px;
+  border-radius: 0;
+}
+
+.administration-workspace .administration-record-workbench .record-scope-row {
+  display: grid;
+  grid-template-columns: minmax(18rem, 24rem);
+  gap: var(--ux-space-3);
+}
+
+.administration-workspace .administration-record-workbench .record-search-row {
+  display: grid;
+  grid-template-columns: minmax(24rem, 48rem) auto;
+  gap: var(--ux-space-3);
+  align-items: end;
+  justify-content: start;
+}
+
+.administration-workspace .administration-record-workbench .record-search-action {
+  align-self: end;
+}
+
+.administration-workspace .administration-record-workbench .record-filter-details {
+  margin-top: var(--ux-space-2);
+}
+
+.administration-workspace .administration-record-workbench .record-filter-details > summary,
+.administration-workspace .administration-record-workbench .catalog-facets > summary,
+.administration-workspace .administration-record-workbench .revision-summary > summary,
+.administration-workspace .administration-record-workbench .comparison-panel > summary,
+.administration-workspace .administration-record-workbench .record-field-definitions > summary {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+  cursor: pointer;
+}
+
+.administration-workspace .administration-record-workbench .record-filter-details[open] > summary {
+  margin-bottom: var(--ux-space-3);
+}
+
+.administration-workspace .administration-record-workbench .registration-panel {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  border-width: 0 1px 1px;
+  border-radius: 0;
+}
+
+.administration-workspace .administration-record-workbench:has(.registration-panel) .catalog-record-grid {
+  display: none;
+}
+
+.administration-workspace .administration-record-workbench .catalog-record-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(24rem, 1fr);
+  min-height: 0;
+  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 13rem);
+}
+
+.administration-workspace .administration-record-workbench .catalog-facets {
+  grid-column: 1;
+  grid-row: 1;
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  overflow: auto;
+  border-width: 0 0 1px;
+}
+
+.administration-workspace .administration-record-workbench .catalog-facets[open] {
+  max-height: min(48vh, 30rem);
+}
+
+.administration-workspace .administration-record-workbench .record-filter-content {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.7fr) minmax(26rem, 1.3fr) minmax(18rem, 1fr);
+  gap: var(--ux-space-5);
+  padding-top: var(--ux-space-4);
+}
+
+.administration-workspace .administration-record-workbench .record-filter-group {
+  min-width: 0;
+}
+
+.administration-workspace .administration-record-workbench .record-filter-group > h3,
+.administration-workspace .administration-record-workbench .folder-maker h3 {
+  margin: 0 0 var(--ux-space-2);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.administration-workspace .administration-record-workbench .catalog-facets .range-filter-row,
+.administration-workspace .administration-record-workbench .catalog-facets .saved-subset-row {
+  display: flex;
+}
+
+.administration-workspace .administration-record-workbench .folder-maker {
+  grid-column: 1 / -1;
+  margin-top: 0;
+  padding-top: var(--ux-space-4);
+  border-top: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-record-workbench .catalog-record-list {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  overflow: auto;
+}
+
+.administration-workspace .administration-record-workbench .catalog-datasheet {
+  min-width: 0;
+  overflow: auto;
+  border-left: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-record-workbench .catalog-record-list,
+.administration-workspace .administration-record-workbench .catalog-datasheet {
+  align-content: start;
+  gap: var(--ux-space-3);
+}
+
+.administration-workspace .administration-record-workbench .record-result-heading,
+.administration-workspace .administration-record-workbench .record-result {
+  display: grid;
+  grid-template-columns: minmax(18rem, 36rem) minmax(12rem, 24rem) 8rem 8rem;
+  gap: var(--ux-space-3);
+  align-items: center;
+  justify-content: start;
+}
+
+.administration-workspace .administration-record-workbench .record-result-heading {
+  min-height: var(--ux-interactive-min-block-size);
+  padding: 0 var(--ux-space-4);
+  border-bottom: 1px solid var(--ux-border-strong);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.administration-workspace .administration-record-workbench .record-result {
+  min-height: var(--ux-work-row-min-block-size);
+  padding: var(--ux-space-2) var(--ux-space-4);
+}
+
+.administration-workspace .administration-record-workbench .record-result > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.administration-workspace .administration-record-workbench .record-result > span:nth-child(3) {
+  font-variant-numeric: tabular-nums;
+}
+
+.administration-workspace .administration-record-workbench .record-result.active {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.administration-workspace .administration-record-workbench .record-list-actions,
+.administration-workspace .administration-record-workbench .record-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-2);
+}
+
+.administration-workspace .administration-record-workbench .record-list-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.administration-workspace .administration-record-workbench .record-display-layout {
+  display: grid;
+  grid-template-columns: auto minmax(12rem, 18rem);
+  gap: var(--ux-space-2);
+  align-items: center;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.administration-workspace .administration-record-workbench .record-display-layout select {
+  min-height: var(--ux-input-min-block-size);
+  font-size: var(--ux-data-font-size);
+}
+
+.administration-workspace .administration-record-workbench .record-edit-fields {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-fields {
+  display: grid;
+  border-top: 1px solid var(--ux-border-strong);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-field {
+  display: grid;
+  gap: var(--ux-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--ux-space-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-heading > .ux-text-label {
+  min-width: 0;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-heading .ux-checkbox {
+  flex: 0 0 auto;
+  min-height: var(--ux-interactive-min-block-size);
+}
+
+.administration-workspace .administration-record-workbench .record-attribute-value {
+  min-width: 0;
+}
+
+.administration-workspace .administration-record-workbench .catalog-datasheet > .section-heading,
+.administration-workspace .administration-record-workbench .catalog-datasheet > form,
+.administration-workspace .administration-record-workbench .catalog-datasheet > details,
+.administration-workspace .administration-access-workbench .access-assignment-panel > .section-heading,
+.administration-workspace .administration-access-workbench .product-access-form {
+  width: min(100%, var(--ux-readable-form-max-inline-size));
+  margin-inline: auto;
+}
+
+.administration-workspace .administration-record-workbench .catalog-datasheet > form,
+.administration-workspace .administration-access-workbench .product-access-form {
+  max-width: var(--ux-readable-form-max-inline-size);
+}
+
+.administration-workspace .administration-record-workbench .catalog-datasheet > details {
+  padding: var(--ux-space-3) 0;
+  border-top: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-record-workbench .record-field-definitions dl,
+.administration-workspace .administration-record-workbench .record-field-definitions div {
+  margin: 0;
+}
+
+.administration-workspace .administration-record-workbench .record-field-definitions div {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.4fr) minmax(16rem, 1fr);
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-2) 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-record-workbench .record-field-definitions dd {
+  margin: 0;
+  color: var(--ux-text-muted);
+}
+
+@container administration-records (min-width: 100rem) {
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor {
+    grid-template-columns: minmax(34rem, 1fr) minmax(34rem, 48rem);
+    grid-template-rows: auto minmax(24rem, 1fr);
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-facets,
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-record-list {
+    grid-column: 1;
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-datasheet {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+@container administration-records (min-width: 150rem) {
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor {
+    grid-template-columns: minmax(48rem, 1fr) minmax(38rem, 52rem);
+  }
+}
+
+@container administration-records (max-width: 99.9375rem) {
+  .administration-workspace .administration-record-workbench .record-search-row {
+    grid-template-columns: minmax(20rem, 1fr) auto;
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-facets {
+    display: none;
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor {
+    grid-template-rows: auto minmax(30rem, 1fr);
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-record-list {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    overflow: visible;
+    border-bottom: 1px solid var(--ux-border);
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .record-result-table {
+    display: none;
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid.has-editor .catalog-datasheet {
+    grid-column: 1;
+    grid-row: 2;
+    border-left: 0;
+  }
+}
+
+.administration-workspace .administration-access-workbench {
+  max-width: var(--ux-workspace-max-inline-size);
+  gap: 0;
+  container-name: administration-access;
+  container-type: inline-size;
+}
+
+.administration-workspace .administration-access-workbench > .ux-engineering-pane {
+  padding: var(--ux-pane-padding);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.administration-workspace .administration-access-workbench .access-advanced > .ux-field {
+  margin-top: var(--ux-space-3);
+}
+
+.administration-workspace .administration-access-workbench .access-effective-grants {
+  display: grid;
+  gap: var(--ux-space-1);
+  padding: var(--ux-space-3) 0;
+  border-block: 1px solid var(--ux-border);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+}
+
+.administration-workspace .administration-access-workbench .access-effective-grants strong {
+  color: var(--ux-text);
+}
+
+.administration-workspace .administration-access-workbench .assignment-table {
+  margin-top: var(--ux-space-3);
+  border-top: 1px solid var(--ux-border-strong);
+}
+
+.administration-workspace .administration-access-workbench .assignment-table-heading,
+.administration-workspace .administration-access-workbench .assignment-table-row {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.8fr) minmax(8rem, 0.35fr) minmax(22rem, 1.5fr) minmax(9rem, auto);
+  gap: var(--ux-space-3);
+  align-items: center;
+  min-height: var(--ux-work-row-min-block-size);
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.administration-workspace .administration-access-workbench .assignment-table-heading {
+  min-height: var(--ux-interactive-min-block-size);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-table-heading);
+}
+
+.administration-workspace .administration-access-workbench .assignment-table-row:hover {
+  background: var(--ux-surface-subtle);
+}
+
+.administration-workspace .administration-access-workbench .assignment-subject {
+  display: grid;
+  min-width: 0;
+}
+
+.administration-workspace .administration-access-workbench .assignment-subject strong,
+.administration-workspace .administration-access-workbench .assignment-subject small,
+.administration-workspace .administration-access-workbench .assignment-capabilities,
+.administration-workspace .administration-access-workbench .assignment-capabilities small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.administration-workspace .administration-access-workbench .assignment-subject small,
+.administration-workspace .administration-access-workbench .assignment-capabilities small {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.administration-workspace .administration-access-workbench .access-revoke-panel {
+  display: grid;
+  gap: var(--ux-space-3);
+}
+
+.administration-workspace .administration-access-workbench .access-revoke-panel > label {
+  display: grid;
+  gap: var(--ux-space-1);
+}
+
+@container administration-access (min-width: 100rem) {
+  .administration-workspace .administration-access-workbench:has(.access-assignment-panel),
+  .administration-workspace .administration-access-workbench:has(.access-revoke-panel) {
+    display: grid;
+    grid-template-columns: minmax(42rem, 1fr) minmax(30rem, 36rem);
+    align-items: start;
+  }
+
+  .administration-workspace .administration-access-workbench .access-assignments-table {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    border-right: 1px solid var(--ux-border);
+  }
+
+  .administration-workspace .administration-access-workbench .access-assignment-panel,
+  .administration-workspace .administration-access-workbench .access-revoke-panel {
+    grid-column: 2;
+  }
+
+  .administration-workspace .administration-access-workbench .access-assignment-panel {
+    grid-row: 1;
+  }
+
+  .administration-workspace .administration-access-workbench .access-revoke-panel {
+    grid-row: 2;
+  }
+
+}
+
+@container administration-access (max-width: 99.9375rem) {
+  .administration-workspace .administration-access-workbench:has(.access-assignment-panel) .access-assignments-table,
+  .administration-workspace .administration-access-workbench:has(.access-revoke-panel) .access-assignments-table {
+    display: none;
+  }
+
+  .administration-workspace .administration-access-workbench .assignment-table-heading,
+  .administration-workspace .administration-access-workbench .assignment-table-row {
+    grid-template-columns: minmax(13rem, 0.8fr) minmax(7rem, 0.35fr) minmax(18rem, 1.4fr) minmax(9rem, auto);
+  }
+}
+
+.administration-workspace .schema-bundle-flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+  min-height: calc(var(--ux-command-bar-height) + var(--ux-space-3));
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border-strong);
+}
+
+.administration-workspace .schema-bundle-steps {
+  display: flex;
+  align-items: center;
+  width: min(100%, var(--ux-readable-text-max-inline-size));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.administration-workspace .schema-bundle-steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-2) var(--ux-space-3);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.administration-workspace .schema-bundle-steps li + li::before {
+  color: var(--ux-border-strong);
+  content: "→";
+}
+
+.administration-workspace .schema-bundle-steps li[aria-current="step"] {
+  color: var(--ux-text);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.administration-workspace .schema-bundle-grid {
+  grid-template-columns: minmax(18rem, 22rem) minmax(28rem, 1fr) minmax(27rem, 32rem);
+  grid-template-rows: minmax(34rem, 1fr);
+  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 6.5rem);
+}
+
+.administration-workspace .schema-bundle-grid.source-only {
+  display: block;
+  height: auto;
+  min-height: 0;
+}
+
+.administration-workspace .schema-bundle-grid.source-only .schema-bundle-source {
+  width: min(100%, 36rem);
+  min-height: 20rem;
+  border-right: 1px solid var(--ux-border);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.administration-workspace .schema-bundle-source {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.administration-workspace .schema-bundle-plan {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.administration-workspace .schema-bundle-detail {
+  grid-column: 3;
+  grid-row: 1;
+  max-height: none;
+  border-top: 0;
+  border-left: 1px solid var(--ux-border);
+}
+
+.administration-workspace .schema-bundle-table th:first-child,
+.administration-workspace .schema-bundle-table td:first-child {
+  width: 7rem;
+}
+
+.administration-workspace .schema-bundle-table th:nth-child(2),
+.administration-workspace .schema-bundle-table td:nth-child(2) {
+  width: 8.5rem;
+}
+
+.administration-workspace .schema-bundle-table th:last-child,
+.administration-workspace .schema-bundle-table td:last-child {
+  width: 7.5rem;
+}
+
+.administration-workspace .schema-bundle-readback-summary {
+  margin: var(--ux-space-3) 0;
+}
+
+.administration-workspace .schema-bundle-readback-summary > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.45fr) minmax(11rem, 1fr);
+  gap: var(--ux-space-2);
+  padding: var(--ux-space-2) 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.administration-workspace .schema-bundle-readback-summary dt,
+.administration-workspace .schema-bundle-readback-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.administration-workspace .schema-bundle-readback-summary dt {
+  color: var(--ux-text-muted);
+}
+
+.administration-workspace .schema-bundle-export-status {
+  overflow-wrap: anywhere;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+@media (max-height: 900px) and (min-width: 901px) {
+  .administration-workspace .administration-record-workbench .catalog-record-grid {
+    grid-template-rows: auto minmax(16rem, 1fr);
+  }
+}
+
+@media (max-width: 1599px) and (min-width: 901px) {
+  .administration-workspace .schema-bundle-grid {
+    grid-template-columns: minmax(17rem, 21rem) minmax(26rem, 1fr) minmax(24rem, 28rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .administration-workspace .administration-record-workbench .catalog-record-grid,
+  .administration-workspace .schema-bundle-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-facets,
+  .administration-workspace .administration-record-workbench .catalog-record-list,
+  .administration-workspace .administration-record-workbench .catalog-datasheet,
+  .administration-workspace .schema-bundle-source,
+  .administration-workspace .schema-bundle-plan,
+  .administration-workspace .schema-bundle-detail {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .administration-workspace .administration-record-workbench .catalog-record-grid > .ux-engineering-pane,
+  .administration-workspace .schema-bundle-source {
+    border-right: 0;
+  }
+
+  .administration-workspace .schema-bundle-detail {
+    max-height: none;
+  }
+
+  .administration-workspace .schema-bundle-steps {
+    flex-wrap: wrap;
+  }
+}

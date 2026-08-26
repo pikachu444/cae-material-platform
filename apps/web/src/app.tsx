@@ -100,19 +100,9 @@ const OperationsDashboard = lazy(() =>
     default: module.OperationsDashboard,
   })),
 );
-const ConfigurableCatalogAdmin = lazy(() =>
-  import("./configurable-catalog-admin").then((module) => ({
-    default: module.ConfigurableCatalogAdmin,
-  })),
-);
-const ConfigurableCatalogRecords = lazy(() =>
-  import("./configurable-catalog-records").then((module) => ({
-    default: module.ConfigurableCatalogRecords,
-  })),
-);
-const SchemaDefinitionBundleAdmin = lazy(() =>
-  import("./schema-definition-bundle-admin").then((module) => ({
-    default: module.SchemaDefinitionBundleAdmin,
+const AdministrationWorkspace = lazy(() =>
+  import("./features/administration").then((module) => ({
+    default: module.AdministrationWorkspace,
   })),
 );
 const CatalogExplorer = lazy(() =>
@@ -128,11 +118,6 @@ const CanonicalTestDataWorkbench = lazy(() =>
 const MaterialModelingWorkspace = lazy(() =>
   import("./material-modeling-workspace").then((module) => ({
     default: module.MaterialModelingWorkspace,
-  })),
-);
-const ProductAccessCenter = lazy(() =>
-  import("./product-access-center").then((module) => ({
-    default: module.ProductAccessCenter,
   })),
 );
 const MaterialSearchPage = lazy(() =>
@@ -277,207 +262,6 @@ function ProductSessionBoundary({
         </button>
       ) : null}
     </section>
-  );
-}
-
-function AdministrationWorkspace({
-  config,
-  navigate,
-  onOpenConnection,
-  section,
-}: {
-  config: ApiConfig;
-  navigate: Navigate;
-  onOpenConnection: () => void;
-  section: "overview" | "database" | "bundles" | "records" | "access";
-}) {
-  useEffect(() => {
-    if (section === "database") return;
-    publishWorkspaceStatus({
-      selection:
-        section === "access"
-          ? "Users and access"
-          : section === "bundles"
-            ? "Definition bundles"
-            : "Administration overview",
-      revision: "Governed configuration",
-      jobs: "No active job",
-      warnings: "0 validation errors",
-      connection: "online",
-    });
-  }, [section]);
-
-  return (
-    <div className="administration-workspace">
-      <aside className="administration-navigation">
-        <div>
-          <p className="eyebrow">Administration</p>
-          <h2>Workspace setup</h2>
-        </div>
-        <nav aria-label="Administration areas">
-          <button
-            className={section === "overview" ? "active" : ""}
-            type="button"
-            onClick={() => navigate("/administration")}
-          >
-            <span>01</span>
-            <span className="administration-navigation-label">Overview</span>
-          </button>
-          <button
-            className={section === "database" ? "active" : ""}
-            type="button"
-            onClick={() => navigate("/administration/database")}
-          >
-            <span>02</span>
-            <span className="administration-navigation-label">Database design</span>
-          </button>
-          <button
-            className={section === "bundles" ? "active" : ""}
-            type="button"
-            onClick={() => navigate("/administration/schema-bundles")}
-          >
-            <span>03</span>
-            <span className="administration-navigation-label">Definition bundles</span>
-          </button>
-          <button
-            className={section === "records" ? "active" : ""}
-            type="button"
-            onClick={() => navigate("/administration/records")}
-          >
-            <span>04</span>
-            <span className="administration-navigation-label">Records &amp; registration</span>
-          </button>
-          <button
-            className={section === "access" ? "active" : ""}
-            type="button"
-            onClick={() => navigate("/administration/access")}
-          >
-            <span>05</span>
-            <span className="administration-navigation-label">Users &amp; access</span>
-          </button>
-        </nav>
-        <button
-          className="ux-button tertiary"
-          type="button"
-          onClick={() => navigate("/materials")}
-        >
-          Open Materials
-        </button>
-      </aside>
-      <section className="administration-content">
-        {section === "overview" ? (
-          <>
-            <header className="administration-section-heading">
-              <h2>Configure the material workspace</h2>
-            </header>
-            <section
-              className="administration-task-grid"
-              aria-label="Administration tasks"
-            >
-              <button
-                type="button"
-                onClick={() => navigate("/administration/database")}
-              >
-                <span className="workspace-choice-icon">DB</span>
-                <span>
-                  <small>Material information system</small>
-                  <strong>Design the database</strong>
-                  <p>
-                    Add Tables, typed Attributes, datasheet Layouts, saved
-                    Subsets and exact Record Link Types without a migration.
-                  </p>
-                </span>
-                <em>Configure ›</em>
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/administration/schema-bundles")}
-              >
-                <span className="workspace-choice-icon">SB</span>
-                <span>
-                  <small>Governed workspace definitions</small>
-                  <strong>Plan a definition bundle</strong>
-                  <p>
-                    Upload one JSON bundle, review every proposed change, then
-                    explicitly apply and verify the exact source.
-                  </p>
-                </span>
-                <em>Plan ›</em>
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/administration/records")}
-              >
-                <span className="workspace-choice-icon">RD</span>
-                <span>
-                  <small>Checked material properties</small>
-                  <strong>Register records</strong>
-                  <p>
-                    Upload rows, map the chosen fields and units, correct row
-                    errors, then publish the checked records.
-                  </p>
-                </span>
-                <em>Register ›</em>
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/administration/access")}
-              >
-                <span className="workspace-choice-icon">US</span>
-                <span>
-                  <small>People and capabilities</small>
-                  <strong>Manage access</strong>
-                  <p>
-                    Assign Administrator or User and enable only the product
-                    features each team needs.
-                  </p>
-                </span>
-                <em>Manage ›</em>
-              </button>
-            </section>
-            <section className="administration-principle">
-              <p className="eyebrow">Designed for extension</p>
-              <h2>Simple now, granular when needed.</h2>
-              <p>
-                The product surface uses two roles and five understandable
-                feature permissions. The existing resource/action/scope
-                enforcement remains an internal extension point, so later
-                policies do not require a Catalog schema rewrite.
-              </p>
-            </section>
-          </>
-        ) : null}
-        {section === "database" ? (
-          <ConfigurableCatalogAdmin
-            config={config}
-            onNavigate={navigate}
-            onOpenConnection={onOpenConnection}
-            productMode
-          />
-        ) : null}
-        {section === "records" ? (
-          <ConfigurableCatalogRecords
-            config={config}
-            onNavigate={navigate}
-            onOpenConnection={onOpenConnection}
-            productMode
-          />
-        ) : null}
-        {section === "bundles" ? (
-          <SchemaDefinitionBundleAdmin
-            config={config}
-            onOpenConnection={onOpenConnection}
-          />
-        ) : null}
-        {section === "access" ? (
-          <ProductAccessCenter
-            config={config}
-            onOpenConnection={onOpenConnection}
-            productMode
-          />
-        ) : null}
-      </section>
-    </div>
   );
 }
 
@@ -1135,6 +919,7 @@ export function App() {
     page = (
       <AdministrationWorkspace
         config={config}
+        locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""}
         navigate={navigate}
         onOpenConnection={retrySession}
         section="database"
@@ -1142,13 +927,14 @@ export function App() {
     );
   } else if (path === "/catalog/records") {
     page = (
-      <ConfigurableCatalogRecords
+      <AdministrationWorkspace
         config={config}
-        onNavigate={navigate}
+        navigate={navigate}
         onOpenConnection={retrySession}
         locationSearch={
           location.includes("?") ? location.slice(location.indexOf("?")) : ""
         }
+        section="records"
       />
     );
   } else if (path === "/exports") {
@@ -1247,6 +1033,7 @@ export function App() {
     page = (
       <AdministrationWorkspace
         config={config}
+        locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""}
         navigate={navigate}
         onOpenConnection={retrySession}
         section="access"
@@ -1256,6 +1043,7 @@ export function App() {
     page = (
       <AdministrationWorkspace
         config={config}
+        locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""}
         navigate={navigate}
         onOpenConnection={retrySession}
         section="database"
@@ -1265,6 +1053,7 @@ export function App() {
     page = (
       <AdministrationWorkspace
         config={config}
+        locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""}
         navigate={navigate}
         onOpenConnection={retrySession}
         section="bundles"
@@ -1274,6 +1063,7 @@ export function App() {
     page = (
       <AdministrationWorkspace
         config={config}
+        locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""}
         navigate={navigate}
         onOpenConnection={retrySession}
         section="records"
@@ -1283,9 +1073,10 @@ export function App() {
     page = (
       <AdministrationWorkspace
         config={config}
+        locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""}
         navigate={navigate}
         onOpenConnection={retrySession}
-        section="overview"
+        section="database"
       />
     );
   } else {

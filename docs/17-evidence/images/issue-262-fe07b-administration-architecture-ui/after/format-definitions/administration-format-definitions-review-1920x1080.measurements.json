@@ -1,0 +1,56 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "devicePixelRatio": 1,
+  "visualViewportScale": 1,
+  "document": {
+    "clientWidth": 1920,
+    "scrollWidth": 1920,
+    "clientHeight": 1080,
+    "scrollHeight": 1080
+  },
+  "shell": {
+    "x": 0,
+    "y": 0,
+    "width": 1920,
+    "height": 1080
+  },
+  "administration": {
+    "x": 0,
+    "y": 50,
+    "width": 1920,
+    "height": 1008
+  },
+  "navigator": {
+    "x": 0,
+    "y": 50,
+    "width": 1920,
+    "height": 43
+  },
+  "source": {
+    "x": 32,
+    "y": 176,
+    "width": 352,
+    "height": 857
+  },
+  "plan": {
+    "x": 384,
+    "y": 176,
+    "width": 992,
+    "height": 857
+  },
+  "detail": {
+    "x": 1376,
+    "y": 176,
+    "width": 512,
+    "height": 857
+  },
+  "table": {
+    "x": 384,
+    "y": 293.1875,
+    "width": 992,
+    "height": 640
+  }
+}
