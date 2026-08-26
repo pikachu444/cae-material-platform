@@ -35,6 +35,7 @@
 | 제품 사용과 운영 절차 | [사용자 가이드](user-guide/index.md) · [관리자 가이드](admin-guide/index.md) |
 | 제품 원칙과 요구사항 | [제품과 UX](01-product/) · [요구사항](02-requirements/) |
 | contract의 의미와 경계 | [API·이벤트·작업 계약](08-contracts/api-events-jobs.md) |
+| 아키텍처 결정의 배경 | [ADR 색인](../adr/README.md) |
 | 작업 순서와 검증 | [현재 전달 backlog](13-delivery/backlog.md) · [테스트 전략](14-testing/test-strategy.md) |
 | 저장소와 문서 관리 | [저장소 운영 문서](16-repository/) |
 | 조사·비교 입력과 이슈 증거 | [조사 자료](00-research/) · [이슈 증거](17-evidence/) — 정확한 이슈가 가리킬 때만 확인 |
@@ -75,6 +76,7 @@
 
 ## 제품과 설계
 
+- [ADR 색인](../adr/README.md)
 - [제품 비전](01-product/product-vision.md)
 - [데스크톱 엔지니어링 사용자 흐름](01-product/desktop-engineering-user-flows.md)
 - [UI 제품·상호작용 명세](01-product/desktop-engineering-ui-product-spec.md)

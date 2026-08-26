@@ -8,6 +8,7 @@
   branch; do not reopen merged work or close a multi-unit issue before all its listed units finish.
 - `docs/13-delivery/backlog.md` is the baseline, issue order, and handoff router. Read it and the exact
   issue first. Use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
+  Start architecture-decision lookup at [`adr/README.md`](adr/README.md).
   `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior. Do not bulk-read
   archives or `docs/_incoming/`.
 - For schema-driven integration issues #204-#216 and #246, read the exact P/G rows in
