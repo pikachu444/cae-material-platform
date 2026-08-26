@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "1333c64553c884fcc9187f39d862cd2146880dc5",
+  "sourceSha": "6c982a8c9f12252bda55eaa4946a6a334ab8f867",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -7875,15 +7875,6 @@
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
       "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-HOTSPOT-RESPONSIBILITY",
-      "path": "apps/web/src/app.tsx",
-      "fingerprint": "06b3cb67ae589b838232a0f56e8ca70861abef0c312595f0544ac5c034bb7af4",
-      "maxOccurrences": 1,
-      "reason": "FE-07B replaces three root Administration lazy entries with one feature-owned route composition entry and does not add a responsibility to app.tsx.",
-      "ownerIssue": "#262",
-      "removalCondition": "Remove when #263 retires app.tsx as the registered route-composition hotspot or this exact lazy feature entry no longer changes against the active baseline."
     }
   ]
 }
