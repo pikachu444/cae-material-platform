@@ -58,8 +58,13 @@
   제품 소유자 화면 승인을 완료하고 main `9d8314d882fd395a509ede81291fab69cbf34c84`에 병합했습니다.
   순서 24 `#212`는 [PR #244](https://github.com/pikachu444/cae-material-platform/pull/244)에서
   구현·검증·독립 Balanced 감수와 제품 소유자 화면 승인을 완료하고 main
-  `aa009e5898a6e46577a80a7382bda2b7b17fd002`에 병합했습니다. 다음 첫 미완료 단위는 순서 25
-  `#209`입니다.
+  `aa009e5898a6e46577a80a7382bda2b7b17fd002`에 병합했습니다. 순서 25 `#209`는
+  [PR #248](https://github.com/pikachu444/cae-material-platform/pull/248), main
+  `3e642e8c3e96e95dd7d10b19d87e18af53db9e7c`에서 완료했고, 순서 26 `#246` Task 1A는
+  [PR #250](https://github.com/pikachu444/cae-material-platform/pull/250), main
+  `b9a82e96532fe796aaf1889387cd391c952e1c67`에서 완료했습니다. 현재 첫 미완료 단위는
+  추가 보완 배치 결정을 기다리는 순서 26 `#246`이며, 승인된 남은 범위를 닫은 뒤 순서 27
+  `#211`로 진행합니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
@@ -88,6 +93,11 @@
   #261·#279·#280은 #282가 병합된 최신 `main`에서 각각 별도 worktree로 시작합니다.
 - #282는 #249의 FE 체크 항목이 아니며, 아래 표의 첫 미완료 제품 단위 #246과 도메인 작업 순서를
   앞당기거나 완료 처리하지 않습니다.
+- [#321 Windows 네이티브 실행·오프라인 설치 지원 프로그램](https://github.com/pikachu444/cae-material-platform/issues/321)은
+  #322~#324의 코드 전달이 모두 `main`에 병합된 독립 지원 프로그램입니다. 그러나 clean Windows 11
+  PC의 offline Demo 전체 흐름, 실제 machine-scope 방화벽과 LAN 접속, #215 뒤 Server OIDC 검증이
+  남아 #321은 OPEN입니다. 이는 #162의 Hyper-V Ubuntu 최종 통합검증 harness를 대체하거나 아래
+  #117 제품 순서를 바꾸지 않습니다.
 
 ## 제품 목적과 우선순위
 
@@ -147,14 +157,14 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 22 | [x] [#210 scalar distribution fitting](https://github.com/pikachu444/cae-material-platform/issues/210) — [PR #239](https://github.com/pikachu444/cae-material-platform/pull/239), main `2fd68e569c790639c17c237e640465b65d811eae` | 반복 scalar 값의 후보 분포와 적합 근거를 비교·선택·저장 | issue, #205, Statistics/Calibration 계약 | 승인된 2-parameter MLE·AICc/AD bootstrap 정책, immutable exact revision/provenance, 선택형 Modeling 분석 sheet, PostgreSQL·Compose·브라우저·Standard/Large 다섯 viewport·독립 감수·제품 소유자 승인을 완료. 실제 Windows 4K 물리 판정은 #223이며 다음 단위는 #208 |
 | 23 | [x] [#208 Definition Bundle Administration UI](https://github.com/pikachu444/cae-material-platform/issues/208) — [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242), main `9d8314d882fd395a509ede81291fab69cbf34c84` | 관리자가 upload → plan → apply → read-back/export를 안전하게 수행 | issue, #184, #204/#207, Administration 승인 화면과 권한 | stale/conflict/recovery, 역할·browser·다섯 viewport·제품 소유자 피드백 반영본의 독립 Balanced 재감수와 2026-08-13 시각 승인을 완료. 다음 단위는 #212 |
 | 24 | [x] [#212 explicit toe compensation](https://github.com/pikachu444/cae-material-platform/issues/212) — [PR #244](https://github.com/pikachu444/cae-material-platform/pull/244), main `aa009e5898a6e46577a80a7382bda2b7b17fd002` | 원본을 보존하며 명시적으로 선택한 toe 보정 결과와 영향을 비교 | issue의 method/tolerance 결정 gate, #158 Process/Fit 계약 | 승인된 `tensile.toe_zero_intercept@1.0.0`, deterministic replay·failure/recovery·source/corrected overlay·immutable exact Fit input, 다섯 viewport, 독립 Balanced 감수와 2026-08-13 제품 소유자 시각 승인을 완료. 실제 Windows 4K 물리 판정은 #223이며 다음 단위는 #209 |
-| 25 | [#209 DMA·FLD governed import](https://github.com/pikachu444/cae-material-platform/issues/209) — [PR #248](https://github.com/pikachu444/cae-material-platform/pull/248) | DMA/FLD 원본을 검증해 canonical Test Data로 등록·연결 | issue, #160/#184, #205~#207, governed import/Test Data | 두 독립 profile, atomic whole-file rejection, 품질·unit·provenance·review/browser·다섯 viewport·Balanced 독립 감수와 2026-08-13 제품 소유자 시각 승인을 완료. 다음 단위는 #246 |
+| 25 | [x] [#209 DMA·FLD governed import](https://github.com/pikachu444/cae-material-platform/issues/209) — [PR #248](https://github.com/pikachu444/cae-material-platform/pull/248), main `3e642e8c3e96e95dd7d10b19d87e18af53db9e7c` | DMA/FLD 원본을 검증해 canonical Test Data로 등록·연결 | issue, #160/#184, #205~#207, governed import/Test Data | 두 독립 profile, Hz, atomic whole-file rejection, 품질·unit·provenance·review/browser·다섯 viewport·Balanced 독립 감수와 2026-08-13 제품 소유자 시각 승인을 완료. 다음 단위는 #246 |
 | 26 | [#246 source-v2 원본 정합과 누락 범위 폐쇄](https://github.com/pikachu444/cae-material-platform/issues/246) — Task 1A [PR #250](https://github.com/pikachu444/cae-material-platform/pull/250), main `b9a82e96532fe796aaf1889387cd391c952e1c67` | 원본 포맷을 실제로 수용하고 완료 Issue 밖에 남은 요구를 중복 없이 폐쇄 | issue, 원본 패키지, 요구사항 추적표, #204~#216 현재 코드·계약 | Task 1A의 source adapter·정확한 직접 연결 5개·Materials 네 분류·실데이터 검증·Balanced 감사·제품 소유자 화면 승인을 완료. #246은 열어 두며, 제품 소유자와 추가 보완 범위를 합의해 별도 단위로 진행한 뒤 남은 Task 순서로 복귀 |
-| 27 | [#211 representative envelope와 approved Fit input](https://github.com/pikachu444/cae-material-platform/issues/211) | 반복 곡선의 mean/p05/p95를 검토하고 승인된 exact revision을 Fit에 사용 | issue, #160/#184, #206/#210/#246, Statistics/Fit 계약 | alignment/quantile·lineage·review·Fit selection 검증, merge |
+| 27 | [#211 representative envelope와 approved Fit input](https://github.com/pikachu444/cae-material-platform/issues/211) | 기존 mean/95% CI와 append-only 포함·제외 lineage를 재사용해 p05/p95 대표 revision을 검토·승인하고 승인된 exact revision을 Fit에 사용 | issue, #160/#184, #206/#210/#246, 현재 alignment·Statistics/QC·calibration scope·Fit 계약 | 기존 common-grid piecewise-linear/no-extrapolation, exact Dataset/Test Run lineage, outlier 판단, immutable mean/95% CI와 exact input pinning 회귀검증; 새 p05/p95 representative revision·review/approval/invalidation·approved representative exact revision→Fit selection 검증, merge |
 | 28 | [#213 governed solver-card Template 기반](https://github.com/pikachu444/cae-material-platform/issues/213) | 기존 Export 결과를 보존하며 검토된 Template로 안전하게 render | issue의 sandbox ADR gate, #160/#184/#205/#246, #158 Export | renderer 호환성, isolation, exact Template/Mapping provenance, merge |
 | 29 | [#214 LS-DYNA MAT_024·다중 단위·Template UI](https://github.com/pikachu444/cae-material-platform/issues/214) | released Template로 MAT_024와 여러 Unit Profile 카드를 생성·관리 | issue, #160/#184/#205/#213, solver mapping/Administration | golden·unit·review·preview/download checksum·다섯 viewport·기존 solver 회귀, merge |
 | 30 | [#215 SPA OIDC Code+PKCE](https://github.com/pikachu444/cae-material-platform/issues/215) | production SPA login·logout·expiry/권한 오류를 안전하게 복구 | issue, #160/#184/#246, identity/security 계약과 deployment config | provider·negative·role·production bypass E2E·다섯 viewport, merge |
 | 31 | [#216 제품 command audit wiring](https://github.com/pikachu444/cae-material-platform/issues/216) | 주요 command의 성공·거절·복구를 기존 hash chain에서 누락 없이 추적 | issue, #160/#184/#246, 필요 시 #213/#215, Audit 계약 | event matrix, atomicity, redaction, integrity·restore 검증, merge |
-| 32 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 지원 환경에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음 | Hyper-V Ubuntu VM의 깨끗한 실행, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge |
+| 32 | [#162 Ubuntu VM·문서 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 사용자 설치 방식과 분리된 Hyper-V Ubuntu 최종 통합검증 harness에서 전체 흐름과 역할별 복구가 재현되고 현재 문서와 화면이 일치 | issue, 병합된 기능·화면, 전체 문서 목록. 이 단계에서만 임시 문서 묶음을 읽음; Windows 11 native/offline 제품 경로는 독립 #321 | Hyper-V Ubuntu VM의 깨끗한 최종 통합검증, 전체 흐름·역추적, 문서/화면 일치, 임시 자료 정리, merge. 이를 사용자 제품 설치·배포 방식으로 선언하지 않음 |
 | 33 | [#162 공개 실측 데이터 최종 검증](https://github.com/pikachu444/cae-material-platform/issues/162) | 인터넷에서 확보한 실제 측정 샘플을 제품에 등록해 솔버 카드와 Materials 재조회까지 완료 | issue의 고정 NIST Numisheet 2020 파일·공식 해시·이용조건, 병합된 실제 제품 흐름 | 원본 바이트·출처 보존, 실제 등록·처리·여러 모델·선택·카드 생성·검토·승인·재조회·다운로드·원본 역추적 자동 확인, 최종 승인, merge |
 | 34 | [#223 제품 전체 실제 Windows 4K 최종 물리 가독성 검증](https://github.com/pikachu444/cae-material-platform/issues/223) | Materials·Modeling·Activity·Administration을 실제 Windows 4K 100%·150%·200%에서 읽고 조작할 수 있음을 최종 확인하고 #184의 fixture 증거 부채를 닫음 | issue, #221 잠정 정책, #184 전역 적용·handoff matrix·누락 30개 목록, #160 Activity 증거, #162 작업 2 완료 상태 | #184에서 인계한 정확한 30개 원본을 세 density로 재수집하고 structured manifest와 독립 원본 재감수를 완료. 이어 세 Windows 배율의 환경 메타데이터·대표 route/state 원본·1:1 crop, 물리 가독성·상호작용·복구·read-back 검증, 제품 소유자 최종 판정, 발견 결함 bounded bug와 재검증, merge |
 
