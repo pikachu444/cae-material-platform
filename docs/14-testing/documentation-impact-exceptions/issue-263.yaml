@@ -24,6 +24,6 @@ verification:
     - apps/web/src/app/routes.test.ts
   navigationContract: docs/user-guide/navigation-contract.yaml
   visualPatchSha256: 3eac77d8208bdeacce15bd5a7ef69f32039334bbd9eda8b2220557b754fde125
-  attestedPatchSha256: d4311df8d9c76f48610f5d7e8df54e117d5f3f602e1b2f573aaddb50da88b698
+  attestedPatchSha256: d17724a63e525bc17f518a94b7fd027cbb322d8dcc6c968dfaf3a16edc84687e
   independentAudit: APPROVE
   productOwnerDisposition: no-visible-change

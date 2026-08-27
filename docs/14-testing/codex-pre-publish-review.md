@@ -137,6 +137,8 @@ Codex에서는 `.codex/hooks.json` 변경 후 `/hooks`에서 정확한 command�
    product consumer와 computed appearance 보존은 확인서의 자기신고가 아니라 검사기의 base/current
    CSS 비교와 전체 CSS/TS/TSX 검색으로 증명되어야 합니다.
    composition attestation이라면 확인서가 `origin/main`에 선행하고 실제 range patch digest와
-   target/test/navigation-contract 집합이 모두 일치하는지 확인합니다.
+   target/test/navigation-contract 집합이 모두 일치하는지 확인합니다. frontend guard baseline의
+   `sourceSha`는 fingerprint에서만 고정 sentinel로 정규화하되 실제 값은 merge-base와 정확히
+   일치해야 하며, baseline의 나머지 모든 바이트는 그대로 fingerprint에 결박합니다.
 5. opt-in reviewer를 실행했다면 `.cache/codex-review/<fingerprint>/`의 result/log에서
    path/line/evidence를 확인합니다.
