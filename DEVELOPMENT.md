@@ -195,6 +195,15 @@ Docker 없는 host-only 실행은 `container_service` marker 대상의 정확한
 사용자가 지정한 uv 환경 변수를 보존하고, 지정하지 않은 cache·가상환경·임시 경로는 uv와 Python
 표준 라이브러리의 운영체제별 기본 위치를 사용합니다. `/tmp` 경로를 합성하지 않습니다.
 
+GitHub pull request에서는 event가 제공한 정확한 base SHA와 head SHA로 변경 경로를 분류합니다.
+알 수 없는 경로와 backend·contract·CI·Python/toolchain 변경은 `full`, `apps/web`과 등록된 frontend
+검사 경로 및 관련 문서만 바뀌면 `frontend`, 문서·ADR·저장소 가이드·Agent 지침만 바뀌면 `docs`입니다.
+혼합 변경은 더 넓은 mode로 올라가며 base SHA를 해석할 수 없으면 검사를 축소하지 않고 실패합니다.
+두 OS의 required check는 mode와 관계없이 항상 실행되고 mode, base/head, 변경 경로, 포함·제외 검사와
+`container_service` 개수를 로그에 남깁니다. 매일 18:00 UTC schedule과 `workflow_dispatch`는 항상
+`full`이며, 로컬 CLI도 `--mode`를 지정하지 않으면 `full`입니다. `frontend`의 2–4분은 hard timeout이
+아니라 관측 목표이며, 변경 이후 최초의 실제 frontend-only PR에서 Actions 실행 시간을 기록합니다.
+
 ## 6. PostgreSQL integration gate
 
 통합 테스트는 별도의 localhost-only, tmpfs-backed PostgreSQL을 사용합니다. Demo DB나 production
