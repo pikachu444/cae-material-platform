@@ -24,6 +24,156 @@ sys.modules[_SPEC.name] = tasks
 _SPEC.loader.exec_module(tasks)
 
 
+@pytest.mark.parametrize(
+    ("paths", "expected"),
+    [
+        (["docs/user-guide/index.md"], "docs"),
+        (["adr/README.md", "AGENTS.md", "IMPLEMENTATION_STATUS.md"], "docs"),
+        (["apps/web/AGENTS.md", ".agents/skills/webapp-testing/SKILL.md"], "docs"),
+        (["apps/web/src/app.tsx"], "frontend"),
+        (["package.json", "package-lock.json"], "frontend"),
+        (
+            [
+                "scripts/check_frontend_guard.mjs",
+                "scripts/check_web_bundle.test.mjs",
+                "scripts/fixtures/modeling_route_fixture.mjs",
+                "scripts/measure_modeling_route.mjs",
+                "docs/README.md",
+            ],
+            "frontend",
+        ),
+        (["apps/web/src/app.tsx", "backend/src/cmp/apps/api.py"], "full"),
+        (["docs/README.md", "contracts/http/openapi.yaml"], "full"),
+        ([".github/workflows/ci.yml"], "full"),
+        (["scripts/repository_tasks.py"], "full"),
+        (["pyproject.toml", "uv.lock"], "full"),
+        (["backend/migrations/versions/001.py"], "full"),
+        (["sdk/python/src/cmp_plugin_sdk/runner.py"], "full"),
+        (["tests/contracts/test_repository_tasks.py"], "full"),
+        (["pnpm-workspace.yaml"], "full"),
+        (["unknown-root-file.txt"], "full"),
+        ([], "full"),
+    ],
+)
+def test_changed_path_classifier_is_deterministic_and_fail_closed(
+    paths: list[str], expected: str
+) -> None:
+    mode, classified, _reason = tasks.classify_changed_paths(paths)
+
+    assert mode == expected
+    assert [item.path for item in classified] == sorted(set(paths))
+
+
+def test_changed_path_parser_keeps_both_rename_paths() -> None:
+    assert tasks._parse_changed_paths(
+        b"R100\0docs/old.md\0apps/web/new.ts\0M\0README.md\0"
+    ) == ("README.md", "apps/web/new.ts", "docs/old.md")
+
+
+@pytest.mark.parametrize("status", ("U", "X", "B"))
+def test_changed_path_parser_rejects_unsupported_git_statuses(status: str) -> None:
+    with pytest.raises(tasks.TaskConfigurationError, match="unsupported git change status"):
+        tasks._parse_changed_paths(f"{status}\0docs/README.md\0".encode())
+
+
+def test_changed_path_collection_does_not_filter_unknown_git_statuses(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: tuple[str, ...] = ()
+
+    def fake_git_bytes(_root: Path, arguments: tuple[str, ...]) -> bytes:
+        nonlocal observed
+        observed = arguments
+        return b"U\0docs/README.md\0"
+
+    monkeypatch.setattr(tasks, "_git_bytes", fake_git_bytes)
+
+    with pytest.raises(tasks.TaskConfigurationError, match="unsupported git change status"):
+        tasks._changed_paths(ROOT, "a" * 40, "b" * 40)
+
+    assert not any(argument.startswith("--diff-filter") for argument in observed)
+
+
+def test_all_explicit_frontend_scripts_remain_frontend_only() -> None:
+    mode, classified, _reason = tasks.classify_changed_paths(
+        list(tasks._FRONTEND_SCRIPT_PATHS)
+    )
+
+    assert mode == "frontend"
+    assert {item.path for item in classified} == tasks._FRONTEND_SCRIPT_PATHS
+
+
+def test_change_plan_requires_explicit_resolvable_base_sha() -> None:
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    with pytest.raises(tasks.TaskConfigurationError, match="explicit full Git SHA"):
+        tasks.create_change_plan(
+            root=ROOT,
+            event_name="pull_request",
+            base_sha="origin/main",
+            head_sha=head,
+        )
+    with pytest.raises(tasks.TaskConfigurationError, match="git rev-parse"):
+        tasks.create_change_plan(
+            root=ROOT,
+            event_name="pull_request",
+            base_sha="f" * 40,
+            head_sha=head,
+        )
+
+
+@pytest.mark.parametrize("event_name", ("schedule", "workflow_dispatch"))
+def test_scheduled_and_manual_plans_are_always_full(event_name: str) -> None:
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    plan = tasks.create_change_plan(
+        root=ROOT,
+        event_name=event_name,
+        base_sha=head,
+        head_sha=head,
+    )
+
+    assert plan.mode == "full"
+    assert plan.changed_paths == ()
+    assert plan.reason == "scheduled-or-manual-full"
+
+
+def test_change_plan_output_is_visible_and_exports_only_the_mode(
+    tmp_path: Path, capsys: CaptureFixture[str]
+) -> None:
+    output = tmp_path / "github-output.txt"
+    plan = tasks.ChangePlan(
+        event_name="pull_request",
+        mode="frontend",
+        base_sha="a" * 40,
+        head_sha="b" * 40,
+        changed_paths=(
+            tasks.ChangedPath("apps/web/src/app.tsx", "frontend", "frontend"),
+        ),
+        reason="frontend-with-optional-documentation",
+    )
+
+    tasks._emit_change_plan(plan, output)
+
+    logs = capsys.readouterr().out
+    assert "event=pull_request mode=frontend" in logs
+    assert f"base={'a' * 40} head={'b' * 40}" in logs
+    assert 'path="apps/web/src/app.tsx"' in logs
+    assert output.read_text(encoding="utf-8") == "mode=frontend\n"
+
+
 def test_ci_registry_keeps_the_linux_sequence_and_host_filter_exact() -> None:
     full = tasks._ci_steps(tasks.TestScope("all", None))
     host = tasks._ci_steps(
@@ -54,6 +204,45 @@ def test_ci_registry_keeps_the_linux_sequence_and_host_filter_exact() -> None:
     )
     assert full[:9] == host[:9]
     assert full[10:] == host[10:]
+
+
+def test_frontend_and_docs_registries_have_exact_bounded_scopes() -> None:
+    scope = tasks.TestScope("host-only", f"not {tasks.CONTAINER_MARKER}")
+    frontend = tasks._ci_steps(scope, "frontend")
+    docs = tasks._ci_steps(scope, "docs")
+
+    assert [step.step_id for step in frontend] == [
+        "python-sync",
+        "development-environment",
+        "ruff",
+        "mypy",
+        "architecture",
+        "contract-lint",
+        "contract-compat",
+        "user-guide",
+        "docs-impact",
+        "pytest",
+        "npm-install",
+        "npm-check",
+        "npm-bundle-tests",
+    ]
+    assert frontend[9].argv == ("uv", "run", "pytest", *tasks._FRONTEND_CONTRACT_TESTS)
+    assert frontend[-1].argv == (
+        "npm",
+        "run",
+        "test:bundle-budget",
+        "--workspace",
+        "@cmp/web",
+    )
+    assert [step.step_id for step in docs] == [
+        "python-sync",
+        "development-environment",
+        "user-guide",
+        "docs-impact",
+        "pytest",
+    ]
+    assert docs[-1].argv == ("uv", "run", "pytest", *tasks._DOCS_CONTRACT_TESTS)
+    assert not any(step.argv[0] == "npm" for step in docs)
 
 
 def test_make_and_bash_are_thin_wrappers_for_the_same_cli() -> None:
@@ -108,8 +297,24 @@ def test_linux_and_windows_workflows_bootstrap_exact_tools_and_share_the_cli() -
     windows = workflow.split("  windows-host-ci:", maxsplit=1)[1]
 
     assert workflow.count("uv run python scripts/repository_tasks.py ci") == 2
-    assert "ci --require-container-tests" in workflow
-    assert "ci --host-only" in windows
+    assert workflow.count("scripts/repository_tasks.py classify") == 2
+    assert workflow.count("github.event.pull_request.base.sha || github.sha") == 2
+    assert workflow.count("github.event.pull_request.head.sha || github.sha") == 2
+    assert workflow.count("name: Linux CI with container service") == 1
+    assert workflow.count("name: Windows host-only CI") == 1
+    assert "--require-container-tests" in workflow
+    assert "--host-only" in windows
+    assert "\n  push:" not in workflow
+    assert 'cron: "0 18 * * *"' in workflow
+    assert "  workflow_dispatch:" in workflow
+    assert "cancel-in-progress: true" in workflow
+    assert "if: steps.ci-mode.outputs.mode == 'full'" in workflow
+    assert "if: always() && steps.ci-mode.outputs.mode == 'full'" in workflow
+    linux = workflow.split("  linux-ci:", maxsplit=1)[1].split(
+        "  windows-host-ci:", maxsplit=1
+    )[0]
+    assert "\n    if:" not in linux
+    assert "\n    if:" not in windows
     assert "docker " not in windows
     for exact_version in ("3.12.14", "0.12.5", "24.19.0", "npm@11.17.0"):
         assert exact_version in workflow
@@ -232,7 +437,7 @@ def test_root_with_spaces_is_passed_as_cwd_without_shell_interpolation(
     assert tasks.run_ci(root=root, host_only=True, require_container_tests=False) == 0
     assert observed == [root] * 12
     assert (
-        "TEST_SCOPE mode=host-only marker=container_service "
+        "TEST_SCOPE ci_mode=full platform_scope=host-only marker=container_service "
         "selected=98 included=0 excluded=98"
     ) in capsys.readouterr().out
 
