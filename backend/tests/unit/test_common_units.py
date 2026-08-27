@@ -30,6 +30,7 @@ def _semantics(dimension: DimensionId) -> str:
     return {
         DimensionId.FORCE_PER_AREA: "mechanics.stress.engineering",
         DimensionId.LENGTH: "length",
+        DimensionId.SPEED: "kinematics.speed",
         DimensionId.TIME: "time.elapsed",
         DimensionId.FORCE: "mechanics.force",
         DimensionId.MASS: "mass",
@@ -120,6 +121,72 @@ def test_density_composite_dimension_and_legacy_alias_are_explicit() -> None:
     assert canonical_unit_id("kg/m^3") == "kg/m3"
     assert canonical_unit_id("g/cm^3") == "g/cm3"
     assert converted.converted_value == Decimal("7850")
+
+    source_density = convert_value(
+        "7.85e-9",
+        original_unit_string="tonne/mm3",
+        source=QuantityReference(
+            DimensionId.MASS_PER_VOLUME, "mass.density", "tonne/mm3"
+        ),
+        target=QuantityReference(
+            DimensionId.MASS_PER_VOLUME, "mass.density", "kg/m3"
+        ),
+        location="source_v2.technical_data.density",
+    )
+    display_density = convert_value(
+        source_density.converted_value,
+        original_unit_string="kg/m3",
+        source=source_density.target,
+        target=QuantityReference(
+            DimensionId.MASS_PER_VOLUME, "mass.density", "g/cm3"
+        ),
+        location="source_v2.technical_data.density",
+    )
+    assert source_density.converted_value == Decimal("7850")
+    assert display_density.converted_value == Decimal("7.85")
+
+
+def test_speed_mm_per_minute_chain_round_trips_within_declared_tolerance() -> None:
+    mm_per_minute = QuantityReference(
+        DimensionId.SPEED, "kinematics.speed", "mm/min"
+    )
+    mm_per_second = QuantityReference(
+        DimensionId.SPEED, "kinematics.speed", "mm/s"
+    )
+    metres_per_second = QuantityReference(
+        DimensionId.SPEED, "kinematics.speed", "m/s"
+    )
+
+    as_mm_per_second = convert_value(
+        "60",
+        original_unit_string="mm/min",
+        source=mm_per_minute,
+        target=mm_per_second,
+        location="test_condition.tensile_speed",
+    )
+    as_metres_per_second = convert_value(
+        as_mm_per_second.converted_value,
+        original_unit_string="mm/s",
+        source=mm_per_second,
+        target=metres_per_second,
+        location="test_condition.tensile_speed",
+    )
+    round_trip = convert_value(
+        as_metres_per_second.converted_value,
+        original_unit_string="m/s",
+        source=metres_per_second,
+        target=mm_per_minute,
+        location="test_condition.tensile_speed",
+    )
+
+    assert abs(as_mm_per_second.converted_value - Decimal("1")) <= Decimal("1e-12")
+    assert abs(as_metres_per_second.converted_value - Decimal("0.001")) <= Decimal(
+        "1e-12"
+    )
+    assert abs(round_trip.converted_value - Decimal("60")) <= max(
+        round_trip.absolute_tolerance,
+        Decimal("60") * round_trip.relative_tolerance,
+    )
 
 
 def test_original_unit_alias_is_validated_and_preserved_verbatim() -> None:
@@ -234,6 +301,53 @@ def test_conversion_api_rejects_unbounded_and_source_mismatched_original_unit() 
         assert valid_alias.json()["original_unit_string"] == "μm"
 
 
+def test_task2_unit_api_exposes_1_1_registry_and_converts_speed() -> None:
+    test_app = FastAPI()
+    install_units_api(
+        test_app,
+        service=None,
+        security_dependency=lambda: None,
+        read_dependency=lambda: None,
+        write_dependency=lambda: None,
+    )
+
+    with TestClient(test_app) as client:
+        registry = client.get("/api/v1/unit-system")
+        assert registry.status_code == 200
+        body = registry.json()
+        assert body["contract_version"] == "1.1.0"
+        speed = next(item for item in body["dimensions"] if item["dimension"] == "speed")
+        assert speed["canonical_unit_id"] == "m/s"
+        assert [item["unit_id"] for item in speed["units"]] == [
+            "m/s",
+            "mm/s",
+            "mm/min",
+        ]
+
+        converted = client.post(
+            "/api/v1/unit-conversions",
+            json={
+                "location": "test_data.conditions.tensile_speed",
+                "value": "60",
+                "original_unit_string": "mm/min",
+                "source": {
+                    "dimension": "speed",
+                    "quantity_semantics": "kinematics.speed",
+                    "unit_id": "mm/min",
+                },
+                "target": {
+                    "dimension": "speed",
+                    "quantity_semantics": "kinematics.speed",
+                    "unit_id": "m/s",
+                },
+            },
+        )
+        assert converted.status_code == 200
+        assert abs(Decimal(converted.json()["converted_value"]) - Decimal("0.001")) <= (
+            Decimal("1e-12")
+        )
+
+
 def test_cross_dimension_failure_is_structured_and_location_aware() -> None:
     with pytest.raises(UnitError) as caught:
         convert_value(
@@ -279,7 +393,89 @@ def test_same_dimension_cannot_silently_change_quantity_semantics() -> None:
         )
 
 
-@pytest.mark.parametrize("value", ["1e309", "1e-309", "12345678901234567890123456789012345"])
+def test_task2_units_fail_closed_for_cross_dimension_wrong_source_and_spelling() -> None:
+    source = QuantityReference(DimensionId.SPEED, "kinematics.speed", "mm/min")
+
+    with pytest.raises(UnitError) as cross_dimension:
+        convert_value(
+            "1",
+            original_unit_string="mm/min",
+            source=source,
+            target=QuantityReference(
+                DimensionId.MASS_PER_VOLUME, "kinematics.speed", "kg/m3"
+            ),
+            location="source_v2.test_condition.speed",
+        )
+    assert cross_dimension.value.detail() == {
+        "code": "CMP-UNIT-0002",
+        "message": "cross-dimension conversion is not supported",
+        "location": "source_v2.test_condition.speed",
+        "source_dimension": "speed",
+        "target_dimension": "mass_per_volume",
+    }
+
+    with pytest.raises(UnitError) as wrong_source:
+        convert_value(
+            "1",
+            original_unit_string="mm/s",
+            source=source,
+            target=QuantityReference(DimensionId.SPEED, "kinematics.speed", "m/s"),
+            location="source_v2.test_condition.speed",
+        )
+    assert wrong_source.value.detail()["location"] == (
+        "source_v2.test_condition.speed.original_unit_string"
+    )
+    assert wrong_source.value.detail()["source_dimension"] == "speed"
+    assert wrong_source.value.detail()["target_dimension"] == "speed"
+
+    with pytest.raises(UnitError) as unsupported:
+        convert_value(
+            "1",
+            original_unit_string="mm/sec",
+            source=source,
+            target=QuantityReference(DimensionId.SPEED, "kinematics.speed", "m/s"),
+            location="source_v2.test_condition.speed",
+        )
+    assert unsupported.value.detail() == {
+        "code": "CMP-UNIT-0001",
+        "message": "unsupported unit identifier: mm/sec",
+        "location": "source_v2.test_condition.speed.original_unit_string",
+        "source_dimension": None,
+        "target_dimension": None,
+    }
+
+    with pytest.raises(UnitError) as semantics:
+        convert_value(
+            "1",
+            original_unit_string="mm/min",
+            source=source,
+            target=QuantityReference(
+                DimensionId.SPEED,
+                "process.crosshead_speed",
+                "m/s",
+            ),
+            location="source_v2.test_condition.speed",
+        )
+    assert semantics.value.detail() == {
+        "code": "CMP-UNIT-0003",
+        "message": "conversion cannot change quantity semantics",
+        "location": "source_v2.test_condition.speed",
+        "source_dimension": "speed",
+        "target_dimension": "speed",
+    }
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "NaN",
+        "Infinity",
+        "-Infinity",
+        "1e309",
+        "1e-309",
+        "12345678901234567890123456789012345",
+    ],
+)
 def test_numeric_range_and_precision_boundaries_fail_closed(value: str) -> None:
     with pytest.raises(UnitError) as caught:
         convert_value(
@@ -297,7 +493,10 @@ def test_numeric_range_and_precision_boundaries_fail_closed(value: str) -> None:
             ),
             location="value",
         )
-    assert caught.value.code == "CMP-UNIT-0004"
+    assert caught.value.detail()["code"] == "CMP-UNIT-0004"
+    assert caught.value.detail()["location"] == "value.value"
+    assert caught.value.detail()["source_dimension"] == "force_per_area"
+    assert caught.value.detail()["target_dimension"] == "force_per_area"
 
 
 def test_conversion_overflow_after_scaling_fails_closed() -> None:
@@ -341,6 +540,20 @@ def _profile() -> UnitProfileContent:
                 display_unit_id="%",
                 solver_export_unit_id="1",
             ),
+            UnitProfileSelection(
+                quantity_semantics="kinematics.speed",
+                dimension=DimensionId.SPEED,
+                input_unit_id="mm/min",
+                display_unit_id="mm/s",
+                solver_export_unit_id="m/s",
+            ),
+            UnitProfileSelection(
+                quantity_semantics="mass.density",
+                dimension=DimensionId.MASS_PER_VOLUME,
+                input_unit_id="tonne/mm3",
+                display_unit_id="g/cm3",
+                solver_export_unit_id="kg/m3",
+            ),
         ),
     )
 
@@ -362,12 +575,28 @@ def test_unit_profile_is_typed_and_resolves_exact_application_locations() -> Non
                 "mechanics.stress.engineering",
                 DimensionId.FORCE_PER_AREA,
             ),
+            (
+                "source_v2.test_condition.speed",
+                UnitApplicationRole.INPUT,
+                "kinematics.speed",
+                DimensionId.SPEED,
+            ),
+            (
+                "source_v2.technical_data.density",
+                UnitApplicationRole.SOLVER_EXPORT,
+                "mass.density",
+                DimensionId.MASS_PER_VOLUME,
+            ),
         ),
     )
 
     assert profile.non_production is True
     assert applications[0].unit_id == "MPa"
     assert applications[1].unit_id == "Pa"
+    assert applications[2].location == "source_v2.test_condition.speed"
+    assert applications[2].unit_id == "mm/min"
+    assert applications[3].location == "source_v2.technical_data.density"
+    assert applications[3].unit_id == "kg/m3"
 
 
 def test_profile_rejects_aliases_wrong_dimensions_and_missing_solver_choice() -> None:
@@ -403,6 +632,23 @@ def test_exact_pin_rejects_moving_names_and_invalid_hashes() -> None:
 
 def test_unit_system_contract_has_no_production_default() -> None:
     contract = unit_system_contract()
+    assert contract["contract_version"] == "1.1.0"
+    dimensions = contract["dimensions"]
+    assert isinstance(dimensions, list)
+    assert {item["dimension"] for item in dimensions} == {
+        "force_per_area",
+        "length",
+        "speed",
+        "time",
+        "force",
+        "mass",
+        "mass_per_volume",
+        "temperature",
+        "strain",
+    }
+    assert "Hz" not in {
+        unit["unit_id"] for item in dimensions for unit in item["units"]
+    }
     compatibility = contract["compatibility_unit_systems"]
     assert isinstance(compatibility, list)
     assert compatibility == [
@@ -412,6 +658,7 @@ def test_unit_system_contract_has_no_production_default() -> None:
             "units": {
                 "force_per_area": "Pa",
                 "length": "m",
+                "speed": "m/s",
                 "time": "s",
                 "force": "N",
                 "mass": "kg",

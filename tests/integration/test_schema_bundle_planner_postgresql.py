@@ -521,50 +521,19 @@ def _bump_bundle_version(raw_bytes: bytes, version: str) -> dict[str, Any]:
     return changed
 
 
-def _task1_structural_source_set() -> bytes:
-    """Build a source-v2 package without taking ownership of Task 2 units.
-
-    Task 1 proves the package/envelope/schema/link boundary. The approved source
-    fixture is covered separately and must continue to report the exact closed-unit
-    errors until Task 2 expands the production registry.
-    """
+def _source_v2_source_set() -> bytes:
+    """Build the deterministic envelope around the unchanged source-v2 bytes."""
 
     source_root = PROJECT_ROOT / "fixtures" / "schema-definition-bundle" / "source-v2"
-    replacements = {
-        "Hz": "s",
-        "mm/min": "mm",
-        "tonne": "kg",
-        "tonne/mm3": "kg/m3",
-    }
-
-    def replace_units(value: Any) -> Any:
-        if isinstance(value, str):
-            return replacements.get(value, value)
-        if isinstance(value, list):
-            return [replace_units(item) for item in value]
-        if isinstance(value, dict):
-            return {key: replace_units(item) for key, item in value.items()}
-        return value
-
     files: list[dict[str, str]] = []
     for path in sorted(item for item in source_root.rglob("*") if item.is_file()):
         relative = path.relative_to(source_root).as_posix()
-        source_content = path.read_text(encoding="utf-8")
-        content = (
-            json.dumps(
-                replace_units(json.loads(source_content)),
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-            )
-            if path.suffix == ".json"
-            else source_content
-        )
+        content = path.read_bytes()
         files.append(
             {
                 "path": relative,
-                "sha256": hashlib.sha256(content.encode()).hexdigest(),
-                "content": content,
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "content": content.decode("utf-8"),
             }
         )
     return json.dumps(
@@ -579,14 +548,14 @@ def _task1_structural_source_set() -> bytes:
     ).encode()
 
 
-def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_references(
+def test_source_v2_unchanged_bundle_applies_round_trips_and_pins_business_references(
     postgres: Harness,
 ) -> None:
     context = _context()
     write = _decision(context, Permission.CATALOG_WRITE)
     apply = _decision(context, Permission.CATALOG_SCHEMA_APPLY)
     read = _decision(context, Permission.CATALOG_READ)
-    raw_bytes = _task1_structural_source_set()
+    raw_bytes = _source_v2_source_set()
     artifact = asyncio.run(
         postgres.artifacts.finalize_derived_bytes(
             context,
@@ -596,7 +565,7 @@ def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_refer
             schema_ref=SOURCE_SET_CONTRACT_ID,
             media_type=SOURCE_SET_MEDIA_TYPE,
             value=raw_bytes,
-            idempotency_key="issue-246-task1-source-v2-structural-source",
+            idempotency_key="issue-246-task2-source-v2-unchanged-source",
         )
     ).artifact
 
@@ -608,6 +577,9 @@ def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_refer
         )
     )
     assert plan.valid
+    assert all(item.severity.value != "error" for item in plan.diagnostics)
+    assert any(item.code == "CMP-SCHEMA-SOURCE-0029" for item in plan.diagnostics)
+    assert any(item.code == "CMP-SCHEMA-SOURCE-0030" for item in plan.diagnostics)
     assert len([item for item in plan.actions if item.target_type == "table"]) == 6
     assert len([item for item in plan.actions if item.target_type == "link_type"]) == 5
     assert plan.bundle is not None
@@ -621,7 +593,7 @@ def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_refer
                 artifact.id,
                 artifact.sha256,
                 plan.plan_fingerprint,
-                "issue-246-task1-source-v2-structural-apply",
+                "issue-246-task2-source-v2-unchanged-apply",
             ),
         )
     )
@@ -787,6 +759,11 @@ def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_refer
     assert [item.id for item in technical_results.items] == [technical.id]
     assert [item.id for item in test_results.items] == [tensile.id]
 
+    exported = asyncio.run(postgres.planner.export(context, apply, "smx_material_db"))
+    assert exported.value == raw_bytes
+    assert exported.sha256 == artifact.sha256
+    assert exported.media_type == SOURCE_SET_MEDIA_TYPE
+
     fresh_plan = asyncio.run(
         postgres.planner.plan(
             context,
@@ -804,16 +781,12 @@ def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_refer
                 artifact.id,
                 artifact.sha256,
                 fresh_plan.plan_fingerprint,
-                "issue-246-task1-source-v2-structural-no-op",
+                "issue-246-task2-source-v2-unchanged-no-op",
             ),
         )
     )
     assert not second.mutations_applied
 
-    exported = asyncio.run(postgres.planner.export(context, apply, "smx_material_db"))
-    assert exported.value == raw_bytes
-    assert exported.sha256 == artifact.sha256
-    assert exported.media_type == SOURCE_SET_MEDIA_TYPE
     exported_artifact = asyncio.run(
         postgres.artifacts.finalize_derived_bytes(
             context,
@@ -823,7 +796,7 @@ def test_source_v2_structural_bundle_applies_round_trips_and_pins_business_refer
             schema_ref=SOURCE_SET_CONTRACT_ID,
             media_type=exported.media_type,
             value=exported.value,
-            idempotency_key="issue-246-task1-source-v2-structural-export",
+            idempotency_key="issue-246-task2-source-v2-unchanged-export",
         )
     ).artifact
     round_trip = asyncio.run(

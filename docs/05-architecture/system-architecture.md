@@ -390,6 +390,13 @@ infers dimension or semantics. Absolute/test temperature is affine; temperature 
 all other supported conversions are multiplicative. Strain remains a distinct quantity semantic
 even though its canonical unit is `1`.
 
+Contract `1.1.0` is an additive minor revision of the original `1.0.0` registry. It adds explicit
+`speed` (`m/s`, `mm/s`, `mm/min`) and `tonne/mm3` to `mass_per_volume` while retaining every earlier
+ID and alias. The existing `frequency.cyclic`/`Hz` path remains the #209 explicit-legacy channel and
+is not added to the common registry. The source-v2-only `mass: tonne` profile choice remains in the
+immutable source Artifact but is omitted, with a located warning, from the bounded common-unit
+projection; no mass conversion is inferred.
+
 Unit Profile is not a Catalog Profile or Mapping Profile. `units.unit_profile` holds the stable
 identity and current pointer; immutable typed revision and selection rows hold input, display and
 optional solver-export choices. Consumers store an exact `(profile_id, revision_id, content_sha256)`
@@ -402,8 +409,8 @@ Profile-free Processing and solver-card canonical bytes remain on their legacy s
 Profile-bearing Processing Output uses `1.4.0`; profile-bearing hyperelastic/family Solver Cards use
 `1.1.0`/`2.1.0`. Existing native card bytes are unchanged because Unit Profile trace is bound to the
 semantic card revision, not injected into native text. `kg_m_s` remains the only currently supported
-solver compatibility system and explicitly is not a production default. No service resolves a
-profile name or `latest`, and no default profile is selected at bootstrap.
+solver compatibility system, maps `speed` to `m/s`, and explicitly is not a production default. No
+service resolves a profile name or `latest`, and no default profile is selected at bootstrap.
 
 Schema Bundle planning and apply validate that `x-unit` is a stable ID in this closed registry. They
 retain Bundle/plan/application `1.0.0`; no default Unit Profile or solver system is inferred.

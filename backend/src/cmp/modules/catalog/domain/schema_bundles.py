@@ -102,6 +102,7 @@ _REF_SIBLING_KEYS = frozenset(
 _REFERENCE_OPTIONAL_KEYS = frozenset(
     {"source_table_key", "target_table_key", "reference_only"}
 )
+_EXPLICIT_LEGACY_SCHEMA_UNITS = frozenset({"Hz"})
 _ACTION_ORDER = {
     "database": 0,
     "profile": 1,
@@ -922,7 +923,9 @@ def _validate_schema_node(
                 if not key.endswith("_unit"):
                     continue
                 curve_stable_unit: str | None = None
-                if isinstance(supplied_unit, str) and _UNIT.fullmatch(supplied_unit):
+                if supplied_unit in _EXPLICIT_LEGACY_SCHEMA_UNITS:
+                    curve_stable_unit = cast(str, supplied_unit)
+                elif isinstance(supplied_unit, str) and _UNIT.fullmatch(supplied_unit):
                     try:
                         curve_stable_unit = canonical_unit_id(
                             supplied_unit, location=f"{location}/x-curve/{key}"
@@ -941,7 +944,9 @@ def _validate_schema_node(
     if "x-unit" in node:
         supplied_unit = node["x-unit"]
         stable_unit: str | None = None
-        if isinstance(supplied_unit, str) and _UNIT.fullmatch(supplied_unit) is not None:
+        if supplied_unit in _EXPLICIT_LEGACY_SCHEMA_UNITS:
+            stable_unit = cast(str, supplied_unit)
+        elif isinstance(supplied_unit, str) and _UNIT.fullmatch(supplied_unit) is not None:
             try:
                 stable_unit = canonical_unit_id(
                     supplied_unit, location=f"{location}/x-unit"

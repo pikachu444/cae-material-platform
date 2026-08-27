@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Iterator
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -291,7 +291,9 @@ def _decision(context: SecurityContext, permission: Permission) -> Authorization
     )
 
 
-def _content(label: str = "Engineering SI") -> UnitProfileContent:
+def _content(
+    label: str = "Engineering SI", *, speed_input_unit: str = "mm/min"
+) -> UnitProfileContent:
     return UnitProfileContent(
         profile_key="engineering_si",
         label=label,
@@ -302,7 +304,18 @@ def _content(label: str = "Engineering SI") -> UnitProfileContent:
                 "modulus.young", DimensionId.FORCE_PER_AREA, "MPa", "GPa", "Pa"
             ),
             UnitProfileSelection(
-                "mass.density", DimensionId.MASS_PER_VOLUME, "g/cm3", "kg/m3", "kg/m3"
+                "mass.density",
+                DimensionId.MASS_PER_VOLUME,
+                "tonne/mm3",
+                "g/cm3",
+                "kg/m3",
+            ),
+            UnitProfileSelection(
+                "kinematics.speed",
+                DimensionId.SPEED,
+                speed_input_unit,
+                "mm/s",
+                "m/s",
             ),
             UnitProfileSelection(
                 "temperature.absolute", DimensionId.TEMPERATURE, "Cel", "K", "K"
@@ -335,20 +348,38 @@ def test_stable_identity_immutable_revisions_exact_readback_and_rls(
         created.id,
         ReviseUnitProfile(
             expected_current_revision_id=created.current.revision_id,
-            content=replace(_content(), label="Engineering SI display revision"),
-            change_reason="revise display label without mutating revision one",
+            content=_content(
+                "Engineering SI speed input revision", speed_input_unit="mm/s"
+            ),
+            change_reason="revise speed input without mutating revision one",
         ),
     )
 
     assert revised.id == created.id
     assert revised.current.revision_id != created.current.revision_id
     assert revised.current.revision_no == 2
-    assert postgres.service.get_profile(context, read, created.id).content == revised.content
-    exact_one = postgres.service.get_profile_revision(
+    reloaded_service = CommonUnitService(
+        repository=SqlAlchemyUnitProfileRepository(
+            session_factory=postgres.sessions,
+            rls_context=postgres.rls,
+        )
+    )
+    reloaded = reloaded_service.get_profile(context, read, created.id)
+    assert reloaded.content == revised.content
+    assert reloaded.content.selection(
+        "kinematics.speed", location="reload.speed"
+    ).input_unit_id == "mm/s"
+    assert reloaded.content.selection(
+        "mass.density", location="reload.density"
+    ).input_unit_id == "tonne/mm3"
+    exact_one = reloaded_service.get_profile_revision(
         context, read, created.id, created.current.revision_id
     )
     assert exact_one.content == created.content
     assert exact_one.current.content_hash == created.content.digest
+    assert exact_one.content.selection(
+        "kinematics.speed", location="revision_one.speed"
+    ).input_unit_id == "mm/min"
     resolved = postgres.service.resolve_pin(
         context,
         read,

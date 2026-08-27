@@ -143,13 +143,18 @@ def test_x_unit_handoff_requires_a_stable_common_unit_identifier(unit: str) -> N
     assert result.canonical()["write_set"] == []
 
 
-def test_unit_profile_values_require_stable_common_unit_identifiers() -> None:
+def test_unit_profile_values_keep_task2_units_but_reject_mass_tonne_and_hz() -> None:
     document = _fixture("one")
     document["unit_profiles"] = [
         {
             "key": "cae_mm_t_s",
             "name": "mm-tonne-s",
-            "units": {"length": "mm", "mass": "tonne", "density": "tonne/mm3"},
+            "units": {
+                "length": "mm",
+                "mass": "tonne",
+                "density": "tonne/mm3",
+                "frequency": "Hz",
+            },
         }
     ]
 
@@ -162,7 +167,7 @@ def test_unit_profile_values_require_stable_common_unit_identifiers() -> None:
         if item.location.startswith("/unit_profiles/0/units/")
     }
     assert set(diagnostics) == {
-        "/unit_profiles/0/units/density",
+        "/unit_profiles/0/units/frequency",
         "/unit_profiles/0/units/mass",
     }
     assert all(item.code == "CMP-SCHEMA-BUNDLE-0002" for item in diagnostics.values())

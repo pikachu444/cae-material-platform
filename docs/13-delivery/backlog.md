@@ -62,9 +62,10 @@
   [PR #248](https://github.com/pikachu444/cae-material-platform/pull/248), main
   `3e642e8c3e96e95dd7d10b19d87e18af53db9e7c`에서 완료했고, 순서 26 `#246` Task 1A는
   [PR #250](https://github.com/pikachu444/cae-material-platform/pull/250), main
-  `b9a82e96532fe796aaf1889387cd391c952e1c67`에서 완료했습니다. 현재 첫 미완료 단위는
-  추가 보완 배치 결정을 기다리는 순서 26 `#246`이며, 승인된 남은 범위를 닫은 뒤 순서 27
-  `#211`로 진행합니다.
+  `b9a82e96532fe796aaf1889387cd391c952e1c67`에서 완료했습니다. 현재 첫 미완료 실행 단위는
+  `#246`의 native Sub-issue인 [#341](https://github.com/pikachu444/cae-material-platform/issues/341)이며,
+  Task 2 공통 단위와 변경하지 않은 source-v2 전체 왕복을 닫습니다. 그다음 `#246` Task 1B로
+  복귀하고, 부모의 승인된 남은 범위를 마친 뒤 순서 27 `#211`로 진행합니다.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로
@@ -91,7 +92,7 @@
 - [#282 개발환경 재현성](https://github.com/pikachu444/cae-material-platform/issues/282)은 제품 기능
   순서를 바꾸지 않는 공통 기반 작업입니다. Python·uv·Node·npm과 Docker 실행 버전을 고정한 뒤,
   #261·#279·#280은 #282가 병합된 최신 `main`에서 각각 별도 worktree로 시작합니다.
-- #282는 #249의 FE 체크 항목이 아니며, 아래 표의 첫 미완료 제품 단위 #246과 도메인 작업 순서를
+- #282는 #249의 FE 체크 항목이 아니며, 아래 표의 첫 미완료 제품 단위 #341/#246과 도메인 작업 순서를
   앞당기거나 완료 처리하지 않습니다.
 - [#321 Windows 네이티브 실행·오프라인 설치 지원 프로그램](https://github.com/pikachu444/cae-material-platform/issues/321)은
   #322~#324의 코드 전달이 모두 `main`에 병합된 독립 지원 프로그램입니다. 그러나 clean Windows 11
@@ -158,7 +159,7 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 23 | [x] [#208 Definition Bundle Administration UI](https://github.com/pikachu444/cae-material-platform/issues/208) — [PR #242](https://github.com/pikachu444/cae-material-platform/pull/242), main `9d8314d882fd395a509ede81291fab69cbf34c84` | 관리자가 upload → plan → apply → read-back/export를 안전하게 수행 | issue, #184, #204/#207, Administration 승인 화면과 권한 | stale/conflict/recovery, 역할·browser·다섯 viewport·제품 소유자 피드백 반영본의 독립 Balanced 재감수와 2026-08-13 시각 승인을 완료. 다음 단위는 #212 |
 | 24 | [x] [#212 explicit toe compensation](https://github.com/pikachu444/cae-material-platform/issues/212) — [PR #244](https://github.com/pikachu444/cae-material-platform/pull/244), main `aa009e5898a6e46577a80a7382bda2b7b17fd002` | 원본을 보존하며 명시적으로 선택한 toe 보정 결과와 영향을 비교 | issue의 method/tolerance 결정 gate, #158 Process/Fit 계약 | 승인된 `tensile.toe_zero_intercept@1.0.0`, deterministic replay·failure/recovery·source/corrected overlay·immutable exact Fit input, 다섯 viewport, 독립 Balanced 감수와 2026-08-13 제품 소유자 시각 승인을 완료. 실제 Windows 4K 물리 판정은 #223이며 다음 단위는 #209 |
 | 25 | [x] [#209 DMA·FLD governed import](https://github.com/pikachu444/cae-material-platform/issues/209) — [PR #248](https://github.com/pikachu444/cae-material-platform/pull/248), main `3e642e8c3e96e95dd7d10b19d87e18af53db9e7c` | DMA/FLD 원본을 검증해 canonical Test Data로 등록·연결 | issue, #160/#184, #205~#207, governed import/Test Data | 두 독립 profile, Hz, atomic whole-file rejection, 품질·unit·provenance·review/browser·다섯 viewport·Balanced 독립 감수와 2026-08-13 제품 소유자 시각 승인을 완료. 다음 단위는 #246 |
-| 26 | [#246 source-v2 원본 정합과 누락 범위 폐쇄](https://github.com/pikachu444/cae-material-platform/issues/246) — Task 1A [PR #250](https://github.com/pikachu444/cae-material-platform/pull/250), main `b9a82e96532fe796aaf1889387cd391c952e1c67` | 원본 포맷을 실제로 수용하고 완료 Issue 밖에 남은 요구를 중복 없이 폐쇄 | issue, 원본 패키지, 요구사항 추적표, #204~#216 현재 코드·계약 | Task 1A의 source adapter·정확한 직접 연결 5개·Materials 네 분류·실데이터 검증·Balanced 감사·제품 소유자 화면 승인을 완료. #246은 열어 두며, 제품 소유자와 추가 보완 범위를 합의해 별도 단위로 진행한 뒤 남은 Task 순서로 복귀 |
+| 26 | [#246 source-v2 원본 정합과 누락 범위 폐쇄](https://github.com/pikachu444/cae-material-platform/issues/246) — Task 1A [PR #250](https://github.com/pikachu444/cae-material-platform/pull/250), main `b9a82e96532fe796aaf1889387cd391c952e1c67`; Task 2 active Sub-issue [#341](https://github.com/pikachu444/cae-material-platform/issues/341) | 원본 포맷을 실제로 수용하고 완료 Issue 밖에 남은 요구를 중복 없이 폐쇄 | issue, 원본 패키지, 요구사항 추적표, #204~#216 현재 코드·계약 | Task 1A의 source adapter·정확한 직접 연결 5개·Materials 네 분류·실데이터 검증·Balanced 감사·제품 소유자 화면 승인을 완료. #341이 additive common-unit `1.1.0`과 변경하지 않은 source-v2 plan/apply/export/no-op을 소유한다. 병합 뒤 #246은 열어 두고 Task 1B로 복귀한다. |
 | 27 | [#211 representative envelope와 approved Fit input](https://github.com/pikachu444/cae-material-platform/issues/211) | 기존 mean/95% CI와 append-only 포함·제외 lineage를 재사용해 p05/p95 대표 revision을 검토·승인하고 승인된 exact revision을 Fit에 사용 | issue, #160/#184, #206/#210/#246, 현재 alignment·Statistics/QC·calibration scope·Fit 계약 | 기존 common-grid piecewise-linear/no-extrapolation, exact Dataset/Test Run lineage, outlier 판단, immutable mean/95% CI와 exact input pinning 회귀검증; 새 p05/p95 representative revision·review/approval/invalidation·approved representative exact revision→Fit selection 검증, merge |
 | 28 | [#213 governed solver-card Template 기반](https://github.com/pikachu444/cae-material-platform/issues/213) | 기존 Export 결과를 보존하며 검토된 Template로 안전하게 render | issue의 sandbox ADR gate, #160/#184/#205/#246, #158 Export | renderer 호환성, isolation, exact Template/Mapping provenance, merge |
 | 29 | [#214 LS-DYNA MAT_024·다중 단위·Template UI](https://github.com/pikachu444/cae-material-platform/issues/214) | released Template로 MAT_024와 여러 Unit Profile 카드를 생성·관리 | issue, #160/#184/#205/#213, solver mapping/Administration | golden·unit·review·preview/download checksum·다섯 viewport·기존 solver 회귀, merge |

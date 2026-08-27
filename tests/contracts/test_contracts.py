@@ -327,9 +327,21 @@ def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> Non
         )
         == []
     )
+    assert (
+        validate_example(
+            schema_path,
+            PROJECT_ROOT / "contracts/examples/positive/unit-conversion-speed.json",
+        )
+        == []
+    )
     assert validate_example(
         schema_path,
         PROJECT_ROOT / "contracts/examples/negative/unit-conversion-unsupported.json",
+    )
+    assert validate_example(
+        schema_path,
+        PROJECT_ROOT
+        / "contracts/examples/negative/unit-conversion-speed-unsupported.json",
     )
 
     unit_schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -351,6 +363,7 @@ def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> Non
     assert set(unit_schema["$defs"]["DimensionId"]["enum"]) == {
         "force_per_area",
         "length",
+        "speed",
         "time",
         "force",
         "mass",
@@ -358,6 +371,12 @@ def test_common_units_profiles_and_export_usage_match_runtime_contracts() -> Non
         "temperature",
         "strain",
     }
+    assert unit_schema["$defs"]["UnitSystemResponse"]["properties"][
+        "contract_version"
+    ] == {"const": "1.1.0"}
+    assert {"m/s", "mm/s", "mm/min", "tonne/mm3"}.issubset(
+        unit_schema["$defs"]["UnitId"]["enum"]
+    )
     assert {"profile_id", "revision_id", "content_sha256"} == set(
         runtime_components["UnitProfilePinInput"]["required"]
     )

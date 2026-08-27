@@ -74,9 +74,11 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   Administration 공개·복구 refinement는 #161, Definition Bundle 화면은 #208에서 연결했습니다.
   남은 Template/OIDC 화면은 각각 #214, #215에서 별도 검수합니다.
 - #209의 DMA frequency-temperature sweep와 FLD governed Data 등록·canonical read-back·review
-  projection 및 `Hz`는 완료됐고, #246 Task 1A의 source-v2 adapter도 병합됐습니다. #246의 남은
-  책임은 Task 2 `mm/min`·`tonne/mm3`, Task 1B installed-format 기반 실제 JSON 데이터 등록,
-  Task 2B의 `dma_strain_sweep` 명시적 미지원과 후속 ownership 결정입니다. master curve·Prony·
+  projection 및 explicit-legacy `Hz`는 완료됐고, #246 Task 1A의 source-v2 adapter도 병합됐습니다.
+  #341은 additive common-unit `1.1.0`에서 explicit `speed`의 `m/s`·`mm/s`·`mm/min`과 density의
+  `tonne/mm3`를 구현하고 변경하지 않은 source-v2 apply/export/no-op을 닫습니다. #246의 다음 책임은
+  Task 1B installed-format 기반 실제 JSON 데이터 등록과 Task 2B의 `dma_strain_sweep` 명시적 미지원 및
+  후속 ownership 결정입니다. master curve·Prony·
   LinearViscoelastic IR의 production 입력·정책·수치 검증 확장은 #195 또는 이후 승인 이슈가 소유하며,
   #246 완료만으로 구현됐다고 간주하지 않습니다.
 - #195 polymer viscoelastic과 #196 elastomer hyperelastic/hyper-viscoelastic에는 bounded synthetic

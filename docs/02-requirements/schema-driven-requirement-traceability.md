@@ -19,9 +19,9 @@
 
 | 패킷 | 현재 연결 | 판정 | 원본 대비 남은 차이 |
 | --- | --- | --- | --- |
-| P1 Catalog Schema Bundle | #204, #207, #208 완료; #246 Task 1A 완료 | 부분 | #246 Task 1A는 PR #250, main `b9a82e9`에서 source-v2 어댑터, 객체형 `x-curve`, business-key 승격·참조 해석을 병합했다. 지원 단위로 치환한 구조 검증본은 원본 파일 묶음의 바이트·매체 형식과 각 필드의 원본 위치를 보존해 왕복한다. 변경하지 않은 기준 파일 묶음은 남은 `mm/min`, `tonne/mm3` 단위 오류를 정확히 보고하며 전체 apply/export가 차단된다. 원본은 연결 6개를 선언하지만 승인 범위는 직접 연결 5개다. 원본 `dma_to_elastoplasticity`는 변경하지 않고 증거로 보존하며 `CMP-SCHEMA-SOURCE-0029`로 제외한다. 실제 JSON 데이터 등록은 #246 Task 1B, 남은 단위는 Task 2다. |
-| P2 Curve 채널·편차 | #206 완료; #246 Task 1A 완료 | 구현 | 공통 채널·편차 계약과 source-v2 객체형 `x-curve` 해석·원본 위치 보존이 구현됐다. 변경하지 않은 source-v2 전체 apply가 남은 단위 때문에 차단되는 것은 P3/G5 잔여이며 P2 미구현을 뜻하지 않는다. |
-| P3 단위·Unit Profile | #205, #209 Hz 완료; #246 Task 2, #214 | 부분 | 공통 8개 dimension과 exact Unit Profile revision trace, DMA frequency의 `Hz`는 구현됐다. source-v2에 남은 공통 단위는 `mm/min`, `tonne/mm3`이며 #246 Task 2가 소유한다. 추가 solver profile과 관리 UI는 #214 범위다. |
+| P1 Catalog Schema Bundle | #204, #207, #208 완료; #246 Task 1A 완료; #341 | 부분 | #246 Task 1A는 PR #250, main `b9a82e9`에서 source-v2 어댑터, 객체형 `x-curve`, business-key 승격·참조 해석을 병합했다. #341은 변경하지 않은 기준 파일 묶음을 plan → atomic apply → exact-source export → no-op 재적용한다. 원본은 연결 6개를 선언하지만 승인 범위는 직접 연결 5개다. 원본 `dma_to_elastoplasticity`는 변경하지 않고 증거로 보존하며 `CMP-SCHEMA-SOURCE-0029`로 제외한다. 실제 JSON 데이터 등록은 #246 Task 1B다. |
+| P2 Curve 채널·편차 | #206 완료; #246 Task 1A 완료; #341 회귀 | 구현 | 공통 채널·편차 계약과 source-v2 객체형 `x-curve` 해석·원본 위치 보존이 구현됐다. #341은 #209의 explicit-legacy `Hz` 경계를 공통 registry로 옮기지 않고 그대로 재사용해 변경하지 않은 source-v2 전체 apply를 통과시킨다. |
+| P3 단위·Unit Profile | #205, #209 Hz 완료; #341, #214 | 부분 | 공통 계약 `1.1.0`은 기존 8개 dimension·ID·alias와 exact Unit Profile revision trace를 보존하고 explicit `speed`의 `m/s`·`mm/s`·`mm/min`, density의 `tonne/mm3`를 추가한다. DMA frequency의 `Hz`는 #209 explicit-legacy 계약을 유지한다. source profile의 범위 밖 `mass: tonne`는 원본 Artifact에 보존하고 위치가 있는 경고와 함께 공통-unit projection에서 제외하며 변환을 추론하지 않는다. 추가 solver profile과 관리 UI는 #214 범위다. |
 | P4 DMA·FLD | #209 완료; #246 Task 2B, #195 또는 이후 승인 이슈 | 부분/보류 | #209 PR #248, main `3e642e8`에서 `dma_frequency_temperature_sweep`와 `forming_limit` governed import, Hz, canonical lineage를 완료했다. `dma_strain_sweep` 전용 처리는 실제 운용 자료와 승인 요구가 없어 #246 Task 2B에서 명시적 미지원으로 보류한다. master curve·Prony·LinearViscoelastic IR production 확장은 #195 또는 이후 승인 이슈가 소유하며 #209나 #246의 구현 완료로 간주하지 않는다. |
 | P5 분포·대표곡선 | #210 완료; #211, #246 Task 3 | 부분 | scalar 분포 피팅 외에도 common-grid piecewise-linear/no-extrapolation alignment, append-only 포함·제외 판단과 exact Dataset/Test Run lineage, pointwise mean/95% CI immutable Artifact, calibration input scope exact pinning이 구현돼 있다. #211 잔여는 pointwise p05/p95 representative revision, 그 revision의 review/approval/invalidation, 승인된 representative exact revision의 Fit 선택 연결이다. 범용 scalar 확장은 완료로 주장하지 않으며 #246 Task 3에서 소유권을 재대조한다. |
 | P6 Template·solver·다단위 | #213, #214 | 미구현 | governed Template, LS-DYNA MAT_024, 추가 solver unit system과 관리 UI가 남아 있다. |
@@ -34,11 +34,11 @@
 
 | 갭 | 판정 | 현재 처리 또는 남은 결정 |
 | --- | --- | --- |
-| G1 bundle import/export | 부분 | #246 Task 1A가 PR #250에서 source-v2 다중 파일/ZIP 입력과 적용된 원본 Artifact 바이트 export를 병합했다. 구조 검증본의 apply/export/no-op은 통과했지만, 변경하지 않은 기준 파일 묶음의 적용·export는 Task 2의 남은 `mm/min`, `tonne/mm3` 오류가 해소될 때까지 차단된다. 원본 연결 6개 중 승인된 5개만 제품 Link로 투영한다. |
+| G1 bundle import/export | 부분 | #246 Task 1A가 PR #250에서 source-v2 다중 파일/ZIP 입력과 적용된 원본 Artifact 바이트 export를 병합했다. #341은 변경하지 않은 기준 파일 묶음의 plan/apply/export/no-op을 통과시키며 원본 연결 6개 중 승인된 5개만 제품 Link로 투영한다. 실제 JSON 데이터 등록은 Task 1B에 남는다. |
 | G2 `x-*` 해석 | 구현 | #246 Task 1A가 source-v2 확장을 결정적으로 해석하고 원본 위치·파일 해시를 보존한다. `dma_to_elastoplasticity`는 승인되지 않은 원본 의미이므로 `CMP-SCHEMA-SOURCE-0029` 증거 경고로 남기고 제품 관계로 만들지 않는다. |
 | G3 curve metadata | 구현 | #206 공통 계약과 #246 Task 1A source-v2 bundle 연결을 구현했다. |
-| G4 business key/pointer | 구현 | #246 Task 1A가 source-v2 business key 승격, 정확한 개정 고정, 각 Attribute의 원본 JSON pointer·파일 해시 저장과 원본 Artifact export를 병합했다. 변경하지 않은 기준 파일 묶음의 전체 적용은 G5 단위가 닫힌 뒤 재검증한다. 원본 DMA 참조는 증거 필드로 보존하되 금지된 제품 관계로 승격하지 않는다. |
-| G5 단위 | 부분 | 공통 기반과 #209의 `Hz`는 구현됐다. 변경하지 않은 source-v2는 남은 `mm/min`, `tonne/mm3`에서 정확히 차단되며 #246 Task 2가 소유한다. 추가 solver profile은 #214 범위다. |
+| G4 business key/pointer | 구현 | #246 Task 1A가 source-v2 business key 승격, 정확한 개정 고정, 각 Attribute의 원본 JSON pointer·파일 해시 저장과 원본 Artifact export를 병합했다. #341의 변경하지 않은 전체 적용과 exact-source export도 같은 위치·해시를 유지한다. 원본 DMA 참조는 증거 필드로 보존하되 금지된 제품 관계로 승격하지 않는다. |
+| G5 단위 | 부분 | 공통 기반과 #209의 explicit-legacy `Hz`를 보존한다. #341은 additive common-unit `1.1.0`으로 `speed`의 `m/s`·`mm/s`·`mm/min`과 `mass_per_volume`의 `tonne/mm3`를 닫고 변경하지 않은 source-v2를 적용한다. 추가 solver profile은 #214 범위다. |
 | G6 DMA/FLD | 부분/보류 | #209가 frequency-temperature DMA와 FLD governed import 및 exact lineage를 완료했다. `dma_strain_sweep` 전용 처리는 #246 Task 2B에서 명시적 미지원으로 보류하고, master curve·Prony·LinearViscoelastic IR production 확장은 #195 또는 이후 승인 이슈가 소유한다. |
 | G7 publication validation | 구현 방식 변경 | #207이 원본의 부분 성공보다 강한 atomic apply/read-back을 구현했다. |
 | G8 `non_production` | 보류 | production 근거 전까지 유지한다. |
@@ -68,12 +68,12 @@
 lineage를 완료했다. `dma_strain_sweep`, source-v2 전체 bundle 호환, #209 수락 조건 밖의 단위와
 DMA→master curve/Prony→IR production 확장은 #209 완료에 포함하지 않는다.
 
-### 2. #246 — 현재 첫 미완료 원본 정합 보완
+### 2. #341 — #246 Task 2 공통 단위 보완
 
 Task 1A source-v2 bundle adapter와 business-key/reference E2E는 PR #250, main `b9a82e9`에서
-완료했다. #246은 추가 보완 배치 결정을 기다리는 현재 첫 미완료 단위이며, 승인된 packet에서
-Task 2의 `mm/min`·`tonne/mm3`, Task 1B 실제 JSON 데이터 등록, Task 2B DMA/점탄성 경계,
-Task 3 후속 이슈 정합과 Task 4 보류 항목 disposition을 순차 처리한다. #276은 이 과정에서 드러난
+완료했다. #341은 #246의 native Sub-issue로 Task 2의 `mm/min`·`tonne/mm3`와 변경하지 않은
+source-v2 전체 apply/export/no-op을 소유한다. 그 다음 #246은 Task 1B 실제 JSON 데이터 등록,
+Task 2B DMA/점탄성 경계, Task 3 후속 이슈 정합과 Task 4 보류 항목 disposition을 순차 처리한다. #276은 이 과정에서 드러난
 Simulation Data→Modeling/solver-card 후보 후속이지만 native parent와 실행 순서는 승인되지 않았고
 현재 #117 순서를 바꾸지 않는다.
 
