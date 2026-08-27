@@ -25,6 +25,14 @@ declaration의 계산값 보존을 증명하고 새 selector를 직접 도출한
 허용하지 않는다. 다음 route가 foundation을 소비하는 변경부터 일반 user-guide·current
 PNG·screenshot manifest gate를 다시 적용한다.
 
+이미 독립 감사와 제품 소유자의 `no-visible-change` 판정을 받은 app composition 분리는
+`origin/main`에 먼저 병합된 issue-owned 확인서가 정확한 한 diff를 지문으로 고정한 경우에만
+예외가 될 수 있다. 검사기는 실제 merge-base에서 visual patch와 전체 attested patch의 SHA-256을
+다시 계산하고, visual path·base에 없던 composition target·characterization test·navigation
+contract를 확인서와 대조한다. 확인서 자체는 지문에서 제외하되 visual diff와 같은 변경에서 새로
+제출하거나 고칠 수 없다. base, path, test, contract, digest가 다르거나 CSS·route·style source가
+하나라도 더 바뀌면 일반 current user-guide·5-viewport screenshot gate로 fail-closed 처리한다.
+
 `git commit`은 staged documentation-impact만 검사합니다. commit과 publish를 한 shell 명령으로
 묶으면 미래 commit을 검사할 수 없으므로 fail-closed 처리합니다. 일반 Bash 명령은 게이트 대상이
 아닙니다.
@@ -128,5 +136,7 @@ Codex에서는 `.codex/hooks.json` 변경 후 `/hooks`에서 정확한 command�
 4. non-user-visible foundation이라면 issue-owned 확인서의 base SHA와 정확한 path를 확인합니다.
    product consumer와 computed appearance 보존은 확인서의 자기신고가 아니라 검사기의 base/current
    CSS 비교와 전체 CSS/TS/TSX 검색으로 증명되어야 합니다.
+   composition attestation이라면 확인서가 `origin/main`에 선행하고 실제 range patch digest와
+   target/test/navigation-contract 집합이 모두 일치하는지 확인합니다.
 5. opt-in reviewer를 실행했다면 `.cache/codex-review/<fingerprint>/`의 result/log에서
    path/line/evidence를 확인합니다.

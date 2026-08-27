@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import posixpath
 import re
@@ -23,6 +24,7 @@ _EXCEPTION_PREFIX = "docs/14-testing/documentation-impact-exceptions/"
 _EXCEPTION_SCHEMA = "cmp.documentation-impact-exception.v1"
 _NON_USER_VISIBLE_CLASSIFICATION = "non-user-visible-foundation"
 _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION = "non-user-visible-structural-extraction"
+_NON_USER_VISIBLE_COMPOSITION_CLASSIFICATION = "non-user-visible-composition-attestation"
 _DOCUMENTATION_MANIFEST = "docs/documentation-manifest.yaml"
 _VISUAL_EVIDENCE_LIFECYCLES = frozenset({"current", "frozen", "transient"})
 _CURRENT_FIVE_VIEWPORTS = frozenset(
@@ -89,6 +91,13 @@ class DocumentationImpactException:
     preserved_computed_value_files: tuple[str, ...]
     import_only_files: tuple[str, ...] = ()
     relocations: tuple[_Relocation, ...] = ()
+    composition_targets: tuple[str, ...] = ()
+    characterization_tests: tuple[str, ...] = ()
+    navigation_contract: str | None = None
+    visual_patch_sha256: str | None = None
+    attested_patch_sha256: str | None = None
+    independent_audit: str | None = None
+    product_owner_disposition: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -299,6 +308,17 @@ def _path_list(value: object, field: str, *, allow_empty: bool = False) -> tuple
             f"{field} must be {'an empty or non-empty' if allow_empty else 'a non-empty'} list"
         )
     items = tuple(_canonical_repo_path(item, f"{field} entry") for item in value)
+    if len(set(items)) != len(items):
+        raise DocumentationImpactError(f"{field} contains duplicate entries")
+    return tuple(sorted(items))
+
+
+def _artifact_path_list(value: object, field: str) -> tuple[str, ...]:
+    if not isinstance(value, list) or not value:
+        raise DocumentationImpactError(f"{field} must be a non-empty list")
+    items = tuple(
+        _canonical_artifact_path(item, f"{field} entry") for item in value
+    )
     if len(set(items)) != len(items):
         raise DocumentationImpactError(f"{field} contains duplicate entries")
     return tuple(sorted(items))
@@ -591,6 +611,7 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
     if classification not in {
         _NON_USER_VISIBLE_CLASSIFICATION,
         _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION,
+        _NON_USER_VISIBLE_COMPOSITION_CLASSIFICATION,
     }:
         raise DocumentationImpactError(f"{path} classification is not allowed")
     reason = data["reason"]
@@ -599,6 +620,13 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
 
     verification = _mapping(data["verification"], f"{path} verification")
     parsed_relocations: list[_Relocation] = []
+    composition_targets: tuple[str, ...] = ()
+    characterization_tests: tuple[str, ...] = ()
+    navigation_contract: str | None = None
+    visual_patch_sha256: str | None = None
+    attested_patch_sha256: str | None = None
+    independent_audit: str | None = None
+    product_owner_disposition: str | None = None
     if classification == _NON_USER_VISIBLE_CLASSIFICATION:
         verification_keys = {
             "unconsumedModules",
@@ -617,7 +645,7 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
             f"{path} verification.preservedComputedValueFiles",
         )
         import_only_files: tuple[str, ...] = ()
-    else:
+    elif classification == _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION:
         verification_keys = {"importOnlyFiles", "relocations"}
         if set(verification) != verification_keys:
             raise DocumentationImpactError(
@@ -686,6 +714,56 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
             raise DocumentationImpactError(f"{path} verification paths overlap")
         unconsumed_modules = ()
         preserved_computed_value_files = ()
+    else:
+        verification_keys = {
+            "attestedPatchSha256",
+            "characterizationTests",
+            "compositionTargets",
+            "independentAudit",
+            "navigationContract",
+            "productOwnerDisposition",
+            "visualPatchSha256",
+        }
+        if set(verification) != verification_keys:
+            raise DocumentationImpactError(
+                f"{path} verification keys must be exactly "
+                f"{', '.join(sorted(verification_keys))}"
+            )
+        composition_targets = _path_list(
+            verification["compositionTargets"],
+            f"{path} verification.compositionTargets",
+        )
+        characterization_tests = _artifact_path_list(
+            verification["characterizationTests"],
+            f"{path} verification.characterizationTests",
+        )
+        navigation_contract = _canonical_artifact_path(
+            verification["navigationContract"],
+            f"{path} verification.navigationContract",
+        )
+        visual_patch_sha256 = verification["visualPatchSha256"]
+        attested_patch_sha256 = verification["attestedPatchSha256"]
+        for field, digest in (
+            ("visualPatchSha256", visual_patch_sha256),
+            ("attestedPatchSha256", attested_patch_sha256),
+        ):
+            if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+                raise DocumentationImpactError(
+                    f"{path} verification.{field} must be a lowercase SHA-256"
+                )
+        independent_audit = verification["independentAudit"]
+        product_owner_disposition = verification["productOwnerDisposition"]
+        if independent_audit != "APPROVE":
+            raise DocumentationImpactError(
+                f"{path} verification.independentAudit must be APPROVE"
+            )
+        if product_owner_disposition != "no-visible-change":
+            raise DocumentationImpactError(
+                f"{path} verification.productOwnerDisposition must be no-visible-change"
+            )
+        unconsumed_modules = ()
+        preserved_computed_value_files = ()
+        import_only_files = ()
     return DocumentationImpactException(
         path=path,
         issue=issue,
@@ -697,6 +775,13 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
         preserved_computed_value_files=preserved_computed_value_files,
         import_only_files=import_only_files,
         relocations=tuple(parsed_relocations),
+        composition_targets=composition_targets,
+        characterization_tests=characterization_tests,
+        navigation_contract=navigation_contract,
+        visual_patch_sha256=visual_patch_sha256,
+        attested_patch_sha256=attested_patch_sha256,
+        independent_audit=independent_audit,
+        product_owner_disposition=product_owner_disposition,
     )
 
 
@@ -719,6 +804,82 @@ def _load_changed_exception(
     except (OSError, yaml.YAMLError, DocumentationImpactError) as error:
         raise DocumentationImpactError(f"cannot read {path}: {error}") from error
     return _parse_exception(path, raw)
+
+
+def _load_range_composition_attestation(
+    project: Path,
+    merge_base: str,
+    visual_files: set[str],
+) -> DocumentationImpactException | None:
+    candidates: list[DocumentationImpactException] = []
+    paths = sorted(
+        path
+        for path in _git_lines(
+            project,
+            ["ls-tree", "-r", "--name-only", "origin/main", "--", _EXCEPTION_PREFIX],
+        )
+        if path.endswith((".yaml", ".yml"))
+    )
+    for path in paths:
+        result = subprocess.run(
+            ["git", "show", f"origin/main:{path}"],
+            cwd=project,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        try:
+            raw = yaml.load(result.stdout, Loader=_UniqueKeyLoader)
+        except (yaml.YAMLError, DocumentationImpactError) as error:
+            raise DocumentationImpactError(f"cannot read origin/main:{path}: {error}") from error
+        data = _mapping(raw, f"origin/main:{path}")
+        if data.get("classification") != _NON_USER_VISIBLE_COMPOSITION_CLASSIFICATION:
+            continue
+        exception = _parse_exception(path, data)
+        if set(exception.visual_files) == visual_files and _is_ancestor(
+            project, exception.source_sha, merge_base
+        ):
+            candidates.append(exception)
+    if len(candidates) > 1:
+        raise DocumentationImpactError(
+            "origin/main contains multiple composition attestations for this exact diff"
+        )
+    return candidates[0] if candidates else None
+
+
+def _patch_sha256(project: Path, source_sha: str, paths: Iterable[str]) -> str:
+    selected = sorted(set(paths))
+    if not selected:
+        raise DocumentationImpactError("cannot fingerprint an empty documentation-impact patch")
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "diff",
+                "--no-ext-diff",
+                "--binary",
+                "--full-index",
+                f"{source_sha}...HEAD",
+                "--",
+                *selected,
+            ],
+            cwd=project,
+            check=True,
+            capture_output=True,
+        )
+    except subprocess.CalledProcessError as error:
+        raise DocumentationImpactError("cannot fingerprint the attested Git patch") from error
+    return hashlib.sha256(result.stdout).hexdigest()
+
+
+def _is_ancestor(project: Path, ancestor: str, descendant: str) -> bool:
+    result = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", ancestor, descendant],
+        cwd=project,
+        check=False,
+        capture_output=True,
+    )
+    return result.returncode == 0
 
 
 def _production_source_paths(project: Path) -> Iterable[Path]:
@@ -3423,6 +3584,121 @@ def _validate_structural_exception(
     return _ValidatedDocumentationImpactException(exception=exception, derived_selectors=())
 
 
+def _validate_composition_attestation(
+    project: Path,
+    exception: DocumentationImpactException,
+    entries: Mapping[str, bool],
+    merge_base: str,
+    mode: ImpactMode | None,
+) -> _ValidatedDocumentationImpactException:
+    if mode != "range":
+        raise DocumentationImpactError(
+            f"{exception.path} composition attestation is valid only for a committed range"
+        )
+    visual_files = {path for path in entries if _is_visual_source(path)}
+    if not _is_ancestor(project, exception.source_sha, merge_base):
+        raise DocumentationImpactError(
+            f"{exception.path} sourceSha {exception.source_sha} is not an ancestor of "
+            f"origin/main merge-base {merge_base}"
+        )
+    baseline_ui_drift = git_changed_paths(
+        project,
+        [
+            f"{exception.source_sha}..{merge_base}",
+            "--",
+            "apps/web",
+            _NAVIGATION_CONTRACT,
+        ],
+    )
+    baseline_path_drift = git_changed_paths(
+        project,
+        [f"{exception.source_sha}..{merge_base}", "--", *sorted(entries)],
+    )
+    if baseline_ui_drift or baseline_path_drift:
+        raise DocumentationImpactError(
+            f"{exception.path} sourceSha-to-merge-base state changed the attested baseline"
+        )
+    if set(exception.visual_files) != visual_files or not visual_files:
+        raise DocumentationImpactError(
+            f"{exception.path} visualFiles must exactly match the changed visual sources"
+        )
+    if "apps/web/src/app.tsx" not in visual_files or any(
+        path != "apps/web/src/app.tsx" and not path.startswith("apps/web/src/app/")
+        for path in visual_files
+    ):
+        raise DocumentationImpactError(
+            f"{exception.path} may cover only app.tsx composition sources"
+        )
+
+    targets = set(exception.composition_targets)
+    inferred_targets = {
+        path
+        for path, current in entries.items()
+        if current
+        and path.startswith("apps/web/src/app/")
+        and PurePosixPath(path).suffix.lower() in {".ts", ".tsx"}
+        and not _is_test_path(path)
+        and not _git_path_exists(project, merge_base, path)
+    }
+    if targets != inferred_targets or not targets:
+        raise DocumentationImpactError(
+            f"{exception.path} compositionTargets must exactly match new app composition modules"
+        )
+    if any(
+        not entries.get(path, False) or not _git_path_exists(project, "HEAD", path)
+        for path in targets
+    ):
+        raise DocumentationImpactError(
+            f"{exception.path} compositionTargets must be changed files present at HEAD"
+        )
+    target_visuals = {path for path in targets if _is_visual_source(path)}
+    if target_visuals != visual_files - {"apps/web/src/app.tsx"}:
+        raise DocumentationImpactError(
+            f"{exception.path} visualFiles must cover every new TSX composition target"
+        )
+
+    tests = set(exception.characterization_tests)
+    inferred_tests = {
+        path
+        for path, current in entries.items()
+        if current
+        and (path.startswith("apps/web/src/app/") or path.startswith("apps/web/e2e/"))
+        and PurePosixPath(path).suffix.lower() in {".ts", ".tsx"}
+        and _is_test_path(path)
+        and not _git_path_exists(project, merge_base, path)
+    }
+    if tests != inferred_tests or not tests:
+        raise DocumentationImpactError(
+            f"{exception.path} characterizationTests must exactly match new app routing tests"
+        )
+    if any(
+        not entries.get(path, False) or not _git_path_exists(project, "HEAD", path)
+        for path in tests
+    ):
+        raise DocumentationImpactError(
+            f"{exception.path} characterizationTests must be changed files present at HEAD"
+        )
+    if exception.navigation_contract != _NAVIGATION_CONTRACT or not entries.get(
+        _NAVIGATION_CONTRACT, False
+    ):
+        raise DocumentationImpactError(
+            f"{exception.path} must bind the changed {_NAVIGATION_CONTRACT}"
+        )
+
+    actual_visual_digest = _patch_sha256(project, merge_base, visual_files)
+    if exception.visual_patch_sha256 != actual_visual_digest:
+        raise DocumentationImpactError(
+            f"{exception.path} visualPatchSha256 does not match the exact visual patch"
+        )
+    attested_paths = set(entries) - {exception.path}
+    actual_attested_digest = _patch_sha256(project, merge_base, attested_paths)
+    if exception.attested_patch_sha256 != actual_attested_digest:
+        raise DocumentationImpactError(
+            f"{exception.path} attestedPatchSha256 does not match the exact changed patch"
+        )
+    return _ValidatedDocumentationImpactException(exception=exception, derived_selectors=())
+
+
 def _validate_exception(
     project: Path,
     exception: DocumentationImpactException,
@@ -3431,7 +3707,23 @@ def _validate_exception(
     *,
     base_files: Mapping[str, str] | None = None,
     changed: Mapping[str, bool] | None = None,
+    mode: ImpactMode | None = None,
 ) -> _ValidatedDocumentationImpactException:
+    if exception.classification == _NON_USER_VISIBLE_COMPOSITION_CLASSIFICATION:
+        complete_changed = changed
+        if complete_changed is None and isinstance(visual_files, Mapping):
+            complete_changed = visual_files
+        if complete_changed is None:
+            raise DocumentationImpactError(
+                f"{exception.path} composition attestation requires the complete changed path set"
+            )
+        return _validate_composition_attestation(
+            project,
+            exception,
+            complete_changed,
+            merge_base,
+            mode,
+        )
     if exception.classification == _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION:
         complete_changed = changed
         if complete_changed is None and isinstance(visual_files, Mapping):
@@ -3934,7 +4226,23 @@ def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationIm
         for path, can_supply_evidence in entries.items()
         if can_supply_evidence and _visual_evidence_lifecycle(path, config) != "transient"
     }
+    visual_entries = {path for path in entries if _is_visual_source(path)}
     exception = _load_changed_exception(project, evidence)
+    if (
+        exception is not None
+        and exception.classification == _NON_USER_VISIBLE_COMPOSITION_CLASSIFICATION
+    ):
+        if visual_entries:
+            raise DocumentationImpactError(
+                f"{exception.path} must be approved on origin/main before the visual diff"
+            )
+        exception = None
+    if exception is None and mode == "range" and visual_entries:
+        exception = _load_range_composition_attestation(
+            project,
+            merge_base,
+            visual_entries,
+        )
     base_source_paths = _git_blob_paths(project, merge_base)
     current_source_paths = _current_source_paths(project, entries)
     declared_exception_visual = set(exception.visual_files) if exception is not None else set()
@@ -3963,6 +4271,7 @@ def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationIm
             validation_entries,
             merge_base,
             changed=validation_entries,
+            mode=mode,
         )
     return evaluate_documentation_impact(
         entries,
