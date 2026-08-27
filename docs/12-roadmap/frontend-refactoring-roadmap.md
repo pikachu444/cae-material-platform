@@ -170,10 +170,21 @@ FE-02는 기존 `ux-meta`, `ux-kicker`, `ux-notice`, `eyebrow`, `status-chip`, `
 
 ### FE-08 — App, API와 type modularization
 
-- route registry와 shell composition 분리
-- resource-owned API module
-- feature-owned model/type
-- compatibility re-export와 제거 이슈
+- **FE-08A — App와 route composition**: `app.tsx`에서 typed route registry/parser, browser
+  navigation·popstate, lazy route/page composition과 product-session boundary를 app-owned module로
+  분리한다. `/materials` canonical flow와 exact Record/Card/Material Model/Neutral/Card revision,
+  Materials↔Modeling handoff, Modeling stage query, Activity·Administration 및 `/catalog/*`,
+  `/datasets/*`, `/jobs-reviews`, `/access` compatibility deep link를 같은 URL/query 계약으로
+  유지한다. 남은 root page import는 소비 route와 제거 조건을 기록한다.
+- **FE-08B — API ownership**: shared transport/auth/error normalization과 resource-owned API를
+  분리하고 기존 `api.ts`에는 bounded compatibility만 남긴다.
+- **FE-08C — Type/model ownership**: transport DTO, feature-owned model/type과 최소 shared primitive를
+  분리하고 기존 `types.ts` compatibility를 zero-consumer 증거 뒤 제거한다.
+
+각 단위는 별도 publication boundary를 가지며 FE-08A 뒤 다음 단위는 FE-08B다. FE-08A 구조
+이동은 copy, DOM hierarchy, CSS, layout 또는 public payload를 바꾸지 않으며, unsupported exact-card
+kind와 unknown path는 기존 Materials fallback을 유지한다. FE-08B·FE-08C를 앞당기거나 세 단위를
+repository-wide rewrite로 합치지 않는다.
 
 repository-wide rewrite를 하지 않는다.
 

@@ -1,4 +1,4 @@
-version: 27
+version: 28
 shell:
   product_header_px: {compact: 46, standard: 50, large: 54}
   generic_command_status_bands: absent
@@ -25,6 +25,20 @@ shell:
     expired_reload: renew-without-site-data-deletion
     failure_recovery: sign-in-boundary-with-try-again
     navigation_effect: none
+  route_composition:
+    task: Issue #263 FE-08A app and route composition extraction
+    source_of_truth: browser-pathname-plus-query
+    registry: apps/web/src/app/routes.ts
+    composition: apps/web/src/app/route-composition.tsx
+    navigation: apps/web/src/app/navigation.ts
+    session_boundary: apps/web/src/app/product-session.tsx
+    root_redirect: /-to-/materials-with-replace-state
+    unknown_or_unsupported_exact_card_kind: materials-fallback-with-original-query
+    history: push-on-new-target-only-and-popstate-read-back
+    exact_identity: preserve-record-card-material-model-neutral-material-and-solver-card-revisions
+    compatibility: preserve-catalog-datasets-tests-models-governance-jobs-reviews-and-access-deep-links
+    feature_dependency: app-to-public-feature-entry-to-shared
+    forbidden_fallbacks: [latest, first-item, global-output, other-session]
 items:
   - label: Materials
     route: /materials
