@@ -20,11 +20,13 @@ ImpactMode = Literal["staged", "range", "worktree"]
 _GUIDE_PREFIX = "docs/user-guide/"
 _SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
 _NAVIGATION_CONTRACT = "docs/user-guide/navigation-contract.yaml"
+_FRONTEND_GUARD_BASELINE = "apps/web/frontend-guard-baseline.json"
 _EXCEPTION_PREFIX = "docs/14-testing/documentation-impact-exceptions/"
 _EXCEPTION_SCHEMA = "cmp.documentation-impact-exception.v1"
 _NON_USER_VISIBLE_CLASSIFICATION = "non-user-visible-foundation"
 _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION = "non-user-visible-structural-extraction"
 _NON_USER_VISIBLE_COMPOSITION_CLASSIFICATION = "non-user-visible-composition-attestation"
+_FRONTEND_GUARD_SOURCE_SHA_SENTINEL = b"0" * 40
 _DOCUMENTATION_MANIFEST = "docs/documentation-manifest.yaml"
 _VISUAL_EVIDENCE_LIFECYCLES = frozenset({"current", "frozen", "transient"})
 _CURRENT_FIVE_VIEWPORTS = frozenset(
@@ -847,7 +849,7 @@ def _load_range_composition_attestation(
     return candidates[0] if candidates else None
 
 
-def _patch_sha256(project: Path, source_sha: str, paths: Iterable[str]) -> str:
+def _patch_bytes(project: Path, source_sha: str, paths: Iterable[str]) -> bytes:
     selected = sorted(set(paths))
     if not selected:
         raise DocumentationImpactError("cannot fingerprint an empty documentation-impact patch")
@@ -869,7 +871,72 @@ def _patch_sha256(project: Path, source_sha: str, paths: Iterable[str]) -> str:
         )
     except subprocess.CalledProcessError as error:
         raise DocumentationImpactError("cannot fingerprint the attested Git patch") from error
-    return hashlib.sha256(result.stdout).hexdigest()
+    return result.stdout
+
+
+def _patch_sha256(project: Path, source_sha: str, paths: Iterable[str]) -> str:
+    return hashlib.sha256(_patch_bytes(project, source_sha, paths)).hexdigest()
+
+
+def _git_blob_bytes(project: Path, revision: str, path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "show", f"{revision}:{path}"],
+        cwd=project,
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise DocumentationImpactError(f"cannot read {path} at {revision}")
+    return result.stdout
+
+
+def _canonical_frontend_guard_bytes(value: bytes, field: str) -> bytes:
+    pattern = re.compile(
+        rb'(?m)^(  "sourceSha"[ \t]*:[ \t]*")([0-9a-f]{40})(",\r?)$'
+    )
+    matches = tuple(pattern.finditer(value))
+    if len(matches) != 1:
+        raise DocumentationImpactError(
+            f"{field} must contain exactly one canonical top-level sourceSha line"
+        )
+    return pattern.sub(
+        lambda match: match.group(1)
+        + _FRONTEND_GUARD_SOURCE_SHA_SENTINEL
+        + match.group(3),
+        value,
+        count=1,
+    )
+
+
+def _attested_patch_sha256(project: Path, source_sha: str, paths: Iterable[str]) -> str:
+    selected = set(paths)
+    if _FRONTEND_GUARD_BASELINE not in selected:
+        raise DocumentationImpactError(
+            f"attested patch must include {_FRONTEND_GUARD_BASELINE}"
+        )
+    other_patch = _patch_bytes(
+        project,
+        source_sha,
+        selected - {_FRONTEND_GUARD_BASELINE},
+    )
+    base_guard = _canonical_frontend_guard_bytes(
+        _git_blob_bytes(project, source_sha, _FRONTEND_GUARD_BASELINE),
+        f"{_FRONTEND_GUARD_BASELINE} at {source_sha}",
+    )
+    current_guard = _canonical_frontend_guard_bytes(
+        _git_blob_bytes(project, "HEAD", _FRONTEND_GUARD_BASELINE),
+        f"{_FRONTEND_GUARD_BASELINE} at HEAD",
+    )
+    canonical_guard = b"".join(
+        (
+            b"cmp.frontend-guard-attested-patch.v1\0",
+            len(base_guard).to_bytes(8, "big"),
+            base_guard,
+            len(current_guard).to_bytes(8, "big"),
+            current_guard,
+        )
+    )
+    return hashlib.sha256(other_patch + canonical_guard).hexdigest()
 
 
 def _is_ancestor(project: Path, ancestor: str, descendant: str) -> bool:
@@ -3684,6 +3751,15 @@ def _validate_composition_attestation(
         raise DocumentationImpactError(
             f"{exception.path} must bind the changed {_NAVIGATION_CONTRACT}"
         )
+    if not entries.get(_FRONTEND_GUARD_BASELINE, False):
+        raise DocumentationImpactError(
+            f"{exception.path} must bind the changed {_FRONTEND_GUARD_BASELINE}"
+        )
+    guard_baseline = _read_git_json_mapping(project, "HEAD", _FRONTEND_GUARD_BASELINE)
+    if guard_baseline.get("sourceSha") != merge_base:
+        raise DocumentationImpactError(
+            f"{_FRONTEND_GUARD_BASELINE} sourceSha must exactly match merge-base {merge_base}"
+        )
 
     actual_visual_digest = _patch_sha256(project, merge_base, visual_files)
     if exception.visual_patch_sha256 != actual_visual_digest:
@@ -3691,7 +3767,11 @@ def _validate_composition_attestation(
             f"{exception.path} visualPatchSha256 does not match the exact visual patch"
         )
     attested_paths = set(entries) - {exception.path}
-    actual_attested_digest = _patch_sha256(project, merge_base, attested_paths)
+    actual_attested_digest = _attested_patch_sha256(
+        project,
+        merge_base,
+        attested_paths,
+    )
     if exception.attested_patch_sha256 != actual_attested_digest:
         raise DocumentationImpactError(
             f"{exception.path} attestedPatchSha256 does not match the exact changed patch"

@@ -9,6 +9,7 @@ import pytest
 from cmp.tools.documentation_impact import (
     DocumentationImpactError,
     DocumentationImpactException,
+    _attested_patch_sha256,
     _find_declarations,
     _identifier_occurrences,
     _is_import_only_visual_change,
@@ -81,8 +82,21 @@ def _write_fixture_file(project: Path, path: str, value: str) -> None:
     target.write_text(value, encoding="utf-8")
 
 
+def _guard_baseline(source_sha: str, *, owner_issue: str = "#256") -> str:
+    return f"""{{
+  "schemaVersion": "cmp.frontend-guard-baseline.v1",
+  "sourceSha": "{source_sha}",
+  "ownerIssue": "{owner_issue}",
+  "hotspots": [],
+  "debt": [],
+  "exceptions": []
+}}
+"""
+
+
 def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> None:
     base_files = {
+        "apps/web/frontend-guard-baseline.json": _guard_baseline("1" * 40),
         "apps/web/src/app.tsx": "export const App = () => <main>route</main>;\n",
         "docs/user-guide/navigation-contract.yaml": "version: 1\n",
     }
@@ -98,7 +112,7 @@ def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> 
     _git(tmp_path, "switch", "-c", "feature")
     feature_files = {
         "apps/web/e2e/issue263-app-routing.spec.ts": "export const routeSpec = true;\n",
-        "apps/web/frontend-guard-baseline.json": "{}\n",
+        "apps/web/frontend-guard-baseline.json": _guard_baseline(base_sha),
         "apps/web/src/app.tsx": (
             'import { RouteComposition } from "./app/route-composition";\n'
             "export const App = () => <RouteComposition />;\n"
@@ -132,9 +146,7 @@ def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> 
     visual_digest = _fixture_patch_sha256(
         tmp_path, base_sha, approved_head, visual_files
     )
-    attested_digest = _fixture_patch_sha256(
-        tmp_path, base_sha, approved_head, changed_paths
-    )
+    attested_digest = _attested_patch_sha256(tmp_path, base_sha, changed_paths)
 
     _git(tmp_path, "switch", "-c", "policy", base_sha)
     attested_source = "0" * 40 if case == "wrong_base" else base_sha
@@ -201,6 +213,13 @@ def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> 
     _git(tmp_path, "switch", "feature")
     if case in {"rebased", "main_visual_drift"}:
         _git(tmp_path, "rebase", "policy")
+        _write_fixture_file(
+            tmp_path,
+            "apps/web/frontend-guard-baseline.json",
+            _guard_baseline(policy_head),
+        )
+        _git(tmp_path, "add", "apps/web/frontend-guard-baseline.json")
+        _git(tmp_path, "commit", "-m", "refresh frontend guard source")
 
     mutations = {
         "copy": (
@@ -238,6 +257,22 @@ def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> 
         _write_fixture_file(tmp_path, path, value)
         _git(tmp_path, "add", ".")
         _git(tmp_path, "commit", "-m", f"mutate {case}")
+    if case == "wrong_guard_source":
+        _write_fixture_file(
+            tmp_path,
+            "apps/web/frontend-guard-baseline.json",
+            _guard_baseline("2" * 40),
+        )
+        _git(tmp_path, "add", "apps/web/frontend-guard-baseline.json")
+        _git(tmp_path, "commit", "-m", "break frontend guard source")
+    if case == "guard_content_change":
+        _write_fixture_file(
+            tmp_path,
+            "apps/web/frontend-guard-baseline.json",
+            _guard_baseline(base_sha, owner_issue="#999"),
+        )
+        _git(tmp_path, "add", "apps/web/frontend-guard-baseline.json")
+        _git(tmp_path, "commit", "-m", "change other frontend guard content")
     if case == "incomplete_extraction":
         (tmp_path / "apps/web/src/app/navigation.ts").unlink()
         _git(tmp_path, "add", "-A")
@@ -1023,6 +1058,8 @@ def test_exact_base_absent_app_composition_attestation_is_accepted(
         "wrong_base",
         "wrong_digest",
         "wrong_attested_digest",
+        "wrong_guard_source",
+        "guard_content_change",
         "wrong_path_set",
         "missing_target",
         "missing_test",
