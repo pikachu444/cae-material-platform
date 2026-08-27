@@ -65,6 +65,9 @@ type UnitIdInput = Literal[
     "cm",
     "mm",
     "um",
+    "m/s",
+    "mm/s",
+    "mm/min",
     "s",
     "ms",
     "min",
@@ -76,6 +79,7 @@ type UnitIdInput = Literal[
     "mg",
     "kg/m3",
     "g/cm3",
+    "tonne/mm3",
     "K",
     "Cel",
     "1",
@@ -92,6 +96,9 @@ _ORIGINAL_UNIT_TEXTS = (
     "um",
     "µm",
     "μm",
+    "m/s",
+    "mm/s",
+    "mm/min",
     "s",
     "ms",
     "min",
@@ -105,6 +112,7 @@ _ORIGINAL_UNIT_TEXTS = (
     "kg/m^3",
     "g/cm3",
     "g/cm^3",
+    "tonne/mm3",
     "K",
     "Cel",
     "degC",
@@ -123,6 +131,9 @@ type OriginalUnitTextInput = Literal[
     "um",
     "µm",
     "μm",
+    "m/s",
+    "mm/s",
+    "mm/min",
     "s",
     "ms",
     "min",
@@ -136,6 +147,7 @@ type OriginalUnitTextInput = Literal[
     "kg/m^3",
     "g/cm3",
     "g/cm^3",
+    "tonne/mm3",
     "K",
     "Cel",
     "degC",
@@ -299,6 +311,7 @@ class CompatibilityUnitsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     force_per_area: Literal["Pa"]
     length: Literal["m"]
+    speed: Literal["m/s"]
     time: Literal["s"]
     force: Literal["N"]
     mass: Literal["kg"]
@@ -316,7 +329,7 @@ class CompatibilityUnitSystemResponse(BaseModel):
 
 class UnitSystemResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    contract_version: Literal["1.0.0"]
+    contract_version: Literal["1.1.0"]
     numeric_policy: NumericPolicyResponse
     dimensions: tuple[DimensionDefinitionResponse, ...]
     compatibility_unit_systems: tuple[CompatibilityUnitSystemResponse, ...]

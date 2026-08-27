@@ -546,6 +546,50 @@ def _canonical_unit(value: object) -> object:
         return value
 
 
+def _canonical_source_unit_profiles(
+    profiles: list[object], diagnostics: list[BundleDiagnostic]
+) -> list[object]:
+    """Keep the source-only tonne mass choice out of the common-unit handoff.
+
+    The approved Task 2 contract adds the source density unit but deliberately does
+    not add a MASS ``tonne`` identifier.  The exact manifest remains in the retained
+    source Artifact; only this bounded canonical projection omits that unused choice.
+    """
+
+    canonical: list[object] = []
+    for index, supplied in enumerate(profiles):
+        if not isinstance(supplied, dict):
+            canonical.append(supplied)
+            continue
+        profile = dict(supplied)
+        units = supplied.get("units")
+        if (
+            supplied.get("key") == "cae_mm_t_s"
+            and isinstance(units, dict)
+            and units.get("mass") == "tonne"
+            and units.get("density") == "tonne/mm3"
+        ):
+            projected_units = dict(units)
+            projected_units.pop("mass")
+            profile["units"] = projected_units
+            diagnostics.append(
+                _warning(
+                    30,
+                    f"/manifest/unit_profiles/{index}/units/mass",
+                    (
+                        "Source profile mass unit 'tonne' is retained as evidence but "
+                        "is outside the bounded Task 2 common-unit handoff."
+                    ),
+                    (
+                        "Use a supported stable common mass unit in a future approved "
+                        "profile revision; no mass conversion is inferred."
+                    ),
+                )
+            )
+        canonical.append(profile)
+    return canonical
+
+
 def _schema_property_by_source_path(
     schema: Mapping[str, Any], pointer: str
 ) -> tuple[dict[str, Any], tuple[str, ...]] | None:
@@ -1462,7 +1506,7 @@ def _normalize_source_v2(
                 },
             },
             "record_schemas": record_entries,
-            "unit_profiles": unit_profiles,
+            "unit_profiles": _canonical_source_unit_profiles(unit_profiles, diagnostics),
         }
     ordered = tuple(sorted(diagnostics, key=lambda item: (item.location, item.code, item.message)))
     if canonical is None or any(item.severity is DiagnosticSeverity.ERROR for item in ordered):

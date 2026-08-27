@@ -7,6 +7,7 @@
       "enum": [
         "force_per_area",
         "length",
+        "speed",
         "time",
         "force",
         "mass",
@@ -19,10 +20,11 @@
       "enum": [
         "Pa", "kPa", "MPa", "GPa",
         "m", "cm", "mm", "um",
+        "m/s", "mm/s", "mm/min",
         "s", "ms", "min", "h",
         "N", "kN",
         "kg", "g", "mg",
-        "kg/m3", "g/cm3",
+        "kg/m3", "g/cm3", "tonne/mm3",
         "K", "Cel",
         "1", "%"
       ]
@@ -31,10 +33,11 @@
       "enum": [
         "Pa", "kPa", "MPa", "GPa",
         "m", "cm", "mm", "um", "µm", "μm",
+        "m/s", "mm/s", "mm/min",
         "s", "ms", "min", "h",
         "N", "kN",
         "kg", "g", "mg",
-        "kg/m3", "kg/m^3", "g/cm3", "g/cm^3",
+        "kg/m3", "kg/m^3", "g/cm3", "g/cm^3", "tonne/mm3",
         "K", "Cel", "degC", "°C",
         "1", "%"
       ]
@@ -108,11 +111,12 @@
           "additionalProperties": false,
           "required": [
             "force_per_area", "length", "time", "force", "mass",
-            "mass_per_volume", "temperature", "strain"
+            "speed", "mass_per_volume", "temperature", "strain"
           ],
           "properties": {
             "force_per_area": {"const": "Pa"},
             "length": {"const": "m"},
+            "speed": {"const": "m/s"},
             "time": {"const": "s"},
             "force": {"const": "N"},
             "mass": {"const": "kg"},
@@ -128,12 +132,12 @@
       "additionalProperties": false,
       "required": ["contract_version", "numeric_policy", "dimensions", "compatibility_unit_systems"],
       "properties": {
-        "contract_version": {"const": "1.0.0"},
+        "contract_version": {"const": "1.1.0"},
         "numeric_policy": {"$ref": "#/$defs/NumericPolicy"},
         "dimensions": {
           "type": "array",
-          "minItems": 8,
-          "maxItems": 8,
+          "minItems": 9,
+          "maxItems": 9,
           "items": {"$ref": "#/$defs/DimensionDefinition"}
         },
         "compatibility_unit_systems": {

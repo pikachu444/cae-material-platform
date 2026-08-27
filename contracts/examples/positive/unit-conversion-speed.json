@@ -1,0 +1,15 @@
+{
+  "location": "test_data.conditions.tensile_speed",
+  "value": "60",
+  "original_unit_string": "mm/min",
+  "source": {
+    "dimension": "speed",
+    "quantity_semantics": "kinematics.speed",
+    "unit_id": "mm/min"
+  },
+  "target": {
+    "dimension": "speed",
+    "quantity_semantics": "kinematics.speed",
+    "unit_id": "m/s"
+  }
+}

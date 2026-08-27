@@ -124,8 +124,9 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contr
   `create/update/no-op/conflict/error` dry-run result with an explicit empty write set
 - `catalog/schema-definition-bundle-application.schema.json`: immutable apply/read-back evidence and
   the exact Artifact/SHA-256/`plan_fingerprint` request boundary
-- `units/unit-resources.schema.json`: bounded common CAE dimension/unit registry, explicit
-  conversions, structured errors, and immutable Unit Profile resources; `kg_m_s` remains a
+- `units/unit-resources.schema.json`: additive common-unit contract `1.1.0` with the original
+  bounded CAE registry plus explicit `speed` (`m/s`, `mm/s`, `mm/min`) and density `tonne/mm3`,
+  structured conversion errors, and immutable Unit Profile resources; `kg_m_s` remains a
   compatibility identifier rather than a production default
 - `datasets/curve-channel-metadata.schema.json`: additive curve definition contract `1.0.0` for
   channel roles and quantity semantics, original/normalized/display units, exact scale/offset,

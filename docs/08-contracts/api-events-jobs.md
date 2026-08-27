@@ -213,7 +213,9 @@ commit 또는 Bundle revision을 덮어쓰지 않는다.
 ### 3.5 Common unit and Unit Profile
 
 HTTP contract `0.35.0` references
-`contracts/units/unit-resources.schema.json` contract `1.0.0` directly.
+`contracts/units/unit-resources.schema.json` contract `1.1.0` directly. This additive minor keeps
+all `1.0.0` IDs and aliases, adds explicit `speed` with `m/s`, `mm/s`, `mm/min`, and adds
+`tonne/mm3` to `mass_per_volume`.
 
 | Method/path | 목적 |
 | --- | --- |
@@ -231,6 +233,9 @@ quantity semantics와 stable unit ID를 모두 요구한다. `temperature.absolu
 `temperature.test`만 `Cel` offset을 적용하고 `temperature.difference`는 scale만 적용한다.
 `original_unit_string`은 닫힌 stable ID 또는 호환 alias여야 하며, alias를 정규화한 ID가
 선언된 source unit ID와 정확히 일치해야 한다. 응답은 입력 원문을 그대로 보존한다.
+`speed`도 source/target dimension과 `kinematics.speed` 같은 quantity semantics를 요청에 명시하며,
+`mm/min` 철자만으로 차원을 정하지 않는다. `tonne/mm3`는 정확히 `1e12 kg/m3`이고 기존
+`g/cm3`와 같은 `mass_per_volume` semantics 안에서만 변환한다.
 
 Unit Profile 사용 API는 이름이나 `latest` 대신 다음 exact pin과 실제 application 목록을
 전달·반환한다.

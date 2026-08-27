@@ -78,6 +78,9 @@ Material Model IR이나 selected model을 만들지 않는다.
 서버는 현재 Catalog와 비교한 `Create`, `Update`, `No change`, `Conflict`, `Error` 계획을 보여 준다.
 같은 source set 안에서 선언하고 checksum을 검증한 파일과 record `$id`만 참조할 수 있다. 지원하지
 않는 schema 표현이나 단위는 진단으로 남고, 임의 필드나 단위로 바뀌지 않는다.
+공통 단위 계약 `1.1.0`은 source-v2의 `mm/min`과 `tonne/mm3`를 원문 그대로 받아 각각 명시된
+`speed`와 `mass_per_volume` 안에서만 정규화한다. 기존 DMA `Hz`는 공통 단위로 새로 추론하지 않고
+이미 승인된 explicit-legacy channel 규칙을 재사용한다.
 
 ![Format definitions 변경 비교와 선택한 항목의 영향](images/current/administration-format-definitions-1440x900.png)
 

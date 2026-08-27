@@ -72,19 +72,21 @@
 | `FR-UNIT-005` | Processing, Fit와 Export의 profile 사용 결과는 실제 적용 위치를 함께 고정해야 한다. | 결과에서 location, role, quantity semantics, dimension과 unit ID를 exact profile pin과 함께 조회한다. |
 | `FR-UNIT-006` | 기존 13개 registration 변환과 `kg_m_s` solver-card 계약을 호환하되 production 기본 정책으로 승격하지 않아야 한다. | 과거 revision/native card는 재작성하지 않고 `kg_m_s.production_default=false`를 유지한다. |
 
-공통 계약 `1.0.0`의 닫힌 지원 집합과 canonical unit은 다음과 같다. 모든 dimension의
-relative round-trip tolerance는 `1e-12`이며 절대 tolerance는 아래 값이다. `µm`/`μm`,
-`kg/m^3`, `g/cm^3`, `degC`/`°C`만 기존 표시 문자열 alias로 입력할 수 있고 Unit Profile은
-stable ID만 저장한다.
+공통 계약 `1.1.0`은 `1.0.0`의 모든 unit ID와 alias를 보존하면서 `speed`와 source-v2 density
+단위를 additive minor로 추가한다. 모든 dimension의 relative round-trip tolerance는 `1e-12`이며
+절대 tolerance는 아래 값이다. `µm`/`μm`, `kg/m^3`, `g/cm^3`, `degC`/`°C`만 기존 표시 문자열
+alias로 입력할 수 있고 Unit Profile은 stable ID만 저장한다. 단위 철자에서 dimension이나
+quantity semantics를 추론하지 않는다.
 
 | dimension | canonical unit | 지원 unit ID | absolute tolerance |
 | --- | --- | --- | ---: |
 | `force_per_area` | `Pa` | `Pa`, `kPa`, `MPa`, `GPa` | `1e-6` |
 | `length` | `m` | `m`, `cm`, `mm`, `um` | `1e-12` |
+| `speed` | `m/s` | `m/s`, `mm/s`, `mm/min` | `1e-12` |
 | `time` | `s` | `s`, `ms`, `min`, `h` | `1e-12` |
 | `force` | `N` | `N`, `kN` | `1e-9` |
 | `mass` | `kg` | `kg`, `g`, `mg` | `1e-12` |
-| `mass_per_volume` | `kg/m3` | `kg/m3`, `g/cm3` | `1e-9` |
+| `mass_per_volume` | `kg/m3` | `kg/m3`, `g/cm3`, `tonne/mm3` | `1e-9` |
 | `temperature` | `K` | `K`, `Cel` | `1e-12` |
 | `strain` | `1` | `1`, `%` | `1e-12` |
 

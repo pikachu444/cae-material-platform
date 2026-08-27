@@ -27,6 +27,7 @@ from typing import Final
 class DimensionId(StrEnum):
     FORCE_PER_AREA = "force_per_area"
     LENGTH = "length"
+    SPEED = "speed"
     TIME = "time"
     FORCE = "force"
     MASS = "mass"
@@ -195,6 +196,21 @@ DIMENSIONS: Final[tuple[DimensionDefinition, ...]] = (
         ),
     ),
     DimensionDefinition(
+        DimensionId.SPEED,
+        "m/s",
+        Decimal("1e-12"),
+        Decimal("1e-12"),
+        (
+            _unit("m/s", DimensionId.SPEED, "1"),
+            _unit("mm/s", DimensionId.SPEED, "1e-3"),
+            _unit(
+                "mm/min",
+                DimensionId.SPEED,
+                "1.666666666666666666666666666666667e-5",
+            ),
+        ),
+    ),
+    DimensionDefinition(
         DimensionId.TIME,
         "s",
         Decimal("1e-12"),
@@ -245,6 +261,7 @@ DIMENSIONS: Final[tuple[DimensionDefinition, ...]] = (
                 "1e3",
                 aliases=("g/cm^3",),
             ),
+            _unit("tonne/mm3", DimensionId.MASS_PER_VOLUME, "1e12"),
         ),
     ),
     DimensionDefinition(
@@ -337,6 +354,7 @@ _COMPATIBILITY_SEMANTICS: Final[Mapping[str, DimensionId]] = MappingProxyType(
             item: DimensionId.LENGTH
             for item in ("length", "displacement", "axial.displacement")
         },
+        **{item: DimensionId.SPEED for item in ("kinematics.speed",)},
         **{item: DimensionId.MASS for item in ("mass", "mass.sample")},
         **{item: DimensionId.MASS_PER_VOLUME for item in ("density", "mass.density")},
         **{
@@ -350,6 +368,7 @@ KG_M_S_COMPATIBILITY_UNITS: Final[Mapping[DimensionId, str]] = MappingProxyType(
     {
         DimensionId.FORCE_PER_AREA: "Pa",
         DimensionId.LENGTH: "m",
+        DimensionId.SPEED: "m/s",
         DimensionId.TIME: "s",
         DimensionId.FORCE: "N",
         DimensionId.MASS: "kg",
@@ -526,7 +545,16 @@ def convert_value(
             target_dimension=source_unit.dimension,
         )
     target_unit = _validate_reference(target, location=f"{location}.target")
-    parsed = parse_decimal(value, location=f"{location}.value")
+    try:
+        parsed = parse_decimal(value, location=f"{location}.value")
+    except UnitError as error:
+        raise UnitError(
+            code=error.code,
+            message=error.message,
+            location=error.location,
+            source_dimension=source.dimension,
+            target_dimension=target.dimension,
+        ) from error
     is_temperature_difference = (
         source.dimension is DimensionId.TEMPERATURE
         and source.quantity_semantics == "temperature.difference"
@@ -551,7 +579,16 @@ def convert_value(
             source_dimension=source.dimension,
             target_dimension=target.dimension,
         ) from error
-    _bounded(converted, location=f"{location}.value")
+    try:
+        _bounded(converted, location=f"{location}.value")
+    except UnitError as error:
+        raise UnitError(
+            code=error.code,
+            message=error.message,
+            location=error.location,
+            source_dimension=source.dimension,
+            target_dimension=target.dimension,
+        ) from error
     definition = dimension_definition(source.dimension)
     return ConversionResult(
         location=location,
@@ -586,7 +623,7 @@ def convert_value(
 
 def unit_system_contract() -> dict[str, object]:
     return {
-        "contract_version": "1.0.0",
+        "contract_version": "1.1.0",
         "numeric_policy": {
             "significant_digits": NUMERIC_SIGNIFICANT_DIGITS,
             "minimum_adjusted_exponent": MINIMUM_ADJUSTED_EXPONENT,

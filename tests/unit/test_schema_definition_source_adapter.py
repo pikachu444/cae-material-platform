@@ -151,7 +151,7 @@ def test_approved_source_v2_set_normalizes_with_only_direct_product_relations() 
     )
 
 
-def test_source_v2_plan_reports_only_the_closed_unit_boundary_before_task_2() -> None:
+def test_source_v2_plan_accepts_task2_units_and_reuses_explicit_legacy_hz() -> None:
     normalized = _normalize(_envelope(_files()), SOURCE_SET_MEDIA_TYPE)
     source = SourceArtifactIdentity(
         UUID("33333333-3333-4333-8333-333333333333"),
@@ -173,18 +173,31 @@ def test_source_v2_plan_reports_only_the_closed_unit_boundary_before_task_2() ->
         classification_allowed=lambda _: True,
     )
 
-    assert not plan.valid
+    assert plan.valid
     errors = [item for item in plan.diagnostics if item.severity.value == "error"]
-    assert errors
-    assert {item.code for item in errors} == {"CMP-SCHEMA-BUNDLE-0002"}
-    assert len(errors) == 10
-    locations = {item.location for item in errors}
-    assert any("/density/x-unit" in location for location in locations)
-    assert any("/speed_elastic/x-unit" in location for location in locations)
-    assert any("/oscillation_frequency/x-unit" in location for location in locations)
-    assert any("/master_curve/x-curve/x_unit" in location for location in locations)
-    assert "/unit_profiles/0/units/mass" in locations
-    assert "/unit_profiles/0/units/density" in locations
+    assert errors == []
+    assert all(item.code != "CMP-SCHEMA-BUNDLE-0002" for item in plan.diagnostics)
+    assert any(
+        item.code == "CMP-SCHEMA-SOURCE-0029"
+        and item.location == "/manifest/link_types/4"
+        for item in plan.diagnostics
+    )
+    assert any(
+        item.code == "CMP-SCHEMA-SOURCE-0030"
+        and item.location == "/manifest/unit_profiles/0/units/mass"
+        for item in plan.diagnostics
+    )
+    assert plan.bundle is not None
+    assert plan.bundle.summary()["unit_profile_count"] == 2
+    task2_profile = next(
+        item for item in plan.bundle.unit_profiles if item["key"] == "cae_mm_t_s"
+    )
+    assert task2_profile["units"] == {
+        "density": "tonne/mm3",
+        "length": "mm",
+        "stress": "MPa",
+        "time": "s",
+    }
 
 
 def test_zip_and_json_source_set_have_the_same_canonical_result() -> None:
