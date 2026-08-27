@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "5d7f65ada044c98dcedb2ae49942600d79a1d669",
+  "sourceSha": "87fb70b3135b6deb280685379742df632d3cf7c4",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -25,17 +25,6 @@
       ],
       "followUpIssue": "#262",
       "removalCondition": "FE-07 moves Materials and Activity responsibilities to owned feature boundaries."
-    },
-    {
-      "path": "apps/web/src/app.tsx",
-      "baselineLines": 1312,
-      "responsibilities": [
-        "route selection",
-        "permissions",
-        "application-shell composition"
-      ],
-      "followUpIssue": "#263",
-      "removalCondition": "FE-08 extracts the route registry and leaves app composition-only."
     },
     {
       "path": "apps/web/src/api.ts",
@@ -145,6 +134,51 @@
     }
   ],
   "exceptions": [
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/app/legacy-route-pages.tsx",
+      "fingerprint": "cc4ee4cd4c2f7c32020f271caa94f4c248ce87d128309c123ea11f6061d22c92",
+      "maxOccurrences": 1,
+      "reason": "FE-08A moves this exact legacy label from app.tsx into its app-owned route boundary without copy, DOM, CSS, or semantic change.",
+      "ownerIssue": "#263",
+      "removalCondition": "Remove in #331 when live route evidence authorizes migration of this legacy visual grammar."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/app/legacy-route-pages.tsx",
+      "fingerprint": "53ccb4614e51f1f5637967487d28165ff986b17cea8022266c319f686ea1d914",
+      "maxOccurrences": 1,
+      "reason": "FE-08A moves this exact legacy label from app.tsx into its app-owned route boundary without copy, DOM, CSS, or semantic change.",
+      "ownerIssue": "#263",
+      "removalCondition": "Remove in #331 when live route evidence authorizes migration of this legacy visual grammar."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/app/legacy-route-pages.tsx",
+      "fingerprint": "2ca30b519578ad5087715b236551892ed30b7fe56f68325304c6f5b433857f92",
+      "maxOccurrences": 1,
+      "reason": "FE-08A moves this exact legacy label from app.tsx into its app-owned route boundary without copy, DOM, CSS, or semantic change.",
+      "ownerIssue": "#263",
+      "removalCondition": "Remove in #331 when live route evidence authorizes migration of this legacy visual grammar."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/app/legacy-route-pages.tsx",
+      "fingerprint": "6c51dd084c3bc61d9db3d7bec3634c984cdb02d7c367743d9b5786ac00846f7c",
+      "maxOccurrences": 1,
+      "reason": "FE-08A moves this exact legacy label from app.tsx into its app-owned route boundary without copy, DOM, CSS, or semantic change.",
+      "ownerIssue": "#263",
+      "removalCondition": "Remove in #331 when live route evidence authorizes migration of this legacy visual grammar."
+    },
+    {
+      "ruleId": "CMP-FE-EYEBROW",
+      "path": "apps/web/src/app/product-session.tsx",
+      "fingerprint": "c658ed055e91e7ad5ab61f74b501ca444afbb7ac74c4293427d2c8f94290c1e0",
+      "maxOccurrences": 1,
+      "reason": "FE-08A moves this exact legacy label from app.tsx into its app-owned session boundary without copy, DOM, CSS, or semantic change.",
+      "ownerIssue": "#263",
+      "removalCondition": "Remove in #331 when live route evidence authorizes migration of this legacy visual grammar."
+    },
     {
       "ruleId": "CMP-FE-HOTSPOT-GROWTH",
       "path": "apps/web/src/common-processing-workbench.tsx",
