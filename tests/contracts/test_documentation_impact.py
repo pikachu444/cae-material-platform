@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import subprocess
 from pathlib import Path
 from typing import TypedDict
@@ -48,6 +49,204 @@ def _git(project: Path, *arguments: str) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+def _fixture_patch_sha256(
+    project: Path,
+    base_sha: str,
+    head_sha: str,
+    paths: list[str],
+) -> str:
+    result = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--no-ext-diff",
+            "--binary",
+            "--full-index",
+            f"{base_sha}...{head_sha}",
+            "--",
+            *sorted(paths),
+        ],
+        cwd=project,
+        check=True,
+        capture_output=True,
+    )
+    return hashlib.sha256(result.stdout).hexdigest()
+
+
+def _write_fixture_file(project: Path, path: str, value: str) -> None:
+    target = project / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(value, encoding="utf-8")
+
+
+def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> None:
+    base_files = {
+        "apps/web/src/app.tsx": "export const App = () => <main>route</main>;\n",
+        "docs/user-guide/navigation-contract.yaml": "version: 1\n",
+    }
+    for path, value in base_files.items():
+        _write_fixture_file(tmp_path, path, value)
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+
+    _git(tmp_path, "switch", "-c", "feature")
+    feature_files = {
+        "apps/web/e2e/issue263-app-routing.spec.ts": "export const routeSpec = true;\n",
+        "apps/web/frontend-guard-baseline.json": "{}\n",
+        "apps/web/src/app.tsx": (
+            'import { RouteComposition } from "./app/route-composition";\n'
+            "export const App = () => <RouteComposition />;\n"
+        ),
+        "apps/web/src/app/legacy-route-pages.tsx": "export const Legacy = () => null;\n",
+        "apps/web/src/app/navigation.test.tsx": "export const navigationTest = true;\n",
+        "apps/web/src/app/navigation.ts": "export const navigate = (value: string) => value;\n",
+        "apps/web/src/app/product-session.tsx": "export const ProductSession = () => null;\n",
+        "apps/web/src/app/route-composition.test.tsx": "export const routeTest = true;\n",
+        "apps/web/src/app/route-composition.tsx": (
+            "export const RouteComposition = () => <main>route</main>;\n"
+        ),
+        "apps/web/src/app/routes.test.ts": "export const routesTest = true;\n",
+        "apps/web/src/app/routes.ts": 'export const routes = ["/materials"];\n',
+        "docs/12-roadmap/frontend-refactoring-roadmap.md": "FE-08A complete\n",
+        "docs/17-evidence/issue-263-fe08a-app-route-composition.md": "No visible change.\n",
+        "docs/user-guide/navigation-contract.yaml": "version: 2\n",
+    }
+    for path, value in feature_files.items():
+        _write_fixture_file(tmp_path, path, value)
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "extract app composition")
+    approved_head = _git(tmp_path, "rev-parse", "HEAD")
+    changed_paths = sorted(feature_files)
+    visual_files = [
+        "apps/web/src/app.tsx",
+        "apps/web/src/app/legacy-route-pages.tsx",
+        "apps/web/src/app/product-session.tsx",
+        "apps/web/src/app/route-composition.tsx",
+    ]
+    visual_digest = _fixture_patch_sha256(
+        tmp_path, base_sha, approved_head, visual_files
+    )
+    attested_digest = _fixture_patch_sha256(
+        tmp_path, base_sha, approved_head, changed_paths
+    )
+
+    _git(tmp_path, "switch", "-c", "policy", base_sha)
+    attested_source = "0" * 40 if case == "wrong_base" else base_sha
+    attested_visual = visual_files[:-1] if case == "wrong_path_set" else visual_files
+    targets = [
+        "apps/web/src/app/legacy-route-pages.tsx",
+        "apps/web/src/app/navigation.ts",
+        "apps/web/src/app/product-session.tsx",
+        "apps/web/src/app/route-composition.tsx",
+        "apps/web/src/app/routes.ts",
+    ]
+    if case == "missing_target":
+        targets = targets[:-1]
+    tests = [
+        "apps/web/e2e/issue263-app-routing.spec.ts",
+        "apps/web/src/app/navigation.test.tsx",
+        "apps/web/src/app/route-composition.test.tsx",
+        "apps/web/src/app/routes.test.ts",
+    ]
+    if case == "missing_test":
+        tests = tests[:-1]
+    navigation_contract = (
+        "docs/user-guide/missing-navigation-contract.yaml"
+        if case == "missing_contract"
+        else "docs/user-guide/navigation-contract.yaml"
+    )
+    if case == "wrong_digest":
+        visual_digest = "f" * 64
+    if case == "wrong_attested_digest":
+        attested_digest = "e" * 64
+    exception_lines = [
+        "schemaVersion: cmp.documentation-impact-exception.v1",
+        'issue: "#263"',
+        f"sourceSha: {attested_source}",
+        "classification: non-user-visible-composition-attestation",
+        "reason: Exact audited app composition extraction with no visible behavior change.",
+        "visualFiles:",
+        *(f"  - {path}" for path in attested_visual),
+        "verification:",
+        "  compositionTargets:",
+        *(f"    - {path}" for path in targets),
+        "  characterizationTests:",
+        *(f"    - {path}" for path in tests),
+        f"  navigationContract: {navigation_contract}",
+        f"  visualPatchSha256: {visual_digest}",
+        f"  attestedPatchSha256: {attested_digest}",
+        "  independentAudit: APPROVE",
+        "  productOwnerDisposition: no-visible-change",
+    ]
+    exception_path = (
+        "docs/14-testing/documentation-impact-exceptions/issue-263.yaml"
+    )
+    _write_fixture_file(tmp_path, exception_path, "\n".join(exception_lines) + "\n")
+    if case == "main_visual_drift":
+        _write_fixture_file(
+            tmp_path,
+            "apps/web/src/unrelated-main-view.tsx",
+            "export const MainView = () => <aside>new main UI</aside>;\n",
+        )
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "approve exact composition patch")
+    policy_head = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", policy_head)
+    _git(tmp_path, "switch", "feature")
+    if case in {"rebased", "main_visual_drift"}:
+        _git(tmp_path, "rebase", "policy")
+
+    mutations = {
+        "copy": (
+            "apps/web/src/app/route-composition.tsx",
+            "export const RouteComposition = () => <main>changed copy</main>;\n",
+        ),
+        "jsx": (
+            "apps/web/src/app/route-composition.tsx",
+            'export const RouteComposition = () => <main aria-label="changed">route</main>;\n',
+        ),
+        "dom": (
+            "apps/web/src/app/route-composition.tsx",
+            "export const RouteComposition = () => <section>route</section>;\n",
+        ),
+        "style": (
+            "apps/web/src/app/route-composition.tsx",
+            'export const RouteComposition = () => <main style={{ color: "red" }}>route</main>;\n',
+        ),
+        "route": (
+            "apps/web/src/app/routes.ts",
+            'export const routes = ["/administration"];\n',
+        ),
+        "behavior": (
+            "apps/web/src/app/navigation.ts",
+            "export const navigate = (value: string) => value.toUpperCase();\n",
+        ),
+        "extra_css": ("apps/web/src/app/extra.css", ".route { color: red; }\n"),
+        "extra_route": (
+            "apps/web/src/app/extra-route.ts",
+            'export const extraRoute = "/extra";\n',
+        ),
+    }
+    if case in mutations:
+        path, value = mutations[case]
+        _write_fixture_file(tmp_path, path, value)
+        _git(tmp_path, "add", ".")
+        _git(tmp_path, "commit", "-m", f"mutate {case}")
+    if case == "incomplete_extraction":
+        (tmp_path / "apps/web/src/app/navigation.ts").unlink()
+        _git(tmp_path, "add", "-A")
+        _git(tmp_path, "commit", "-m", "leave extraction incomplete")
+    if case == "same_diff_attestation":
+        policy_yaml = _git(tmp_path, "show", f"origin/main:{exception_path}")
+        _write_fixture_file(tmp_path, exception_path, policy_yaml + "\n")
+        _git(tmp_path, "add", ".")
+        _git(tmp_path, "commit", "-m", "self-attest feature diff")
 
 
 def foundation_exception(
@@ -798,6 +997,57 @@ def test_structural_extraction_rejects_invalid_variants(
 def test_visual_source_alone_is_rejected() -> None:
     with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
         evaluate_documentation_impact({"apps/web/src/material-library.tsx"})
+
+
+@pytest.mark.parametrize("case", ("approved", "rebased"))
+def test_exact_base_absent_app_composition_attestation_is_accepted(
+    tmp_path: Path,
+    case: str,
+) -> None:
+    _composition_attestation_fixture(tmp_path, case)
+
+    report = verify_documentation_impact(tmp_path, "range")
+
+    assert report.exception_issue == "#263"
+    assert report.exempted_visual_files == (
+        "apps/web/src/app.tsx",
+        "apps/web/src/app/legacy-route-pages.tsx",
+        "apps/web/src/app/product-session.tsx",
+        "apps/web/src/app/route-composition.tsx",
+    )
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "wrong_base",
+        "wrong_digest",
+        "wrong_attested_digest",
+        "wrong_path_set",
+        "missing_target",
+        "missing_test",
+        "missing_contract",
+        "main_visual_drift",
+        "same_diff_attestation",
+        "copy",
+        "jsx",
+        "dom",
+        "style",
+        "route",
+        "behavior",
+        "extra_css",
+        "extra_route",
+        "incomplete_extraction",
+    ),
+)
+def test_composition_attestation_is_fail_closed(
+    tmp_path: Path,
+    case: str,
+) -> None:
+    _composition_attestation_fixture(tmp_path, case)
+
+    with pytest.raises(DocumentationImpactError):
+        verify_documentation_impact(tmp_path, "range")
 
 
 def test_visual_source_and_guide_without_evidence_are_rejected() -> None:

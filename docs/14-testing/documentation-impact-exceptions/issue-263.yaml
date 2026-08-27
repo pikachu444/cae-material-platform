@@ -1,0 +1,29 @@
+schemaVersion: cmp.documentation-impact-exception.v1
+issue: "#263"
+sourceSha: 4d0ef93ff4b21dc66d298ac86732a6a71fdb3603
+classification: non-user-visible-composition-attestation
+reason: >-
+  FE-08A extracts the existing app route composition without changing rendered
+  copy, DOM, styling, routing behavior, or another user-visible product contract.
+visualFiles:
+  - apps/web/src/app.tsx
+  - apps/web/src/app/legacy-route-pages.tsx
+  - apps/web/src/app/product-session.tsx
+  - apps/web/src/app/route-composition.tsx
+verification:
+  compositionTargets:
+    - apps/web/src/app/legacy-route-pages.tsx
+    - apps/web/src/app/navigation.ts
+    - apps/web/src/app/product-session.tsx
+    - apps/web/src/app/route-composition.tsx
+    - apps/web/src/app/routes.ts
+  characterizationTests:
+    - apps/web/e2e/issue263-app-routing.spec.ts
+    - apps/web/src/app/navigation.test.tsx
+    - apps/web/src/app/route-composition.test.tsx
+    - apps/web/src/app/routes.test.ts
+  navigationContract: docs/user-guide/navigation-contract.yaml
+  visualPatchSha256: 3eac77d8208bdeacce15bd5a7ef69f32039334bbd9eda8b2220557b754fde125
+  attestedPatchSha256: d4311df8d9c76f48610f5d7e8df54e117d5f3f602e1b2f573aaddb50da88b698
+  independentAudit: APPROVE
+  productOwnerDisposition: no-visible-change
