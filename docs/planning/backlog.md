@@ -9,8 +9,8 @@
 - production React/CSS: PR #156, commit `55cfa62`
 - 승인된 시각 target: PR #170, commit `7601ec8`
 - #167 결과: 18 family, 13 bundle, 72/72 이미지 승인 완료
-- target 선택: `docs/01-product/service-reference-inventory.yaml`
-- 정확한 HTML/CSS/image/hash: `docs/01-product/service-reference-manifest.yaml`
+- target 선택: `docs/product/service-reference-inventory.yaml`
+- 정확한 HTML/CSS/image/hash: `docs/product/service-reference-manifest.yaml`
 - 자동 LLM review: #119가 열려 있는 동안 비활성
 
 ## 현재 위치
@@ -31,7 +31,7 @@
   승인을 거쳐 [PR #202](https://github.com/pikachu444/cae-material-platform/pull/202), main
   `94387e4`에서 완료했고 #158을 닫았습니다.
 - 2026-08-08 기획 gate에서 내부 전체 기획서와 동적 JSON Schema 참고 포맷을 현재 구현에 대조하고
-  [#204~#216 계획](../12-roadmap/schema-driven-material-integration-plan.md)으로 분해했습니다. 이 gate는
+  [#204~#216 계획](../planning/schema-driven-material-integration-plan.md)으로 분해했습니다. 이 gate는
   구현을 앞당기지 않습니다.
 - 순서 12 `#189 lazy chunk 예산과 Workbench 분할 기준`은
   [PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)에서 완료했습니다. 순서 14
@@ -148,10 +148,10 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
 | 10 | [#158 Modeling Fit UI 정보 위계·공통 액션 보정](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #199](https://github.com/pikachu444/cae-material-platform/pull/199)) | Fit 상단 source/state 위계를 정리하고 104px ribbon, 여섯 그룹, Candidate evidence와 1366–3840 responsive geometry를 일관되게 제공 | issue 작업 3B 후속 packet, `modeling-fit` 승인 화면, Fit React/CSS/capture/document contracts | 공통 28px action baseline, source digest/method/run Evidence 이동, 상태 매핑·실패 복구·1920 recovery captures, 독립 visual acceptance |
 | 11 | [#158 Modeling Export](https://github.com/pikachu444/cae-material-platform/issues/158) ([PR #202](https://github.com/pikachu444/cae-material-platform/pull/202)) | 선택 모델에서 솔버별 카드를 생성·미리보기하고 Materials DB에 연결할 결과를 준비 | issue, `modeling-export` 승인 화면, selected-model·mapping·unit-system·solver-card 계약 | 솔버·버전·단위계별 결과, 지원 수준·차단 사유, 정확한 모델 연결, 시각 승인, merge |
 | 12 | [#189 lazy chunk 예산과 Workbench 분할 기준](https://github.com/pikachu444/cae-material-platform/issues/189) ([PR #218](https://github.com/pikachu444/cae-material-platform/pull/218)) | 완성된 Process/Fit/Export의 실제 사용자 비용을 근거로 Workbench 성능과 분할 시점을 관리 | issue, production build 관찰값, bundle checker, test strategy, Process/Fit/Export 계약 | raw/gzip·실제 경로 비용, warning/error 근거와 분할 촉발 기준, 필요한 경우 별도 보존적 분할, merge |
-| 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../12-roadmap/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
+| 13 | 2026 스키마 기반 확장 기획 gate (승인·issue 분해 완료) | 내부 기획과 동적 JSON Schema 참고 포맷을 현재 구현에 맞는 bounded issue로 전환 | [승인된 계획](../planning/schema-driven-material-integration-plan.md), #204~#216 | 고정 schema/EAV 오해 제거, 중복·충돌·의존성·결정 gate와 공개 보관 경계 기록 |
 | 14 | [x] [#160 검토·승인·DB 공개·복구](https://github.com/pikachu444/cae-material-platform/issues/160) — Task 1 PR #220, Task 2 PR #224 | 요청을 검토·승인하고 승인 결과를 Materials DB에서 찾고 내려받으며 실패를 복구 | issue, Activity/Admin 승인 화면, Record/Test Data subject, review·release·publication·download·recovery·권한 계약 | Task 1은 PR #220, main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합. Task 2 구현·다섯 viewport 증거·회귀·문서·한정 화면 승인은 PR #224에서 완료. 실제 Windows 4K 100%·150%·200% 최종 물리 판정은 #223으로 이관. 다음 단위는 #161 |
 | 15 | [x] [#161 공통 화면·전역 레이아웃 기반](https://github.com/pikachu444/cae-material-platform/issues/161) — PR #226, 후속 PR #227 | 트리·표·그래프·상태·키보드와 글자·control·pane·plot token이 모든 현재 화면에서 일관됨 | issue, visual/frontend skill, 활성 화면·공통 구성요소·1920 cap 사용처·승인 화면 | PR #226과 #227이 main `ca7c97869522e3fe5d889fdc5f834bd963f85340`에서 완료. 다음 단위는 #221 |
-| 16 | [x] [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) — [PR #228](https://github.com/pikachu444/cae-material-platform/pull/228), Product Owner approved | 다섯 viewport에서 대표 후보를 비교해 구현용 잠정 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../12-roadmap/high-dpi-display-strategy.md), [decision packet](../17-evidence/issue-221-high-dpi-decision.md)의 원본/crop과 review prompt | 2026-08-10에 P2/`Standard` 잠정 정책과 ready/squash merge를 승인. 실제 Windows 4K 물리 가독성은 #223으로 이관하고 다음 단위는 #184 |
+| 16 | [x] [#221 4K·고DPI 레이아웃·밀도 결정 게이트](https://github.com/pikachu444/cae-material-platform/issues/221) — [PR #228](https://github.com/pikachu444/cae-material-platform/pull/228), Product Owner approved | 다섯 viewport에서 대표 후보를 비교해 구현용 잠정 layout·pane·density·table·plot 정책을 승인 | issue, #161 결과, [고해상도 전략](../planning/high-dpi-display-strategy.md), [decision packet](../17-evidence/issue-221-high-dpi-decision.md)의 원본/crop과 review prompt | 2026-08-10에 P2/`Standard` 잠정 정책과 ready/squash merge를 승인. 실제 Windows 4K 물리 가독성은 #223으로 이관하고 다음 단위는 #184 |
 | 17 | [x] [#184 4K·고DPI 전역 대응](https://github.com/pikachu444/cae-material-platform/issues/184) — [PR #231](https://github.com/pikachu444/cae-material-platform/pull/231), main `ab27e3947817cefa997e49c5dc1d237ec5035adb` | #221의 잠정 정책을 모든 핵심 화면과 고위험 상태에 적용하고 넓은 화면 geometry를 완성 | issue, #221 승인 packet, 공통 token, 전체 정상·예외 다섯 viewport, [issue-owned evidence](../17-evidence/issue-184-high-dpi-global-implementation.md) | 2026-08-11 제품 소유자 결정으로 production 구현과 #184를 완료. 독립 감수의 `CHANGES_REQUESTED`를 PASS로 바꾸지 않고 fixture 의존 density별 10개 상태, 총 30개 원본·manifest·재감수를 #223으로 명시적으로 인계. 실제 장비 판정도 #223. 다음 단위는 #204 |
 | 18 | [x] [#204 동적 JSON Schema 정의 bundle 계약·plan](https://github.com/pikachu444/cae-material-platform/issues/204) — [PR #233](https://github.com/pikachu444/cae-material-platform/pull/233) | 관리자가 임의 개수의 schema 정의를 적용 전에 검증하고 변경 계획을 확인 | issue, configurable Catalog/Artifact/Provenance, FR-CFG/LNK/JSON | Bundle/plan `1.0.0`, HTTP `0.33.0`, deterministic PostgreSQL no-write plan, arbitrary-cardinality synthetic fixture와 독립 감수. 다음 단위는 #205 |
 | 19 | [x] [#205 공통 CAE unit과 Unit Profile](https://github.com/pikachu444/cae-material-platform/issues/205) — [PR #234](https://github.com/pikachu444/cae-material-platform/pull/234) | 등록부터 Export까지 같은 차원·단위와 profile을 사용 | issue, 기존 13개 registration mapping, canonical Test Data와 Export unit 계약 | bounded 공통 service와 immutable exact profile revision, 기존 13개·`kg_m_s`·profile-free bytes 호환, domain/API/PostgreSQL/Compose/독립 감수 완료. 다음 단위는 #206 |

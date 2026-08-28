@@ -8,9 +8,9 @@ The complete text of these authoritative inputs is embedded below. Use that text
 images only. Do not call shell, MCP, browser, network, or other tools:
 
 - `AGENTS.md`
-- `docs/01-product/desktop-engineering-ui-product-spec.md`
-- `docs/01-product/desktop-engineering-ui-tooling.md`
-- `docs/01-product/visual-acceptance-matrix.md`
+- `docs/product/desktop-engineering-ui-product-spec.md`
+- `docs/product/desktop-engineering-ui-tooling.md`
+- `docs/product/visual-acceptance-matrix.md`
 - `docs/00-research/ux-reference-gallery/README.md`
 - `docs/00-research/images/gui-reference/README.md`
 - `docs/user-guide/screenshot-manifest.yaml`

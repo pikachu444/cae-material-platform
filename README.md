@@ -70,7 +70,7 @@ Administration은 Database → 목록 → 속성 편집의 3단 작업 화면을
 - Administration은 객체 탐색기, 목록, 속성 편집기를 연결합니다.
 
 승인 근거와 반응형 비교 이미지는
-[승인 자료·해시 목록](docs/01-product/service-reference-manifest.yaml)에서, 공개 제품 참고자료와 이미지
+[승인 자료·해시 목록](docs/product/service-reference-manifest.yaml)에서, 공개 제품 참고자료와 이미지
 출처는 [영구 참고자료 카탈로그](docs/00-research/product-reference-source-catalog.json)에서
 확인할 수 있습니다. 외부 제품의 화면·브랜드·내부 구조를 복사하지 않습니다.
 
@@ -188,12 +188,12 @@ Python 패키지는 `pyproject.toml + uv.lock`, 웹 패키지는 `package.json +
 
 - [사용자 가이드](docs/user-guide/index.md)
 - [관리자 가이드](docs/admin-guide/index.md)
-- [제품 방향과 UX 기준](docs/01-product/product-vision.md)
+- [제품 방향과 UX 기준](docs/product/product-vision.md)
 - [문서 포털](docs/README.md)
 - [공식 제품 참고자료와 이미지 출처](docs/00-research/product-reference-source-catalog.json)
-- [요구사항](docs/02-requirements/requirements.md)
+- [요구사항](docs/requirements/requirements.md)
 - [현재 구현 상태](IMPLEMENTATION_STATUS.md)
-- [backlog](docs/13-delivery/backlog.md)
+- [backlog](docs/planning/backlog.md)
 
 이 저장소는 private 개발 저장소입니다. 실제 기밀 시험 데이터, production credential 또는
 승인되지 않은 solver 자료를 commit하지 마십시오.

@@ -25,8 +25,8 @@ from cmp.tools.user_guide import verify_user_guide
 ReviewKind = Literal["code", "visual"]
 CommandKind = Literal["ordinary", "commit", "publish", "commit-and-publish"]
 
-_CODE_PROMPT = "docs/14-testing/review-prompts/code-review.md"
-_VISUAL_PROMPT = "docs/14-testing/review-prompts/visual-review.md"
+_CODE_PROMPT = "docs/testing/review-prompts/code-review.md"
+_VISUAL_PROMPT = "docs/testing/review-prompts/visual-review.md"
 _CODE_SCHEMA = "contracts/review/code-review.schema.json"
 _VISUAL_SCHEMA = "contracts/review/visual-review.schema.json"
 _SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
@@ -113,9 +113,9 @@ _LOOSE_PUBLISH = re.compile(
 
 _VISUAL_REVIEW_INPUTS = (
     "AGENTS.md",
-    "docs/01-product/desktop-engineering-ui-product-spec.md",
-    "docs/01-product/desktop-engineering-ui-tooling.md",
-    "docs/01-product/visual-acceptance-matrix.md",
+    "docs/product/desktop-engineering-ui-product-spec.md",
+    "docs/product/desktop-engineering-ui-tooling.md",
+    "docs/product/visual-acceptance-matrix.md",
     "docs/00-research/ux-reference-gallery/README.md",
     "docs/00-research/images/gui-reference/README.md",
 )

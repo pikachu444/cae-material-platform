@@ -188,7 +188,7 @@ database. The tests create/drop temporary databases and roles.
 The `postgres-test` service publishes only `127.0.0.1:54330`, uses `trust` only inside this isolated
 test container, and stores its cluster in tmpfs. It must not be used as a deployment pattern.
 The full procedure and acceptance rule are in
-[the test strategy](../../docs/14-testing/test-strategy.md#p0-1-windowscompose-verification-runbook).
+[the test strategy](../../docs/testing/test-strategy.md#p0-1-windowscompose-verification-runbook).
 
 When troubleshooting, capture state and logs before deleting anything:
 

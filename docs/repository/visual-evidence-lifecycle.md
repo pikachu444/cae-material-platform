@@ -36,7 +36,7 @@ satisfy it.
 ## Fixed exceptions
 
 - #167's static bundle is immutable. Only the three issue-289 administration database current-product
-  originals may change, and only when both `docs/01-product/service-reference-manifest.yaml` and
+  originals may change, and only when both `docs/product/service-reference-manifest.yaml` and
   `docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml` change
   in the same diff. Every other issue-289 raster remains frozen.
 - #184 to #223 permits exactly the 30 names missing in the base snapshot

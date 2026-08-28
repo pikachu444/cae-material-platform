@@ -14,7 +14,7 @@ Every visual task must use both repository reference layers:
 - `docs/00-research/images/gui-reference/README.md` and the local images it inventories for
   screen-level Granta MI and Material Modeler comparison.
 
-The relevant implementation interpretation in `docs/01-product/desktop-engineering-ui-spec.md` must
+The relevant implementation interpretation in `docs/product/desktop-engineering-ui-spec.md` must
 also be checked. A filename or README-only review does not satisfy this requirement. Evidence must
 name the images opened and distinguish what the current DUI task changes from what a later backlog
 task owns.
@@ -113,7 +113,7 @@ Use browser zoom 100% for every baseline. Open the PNGs at original resolution a
 #221 and #184, record the available monitor, CSS viewport and `devicePixelRatio`; when actual Windows
 4K is unavailable, mark the physical record `DEFERRED_TO_223` without treating Playwright emulation as
 physical readability. #221 provisional candidate selection uses
-[`high-dpi-decision-review.md`](../14-testing/review-prompts/high-dpi-decision-review.md); #184 then
+[`high-dpi-decision-review.md`](../testing/review-prompts/high-dpi-decision-review.md); #184 then
 uses the normal full-screen visual review across every route/state. #223 requires the actual Windows
 4K 100%, 150%, and 200% records for final product-wide physical approval.
 

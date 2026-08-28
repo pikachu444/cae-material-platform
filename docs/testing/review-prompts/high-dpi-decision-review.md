@@ -12,7 +12,7 @@ It does not approve #184, #223, every application screen, or a new route-specifi
 
 The review packet must embed or attach the exact version of:
 
-- issue #221 and `docs/12-roadmap/high-dpi-display-strategy.md`;
+- issue #221 and `docs/planning/high-dpi-display-strategy.md`;
 - the merged #161 token/shell/pane baseline;
 - the candidate implementation diff and exact shared tokens;
 - the same representative data and state rendered for P1, P2 and P3;

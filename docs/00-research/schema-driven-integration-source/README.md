@@ -3,7 +3,7 @@
 상태: `reference`
 원본 작성일: 2026-08-06~2026-08-07
 원본 코드 분석 기준선: `main@31f9a3f`
-현재 상태 대조: [`schema-driven-requirement-traceability.md`](../../02-requirements/schema-driven-requirement-traceability.md)
+현재 상태 대조: [`schema-driven-requirement-traceability.md`](../../requirements/schema-driven-requirement-traceability.md)
 
 이 디렉터리는 스키마 기반 물성 DB 통합 작업의 원래 요구, 검증 계획, 갭 분석과 샘플
 스키마 형식을 보존한다. 실제 시험값, 소재값, 고객·협력사 식별자 또는 운영 인증정보는

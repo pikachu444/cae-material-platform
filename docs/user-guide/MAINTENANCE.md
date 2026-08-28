@@ -21,24 +21,24 @@ navigation contract, current capture manifest, #167 reference manifest, 이미�
 ## 이미지 lifecycle
 
 - 이미지의 임시 검토·현재 승격·동결 보존과 복구 규칙은
-  [시각 증거 lifecycle](../16-repository/visual-evidence-lifecycle.md)에 정의합니다.
+  [시각 증거 lifecycle](../repository/visual-evidence-lifecycle.md)에 정의합니다.
 - `docs/user-guide/images/current/`에는 manifest에 등록한 현재 product route 캡처만 둡니다.
 - #167의 승인 target은 `docs/17-evidence/images/issue-167-service-reference/`에 두고
-  `docs/01-product/service-reference-manifest.yaml`로 등록합니다.
+  `docs/product/service-reference-manifest.yaml`로 등록합니다.
 - retired 화면, 완료 Task 보고서, 중간 correction 캡처와 과거 캡처 스크립트는 working tree에서
   삭제합니다. 필요하면 Git 이력이나 병합 PR에서 복구합니다.
 - Storybook과 임시 비교 캡처의 기본 출력은 Git에서 제외된 `.artifacts/`에 둡니다. 제품 가이드나
   승인 target으로 채택할 때만 해당 lifecycle manifest로 옮깁니다.
 - 계산 결과나 mapping warning을 숨기려고 crop하지 않으며 실제 회사/고객 데이터를 사용하지 않습니다.
 - 승인 target의 동일 바이트 중복은
-  `docs/01-product/service-reference-duplicates.yaml`에 정확한 경로와 이유를 기록합니다.
+  `docs/product/service-reference-duplicates.yaml`에 정확한 경로와 이유를 기록합니다.
 - 모든 tracked Markdown은 `docs/documentation-manifest.yaml`에서 정확히 한 상태로 분류합니다.
 
 ## 로컬 강제와 Codex 훅
 
 `.codex/hooks.json`은 commit 전 documentation-impact를 실행하고, push·PR·merge 전에는 문서,
 diff, 링크, 이미지와 manifest 검사를 순서대로 실행합니다. 자동 hook은 LLM을 호출하지 않습니다.
-자세한 계약은 [pre-publish 게이트](../14-testing/codex-pre-publish-review.md)를 참고하십시오.
+자세한 계약은 [pre-publish 게이트](../testing/codex-pre-publish-review.md)를 참고하십시오.
 
 ```powershell
 make docs-capture

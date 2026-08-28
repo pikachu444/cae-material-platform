@@ -21,7 +21,7 @@ const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const scriptPath = fileURLToPath(import.meta.url);
 const fixturePath = resolve(repository, "scripts", "fixtures", "modeling_route_fixture.mjs");
 const baselineSchemaVersion = "cmp.web-modeling-route-baseline.v1";
-const baselineCompareCommand = "npm run measure:modeling-route --workspace @cmp/web -- --compare docs/14-testing/baselines/modeling-web-route.json";
+const baselineCompareCommand = "npm run measure:modeling-route --workspace @cmp/web -- --compare docs/testing/baselines/modeling-web-route.json";
 const REGRESSION_METRICS = ["requiredChunks", "transferBytes", "transferSpanMs", "parseMs", "executeMs"];
 const NON_SEMANTIC_READINESS_SELECTOR_ALIASES = [
   [".modeling-workspace-stage-process", ".modeling-process-workspace-bounded"],

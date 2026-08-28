@@ -288,7 +288,7 @@ hotspot 하나를 옮길 때 다음 순서를 따른다.
 - compatibility와 제거 조건이 기록된다.
 - 관련 test와 production build가 통과한다.
 - 필요한 interaction/viewport evidence가 통과한다.
-- 사용자 문구와 시각 역할이 [프론트엔드 UI 원칙](../01-product/frontend-ui-principles.md)을 따른다.
+- 사용자 문구와 시각 역할이 [프론트엔드 UI 원칙](../product/frontend-ui-principles.md)을 따른다.
 - 남은 debt를 기록하며 전체 프론트가 완료됐다고 과장하지 않는다.
 
 ## 15. 예외

@@ -314,7 +314,7 @@ def test_issue_167_exception_requires_both_coupling_manifests() -> None:
         "originals/administration-database-1920x1080.png"
     )
     dependencies = {
-        "docs/01-product/service-reference-manifest.yaml",
+        "docs/product/service-reference-manifest.yaml",
         "docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml",
     }
 

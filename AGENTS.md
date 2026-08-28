@@ -6,14 +6,14 @@
   checkout discard, or another operation that drops or hides work.
 - Start new issues from latest main with `git pull --ff-only origin main`. Keep an active issue on its
   branch; do not reopen merged work or close a multi-unit issue before all its listed units finish.
-- `docs/13-delivery/backlog.md` is the baseline, issue order, and handoff router. Read it and the exact
+- `docs/planning/backlog.md` is the baseline, issue order, and handoff router. Read it and the exact
   issue first. Use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
   Start architecture-decision lookup at [`adr/README.md`](adr/README.md).
   `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior. Do not bulk-read
   archives or incoming material; read or delete temporary input only when the backlog's temporary-input owner and
   exit condition authorize it.
 - For schema-driven integration issues #204-#216 and #246, read the exact P/G rows in
-  [`docs/02-requirements/schema-driven-requirement-traceability.md`](docs/02-requirements/schema-driven-requirement-traceability.md)
+  [`docs/requirements/schema-driven-requirement-traceability.md`](docs/requirements/schema-driven-requirement-traceability.md)
   and its linked source fixture before changing a contract or narrowing acceptance. Record and resolve a
   source/Issue mismatch instead of silently dropping it.
 - Product language is **test data**, **selected model**, **review request**, and **solver card**. Keep
@@ -28,7 +28,7 @@
 - For nontrivial work, record one realistic primary user journey: setup, actions, visible outcome,
   persistence/read-back outcome, preserved contract/state, recovery, owned scope, forbidden shortcuts,
   and exact acceptance. Keep negative and technical cases separate; use
-  [`docs/14-testing/product-work-acceptance.md`](docs/14-testing/product-work-acceptance.md).
+  [`docs/testing/product-work-acceptance.md`](docs/testing/product-work-acceptance.md).
 - Read the exact requirement and affected contract before domain, API, data, migration, or
   documentation. Update contracts before adapters; load visual references only for UI work.
 - Run Compose, database, browser, reload, and viewport checks only when applicable; otherwise record N/A
@@ -48,12 +48,12 @@
 - Every user-visible React/CSS change, including a small copy, control, or layout edit, must apply the
   **mandatory #249 design synthesis**: Carbon-level hierarchy, COMSOL-style engineering task flow, and
   SAP-style responsive logic. Read its canonical interpretation in
-  [`docs/01-product/frontend-ui-principles.md`](docs/01-product/frontend-ui-principles.md). Review and
+  [`docs/product/frontend-ui-principles.md`](docs/product/frontend-ui-principles.md). Review and
   evidence must explicitly pass its three axes: information hierarchy, engineering task flow, and
   responsive/wide-screen composition. A passing test suite or close screenshot match does not replace
   this judgment.
 - Production UI uses `.agents/skills/desktop-engineering-ui`, its selected inventory/manifest entry,
-  original assets, affected contracts, and `docs/01-product/visual-acceptance-matrix.md`.
+  original assets, affected contracts, and `docs/product/visual-acceptance-matrix.md`.
 - When explicit current product-owner feedback conflicts with a registered visual reference, the owner
   feedback controls. Record the conflict and update the affected reference and manifest in the same
   bounded visual unit instead of reproducing a stale defect.
@@ -75,7 +75,7 @@
 - Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout bounds.
 - Hidden text and measurements do not replace normal-surface usability.
 - Present the original 1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and visual geometry approval pass.
-- See [frontend change review playbook](docs/16-repository/frontend-change-review-playbook.md) for the
+- See [frontend change review playbook](docs/repository/frontend-change-review-playbook.md) for the
   authoritative high-DPI policy and historical handoff.
 
 ## Domain invariants
@@ -111,11 +111,11 @@
 ## Frontend architecture routing
 
 - Any nontrivial change under `apps/web` also reads [`apps/web/AGENTS.md`](apps/web/AGENTS.md),
-  [`docs/01-product/frontend-ui-principles.md`](docs/01-product/frontend-ui-principles.md), and
-  [`docs/05-architecture/frontend-architecture.md`](docs/05-architecture/frontend-architecture.md), then
+  [`docs/product/frontend-ui-principles.md`](docs/product/frontend-ui-principles.md), and
+  [`docs/architecture/frontend-architecture.md`](docs/architecture/frontend-architecture.md), then
   runs `.agents/skills/material-platform-frontend-architecture` before implementation.
 - Every child unit of issue #249 must read the parent issue and
-  [`docs/12-roadmap/frontend-refactoring-roadmap.md`](docs/12-roadmap/frontend-refactoring-roadmap.md)
+  [`docs/planning/frontend-refactoring-roadmap.md`](docs/planning/frontend-refactoring-roadmap.md)
   from FE-00 through the active FE unit before changing code. Its review records pass/fail for the
   inherited contracts and runs the applicable earlier-unit guards; a child issue is never reviewed in
   isolation from #249.
@@ -124,7 +124,7 @@
   solver-card creation, and Materials read-back. Do not replace missing context with `latest`, first-item,
   global-output, or another-session fallback.
 - Issue #249 is an owner-approved cross-cutting program governed by
-  [`docs/12-roadmap/frontend-refactoring-roadmap.md`](docs/12-roadmap/frontend-refactoring-roadmap.md).
+  [`docs/planning/frontend-refactoring-roadmap.md`](docs/planning/frontend-refactoring-roadmap.md).
   Its documentation unit does not authorize production React/CSS changes. Later units require a bounded
   issue and explicit owner priority and do not silently reorder unrelated domain backlog work.
 - Do not add a new feature responsibility to the registered frontend hotspots without an issue-owned

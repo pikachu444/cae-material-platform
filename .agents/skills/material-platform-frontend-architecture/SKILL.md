@@ -23,8 +23,8 @@ Read only relevant parts of:
 
 1. exact issue and approved backlog/program unit;
 2. root `AGENTS.md` and `apps/web/AGENTS.md`;
-3. `docs/01-product/frontend-ui-principles.md`;
-4. `docs/05-architecture/frontend-architecture.md`;
+3. `docs/product/frontend-ui-principles.md`;
+4. `docs/architecture/frontend-architecture.md`;
 5. exact route/user-flow/component contract;
 6. applicable visual acceptance gates and registered references;
 7. target code, tests, API/state contracts, and styles.

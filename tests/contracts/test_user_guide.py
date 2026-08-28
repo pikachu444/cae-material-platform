@@ -101,7 +101,7 @@ def _write_dual_lifecycle_service_reference_fixture(
         encoding="utf-8",
     )
 
-    inventory = root / "docs/01-product/service-reference-inventory.yaml"
+    inventory = root / "docs/product/service-reference-inventory.yaml"
     inventory.parent.mkdir(parents=True, exist_ok=True)
     inventory.write_text(
         yaml.safe_dump(
@@ -131,7 +131,7 @@ def _write_dual_lifecycle_service_reference_fixture(
         encoding="utf-8",
     )
 
-    manifest = root / "docs/01-product/service-reference-manifest.yaml"
+    manifest = root / "docs/product/service-reference-manifest.yaml"
     manifest.parent.mkdir(parents=True, exist_ok=True)
     manifest.write_text(
         yaml.safe_dump(
@@ -473,7 +473,7 @@ def test_incoming_integration_package_is_reference_not_authoritative() -> None:
         ]
         == "reference"
     )
-    assert classes["docs/01-product/desktop-engineering-ui-program-brief.md"] == "authoritative"
+    assert classes["docs/product/desktop-engineering-ui-program-brief.md"] == "authoritative"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
 
 
@@ -933,7 +933,7 @@ def test_mat_detail_captures_resolve_to_approved_references_and_comparison_evide
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     references_manifest = yaml.safe_load(
-        (root / "docs/01-product/service-reference-manifest.yaml").read_text(encoding="utf-8")
+        (root / "docs/product/service-reference-manifest.yaml").read_text(encoding="utf-8")
     )
     references = references_manifest["references"]
     reference_ids = {entry["id"] for entry in references}

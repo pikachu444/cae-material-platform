@@ -127,7 +127,7 @@ def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> 
         ),
         "apps/web/src/app/routes.test.ts": "export const routesTest = true;\n",
         "apps/web/src/app/routes.ts": 'export const routes = ["/materials"];\n',
-        "docs/12-roadmap/frontend-refactoring-roadmap.md": "FE-08A complete\n",
+        "docs/planning/frontend-refactoring-roadmap.md": "FE-08A complete\n",
         "docs/17-evidence/issue-263-fe08a-app-route-composition.md": "No visible change.\n",
         "docs/user-guide/navigation-contract.yaml": "version: 2\n",
     }
@@ -197,7 +197,7 @@ def _composition_attestation_fixture(tmp_path: Path, case: str = "approved") -> 
         "  productOwnerDisposition: no-visible-change",
     ]
     exception_path = (
-        "docs/14-testing/documentation-impact-exceptions/issue-263.yaml"
+        "docs/testing/documentation-impact-exceptions/issue-263.yaml"
     )
     _write_fixture_file(tmp_path, exception_path, "\n".join(exception_lines) + "\n")
     if case == "main_visual_drift":
@@ -294,7 +294,7 @@ def foundation_exception(
     preserved_computed_value_files: tuple[str, ...] = (PRIMITIVES_PATH,),
 ) -> DocumentationImpactException:
     return DocumentationImpactException(
-        path="docs/14-testing/documentation-impact-exceptions/issue-257.yaml",
+        path="docs/testing/documentation-impact-exceptions/issue-257.yaml",
         issue="#257",
         source_sha=source_sha,
         classification="non-user-visible-foundation",
@@ -428,7 +428,7 @@ export function formatStep(value: number): string | null {
         target_text,
         encoding="utf-8",
     )
-    exception = tmp_path / "docs/14-testing/documentation-impact-exceptions/issue-268.yaml"
+    exception = tmp_path / "docs/testing/documentation-impact-exceptions/issue-268.yaml"
     exception.parent.mkdir(parents=True)
     exception.write_text(
         f"""\
@@ -1515,6 +1515,26 @@ def test_name_status_collector_keeps_deletion_rename_source_and_type_change() ->
     }
     with pytest.raises(DocumentationImpactError, match="visual sources"):
         evaluate_documentation_impact(paths)
+
+
+def test_exact_exception_relocation_cannot_act_as_a_changed_waiver() -> None:
+    source = "docs/archive/documentation-impact-exceptions/issue-257.yaml"
+    current = "docs/testing/documentation-impact-exceptions/issue-257.yaml"
+    ordinary = "docs/testing/review-prompts/code-review.md"
+
+    exact = _parse_name_status_entries(
+        f"R100\0{source}\0{current}\0".encode()
+    )
+    changed = _parse_name_status_entries(
+        f"R099\0{source}\0{current}\0".encode()
+    )
+    ordinary_rename = _parse_name_status_entries(
+        f"R100\0{source}\0{ordinary}\0".encode()
+    )
+
+    assert exact == {source: False, current: False}
+    assert changed == {source: False, current: True}
+    assert ordinary_rename == {source: False, ordinary: True}
 
 
 def test_deleted_visual_evidence_cannot_satisfy_current_documentation_gate() -> None:

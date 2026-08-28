@@ -174,6 +174,31 @@ def test_change_plan_output_is_visible_and_exports_only_the_mode(
     assert output.read_text(encoding="utf-8") == "mode=frontend\n"
 
 
+def test_change_plan_output_is_ascii_safe_for_windows_runner_logs(
+    capsys: CaptureFixture[str],
+) -> None:
+    plan = tasks.ChangePlan(
+        event_name="pull_request",
+        mode="docs",
+        base_sha="a" * 40,
+        head_sha="b" * 40,
+        changed_paths=(
+            tasks.ChangedPath(
+                "docs/00-research/한글-경로.md",
+                "docs",
+                "documentation",
+            ),
+        ),
+        reason="documentation-only",
+    )
+
+    tasks._emit_change_plan(plan, None)
+
+    logs = capsys.readouterr().out
+    assert logs.isascii()
+    assert r'path="docs/00-research/\ud55c\uae00-\uacbd\ub85c.md"' in logs
+
+
 def test_ci_registry_keeps_the_linux_sequence_and_host_filter_exact() -> None:
     full = tasks._ci_steps(tasks.TestScope("all", None))
     host = tasks._ci_steps(

@@ -7,8 +7,8 @@ from cmp.tools.user_guide import _documentation_classes
 ROOT = Path(__file__).parents[2]
 AGENTS = ROOT / "AGENTS.md"
 AGENTS_MAX_BYTES = 16 * 1024
-BACKLOG = ROOT / "docs" / "13-delivery" / "backlog.md"
-PLAYBOOK = ROOT / "docs" / "16-repository" / "frontend-change-review-playbook.md"
+BACKLOG = ROOT / "docs" / "planning" / "backlog.md"
+PLAYBOOK = ROOT / "docs" / "repository" / "frontend-change-review-playbook.md"
 
 
 def test_root_agent_guidance_stays_within_context_budget() -> None:
@@ -33,7 +33,7 @@ def test_issue_specific_high_dpi_history_lives_in_authoritative_playbook() -> No
             "Present the original 1920/2560/3840 comparison to the product owner and "
             "do not merge before the owner checklist and visual geometry approval pass."
         ),
-        "docs/16-repository/frontend-change-review-playbook.md",
+        "docs/repository/frontend-change-review-playbook.md",
         "shared typography, control, row, spacing, pane, and plot tokens",
         "route-specific 4K overrides",
         "CSS `zoom`",
@@ -79,11 +79,11 @@ def test_root_agent_guidance_keeps_authority_and_acceptance_boundaries() -> None
     guidance = AGENTS.read_text(encoding="utf-8")
 
     for required in (
-        "docs/13-delivery/backlog.md",
+        "docs/planning/backlog.md",
         "adr/README.md",
-        "docs/14-testing/product-work-acceptance.md",
+        "docs/testing/product-work-acceptance.md",
         ".agents/skills/desktop-engineering-ui",
-        "docs/01-product/visual-acceptance-matrix.md",
+        "docs/product/visual-acceptance-matrix.md",
         "git pull --ff-only origin main",
         "active issue",
         "all its listed units finish",
@@ -128,9 +128,9 @@ def test_personal_orchestration_files_are_absent_from_repository() -> None:
     for relative in (
         ".codex/config.toml",
         ".codex/agents",
-        "docs/14-testing/codex-orchestration-workflow.md",
-        "docs/14-testing/codex-orchestration",
-        "docs/14-testing/main-orchestrator-acceptance.md",
+        "docs/testing/codex-orchestration-workflow.md",
+        "docs/testing/codex-orchestration",
+        "docs/testing/main-orchestrator-acceptance.md",
     ):
         assert not (ROOT / relative).exists()
 

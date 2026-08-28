@@ -832,7 +832,7 @@ bundle gate and route harness from the repository root (the latter requires a pr
 npm run test:bundle-budget --workspace @cmp/web
 npm run build --workspace @cmp/web
 npm run measure:modeling-route --workspace @cmp/web
-npm run measure:modeling-route --workspace @cmp/web -- --compare docs/14-testing/baselines/modeling-web-route.json
+npm run measure:modeling-route --workspace @cmp/web -- --compare docs/testing/baselines/modeling-web-route.json
 ```
 
 The checker measures exact JavaScript raw bytes (`Buffer.byteLength`/`stat`) and records gzip only as
@@ -867,7 +867,7 @@ URLs are attributed per emitted chunk, while leaf samples provide the sampled CP
 zero for a required chunk). Each route aggregate is the sorted-middle median of five;
 bytes are integers and milliseconds are rounded to three decimals after the median.
 
-The baseline is append-only and owner-controlled. `docs/14-testing/baselines/modeling-web-route.json`
+The baseline is append-only and owner-controlled. `docs/testing/baselines/modeling-web-route.json`
 has the exact `cmp.web-modeling-route-baseline.v1` envelope; no automatic write or `--write-baseline`
 mode exists. A reviewed accepted-main observation stores the complete profile, hashes, environment,
 policy, bundle, fixture and route/chunk rows with sequence 1, then strictly increasing sequences;
