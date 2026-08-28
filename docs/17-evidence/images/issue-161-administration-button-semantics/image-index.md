@@ -1,0 +1,46 @@
+# Frozen raster archive index
+
+This index keeps Issue #161's frozen raster packet registered after the approved removal
+of its completed top-level report in Issue #351. These files remain historical evidence under
+ADR-0035; this index does not make them current product guidance.
+
+## Tracked raster files
+
+- [after/states/access-danger-hover-1440x900.png](<after/states/access-danger-hover-1440x900.png>)
+- [after/states/access-primary-loading-1440x900.png](<after/states/access-primary-loading-1440x900.png>)
+- [after/states/database-primary-focus-1440x900.png](<after/states/database-primary-focus-1440x900.png>)
+- [after/states/database-primary-hover-1440x900.png](<after/states/database-primary-hover-1440x900.png>)
+- [after/states/records-primary-disabled-1440x900.png](<after/states/records-primary-disabled-1440x900.png>)
+- [before/access/administration-access-1366x768.png](<before/access/administration-access-1366x768.png>)
+- [before/access/administration-access-1440x900.png](<before/access/administration-access-1440x900.png>)
+- [before/access/administration-access-1920x1080.png](<before/access/administration-access-1920x1080.png>)
+- [before/access/administration-access-2560x1440.png](<before/access/administration-access-2560x1440.png>)
+- [before/access/administration-access-3840x2160.png](<before/access/administration-access-3840x2160.png>)
+- [before/database/administration-database-1366x768.png](<before/database/administration-database-1366x768.png>)
+- [before/database/administration-database-1440x900.png](<before/database/administration-database-1440x900.png>)
+- [before/database/administration-database-1920x1080.png](<before/database/administration-database-1920x1080.png>)
+- [before/database/administration-database-2560x1440.png](<before/database/administration-database-2560x1440.png>)
+- [before/database/administration-database-3840x2160.png](<before/database/administration-database-3840x2160.png>)
+- [before/records/administration-records-1366x768.png](<before/records/administration-records-1366x768.png>)
+- [before/records/administration-records-1440x900.png](<before/records/administration-records-1440x900.png>)
+- [before/records/administration-records-1920x1080.png](<before/records/administration-records-1920x1080.png>)
+- [before/records/administration-records-2560x1440.png](<before/records/administration-records-2560x1440.png>)
+- [before/records/administration-records-3840x2160.png](<before/records/administration-records-3840x2160.png>)
+- [crops/after/administration-access-1920x1080-button-actions-100pct.png](<crops/after/administration-access-1920x1080-button-actions-100pct.png>)
+- [crops/after/administration-access-2560x1440-button-actions-100pct.png](<crops/after/administration-access-2560x1440-button-actions-100pct.png>)
+- [crops/after/administration-access-3840x2160-button-actions-100pct.png](<crops/after/administration-access-3840x2160-button-actions-100pct.png>)
+- [crops/after/administration-database-1920x1080-button-actions-100pct.png](<crops/after/administration-database-1920x1080-button-actions-100pct.png>)
+- [crops/after/administration-database-2560x1440-button-actions-100pct.png](<crops/after/administration-database-2560x1440-button-actions-100pct.png>)
+- [crops/after/administration-database-3840x2160-button-actions-100pct.png](<crops/after/administration-database-3840x2160-button-actions-100pct.png>)
+- [crops/after/administration-records-1920x1080-button-actions-100pct.png](<crops/after/administration-records-1920x1080-button-actions-100pct.png>)
+- [crops/after/administration-records-2560x1440-button-actions-100pct.png](<crops/after/administration-records-2560x1440-button-actions-100pct.png>)
+- [crops/after/administration-records-3840x2160-button-actions-100pct.png](<crops/after/administration-records-3840x2160-button-actions-100pct.png>)
+- [crops/before/administration-access-1920x1080-button-actions-100pct.png](<crops/before/administration-access-1920x1080-button-actions-100pct.png>)
+- [crops/before/administration-access-2560x1440-button-actions-100pct.png](<crops/before/administration-access-2560x1440-button-actions-100pct.png>)
+- [crops/before/administration-access-3840x2160-button-actions-100pct.png](<crops/before/administration-access-3840x2160-button-actions-100pct.png>)
+- [crops/before/administration-database-1920x1080-button-actions-100pct.png](<crops/before/administration-database-1920x1080-button-actions-100pct.png>)
+- [crops/before/administration-database-2560x1440-button-actions-100pct.png](<crops/before/administration-database-2560x1440-button-actions-100pct.png>)
+- [crops/before/administration-database-3840x2160-button-actions-100pct.png](<crops/before/administration-database-3840x2160-button-actions-100pct.png>)
+- [crops/before/administration-records-1920x1080-button-actions-100pct.png](<crops/before/administration-records-1920x1080-button-actions-100pct.png>)
+- [crops/before/administration-records-2560x1440-button-actions-100pct.png](<crops/before/administration-records-2560x1440-button-actions-100pct.png>)
+- [crops/before/administration-records-3840x2160-button-actions-100pct.png](<crops/before/administration-records-3840x2160-button-actions-100pct.png>)

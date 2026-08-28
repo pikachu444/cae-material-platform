@@ -2,13 +2,29 @@ version: 3
 policy:
   current: "현재 코드·경로·화면·운영 절차와 함께 갱신하는 문서"
   authoritative: "구현과 검수의 규범; 변경 전에 관련 요구사항·ADR·작업 근거를 확인"
-  reference: "외부 조사·비교 입력과 범위가 정해진 이슈 증거; 제품 계약은 current·authoritative 문서와 활성 이슈에서 확인"
+  reference: "외부 조사·비교 입력과 명시적으로 유지 승인된 이슈 증거; 제품 계약은 current·authoritative 문서와 활성 이슈에서 확인"
 rules:
   - status: reference
     include:
       - "docs/00-research/**/*.md"
       - "docs/_incoming/2026-07-24-organic-ux-update/**/*.md"
-      - "docs/17-evidence/**/*.md"
+      - "docs/17-evidence/issue-184-high-dpi-global-implementation.md"
+      - "docs/17-evidence/issue-184-to-223-windows-4k-handoff.md"
+      - "docs/17-evidence/issue-221-high-dpi-decision.md"
+      - "docs/17-evidence/issue-260-modeling-data-visual-normalization.md"
+      - "docs/17-evidence/issue-261-b1-modeling-stage-css-ownership.md"
+      - "docs/17-evidence/issue-261-b4-css-ownership-integration.md"
+      - "docs/17-evidence/issue-261-css-inventory-and-migration-plan.md"
+      - "docs/17-evidence/issue-261-fe06-residual-owner-boundary-consolidation.md"
+      - "docs/17-evidence/issue-261-m1e-modeling-ownership-integration.md"
+      - "docs/17-evidence/issue-261-m1e3-modeling-family-ownership.md"
+      - "docs/17-evidence/issue-261-m1e5-producer-routed-residual.md"
+      - "docs/17-evidence/issue-261-m2-materials-css-ownership.md"
+      - "docs/17-evidence/issue-261-m6-zero-consumer-audit-and-removal.md"
+      - "docs/17-evidence/issue-262-fe07a-materials-architecture-ui.md"
+      - "docs/17-evidence/issue-289-administration-database-workflow.md"
+      - "docs/17-evidence/issue-309-modeling-data-axis-overlap.md"
+      - "docs/17-evidence/images/**/*.md"
   - status: current
     include:
       - "README.md"

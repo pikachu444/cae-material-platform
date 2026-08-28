@@ -666,7 +666,7 @@ URL, API, stage 순서, graph, exact revision, 저장·복구 상태는 바꾸�
 진행하고, 선택된 `swift + voce 50/50`, target/native preview와 reload read-back을 확인합니다.
 
 이번 결과는 [M1E4 evidence manifest](../17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/manifest.json)와
-[M1E4 evidence report](../17-evidence/issue-261-m1e4-modeling-core-stage-ownership.md)에
+[M1E4 evidence report](https://github.com/pikachu444/cae-material-platform/issues/261)에
 최종 acceptance 기록으로 남겼습니다. 다섯 CSS viewport의 before/after 원본과 header·navigator·
 stage controls·engineering graph 100%-pixel crop을 실제 크기로 검토했고, computed-style·geometry와
 Storybook bundle도 같은 동작을 유지했습니다. 48개 비교 record와 220개 image pair에서 geometry·
