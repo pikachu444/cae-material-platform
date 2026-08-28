@@ -88,11 +88,15 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   명시적으로 지원되지 않습니다. source-v2 Record의 `Test Type: Strain Sweep` 값은 동적 형식으로
   검증·보존할 수 있는 데이터 값이지, canonical 처리나 점탄성 계산 지원을 뜻하지 않습니다.
   master curve·Prony·LinearViscoelastic IR의 production 입력·정책·수치 검증 확장은 #195가 소유하며,
-  #246 완료만으로 구현됐다고 간주하지 않습니다. #246의 다음 실행 단위는 #344 Task 3+4입니다.
+  #246 완료만으로 구현됐다고 간주하지 않습니다. #344 Task 3+4는 #211·#213~#216의 실제 잔여를
+  기존 이슈에 유지하고, 근거 없는 역할·optimizer·승인 단계·plugin·비동기 계산·경화식 확장을
+  보류했습니다. #246 뒤의 다음 제품 작업은 #195입니다.
 - #195 polymer viscoelastic과 #196 elastomer hyperelastic/hyper-viscoelastic에는 bounded synthetic
   `reference/non-production` 계산·선택·IR/Neutral/export 기반과 각각의 current planning packet이 이미
-  있습니다. 두 OPEN 이슈의 deferred 잔여는 family별 production 입력 의미, 모델·optimizer·threshold
-  정책, 독립 수치 reference와 validation 계약 확장입니다. 기존 packet의 `OPEN_DECISION`은 유지됩니다.
+  있습니다. #195의 다음 범위는 이 기반을 재작성하는 일이 아니라 production DMA/relaxation 입력 의미,
+  독립 수치 reference와 acceptance, API 저장·reload, 실제 Modeling 사용자 흐름을 하나의 승인 packet으로
+  확정하는 것입니다. 현재 reference 계산 결과와 화면은 production 검증 또는 UI 승인을 뜻하지 않습니다.
+  #196의 deferred 잔여도 family별 production 계약이며 기존 packet의 `OPEN_DECISION`은 유지됩니다.
 - #276은 직접 등록한 Simulation Data와 Modeling 생성 결과를 capability에 따라 무피팅 곡선 또는
   선택형 Fit/solver-card 경로로 잇는 후보 후속입니다. 현재 `배치 결정 대기`이며 native parent와
   #117 실행 순서는 지정되지 않았습니다.

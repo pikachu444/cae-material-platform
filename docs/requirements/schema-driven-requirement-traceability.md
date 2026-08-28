@@ -1,7 +1,7 @@
 # 스키마 기반 통합 요구사항 추적표
 
 상태: `authoritative`
-현재 구현 기준선: `main@fa4e451`
+현재 구현 기준선: `main@712bda0`
 원본 요구 기준선: `main@31f9a3f`
 원본 패키지: [`schema-driven-integration-source`](../00-research/schema-driven-integration-source/README.md)
 보완 추적: [#246](https://github.com/pikachu444/cae-material-platform/issues/246)
@@ -23,12 +23,12 @@
 | P2 Curve 채널·편차 | #206 완료; #246 Task 1A 완료; #341 회귀 | 구현 | 공통 채널·편차 계약과 source-v2 객체형 `x-curve` 해석·원본 위치 보존이 구현됐다. #341은 #209의 explicit-legacy `Hz` 경계를 공통 registry로 옮기지 않고 그대로 재사용해 변경하지 않은 source-v2 전체 apply를 통과시킨다. |
 | P3 단위·Unit Profile | #205, #209 Hz 완료; #341, #214 | 부분 | 공통 계약 `1.1.0`은 기존 8개 dimension·ID·alias와 exact Unit Profile revision trace를 보존하고 explicit `speed`의 `m/s`·`mm/s`·`mm/min`, density의 `tonne/mm3`를 추가한다. DMA frequency의 `Hz`는 #209 explicit-legacy 계약을 유지한다. source profile의 범위 밖 `mass: tonne`는 원본 Artifact에 보존하고 위치가 있는 경고와 함께 공통-unit projection에서 제외하며 변환을 추론하지 않는다. 추가 solver profile과 관리 UI는 #214 범위다. |
 | P4 DMA·FLD | #209 완료; #343 PR #356 지원 경계 확정; #195 production 점탄성 | 부분/보류 | #209 PR #248, main `3e642e8`에서 `dma_frequency_temperature_sweep`와 `forming_limit` governed import, Hz, canonical lineage를 완료했다. #343 PR #356은 실제 운용 자료와 승인 요구가 없는 `dma_strain_sweep`을 구현하지 않고, 현재 계약 열거값과 Modeling 선택지에서 제외된 명시적 미지원으로 확정한다. source-v2 DMA 형식이 `Strain Sweep` 값을 허용하는 것은 Record 검증·보존 범위이며 canonical 처리 지원을 뜻하지 않는다. master curve·Prony·LinearViscoelastic IR production 확장은 #195가 소유하고 별도 production 입력·수치 검증·UI 승인을 거친다. |
-| P5 분포·대표곡선 | #210 완료; #211, #246 Task 3 | 부분 | scalar 분포 피팅 외에도 common-grid piecewise-linear/no-extrapolation alignment, append-only 포함·제외 판단과 exact Dataset/Test Run lineage, pointwise mean/95% CI immutable Artifact, calibration input scope exact pinning이 구현돼 있다. #211 잔여는 pointwise p05/p95 representative revision, 그 revision의 review/approval/invalidation, 승인된 representative exact revision의 Fit 선택 연결이다. 범용 scalar 확장은 완료로 주장하지 않으며 #246 Task 3에서 소유권을 재대조한다. |
+| P5 분포·대표곡선 | #210 완료; #211 | 부분 | scalar 분포 피팅 외에도 common-grid piecewise-linear/no-extrapolation alignment, append-only 포함·제외 판단과 exact Dataset/Test Run lineage, pointwise mean/95% CI immutable Artifact, calibration input scope exact pinning이 구현돼 있다. #211 잔여는 pointwise p05/p95 representative revision, 그 revision의 review/approval/invalidation, 승인된 representative exact revision의 Fit 선택 연결이다. 범용 scalar 확장은 완료로 주장하지 않는다. |
 | P6 Template·solver·다단위 | #213, #214 | 미구현 | governed Template, LS-DYNA MAT_024, 추가 solver unit system과 관리 UI가 남아 있다. |
-| P7 승인·역할 | #160 완료; #246 Task 4 | 부분/결정 | Record/Test Data 검토·게시·복구는 구현됐다. 역할 preset 변경과 `data_manager`는 자동 구현하지 않고 제품 결정을 기록한다. |
+| P7 승인·역할 | #160 완료; #215 기존 역할 유지 | 구현/보류 | Record/Test Data 검토·게시·복구는 구현됐다. 제품 역할은 User/Reviewer/Administrator를 유지하고 #215가 OIDC claim을 이 역할에 연결한다. 독립 책임·감사·수명주기 근거가 승인되기 전에는 `data_manager` 역할을 추가하지 않는다. |
 | P8 SPA OIDC | #215 | 미구현 | Authorization Code+PKCE login/callback/token lifecycle과 demo identity 운영 guard가 남아 있다. |
 | P9 Audit wiring | #216 | 미구현 | 기반 hash chain은 있으나 제품 command의 전면 event coverage가 남아 있다. |
-| P10 Toe·선택적 DE | #212 완료; #246 Task 4 | 부분/결정 | 명시 구간 OLS zero-intercept 방식은 구현됐다. `offset_shift`와 선택적 DE는 근거를 검토해 구현·보류·제외를 결정한다. |
+| P10 Toe·선택적 DE | #212 완료; 추가 방식 보류 | 구현/보류 | 명시 구간 OLS zero-intercept 방식은 구현됐다. `offset_shift`는 승인된 시험 절차와 수치 fixture가 생길 때, Differential Evolution은 현재 bounded multistart의 재현 가능한 실패와 결정성·시간 이점이 증명될 때만 별도 이슈로 검토한다. |
 
 ## G1~G24 대조
 
@@ -41,23 +41,23 @@
 | G5 단위 | 부분 | 공통 기반과 #209의 explicit-legacy `Hz`를 보존한다. #341은 additive common-unit `1.1.0`으로 `speed`의 `m/s`·`mm/s`·`mm/min`과 `mass_per_volume`의 `tonne/mm3`를 닫고 변경하지 않은 source-v2를 적용한다. 추가 solver profile은 #214 범위다. |
 | G6 DMA/FLD | 부분/보류 | #209가 frequency-temperature DMA와 FLD governed import 및 exact lineage를 완료했다. #343 PR #356은 `dma_strain_sweep`을 현재 계약·UI에서 명시적 미지원으로 확정한다. 동적 source-v2 Record의 형식 값과 canonical 처리 capability를 혼동하지 않는다. master curve·Prony·LinearViscoelastic IR production 확장은 #195가 소유한다. |
 | G7 publication validation | 구현 방식 변경 | #207이 원본의 부분 성공보다 강한 atomic apply/read-back을 구현했다. |
-| G8 `non_production` | 보류 | production 근거 전까지 유지한다. |
+| G8 `non_production` | 보류 | #195/#196의 family별 production 입력 의미, 독립 수치 acceptance와 실제 흐름 승인이 끝날 때까지 유지한다. |
 | G9 SPA login | 미구현 | #215. |
 | G10 demo identity guard | 미구현 | #215와 운영 gate. |
 | G11 upload review | 구현 | #160. |
-| G12 role preset | 결정 필요 | #246 Task 4에서 기존 preset 유지 또는 변경을 명시적으로 닫는다. |
+| G12 role preset | 기존 역할 유지 | User/Reviewer/Administrator를 유지한다. `data_manager`는 별도 조직·IAM 근거가 승인될 때만 새 이슈로 검토한다. |
 | G13 audit wiring | 미구현 | #216. |
 | G14 approval→publication/recovery | 구현 | #160. |
-| G15 multistage approval | 결정 필요 | #246 Task 4. |
-| G16 frontend role gating | 부분 | #246에서 현재 역할 matrix를 재확인한다. |
-| G17 toe compensation | 부분 | #212의 한 방식 완료; 추가 방식은 #246 Task 4 결정. |
-| G18 Differential Evolution | 결정 필요 | #246 Task 4. |
-| G19 distribution/envelope | 부분 | #210과 기존 alignment·outlier·pointwise mean/95% CI·exact scope pinning 기반은 완료했다. #211은 p05/p95 representative revision, representative review/approval/invalidation과 approved representative exact revision→Fit selection만 추가하며, #246 Task 3은 원본 대비 소유권을 재대조한다. |
+| G15 multistage approval | 보류 | #160의 단일 review lifecycle을 유지한다. 규제·전자서명·복수 승인자 요구가 승인되면 별도 governance 이슈로 연다. |
+| G16 frontend role gating | 부분 | 서버 권한은 유지되고 SPA login과 기존 역할별 action/recovery 정합은 #215가 소유한다. |
+| G17 toe compensation | 구현/보류 | #212의 명시 구간 OLS zero-intercept 방식은 완료했다. `offset_shift`는 승인된 절차·fixture 전에는 추가하지 않는다. |
+| G18 Differential Evolution | 보류 | bounded multistart의 재현 가능한 실패와 DE의 결정성·시간·성공률 이점이 입증될 때만 별도 optimizer 이슈로 검토한다. |
+| G19 distribution/envelope | 부분 | #210과 기존 alignment·outlier·pointwise mean/95% CI·exact scope pinning 기반은 완료했다. #211은 p05/p95 representative revision, representative review/approval/invalidation과 approved representative exact revision→Fit selection만 추가한다. |
 | G20 template/solver 확장 | 미구현 | #213/#214. |
 | G21 multi-unit export | 부분 | #205 기반 완료, #214 solver 확장 예정. |
-| G22 plugin wiring | 결정 필요 | #246 Task 4와 #213 sandbox 결정 이후 판단한다. |
-| G23 비동기 계산 실행 | 결정 필요 | #246 Task 4에서 이번 계획 포함 여부를 닫는다. |
-| G24 추가 경화식 | 결정 필요 | #246 Task 4에서 별도 모델 요구 여부를 닫는다. |
+| G22 plugin wiring | 보류 | #213은 안전한 Template renderer 경계만 소유하고 generic plugin wiring은 추가하지 않는다. 실제 격리 배포 대상과 운영 수명주기가 승인될 때 별도 plugin 이슈로 연다. |
+| G23 비동기 계산 실행 | 보류 | 현재 계산 경계를 유지한다. 실제 응답 시간·중단 복구·내구성 요구가 동기 실행의 실패를 입증할 때 bounded job 이슈로 연다. |
+| G24 추가 경화식 | 보류 | 승인된 재료 family·solver target·수치 reference가 특정 추가 식을 요구할 때 별도 모델 이슈로 연다. Swift의 부분 커버만으로 production 모델을 추론하지 않는다. |
 
 ## 실행 계획
 
@@ -88,7 +88,15 @@ P1~P10/G1~G24 각 행은 구현 완료, 기존 Issue 소유, 제품 보류 또�
 production 점탄성 입력 의미, 계산 정책, 수치 검증과 사용자 흐름은 #195가 소유한다. 다음 #246 단위는
 #344의 후속 이슈 정합과 보류 항목 결정이다.
 
-### 4. #211 — #246 뒤의 좁은 대표곡선 잔여
+### 4. #344 — 후속 소유권과 보류 결정
+
+#211은 대표곡선 잔여, #213/#214는 Template·solver·다중 단위, #215는 SPA OIDC와 기존 역할 정합,
+#216은 구현된 제품 command의 audit coverage를 각각 소유한다. `data_manager`, `offset_shift`,
+Differential Evolution, 다단계 승인, generic plugin wiring, 새 비동기 계산 구조와 추가 경화식은
+위 G행의 재개 근거가 생길 때까지 보류하며 이번 순서에 새 이슈를 만들지 않는다. 점탄성 production
+입력·수치 acceptance·사용자 흐름은 #195가 소유하고 #246 뒤의 다음 제품 작업으로 진행한다.
+
+### 5. #211 — #246 뒤의 좁은 대표곡선 잔여
 
 #211은 existing common-grid piecewise-linear/no-extrapolation alignment, append-only inclusion/exclusion
 assessment와 exact Dataset/Test Run lineage, pointwise mean/95% CI immutable Artifact, calibration input
