@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode 
 
 import {
   ApiError,
+  type ApiConfig,
+} from "../../../../../shared/api";
+import {
   convertTabularToCanonicalTestData,
   createGovernedImportProfile,
   executeGovernedTabularImport,
@@ -14,8 +17,7 @@ import {
   reviseGovernedImportProfile,
   uploadGovernedTabularFile,
   validateCanonicalTestData,
-  type ApiConfig,
-} from "../../../../../api";
+} from "../../../../test-data";
 import type { ObservedCurveInput } from "../../../../../engineering-curve-plot";
 import type {
   CanonicalTestDataChannelPreview,

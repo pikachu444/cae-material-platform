@@ -11,13 +11,17 @@ import {
 
 import {
   ApiError,
+  getAuthenticatedPrincipal,
+  type ApiConfig,
+} from "../../../shared/api";
+import {
   getCatalogWorkflowGraph,
   getConfigurableCatalogRecord,
-  getAuthenticatedPrincipal,
-  getMaterialDetail,
   listConfigurableCatalogRecordRevisions,
-  type ApiConfig,
-} from "../../../api";
+} from "../../catalog";
+import {
+  getMaterialDetail,
+} from "../api/materials-api";
 import type {
   CatalogDataCategory,
   CatalogWorkflowGraphResponse,

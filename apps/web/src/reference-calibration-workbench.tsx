@@ -2,15 +2,19 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferenceCalibrationCandidateSelection,
   createReferenceLinearElasticCalibrationPlan,
   executeReferenceLinearElasticCalibration,
-  listDatasetRevisionSelections,
-  listDatasetsForMaterialState,
   listMaterialModels,
   promoteSelectedReferenceCalibrationCandidate,
   previewCalibrationCandidateDiagnostics,
-} from "./api";
+} from "./features/modeling";
+import {
+  listDatasetRevisionSelections,
+  listDatasetsForMaterialState,
+} from "./features/test-data";
 import type {
   CalibrationCandidateSelectionResponse,
   CalibrationDiagnosticPreview,

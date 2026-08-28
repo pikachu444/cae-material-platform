@@ -8,7 +8,9 @@ import {
   useState,
 } from "react";
 
-import type { ApiConfig } from "../api";
+import {
+  type ApiConfig,
+} from "../shared/api";
 
 export type DisplayDensity = "compact" | "standard" | "large";
 

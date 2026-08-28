@@ -1,7 +1,9 @@
 import {
   downloadCanonicalTestDataDocument,
+} from "../../test-data";
+import {
   type ApiConfig,
-} from "../../../api";
+} from "../../../shared/api";
 
 export interface ExactTestDataChannel {
   key: string;

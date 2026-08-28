@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   getMaterialDetail,
   listMaterials,
-} from "./api";
+} from "./features/materials";
 import { GovernedImportWorkbench } from "./governed-import-workbench";
 import { loadModelingSession } from "./features/modeling";
 import type { MaterialDetail, MaterialStateResponse } from "./types";

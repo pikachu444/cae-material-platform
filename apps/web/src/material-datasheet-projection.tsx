@@ -2,13 +2,15 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 
 import {
   getConfigurableCatalogRecord,
-  getAuthenticatedPrincipal,
   listConfigurableCatalogAttributes,
   listConfigurableCatalogLayouts,
   listConfigurableCatalogRecordRevisions,
   previewExactCatalogCurveValue,
+} from "./features/catalog";
+import {
+  getAuthenticatedPrincipal,
   type ApiConfig,
-} from "./api";
+} from "./shared/api";
 import type {
   ConfigurableAttributeResponse,
   ConfigurableCatalogRecordResponse,

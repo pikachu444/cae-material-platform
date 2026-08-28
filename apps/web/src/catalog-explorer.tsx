@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 
 import {
   ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
   bindCatalogRecordDomainRevision,
   createConfigurableCatalogLinkType,
   createConfigurableRecordLink,
@@ -12,8 +15,7 @@ import {
   listConfigurableCatalogSubsets,
   reviseConfigurableRecordLink,
   searchConfigurableCatalogRecords,
-  type ApiConfig,
-} from "./api";
+} from "./features/catalog";
 import type {
   CatalogExplorerChildrenResponse,
   CatalogWorkflowGraphResponse,

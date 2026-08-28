@@ -4,9 +4,11 @@ import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 
 import {
   type ApiConfig,
+} from "./shared/api";
+import {
   listShearRelaxationDatasetsForMaterialState,
   listTestRunsForMaterialState,
-} from "./api";
+} from "./features/test-data";
 import type { MaterialStateResponse, ShearRelaxationDatasetResponse, TestRunResponse } from "./types";
 import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
 

@@ -1,12 +1,16 @@
 import {
   getCatalogWorkflowGraph,
   getConfigurableCatalogRecord,
-  getMaterialDetail,
-  getMaterialRevisions,
   listConfigurableCatalogRecordRevisions,
   resolveCatalogDomainRevision,
+} from "../../catalog";
+import {
+  getMaterialDetail,
+  getMaterialRevisions,
+} from "./materials-api";
+import {
   type ApiConfig,
-} from "../../../api";
+} from "../../../shared/api";
 import type {
   CatalogWorkflowGraphResponse,
   ConfigurableCatalogRecordResponse,

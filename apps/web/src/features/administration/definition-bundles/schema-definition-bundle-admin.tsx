@@ -16,7 +16,7 @@ import {
   planSchemaDefinitionBundle,
   uploadSchemaDefinitionBundle,
   type ApiConfig,
-} from "./api";
+} from "./definition-bundle-api";
 import { publishWorkspaceStatus } from "../../../design/application-shell";
 import { EngineeringPane, SemanticText } from "../../../design/semantic-ui";
 import {

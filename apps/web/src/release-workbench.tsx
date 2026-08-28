@@ -2,14 +2,16 @@ import { type FormEvent, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+  getAuthenticatedPrincipal,
+} from "./shared/api";
+import {
   createRelease,
   downloadRelease,
-  getAuthenticatedPrincipal,
   getReleaseImpact,
   listReleases,
   supersedeRelease,
   withdrawRelease,
-} from "./api";
+} from "./features/activity";
 import type {
   DataClassification,
   ReleaseCreateInput,

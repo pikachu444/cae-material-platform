@@ -2,7 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError } from "./api";
+import {
+  ApiError,
+} from "./shared/api";
 import {
   SchemaDefinitionBundleAdmin,
   inspectSchemaDefinitionBundleFile,
@@ -127,18 +129,23 @@ const mocks = vi.hoisted(() => ({
   download: vi.fn(),
 }));
 
-vi.mock("./api", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./api")>();
-  return {
-    ...original,
-    getEffectiveProductAccess: mocks.getAccess,
-    uploadSchemaDefinitionBundle: mocks.upload,
-    planSchemaDefinitionBundle: mocks.plan,
-    applySchemaDefinitionBundle: mocks.apply,
-    getSchemaDefinitionBundleApplication: mocks.readBack,
-    downloadSchemaDefinitionBundle: mocks.download,
-  };
-});
+vi.mock(
+  "./features/administration/definition-bundles/definition-bundle-api",
+  async (importOriginal) => {
+    const original = await importOriginal<
+      typeof import("./features/administration/definition-bundles/definition-bundle-api")
+    >();
+    return {
+      ...original,
+      getEffectiveProductAccess: mocks.getAccess,
+      uploadSchemaDefinitionBundle: mocks.upload,
+      planSchemaDefinitionBundle: mocks.plan,
+      applySchemaDefinitionBundle: mocks.apply,
+      getSchemaDefinitionBundleApplication: mocks.readBack,
+      downloadSchemaDefinitionBundle: mocks.download,
+    };
+  },
+);
 
 function validFile(): File {
   return new File(

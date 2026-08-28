@@ -3,13 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createNeutralHyperelasticSolverCard,
   downloadNeutralMaterial,
   downloadNeutralHyperelasticMappingReport,
   downloadNeutralHyperelasticSolverCard,
   preflightNeutralHyperelasticSolverCard,
   previewNeutralHyperelasticSolverCard,
-} from "./api";
+} from "./features/modeling";
 import type {
   ExportTarget,
   NeutralHyperelasticMappingReport,

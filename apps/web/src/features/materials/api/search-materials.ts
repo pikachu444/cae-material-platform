@@ -1,13 +1,17 @@
 import {
   ApiError,
+  type ApiConfig,
+  type ApiResult,
+} from "../../../shared/api";
+import {
   listCatalogExplorerTables,
   listConfigurableCatalogAttributes,
   searchConfigurableCatalogRecords,
-  type ApiConfig,
-  type ApiResult,
+} from "../../catalog";
+import {
   type MaterialSearchRequest,
   type MaterialSearchResponse,
-} from "../../../api";
+} from "./materials-api";
 import type {
   ConfigurableAttributeResponse,
   ConfigurableCatalogRecordResponse,

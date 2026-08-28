@@ -1,6 +1,8 @@
 import { lazy, Suspense, type ReactNode, useState } from "react";
 
-import type { ApiConfig } from "../../../api";
+import {
+  type ApiConfig,
+} from "../../../shared/api";
 import type { CatalogDataCategory } from "../../../types";
 import { CATALOG_DATA_CATEGORIES } from "../../../catalog-data-categories";
 import { MaterialsScrollRegion } from "../../../materials-scroll-rail";

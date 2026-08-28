@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 
 import {
   type ApiConfig,
+} from "./shared/api";
+import {
   createLinearViscoelasticSolverCard,
   downloadLinearViscoelasticSolverCard,
   listLinearViscoelasticSolverCards,
   preflightLinearViscoelasticMapping,
   previewLinearViscoelasticSolverCard,
-} from "./api";
+} from "./features/modeling";
 import type {
   LinearViscoelasticCardResponse,
   LinearViscoelasticMappingReport,

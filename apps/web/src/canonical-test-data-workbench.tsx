@@ -2,16 +2,18 @@ import { useEffect, useState, type ChangeEvent } from "react";
 
 import {
   ApiError,
+  getAuthenticatedPrincipal,
+  type ApiConfig,
+} from "./shared/api";
+import {
   convertTabularToCanonicalTestData,
   downloadCanonicalTestDataDocument,
   downloadCanonicalTestDataPackage,
   importCanonicalTestData,
   listCanonicalTestDataDocuments,
-  getAuthenticatedPrincipal,
   reviseCanonicalTestData,
   validateCanonicalTestData,
-  type ApiConfig,
-} from "./api";
+} from "./features/test-data";
 import type {
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,

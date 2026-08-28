@@ -5,6 +5,8 @@ import "./features/modeling/ui/modeling-calibration-workbenches.css";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferenceTensileReplicateSelection,
   createReferenceTensileReplicateStatisticalPlan,
   createReplicateOutlierAssessment,
@@ -14,7 +16,7 @@ import {
   executeReferenceTensileReplicateStatistics,
   getReferenceTensileReplicateStatisticalResult,
   previewReferenceTensileReplicateStatisticalResultCurve,
-} from "./api";
+} from "./features/test-data";
 import type {
   DataClassification,
   DatasetResponse,

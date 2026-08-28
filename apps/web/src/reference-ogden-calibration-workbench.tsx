@@ -3,6 +3,8 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferenceOgdenCalibrationPlan,
   createReferenceOgdenCandidateSelection,
   downloadNeutralMaterial,
@@ -12,16 +14,20 @@ import {
   getReferenceOgdenCalibrationRun,
   getReferenceOgdenCandidateDiagnostics,
   importNeutralMaterial,
-  listBulkExportCandidates,
   listReferenceOgdenCalibrationPlans,
-  listGovernedDatasetsForTestRun,
   listOgdenPronyModelRevisions,
   listScientificProfiles,
-  listTestRunsForMaterialState,
   promoteReferenceOgdenCandidate,
   promoteHyperelasticCandidateToNeutralMaterial,
   reviseReferenceOgdenCalibrationPlan,
-} from "./api";
+} from "./features/modeling";
+import {
+  listBulkExportCandidates,
+} from "./features/materials";
+import {
+  listGovernedDatasetsForTestRun,
+  listTestRunsForMaterialState,
+} from "./features/test-data";
 import type {
   GovernedDatasetResponse,
   MaterialStateResponse,

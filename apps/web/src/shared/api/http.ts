@@ -22,13 +22,6 @@ export class ApiError extends Error {
   readonly traceId?: string;
   readonly supportReference?: string;
 
-  /** Compatibility bridge until #263 moves the remaining root clients. */
-  static readonly modelingTransportCompatibility = {
-    authenticatedHeaders,
-    endpoint,
-    request,
-    throwResponseError,
-  } as const;
 
   constructor(status: number, message: string, code?: string, traceId?: string) {
     const supportReference = [code, traceId].filter(Boolean).join(" · ") || undefined;

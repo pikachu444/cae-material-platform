@@ -18,8 +18,8 @@ const mocks = vi.hoisted(() => ({
   graph: vi.fn(),
 }));
 
-vi.mock("./api", async () => {
-  const actual = await vi.importActual<typeof import("./api")>("./api");
+vi.mock("./features/catalog", async () => {
+  const actual = await vi.importActual<typeof import("./features/catalog")>("./features/catalog");
   return {
     ...actual,
     resolveCatalogDomainRevision: mocks.resolve,

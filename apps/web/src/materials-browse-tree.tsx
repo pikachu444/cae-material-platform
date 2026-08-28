@@ -10,6 +10,9 @@ import {
 
 import {
   ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
   getCatalogWorkflowGraph,
   getConfigurableCatalogRecord,
   listCatalogExplorerChildren,
@@ -17,8 +20,7 @@ import {
   listConfigurableCatalogFolders,
   listConfigurableCatalogSubsets,
   searchConfigurableCatalogRecords,
-  type ApiConfig,
-} from "./api";
+} from "./features/catalog";
 import type {
   CatalogDataCategory,
   CatalogExplorerChildrenResponse,

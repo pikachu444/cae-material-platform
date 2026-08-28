@@ -299,6 +299,13 @@ function scanCodeFile({ absolute, path, source, fileSet, projectRoot, changedLin
     const targetLayer = layer(targetPath);
     const line = lineAt(source, item.offset);
     edges.push({ targetPath, line });
+    if (targetPath === "apps/web/src/api.ts" && path !== targetPath) {
+      findings.push(finding(
+        "CMP-FE-ROOT-API-COMPATIBILITY", path, line, `${path}->${targetPath}`,
+        "module imports the bounded root API compatibility facade",
+        "Import transport/auth from shared or resource calls through the owning feature public entry point.",
+      ));
+    }
     if (sourceLayer.kind === "shared" && targetLayer.kind !== "shared") {
       findings.push(finding(
         "CMP-FE-IMPORT-DIRECTION", path, line, `${path}->${targetPath}`,

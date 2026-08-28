@@ -121,8 +121,8 @@ const mocks = vi.hoisted(() => ({
   record: vi.fn(),
 }));
 
-vi.mock("./api", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./api")>();
+vi.mock("./features/catalog", async (importOriginal) => {
+  const original = await importOriginal<typeof import("./features/catalog")>();
   return {
     ...original,
     listCatalogExplorerTables: mocks.tables,

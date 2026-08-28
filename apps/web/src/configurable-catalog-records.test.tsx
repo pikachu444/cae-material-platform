@@ -111,8 +111,8 @@ const mocks = vi.hoisted(() => ({
   publishRegistration: vi.fn(),
 }));
 
-vi.mock("./api", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./api")>();
+vi.mock("./features/administration/records/api", async (importOriginal) => {
+  const original = await importOriginal<typeof import("./features/administration/records/api")>();
   return {
     ...original,
     listConfigurableCatalogTables: mocks.tables,

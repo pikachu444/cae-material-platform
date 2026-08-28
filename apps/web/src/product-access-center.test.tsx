@@ -11,8 +11,10 @@ const mocks = vi.hoisted(() => ({
   revoke: vi.fn(),
 }));
 
-vi.mock("./api", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./api")>();
+vi.mock("./features/administration/access/access-api", async (importOriginal) => {
+  const original = await importOriginal<
+    typeof import("./features/administration/access/access-api")
+  >();
   return {
     ...original,
     getEffectiveProductAccess: mocks.getEffective,

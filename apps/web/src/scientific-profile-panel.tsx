@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 
 import {
   type ApiConfig,
+} from "./shared/api";
+import {
   createOgdenScientificProfile,
   listScientificProfiles,
-} from "./api";
+} from "./features/modeling";
 import type { ScientificProfileResponse } from "./types";
 
 function errorMessage(cause: unknown): string {

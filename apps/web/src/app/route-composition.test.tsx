@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ApiConfig } from "../api";
+import {
+  type ApiConfig,
+} from "../shared/api";
 import { RouteComposition } from "./route-composition";
 import { parseAppRoute } from "./routes";
 

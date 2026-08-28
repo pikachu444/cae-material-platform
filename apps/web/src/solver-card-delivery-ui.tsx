@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
   ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
   createNeutralHyperelasticSolverCard,
   preflightNeutralHyperelasticSolverCard,
-  type ApiConfig,
-} from "./api";
+} from "./features/modeling";
 import type { MappingStatus, NeutralHyperelasticMappingReport } from "./types";
 import {
   downloadSolverCardArtifact,

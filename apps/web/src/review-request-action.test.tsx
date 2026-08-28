@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ReviewRequestAction } from "./review-request-action";
 
 const mocks = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn() }));
-vi.mock("./api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./api")>()),
+vi.mock("./features/activity", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./features/activity")>()),
   listReviewRequests: mocks.list,
   createReviewRequest: mocks.create,
 }));

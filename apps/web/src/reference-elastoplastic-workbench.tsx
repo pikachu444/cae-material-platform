@@ -5,21 +5,27 @@ import "./features/modeling/ui/modeling-export-delivery-workbenches.css";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createElastoplasticSolverCard,
   createTabulatedPlasticityModel,
   downloadNeutralMaterial,
   downloadElastoplasticSolverCard,
   getNeutralMaterial,
   getTabulatedPlasticityHardeningCurve,
-  listBulkExportCandidates,
-  listDatasetsForMaterialState,
   listElastoplasticSolverCards,
   listTabulatedPlasticityModels,
   preflightElastoplasticMapping,
   previewElastoplasticSolverCard,
   promoteModelToNeutralMaterial,
   promoteProcessingOutputToTabulatedPlasticity,
-} from "./api";
+} from "./features/modeling";
+import {
+  listBulkExportCandidates,
+} from "./features/materials";
+import {
+  listDatasetsForMaterialState,
+} from "./features/test-data";
 import type {
   DatasetResponse,
   ElastoplasticCardResponse,

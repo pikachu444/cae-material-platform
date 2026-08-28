@@ -2,6 +2,8 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   type ApiConfig,
+} from "./shared/api";
+import {
   createOgdenPronyCard,
   createOgdenPronyModel,
   downloadOgdenPronyCard,
@@ -9,7 +11,7 @@ import {
   listOgdenPronyModels,
   preflightOgdenPronyCard,
   previewOgdenPronyCard,
-} from "./api";
+} from "./features/modeling";
 import type {
   MaterialStateResponse,
   OgdenPronyCardResponse,

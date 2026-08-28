@@ -3,13 +3,15 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createGovernedImportProfile,
   executeGovernedTabularImport,
   listGovernedImportProfiles,
   listTestRunsForMaterialState,
   previewGovernedTabularImport,
   uploadGovernedTabularFile,
-} from "./api";
+} from "./features/test-data";
 import type {
   DataClassification,
   GovernedChannelMapping,

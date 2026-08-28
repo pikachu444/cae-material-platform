@@ -5,13 +5,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   promoteModelToNeutralMaterial,
   promoteProcessingOutputToTabulatedPlasticity,
-} from "./api";
+} from "./features/modeling";
 import { createExactTargetPreview, reduceModelingSession, type ModelingSessionSummary } from "./features/modeling";
 import { ModelingExportPrerequisites } from "./modeling-export-prerequisites";
 import { ModelingTargetPreview } from "./features/modeling/ui/stages/export/modeling-target-preview";
 
-vi.mock("./api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./api")>()),
+vi.mock("./features/modeling", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./features/modeling")>()),
   promoteModelToNeutralMaterial: vi.fn(),
   promoteProcessingOutputToTabulatedPlasticity: vi.fn(),
 }));
