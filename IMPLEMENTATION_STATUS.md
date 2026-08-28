@@ -82,8 +82,8 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   publication은 기존 review 경계에 남습니다. 이 범위는 #342의 [PR #353](https://github.com/pikachu444/cae-material-platform/pull/353)에서
   fresh PostgreSQL/API/browser 검증, Full 독립 감수와 2026-08-28 제품 소유자 화면 승인을 통과했습니다.
   #341은 additive common-unit `1.1.0`에서 explicit `speed`의 `m/s`·`mm/s`·`mm/min`과 density의
-  `tonne/mm3`를 구현하고 변경하지 않은 source-v2 apply/export/no-op을 닫았습니다. #343 Task 2B는
-  제품 코드를 추가하지 않고 현재 지원 경계를 확정합니다. governed import 계약과 Modeling 입력은
+  `tonne/mm3`를 구현하고 변경하지 않은 source-v2 apply/export/no-op을 닫았습니다. #343 Task 2B의
+  [PR #356](https://github.com/pikachu444/cae-material-platform/pull/356)은 제품 코드를 추가하지 않고 현재 지원 경계를 확정합니다. governed import 계약과 Modeling 입력은
   `dma_frequency_temperature_sweep`만 지원하며 `dma_strain_sweep`은 선택지와 계약 열거값에서 제외되어
   명시적으로 지원되지 않습니다. source-v2 Record의 `Test Type: Strain Sweep` 값은 동적 형식으로
   검증·보존할 수 있는 데이터 값이지, canonical 처리나 점탄성 계산 지원을 뜻하지 않습니다.

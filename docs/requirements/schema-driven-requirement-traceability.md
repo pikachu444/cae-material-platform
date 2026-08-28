@@ -22,7 +22,7 @@
 | P1 Catalog Schema Bundle | #204, #207, #208 완료; #246 Task 1A·Task 1B; #341 | 구현 | #246 Task 1A는 PR #250, main `b9a82e9`에서 source-v2 어댑터, 객체형 `x-curve`, business-key 승격·참조 해석을 병합했다. Task 1B는 PR #353, main `fa4e451`에서 서버가 실제 JSON의 installed exact format revision을 resolve하는 strict preview, 파일별 진단, 원자 DRAFT batch와 exact source JSON/CSV read-back을 완료했다. #341은 변경하지 않은 기준 파일 묶음을 plan → atomic apply → exact-source export → no-op 재적용한다. 원본은 연결 6개를 선언하지만 승인 범위는 직접 연결 5개다. 원본의 상충하는 `dma_to_elastoplasticity` 항목은 source evidence로만 보존하고 `CMP-SCHEMA-SOURCE-0029`로 제외한다. |
 | P2 Curve 채널·편차 | #206 완료; #246 Task 1A 완료; #341 회귀 | 구현 | 공통 채널·편차 계약과 source-v2 객체형 `x-curve` 해석·원본 위치 보존이 구현됐다. #341은 #209의 explicit-legacy `Hz` 경계를 공통 registry로 옮기지 않고 그대로 재사용해 변경하지 않은 source-v2 전체 apply를 통과시킨다. |
 | P3 단위·Unit Profile | #205, #209 Hz 완료; #341, #214 | 부분 | 공통 계약 `1.1.0`은 기존 8개 dimension·ID·alias와 exact Unit Profile revision trace를 보존하고 explicit `speed`의 `m/s`·`mm/s`·`mm/min`, density의 `tonne/mm3`를 추가한다. DMA frequency의 `Hz`는 #209 explicit-legacy 계약을 유지한다. source profile의 범위 밖 `mass: tonne`는 원본 Artifact에 보존하고 위치가 있는 경고와 함께 공통-unit projection에서 제외하며 변환을 추론하지 않는다. 추가 solver profile과 관리 UI는 #214 범위다. |
-| P4 DMA·FLD | #209 완료; #343 지원 경계 확정; #195 production 점탄성 | 부분/보류 | #209 PR #248, main `3e642e8`에서 `dma_frequency_temperature_sweep`와 `forming_limit` governed import, Hz, canonical lineage를 완료했다. #343은 실제 운용 자료와 승인 요구가 없는 `dma_strain_sweep`을 구현하지 않고, 현재 계약 열거값과 Modeling 선택지에서 제외된 명시적 미지원으로 확정한다. source-v2 DMA 형식이 `Strain Sweep` 값을 허용하는 것은 Record 검증·보존 범위이며 canonical 처리 지원을 뜻하지 않는다. master curve·Prony·LinearViscoelastic IR production 확장은 #195가 소유하고 별도 production 입력·수치 검증·UI 승인을 거친다. |
+| P4 DMA·FLD | #209 완료; #343 PR #356 지원 경계 확정; #195 production 점탄성 | 부분/보류 | #209 PR #248, main `3e642e8`에서 `dma_frequency_temperature_sweep`와 `forming_limit` governed import, Hz, canonical lineage를 완료했다. #343 PR #356은 실제 운용 자료와 승인 요구가 없는 `dma_strain_sweep`을 구현하지 않고, 현재 계약 열거값과 Modeling 선택지에서 제외된 명시적 미지원으로 확정한다. source-v2 DMA 형식이 `Strain Sweep` 값을 허용하는 것은 Record 검증·보존 범위이며 canonical 처리 지원을 뜻하지 않는다. master curve·Prony·LinearViscoelastic IR production 확장은 #195가 소유하고 별도 production 입력·수치 검증·UI 승인을 거친다. |
 | P5 분포·대표곡선 | #210 완료; #211, #246 Task 3 | 부분 | scalar 분포 피팅 외에도 common-grid piecewise-linear/no-extrapolation alignment, append-only 포함·제외 판단과 exact Dataset/Test Run lineage, pointwise mean/95% CI immutable Artifact, calibration input scope exact pinning이 구현돼 있다. #211 잔여는 pointwise p05/p95 representative revision, 그 revision의 review/approval/invalidation, 승인된 representative exact revision의 Fit 선택 연결이다. 범용 scalar 확장은 완료로 주장하지 않으며 #246 Task 3에서 소유권을 재대조한다. |
 | P6 Template·solver·다단위 | #213, #214 | 미구현 | governed Template, LS-DYNA MAT_024, 추가 solver unit system과 관리 UI가 남아 있다. |
 | P7 승인·역할 | #160 완료; #246 Task 4 | 부분/결정 | Record/Test Data 검토·게시·복구는 구현됐다. 역할 preset 변경과 `data_manager`는 자동 구현하지 않고 제품 결정을 기록한다. |
@@ -39,7 +39,7 @@
 | G3 curve metadata | 구현 | #206 공통 계약과 #246 Task 1A source-v2 bundle 연결을 구현했다. |
 | G4 business key/pointer | 구현 | #246 Task 1A가 source-v2 business key 승격, 정확한 개정 고정, 각 Attribute의 원본 JSON pointer·파일 해시 저장과 원본 Artifact export를 병합했다. Task 1B는 strict wrapper/binding validation, exact reference pinning, durable source pointer/unit/curve evidence와 deterministic downloads를 같은 immutable Record revision에 고정했다. #341의 변경하지 않은 전체 적용과 exact-source export도 같은 위치·해시를 유지한다. 상충하는 원본 DMA 참조는 증거 필드로 보존하되 제품 관계로 승격하지 않는다. |
 | G5 단위 | 부분 | 공통 기반과 #209의 explicit-legacy `Hz`를 보존한다. #341은 additive common-unit `1.1.0`으로 `speed`의 `m/s`·`mm/s`·`mm/min`과 `mass_per_volume`의 `tonne/mm3`를 닫고 변경하지 않은 source-v2를 적용한다. 추가 solver profile은 #214 범위다. |
-| G6 DMA/FLD | 부분/보류 | #209가 frequency-temperature DMA와 FLD governed import 및 exact lineage를 완료했다. #343은 `dma_strain_sweep`을 현재 계약·UI에서 명시적 미지원으로 확정한다. 동적 source-v2 Record의 형식 값과 canonical 처리 capability를 혼동하지 않는다. master curve·Prony·LinearViscoelastic IR production 확장은 #195가 소유한다. |
+| G6 DMA/FLD | 부분/보류 | #209가 frequency-temperature DMA와 FLD governed import 및 exact lineage를 완료했다. #343 PR #356은 `dma_strain_sweep`을 현재 계약·UI에서 명시적 미지원으로 확정한다. 동적 source-v2 Record의 형식 값과 canonical 처리 capability를 혼동하지 않는다. master curve·Prony·LinearViscoelastic IR production 확장은 #195가 소유한다. |
 | G7 publication validation | 구현 방식 변경 | #207이 원본의 부분 성공보다 강한 atomic apply/read-back을 구현했다. |
 | G8 `non_production` | 보류 | production 근거 전까지 유지한다. |
 | G9 SPA login | 미구현 | #215. |
@@ -79,7 +79,7 @@ Simulation Data→Modeling/solver-card 후보 후속이지만 native parent와 �
 각 Task는 별도 branch/PR로 처리하며 이미 구현된 기능을 재작성하지 않는다. #246이 닫힐 때
 P1~P10/G1~G24 각 행은 구현 완료, 기존 Issue 소유, 제품 보류 또는 제외 중 하나를 가져야 한다.
 
-### 3. #343 — DMA 지원 경계와 점탄성 소유권
+### 3. #343 — DMA 지원 경계와 점탄성 소유권 (PR #356)
 
 #209가 구현한 governed import와 Modeling 입력은 frequency-temperature DMA만 지원한다.
 `dma_strain_sweep`은 현재 계약 열거값과 사용자 선택지에 없으므로 추측해 변환하지 않고 명시적으로
