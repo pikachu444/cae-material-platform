@@ -14,8 +14,9 @@ PLAYBOOK = ROOT / "docs" / "repository" / "frontend-change-review-playbook.md"
 INCOMING_PATH = "`docs/_incoming/2026-07-24-organic-ux-update/`"
 BACKLOG_TEMPORARY_INPUT_RULE = (
     f"{INCOMING_PATH}는 #162가 소유한 임시 입력입니다. "
-    "#162의 흡수·통합 종료 조건(absorption/integration exit condition)과 명시적 owner authorization이 "
-    "모두 충족되기 전에는 그 내용을 읽지 말고, 경로 또는 내용을 이동하거나 삭제하지 않습니다."
+    "#162의 흡수·통합 종료 조건(absorption/integration exit condition)과 "
+    "명시적 owner authorization이 모두 충족되기 전에는 그 내용을 읽지 말고, "
+    "경로 또는 내용을 이동하거나 삭제하지 않습니다."
 )
 DOCS_README_TEMPORARY_INPUT_POINTER = (
     "[backlog의 canonical\ntemporary-input rule](planning/backlog.md)"
