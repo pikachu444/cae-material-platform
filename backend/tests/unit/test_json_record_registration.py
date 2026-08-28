@@ -4,30 +4,39 @@ import hashlib
 import io
 import json
 import zipfile
-from collections.abc import Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
+from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
+import sqlalchemy as sa
+from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError
 from cmp.modules.catalog.adapters.api.json_record_registration import _error
+from cmp.modules.catalog.adapters.persistence.configurable import (
+    RlsContext,
+    SqlAlchemyConfigurableCatalogRepository,
+)
 from cmp.modules.catalog.adapters.persistence.json_record_registration import (
     SqlAlchemyInstalledJsonRecordFormatResolver,
     SqlAlchemyJsonRegistrationRepository,
 )
 from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
+from cmp.modules.catalog.application.configurable import AttributeSnapshot
 from cmp.modules.catalog.application.json_record_registration import (
     InstalledJsonRecordFormat,
     JsonAttributeBinding,
     JsonRecordRegistrationService,
+    JsonRegistrationPersistence,
     JsonRegistrationToken,
 )
-from cmp.modules.catalog.application.records import CatalogRecordService
+from cmp.modules.catalog.application.records import CatalogRecordService, CreateRecord
 from cmp.modules.catalog.domain.configurable import AttributeDataType, ConfigurableCatalogConflict
 from cmp.modules.catalog.domain.json_record_registration import (
     JSON_MEDIA_TYPE,
@@ -35,6 +44,7 @@ from cmp.modules.catalog.domain.json_record_registration import (
     SOURCE_CSV_HEADER,
     JsonRegistrationError,
     JsonRegistrationFile,
+    JsonRegistrationFileResult,
     build_registration_package,
     exact_csv_filename,
     exact_json_filename,
@@ -52,6 +62,7 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import Session
 
 PROJECT_ROOT = Path(__file__).parents[3]
 SOURCE_SCHEMAS = PROJECT_ROOT / "fixtures/schema-definition-bundle/source-v2/record-schemas"
@@ -66,8 +77,32 @@ SCHEMA_BY_WRAPPER = {
 }
 
 
+def _as_catalog_records(value: object) -> CatalogRecordService:
+    """Cast a deliberately minimal test double at the service boundary."""
+
+    return cast(CatalogRecordService, value)
+
+
+def _as_registration_persistence(value: object) -> JsonRegistrationPersistence:
+    """Cast a deliberately minimal persistence double at the service boundary."""
+
+    return cast(JsonRegistrationPersistence, value)
+
+
+def _compile_clause(statement: sa.ClauseElement) -> str:
+    return str(statement.compile(dialect=postgresql.dialect()))  # type: ignore[no-untyped-call]
+
+
+def _compiled_params(statement: sa.ClauseElement) -> Mapping[str, object]:
+    compiled = statement.compile(dialect=postgresql.dialect())  # type: ignore[no-untyped-call]
+    return cast(Mapping[str, object], compiled.params)
+
+
 def _schema(wrapper: str) -> dict[str, object]:
-    value = json.loads((SOURCE_SCHEMAS / SCHEMA_BY_WRAPPER[wrapper]).read_text(encoding="utf-8"))
+    value = cast(
+        dict[str, object],
+        json.loads((SOURCE_SCHEMAS / SCHEMA_BY_WRAPPER[wrapper]).read_text(encoding="utf-8")),
+    )
     value["x-wrapper"] = wrapper
     return value
 
@@ -180,7 +215,7 @@ def test_api_error_bounds_unexpected_detail_without_losing_problem_construction(
 def test_api_error_maps_invalid_preview_to_422_and_conflict_to_409() -> None:
     context, decision = _security()
     service = JsonRecordRegistrationService(
-        _FakeRecords(), formats={FORMAT_REVISION: _format()}
+        _as_catalog_records(_FakeRecords()), formats={FORMAT_REVISION: _format()}
     )
     preview = service.preview(
         context,
@@ -313,13 +348,13 @@ def test_preview_projects_ordered_bound_fields_and_bounded_curve_summary() -> No
         attributes=(
             JsonAttributeBinding(
                 "/record/name",
-                text_attribute,
+                cast(AttributeSnapshot, text_attribute),
                 section="Identity",
                 source_key="record_name",
             ),
             JsonAttributeBinding(
                 "/record/curve",
-                curve_attribute,
+                cast(AttributeSnapshot, curve_attribute),
                 section="Results",
                 curve={
                     "x_pointer": "/record/curve/x",
@@ -337,13 +372,13 @@ def test_preview_projects_ordered_bound_fields_and_bounded_curve_summary() -> No
                 "curve": {"x": [0, 1, 2], "y": [10, 20, 30]},
             }
         },
-        format_value,
+        cast(InstalledJsonRecordFormat, format_value),
     )
     assert [(field.section, field.label, field.value) for field in fields[:1]] == [
         ("Identity", "Record name", "T-01")
     ]
     assert JsonRecordRegistrationService._preview_record_name(
-        {"record": {"name": "T-01"}}, format_value
+        {"record": {"name": "T-01"}}, cast(InstalledJsonRecordFormat, format_value)
     ) == "T-01"
     assert fields[1].summary == "3 points · x s · y MPa"
     assert fields[1].value is None
@@ -355,15 +390,18 @@ def test_preview_projects_ordered_bound_fields_and_bounded_curve_summary() -> No
         table_revision_id=uuid4(),
         table_key="test-records",
     )
-    content = JsonRecordRegistrationService(_FakeRecords())._content(
+    content = JsonRecordRegistrationService(_as_catalog_records(_FakeRecords()))._content(
         context,
         decision,
-        content_format,
+        cast(InstalledJsonRecordFormat, content_format),
         {"record": {"name": "T-01"}},
-        SimpleNamespace(
+        cast(
+            JsonRegistrationFileResult,
+            SimpleNamespace(
             filename="record.json",
             external_key="external-key",
             record_name=None,
+            ),
         ),
         references={},
         curve_artifacts={},
@@ -472,24 +510,26 @@ def test_existing_pending_batch_appends_ready_before_preview_commit() -> None:
     }
 
     class _Result:
-        def __init__(self, mapping: dict[str, object] | None = None) -> None:
+        def __init__(self, mapping: Mapping[str, object] | None = None) -> None:
             self._mapping = mapping
             self.rowcount = 1
 
         def mappings(self) -> _Result:
             return self
 
-        def one_or_none(self) -> dict[str, object] | None:
+        def one_or_none(self) -> Mapping[str, object] | None:
             return self._mapping
 
-        def all(self) -> list[dict[str, object]]:
+        def all(self) -> list[Mapping[str, object]]:
             return []
 
     class _Session:
         def __init__(self) -> None:
-            self.statements: list[object] = []
+            self.statements: list[sa.ClauseElement] = []
 
-        def execute(self, statement: object, *_args: object, **_kwargs: object) -> _Result:
+        def execute(
+            self, statement: sa.ClauseElement, *_args: object, **_kwargs: object
+        ) -> _Result:
             self.statements.append(statement)
             if len(self.statements) == 1:
                 return _Result(preview_row)
@@ -499,8 +539,8 @@ def test_existing_pending_batch_appends_ready_before_preview_commit() -> None:
 
     session = _Session()
     repository = SqlAlchemyJsonRegistrationRepository(
-        session_factory=lambda: session,  # type: ignore[arg-type]
-        rls_context=SimpleNamespace(),  # type: ignore[arg-type]
+        session_factory=cast(Callable[[], Session], lambda: session),
+        rls_context=SimpleNamespace(),
     )
     repository._validate_curve_associations_in_transaction = (  # type: ignore[method-assign]
         lambda **_kwargs: None
@@ -508,7 +548,7 @@ def test_existing_pending_batch_appends_ready_before_preview_commit() -> None:
     repository._persist_links_in_transaction = lambda **_kwargs: None  # type: ignore[method-assign]
 
     repository.persist_batch_in_transaction(
-        session=session,  # type: ignore[arg-type]
+        session=cast(Session, session),
         context=context,
         decision=decision,
         token=token,
@@ -518,7 +558,7 @@ def test_existing_pending_batch_appends_ready_before_preview_commit() -> None:
     )
 
     compiled = [
-        str(statement.compile(dialect=postgresql.dialect()))
+        _compile_clause(statement)
         for statement in session.statements
     ]
     assert not any(
@@ -541,23 +581,25 @@ def test_repository_routes_exact_domain_pins_through_boolean_scoped_lookup() -> 
     context, decision = _security()
 
     class _RecordingSession:
-        statement: object | None = None
+        statement: sa.ClauseElement | None = None
 
-        def scalar(self, statement: object) -> bool:
+        def scalar(self, statement: sa.ClauseElement) -> bool:
             self.statement = statement
             return True
 
     session = _RecordingSession()
     repository = SqlAlchemyCatalogRecordRepository(
-        session_factory=lambda: None,  # type: ignore[arg-type]
-        rls_context=SimpleNamespace(),  # type: ignore[arg-type]
+        session_factory=cast(Callable[[], Session], lambda: None),
+        rls_context=SimpleNamespace(),
     )
 
     @contextmanager
-    def transaction(_context: SecurityContext, _decision: AuthorizationDecision):
+    def transaction(
+        _context: SecurityContext, _decision: AuthorizationDecision
+    ) -> Iterator[_RecordingSession]:
         yield session
 
-    repository._transaction = transaction  # type: ignore[method-assign]
+    object.__setattr__(repository, "_transaction", transaction)
     binding = (
         "test_data",
         UUID("70000000-0000-4000-8000-00000000000c"),
@@ -574,12 +616,12 @@ def test_repository_routes_exact_domain_pins_through_boolean_scoped_lookup() -> 
         is True
     )
     assert session.statement is not None
-    compiled = str(session.statement.compile(dialect=postgresql.dialect()))
+    compiled = _compile_clause(session.statement)
     assert "access_control.catalog_domain_revision_exists" in compiled
     assert compiled.count("CAST(%(") == 2
     assert "AS TEXT)" in compiled
     assert "datasets.test_data_document_revision" not in compiled
-    params = session.statement.compile(dialect=postgresql.dialect()).params
+    params = _compiled_params(session.statement)
     assert set(params.values()) == {
         ORG,
         PROJECT,
@@ -615,10 +657,13 @@ def test_source_arrays_remain_evidence_while_scalar_and_curve_bindings_stay_stri
         )
 
     resolver = SqlAlchemyInstalledJsonRecordFormatResolver(
-        session_factory=lambda: None,
-        rls_context=SimpleNamespace(),
-        artifacts=SimpleNamespace(),
-        schemas=SimpleNamespace(get_attribute=get_attribute),
+        session_factory=lambda: cast(Session, None),
+        rls_context=cast(RlsContext, SimpleNamespace()),
+        artifacts=cast(ArtifactService, SimpleNamespace()),
+        schemas=cast(
+            SqlAlchemyConfigurableCatalogRepository,
+            SimpleNamespace(get_attribute=get_attribute),
+        ),
     )
     schema = {
         "x-wrapper": "record",
@@ -646,6 +691,12 @@ def test_source_arrays_remain_evidence_while_scalar_and_curve_bindings_stay_stri
             }
         },
     }
+    record_properties = cast(
+        dict[str, object],
+        cast(dict[str, object], cast(dict[str, object], schema["properties"])["record"])[
+            "properties"
+        ],
+    )
     bindings = [
         {
             "target_type": "attribute",
@@ -705,7 +756,7 @@ def test_source_arrays_remain_evidence_while_scalar_and_curve_bindings_stay_stri
         "/record/curve",
     ]
 
-    schema["properties"]["record"]["properties"]["distribution_parameters"] = {
+    record_properties["distribution_parameters"] = {
         "type": ["object", "null"],
         "additionalProperties": True,
         "x-key": "distribution_parameters",
@@ -723,7 +774,7 @@ def test_source_arrays_remain_evidence_while_scalar_and_curve_bindings_stay_stri
         "/record/name",
         "/record/curve",
     ]
-    schema["properties"]["record"]["properties"]["structured_parameters"] = {
+    record_properties["structured_parameters"] = {
         "type": ["object", "null"],
         "properties": {"value": {"type": "string", "x-key": "structured_value"}},
         "x-key": "structured_parameters",
@@ -754,10 +805,13 @@ def test_namespaced_attribute_binding_retains_exact_source_semantic_key() -> Non
         ),
     )
     resolver = SqlAlchemyInstalledJsonRecordFormatResolver(
-        session_factory=lambda: None,
-        rls_context=SimpleNamespace(),
-        artifacts=SimpleNamespace(),
-        schemas=SimpleNamespace(get_attribute=lambda **_kwargs: snapshot),
+        session_factory=lambda: cast(Session, None),
+        rls_context=cast(RlsContext, SimpleNamespace()),
+        artifacts=cast(ArtifactService, SimpleNamespace()),
+        schemas=cast(
+            SqlAlchemyConfigurableCatalogRepository,
+            SimpleNamespace(get_attribute=lambda **_kwargs: snapshot),
+        ),
     )
     schema = {
         "x-wrapper": "record",
@@ -831,13 +885,15 @@ class _FakeRecords:
     def __init__(self) -> None:
         self.calls = 0
         self._repository = self
-        self.commands = ()
-        self.domain_binding_calls = []
-        self.created_records = ()
+        self.commands: tuple[tuple[UUID, CreateRecord], ...] = ()
+        self.domain_binding_calls: list[
+            tuple[DataClassification, tuple[str, UUID, UUID]]
+        ] = []
+        self.created_records: tuple[SimpleNamespace, ...] = ()
 
     def _promote_business_key(
         self, _context: object, _decision: object, content: CatalogRecordContent
-    ):
+    ) -> CatalogRecordContent:
         return content
 
     def _validate_record(
@@ -845,12 +901,13 @@ class _FakeRecords:
     ) -> None:
         return None
 
-    def create_records_atomically(self, **_kwargs: object):
+    def create_records_atomically(self, **_kwargs: object) -> tuple[SimpleNamespace, ...]:
         self.calls += 1
-        self.commands = tuple(_kwargs["records"])  # type: ignore[arg-type]
-        records = []
-        for _ in _kwargs["records"]:  # type: ignore[union-attr]
-            content = _[1].content  # type: ignore[index]
+        commands = cast(tuple[tuple[UUID, CreateRecord], ...], _kwargs["records"])
+        self.commands = commands
+        records: list[SimpleNamespace] = []
+        for _, command in commands:
+            content = command.content
             records.append(
                 SimpleNamespace(
                     id=uuid4(),
@@ -865,8 +922,8 @@ class _FakeRecords:
 
     def get_record_revision(
         self, _context: object, _decision: object, _record_id: UUID, _revision_id: UUID
-    ):
-        return self.created_records[0].current
+    ) -> SimpleNamespace:
+        return cast(SimpleNamespace, self.created_records[0].current)
 
     def validate_exact_domain_binding(
         self,
@@ -898,7 +955,7 @@ def _number_binding(
     )
     return JsonAttributeBinding(
         "/record/stress",
-        attribute,
+        cast(AttributeSnapshot, attribute),
         source_unit="MPa",
         quantity_semantics=quantity_semantics,
     )
@@ -963,7 +1020,7 @@ def test_complete_exact_number_binding_still_normalizes_to_typed_value() -> None
 
 class _FakeArtifactReader:
     def __init__(self) -> None:
-        self.values = {}
+        self.values: dict[UUID, tuple[SimpleNamespace, bytes]] = {}
 
     async def read_verified_bytes(
         self,
@@ -972,16 +1029,16 @@ class _FakeArtifactReader:
         artifact_id: UUID,
         *,
         maximum_bytes: int,
-    ):
+    ) -> tuple[SimpleNamespace, bytes]:
         assert maximum_bytes > 0
         return self.values[artifact_id]
 
 
 class _FakeProvenance:
     def __init__(self) -> None:
-        self.value = None
+        self.value: Mapping[str, object] | None = None
 
-    def get_provenance(self, **_kwargs: object):
+    def get_provenance(self, **_kwargs: object) -> Mapping[str, object] | None:
         return self.value
 
 
@@ -1029,7 +1086,7 @@ def _curve_format() -> InstalledJsonRecordFormat:
         attributes=(
             JsonAttributeBinding(
                 "/record/curve",
-                curve_attribute,
+                cast(AttributeSnapshot, curve_attribute),
                 curve={
                     "x_pointer": "/x",
                     "y_pointer": "/y",
@@ -1045,14 +1102,16 @@ def _curve_format() -> InstalledJsonRecordFormat:
 class _FakeCurveArtifacts:
     def __init__(self) -> None:
         self.calls = 0
-        self.idempotency_keys = []
+        self.idempotency_keys: list[str] = []
         self.artifact_id = uuid4()
         self.artifact_sha256 = "c" * 64
         self.artifact_size_bytes = 12
 
-    async def finalize_derived_bytes(self, *_args: object, **kwargs: object):
+    async def finalize_derived_bytes(
+        self, *_args: object, **kwargs: object
+    ) -> SimpleNamespace:
         self.calls += 1
-        self.idempotency_keys.append(kwargs["idempotency_key"])
+        self.idempotency_keys.append(cast(str, kwargs["idempotency_key"]))
         artifact = SimpleNamespace(
             id=self.artifact_id,
             sha256=self.artifact_sha256,
@@ -1060,14 +1119,15 @@ class _FakeCurveArtifacts:
         )
         finalized = SimpleNamespace(record=SimpleNamespace(artifact=artifact))
         if self.calls == 1:
-            kwargs["commit_hook"]("artifact-session", finalized)  # type: ignore[operator]
+            commit_hook = cast(Callable[[str, SimpleNamespace], None], kwargs["commit_hook"])
+            commit_hook("artifact-session", finalized)
         return SimpleNamespace(artifact=artifact)
 
 
 class _CurvePersistence:
     def __init__(self) -> None:
-        self.batch_id = None
-        self.associations = []
+        self.batch_id: UUID | None = None
+        self.associations: list[tuple[UUID, str, str, UUID]] = []
         self.persist_attempts = 0
         self.ready_events = 0
         self.record_facts = 0
@@ -1078,14 +1138,15 @@ class _CurvePersistence:
     def ensure_pending_batch(self, *, batch_id: UUID, **_kwargs: object) -> UUID:
         if self.batch_id is None:
             self.batch_id = batch_id
+        assert self.batch_id is not None
         return self.batch_id
 
     def persist_curve_artifact_in_transaction(self, **kwargs: object) -> None:
         association = (
-            kwargs["batch_id"],
-            kwargs["filename"],
-            kwargs["json_pointer"],
-            kwargs["artifact_id"],
+            cast(UUID, kwargs["batch_id"]),
+            cast(str, kwargs["filename"]),
+            cast(str, kwargs["json_pointer"]),
+            cast(UUID, kwargs["artifact_id"]),
         )
         if association not in self.associations:
             self.associations.append(association)
@@ -1099,22 +1160,26 @@ class _CurvePersistence:
 
 
 class _FailingAtomicRecords(_FakeRecords):
-    def create_records_atomically(self, **kwargs: object):
+    def create_records_atomically(self, **kwargs: object) -> tuple[SimpleNamespace, ...]:
         self.calls += 1
-        self.commands = tuple(kwargs["records"])  # type: ignore[arg-type]
+        commands = cast(tuple[tuple[UUID, CreateRecord], ...], kwargs["records"])
+        self.commands = commands
         records = tuple(
             SimpleNamespace(
                 id=uuid4(),
                 current=SimpleNamespace(
                     record=SimpleNamespace(revision_id=uuid4(), revision_no=1),
-                    content=command[1].content,  # type: ignore[index]
+                    content=command.content,
                 ),
             )
-            for command in self.commands
+            for _, command in commands
         )
         callback = kwargs.get("after_create")
         if callback is not None:
-            callback("record-session", records)  # type: ignore[operator]
+            after_create = cast(
+                Callable[[object, Sequence[SimpleNamespace]], None], callback
+            )
+            after_create("record-session", records)
         self.created_records = records
         return records
 
@@ -1126,10 +1191,10 @@ async def test_curve_artifact_failure_reuses_batch_and_artifact_identities() -> 
     artifacts = _FakeCurveArtifacts()
     persistence = _CurvePersistence()
     service = JsonRecordRegistrationService(
-        records,
+        _as_catalog_records(records),
         formats={FORMAT_REVISION: _curve_format()},
-        artifact_service=artifacts,
-        persistence=persistence,
+        artifact_service=cast(ArtifactService, artifacts),
+        persistence=_as_registration_persistence(persistence),
     )
     source = JsonRegistrationFile(
         "curve.json",
@@ -1193,7 +1258,9 @@ async def test_durable_source_download_reads_verified_artifact_records_for_raw_a
     artifacts = _FakeArtifactReader()
     persistence = _FakeProvenance()
     service = JsonRecordRegistrationService(
-        _FakeRecords(), artifact_service=artifacts, persistence=persistence
+        _as_catalog_records(_FakeRecords()),
+        artifact_service=cast(ArtifactService, artifacts),
+        persistence=_as_registration_persistence(persistence),
     )
 
     raw = b'{"record":{"id":"RAW-1"}}'
@@ -1267,7 +1334,9 @@ async def test_durable_source_download_reads_verified_artifact_records_for_raw_a
 def test_service_preview_is_non_authoritative_and_save_replay_returns_same_draft_records() -> None:
     context, decision = _security()
     records = _FakeRecords()
-    service = JsonRecordRegistrationService(records, formats={FORMAT_REVISION: _format()})
+    service = JsonRecordRegistrationService(
+        _as_catalog_records(records), formats={FORMAT_REVISION: _format()}
+    )
     source = JsonRegistrationFile("record.json", b'{"record":{"id":"R-1"}}')
     preview = service.preview(
         context,
@@ -1312,7 +1381,9 @@ def test_service_auto_resolves_one_wrapper_and_reports_ambiguous_formats() -> No
     context, decision = _security()
     source = JsonRegistrationFile("record.json", b'{"record":{"id":"R-AUTO"}}')
 
-    unique = JsonRecordRegistrationService(_FakeRecords(), formats={FORMAT_REVISION: _format()})
+    unique = JsonRecordRegistrationService(
+        _as_catalog_records(_FakeRecords()), formats={FORMAT_REVISION: _format()}
+    )
     preview = unique.preview(context, decision, files=(source,))
     assert preview.valid is True
     assert preview.format_revision_id == str(FORMAT_REVISION)
@@ -1323,7 +1394,8 @@ def test_service_auto_resolves_one_wrapper_and_reports_ambiguous_formats() -> No
     second_revision = uuid4()
     second_format = replace(_format(), format_revision_id=second_revision)
     ambiguous = JsonRecordRegistrationService(
-        _FakeRecords(), formats={FORMAT_REVISION: _format(), second_revision: second_format}
+        _as_catalog_records(_FakeRecords()),
+        formats={FORMAT_REVISION: _format(), second_revision: second_format},
     )
     rejected = ambiguous.preview(context, decision, files=(source,))
     assert rejected.valid is False
@@ -1335,7 +1407,9 @@ def test_service_auto_resolves_one_wrapper_and_reports_ambiguous_formats() -> No
 def test_service_passes_only_verified_exact_domain_pins_to_atomic_record_commands() -> None:
     context, decision = _security()
     records = _FakeRecords()
-    service = JsonRecordRegistrationService(records, formats={FORMAT_REVISION: _format()})
+    service = JsonRecordRegistrationService(
+        _as_catalog_records(records), formats={FORMAT_REVISION: _format()}
+    )
     binding = (
         "test_data",
         UUID("70000000-0000-4000-8000-00000000000c"),

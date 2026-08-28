@@ -19,6 +19,7 @@ import re
 import struct
 import unicodedata
 import zipfile
+import zlib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -879,7 +880,7 @@ def _deterministic_zip(entries: Sequence[tuple[str, bytes]]) -> bytes:
     for name, value in entries:
         encoded_name = name.encode("utf-8")
         offset = output.tell()
-        crc = zipfile.crc32(value) & 0xFFFFFFFF
+        crc = zlib.crc32(value) & 0xFFFFFFFF
         output.write(
             struct.pack(
                 "<4s5H3I2H",

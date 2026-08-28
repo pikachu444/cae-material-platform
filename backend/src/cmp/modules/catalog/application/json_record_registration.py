@@ -15,7 +15,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
 import pyarrow as pa
@@ -158,7 +158,8 @@ def _curve_artifact_bytes(
         }
     ).replace_schema_metadata(metadata)
     output = io.BytesIO()
-    pq.write_table(table, output, compression="zstd", write_statistics=True)
+    write_table = cast(Callable[..., None], pq.write_table)
+    write_table(table, output, compression="zstd", write_statistics=True)
     return output.getvalue()
 
 
@@ -236,21 +237,21 @@ class InstalledJsonRecordFormat:
         ):
             if value.int == 0:
                 raise ValueError(f"{name} must be a non-zero UUID")
-        for name, value in (
+        for digest_name, digest in (
             ("schema_sha256", self.schema_sha256),
             ("table_source_sha256", self.table_source_sha256),
             ("application_source_sha256", self.application_source_sha256),
         ):
-            if value is None:
-                if name == "application_source_sha256":
+            if digest is None:
+                if digest_name == "application_source_sha256":
                     continue
-                raise ValueError(f"{name} must be a lowercase SHA-256 digest")
+                raise ValueError(f"{digest_name} must be a lowercase SHA-256 digest")
             if (
-                len(value) != 64
-                or value.lower() != value
-                or any(c not in "0123456789abcdef" for c in value)
+                len(digest) != 64
+                or digest.lower() != digest
+                or any(c not in "0123456789abcdef" for c in digest)
             ):
-                raise ValueError(f"{name} must be a lowercase SHA-256 digest")
+                raise ValueError(f"{digest_name} must be a lowercase SHA-256 digest")
         if not self.wrapper or not isinstance(self.schema, Mapping):
             raise ValueError("installed JSON format requires one schema wrapper")
 
@@ -705,11 +706,11 @@ class JsonRecordRegistrationService:
                 continue
             if root is not None:
                 roots[file.filename] = root
-        diagnostics: dict[str, tuple[JsonRegistrationDiagnostic, ...]] = {}
+        resolution_diagnostics: dict[str, tuple[JsonRegistrationDiagnostic, ...]] = {}
         distinct_roots = set(roots.values())
         if len(distinct_roots) > 1:
             for file in files:
-                diagnostics[file.filename] = (
+                resolution_diagnostics[file.filename] = (
                     self._format_diagnostic(
                         file,
                         code="mixed_record_type",
@@ -717,10 +718,10 @@ class JsonRecordRegistrationService:
                         recovery="Keep one installed record type in the batch and preview again.",
                     ),
                 )
-            return None, diagnostics
+            return None, resolution_diagnostics
         if not distinct_roots:
             for file in files:
-                diagnostics[file.filename] = (
+                resolution_diagnostics[file.filename] = (
                     self._format_diagnostic(
                         file,
                         code=JsonRegistrationErrorCode.FORMAT_NOT_FOUND.value,
@@ -731,12 +732,12 @@ class JsonRecordRegistrationService:
                         ),
                     ),
                 )
-            return None, diagnostics
+            return None, resolution_diagnostics
         wrapper = next(iter(distinct_roots))
         candidates = tuple(item for item in formats if item.wrapper == wrapper)
         if not candidates:
             for file in files:
-                diagnostics[file.filename] = (
+                resolution_diagnostics[file.filename] = (
                     self._format_diagnostic(
                         file,
                         code=JsonRegistrationErrorCode.FORMAT_NOT_FOUND.value,
@@ -744,10 +745,10 @@ class JsonRecordRegistrationService:
                         recovery="Install the exact format for this Record type, then retry.",
                     ),
                 )
-            return None, diagnostics
+            return None, resolution_diagnostics
         if len(candidates) != 1:
             for file in files:
-                diagnostics[file.filename] = (
+                resolution_diagnostics[file.filename] = (
                     self._format_diagnostic(
                         file,
                         code="format_ambiguous",
@@ -761,8 +762,8 @@ class JsonRecordRegistrationService:
                         ),
                     ),
                 )
-            return None, diagnostics
-        return candidates[0], diagnostics
+            return None, resolution_diagnostics
+        return candidates[0], resolution_diagnostics
 
     @staticmethod
     def _require(
@@ -2522,6 +2523,7 @@ class JsonRecordRegistrationService:
                 format_value=format_value,
                 batch_id=batch_id,
                 records=records,
+                resolved_links=resolved_links,
             )
             if not self._persistence.commit_preview(
                 context=context,

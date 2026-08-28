@@ -7,11 +7,12 @@ import posixpath
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from datetime import UTC, datetime
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
 from cmp.modules.artifacts.adapters.persistence.content import artifact_table
@@ -643,17 +644,21 @@ class SqlAlchemyJsonRegistrationRepository:
     ) -> bool:
         with self._sessions() as session, session.begin():
             self._rls.bind_authorization(session, context, decision)
-            result = session.execute(
-                sa.update(json_record_registration_preview)
-                .where(
-                    json_record_registration_preview.c.organization_id == context.organization_id,
-                    json_record_registration_preview.c.project_id == context.project_id,
-                    json_record_registration_preview.c.principal_id == context.principal.id,
-                    json_record_registration_preview.c.token_digest == self.token_digest(token),
-                    json_record_registration_preview.c.state == "open",
-                    json_record_registration_preview.c.expires_at > datetime.now(UTC),
-                )
-                .values(state="committed", batch_id=batch_id)
+            result = cast(
+                CursorResult[Any],
+                session.execute(
+                    sa.update(json_record_registration_preview)
+                    .where(
+                        json_record_registration_preview.c.organization_id
+                        == context.organization_id,
+                        json_record_registration_preview.c.project_id == context.project_id,
+                        json_record_registration_preview.c.principal_id == context.principal.id,
+                        json_record_registration_preview.c.token_digest == self.token_digest(token),
+                        json_record_registration_preview.c.state == "open",
+                        json_record_registration_preview.c.expires_at > datetime.now(UTC),
+                    )
+                    .values(state="committed", batch_id=batch_id)
+                ),
             )
             return result.rowcount == 1
 
@@ -780,6 +785,7 @@ class SqlAlchemyJsonRegistrationRepository:
         format_value: InstalledJsonRecordFormat,
         batch_id: UUID,
         records: Sequence[Any],
+        resolved_links: Sequence[tuple[str, str, str, str, UUID, UUID]] = (),
     ) -> None:
         rows = []
         for ordinal, (file, record) in enumerate(zip(token.files, records, strict=True), start=1):
@@ -821,6 +827,15 @@ class SqlAlchemyJsonRegistrationRepository:
         with self._sessions() as session, session.begin():
             self._rls.bind_authorization(session, context, decision)
             session.execute(sa.insert(record_json_source_provenance), rows)
+            self._persist_links_in_transaction(
+                session=session,
+                context=context,
+                token=token,
+                format_value=format_value,
+                batch_id=batch_id,
+                records=records,
+                resolved_links=resolved_links,
+            )
 
     def get_provenance(
         self,
@@ -1328,15 +1343,18 @@ class SqlAlchemyJsonRegistrationRepository:
                 )
             )
         )
-        updated = session.execute(
-            sa.update(json_record_registration_preview)
-            .where(
-                json_record_registration_preview.c.organization_id == context.organization_id,
-                json_record_registration_preview.c.project_id == context.project_id,
-                json_record_registration_preview.c.id == preview["id"],
-                json_record_registration_preview.c.state == "open",
-            )
-            .values(state="committed", batch_id=batch_id)
+        updated = cast(
+            CursorResult[Any],
+            session.execute(
+                sa.update(json_record_registration_preview)
+                .where(
+                    json_record_registration_preview.c.organization_id == context.organization_id,
+                    json_record_registration_preview.c.project_id == context.project_id,
+                    json_record_registration_preview.c.id == preview["id"],
+                    json_record_registration_preview.c.state == "open",
+                )
+                .values(state="committed", batch_id=batch_id)
+            ),
         )
         if updated.rowcount != 1:
             raise ValueError("JSON registration preview token could not be committed")
@@ -1758,12 +1776,12 @@ class SqlAlchemyInstalledJsonRecordFormatResolver:
                     f"installed source file '{source_file}' is not a JSON schema object"
                 )
             source_properties = source_schema.get("properties")
-            wrapper = next(
-                (key for key in source_properties if isinstance(key, str))
-                if isinstance(source_properties, Mapping)
-                else (),
-                None,
-            )
+            wrapper: str | None = None
+            if isinstance(source_properties, Mapping):
+                wrapper = next(
+                    (key for key in source_properties if isinstance(key, str)),
+                    None,
+                )
             if not isinstance(wrapper, str):
                 raise ConfigurableCatalogConflict(
                     f"installed schema for table '{table_key}' has no wrapper"
