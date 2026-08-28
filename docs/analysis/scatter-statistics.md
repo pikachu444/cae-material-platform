@@ -56,7 +56,7 @@ Curve alignment는 Processor run이며 Statistical Analyzer 내부의 숨은 변
 | Cross-replicate QC | feature/curve deviation, population inconsistency | outlier candidate |
 | Model-readiness QC | 필요한 loading mode/rate/temp coverage | calibration-readiness report |
 
-QC result 상태는 `pass`, `warning`, `fail`, `not_evaluated`다. `not_evaluated`를 pass처럼 표시하지 않는다.
+QC result 상태는 정확히 `passed`, `failed`다.
 
 ## 5. Scalar feature
 

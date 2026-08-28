@@ -473,7 +473,7 @@ def test_incoming_integration_package_is_reference_not_authoritative() -> None:
         ]
         == "reference"
     )
-    assert classes["docs/product/desktop-engineering-ui-program-brief.md"] == "authoritative"
+    assert classes["docs/product/desktop-engineering-ui-program-brief.md"] == "reference"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
 
 

@@ -185,7 +185,7 @@ screenshots, measurements and interactions.
 The authoritative decision hierarchy is:
 
 1. repository domain contracts and `AGENTS.md`;
-2. the UI program brief and product/interaction specification;
+2. current product and interaction specifications;
 3. the project `desktop-engineering-ui` skill;
 4. the external implementation, audit and browser-testing skills;
 5. optional Figma exploration and planned Storybook workbench.
@@ -193,3 +193,6 @@ The authoritative decision hierarchy is:
 Figma remains optional. Storybook remains a planned component dependency. Playwright and the external
 browser-testing skill both protect the real application screen and task flow; neither permits a
 mock-only implementation.
+
+The program brief is a background/rationale reference only and cannot override current
+product/interaction specifications.

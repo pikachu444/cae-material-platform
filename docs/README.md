@@ -113,5 +113,5 @@
 - [승인 자료·해시 목록](product/service-reference-manifest.yaml)
 
 큰 문서를 관성적으로 모두 읽지 마십시오. 정확한 issue와 target ID를 먼저 정하고 `rg`로 관련 문단만
-찾습니다. `docs/_incoming/2026-07-24-organic-ux-update/`는 #162 전용 입력이므로 그 전 작업에서는
-열지 않습니다.
+찾습니다. 임시 입력 `docs/_incoming/2026-07-24-organic-ux-update/`는 [backlog의 canonical
+temporary-input rule](planning/backlog.md)에 따라 관리합니다.

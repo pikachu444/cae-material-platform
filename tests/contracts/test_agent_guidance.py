@@ -8,7 +8,21 @@ ROOT = Path(__file__).parents[2]
 AGENTS = ROOT / "AGENTS.md"
 AGENTS_MAX_BYTES = 16 * 1024
 BACKLOG = ROOT / "docs" / "planning" / "backlog.md"
+DOCS_README = ROOT / "docs" / "README.md"
+IMPLEMENTATION_STATUS = ROOT / "IMPLEMENTATION_STATUS.md"
 PLAYBOOK = ROOT / "docs" / "repository" / "frontend-change-review-playbook.md"
+INCOMING_PATH = "`docs/_incoming/2026-07-24-organic-ux-update/`"
+BACKLOG_TEMPORARY_INPUT_RULE = (
+    f"{INCOMING_PATH}는 #162가 소유한 임시 입력입니다. "
+    "#162의 흡수·통합 종료 조건(absorption/integration exit condition)과 명시적 owner authorization이 "
+    "모두 충족되기 전에는 그 내용을 읽지 말고, 경로 또는 내용을 이동하거나 삭제하지 않습니다."
+)
+DOCS_README_TEMPORARY_INPUT_POINTER = (
+    "[backlog의 canonical\ntemporary-input rule](planning/backlog.md)"
+)
+STATUS_TEMPORARY_INPUT_POINTER = (
+    "[backlog의 canonical\n  temporary-input rule](docs/planning/backlog.md)"
+)
 
 
 def test_root_agent_guidance_stays_within_context_budget() -> None:
@@ -65,14 +79,29 @@ def test_issue_specific_high_dpi_history_lives_in_authoritative_playbook() -> No
         assert required in playbook
 
 
-def test_backlog_retains_temporary_input_owner_and_exit_guard() -> None:
+def test_backlog_is_canonical_temporary_input_owner_and_exit_guard() -> None:
     backlog = BACKLOG.read_text(encoding="utf-8")
 
+    assert BACKLOG_TEMPORARY_INPUT_RULE in backlog
+    assert backlog.count(INCOMING_PATH) == 1
+
+
+def test_temporary_input_policy_pointers_are_explicit_and_non_authoritative() -> None:
+    guidance = AGENTS.read_text(encoding="utf-8")
+    portal = DOCS_README.read_text(encoding="utf-8")
+    status = IMPLEMENTATION_STATUS.read_text(encoding="utf-8")
+
     assert (
-        "`docs/_incoming/2026-07-24-organic-ux-update/`는 #162 전에는 읽거나 "
-        "삭제하지 않습니다."
-        in backlog
+        "Follow only [`docs/planning/backlog.md`](docs/planning/backlog.md) for\n"
+        "  temporary-input owner, exit, read, move, and delete authority."
+        in guidance
     )
+    assert "#162" not in guidance
+    assert INCOMING_PATH in portal
+    assert DOCS_README_TEMPORARY_INPUT_POINTER in portal
+    assert "#162 전용 입력" not in portal
+    assert STATUS_TEMPORARY_INPUT_POINTER in status
+    assert "이 상태 문서는 해당 경로에 대한 접근 권한을 부여하지 않습니다." in status
 
 
 def test_root_agent_guidance_keeps_authority_and_acceptance_boundaries() -> None:

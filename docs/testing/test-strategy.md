@@ -1013,8 +1013,9 @@ only the 10,000-Material and 2-GiB streaming conditions.
 The export gate starts from canonical `cmp.neutral-material` bytes, never from a latest model alias.
 It validates metal Abaqus/OpenRadioss semantic keywords, generalized-Maxwell Abaqus Prony rows,
 hyperelastic Abaqus Prony overlays and one-term Ogden OpenRadioss LAW62. A non-Ogden LAW62 request
-and a linear-Prony OpenRadioss request must remain `unsupported`; stale mapping-report digests must
-remain conflicts. Existing T-57 rate-independent hyperelastic card bytes are regression fixtures.
+remains `unsupported`. A linear-Prony OpenRadioss request remains `unsupported` only when it fails
+any bounded ADR-0032 `/MAT/LAW1` + `/VISC/LPRONY` eligibility condition; stale mapping-report digests
+must remain conflicts. Existing T-57 rate-independent hyperelastic card bytes are regression fixtures.
 
 Migration tests require typed family columns, ordered Prony and mapping-item tables, composite exact
 revision foreign keys, RLS and immutable triggers without JSON/EAV value storage. API/UI tests cover

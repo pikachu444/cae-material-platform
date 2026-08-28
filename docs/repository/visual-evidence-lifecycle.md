@@ -48,21 +48,21 @@ satisfy it.
 
 ## Retained top-level evidence Markdown
 
-Only the following sixteen Markdown reports remain directly under `docs/17-evidence/`. They are an
+Only the following eighteen Markdown reports remain directly under `docs/17-evidence/`. They are an
 explicit allowlist, grouped by the contract that keeps them in the working tree.
 
 Nested `images/**/image-index.md` files are frozen-raster inventories and archive rationales, not
 top-level completion reports. They keep immutable raster packets registered with the offline image
 inventory after their completed reports leave the working tree.
 
-### Contract-test inputs
+### A. Contract-test inputs
 
 The fixed-base historical helper-link test reads these two reports directly:
 
 - [`issue-261-css-inventory-and-migration-plan.md`](../17-evidence/issue-261-css-inventory-and-migration-plan.md)
 - [`issue-261-m1e5-producer-routed-residual.md`](../17-evidence/issue-261-m1e5-producer-routed-residual.md)
 
-### Local screenshot-evidence inputs
+### B. Local screenshot-evidence inputs
 
 The current guide's screenshot manifest and the CSS selector inventory resolve these ten reports as
 repository-local paths. Keeping them local preserves offline `is_file()` and `read_text()` validation;
@@ -79,15 +79,18 @@ replacing them with live GitHub URLs would violate the rule that hooks never dep
 - [`issue-262-fe07a-materials-architecture-ui.md`](../17-evidence/issue-262-fe07a-materials-architecture-ui.md)
 - [`issue-309-modeling-data-axis-overlap.md`](../17-evidence/issue-309-modeling-data-axis-overlap.md)
 
-### Open-issue and fixed-exception inputs
+### C. Open-issue and fixed-exception inputs
 
-These four reports remain because the open #223 handoff or a fixed current-product exception still
-uses their human-readable evidence:
+These six reports remain because the open #223 handoff or a fixed current-product exception still
+uses their human-readable evidence. The current product-owner decision retains the two issue-342
+Task 1B packets as fixed reference inputs pending the final Task 4 allowlist.
 
 - [`issue-184-high-dpi-global-implementation.md`](../17-evidence/issue-184-high-dpi-global-implementation.md)
 - [`issue-184-to-223-windows-4k-handoff.md`](../17-evidence/issue-184-to-223-windows-4k-handoff.md)
 - [`issue-221-high-dpi-decision.md`](../17-evidence/issue-221-high-dpi-decision.md)
 - [`issue-289-administration-database-workflow.md`](../17-evidence/issue-289-administration-database-workflow.md)
+- [`issue-342-task1b-frontend-design-packet.md`](../17-evidence/issue-342-task1b-frontend-design-packet.md)
+- [`issue-342-task1b-json-record-registration.md`](../17-evidence/issue-342-task1b-json-record-registration.md)
 
 ## Recovery
 

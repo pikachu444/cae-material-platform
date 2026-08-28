@@ -1,5 +1,8 @@
 # MVP와 후속 단계 로드맵
 
+이 문서는 장기 Stage/DoD 방향(long-term stage/DoD direction)을 정리합니다. 현재 작업 순서는
+`docs/planning/backlog.md`와 정확한 active issue가 소유합니다.
+
 ## 1. 로드맵 원칙
 
 - 화면별 개발이 아니라 raw→release 수직 흐름을 단계적으로 완성한다.
@@ -7,9 +10,9 @@
 - 각 단계는 demo가 아니라 exit gate와 regression evidence로 완료한다.
 - graph DB, microservice, AI 기능은 측정된 필요가 생기기 전에는 도입하지 않는다.
 
-## 1.1 현재 delivery wave overlay
+## 1.1 long-term delivery-wave context
 
-장기 Stage 정의는 유지하되, 현재 구현 순서는 ADR-0019의 실행 wave를 우선한다.
+다음 P0/P1/P2는 장기 delivery-wave context이며, 현재 작업 순서를 선언하지 않는다.
 
 1. `P0-1`: Docker Compose 전체 stack과 live PostgreSQL migration/RLS/integration suite를
    skip 없이 검증한다.
@@ -21,7 +24,7 @@
    hardening을 진행한다.
 
 실제 solver 실행 검증을 P2로 미루는 것은 Stage 4를 삭제하거나 기존 evidence를 폐기하는
-결정이 아니다. 현재 P1은 solver executable 없이 수행할 수 있는 constitutive response와
+결정이 아니다. P1은 solver executable 없이 수행할 수 있는 constitutive response와
 holdout 검증까지만 포함한다. Reference Voce/SciPy 선택 역시 production model/optimizer 결정이
 아니며 synthetic fixture로 계약을 검증하는 bounded 구현이다.
 
