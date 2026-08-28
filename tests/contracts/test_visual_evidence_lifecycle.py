@@ -325,7 +325,10 @@ def test_issue_351_cleanup_requires_one_complete_approved_root(tmp_path: Path) -
     approved_root.rmdir()
     report = verify_documentation_impact(tmp_path, "worktree")
 
-    assert any(path.endswith("issue-160-activity-density/first.png") for path in report.changed_files)
+    assert any(
+        path.endswith("issue-160-activity-density/first.png")
+        for path in report.changed_files
+    )
 
 
 def test_issue_351_cleanup_does_not_unlock_an_adjacent_frozen_root(tmp_path: Path) -> None:
