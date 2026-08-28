@@ -34,6 +34,9 @@ from cmp.modules.catalog.application.schema_bundles import (
 type Dependency = Callable[..., object]
 type Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 type OptionalText2000 = Annotated[str, StringConstraints(min_length=1, max_length=2000)] | None
+type SourceSchemaId = Annotated[str, StringConstraints(min_length=1, max_length=500)]
+type SourceSchemaVersion = Annotated[str, StringConstraints(min_length=1, max_length=64)]
+type SourceFile = Annotated[str, StringConstraints(min_length=1, max_length=1000)]
 type VisibleAscii255 = Annotated[str, StringConstraints(pattern=r"^[!-~]{1,255}$")]
 type BundleKey = Annotated[
     str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,62}[a-z0-9]$|^[a-z]$")
@@ -156,6 +159,10 @@ class ProjectedAttributeResponse(BaseModel):
     help_text: OptionalText2000
     source_pointer: str
     adapter_semantics: ProjectedAdapterSemanticsResponse
+    source_schema_id: SourceSchemaId | None = None
+    source_schema_version: SourceSchemaVersion | None = None
+    source_file: SourceFile | None = None
+    source_file_sha256: Sha256 | None = None
     business_key: bool = False
 
 

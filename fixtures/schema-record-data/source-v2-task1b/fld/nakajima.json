@@ -1,0 +1,21 @@
+{
+  "fld-test": {
+    "Data Information": {
+      "FLD Data Record Name": "DP780 Nakajima FLD",
+      "FLD Data ID": "CMP-246-FLD-NAKAJIMA",
+      "Technical Data ID": "CMP-246-TECH-DP780"
+    },
+    "Test Condition": {
+      "Test Standard": "Nakajima"
+    },
+    "Test Result": {
+      "Forming Limit Curve": {
+        "Series 1": {
+          "Minor Strain (strain)": [-0.2, 0, 0.2],
+          "Major Strain (strain)": [0.12, 0.2, 0.3]
+        }
+      },
+      "FLC0": 0.2
+    }
+  }
+}

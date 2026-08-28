@@ -452,7 +452,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 123
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 128
     assert "administration-format-definitions-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-categories-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-linked-test-1440x900.png" in CURRENT_CAPTURE_OUTPUTS

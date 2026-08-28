@@ -10,17 +10,25 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import math
 import os
 import time
+import zipfile
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
+from pathlib import Path
 from typing import Any
 
 import seed_ogden_calibration_demo
 import seed_viscoelastic_master_demo
 from cmp.apps.demo_seed import DemoApi, DemoSeedError
+from cmp.modules.catalog.domain.json_record_registration import (
+    JSON_PACKAGE_MEDIA_TYPE,
+    JsonRegistrationFile,
+    build_registration_package,
+)
 from cmp.modules.datasets.domain.reference_tensile import (
     REFERENCE_TENSILE_PARQUET_SCHEMA,
     REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
@@ -68,6 +76,10 @@ _STATISTICS_ALIGNED_SELECTION_LABEL = "CMP demo DP780 aligned tensile replicates
 _STATISTICS_PLAN_LABEL = "CMP demo DP780 replicate curve statistics"
 _OBSERVED_CURVE_ATTRIBUTE_KEY = "observed_tensile_curve"
 _STATISTICS_CURVE_ATTRIBUTE_KEY = "replicate_statistics_curve"
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_TASK1B_FIXTURE_ROOT = _PROJECT_ROOT / "fixtures" / "schema-record-data" / "source-v2-task1b"
+_SOURCE_V2_FIXTURE_ROOT = _PROJECT_ROOT / "fixtures" / "schema-definition-bundle" / "source-v2"
+_ISSUE342_SCHEMA_APPLY_TIMEOUT_SECONDS = 180.0
 
 
 def _catalog_material_family_allowed_values() -> tuple[str, ...]:
@@ -375,6 +387,415 @@ def _ensure_catalog_record_publication(
                 "reason": "Approve the complete synthetic demo revision for product verification.",
             },
         )
+
+
+def _fixture_schema_source_zip() -> bytes:
+    """Package the unchanged source-v2 schema files for the real bundle API."""
+
+    entries = [
+        (
+            "catalog-schema-bundle.manifest.json",
+            (_SOURCE_V2_FIXTURE_ROOT / "catalog-schema-bundle.manifest.json").read_bytes(),
+        ),
+        *(
+            (f"record-schemas/{path.name}", path.read_bytes())
+            for path in sorted((_SOURCE_V2_FIXTURE_ROOT / "record-schemas").glob("*.json"))
+        ),
+    ]
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED, allowZip64=False) as archive:
+        for name, value in entries:
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_STORED
+            info.create_system = 3
+            info.external_attr = 0o100644 << 16
+            info.flag_bits = 0x800
+            archive.writestr(info, value)
+    return output.getvalue()
+
+
+def _upload_demo_artifact(
+    api: DemoApi,
+    value: bytes,
+    *,
+    filename: str,
+    media_type: str,
+    idempotency_key: str,
+) -> tuple[str, str]:
+    """Use the same resumable upload path as the browser for seed-owned bytes."""
+
+    digest = hashlib.sha256(value).hexdigest()
+    created = api.post(
+        "/uploads",
+        {
+            "classification": "internal",
+            "original_filename": filename,
+            "media_type": media_type,
+            "expected_size_bytes": len(value),
+            "expected_sha256": digest,
+        },
+        headers={"Idempotency-Key": idempotency_key},
+    )
+    upload = created.get("upload")
+    capability = created.get("upload_capability")
+    if not isinstance(upload, Mapping) or not isinstance(capability, str):
+        raise DemoSeedError("demo Artifact upload did not return a session and capability")
+    upload_id = _id(upload, "upload_id")
+    if upload.get("state") == "open":
+        if upload.get("expected_part_count") != 1:
+            raise DemoSeedError("demo Artifact fixture unexpectedly requires multiple upload parts")
+        api.put_bytes(
+            f"/uploads/{upload_id}/parts/1",
+            value,
+            headers={"Content-Type": media_type, "Upload-Capability": capability},
+        )
+    completed = api.post(
+        f"/uploads/{upload_id}:complete", {}, headers={"Upload-Capability": capability}
+    )
+    artifact_id = completed.get("available_artifact_id")
+    if not isinstance(artifact_id, str) or not artifact_id:
+        raise DemoSeedError("completed demo Artifact upload did not produce an immutable Artifact")
+    return artifact_id, digest
+
+
+def _ensure_issue342_schema_bundle(api: DemoApi) -> dict[str, Any]:
+    """Install source-v2 through the approved plan/apply APIs and read exact formats."""
+
+    source = _fixture_schema_source_zip()
+    source_sha256 = hashlib.sha256(source).hexdigest()
+    artifact_id, source_sha256 = _upload_demo_artifact(
+        api,
+        source,
+        filename="cmp-246-source-v2-schema-bundle.zip",
+        media_type="application/vnd.cmp.catalog-schema-source-set+zip",
+        idempotency_key=f"cmp-demo-issue342-schema-source-{source_sha256[:32]}",
+    )
+    plan = api.post(
+        "/catalog/schema-definition-bundles:plan",
+        {"artifact_id": artifact_id, "artifact_sha256": source_sha256},
+    )
+    if plan.get("valid") is not True:
+        diagnostics = plan.get("diagnostics")
+        raise DemoSeedError(f"source-v2 schema bundle plan was rejected: {diagnostics!r}")
+    plan_fingerprint = plan.get("plan_fingerprint")
+    if not isinstance(plan_fingerprint, str) or not plan_fingerprint:
+        raise DemoSeedError("source-v2 schema bundle plan did not return a fingerprint")
+    application = api.post(
+        "/catalog/schema-definition-bundles:apply",
+        {
+            "artifact_id": artifact_id,
+            "artifact_sha256": source_sha256,
+            "plan_fingerprint": plan_fingerprint,
+            "delete_missing": False,
+        },
+        headers={"Idempotency-Key": f"cmp-demo-issue342-schema-apply-{plan_fingerprint}"},
+        timeout=_ISSUE342_SCHEMA_APPLY_TIMEOUT_SECONDS,
+    )
+    application_id = application.get("application_id")
+    if not isinstance(application_id, str) or not application_id:
+        raise DemoSeedError("source-v2 schema bundle apply did not return an application")
+    formats_response = api.get("/catalog/json-record-formats")
+    formats = formats_response.get("items")
+    if not isinstance(formats, list):
+        raise DemoSeedError("source-v2 installation did not return installed JSON formats")
+    expected_wrappers = {
+        "technical-data": "technical_data",
+        "tensile-test": "tensile_test",
+        "dma-test": "dma_test",
+        "fld-test": "fld_test",
+        "elastoplasticity": "elastoplasticity_data",
+        "statistics": "statistics_data",
+    }
+    by_wrapper: dict[str, dict[str, Any]] = {}
+    for item in formats:
+        if not isinstance(item, Mapping):
+            continue
+        wrapper = item.get("wrapper")
+        table = item.get("table")
+        if (
+            isinstance(wrapper, str)
+            and isinstance(table, Mapping)
+            and table.get("key") == expected_wrappers.get(wrapper)
+        ):
+            by_wrapper[wrapper] = dict(item)
+    missing = sorted(set(expected_wrappers) - set(by_wrapper))
+    if missing:
+        raise DemoSeedError("source-v2 installation is missing formats: " + ", ".join(missing))
+    return {
+        "schema_artifact_id": artifact_id,
+        "schema_artifact_sha256": source_sha256,
+        "schema_application_id": application_id,
+        "formats": by_wrapper,
+    }
+
+
+def _record_for_external_key(
+    api: DemoApi, *, table_id: str, external_key: str
+) -> dict[str, Any] | None:
+    searched = api.post(
+        "/catalog/records:search", {"table_id": table_id, "text": external_key, "limit": 100}
+    )
+    return next(
+        (
+            dict(item)
+            for item in _items(searched)
+            if _content(item).get("external_key") == external_key
+        ),
+        None,
+    )
+
+
+def _record_pin(
+    api: DemoApi,
+    record: Mapping[str, Any],
+    *,
+    filename: str,
+    pointer: str,
+    identifier: str,
+) -> dict[str, str]:
+    record_id = record.get("record_id")
+    if not isinstance(record_id, str) or not record_id:
+        record_id = _id(record, "record_id")
+    detail = api.get(f"/catalog/records/{record_id}")
+    revision = detail.get("current_revision")
+    if not isinstance(revision, Mapping):
+        raise DemoSeedError(f"Catalog Record {identifier} has no exact current revision")
+    revision_id = revision.get("id")
+    content_hash = revision.get("content_hash")
+    if not isinstance(revision_id, str) or not isinstance(content_hash, str):
+        raise DemoSeedError(f"Catalog Record {identifier} has incomplete exact revision metadata")
+    return {
+        "file": filename,
+        "pointer": pointer,
+        "identifier": identifier,
+        "record_id": record_id,
+        "revision_id": revision_id,
+        "content_hash": content_hash,
+    }
+
+
+def _json_reference_pins(
+    api: DemoApi,
+    document: Any,
+    *,
+    filename: str,
+    prior_records: Mapping[str, Mapping[str, Any]],
+) -> list[dict[str, str]]:
+    """Pin every source-v2 human reference to a prior immutable Catalog revision."""
+
+    pins: list[dict[str, str]] = []
+
+    def escape(value: str) -> str:
+        return value.replace("~", "~0").replace("/", "~1")
+
+    def visit(value: Any, pointer: str) -> None:
+        if isinstance(value, Mapping):
+            for key, child in value.items():
+                if isinstance(key, str):
+                    visit(child, f"{pointer}/{escape(key)}")
+            return
+        if isinstance(value, list):
+            for index, child in enumerate(value):
+                visit(child, f"{pointer}/{index}")
+            return
+        if isinstance(value, str) and value in prior_records:
+            pins.append(
+                _record_pin(
+                    api,
+                    prior_records[value],
+                    filename=filename,
+                    pointer=pointer or "/",
+                    identifier=value,
+                )
+            )
+
+    visit(document, "")
+    return pins
+
+
+def _ensure_issue342_json_records(
+    api: DemoApi,
+    *,
+    materials: Mapping[str, tuple[str, str, str]],
+    test_documents: Sequence[Mapping[str, str]],
+    processing: Mapping[str, str],
+    neutral: Mapping[str, str],
+) -> dict[str, str]:
+    """Register the fifteen source-v2 fixtures through upload/preview/save batches."""
+
+    installation = _ensure_issue342_schema_bundle(api)
+    formats = installation["formats"]
+    fixture_manifest = json.loads((_TASK1B_FIXTURE_ROOT / "manifest.json").read_text("utf-8"))
+    entries_by_key = {
+        str(item["external_key"]): item
+        for item in fixture_manifest.get("files", ())
+        if isinstance(item, Mapping)
+    }
+    batches = fixture_manifest.get("batches")
+    if not isinstance(batches, list) or [
+        len(item.get("external_keys", ())) for item in batches
+    ] != [3, 4, 3, 2, 2, 1]:
+        raise DemoSeedError("source-v2 Task 1B fixture batches are not 3/4/3/2/2/1")
+
+    test_targets = {str(item["key"]): item for item in test_documents}
+    domain_targets: dict[str, tuple[str, str, str]] = dict(materials)
+    domain_targets.update(
+        {
+            key: ("test_data", str(item["object_id"]), str(item["revision_id"]))
+            for key, item in test_targets.items()
+        }
+    )
+    domain_targets.update(
+        {
+            "CMP-246-EP-VOCE": (
+                "processing_output",
+                processing["processing_output_id"],
+                processing["processing_output_revision_id"],
+            ),
+            "CMP-246-EP-TABULATED": (
+                "material_model",
+                neutral["selected_material_model_id"],
+                neutral["selected_material_model_revision_id"],
+            ),
+        }
+    )
+
+    prior_records: dict[str, Mapping[str, Any]] = {}
+    result: dict[str, str] = {
+        "json_schema_artifact_id": str(installation["schema_artifact_id"]),
+        "json_schema_application_id": str(installation["schema_application_id"]),
+    }
+    for batch in batches:
+        keys = [str(value) for value in batch.get("external_keys", ())]
+        components: list[JsonRegistrationFile] = []
+        for key in keys:
+            entry = entries_by_key.get(key)
+            if entry is None:
+                raise DemoSeedError(f"source-v2 fixture is missing {key}")
+            path = _TASK1B_FIXTURE_ROOT / str(entry["path"])
+            components.append(JsonRegistrationFile(str(entry["filename"]), path.read_bytes()))
+        wrapper = str(entries_by_key[keys[0]]["wrapper"])
+        format_item = formats.get(wrapper)
+        if not isinstance(format_item, Mapping):
+            raise DemoSeedError(f"source-v2 fixture has no installed format for {wrapper}")
+        table = format_item.get("table")
+        table_id = table.get("id") if isinstance(table, Mapping) else None
+        if not isinstance(table_id, str):
+            raise DemoSeedError(f"installed {wrapper} format has no exact table id")
+
+        existing = {
+            key: _record_for_external_key(api, table_id=table_id, external_key=key)
+            for key in keys
+        }
+        if all(value is not None for value in existing.values()):
+            prior_records.update(
+                {key: value for key, value in existing.items() if value is not None}
+            )
+            result[f"json_registration_batch_{int(batch['ordinal']):02d}_state"] = "existing"
+            continue
+        if any(value is not None for value in existing.values()):
+            raise DemoSeedError(
+                f"source-v2 batch {batch.get('ordinal')} is partially present; "
+                "reconcile exact Records before reseeding"
+            )
+
+        package = build_registration_package(components, scope={"classification": "internal"})
+        package_artifact_id, package_sha256 = _upload_demo_artifact(
+            api,
+            package.archive,
+            filename=f"cmp-246-source-v2-batch-{int(batch['ordinal']):02d}.zip",
+            media_type=JSON_PACKAGE_MEDIA_TYPE,
+            idempotency_key=f"cmp-demo-issue342-record-package-{package.sha256}",
+        )
+        ordered_components = sorted(
+            components, key=lambda item: (item.filename.encode("utf-8"), item.sha256)
+        )
+        package_paths = {
+            item.filename: package.paths[index + 2]
+            for index, item in enumerate(ordered_components)
+        }
+        reference_pins: list[dict[str, str]] = []
+        for component in components:
+            document = json.loads(component.content.decode("utf-8"))
+            reference_pins.extend(
+                _json_reference_pins(
+                    api,
+                    document,
+                    filename=component.filename,
+                    prior_records=prior_records,
+                )
+            )
+        domain_bindings = [
+            {
+                "file": entries_by_key[key]["filename"],
+                "component": package_paths[entries_by_key[key]["filename"]],
+                "kind": domain_targets[key][0],
+                "object_id": domain_targets[key][1],
+                "revision_id": domain_targets[key][2],
+            }
+            for key in keys
+            if key in domain_targets
+        ]
+        preview = api.post(
+            "/catalog/json-record-registrations:preview",
+            {
+                "classification": "internal",
+                "files": [
+                    {
+                        "filename": f"cmp-246-source-v2-batch-{int(batch['ordinal']):02d}.zip",
+                        "artifact_id": package_artifact_id,
+                        "sha256": package_sha256,
+                        "media_type": JSON_PACKAGE_MEDIA_TYPE,
+                    }
+                ],
+                "reference_pins": reference_pins,
+                "domain_bindings": domain_bindings,
+            },
+        )
+        if preview.get("valid") is not True:
+            raise DemoSeedError(
+                f"source-v2 batch {batch.get('ordinal')} preview was rejected: "
+                f"{preview.get('files')!r}"
+            )
+        token = preview.get("preview_token")
+        preview_package = preview.get("package")
+        if not isinstance(token, str) or not isinstance(preview_package, Mapping):
+            raise DemoSeedError("source-v2 preview did not return a durable token/package")
+        save = api.post(
+            f"/catalog/json-record-registrations/{token}:save",
+            {
+                "package_sha256": preview_package.get("sha256", package_sha256),
+                "change_reason": (
+                    "Register the exact synthetic source-v2 Task 1B batch as draft Records."
+                ),
+                "reference_pins": reference_pins,
+                "domain_bindings": domain_bindings,
+            },
+        )
+        batch_id = save.get("batch_id")
+        saved_records = save.get("records")
+        if (
+            not isinstance(batch_id, str)
+            or not isinstance(saved_records, list)
+            or len(saved_records) != len(keys)
+        ):
+            raise DemoSeedError(
+                f"source-v2 batch {batch.get('ordinal')} save did not return all Records"
+            )
+        for item in saved_records:
+            if isinstance(item, Mapping) and isinstance(item.get("external_key"), str):
+                record = _record_for_external_key(
+                    api, table_id=table_id, external_key=str(item["external_key"])
+                )
+                if record is None:
+                    raise DemoSeedError(
+                        f"source-v2 batch {batch.get('ordinal')} save lost Record "
+                        f"{item['external_key']}"
+                    )
+                prior_records[str(item["external_key"])] = record
+        result[f"json_registration_batch_{int(batch['ordinal']):02d}_id"] = batch_id
+    result["json_registration_record_count"] = "15"
+    return result
 
 
 def _ensure_issue246_test_documents(api: DemoApi) -> list[dict[str, str]]:
@@ -5075,8 +5496,6 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     api = DemoApi(base_url)
     api.wait_until_healthy()
     api.authenticate()
-    reviewer_api = DemoApi(base_url)
-    reviewer_api.authenticate("reviewer")
     metal = _find_by_content(
         _items(api.get("/materials?q=CMP-DEMO-DP780&limit=20")),
         "material_code",
@@ -5141,33 +5560,28 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         processing_batch_id=processing["processing_batch_id"],
     )
     issue246_test_documents = _ensure_issue246_test_documents(api)
-    catalog = _ensure_catalog_binding(
+    polymer_detail = api.get(f"/materials/{polymer_id}").get("material")
+    elastomer_detail = api.get(f"/materials/{elastomer_id}").get("material")
+    if not isinstance(polymer_detail, Mapping) or not isinstance(elastomer_detail, Mapping):
+        raise DemoSeedError("clean demo non-metal Materials have no exact revision metadata")
+    json_records = _ensure_issue342_json_records(
         api,
-        reviewer_api,
-        material=metal,
-        test_data=test_data,
-        statistics=statistics,
-        workflow_nodes=(),
-    )
-    catalog_non_metal = _ensure_catalog_material_projections(
-        api,
-        reviewer_api,
-        catalog=catalog,
-        material_ids={"polymer": polymer_id, "elastomer": elastomer_id},
-    )
-    issue246_examples = _ensure_issue246_catalog_examples(
-        api,
-        reviewer_api,
-        technical_table_id=catalog["catalog_table_id"],
-        technical_record_ids={
-            "metal": catalog["catalog_record_id"],
-            "polymer": catalog_non_metal["catalog_polymer_record_id"],
-            "elastomer": catalog_non_metal["catalog_elastomer_record_id"],
+        materials={
+            "CMP-246-TECH-DP780": ("material", metal_id, _revision_id(metal_material)),
+            "CMP-246-TECH-POLYMER": (
+                "material",
+                polymer_id,
+                _revision_id(polymer_detail),
+            ),
+            "CMP-246-TECH-ELASTOMER": (
+                "material",
+                elastomer_id,
+                _revision_id(elastomer_detail),
+            ),
         },
         test_documents=issue246_test_documents,
         processing=processing,
         neutral=neutral,
-        statistics=statistics,
     )
     bulk = _ensure_bulk_bundle(api, material_id=metal_id)
     polymer_bulk_source = _ensure_bulk_bundle(
@@ -5193,9 +5607,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         "metal_material_id": metal_id,
         "polymer_material_id": polymer_id,
         "elastomer_material_id": elastomer_id,
-        **catalog,
-        **catalog_non_metal,
-        **issue246_examples,
+        **json_records,
         **test_data,
         **statistics,
         **processing,

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
+import zipfile
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -24,6 +26,10 @@ from cmp.modules.catalog.domain.schema_bundles import (
     SourceArtifactIdentity,
     build_schema_bundle_plan,
 )
+from cmp.modules.catalog.domain.schema_sources import (
+    SOURCE_ZIP_MEDIA_TYPE,
+    normalize_schema_definition_source,
+)
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -41,6 +47,32 @@ ORG = UUID("20400000-0000-4000-8000-000000000001")
 PROJECT = UUID("20400000-0000-4000-8000-000000000002")
 ACTOR = UUID("20400000-0000-4000-8000-000000000004")
 ARTIFACT = UUID("20400000-0000-4000-8000-000000000005")
+
+
+def _source_v2_zip() -> bytes:
+    source_root = PROJECT_ROOT / "fixtures" / "schema-definition-bundle" / "source-v2"
+    entries = [
+        (
+            "catalog-schema-bundle.manifest.json",
+            (source_root / "catalog-schema-bundle.manifest.json").read_bytes(),
+        ),
+        *(
+            (f"record-schemas/{path.name}", path.read_bytes())
+            for path in sorted((source_root / "record-schemas").glob("*.json"))
+        ),
+    ]
+    output = io.BytesIO()
+    with zipfile.ZipFile(
+        output, "w", compression=zipfile.ZIP_STORED, allowZip64=False
+    ) as archive:
+        for name, value in entries:
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_STORED
+            info.create_system = 3
+            info.external_attr = 0o100644 << 16
+            info.flag_bits = 0x800
+            archive.writestr(info, value)
+    return output.getvalue()
 
 
 def _context() -> SecurityContext:
@@ -105,6 +137,39 @@ class _Planner:
             organization_id=ORG,
             project_id=PROJECT,
             classification_allowed=lambda _: True,
+        )
+
+
+class _SourceV2Planner(_Planner):
+    async def plan(self, context: Any, decision: Any, command: Any) -> SchemaBundlePlan:
+        assert context == CONTEXT
+        assert decision.permission is Permission.CATALOG_WRITE
+        assert command.artifact_id == ARTIFACT
+        assert command.expected_sha256 == self.digest
+        self.calls += 1
+        normalized = normalize_schema_definition_source(
+            self.raw,
+            media_type=SOURCE_ZIP_MEDIA_TYPE,
+            organization_id=ORG,
+            project_id=PROJECT,
+            source_classification=DataClassification.INTERNAL,
+        )
+        return build_schema_bundle_plan(
+            source=SourceArtifactIdentity(
+                ARTIFACT,
+                ORG,
+                PROJECT,
+                DataClassification.INTERNAL,
+                SOURCE_ZIP_MEDIA_TYPE,
+                len(self.raw),
+                self.digest,
+            ),
+            raw_bytes=normalized.canonical_bytes,
+            snapshot=CatalogSnapshot(ORG, PROJECT, ()),
+            organization_id=ORG,
+            project_id=PROJECT,
+            classification_allowed=lambda _: True,
+            source_diagnostics=normalized.diagnostics,
         )
 
 
@@ -292,6 +357,14 @@ def test_schema_bundle_plan_api_is_repeatable_and_reports_no_write_contract() ->
     assert first.status_code == 200
     assert first.content == second.content
     response = first.json()
+    plan_contract = json.loads(
+        (PROJECT_ROOT / "contracts/catalog/schema-definition-plan.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert list(
+        Draft202012Validator(plan_contract, format_checker=FormatChecker()).iter_errors(response)
+    ) == []
     assert response["source_artifact"] == {
         "artifact_id": str(ARTIFACT),
         "organization_id": str(ORG),
@@ -315,6 +388,67 @@ def test_schema_bundle_plan_api_is_repeatable_and_reports_no_write_contract() ->
         "post"
     ]
     assert operation["operationId"] == "planCatalogSchemaDefinitionBundle"
+
+
+def test_source_v2_plan_api_serializes_provenance_and_only_approved_links() -> None:
+    raw = _source_v2_zip()
+    planner = _SourceV2Planner(raw)
+
+    response = _request(
+        _app(planner),
+        json={"artifact_id": str(ARTIFACT), "artifact_sha256": planner.digest},
+    )
+
+    assert response.status_code == 200, response.text
+    plan = response.json()
+    assert plan["valid"] is True
+    projected_attributes = [
+        item["projected"]
+        for item in plan["actions"]
+        if item["target_type"] == "attribute" and item["projected"] is not None
+    ]
+    technical_id = next(
+        item
+        for item in projected_attributes
+        if item["key"] == "data_information__technical_data_id"
+    )
+    source_schema = json.loads(
+        (
+            PROJECT_ROOT
+            / "fixtures/schema-definition-bundle/source-v2/record-schemas/technical-data-v2.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert technical_id["source_schema_id"] == source_schema["$id"]
+    assert technical_id["source_schema_version"] == "2.0.0"
+    assert technical_id["source_file"] == "record-schemas/technical-data-v2.json"
+    assert technical_id["source_file_sha256"] == hashlib.sha256(
+        (
+            PROJECT_ROOT
+            / "fixtures/schema-definition-bundle/source-v2/record-schemas/technical-data-v2.json"
+        ).read_bytes()
+    ).hexdigest()
+
+    projected_links = [
+        item["projected"]
+        for item in plan["actions"]
+        if item["target_type"] == "link_type" and item["projected"] is not None
+    ]
+    assert len(projected_links) == 5
+    assert {
+        (item["source_table_key"], item["target_table_key"])
+        for item in projected_links
+    } == {
+        ("technical_data", "tensile_test"),
+        ("technical_data", "dma_test"),
+        ("technical_data", "fld_test"),
+        ("tensile_test", "elastoplasticity_data"),
+        ("tensile_test", "statistics_data"),
+    }
+    assert not any(
+        item["source_table_key"] == "dma_test"
+        and item["target_table_key"] == "elastoplasticity_data"
+        for item in projected_links
+    )
 
 
 def test_schema_bundle_plan_api_rejects_invalid_digest_shape_and_source_conflict() -> None:

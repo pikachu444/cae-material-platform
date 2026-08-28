@@ -75,6 +75,9 @@ class DemoSeedError(RuntimeError):
     """The local composition is not ready or rejected a synthetic request."""
 
 
+_DEFAULT_REQUEST_TIMEOUT_SECONDS = 30.0
+
+
 class DemoApi:
     def __init__(self, base_url: str) -> None:
         self._base_url = base_url.rstrip("/")
@@ -112,8 +115,11 @@ class DemoApi:
         payload: Mapping[str, Any],
         *,
         headers: Mapping[str, str] | None = None,
+        timeout: float | None = None,
     ) -> dict[str, Any]:
-        return self._request(path, method="POST", payload=payload, headers=headers)
+        return self._request(
+            path, method="POST", payload=payload, headers=headers, timeout=timeout
+        )
 
     def put_bytes(self, path: str, payload: bytes, *, headers: Mapping[str, str]) -> dict[str, Any]:
         return self._request(path, method="PUT", body=payload, headers=headers)
@@ -127,7 +133,13 @@ class DemoApi:
         body: bytes | None = None,
         headers: Mapping[str, str] | None = None,
         authenticated: bool = True,
+        timeout: float | None = None,
     ) -> dict[str, Any]:
+        request_timeout = (
+            _DEFAULT_REQUEST_TIMEOUT_SECONDS if timeout is None else timeout
+        )
+        if request_timeout <= 0:
+            raise ValueError("demo API request timeout must be positive")
         request_headers = {"Accept": "application/json", **(headers or {})}
         if authenticated:
             if self._token is None:
@@ -140,8 +152,12 @@ class DemoApi:
             f"{self._base_url}{path}", data=body, headers=request_headers, method=method
         )
         try:
-            with urlopen(request, timeout=30) as response:
+            with urlopen(request, timeout=request_timeout) as response:
                 content = response.read()
+        except TimeoutError as error:
+            raise DemoSeedError(
+                f"demo API {method} {path} timed out after {request_timeout:g} seconds"
+            ) from error
         except HTTPError as error:
             detail = error.read(2048).decode("utf-8", errors="replace")
             raise DemoSeedError(

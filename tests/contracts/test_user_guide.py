@@ -382,7 +382,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 123
+    assert report.capture_count == 128
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
@@ -536,9 +536,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "1333c64553c884fcc9187f39d862cd2146880dc5"
         "+issue262-fe07b-worktree"
     )
-    assert manifest["version"] == 137
-    assert manifest["scope"] == "issue-262-fe07a-materials-architecture-ui"
-    assert manifest_source == issue262_source
+    issue342_source = (
+        "713bafc75a9b0974281126f30b50c78eb1a9dd2a"
+        "+issue342-task1b-worktree"
+    )
+    assert manifest["version"] == 138
+    assert manifest["scope"] == "issue-342-task1b-json-record-registration"
+    assert manifest_source == issue342_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -546,7 +550,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml"
     )
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Issue #262 FE-07A" in manifest["capture_command"]
+    assert "Issue #342 Task 1B" in manifest["capture_command"]
     assert "five CSS viewports" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
@@ -556,6 +560,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        issue342_source,
         capture_source,
         issue262_source,
         issue262_fe07b_source,
@@ -635,6 +640,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-access-2560",
         "administration-access-3840",
     }
+    new_issue_342_captures = {
+        "administration-records-import-json-1366",
+        "administration-records-import-json-1440",
+        "administration-records-import-json-1920",
+        "administration-records-import-json-2560",
+        "administration-records-import-json-3840",
+    }
     historically_new_issue_289_preview_captures = {
         "administration-database-preview-1366",
         "administration-database-preview-1440",
@@ -713,6 +725,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - new_issue_209_captures
         - historically_new_issue_289_preview_captures
         - {"administration-format-definitions-1440"}
+        - new_issue_342_captures
     )
     assert {
         prior_source,
@@ -748,6 +761,18 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "issue262-administration-visual.spec.ts" in issue_262_fe07b_provenance["command"]
     assert "actual demo API" in issue_262_fe07b_provenance["command"]
     assert new_issue_262_fe07b_captures == set(issue_262_fe07b_provenance["ids"])
+    issue_342_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == issue342_source
+    )
+    assert "fresh-Docker PostgreSQL/API/browser run" in issue_342_provenance["command"]
+    assert (
+        "captured the valid-preview state at 1366x768, 1440x900, 1920x1080, "
+        "2560x1440 and 3840x2160 at browser zoom 100% and DPR 1"
+        in issue_342_provenance["command"]
+    )
+    assert new_issue_342_captures == set(issue_342_provenance["ids"])
     issue_210_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -942,10 +967,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 123
+    assert len(manifest["captures"]) == 128
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 123
+    assert len(list(current_images.glob("*.png"))) == 128
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

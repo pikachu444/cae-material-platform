@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/json-record-registration.schema.json",
+  "title": "Installed-format JSON Catalog Record registration",
+  "type": "object",
+  "$defs": {
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ArtifactPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "file", "pointer", "sha256"],
+      "properties": {
+        "artifact_id": {"type": "string", "format": "uuid"},
+        "file": {"type": "string", "minLength": 1},
+        "pointer": {"type": "string", "pattern": "^/"},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "TablePin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revision_id", "key", "source_file", "source_pointer", "source_sha256"],
+      "properties": {
+        "id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"},
+        "key": {"type": "string", "minLength": 1},
+        "source_file": {"type": "string", "minLength": 1},
+        "source_pointer": {"type": "string", "pattern": "^/"},
+        "source_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "AttributeBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pointer", "attribute_id", "attribute_revision_id", "attribute_key", "data_type", "section"],
+      "properties": {
+        "pointer": {"type": "string", "pattern": "^/"},
+        "attribute_id": {"type": "string", "format": "uuid"},
+        "attribute_revision_id": {"type": "string", "format": "uuid"},
+        "attribute_key": {"type": "string", "minLength": 1},
+        "data_type": {"enum": ["number", "integer", "text", "boolean", "date", "discrete", "curve", "record_reference"]},
+        "source_unit": {"type": ["string", "null"]},
+        "quantity_semantics": {"type": ["string", "null"]},
+        "curve": {"type": ["object", "null"]},
+        "section": {"type": "string", "minLength": 1}
+      }
+    },
+    "InstalledFormat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format_id", "format_revision_id", "format_key", "application_id", "application_revision_id", "application_source", "schema", "table", "wrapper", "attribute_bindings", "link_type_revision_ids", "unit_profile_revision_ids"],
+      "properties": {
+        "format_id": {"type": "string", "format": "uuid"},
+        "format_revision_id": {"type": "string", "format": "uuid"},
+        "format_key": {"type": "string", "minLength": 1},
+        "application_id": {"type": "string", "format": "uuid"},
+        "application_revision_id": {"type": "string", "format": "uuid"},
+        "application_source": {"$ref": "#/$defs/ArtifactPin"},
+        "schema": {"$ref": "#/$defs/ArtifactPin"},
+        "table": {"$ref": "#/$defs/TablePin"},
+        "wrapper": {"type": "string", "minLength": 1},
+        "attribute_bindings": {"type": "array", "items": {"$ref": "#/$defs/AttributeBinding"}},
+        "link_type_revision_ids": {"type": "array", "items": {"type": "string", "format": "uuid"}},
+        "unit_profile_revision_ids": {"type": "array", "items": {"type": "string", "format": "uuid"}}
+      }
+    },
+    "ReferencePin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "pointer", "identifier", "record_id", "revision_id", "content_hash"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "pointer": {"type": "string", "pattern": "^/"},
+        "identifier": {"type": "string", "minLength": 1},
+        "record_id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"},
+        "content_hash": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "DomainBindingPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "component", "kind", "object_id", "revision_id"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1, "maxLength": 255},
+        "component": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "kind": {"type": "string", "pattern": "^[a-z_]+$", "minLength": 1, "maxLength": 32},
+        "object_id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "code", "message", "recovery", "severity"],
+      "properties": {
+        "filename": {"type": "string", "minLength": 1},
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "recovery": {"type": "string", "minLength": 1},
+        "json_pointer": {"type": "string", "pattern": "^/"},
+        "line": {"type": ["integer", "null"], "minimum": 1},
+        "column": {"type": ["integer", "null"], "minimum": 1},
+        "byte_offset": {"type": ["integer", "null"], "minimum": 0},
+        "severity": {"enum": ["warning", "error"]}
+      }
+    },
+    "PreviewField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["section", "label", "pointer", "kind"],
+      "properties": {
+        "section": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "pointer": {"type": "string", "pattern": "^/"},
+        "kind": {"type": "string", "minLength": 1},
+        "value": {"type": ["string", "null"]},
+        "unit": {"type": ["string", "null"]},
+        "summary": {"type": ["string", "null"]}
+      }
+    },
+    "FileResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "sha256", "size_bytes", "valid", "warnings", "errors", "fields"],
+      "properties": {
+        "filename": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "valid": {"type": "boolean"},
+        "warnings": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}},
+        "errors": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}},
+        "fields": {"type": "array", "items": {"$ref": "#/$defs/PreviewField"}},
+        "external_key": {"type": ["string", "null"]},
+        "record_id": {"type": ["string", "null"], "format": "uuid"},
+        "record_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "lifecycle": {"type": ["string", "null"]},
+        "record_name": {"type": ["string", "null"], "minLength": 1}
+      }
+    },
+    "PreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$schema", "contract_version", "preview_token", "expires_at", "package", "format_revision_id", "detected_record_type", "format", "valid", "files"],
+      "properties": {
+        "$schema": {"const": "https://cmp.example/contracts/catalog/json-record-registration.schema.json"},
+        "contract_version": {"const": "1.0.0"},
+        "preview_token": {"type": "string", "minLength": 1},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "package": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["media_type", "sha256"],
+          "properties": {
+            "media_type": {"enum": ["application/json", "application/zip"]},
+            "sha256": {"$ref": "#/$defs/Sha256"},
+            "artifact_id": {"type": ["string", "null"], "format": "uuid"}
+          }
+        },
+        "format_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "detected_record_type": {"type": ["string", "null"], "minLength": 1},
+        "format": {"oneOf": [{"$ref": "#/$defs/InstalledFormat"}, {"type": "null"}]},
+        "valid": {"type": "boolean"},
+        "files": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"$ref": "#/$defs/FileResult"}}
+      }
+    },
+    "PreviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files"],
+      "properties": {
+        "format_revision_id": {"type": ["string", "null"], "format": "uuid", "description": "Optional compatibility assertion; the server resolves the exact installed format from the uploaded roots."},
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"], "default": "internal"},
+        "files": {"type": "array", "minItems": 1, "maxItems": 100, "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["filename", "artifact_id", "sha256"],
+          "properties": {
+            "filename": {"type": "string", "minLength": 1},
+            "artifact_id": {"type": "string", "format": "uuid"},
+            "sha256": {"$ref": "#/$defs/Sha256"},
+            "media_type": {"enum": ["application/json", "application/zip"]}
+          }
+        }},
+        "reference_pins": {"type": "array", "items": {"$ref": "#/$defs/ReferencePin"}},
+        "domain_bindings": {"type": "array", "items": {"$ref": "#/$defs/DomainBindingPin"}}
+      }
+    },
+    "SaveRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_sha256", "change_reason"],
+      "properties": {
+        "format_revision_id": {"type": ["string", "null"], "format": "uuid", "description": "Optional compatibility assertion; the preview token remains authoritative."},
+        "package_sha256": {"$ref": "#/$defs/Sha256"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "reference_pins": {"type": "array", "items": {"$ref": "#/$defs/ReferencePin"}},
+        "domain_bindings": {"type": "array", "items": {"$ref": "#/$defs/DomainBindingPin"}}
+      }
+    },
+    "SaveResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["batch_id", "replayed", "package_sha256", "lifecycle", "records", "publication"],
+      "properties": {
+        "batch_id": {"type": "string", "format": "uuid"},
+        "replayed": {"type": "boolean"},
+        "package_sha256": {"$ref": "#/$defs/Sha256"},
+        "lifecycle": {"const": "DRAFT"},
+        "records": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["record_id", "record_revision_id", "revision_no", "external_key"], "properties": {"record_id": {"type": "string", "format": "uuid"}, "record_revision_id": {"type": "string", "format": "uuid"}, "revision_no": {"type": "integer", "minimum": 1}, "external_key": {"type": ["string", "null"]}}}},
+        "publication": {"type": "object", "additionalProperties": false, "required": ["state", "allowed"], "properties": {"state": {"const": "DRAFT"}, "allowed": {"const": false}}}
+      }
+    },
+    "PackageManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$schema", "contract", "contract_version", "media_type", "scope", "components"],
+      "description": "RFC 8785 JCS UTF-8 (no BOM, one LF) manifest. Components are ordered by NFC original filename UTF-8 bytes then lowercase SHA-256 and use records/<ordinal:03d>-<sha256>.json paths.",
+      "properties": {
+        "$schema": {"const": "https://cmp.example/contracts/catalog/json-record-registration.schema.json"},
+        "contract": {"const": "cmp.catalog-record-registration-package"},
+        "contract_version": {"const": "1.0.0"},
+        "media_type": {"const": "application/zip"},
+        "scope": {
+          "type": "object",
+          "required": ["classification"],
+          "properties": {
+            "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]}
+          },
+          "additionalProperties": true
+        },
+        "format": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["format_revision_id", "format"],
+          "properties": {
+            "format_revision_id": {"type": "string", "format": "uuid"},
+            "format": {"$ref": "#/$defs/InstalledFormat"}
+          }
+        },
+        "components": {"type": "array", "minItems": 1, "maxItems": 100, "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ordinal", "original_name", "path", "media_type", "size_bytes", "sha256"],
+          "properties": {
+            "ordinal": {"type": "integer", "minimum": 1},
+            "original_name": {"type": "string", "minLength": 1},
+            "path": {"type": "string", "pattern": "^records/[0-9]{3}-[0-9a-f]{64}\\.json$"},
+            "media_type": {"const": "application/json"},
+            "size_bytes": {"type": "integer", "minimum": 1},
+            "sha256": {"$ref": "#/$defs/Sha256"}
+          }
+        }}
+      }
+    }
+  }
+}

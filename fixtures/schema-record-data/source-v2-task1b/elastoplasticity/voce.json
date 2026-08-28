@@ -1,0 +1,26 @@
+{
+  "elastoplasticity": {
+    "Data Information": {
+      "Elastoplasticity Data Record Name": "DP780 Voce model",
+      "Elastoplasticity Data ID": "CMP-246-EP-VOCE",
+      "Technical Data ID": "CMP-246-TECH-DP780",
+      "Tensile Data ID": "CMP-246-TENSILE-ROOM"
+    },
+    "Input Parameter": {
+      "Hardening Model": "Voce",
+      "Interpolation Method": "none"
+    },
+    "Mechanical Properties": {
+      "Density (kg/m3)": 7850,
+      "Computed Elastic Modulus (MPa)": 210000
+    },
+    "Strain-Stress Data": {
+      "Original Strain/Stress": {
+        "Series 1": {
+          "Engineering Strain (strain)": [0, 0.01, 0.02],
+          "Value (MPa)": [0, 300, 500]
+        }
+      }
+    }
+  }
+}

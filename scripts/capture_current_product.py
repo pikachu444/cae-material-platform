@@ -121,6 +121,10 @@ ADMINISTRATION_RECORDS_OUTPUTS = tuple(
     f"administration-records-{width}x{height}.png"
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
 )
+ADMINISTRATION_RECORDS_IMPORT_JSON_OUTPUTS = tuple(
+    f"administration-records-import-json-{width}x{height}.png"
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
+)
 ACTIVITY_OUTPUTS = (
     *(f"activity-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
     *(f"activity-history-{width}x{height}.png" for width, height in ACTIVITY_HISTORY_VIEWPORTS),
@@ -277,6 +281,11 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-records-1920x1080.png",
     "administration-records-2560x1440.png",
     "administration-records-3840x2160.png",
+    "administration-records-import-json-1366x768.png",
+    "administration-records-import-json-1440x900.png",
+    "administration-records-import-json-1920x1080.png",
+    "administration-records-import-json-2560x1440.png",
+    "administration-records-import-json-3840x2160.png",
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
     "administration-access-1920x1080.png",
@@ -8814,6 +8823,7 @@ def _preserve_issue_owned_contract_captures(output: Path) -> None:
         "material-database-linked-test-1440x900.png",
         "administration-format-definitions-1440x900.png",
         "demo-session-recovery-1440x900.png",
+        *ADMINISTRATION_RECORDS_IMPORT_JSON_OUTPUTS,
     ):
         source = current / name
         if not source.is_file():

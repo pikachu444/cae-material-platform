@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en" data-display-density="standard">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>#342 JSON import proposed design mockup</title>
+    <link rel="stylesheet" href="issue-342-json-import-proposed-1920x1080.css" />
+  </head>
+  <body>
+    <div class="mockup-shell" data-artifact="proposed-design-mockup">
+      <header class="application-menu-bar">
+        <div class="application-brand" aria-label="CAE Material Platform home">
+          <span class="application-mark">CMP</span>
+          <span>CAE Material Platform</span>
+        </div>
+        <nav class="primary-navigation" aria-label="Primary navigation">
+          <button type="button">Materials</button>
+          <button type="button">Modeling</button>
+          <button type="button">Activity</button>
+        </nav>
+        <button class="user-menu" type="button">Demo user <span aria-hidden="true">⌄</span></button>
+      </header>
+
+      <header class="administration-taskbar">
+        <nav aria-label="Administration tasks">
+          <button type="button">Database</button>
+          <button type="button">Format definitions</button>
+          <button class="active" type="button" aria-current="page">Records</button>
+          <button type="button">Access</button>
+        </nav>
+      </header>
+
+      <div class="proposal-notice" role="note">
+        <strong>Proposed design mockup</strong>
+        <span>Review artifact · not implementation</span>
+      </div>
+
+      <section class="record-command-bar" aria-label="Record commands">
+        <div class="record-command-actions">
+          <button class="button secondary selected-command" type="button">Import records</button>
+          <button class="button secondary" type="button">Create record</button>
+        </div>
+      </section>
+
+      <main class="import-workspace" aria-label="JSON import proposed design">
+        <aside class="steps-pane" aria-label="Import stages">
+          <header class="pane-heading">
+            <h1>Import records</h1>
+            <button class="button tertiary close-workspace" type="button">Close</button>
+          </header>
+
+          <nav class="stage-list" aria-label="Import stages">
+            <button class="complete" type="button">
+              <span class="stage-number">01</span>
+              <span class="stage-name">Files</span>
+              <span class="stage-state">3 files</span>
+            </button>
+            <button class="complete" type="button">
+              <span class="stage-number">02</span>
+              <span class="stage-name">Preview</span>
+              <span class="stage-state">Complete</span>
+            </button>
+            <button class="current" type="button" aria-current="step">
+              <span class="stage-number">03</span>
+              <span class="stage-name">Save draft</span>
+              <span class="stage-state">Current</span>
+            </button>
+          </nav>
+
+          <details class="disclosure">
+            <summary>Technical details</summary>
+          </details>
+        </aside>
+
+        <section class="files-pane" aria-labelledby="files-heading">
+          <header class="pane-heading files-heading-row">
+            <div>
+              <h2 id="files-heading">Files</h2>
+            </div>
+            <button class="button secondary" type="button">Add files</button>
+          </header>
+
+          <div class="file-list" role="grid" aria-label="Files">
+            <div class="file-list-header" role="row">
+              <span role="columnheader">File</span>
+              <span role="columnheader">Record</span>
+              <span role="columnheader">Status</span>
+            </div>
+            <button class="file-row selected" type="button" role="row" aria-selected="true">
+              <span class="file-identity" role="gridcell">cmp-246-technical-dp780.json</span>
+              <span role="gridcell">DP780 technical data</span>
+              <span class="valid-state" role="gridcell"><i aria-hidden="true"></i>Valid</span>
+            </button>
+            <button class="file-row" type="button" role="row">
+              <span class="file-identity" role="gridcell">polymer.json</span>
+              <span role="gridcell">Polymer technical data</span>
+              <span class="valid-state" role="gridcell"><i aria-hidden="true"></i>Valid</span>
+            </button>
+            <button class="file-row" type="button" role="row">
+              <span class="file-identity" role="gridcell">elastomer.json</span>
+              <span role="gridcell">Elastomer technical data</span>
+              <span class="valid-state" role="gridcell"><i aria-hidden="true"></i>Valid</span>
+            </button>
+          </div>
+
+          <footer class="file-list-footer">
+            <span class="batch-summary">3 selected <b>·</b> <span class="valid-state"><i aria-hidden="true"></i>3 valid</span></span>
+          </footer>
+        </section>
+
+        <section class="preview-pane" aria-labelledby="preview-heading">
+          <header class="preview-heading-row">
+            <h2 id="preview-heading">Preview</h2>
+          </header>
+
+          <div class="preview-context">
+            <span>Detected content</span>
+            <strong>Technical data</strong>
+          </div>
+
+          <section class="preview-table-section" aria-label="Selected record fields">
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th scope="col">Field</th>
+                  <th scope="col">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="preview-group-row">
+                  <th colspan="2" scope="rowgroup">Data information</th>
+                </tr>
+                <tr>
+                  <th scope="row">Record name</th>
+                  <td>DP780 technical data</td>
+                </tr>
+                <tr class="preview-group-row">
+                  <th colspan="2" scope="rowgroup">Material information</th>
+                </tr>
+                <tr>
+                  <th scope="row">Family</th>
+                  <td>steel</td>
+                </tr>
+                <tr>
+                  <th scope="row">Grade</th>
+                  <td>DP780</td>
+                </tr>
+                <tr>
+                  <th scope="row">Orientation</th>
+                  <td>rolling</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <footer class="save-composition">
+            <label class="reason-field">
+              <span>Reason for change</span>
+              <input type="text" required aria-required="true" />
+            </label>
+            <button class="button primary" type="button" disabled>Save</button>
+          </footer>
+        </section>
+      </main>
+
+      <footer class="application-status-bar">
+        <span class="status-spacer"></span>
+        <span class="connection"><i aria-hidden="true"></i>Online</span>
+      </footer>
+    </div>
+  </body>
+</html>
