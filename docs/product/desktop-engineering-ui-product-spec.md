@@ -338,7 +338,7 @@ new (Data) → draft/preview → saved processing result → calculated candidat
 - Sessions autosave non-destructive UI state: selected curves, pane sizes, active stage and draft controls.
 - Numerical outputs are not silently committed by autosave.
 - The status bar distinguishes Preview, saved output, explicit selection, and blocked/stale downstream states. It never calls a fit reviewed, validated, approved, released, or delivered without its real event.
-- Session v3 uses explicit context events and clearable current pointers. Material revision/state/family/Test Data changes cannot retain a current downstream output; historical server objects are not deleted.
+- Session v4 uses explicit context events and clearable current pointers. Material revision/state/family/Test Data changes cannot retain a current downstream output; historical server objects are not deleted.
 - Leaving with uncommitted material changes prompts once, with Save draft / Discard / Stay.
 - Stale exact-revision conflicts must offer Reload current, Keep local draft as new revision, or Cancel.
 - Validation, review and release follow a separate governance branch and require their own real events;

@@ -1,6 +1,6 @@
 # Desktop Engineering UI Rebuild Program Brief
 
-Status: authoritative program brief; execution handoff is `AGENTS.md`
+Status: reference program background/rationale; execution handoff is `AGENTS.md`
 Date: 2026-07-28
 Scope: existing CAE Material Platform presentation-layer rebuild  
 Supersedes: the standalone V2 UI ZIP and the legacy `ux-redesign-package` startup prompts as

@@ -8,6 +8,7 @@ rules:
     include:
       - "docs/00-research/**/*.md"
       - "docs/_incoming/2026-07-24-organic-ux-update/**/*.md"
+      - "docs/product/desktop-engineering-ui-program-brief.md"
       - "docs/17-evidence/issue-184-high-dpi-global-implementation.md"
       - "docs/17-evidence/issue-184-to-223-windows-4k-handoff.md"
       - "docs/17-evidence/issue-221-high-dpi-decision.md"
@@ -57,6 +58,8 @@ rules:
       - "docs/planning/**/*.md"
       - "docs/testing/**/*.md"
       - "docs/repository/**/*.md"
+    exclude:
+      - "docs/product/desktop-engineering-ui-program-brief.md"
 
 visual_evidence:
   raster_extensions:
