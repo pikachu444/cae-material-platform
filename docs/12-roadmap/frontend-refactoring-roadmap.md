@@ -133,7 +133,7 @@ FE-02는 기존 `ux-meta`, `ux-kicker`, `ux-notice`, `eyebrow`, `status-chip`, `
 
 현재 동작을 test와 responsibility map으로 고정한다. broad visual change는 하지 않는다.
 현재 판정, fallback 목록, 책임 지도와 회귀 anchor는
-[`issue-258-modeling-characterization.md`](../17-evidence/issue-258-modeling-characterization.md)에 기록한다.
+[`issue-258-modeling-characterization.md`](https://github.com/pikachu444/cae-material-platform/issues/258)에 기록한다.
 
 ### FE-04 — Modeling 구조 분리
 

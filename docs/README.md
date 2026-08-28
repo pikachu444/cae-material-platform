@@ -38,7 +38,7 @@
 | 아키텍처 결정의 배경 | [ADR 색인](../adr/README.md) |
 | 작업 순서와 검증 | [현재 전달 backlog](13-delivery/backlog.md) · [테스트 전략](14-testing/test-strategy.md) |
 | 저장소와 문서 관리 | [저장소 운영 문서](16-repository/) · [시각 증거 lifecycle](16-repository/visual-evidence-lifecycle.md) |
-| 조사·비교 입력과 이슈 증거 | [조사 자료](00-research/) · [이슈 증거](17-evidence/) — 정확한 이슈가 가리킬 때만 확인 |
+| 조사·비교 입력과 유지 승인된 이슈 증거 | [조사 자료](00-research/) · [유지 근거와 승인 목록](16-repository/visual-evidence-lifecycle.md#retained-top-level-evidence-markdown) — 정확한 이슈가 가리키거나 현재 오프라인 계약이 요구할 때만 확인 |
 
 ## 읽기 경로 세 가지
 

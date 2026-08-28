@@ -6,8 +6,9 @@ The authoritative machine-readable rules are in
 enforces them before documentation is accepted.
 
 The approved repository-owner choice is to keep only the affected canonical current screenshot
-families and manifest tracked for new product guidance, while preserving existing historical
-evidence in place and using the .artifacts directory for transient review material.
+families and manifest tracked for new product guidance, while preserving governed historical raster
+evidence and the explicitly retained top-level reports in place and using the .artifacts directory
+for transient review material.
 
 ## Three states
 
@@ -44,6 +45,49 @@ satisfy it.
   the added name as no longer missing.
 - Actual-device #223 rasters may be added or modified only with `manifest.json` or
   `visual-evidence.yaml` in the same issue root. Deletes and renames are rejected.
+
+## Retained top-level evidence Markdown
+
+Only the following sixteen Markdown reports remain directly under `docs/17-evidence/`. They are an
+explicit allowlist, grouped by the contract that keeps them in the working tree.
+
+Nested `images/**/image-index.md` files are frozen-raster inventories and archive rationales, not
+top-level completion reports. They keep immutable raster packets registered with the offline image
+inventory after their completed reports leave the working tree.
+
+### Contract-test inputs
+
+The fixed-base historical helper-link test reads these two reports directly:
+
+- [`issue-261-css-inventory-and-migration-plan.md`](../17-evidence/issue-261-css-inventory-and-migration-plan.md)
+- [`issue-261-m1e5-producer-routed-residual.md`](../17-evidence/issue-261-m1e5-producer-routed-residual.md)
+
+### Local screenshot-evidence inputs
+
+The current guide's screenshot manifest and the CSS selector inventory resolve these ten reports as
+repository-local paths. Keeping them local preserves offline `is_file()` and `read_text()` validation;
+replacing them with live GitHub URLs would violate the rule that hooks never depend on a live lookup.
+
+- [`issue-260-modeling-data-visual-normalization.md`](../17-evidence/issue-260-modeling-data-visual-normalization.md)
+- [`issue-261-b1-modeling-stage-css-ownership.md`](../17-evidence/issue-261-b1-modeling-stage-css-ownership.md)
+- [`issue-261-b4-css-ownership-integration.md`](../17-evidence/issue-261-b4-css-ownership-integration.md)
+- [`issue-261-fe06-residual-owner-boundary-consolidation.md`](../17-evidence/issue-261-fe06-residual-owner-boundary-consolidation.md)
+- [`issue-261-m1e-modeling-ownership-integration.md`](../17-evidence/issue-261-m1e-modeling-ownership-integration.md)
+- [`issue-261-m1e3-modeling-family-ownership.md`](../17-evidence/issue-261-m1e3-modeling-family-ownership.md)
+- [`issue-261-m2-materials-css-ownership.md`](../17-evidence/issue-261-m2-materials-css-ownership.md)
+- [`issue-261-m6-zero-consumer-audit-and-removal.md`](../17-evidence/issue-261-m6-zero-consumer-audit-and-removal.md)
+- [`issue-262-fe07a-materials-architecture-ui.md`](../17-evidence/issue-262-fe07a-materials-architecture-ui.md)
+- [`issue-309-modeling-data-axis-overlap.md`](../17-evidence/issue-309-modeling-data-axis-overlap.md)
+
+### Open-issue and fixed-exception inputs
+
+These four reports remain because the open #223 handoff or a fixed current-product exception still
+uses their human-readable evidence:
+
+- [`issue-184-high-dpi-global-implementation.md`](../17-evidence/issue-184-high-dpi-global-implementation.md)
+- [`issue-184-to-223-windows-4k-handoff.md`](../17-evidence/issue-184-to-223-windows-4k-handoff.md)
+- [`issue-221-high-dpi-decision.md`](../17-evidence/issue-221-high-dpi-decision.md)
+- [`issue-289-administration-database-workflow.md`](../17-evidence/issue-289-administration-database-workflow.md)
 
 ## Recovery
 
