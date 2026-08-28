@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "70a96b97beacec72698824ca4ed840fcafbe8763",
+  "sourceSha": "365dea4e62b53671846bb7722b9706725af2863e",
   "ownerIssue": "#256",
   "hotspots": [
     {
