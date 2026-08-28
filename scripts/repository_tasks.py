@@ -535,7 +535,7 @@ def _emit_change_plan(plan: ChangePlan, github_output: Path | None) -> None:
         flush=True,
     )
     for item in plan.changed_paths:
-        rendered = json.dumps(item.path, ensure_ascii=False)
+        rendered = json.dumps(item.path, ensure_ascii=True)
         print(
             "[repository-tasks] CHANGED_PATH "
             f"mode={item.mode} reason={item.reason} path={rendered}",
