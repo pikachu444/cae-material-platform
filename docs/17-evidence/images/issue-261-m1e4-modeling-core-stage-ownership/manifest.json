@@ -9683,29 +9683,11 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-260-fe05-modeling-data/after/states/modeling-data-empty-1440x900.png",
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/alias/modeling-data-alias-1440x900.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/alias/modeling-data-alias-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-empty-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-empty-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/alias/modeling-data-alias-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-empty-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-empty-1440x900.png",
@@ -9732,7 +9714,7 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-1366x768-header-100pct.png",
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-1366x768-header-100pct.png",
@@ -9742,22 +9724,6 @@
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-1366x768-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-1366x768-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-1366x768-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-1366x768-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-1366x768-header-100pct.png",
@@ -9811,7 +9777,7 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-1440x900-header-100pct.png",
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-1440x900-header-100pct.png",
@@ -9821,22 +9787,6 @@
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-1440x900-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-1440x900-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-1440x900-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-1440x900-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-1440x900-header-100pct.png",
@@ -9938,7 +9888,7 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-1920x1080-header-100pct.png",
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-1920x1080-header-100pct.png",
@@ -9948,22 +9898,6 @@
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-1920x1080-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-1920x1080-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-1920x1080-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-1920x1080-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-1920x1080-header-100pct.png",
@@ -10017,7 +9951,7 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-2560x1440-header-100pct.png",
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-2560x1440-header-100pct.png",
@@ -10027,22 +9961,6 @@
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-2560x1440-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-2560x1440-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-2560x1440-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-2560x1440-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-2560x1440-header-100pct.png",
@@ -10096,7 +10014,7 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-data-3840x2160-header-100pct.png",
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/crops/modeling-export-3840x2160-header-100pct.png",
@@ -10106,22 +10024,6 @@
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-export-3840x2160-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-fit-3840x2160-header-100pct.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/crops/modeling-process-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-header-100pct.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-data-3840x2160-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-export-3840x2160-header-100pct.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/crops/modeling-fit-3840x2160-header-100pct.png",
@@ -10175,108 +10077,74 @@
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1366x768.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1366x768.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-1366x768.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-1366x768.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1440x900.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-1440x900.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1920x1080.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1920x1080.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-1920x1080.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-1920x1080.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-2560x1440.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-2560x1440.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-2560x1440.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-2560x1440.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-2560x1440.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-2560x1440.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-2560x1440.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-3840x2160.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-3840x2160.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-3840x2160.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-3840x2160.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-3840x2160.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-data-3840x2160.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-data-3840x2160.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-session-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-session-1366x768.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-session-1366x768.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-session-1366x768.png",
         "docs/user-guide/images/current/modeling-session-1366x768.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-session-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-session-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-session-1440x900.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-session-1440x900.png",
         "docs/user-guide/images/current/modeling-session-1440x900.png"
       ]
     },
     {
-      "rationale": "M1E4 retains byte-identical frozen-base, corrected-candidate, diagnostic, crop, or current-guide evidence under distinct immutable lifecycle paths.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-session-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-session-1920x1080.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-session-1920x1080.png",
         "docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-session-1920x1080.png",
         "docs/user-guide/images/current/modeling-session-1920x1080.png"

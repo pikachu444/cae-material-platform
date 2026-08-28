@@ -2,7 +2,7 @@ version: 3
 policy:
   current: "현재 코드·경로·화면·운영 절차와 함께 갱신하는 문서"
   authoritative: "구현과 검수의 규범; 변경 전에 관련 요구사항·ADR·작업 근거를 확인"
-  reference: "외부 조사·비교 입력과 명시적으로 유지 승인된 이슈 증거; 제품 계약은 current·authoritative 문서와 활성 이슈에서 확인"
+  reference: "외부 조사·비교 입력과 #351 재집계 뒤 작업 트리에 유지 승인된 이슈 증거; 제품 계약은 current·authoritative 문서와 활성 이슈에서 확인"
 rules:
   - status: reference
     include:
