@@ -43,8 +43,6 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.domain.revisions import canonical_json_bytes, content_sha256
 
 _IDEMPOTENCY_KEY = re.compile(r"^[\x21-\x7e]{1,255}$")
-
-
 @dataclass(frozen=True, slots=True)
 class ArtifactPolicy:
     transfer_ttl: timedelta = timedelta(minutes=5)
@@ -581,6 +579,8 @@ class ArtifactService:
         ``artifact.read`` and rechecks the authoritative digest before parsing.
         """
 
+        # Keep the long-standing bounded reader contract.  Registration package limits
+        # must not widen the global immutable Artifact read cap.
         if not 1 <= maximum_bytes <= 64 * 1024 * 1024:
             raise InvalidArtifact("maximum Artifact read size is outside the supported range")
         _require_database_capability(context, decision, Permission.ARTIFACT_READ)

@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+import pytest
 from cmp.apps import demo_seed
 from cmp.apps.demo_seed import _ensure_elastoplastic_models_and_cards, seed_demo
 
@@ -165,6 +166,36 @@ def test_demo_api_authenticates_as_administrator(monkeypatch: Any) -> None:
     assert requests[0].full_url == (
         "http://demo.local/api/v1/demo-identity/token?persona=administrator"
     )
+
+
+def test_demo_api_timeout_override_is_bounded_and_reports_exact_request(
+    monkeypatch: Any,
+) -> None:
+    requests: list[float] = []
+
+    def fake_urlopen(request: Any, timeout: float) -> Any:
+        del request
+        requests.append(timeout)
+        raise TimeoutError("socket timed out")
+
+    monkeypatch.setattr(demo_seed, "urlopen", fake_urlopen)
+
+    api = demo_seed.DemoApi("http://demo.local/api/v1")
+    api._token = "administrator-token"
+
+    with pytest.raises(
+        demo_seed.DemoSeedError,
+        match=r"demo API POST /catalog/schema-definition-bundles:apply timed out after 180 seconds",
+    ):
+        api.post(
+            "/catalog/schema-definition-bundles:apply",
+            {},
+            timeout=180,
+        )
+
+    assert requests == [180]
+    with pytest.raises(ValueError, match="timeout must be positive"):
+        api.post("/catalog/schema-definition-bundles:apply", {}, timeout=0)
 
 
 class _ExistingElastoplasticApi:

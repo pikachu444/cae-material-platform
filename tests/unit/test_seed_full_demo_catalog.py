@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import io
 import sys
+import zipfile
 from collections.abc import Mapping
 from copy import deepcopy
 from importlib.util import module_from_spec, spec_from_file_location
@@ -125,6 +127,104 @@ def test_catalog_material_families_remain_fixture_text_and_allowed_values() -> N
 def test_demo_density_fixture_is_supported_si_and_non_production() -> None:
     assert _SEED_FULL_DEMO._DEMO_METAL_DENSITY_FIXTURE == ("7850", "kg/m^3", "7850")
     assert _SEED_FULL_DEMO._METAL_CATALOG_DESCRIPTION is None
+
+
+def test_issue342_seed_schema_upload_keeps_the_source_v2_files_unchanged() -> None:
+    archive = _SEED_FULL_DEMO._fixture_schema_source_zip()
+
+    with zipfile.ZipFile(io.BytesIO(archive)) as source:
+        assert source.namelist() == [
+            "catalog-schema-bundle.manifest.json",
+            "record-schemas/dma-test-v1.json",
+            "record-schemas/elastoplasticity-v2.json",
+            "record-schemas/fld-test-v1.json",
+            "record-schemas/statistics-v2.json",
+            "record-schemas/technical-data-v2.json",
+            "record-schemas/tensile-test-v2.json",
+        ]
+        assert source.read("catalog-schema-bundle.manifest.json") == (
+            _SEED_FULL_DEMO._SOURCE_V2_FIXTURE_ROOT
+            / "catalog-schema-bundle.manifest.json"
+        ).read_bytes()
+
+
+class _Issue342SchemaBootstrapApi:
+    def __init__(self) -> None:
+        self.posts: list[tuple[str, float | None]] = []
+
+    def post(
+        self,
+        path: str,
+        payload: Mapping[str, Any],
+        *,
+        headers: Mapping[str, str] | None = None,
+        timeout: float | None = None,
+    ) -> dict[str, Any]:
+        del payload, headers
+        self.posts.append((path, timeout))
+        if path == "/uploads":
+            return {
+                "upload": {
+                    "upload_id": "schema-upload-1",
+                    "state": "open",
+                    "expected_part_count": 1,
+                },
+                "upload_capability": "schema-capability",
+            }
+        if path == "/uploads/schema-upload-1:complete":
+            return {"available_artifact_id": "schema-artifact-1"}
+        if path == "/catalog/schema-definition-bundles:plan":
+            return {"valid": True, "plan_fingerprint": "a" * 64}
+        if path == "/catalog/schema-definition-bundles:apply":
+            return {"application_id": "schema-application-1"}
+        raise AssertionError(f"unexpected POST {path}")
+
+    def put_bytes(
+        self, path: str, payload: bytes, *, headers: Mapping[str, str]
+    ) -> dict[str, Any]:
+        assert path == "/uploads/schema-upload-1/parts/1"
+        assert payload
+        assert headers["Upload-Capability"] == "schema-capability"
+        assert headers["Content-Type"] == "application/vnd.cmp.catalog-schema-source-set+zip"
+        return {"upload_id": "schema-upload-1"}
+
+    def get(self, path: str) -> dict[str, Any]:
+        assert path == "/catalog/json-record-formats"
+        table_keys = {
+            "technical-data": "technical_data",
+            "tensile-test": "tensile_test",
+            "dma-test": "dma_test",
+            "fld-test": "fld_test",
+            "elastoplasticity": "elastoplasticity_data",
+            "statistics": "statistics_data",
+        }
+        return {
+            "items": [
+                {
+                    "wrapper": wrapper,
+                    "table": {"id": f"{table_key}-id", "key": table_key},
+                }
+                for wrapper, table_key in table_keys.items()
+            ]
+        }
+
+
+def test_issue342_schema_apply_uses_only_the_bounded_extended_timeout() -> None:
+    api = _Issue342SchemaBootstrapApi()
+
+    result = _SEED_FULL_DEMO._ensure_issue342_schema_bundle(api)
+
+    assert result["schema_application_id"] == "schema-application-1"
+    assert [
+        (path, timeout)
+        for path, timeout in api.posts
+        if path == "/catalog/schema-definition-bundles:apply"
+    ] == [("/catalog/schema-definition-bundles:apply", 180.0)]
+    assert all(
+        timeout is None
+        for path, timeout in api.posts
+        if path != "/catalog/schema-definition-bundles:apply"
+    )
 
 
 def test_catalog_attribute_contract_repairs_units_and_semantics_idempotently() -> None:

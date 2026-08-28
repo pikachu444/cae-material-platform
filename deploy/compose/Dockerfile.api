@@ -14,6 +14,12 @@ COPY backend ./backend
 COPY sdk ./sdk
 COPY generated ./generated
 COPY plugins ./plugins
+# The demo seed runs inside this image and installs the exact source-v2
+# application used by the issue-342 registration fixtures. Keep the image
+# scoped to those two deterministic fixture trees rather than copying the
+# repository's unrelated fixture archives.
+COPY fixtures/schema-definition-bundle/source-v2 ./fixtures/schema-definition-bundle/source-v2
+COPY fixtures/schema-record-data/source-v2-task1b ./fixtures/schema-record-data/source-v2-task1b
 
 RUN uv sync --frozen --no-dev
 

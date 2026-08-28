@@ -234,6 +234,24 @@ class CatalogRecordRepository(Protocol):
         table_id: UUID,
         external_key: str,
     ) -> RecordSnapshot | None: ...
+
+    def resolve_record_history_by_external_key(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> tuple[RecordSnapshot, ...]: ...
+
+    def resolve_record_candidates_by_external_key(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> tuple[RecordSnapshot, ...]: ...
     def folder_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[CatalogFolderContent]: ...
@@ -307,6 +325,15 @@ class CatalogRecordRepository(Protocol):
         decision: AuthorizationDecision,
         binding: tuple[str, UUID, UUID],
     ) -> UUID | None: ...
+
+    def validate_exact_domain_binding(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        classification: DataClassification,
+        binding: tuple[str, UUID, UUID],
+    ) -> bool: ...
 
     def list_folders(
         self,

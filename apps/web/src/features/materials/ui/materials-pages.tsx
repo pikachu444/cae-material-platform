@@ -84,6 +84,7 @@ import {
   ProcessingOutputEvidence,
 } from "./processing-output-detail";
 import { ExactTestDataDetail } from "./exact-test-data-detail";
+import { ExactSourceActions } from "./exact-source-actions";
 
 const materialsBrowseTreeModule = import("../../../materials-browse-tree");
 const MaterialsBrowseTree = lazy(() =>
@@ -2310,6 +2311,11 @@ export function ExactRecordDatasheetPage({
               <strong>r{record.current_revision.revision_no}</strong>
               <span>Immutable</span>
             </div>
+            <ExactSourceActions
+              config={config}
+              recordId={record.record_id}
+              revisionId={revisionId}
+            />
           </header>
           {!record.current_revision.content.values.length &&
           !solverCard &&

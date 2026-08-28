@@ -15,6 +15,7 @@ from cmp.bootstrap.catalog import (
     build_catalog_record_service,
     build_catalog_service,
     build_configurable_catalog_service,
+    build_json_record_registration_service,
     build_schema_bundle_planner_service,
 )
 from cmp.bootstrap.datasets import (
@@ -488,9 +489,10 @@ def create_app(
             services.authorization, Permission.CATALOG_WRITE
         ),
     )
+    resolved_configurable_catalog = build_configurable_catalog_service(services)
     install_configurable_catalog_api(
         application,
-        service=build_configurable_catalog_service(services),
+        service=resolved_configurable_catalog,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_READ
@@ -516,10 +518,16 @@ def create_app(
             services.authorization, Permission.CATALOG_SCHEMA_APPLY
         ),
     )
+    resolved_catalog_records = build_catalog_record_service(services)
     install_catalog_record_api(
         application,
-        service=build_catalog_record_service(services),
+        service=resolved_catalog_records,
         artifact_service=resolved_artifacts,
+        json_registration_service=build_json_record_registration_service(
+            services,
+            resolved_catalog_records,
+            resolved_artifacts,
+        ),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_READ

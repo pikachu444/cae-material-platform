@@ -1,0 +1,41 @@
+{
+  "statistics": {
+    "Data Information": {
+      "Statistics Data Record Name": "DP780 tensile statistics",
+      "Statistics Data ID": "CMP-246-STAT-TENSILE",
+      "Source Tensile Data IDs": [
+        "CMP-246-TENSILE-ROOM",
+        "CMP-246-TENSILE-HOT",
+        "CMP-246-TENSILE-SLOW",
+        "CMP-246-TENSILE-FAST"
+      ]
+    },
+    "Statistical Model": {
+      "Distribution Model": "Normal",
+      "Target Quantity": "engineering_stress",
+      "Mean": 780,
+      "Sample Count": 4
+    },
+    "Envelope Curves": {
+      "Avg Plastic Strain/Stress": {
+        "Series 1": {
+          "Plastic Strain (strain)": [0, 0.01, 0.02],
+          "Value (MPa)": [0, 300, 500],
+          "Standard Deviation Stress (MPa)": [0, 10, 20]
+        }
+      },
+      "Upper 5% Plastic Strain/Stress": {
+        "Series 1": {
+          "Plastic Strain (strain)": [0, 0.01, 0.02],
+          "Value (MPa)": [0, 320, 530]
+        }
+      },
+      "Lower 5% Plastic Strain/Stress": {
+        "Series 1": {
+          "Plastic Strain (strain)": [0, 0.01, 0.02],
+          "Value (MPa)": [0, 280, 470]
+        }
+      }
+    }
+  }
+}

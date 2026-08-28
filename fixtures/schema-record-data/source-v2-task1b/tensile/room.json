@@ -1,0 +1,22 @@
+{
+  "tensile-test": {
+    "Data Information": {
+      "Tensile Test Data Record Name": "DP780 room tensile",
+      "Tensile Data ID": "CMP-246-TENSILE-ROOM",
+      "Technical Data ID": "CMP-246-TECH-DP780"
+    },
+    "Test Condition": {
+      "Temperature (degC)": 23,
+      "Specimen Number": 1
+    },
+    "Test Result": {
+      "Tensile Test Raw Data_Extensometer-Load": {
+        "Series 1": {
+          "Extensometer (mm)": [0, 1, 2],
+          "Value (N)": [0, 1000, 2000]
+        }
+      },
+      "Force maximum (MPa)": 780
+    }
+  }
+}

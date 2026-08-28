@@ -170,6 +170,37 @@ describe("ConfigurableCatalogRecords", () => {
     });
   });
 
+  it("gives JSON import its own workspace and restores the Records surface on Close", async () => {
+    const user = userEvent.setup();
+    const searchInput = "DP600";
+    render(
+      <ConfigurableCatalogRecords
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        locationSearch={`?table_id=${table.table_id}&table_revision_id=${table.current_revision.id}`}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await user.type(await screen.findByLabelText("Search"), searchInput);
+    expect(screen.getByLabelText("Record type")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Record scope and search" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Record results" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "Import records" }));
+    expect(screen.getByRole("region", { name: "Record import" })).toBeTruthy();
+    expect(screen.queryByLabelText("Record type")).toBeNull();
+    expect(screen.queryByRole("region", { name: "Record scope and search" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Record results" })).toBeNull();
+    expect(document.querySelector(".catalog-datasheet")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.getByLabelText("Record type")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Record scope and search" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Record results" })).toBeTruthy();
+    expect((screen.getByLabelText("Search") as HTMLInputElement).value).toBe(searchInput);
+  });
+
   it("sends the entered value and unit while leaving standard-value derivation to the service", async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();
@@ -374,6 +405,13 @@ describe("ConfigurableCatalogRecords", () => {
     );
 
     await user.click(await screen.findByRole("button", { name: "Import records" }));
+    await user.upload(
+      screen.getByLabelText("Add files"),
+      new File(["Record name;Record code\nSteel B;B"], "records.csv", {
+        type: "text/csv",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "Continue" }));
     expect(await screen.findByRole("heading", { name: "Import multiple records" })).toBeTruthy();
     const readColumns = screen.getByRole("button", { name: "Read file columns" });
     const registerRows = screen.getByRole("button", { name: "Import validated records" });

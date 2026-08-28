@@ -298,6 +298,9 @@ describe("ExactRecordDatasheetPage", () => {
       if (url.includes("/catalog/workflow-explorer/")) {
         return response({ root, nodes: [root], links: [] });
       }
+      if (url.endsWith("/catalog/records/record-test/revisions/record-test-revision-1/source-availability?published_only=true")) {
+        return response({ available: true, published: true, ready: true });
+      }
       if (url.endsWith("/catalog/tables/table-test/attributes")) {
         return response({ items: [{
           attribute_definition_id: "attribute-test-kind",
@@ -387,7 +390,8 @@ describe("ExactRecordDatasheetPage", () => {
     expect(points.textContent).toContain("775,000,000");
     expect(screen.getByRole("button", { name: "Download exact Test Data JSON" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download summary CSV" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Download CSV" })).toBeNull();
+    expect(await screen.findByRole("button", { name: "Download JSON" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Download CSV" }).length).toBeGreaterThan(0);
     expect(contentAttempts).toBe(2);
     expect(
       requests.filter((url) => url.includes("/test-data-documents/")),

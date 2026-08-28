@@ -1508,6 +1508,25 @@
   font-size: 11px;
 }
 
+.exact-source-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: min(100%, 520px);
+}
+
+.exact-source-error {
+  align-items: center;
+  display: inline-flex;
+  flex-basis: 100%;
+  color: var(--ux-danger);
+  gap: 6px;
+  justify-content: flex-end;
+  text-align: right;
+}
+
 .datasheet-loading-line {
   padding: 4px 8px;
   border-bottom: 1px solid var(--ux-border);
