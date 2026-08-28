@@ -45,4 +45,4 @@ pane. Production acceptance additionally requires lazy server loading and row vi
 a synthetic 10,000-record hierarchy.
 
 The full scoring method and hard gates are defined in
-[`visual-acceptance-matrix.md`](../01-product/visual-acceptance-matrix.md).
+[`visual-acceptance-matrix.md`](../product/visual-acceptance-matrix.md).

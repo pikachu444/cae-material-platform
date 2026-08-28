@@ -933,7 +933,7 @@ The following must fail or warn with the exact stated class:
 
 | Gate | Current packet disposition |
 |---|---|
-| Changed paths | only `docs/12-roadmap/issue-196-elastomer-hyperelastic-hyperviscoelastic-fit-plan.md` |
+| Changed paths | only `docs/planning/issue-196-elastomer-hyperelastic-hyperviscoelastic-fit-plan.md` |
 | Requirement/implementation/source trace | applicable; current code/tests, #195 and direct public sources cited |
 | Markdown, link, manifest and documentation impact | applicable deterministic repository checks |
 | Independent engineering/product review | applicable on the exact final PR head; findings/disposition recorded in Section 17 |

@@ -9,10 +9,10 @@ For nontrivial frontend work, read only the relevant parts in this order:
 
 1. the exact issue and approved backlog/program unit;
 2. root `AGENTS.md` and this file;
-3. `docs/01-product/frontend-ui-principles.md`;
-4. `docs/05-architecture/frontend-architecture.md`;
+3. `docs/product/frontend-ui-principles.md`;
+4. `docs/architecture/frontend-architecture.md`;
 5. the exact route/user-flow/component contract;
-6. applicable `docs/01-product/visual-acceptance-matrix.md` gates and registered references;
+6. applicable `docs/product/visual-acceptance-matrix.md` gates and registered references;
 7. `.agents/skills/material-platform-frontend-architecture/SKILL.md`;
 8. `frontend-ui-engineering`, `desktop-engineering-ui`, and `webapp-testing` as applicable.
 

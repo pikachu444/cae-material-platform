@@ -96,7 +96,7 @@ test("integrity hashes ignore checkout line endings and locator-only renames", a
 });
 
 test("checked-in Modeling route baseline remains valid after locator-only rename", async () => {
-  const baseline = JSON.parse(await readFile(new URL("../docs/14-testing/baselines/modeling-web-route.json", import.meta.url), "utf8"));
+  const baseline = JSON.parse(await readFile(new URL("../docs/testing/baselines/modeling-web-route.json", import.meta.url), "utf8"));
   assert.deepEqual(validateBaseline(baseline), []);
 });
 

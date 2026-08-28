@@ -21,10 +21,10 @@ structural refactor와 broad semantic visual change는 원칙적으로 별도 PR
 
 1. 정확한 issue와 승인된 작업 단위
 2. root `AGENTS.md`와 `apps/web/AGENTS.md`
-3. [프론트엔드 UI 원칙](../01-product/frontend-ui-principles.md)
-4. [프론트엔드 아키텍처](../05-architecture/frontend-architecture.md)
+3. [프론트엔드 UI 원칙](../product/frontend-ui-principles.md)
+4. [프론트엔드 아키텍처](../architecture/frontend-architecture.md)
 5. 정확한 route/product contract
-6. 적용되는 [시각 수용 매트릭스](../01-product/visual-acceptance-matrix.md) 절과 승인 reference
+6. 적용되는 [시각 수용 매트릭스](../product/visual-acceptance-matrix.md) 절과 승인 reference
 7. 대상 component, state/controller, API, style와 test
 
 그 뒤 project-local `material-platform-frontend-architecture` skill로 preflight packet을 만든다.
@@ -128,7 +128,7 @@ path 예외를 추가해 통과시키지 않는다.
 Storybook-only story/fixture/CSS는 current 제품 screenshot이 아니다. 아직 제품 route가 소비하지 않는
 shared design foundation이면서 기존 computed appearance가 그대로인 경우, 제품 소유자가 승인한
 정확한 issue-owned documentation-impact 확인서로만 user-guide 영향 N/A를 기록한다. 확인서는
-`docs/14-testing/documentation-impact-exceptions/`에 두며 wildcard, route/feature source, 실제 product
+`docs/testing/documentation-impact-exceptions/`에 두며 wildcard, route/feature source, 실제 product
 consumer와 appearance 변경을 허용하지 않는다. 검사기는 확인서의 boolean 자기신고를 받지 않고
 base/current CSS 계산값을 비교하며 새 selector를 자동 도출해 모든 제품 CSS/TS/TSX에서 소비 여부를
 검사한다. foundation을 제품 route에서 처음 사용하거나 이미 사용 중인 foundation을 시각적으로

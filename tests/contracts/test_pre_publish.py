@@ -900,8 +900,8 @@ def test_ref_change_blocks_fresh_and_cached_pass(tmp_path: Path) -> None:
 def test_diff_prompt_schema_and_image_inputs_invalidate_fingerprint(tmp_path: Path) -> None:
     assets = tmp_path / "assets"
     for relative in (
-        "docs/14-testing/review-prompts/code-review.md",
-        "docs/14-testing/review-prompts/visual-review.md",
+        "docs/testing/review-prompts/code-review.md",
+        "docs/testing/review-prompts/visual-review.md",
         "contracts/review/code-review.schema.json",
         "contracts/review/visual-review.schema.json",
     ):
@@ -921,7 +921,7 @@ def test_diff_prompt_schema_and_image_inputs_invalidate_fingerprint(tmp_path: Pa
 
     first = _run(tmp_path, reviewer, _change(), asset_root=assets)
     second = _run(tmp_path, reviewer, _change(diff_hash="diff-b"), asset_root=assets)
-    code_prompt = assets / "docs/14-testing/review-prompts/code-review.md"
+    code_prompt = assets / "docs/testing/review-prompts/code-review.md"
     code_prompt.write_text(
         code_prompt.read_text(encoding="utf-8") + "\nchanged\n", encoding="utf-8"
     )
@@ -1035,14 +1035,14 @@ def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -
         code = _prompt(
             _ROOT,
             _ROOT,
-            "docs/14-testing/review-prompts/code-review.md",
+            "docs/testing/review-prompts/code-review.md",
             "code",
             change,
         )
         visual = _prompt(
             _ROOT,
             _ROOT,
-            "docs/14-testing/review-prompts/visual-review.md",
+            "docs/testing/review-prompts/visual-review.md",
             "visual",
             _change(visual=True),
         )
@@ -1053,7 +1053,7 @@ def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -
     assert "### Changed-test inventory" in code
     assert "test_codex_exec_token_usage_is_fail_closed" in code
     assert "Do not call shell, MCP, browser, network, or other tools" in code
-    assert "### docs/01-product/visual-acceptance-matrix.md" in visual
+    assert "### docs/product/visual-acceptance-matrix.md" in visual
     assert "### docs/user-guide/screenshot-manifest.yaml" in visual
     assert "images/current/materials-search-1440x900.png" in visual
     assert "Issue #261 M1A20" not in visual
@@ -1156,7 +1156,7 @@ def test_ui_impact_runs_visual_review_only_for_actual_ui_source_changes() -> Non
         "docs/user-guide/navigation-contract.yaml",
         "docs/user-guide/screenshot-manifest.yaml",
         "docs/user-guide/images/current/materials.png",
-        "docs/01-product/visual-acceptance-matrix.md",
+        "docs/product/visual-acceptance-matrix.md",
         "docs/00-research/images/gui-reference/granta-list-results.png",
         "backend/src/cmp/tools/pre_publish.py",
     ):

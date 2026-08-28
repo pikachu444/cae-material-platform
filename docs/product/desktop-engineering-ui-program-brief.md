@@ -12,7 +12,7 @@ repository documents; the legacy package remains historical context only.
 `55cfa62` (PR #156) is the current production React/CSS baseline. `7601ec8` (PR #170) is the approved
 visual target baseline; #167 is complete with 72/72 images. Start every task from the latest `main`.
 Work already merged there is not a queue to reimplement. The current sequence and fresh-task work
-units are owned by the [delivery backlog](../13-delivery/backlog.md); do not reconstruct them from old
+units are owned by the [delivery backlog](../planning/backlog.md); do not reconstruct them from old
 DUI/UXC numbering. The incoming package remains temporary reference until #162 completes absorption
 and an inbound-link audit. See `AGENTS.md` for the mandatory writer, gate and reviewer workflow.
 
@@ -205,5 +205,5 @@ A DUI slice is complete only when all of the following are true:
 ## 9. Session start
 
 [AGENTS.md](../../AGENTS.md) owns durable execution rules. The
-[current delivery backlog](../13-delivery/backlog.md) owns the baseline and issue order; the exact
+[current delivery backlog](../planning/backlog.md) owns the baseline and issue order; the exact
 GitHub issue and selected reference manifest entries own task-specific scope.

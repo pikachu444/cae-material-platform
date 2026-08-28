@@ -4,7 +4,7 @@
     "authority": "product_owner",
     "automaticWritesAllowed": false,
     "method": "append_reviewed_accepted_main_observation",
-    "compareCommand": "npm run measure:modeling-route --workspace @cmp/web -- --compare docs/14-testing/baselines/modeling-web-route.json"
+    "compareCommand": "npm run measure:modeling-route --workspace @cmp/web -- --compare docs/testing/baselines/modeling-web-route.json"
   },
   "observations": [
     {

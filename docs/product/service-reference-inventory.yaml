@@ -8,11 +8,11 @@ completed_in:
 authority:
   instructions: AGENTS.md
   issue_url: https://github.com/pikachu444/cae-material-platform/issues/167
-  product_spec: docs/01-product/desktop-engineering-ui-product-spec.md
-  ui_spec: docs/01-product/desktop-engineering-ui-spec.md
-  visual_gate: docs/01-product/visual-acceptance-matrix.md
-  manifest: docs/01-product/service-reference-manifest.yaml
-  duplicate_policy: docs/01-product/service-reference-duplicates.yaml
+  product_spec: docs/product/desktop-engineering-ui-product-spec.md
+  ui_spec: docs/product/desktop-engineering-ui-spec.md
+  visual_gate: docs/product/visual-acceptance-matrix.md
+  manifest: docs/product/service-reference-manifest.yaml
+  duplicate_policy: docs/product/service-reference-duplicates.yaml
 policy:
   default_lifecycle: static-bundle
   normal_viewports:

@@ -46,7 +46,7 @@
 
 ### 2.1 Authority read for this packet
 
-`CONFIRMED_CURRENT` — 범위 판정에는 root `AGENTS.md`, [current backlog](../13-delivery/backlog.md), #117/#158/#184/#195/#205/#206/#209/#211/#213/#214, `FR-CAL-001`–`007`, `FR-MOD-P-001`–`005`, ADR-0020/0022/0031/0032, 현재 implementation/status 문서와 아래 gap evidence를 사용했다. `docs/_incoming/`은 열람하지 않았다.
+`CONFIRMED_CURRENT` — 범위 판정에는 root `AGENTS.md`, [current backlog](../planning/backlog.md), #117/#158/#184/#195/#205/#206/#209/#211/#213/#214, `FR-CAL-001`–`007`, `FR-MOD-P-001`–`005`, ADR-0020/0022/0031/0032, 현재 implementation/status 문서와 아래 gap evidence를 사용했다. `docs/_incoming/`은 열람하지 않았다.
 
 중앙 backlog의 첫 미완료 단위는 #184이고 #195는 #117에서 deferred implementation 후보다. 이 packet의 merge는 #117의 실행 순서를 바꾸거나 #195 구현을 시작하지 않는다. #195는 packet merge 후에도 open·implementation-waiting 상태여야 한다.
 
@@ -679,10 +679,10 @@ This planning PR deliberately does not modify shared requirements, ADRs, contrac
 
 | Authority/file family | Proposed delta | Trigger |
 | --- | --- | --- |
-| `docs/02-requirements/requirements.md` | Clarify FR-MOD-P production input conventions, calibration/holdout/identifiability and recommendation/selection acceptance; avoid duplicating existing FR-CAL requirements. | #195-A decision identifies a genuine unexpressed requirement. |
+| `docs/requirements/requirements.md` | Clarify FR-MOD-P production input conventions, calibration/holdout/identifiability and recommendation/selection acceptance; avoid duplicating existing FR-CAL requirements. | #195-A decision identifies a genuine unexpressed requirement. |
 | ADR | New production calibration-policy ADR covering optimizer interface, term policy, objective/weights, deterministic multistart, bounds, thresholds and TTS scope. ADR-0022 remains legacy bounded reference; ADR-0031/0032 remain promotion/mapping authority. | Before #195-C production implementation. |
 | Dataset/processing/modeling contracts | Add versioned typed channel/convention/evidence fields and Plan/Run/Candidate schema only after reuse analysis. | #195-A/B/D contract-first work. |
-| `docs/07-ir/material-model-ir.md` | Reconcile stale §17.3 “OpenRadioss unsupported” wording with later ADR-0032 conditional LAW1+LPRONY path, while retaining the LAW62 prohibition. | A shared-doc PR with conflict check, or the first relevant exporter/IR unit. |
+| `docs/domain/material-model-ir.md` | Reconcile stale §17.3 “OpenRadioss unsupported” wording with later ADR-0032 conditional LAW1+LPRONY path, while retaining the LAW62 prohibition. | A shared-doc PR with conflict check, or the first relevant exporter/IR unit. |
 | `docs/00-research/product-reference-source-catalog.json` | Add direct Abaqus 2024, OpenRadioss LPRONY, Ansys Material Calibration 2025 R2, WLF primary paper and standards metadata entries with limitations. | A separately owned source-catalog update or when a required documentation index owns it. |
 | User guide | Describe only merged production behavior, decisions and current limitations; retain bounded-reference labels until then. | #195-E/H implementation merge, not this packet. |
 | #117 and backlog | Add approved split issues and insertion only after product-owner sequencing decision. | Explicit owner approval; never as a side effect of this packet. |
@@ -732,7 +732,7 @@ Implementation must reject or explicitly block:
 
 | Gate | This PR |
 | --- | --- |
-| Changed scope | Only `docs/12-roadmap/issue-195-polymer-viscoelastic-fit-plan.md` unless a mandatory checker proves otherwise. |
+| Changed scope | Only `docs/planning/issue-195-polymer-viscoelastic-fit-plan.md` unless a mandatory checker proves otherwise. |
 | Product/code behavior | Unchanged. |
 | Compose / DB / migration | `N/A — planning-only documentation` |
 | Browser / screenshot / five viewport | `N/A — planning-only documentation` |

@@ -1,7 +1,7 @@
 # 구현 상태
 
 이 문서는 현재 코드가 제공하는 기능과 알려진 공백을 설명합니다. 작업 순서와 승인 기준선은
-[현재 전달 backlog](docs/13-delivery/backlog.md), 완료 이력은 Git과 병합된 GitHub issue/PR에서
+[현재 전달 backlog](docs/planning/backlog.md), 완료 이력은 Git과 병합된 GitHub issue/PR에서
 확인합니다.
 
 ## 제품 진입점
@@ -49,7 +49,7 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   plan은 재계획하며 User/Reviewer 접근, client-authored action, 부분 변경과 Current Record migration
   충돌을 차단합니다. #205의 `x-unit` handoff는 stable common unit ID만 검증하며 기본 Unit Profile을
   선택하지 않습니다. 예시 schema 이름과 개수는 제품 고정 형식이 아닙니다. 상세 순서는
-  [#204~#216 통합 계획](docs/12-roadmap/schema-driven-material-integration-plan.md)과 backlog가 소유합니다.
+  [#204~#216 통합 계획](docs/planning/schema-driven-material-integration-plan.md)과 backlog가 소유합니다.
 - Unit Profile 관리용 frontend와 production solver 기본 profile은 없습니다. 기존 `kg_m_s`는
   `production_default=false`인 호환 계약이며 추가 solver unit system과 Template는 #213/#214가
   소유합니다. Profile-free 과거 revision과 solver-native bytes는 재작성하지 않습니다.
@@ -121,5 +121,5 @@ uv run cmp-check-user-guide --root .
 
 전체 synthetic demo는 `make demo`, `make demo-verify` 또는 Compose 명령으로 확인합니다.
 PostgreSQL, performance, security와 production acceptance는 [개발 가이드](DEVELOPMENT.md)와
-[테스트 전략](docs/14-testing/test-strategy.md)을 따릅니다. 의사결정이 필요한 항목은
-[위험·미결정 사항](docs/15-governance/risks-open-questions-decisions.md)에 기록합니다.
+[테스트 전략](docs/testing/test-strategy.md)을 따릅니다. 의사결정이 필요한 항목은
+[위험·미결정 사항](docs/planning/risks-open-questions-decisions.md)에 기록합니다.

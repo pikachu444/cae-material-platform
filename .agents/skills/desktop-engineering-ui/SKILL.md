@@ -21,10 +21,10 @@ redesign, a new frontend dependency, or mixing broad structural and visual chang
 ## Route only the needed context
 
 1. Read the exact GitHub issue.
-2. Find its target family in `docs/01-product/service-reference-inventory.yaml` with `rg`.
-3. Read only that family's entries in `docs/01-product/service-reference-manifest.yaml` and inspect
+2. Find its target family in `docs/product/service-reference-inventory.yaml` with `rg`.
+3. Read only that family's entries in `docs/product/service-reference-manifest.yaml` and inspect
    every listed HTML, CSS and image at original resolution.
-4. `docs/01-product/visual-acceptance-matrix.md`의 20개 정성 판정 항목 (Q-01~Q-20)을
+4. `docs/product/visual-acceptance-matrix.md`의 20개 정성 판정 항목 (Q-01~Q-20)을
    읽은 뒤 영향받는 route-specific gate와 관련 product/UI-spec 절만 읽는다.
 5. Inspect the affected React, API, state and test contracts.
 

@@ -18,7 +18,7 @@ htmlcov/
 # Personal Codex orchestration lives under $CODEX_HOME.
 .codex/config.toml
 .codex/agents/
-docs/14-testing/codex-orchestration/
-docs/14-testing/codex-orchestration-workflow.md
-docs/14-testing/main-orchestrator-acceptance.md
+docs/testing/codex-orchestration/
+docs/testing/codex-orchestration-workflow.md
+docs/testing/main-orchestrator-acceptance.md
 

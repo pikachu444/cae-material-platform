@@ -15,6 +15,7 @@
 ## 저장소 지도
 
 처음부터 모든 폴더를 읽지 말고, 찾는 내용에 맞는 입구에서 시작합니다.
+숫자 접두사가 있는 `00-research`와 `17-evidence`는 경로가 계약에 고정된 자료이며 이동하지 않습니다.
 
 ### 루트에서 찾기
 
@@ -33,12 +34,12 @@
 | 찾는 내용 | 위치 |
 | --- | --- |
 | 제품 사용과 운영 절차 | [사용자 가이드](user-guide/index.md) · [관리자 가이드](admin-guide/index.md) |
-| 제품 원칙과 요구사항 | [제품과 UX](01-product/) · [요구사항](02-requirements/) |
-| contract의 의미와 경계 | [API·이벤트·작업 계약](08-contracts/api-events-jobs.md) |
+| 제품 원칙과 요구사항 | [제품과 UX](product/) · [요구사항](requirements/) |
+| contract의 의미와 경계 | [API·이벤트·작업 계약](architecture/api-events-jobs.md) |
 | 아키텍처 결정의 배경 | [ADR 색인](../adr/README.md) |
-| 작업 순서와 검증 | [현재 전달 backlog](13-delivery/backlog.md) · [테스트 전략](14-testing/test-strategy.md) |
-| 저장소와 문서 관리 | [저장소 운영 문서](16-repository/) · [시각 증거 lifecycle](16-repository/visual-evidence-lifecycle.md) |
-| 조사·비교 입력과 유지 승인된 이슈 증거 | [조사 자료](00-research/) · [유지 근거와 승인 목록](16-repository/visual-evidence-lifecycle.md#retained-top-level-evidence-markdown) — 정확한 이슈가 가리키거나 현재 오프라인 계약이 요구할 때만 확인 |
+| 작업 순서와 검증 | [현재 전달 backlog](planning/backlog.md) · [테스트 전략](testing/test-strategy.md) |
+| 저장소와 문서 관리 | [저장소 운영 문서](repository/) · [시각 증거 lifecycle](repository/visual-evidence-lifecycle.md) |
+| 조사·비교 입력과 유지 승인된 이슈 증거 | [조사 자료](00-research/) · [유지 근거와 승인 목록](repository/visual-evidence-lifecycle.md#retained-top-level-evidence-markdown) — 정확한 이슈가 가리키거나 현재 오프라인 계약이 요구할 때만 확인 |
 
 ## 읽기 경로 세 가지
 
@@ -51,7 +52,7 @@
 ### 일반 이슈를 구현할 때
 
 1. [저장소 작업 지침](../AGENTS.md)을 읽습니다.
-2. [현재 전달 backlog](13-delivery/backlog.md)에서 작업 순서와 선행 조건을 확인합니다.
+2. [현재 전달 backlog](planning/backlog.md)에서 작업 순서와 선행 조건을 확인합니다.
 3. 정확한 활성 GitHub issue에서 소유 범위와 완료 조건을 확인합니다.
 4. 현재 코드와 [현재 구현 상태](../IMPLEMENTATION_STATUS.md)를 보고, `rg`로 영향받는 문단만 찾습니다.
 
@@ -60,7 +61,7 @@
 ### contract나 fixture를 확인할 때
 
 1. 정확한 이슈와 연결된 요구사항에서 확인할 동작과 ID를 먼저 찾습니다.
-2. [API·이벤트·작업 계약](08-contracts/api-events-jobs.md)과 [contract 안내](../contracts/README.md)에서 의미와 기계 판독 파일을 연결합니다.
+2. [API·이벤트·작업 계약](architecture/api-events-jobs.md)과 [contract 안내](../contracts/README.md)에서 의미와 기계 판독 파일을 연결합니다.
 3. [fixture 안내](../fixtures/README.md)에서 용도와 비운영 경계, 상세 문서의 읽기 순서를 확인한 뒤, 이슈가 가리키는 원본 fixture만 엽니다.
 
 ## 권위가 충돌할 때
@@ -70,46 +71,46 @@
 제품 소유자 지시에서 해결합니다. 해결 전에는 contract를 좁히거나 fixture를 현재 정답처럼 바꾸지
 않습니다.
 
-#167의 승인 시각 기준은 [inventory](01-product/service-reference-inventory.yaml)와
-[manifest](01-product/service-reference-manifest.yaml)에서 확인합니다. 등록된 화면과 현재 제품 소유자
+#167의 승인 시각 기준은 [inventory](product/service-reference-inventory.yaml)와
+[manifest](product/service-reference-manifest.yaml)에서 확인합니다. 등록된 화면과 현재 제품 소유자
 지시가 충돌하면 활성 이슈의 지시가 우선하며, 같은 범위에서 관련 기준 자료도 함께 갱신합니다.
 
 ## 제품과 설계
 
 - [ADR 색인](../adr/README.md)
-- [제품 비전](01-product/product-vision.md)
-- [데스크톱 엔지니어링 사용자 흐름](01-product/desktop-engineering-user-flows.md)
-- [UI 제품·상호작용 명세](01-product/desktop-engineering-ui-product-spec.md)
-- [UI 컴포넌트 명세](01-product/desktop-engineering-ui-spec.md)
-- [프론트엔드 UI 원칙](01-product/frontend-ui-principles.md)
-- [프론트엔드 아키텍처](05-architecture/frontend-architecture.md)
-- [프론트엔드 아키텍처·UI 재정비 로드맵](12-roadmap/frontend-refactoring-roadmap.md)
-- [프론트엔드 변경 검토 절차](16-repository/frontend-change-review-playbook.md)
-- [시각 수용 매트릭스](01-product/visual-acceptance-matrix.md)
-- [4K·고DPI 화면 대응 전략과 결정 기록](12-roadmap/high-dpi-display-strategy.md)
-- [데스크톱 엔지니어링 UI 도구·검수 절차](01-product/desktop-engineering-ui-tooling.md)
-- [현재 delivery backlog](13-delivery/backlog.md)
-- [요구사항](02-requirements/requirements.md)
-- [스키마 기반 통합 요구사항 추적표](02-requirements/schema-driven-requirement-traceability.md)
+- [제품 비전](product/product-vision.md)
+- [데스크톱 엔지니어링 사용자 흐름](product/desktop-engineering-user-flows.md)
+- [UI 제품·상호작용 명세](product/desktop-engineering-ui-product-spec.md)
+- [UI 컴포넌트 명세](product/desktop-engineering-ui-spec.md)
+- [프론트엔드 UI 원칙](product/frontend-ui-principles.md)
+- [프론트엔드 아키텍처](architecture/frontend-architecture.md)
+- [프론트엔드 아키텍처·UI 재정비 로드맵](planning/frontend-refactoring-roadmap.md)
+- [프론트엔드 변경 검토 절차](repository/frontend-change-review-playbook.md)
+- [시각 수용 매트릭스](product/visual-acceptance-matrix.md)
+- [4K·고DPI 화면 대응 전략과 결정 기록](planning/high-dpi-display-strategy.md)
+- [데스크톱 엔지니어링 UI 도구·검수 절차](product/desktop-engineering-ui-tooling.md)
+- [현재 delivery backlog](planning/backlog.md)
+- [요구사항](requirements/requirements.md)
+- [스키마 기반 통합 요구사항 추적표](requirements/schema-driven-requirement-traceability.md)
 - [스키마 기반 통합 원본 문서·샘플 포맷](00-research/schema-driven-integration-source/README.md)
-- [정규 도메인 모델 (canonical domain model)](03-domain/canonical-domain-model.md)
-- [리비전과 출처 추적 (revision·provenance)](04-provenance/revision-and-provenance.md)
-- [시스템 아키텍처](05-architecture/system-architecture.md)
-- [Material Model IR](07-ir/material-model-ir.md)
-- [API·이벤트·작업 계약](08-contracts/api-events-jobs.md)
-- [보안·테넌시·감사](11-security/security-tenancy-audit.md)
+- [정규 도메인 모델 (canonical domain model)](domain/canonical-domain-model.md)
+- [리비전과 출처 추적 (revision·provenance)](domain/revision-and-provenance.md)
+- [시스템 아키텍처](architecture/system-architecture.md)
+- [Material Model IR](domain/material-model-ir.md)
+- [API·이벤트·작업 계약](architecture/api-events-jobs.md)
+- [보안·테넌시·감사](architecture/security-tenancy-audit.md)
 
 ## 전달과 검증
 
-- [현재 전달 backlog](13-delivery/backlog.md)
-- [프론트엔드 아키텍처·UI 재정비 로드맵](12-roadmap/frontend-refactoring-roadmap.md)
-- [프론트엔드 변경 검토 절차](16-repository/frontend-change-review-playbook.md)
-- [테스트 전략](14-testing/test-strategy.md)
-- [제품 작업 합격 조건과 증거](14-testing/product-work-acceptance.md)
+- [현재 전달 backlog](planning/backlog.md)
+- [프론트엔드 아키텍처·UI 재정비 로드맵](planning/frontend-refactoring-roadmap.md)
+- [프론트엔드 변경 검토 절차](repository/frontend-change-review-playbook.md)
+- [테스트 전략](testing/test-strategy.md)
+- [제품 작업 합격 조건과 증거](testing/product-work-acceptance.md)
 - [현재 화면 캡처 목록 (screenshot manifest)](user-guide/screenshot-manifest.yaml)
 - [사용자 가이드와 이미지 유지 규칙](user-guide/MAINTENANCE.md)
-- [승인 시각 기준 목록](01-product/service-reference-inventory.yaml)
-- [승인 자료·해시 목록](01-product/service-reference-manifest.yaml)
+- [승인 시각 기준 목록](product/service-reference-inventory.yaml)
+- [승인 자료·해시 목록](product/service-reference-manifest.yaml)
 
 큰 문서를 관성적으로 모두 읽지 마십시오. 정확한 issue와 target ID를 먼저 정하고 `rg`로 관련 문단만
 찾습니다. `docs/_incoming/2026-07-24-organic-ux-update/`는 #162 전용 입력이므로 그 전 작업에서는

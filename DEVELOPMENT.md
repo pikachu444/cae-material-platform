@@ -7,7 +7,7 @@
 ## 1. 변경 전 확인
 
 1. [AGENTS.md](AGENTS.md)의 필수 문서와 불변조건을 읽습니다.
-2. [backlog](docs/13-delivery/backlog.md)에서 하나의 Task 또는 명확한 하위 범위를 선택합니다.
+2. [backlog](docs/planning/backlog.md)에서 하나의 Task 또는 명확한 하위 범위를 선택합니다.
 3. `git status --short --branch`로 사용자 변경을 확인하고 보존합니다.
 4. contract를 바꾸는 작업은 adapter보다 OpenAPI/IR/schema를 먼저 수정합니다.
 5. visual 작업은 제품 정책, reference 비교, viewport evidence와 screenshot manifest를 같은 변경에
@@ -24,7 +24,7 @@ uv run python scripts/install_git_hooks.py --root . --check
 Codex project hook은 `/hooks`에서 내용을 확인하고 trust합니다. 자동 publication hook은 모델을
 호출하지 않고 결정적 검사만 수행합니다. 비용이 드는 독립 리뷰는 별도 승인을 받은 경우에만
 명시적으로 실행합니다. 현재 상태와 남은 설계 작업은
-[pre-publish 게이트](docs/14-testing/codex-pre-publish-review.md)를 따릅니다.
+[pre-publish 게이트](docs/testing/codex-pre-publish-review.md)를 따릅니다.
 
 Production 시험 표준, 재료 모델, optimizer, solver mapping과 validation threshold의 TBD를 임의로
 결정하지 마십시오. synthetic `reference/non-production` adapter만 사용합니다.
@@ -253,9 +253,9 @@ uv run cmp-check-user-guide --root .
 - mapping은 exact/transformed/approximated/unsupported를 명시하고 unsupported를 차단합니다.
 - organization/project authorization을 service와 database 양쪽에서 강제합니다.
 
-상세 계약은 [requirements](docs/02-requirements/requirements.md),
-[revision/provenance](docs/04-provenance/revision-and-provenance.md),
-[security](docs/11-security/security-tenancy-audit.md)를 따릅니다.
+상세 계약은 [requirements](docs/requirements/requirements.md),
+[revision/provenance](docs/domain/revision-and-provenance.md),
+[security](docs/architecture/security-tenancy-audit.md)를 따릅니다.
 
 ## 9. 문제 진단
 

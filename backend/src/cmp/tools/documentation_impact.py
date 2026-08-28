@@ -21,7 +21,7 @@ _GUIDE_PREFIX = "docs/user-guide/"
 _SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
 _NAVIGATION_CONTRACT = "docs/user-guide/navigation-contract.yaml"
 _FRONTEND_GUARD_BASELINE = "apps/web/frontend-guard-baseline.json"
-_EXCEPTION_PREFIX = "docs/14-testing/documentation-impact-exceptions/"
+_EXCEPTION_PREFIX = "docs/testing/documentation-impact-exceptions/"
 _EXCEPTION_SCHEMA = "cmp.documentation-impact-exception.v1"
 _NON_USER_VISIBLE_CLASSIFICATION = "non-user-visible-foundation"
 _NON_USER_VISIBLE_STRUCTURAL_CLASSIFICATION = "non-user-visible-structural-extraction"
@@ -44,7 +44,7 @@ _ISSUE_167_EXCEPTION_FILES = frozenset(
 )
 _ISSUE_167_DEPENDENCIES = frozenset(
     {
-        "docs/01-product/service-reference-manifest.yaml",
+        "docs/product/service-reference-manifest.yaml",
         "docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml",
     }
 )
@@ -168,7 +168,15 @@ def _parse_name_status_entries(value: bytes) -> dict[str, bool]:
         ]
         if path_count == 2:
             entries[paths[0]] = entries.get(paths[0], False)
-            entries[paths[1]] = True
+            exception_relocation = (
+                status == "R100"
+                and paths[1].startswith(_EXCEPTION_PREFIX)
+            )
+            # A byte-identical exception relocation is still part of the changed
+            # set, but it must not be interpreted as a newly changed waiver. Any
+            # content change or later exception edit remains evidence and keeps
+            # the one-exception fail-closed rule.
+            entries[paths[1]] = not exception_relocation
         else:
             entries[paths[0]] = entries.get(paths[0], False) or not status.startswith("D")
         index += path_count

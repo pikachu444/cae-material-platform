@@ -10,7 +10,7 @@
 구현에 대조한 공개용 계획이다. 실제 데이터가 아닌 원본 요구 문서와 샘플 포맷은
 [`원본 패키지`](../00-research/schema-driven-integration-source/README.md)와
 [`source-v2 JSON fixture`](../../fixtures/schema-definition-bundle/source-v2/README.md)로 공개한다.
-현재 구현 차이는 [`요구사항 추적표`](../02-requirements/schema-driven-requirement-traceability.md)가
+현재 구현 차이는 [`요구사항 추적표`](../requirements/schema-driven-requirement-traceability.md)가
 기록하고 [#246](https://github.com/pikachu444/cae-material-platform/issues/246)이 보완 작업을
 소유한다. 실제 시험 데이터, 스캔 이미지와 기밀 식별자는 포함하지 않는다.
 
@@ -134,7 +134,7 @@ module 경계로 분해했다.
 
 ## 5. 권장 실행과 제한된 병렬화
 
-저장소의 기본 규칙은 `docs/13-delivery/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
+저장소의 기본 규칙은 `docs/planning/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
 #209는 PR #248, main `3e642e8`에서 완료했고 #246 Task 1A도 PR #250, main `b9a82e9`에서
 완료했다. 현재 첫 미완료 단위는 추가 보완 배치 결정을 기다리는 #246이다. 승인된 #246 잔여를
 닫은 뒤 #211로 진행하며, #211은 이미 구현된 alignment·outlier·mean/95% CI·exact input pinning을
@@ -191,7 +191,7 @@ fixture, test와 사용자/운영 문서를 보관한다. 원본 문서와 설�
 [`docs/00-research/schema-driven-integration-source`](../00-research/schema-driven-integration-source/README.md),
 기계 판독 JSON은 [`fixtures/schema-definition-bundle/source-v2`](../../fixtures/schema-definition-bundle/source-v2/README.md),
 현재 구현과의 차이는
-[`docs/02-requirements/schema-driven-requirement-traceability.md`](../02-requirements/schema-driven-requirement-traceability.md)가
+[`docs/requirements/schema-driven-requirement-traceability.md`](../requirements/schema-driven-requirement-traceability.md)가
 소유한다. 전체 스캔 PDF, 실제 시험 데이터, confidential build/validation 결과와 내부 식별자는
 승인된 내부 보관소에 남긴다. 구현자는 대화 기억 없이 저장소 문서와 exact Issue만으로 범위·제외·검증을
 재현할 수 있어야 한다.

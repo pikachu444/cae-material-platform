@@ -31,5 +31,5 @@ adapter 또는 명시적으로 승인된 contract evolution으로 받아들인 �
 원본 설명과 작성 배경은
 [`docs/00-research/schema-driven-integration-source`](../../../docs/00-research/schema-driven-integration-source)를,
 현재 차이와 처리 순서는
-[`schema-driven-requirement-traceability.md`](../../../docs/02-requirements/schema-driven-requirement-traceability.md)를
+[`schema-driven-requirement-traceability.md`](../../../docs/requirements/schema-driven-requirement-traceability.md)를
 참조한다.

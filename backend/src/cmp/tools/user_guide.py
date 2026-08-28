@@ -123,8 +123,8 @@ _DOCS_PORTAL_REQUIRED_MARKERS = (
     "| 현재 구현 범위 | [현재 구현 상태](../IMPLEMENTATION_STATUS.md) |",
     "| 제품 사용과 운영 절차 | [사용자 가이드](user-guide/index.md) · "
     "[관리자 가이드](admin-guide/index.md) |",
-    "| 작업 순서와 검증 | [현재 전달 backlog](13-delivery/backlog.md) · "
-    "[테스트 전략](14-testing/test-strategy.md) |",
+    "| 작업 순서와 검증 | [현재 전달 backlog](planning/backlog.md) · "
+    "[테스트 전략](testing/test-strategy.md) |",
     "## 읽기 경로 세 가지",
     "### 제품을 사용하거나 현재 동작을 확인할 때",
     "### 일반 이슈를 구현할 때",
@@ -696,7 +696,7 @@ def _verify_current_product_reference_evidence(
 
 
 def _verify_service_reference_inventory(project: Path) -> None:
-    inventory_path = project / "docs" / "01-product" / "service-reference-inventory.yaml"
+    inventory_path = project / "docs" / "product" / "service-reference-inventory.yaml"
     inventory = _mapping(
         yaml.safe_load(inventory_path.read_text(encoding="utf-8")),
         "service reference inventory",
@@ -745,7 +745,7 @@ def _verify_service_reference_inventory(project: Path) -> None:
 
 def _verify_service_reference_manifest(project: Path) -> set[str]:
     _verify_service_reference_inventory(project)
-    manifest_path = project / "docs" / "01-product" / "service-reference-manifest.yaml"
+    manifest_path = project / "docs" / "product" / "service-reference-manifest.yaml"
     manifest = _mapping(
         yaml.safe_load(manifest_path.read_text(encoding="utf-8")),
         "service reference manifest",
@@ -1224,7 +1224,7 @@ def verify_user_guide(root: Path) -> UserGuideReport:
     )
     duplicate_manifest = _mapping(
         yaml.safe_load(
-            (project / "docs" / "01-product" / "service-reference-duplicates.yaml").read_text(
+            (project / "docs" / "product" / "service-reference-duplicates.yaml").read_text(
                 encoding="utf-8"
             )
         ),
