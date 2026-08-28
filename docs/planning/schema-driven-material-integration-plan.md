@@ -1,6 +1,6 @@
 # 스키마 기반 물성 DB 통합 계획
 
-상태: **승인된 기획 gate, #246 Task 3+4 최종 정합**
+상태: **승인된 기획 gate, #246 Task 3+4 PR #357 병합 대기**
 원기획 기준선: `main@63a076c`
 현재 대조 기준선: `main@712bda0`
 승인일: 2026-08-08
@@ -118,7 +118,7 @@ module 경계로 분해했다.
 | 10 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
 | 11 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
 | 12 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import — PR #248 완료 | #160, #184, #205~#207 |
-| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 — Task 1A PR #250, Task 2 PR #345, Task 1B PR #353, Task 2B PR #356 완료; #344 최종 정합 | #209, 원본 패키지와 추적표 |
+| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 — Task 1A PR #250, Task 2 PR #345, Task 1B PR #353, Task 2B PR #356 완료; Task 3+4 PR #357 병합 대기 | #209, 원본 패키지와 추적표 |
 | 14 | [#195](https://github.com/pikachu444/cae-material-platform/issues/195) | production 폴리머 점탄성 입력·수치 acceptance·선택 저장·reload·사용자 흐름 | #158, #209, #246, 별도 제품 scope gate; #211에 의존하지 않음 |
 | 15 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | p05/p95 representative revision·review/approval/invalidation·approved exact Fit selection | #160, #184, #206, #210, #246; 기존 alignment/outlier/mean CI/exact pinning 재사용 |
 | 16 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, #246, sandbox ADR |
@@ -139,7 +139,7 @@ module 경계로 분해했다.
 저장소의 기본 규칙은 `docs/planning/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
 #209는 PR #248, main `3e642e8`에서 완료했고 #246의 Task 1A·Task 2·Task 1B도 각각
 PR #250·#345·#353에서 완료했고 #343 Task 2B도 PR #356, main `712bda0`에서 완료했다.
-#344가 Task 3+4의 후속 소유권·보류 결정을 닫으면 #246을 종료한다. 그 다음에는 #195의 production
+#344의 PR #357이 Task 3+4의 후속 소유권·보류 결정을 닫으면 #246을 종료한다. 그 다음에는 #195의 production
 점탄성 입력·수치 acceptance·사용자 흐름을 먼저 진행하고, 이어 #211로 이동한다. #211은 이미
 구현된 alignment·outlier·mean/95% CI·exact input pinning을
 재사용하고 pointwise p05/p95 representative revision, review/approval/invalidation과 approved

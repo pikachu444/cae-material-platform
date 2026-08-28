@@ -88,7 +88,8 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   명시적으로 지원되지 않습니다. source-v2 Record의 `Test Type: Strain Sweep` 값은 동적 형식으로
   검증·보존할 수 있는 데이터 값이지, canonical 처리나 점탄성 계산 지원을 뜻하지 않습니다.
   master curve·Prony·LinearViscoelastic IR의 production 입력·정책·수치 검증 확장은 #195가 소유하며,
-  #246 완료만으로 구현됐다고 간주하지 않습니다. #344 Task 3+4는 #211·#213~#216의 실제 잔여를
+  #246 완료만으로 구현됐다고 간주하지 않습니다. #344 Task 3+4의
+  [PR #357](https://github.com/pikachu444/cae-material-platform/pull/357)은 #211·#213~#216의 실제 잔여를
   기존 이슈에 유지하고, 근거 없는 역할·optimizer·승인 단계·plugin·비동기 계산·경화식 확장을
   보류했습니다. #246 뒤의 다음 제품 작업은 #195입니다.
 - #195 polymer viscoelastic과 #196 elastomer hyperelastic/hyper-viscoelastic에는 bounded synthetic
