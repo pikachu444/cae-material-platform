@@ -127,6 +127,9 @@ export async function searchMaterialCatalogRecords(
         ? classAttribute?.attribute_definition_id
         : undefined,
     sort_direction: input.sortDirection ?? "ascending",
+    // Materials is a published exact-revision surface.  Administration retains
+    // the separate draft-capable Catalog search contract.
+    published_only: true,
   });
 
   function valueFor(

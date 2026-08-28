@@ -46,6 +46,7 @@ import {
   SemanticText,
   WorkbenchMessage,
 } from "../../../design/semantic-ui";
+import { JsonRecordRegistrationPanel } from "./json-record-registration";
 import {
   parseRecordsRouteSelection,
   recordsRoutePath,
@@ -262,6 +263,9 @@ export function ConfigurableCatalogRecords({
   const [entryMode, setEntryMode] = useState<"closed" | "single" | "multiple">(
     requestedSelection.recordId ? "single" : "closed",
   );
+  const [jsonRegistrationOpen, setJsonRegistrationOpen] = useState(false);
+  const jsonEntryModeBeforeOpen = useRef<"closed" | "single" | "multiple" | null>(null);
+  const recordTypeSelectRef = useRef<HTMLSelectElement | null>(null);
   const previousRouteRecordId = useRef(requestedSelection.recordId);
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkFormat, setBulkFormat] = useState<"csv" | "tsv" | "xlsx">("csv");
@@ -1140,6 +1144,18 @@ export function ConfigurableCatalogRecords({
     );
   }
 
+  const openJsonRegistration = useCallback(() => {
+    jsonEntryModeBeforeOpen.current = entryMode;
+    setEntryMode("closed");
+    setJsonRegistrationOpen(true);
+  }, [entryMode]);
+
+  const closeJsonRegistration = useCallback(() => {
+    setJsonRegistrationOpen(false);
+    setEntryMode(jsonEntryModeBeforeOpen.current ?? "closed");
+    jsonEntryModeBeforeOpen.current = null;
+  }, []);
+
   if (!config.accessToken.trim()) {
     return (
       <EngineeringPane className={productMode ? "record-auth-required" : "hero-card"} label="Material Database sign-in">
@@ -1193,11 +1209,13 @@ export function ConfigurableCatalogRecords({
       {error || exactRouteError ? <WorkbenchMessage className="record-workbench-message" kind="error" title="Record action failed">{error ?? exactRouteError}</WorkbenchMessage> : null}
       {notice ? <SemanticStatus className="record-workbench-message" status="success" label={notice} /> : null}
 
-      <EngineeringPane className="catalog-search-panel" label="Record scope and search">
+      {!jsonRegistrationOpen ? <EngineeringPane className="catalog-search-panel" label="Record scope and search">
         <div className="record-scope-row">
           <label className="ux-field">
             Record type
             <select
+              ref={recordTypeSelectRef}
+              id="catalog-record-type-selector"
               className="ux-select"
               value={tableId}
               onChange={(event) => {
@@ -1248,7 +1266,60 @@ export function ConfigurableCatalogRecords({
             Search
           </button>
         </form>
-      </EngineeringPane>
+      </EngineeringPane> : null}
+
+      {jsonRegistrationOpen ? (
+        <JsonRecordRegistrationPanel
+          config={config}
+          selectedTable={table ? { tableId: table.table_id, revisionId: table.current_revision.id } : null}
+          onChooseRecordType={() => {
+            recordTypeSelectRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+            recordTypeSelectRef.current?.focus();
+          }}
+          onTabularFiles={(files, selectedRecordType) => {
+            const file = files[0] ?? null;
+            jsonEntryModeBeforeOpen.current = null;
+            setJsonRegistrationOpen(false);
+            setEntryMode("multiple");
+            setTableId(selectedRecordType.tableId);
+            onNavigate(exactRecordsPath({
+              tableId: selectedRecordType.tableId,
+              tableRevisionId: selectedRecordType.revisionId,
+              folderId: "",
+              folderRevisionId: "",
+              recordId: "",
+              recordRevisionId: "",
+            }));
+            setBulkFile(file);
+            setBulkSource(null);
+            setBulkPreview(null);
+            setBulkColumns([]);
+            setBulkMapping({});
+            setBulkUnits({});
+            setBulkCorrections({});
+            if (file?.name.toLowerCase().endsWith(".xlsx")) setBulkFormat("xlsx");
+            else if (file?.name.toLowerCase().endsWith(".tsv")) setBulkFormat("tsv");
+            else setBulkFormat("csv");
+          }}
+          onOpenRecords={({ tableId, tableRevisionId }) => {
+            jsonEntryModeBeforeOpen.current = null;
+            setJsonRegistrationOpen(false);
+            setEntryMode("closed");
+            onNavigate(recordsRoutePath({
+              tableId,
+              tableRevisionId,
+              folderId: "",
+              folderRevisionId: "",
+              recordId: "",
+              recordRevisionId: "",
+            }));
+          }}
+          onClose={closeJsonRegistration}
+        />
+      ) : null}
 
       {entryMode === "multiple" ? (
         <EngineeringPane className="registration-panel" label="Record import">
@@ -1526,7 +1597,7 @@ export function ConfigurableCatalogRecords({
       </EngineeringPane>
       ) : null}
 
-      <div className={`catalog-record-grid ${entryMode === "single" ? "has-editor" : ""}`}>
+      {!jsonRegistrationOpen ? <div className={`catalog-record-grid ${entryMode === "single" ? "has-editor" : ""}`}>
         <details className="ux-engineering-pane catalog-facets">
           <summary>Filters</summary>
           <div className="record-filter-content">
@@ -1805,8 +1876,8 @@ export function ConfigurableCatalogRecords({
               <button
                 className="ux-button tertiary local-action"
                 type="button"
-                onClick={() => setEntryMode("multiple")}
-                disabled={!table}
+                onClick={openJsonRegistration}
+                disabled={busy}
               >
                 Import records
               </button>
@@ -2120,7 +2191,7 @@ export function ConfigurableCatalogRecords({
             </details>
           ) : null}
         </EngineeringPane> : null}
-      </div>
+      </div> : null}
     </div>
   );
 }

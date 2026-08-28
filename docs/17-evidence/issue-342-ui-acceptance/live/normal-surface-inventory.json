@@ -1,0 +1,28 @@
+{
+  "route": "/administration/records",
+  "normal_surface": "Records scope/search/list before and after Import records",
+  "import_visible_names": [
+    "Import records",
+    "Files",
+    "Preview",
+    "Save draft",
+    "Close",
+    "Add files",
+    "Detected content",
+    "Reason for change",
+    "Save",
+    "Open records"
+  ],
+  "import_surface_exclusions": [
+    "Record type selector",
+    "Format revision selector",
+    "Classification or Technical details selector",
+    "Raw UUID, SHA, token, wrapper, binding, or package controls"
+  ],
+  "close_restores": [
+    "#catalog-record-type-selector",
+    ".catalog-search-panel",
+    ".catalog-record-list"
+  ],
+  "source": "apps/web/e2e/issue342-json-record-registration.spec.ts"
+}

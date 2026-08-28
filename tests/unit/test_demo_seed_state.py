@@ -17,6 +17,7 @@ class _StateApi(demo_seed.DemoApi):
         payload: Mapping[str, Any],
         *,
         headers: Mapping[str, str] | None = None,
+        timeout: float | None = None,
     ) -> dict[str, Any]:
         self.writes.append({"path": path, "payload": deepcopy(payload), "headers": headers})
         return {
@@ -109,6 +110,7 @@ class _ModelCardApi(demo_seed.DemoApi):
         payload: Mapping[str, Any],
         *,
         headers: Mapping[str, str] | None = None,
+        timeout: float | None = None,
     ) -> dict[str, Any]:
         raise AssertionError(f"repeat seed must not POST {path}: {payload}, {headers}")
 
@@ -171,6 +173,7 @@ class _TabulatedCardApi(demo_seed.DemoApi):
         payload: Mapping[str, Any],
         *,
         headers: Mapping[str, str] | None = None,
+        timeout: float | None = None,
     ) -> dict[str, Any]:
         raise AssertionError(f"repeat seed must not POST {path}: {payload}, {headers}")
 

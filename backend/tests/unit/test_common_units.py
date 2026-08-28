@@ -20,6 +20,7 @@ from cmp.modules.units.domain.system import (
     UnitError,
     canonical_unit_id,
     convert_value,
+    dimension_for_quantity_semantics,
     unit_system_contract,
 )
 from fastapi import FastAPI
@@ -144,6 +145,24 @@ def test_density_composite_dimension_and_legacy_alias_are_explicit() -> None:
     )
     assert source_density.converted_value == Decimal("7850")
     assert display_density.converted_value == Decimal("7.85")
+
+
+def test_source_v2_physics_density_alias_preserves_exact_semantics() -> None:
+    semantics = "physics.density"
+    assert dimension_for_quantity_semantics(semantics) is DimensionId.MASS_PER_VOLUME
+
+    reference = QuantityReference(DimensionId.MASS_PER_VOLUME, semantics, "kg/m3")
+    converted = convert_value(
+        "7850",
+        original_unit_string="kg/m3",
+        source=reference,
+        target=reference,
+        location="source_v2.elastoplasticity.density",
+    )
+
+    assert converted.converted_value == Decimal("7850")
+    assert converted.source.quantity_semantics == semantics
+    assert converted.target.quantity_semantics == semantics
 
 
 def test_speed_mm_per_minute_chain_round_trips_within_declared_tolerance() -> None:

@@ -1,0 +1,2282 @@
+{
+  "states": [
+    {
+      "state": "normal",
+      "viewports": [
+        {
+          "state": "normal",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": null,
+          "workspace": null,
+          "panes": {
+            "steps": null,
+            "files": null,
+            "preview": null
+          }
+        },
+        {
+          "state": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": null,
+          "workspace": null,
+          "panes": {
+            "steps": null,
+            "files": null,
+            "preview": null
+          }
+        },
+        {
+          "state": "normal",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": null,
+          "workspace": null,
+          "panes": {
+            "steps": null,
+            "files": null,
+            "preview": null
+          }
+        },
+        {
+          "state": "normal",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": null,
+          "workspace": null,
+          "panes": {
+            "steps": null,
+            "files": null,
+            "preview": null
+          }
+        },
+        {
+          "state": "normal",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": null,
+          "workspace": null,
+          "panes": {
+            "steps": null,
+            "files": null,
+            "preview": null
+          }
+        }
+      ]
+    },
+    {
+      "state": "empty",
+      "viewports": [
+        {
+          "state": "empty",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 130.59375,
+            "width": 1287.5625,
+            "height": 524.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 130.59375,
+              "width": 315.3125,
+              "height": 524.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 130.59375,
+              "width": 540.125,
+              "height": 524.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 130.59375,
+              "width": 432.125,
+              "height": 524.8125
+            }
+          }
+        },
+        {
+          "state": "empty",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 130.59375,
+            "width": 1359.0625,
+            "height": 656.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 130.59375,
+              "width": 316.796875,
+              "height": 656.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 130.59375,
+              "width": 579.03125,
+              "height": 656.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 130.59375,
+              "width": 463.21875,
+              "height": 656.8125
+            }
+          }
+        },
+        {
+          "state": "empty",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 1824,
+            "height": 836.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 326.390625,
+              "height": 836.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 130.59375,
+              "width": 832,
+              "height": 836.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 130.59375,
+              "width": 665.609375,
+              "height": 836.8125
+            }
+          }
+        },
+        {
+          "state": "empty",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 2464,
+            "height": 1196.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 339.1875,
+              "height": 1196.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 130.59375,
+              "width": 1180.4375,
+              "height": 1196.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 130.59375,
+              "width": 944.375,
+              "height": 1196.8125
+            }
+          }
+        },
+        {
+          "state": "empty",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 3744,
+            "height": 1916.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 364.796875,
+              "height": 1916.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 130.59375,
+              "width": 1877.328125,
+              "height": 1916.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 130.59375,
+              "width": 1501.875,
+              "height": 1916.8125
+            }
+          }
+        }
+      ]
+    },
+    {
+      "state": "loading",
+      "viewports": [
+        {
+          "state": "loading",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 130.59375,
+            "width": 1287.5625,
+            "height": 524.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 130.59375,
+              "width": 315.3125,
+              "height": 524.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 130.59375,
+              "width": 540.125,
+              "height": 524.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 130.59375,
+              "width": 432.125,
+              "height": 524.8125
+            }
+          }
+        },
+        {
+          "state": "loading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 130.59375,
+            "width": 1359.0625,
+            "height": 656.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 130.59375,
+              "width": 316.796875,
+              "height": 656.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 130.59375,
+              "width": 579.03125,
+              "height": 656.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 130.59375,
+              "width": 463.21875,
+              "height": 656.8125
+            }
+          }
+        },
+        {
+          "state": "loading",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 1824,
+            "height": 836.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 326.390625,
+              "height": 836.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 130.59375,
+              "width": 832,
+              "height": 836.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 130.59375,
+              "width": 665.609375,
+              "height": 836.8125
+            }
+          }
+        },
+        {
+          "state": "loading",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 2464,
+            "height": 1196.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 339.1875,
+              "height": 1196.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 130.59375,
+              "width": 1180.4375,
+              "height": 1196.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 130.59375,
+              "width": 944.375,
+              "height": 1196.8125
+            }
+          }
+        },
+        {
+          "state": "loading",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 3744,
+            "height": 1916.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 364.796875,
+              "height": 1916.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 130.59375,
+              "width": 1877.328125,
+              "height": 1916.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 130.59375,
+              "width": 1501.875,
+              "height": 1916.8125
+            }
+          }
+        }
+      ]
+    },
+    {
+      "state": "error",
+      "viewports": [
+        {
+          "state": "error",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 214.59375,
+            "width": 1287.5625,
+            "height": 440.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 214.59375,
+              "width": 315.3125,
+              "height": 440.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 214.59375,
+              "width": 540.125,
+              "height": 440.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 214.59375,
+              "width": 432.125,
+              "height": 440.8125
+            }
+          }
+        },
+        {
+          "state": "error",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 214.59375,
+            "width": 1359.0625,
+            "height": 572.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 214.59375,
+              "width": 316.796875,
+              "height": 572.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 214.59375,
+              "width": 579.03125,
+              "height": 572.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 214.59375,
+              "width": 463.21875,
+              "height": 572.8125
+            }
+          }
+        },
+        {
+          "state": "error",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 1824,
+            "height": 752.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 326.390625,
+              "height": 752.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 214.59375,
+              "width": 832,
+              "height": 752.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 214.59375,
+              "width": 665.609375,
+              "height": 752.8125
+            }
+          }
+        },
+        {
+          "state": "error",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 2464,
+            "height": 1112.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 339.1875,
+              "height": 1112.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 214.59375,
+              "width": 1180.4375,
+              "height": 1112.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 214.59375,
+              "width": 944.375,
+              "height": 1112.8125
+            }
+          }
+        },
+        {
+          "state": "error",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 3744,
+            "height": 1832.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 364.796875,
+              "height": 1832.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 214.59375,
+              "width": 1877.328125,
+              "height": 1832.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 214.59375,
+              "width": 1501.875,
+              "height": 1832.8125
+            }
+          }
+        }
+      ]
+    },
+    {
+      "state": "upload-error",
+      "viewports": [
+        {
+          "state": "upload-error",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 214.59375,
+            "width": 1287.5625,
+            "height": 440.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 214.59375,
+              "width": 315.3125,
+              "height": 440.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 214.59375,
+              "width": 540.125,
+              "height": 440.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 214.59375,
+              "width": 432.125,
+              "height": 440.8125
+            }
+          }
+        },
+        {
+          "state": "upload-error",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 214.59375,
+            "width": 1359.0625,
+            "height": 572.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 214.59375,
+              "width": 316.796875,
+              "height": 572.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 214.59375,
+              "width": 579.03125,
+              "height": 572.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 214.59375,
+              "width": 463.21875,
+              "height": 572.8125
+            }
+          }
+        },
+        {
+          "state": "upload-error",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 1824,
+            "height": 752.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 326.390625,
+              "height": 752.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 214.59375,
+              "width": 832,
+              "height": 752.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 214.59375,
+              "width": 665.609375,
+              "height": 752.8125
+            }
+          }
+        },
+        {
+          "state": "upload-error",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 2464,
+            "height": 1112.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 339.1875,
+              "height": 1112.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 214.59375,
+              "width": 1180.4375,
+              "height": 1112.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 214.59375,
+              "width": 944.375,
+              "height": 1112.8125
+            }
+          }
+        },
+        {
+          "state": "upload-error",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 3744,
+            "height": 1832.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 364.796875,
+              "height": 1832.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 214.59375,
+              "width": 1877.328125,
+              "height": 1832.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 214.59375,
+              "width": 1501.875,
+              "height": 1832.8125
+            }
+          }
+        }
+      ]
+    },
+    {
+      "state": "invalid-preview",
+      "viewports": [
+        {
+          "state": "invalid-preview",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 130.59375,
+            "width": 1287.5625,
+            "height": 524.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 130.59375,
+              "width": 315.3125,
+              "height": 524.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 130.59375,
+              "width": 540.125,
+              "height": 524.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 130.59375,
+              "width": 432.125,
+              "height": 524.8125
+            }
+          }
+        },
+        {
+          "state": "invalid-preview",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 130.59375,
+            "width": 1359.0625,
+            "height": 656.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 130.59375,
+              "width": 316.796875,
+              "height": 656.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 130.59375,
+              "width": 579.03125,
+              "height": 656.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 130.59375,
+              "width": 463.21875,
+              "height": 656.8125
+            }
+          }
+        },
+        {
+          "state": "invalid-preview",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 1824,
+            "height": 836.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 326.390625,
+              "height": 836.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 130.59375,
+              "width": 832,
+              "height": 836.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 130.59375,
+              "width": 665.609375,
+              "height": 836.8125
+            }
+          }
+        },
+        {
+          "state": "invalid-preview",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 2464,
+            "height": 1196.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 339.1875,
+              "height": 1196.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 130.59375,
+              "width": 1180.4375,
+              "height": 1196.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 130.59375,
+              "width": 944.375,
+              "height": 1196.8125
+            }
+          }
+        },
+        {
+          "state": "invalid-preview",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 3744,
+            "height": 1916.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 364.796875,
+              "height": 1916.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 130.59375,
+              "width": 1877.328125,
+              "height": 1916.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 130.59375,
+              "width": 1501.875,
+              "height": 1916.8125
+            }
+          }
+        }
+      ]
+    },
+    {
+      "state": "valid-preview",
+      "viewports": [
+        {
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 130.59375,
+              "width": 315.3125,
+              "height": 524.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 130.59375,
+              "width": 540.125,
+              "height": 524.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 130.59375,
+              "width": 432.125,
+              "height": 524.8125
+            }
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 130.59375,
+            "width": 1287.5625,
+            "height": 524.8125
+          },
+          "previewFields": {
+            "x": 909.65625,
+            "y": 259.28125,
+            "width": 403.125,
+            "height": 192
+          },
+          "saveRow": {
+            "x": 909.65625,
+            "y": 465.28125,
+            "width": 403.125,
+            "height": 77
+          },
+          "addFiles": {
+            "x": 774.8125,
+            "y": 144.59375,
+            "width": 105.84375,
+            "height": 38
+          },
+          "fileHeadingCells": [
+            {
+              "x": 379.53125,
+              "width": 202.96875
+            },
+            {
+              "x": 592.5,
+              "width": 156.15625
+            },
+            {
+              "x": 758.65625,
+              "width": 112
+            }
+          ],
+          "firstFileRowCells": [
+            {
+              "x": 379.53125,
+              "width": 202.96875
+            },
+            {
+              "x": 592.5,
+              "width": 156.15625
+            },
+            {
+              "x": 758.65625,
+              "width": 112
+            }
+          ],
+          "surrounding": {
+            "recordTypeSelector": false,
+            "searchPanel": null,
+            "resultsPanel": null
+          }
+        },
+        {
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 130.59375,
+              "width": 316.796875,
+              "height": 656.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 130.59375,
+              "width": 579.03125,
+              "height": 656.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 130.59375,
+              "width": 463.21875,
+              "height": 656.8125
+            }
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 130.59375,
+            "width": 1359.0625,
+            "height": 656.8125
+          },
+          "previewFields": {
+            "x": 951.296875,
+            "y": 259.28125,
+            "width": 434.21875,
+            "height": 192
+          },
+          "saveRow": {
+            "x": 951.296875,
+            "y": 465.28125,
+            "width": 434.21875,
+            "height": 77
+          },
+          "addFiles": {
+            "x": 816.453125,
+            "y": 144.59375,
+            "width": 105.84375,
+            "height": 38
+          },
+          "fileHeadingCells": [
+            {
+              "x": 382.265625,
+              "width": 224.96875
+            },
+            {
+              "x": 617.234375,
+              "width": 173.0625
+            },
+            {
+              "x": 800.296875,
+              "width": 112
+            }
+          ],
+          "firstFileRowCells": [
+            {
+              "x": 382.265625,
+              "width": 224.96875
+            },
+            {
+              "x": 617.234375,
+              "width": 173.0625
+            },
+            {
+              "x": 800.296875,
+              "width": 112
+            }
+          ],
+          "surrounding": {
+            "recordTypeSelector": false,
+            "searchPanel": null,
+            "resultsPanel": null
+          }
+        },
+        {
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 326.390625,
+              "height": 836.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 130.59375,
+              "width": 832,
+              "height": 836.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 130.59375,
+              "width": 665.609375,
+              "height": 836.8125
+            }
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 1824,
+            "height": 836.8125
+          },
+          "previewFields": {
+            "x": 1221.390625,
+            "y": 259.28125,
+            "width": 636.609375,
+            "height": 192
+          },
+          "saveRow": {
+            "x": 1221.390625,
+            "y": 465.28125,
+            "width": 636.609375,
+            "height": 77
+          },
+          "addFiles": {
+            "x": 1086.546875,
+            "y": 144.59375,
+            "width": 105.84375,
+            "height": 38
+          },
+          "fileHeadingCells": [
+            {
+              "x": 399.390625,
+              "width": 367.953125
+            },
+            {
+              "x": 777.34375,
+              "width": 283.046875
+            },
+            {
+              "x": 1070.390625,
+              "width": 112
+            }
+          ],
+          "firstFileRowCells": [
+            {
+              "x": 399.390625,
+              "width": 367.953125
+            },
+            {
+              "x": 777.34375,
+              "width": 283.046875
+            },
+            {
+              "x": 1070.390625,
+              "width": 112
+            }
+          ],
+          "surrounding": {
+            "recordTypeSelector": false,
+            "searchPanel": null,
+            "resultsPanel": null
+          }
+        },
+        {
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 339.1875,
+              "height": 1196.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 130.59375,
+              "width": 1180.4375,
+              "height": 1196.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 130.59375,
+              "width": 944.375,
+              "height": 1196.8125
+            }
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 2464,
+            "height": 1196.8125
+          },
+          "previewFields": {
+            "x": 1582.625,
+            "y": 259.28125,
+            "width": 800,
+            "height": 192
+          },
+          "saveRow": {
+            "x": 1582.625,
+            "y": 465.28125,
+            "width": 800,
+            "height": 77
+          },
+          "addFiles": {
+            "x": 1447.78125,
+            "y": 144.59375,
+            "width": 105.84375,
+            "height": 38
+          },
+          "fileHeadingCells": [
+            {
+              "x": 412.1875,
+              "width": 564.890625
+            },
+            {
+              "x": 987.078125,
+              "width": 434.546875
+            },
+            {
+              "x": 1431.625,
+              "width": 112
+            }
+          ],
+          "firstFileRowCells": [
+            {
+              "x": 412.1875,
+              "width": 564.890625
+            },
+            {
+              "x": 987.078125,
+              "width": 434.546875
+            },
+            {
+              "x": 1431.625,
+              "width": 112
+            }
+          ],
+          "surrounding": {
+            "recordTypeSelector": false,
+            "searchPanel": null,
+            "resultsPanel": null
+          }
+        },
+        {
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 364.796875,
+              "height": 1916.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 130.59375,
+              "width": 1877.328125,
+              "height": 1916.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 130.59375,
+              "width": 1501.875,
+              "height": 1916.8125
+            }
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 3744,
+            "height": 1916.8125
+          },
+          "previewFields": {
+            "x": 2305.125,
+            "y": 259.28125,
+            "width": 800,
+            "height": 192
+          },
+          "saveRow": {
+            "x": 2305.125,
+            "y": 465.28125,
+            "width": 800,
+            "height": 77
+          },
+          "addFiles": {
+            "x": 2170.28125,
+            "y": 144.59375,
+            "width": 105.84375,
+            "height": 38
+          },
+          "fileHeadingCells": [
+            {
+              "x": 437.796875,
+              "width": 958.78125
+            },
+            {
+              "x": 1406.578125,
+              "width": 737.546875
+            },
+            {
+              "x": 2154.125,
+              "width": 112
+            }
+          ],
+          "firstFileRowCells": [
+            {
+              "x": 437.796875,
+              "width": 958.78125
+            },
+            {
+              "x": 1406.578125,
+              "width": 737.546875
+            },
+            {
+              "x": 2154.125,
+              "width": 112
+            }
+          ],
+          "surrounding": {
+            "recordTypeSelector": false,
+            "searchPanel": null,
+            "resultsPanel": null
+          }
+        }
+      ]
+    },
+    {
+      "state": "save-error",
+      "viewports": [
+        {
+          "state": "save-error",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 214.59375,
+            "width": 1287.5625,
+            "height": 440.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 214.59375,
+              "width": 315.3125,
+              "height": 440.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 214.59375,
+              "width": 540.125,
+              "height": 440.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 214.59375,
+              "width": 432.125,
+              "height": 440.8125
+            }
+          }
+        },
+        {
+          "state": "save-error",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 214.59375,
+            "width": 1359.0625,
+            "height": 572.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 214.59375,
+              "width": 316.796875,
+              "height": 572.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 214.59375,
+              "width": 579.03125,
+              "height": 572.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 214.59375,
+              "width": 463.21875,
+              "height": 572.8125
+            }
+          }
+        },
+        {
+          "state": "save-error",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 1824,
+            "height": 752.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 326.390625,
+              "height": 752.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 214.59375,
+              "width": 832,
+              "height": 752.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 214.59375,
+              "width": 665.609375,
+              "height": 752.8125
+            }
+          }
+        },
+        {
+          "state": "save-error",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 2464,
+            "height": 1112.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 339.1875,
+              "height": 1112.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 214.59375,
+              "width": 1180.4375,
+              "height": 1112.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 214.59375,
+              "width": 944.375,
+              "height": 1112.8125
+            }
+          }
+        },
+        {
+          "state": "save-error",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 214.59375,
+            "width": 3744,
+            "height": 1832.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 214.59375,
+              "width": 364.796875,
+              "height": 1832.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 214.59375,
+              "width": 1877.328125,
+              "height": 1832.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 214.59375,
+              "width": 1501.875,
+              "height": 1832.8125
+            }
+          }
+        }
+      ]
+    },
+    {
+      "state": "saved",
+      "viewports": [
+        {
+          "state": "saved",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1366,
+            "scrollWidth": 1366,
+            "clientHeight": 768,
+            "scrollHeight": 768
+          },
+          "importPanel": {
+            "x": 23.21875,
+            "y": 117,
+            "width": 1319.5625,
+            "height": 552
+          },
+          "workspace": {
+            "x": 39.21875,
+            "y": 130.59375,
+            "width": 1287.5625,
+            "height": 524.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 39.21875,
+              "y": 130.59375,
+              "width": 315.3125,
+              "height": 524.8125
+            },
+            "files": {
+              "x": 354.53125,
+              "y": 130.59375,
+              "width": 540.125,
+              "height": 524.8125
+            },
+            "preview": {
+              "x": 894.65625,
+              "y": 130.59375,
+              "width": 432.125,
+              "height": 524.8125
+            }
+          }
+        },
+        {
+          "state": "saved",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1440,
+            "scrollWidth": 1440,
+            "clientHeight": 900,
+            "scrollHeight": 900
+          },
+          "importPanel": {
+            "x": 24.46875,
+            "y": 117,
+            "width": 1391.0625,
+            "height": 684
+          },
+          "workspace": {
+            "x": 40.46875,
+            "y": 130.59375,
+            "width": 1359.0625,
+            "height": 656.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 40.46875,
+              "y": 130.59375,
+              "width": 316.796875,
+              "height": 656.8125
+            },
+            "files": {
+              "x": 357.265625,
+              "y": 130.59375,
+              "width": 579.03125,
+              "height": 656.8125
+            },
+            "preview": {
+              "x": 936.296875,
+              "y": 130.59375,
+              "width": 463.21875,
+              "height": 656.8125
+            }
+          }
+        },
+        {
+          "state": "saved",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 1920,
+            "scrollWidth": 1920,
+            "clientHeight": 1080,
+            "scrollHeight": 1080
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 1856,
+            "height": 864
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 1824,
+            "height": 836.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 326.390625,
+              "height": 836.8125
+            },
+            "files": {
+              "x": 374.390625,
+              "y": 130.59375,
+              "width": 832,
+              "height": 836.8125
+            },
+            "preview": {
+              "x": 1206.390625,
+              "y": 130.59375,
+              "width": 665.609375,
+              "height": 836.8125
+            }
+          }
+        },
+        {
+          "state": "saved",
+          "viewport": {
+            "width": 2560,
+            "height": 1440
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 2560,
+            "scrollWidth": 2560,
+            "clientHeight": 1440,
+            "scrollHeight": 1440
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 2496,
+            "height": 1224
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 2464,
+            "height": 1196.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 339.1875,
+              "height": 1196.8125
+            },
+            "files": {
+              "x": 387.1875,
+              "y": 130.59375,
+              "width": 1180.4375,
+              "height": 1196.8125
+            },
+            "preview": {
+              "x": 1567.625,
+              "y": 130.59375,
+              "width": 944.375,
+              "height": 1196.8125
+            }
+          }
+        },
+        {
+          "state": "saved",
+          "viewport": {
+            "width": 3840,
+            "height": 2160
+          },
+          "devicePixelRatio": 1,
+          "visualViewportScale": 1,
+          "document": {
+            "clientWidth": 3840,
+            "scrollWidth": 3840,
+            "clientHeight": 2160,
+            "scrollHeight": 2160
+          },
+          "importPanel": {
+            "x": 32,
+            "y": 117,
+            "width": 3776,
+            "height": 1944
+          },
+          "workspace": {
+            "x": 48,
+            "y": 130.59375,
+            "width": 3744,
+            "height": 1916.8125
+          },
+          "panes": {
+            "steps": {
+              "x": 48,
+              "y": 130.59375,
+              "width": 364.796875,
+              "height": 1916.8125
+            },
+            "files": {
+              "x": 412.796875,
+              "y": 130.59375,
+              "width": 1877.328125,
+              "height": 1916.8125
+            },
+            "preview": {
+              "x": 2290.125,
+              "y": 130.59375,
+              "width": 1501.875,
+              "height": 1916.8125
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "viewports": [
+    {
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "width": 3840,
+      "height": 2160
+    }
+  ],
+  "original_count": 45
+}

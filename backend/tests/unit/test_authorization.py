@@ -357,6 +357,28 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
             assert typed_dependencies.issubset(permissions)
 
 
+def test_catalog_write_carries_internal_curve_artifact_materialization_capability() -> None:
+    database_permissions = set(database_permissions_for(Permission.CATALOG_WRITE))
+
+    assert {
+        Permission.CATALOG_WRITE.value,
+        Permission.ARTIFACT_READ.value,
+        Permission.ARTIFACT_WRITE.value,
+        Permission.UNITS_READ.value,
+    }.issubset(database_permissions)
+
+    decision = _service(_binding(Role.DATA_STEWARD)).authorize(
+        _context(), Permission.CATALOG_WRITE
+    )
+    assert decision.permission is Permission.CATALOG_WRITE
+    assert {
+        Permission.ARTIFACT_READ.value,
+        Permission.ARTIFACT_WRITE.value,
+        Permission.UNITS_READ.value,
+        "events.publish",
+    }.issubset(decision.database_permissions)
+
+
 def test_no_binding_or_wrong_tenant_project_subject_and_group_issuer_are_denied() -> None:
     context = _context()
     wrong_bindings = (

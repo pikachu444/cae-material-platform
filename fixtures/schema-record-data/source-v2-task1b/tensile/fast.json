@@ -1,0 +1,22 @@
+{
+  "tensile-test": {
+    "Data Information": {
+      "Tensile Test Data Record Name": "DP780 fast tensile",
+      "Tensile Data ID": "CMP-246-TENSILE-FAST",
+      "Technical Data ID": "CMP-246-TECH-DP780"
+    },
+    "Test Condition": {
+      "Temperature (degC)": 23,
+      "Tensile Speed for Plastic Region (mm/min)": 100
+    },
+    "Test Result": {
+      "Tensile Test Raw Data_Extensometer-Load": {
+        "Series 1": {
+          "Extensometer (mm)": [0, 1, 2],
+          "Value (N)": [0, 1000, 1900]
+        }
+      },
+      "Force maximum (MPa)": 760
+    }
+  }
+}

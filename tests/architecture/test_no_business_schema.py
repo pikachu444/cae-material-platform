@@ -109,6 +109,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20261001_100_issue246_source_v2.py",
         "20261002_101_issue289_draft_delete.py",
         "20261003_102_issue246_task2_common_units.py",
+        "20261004_103_issue342_json_record_registration.py",
     ]
 
 

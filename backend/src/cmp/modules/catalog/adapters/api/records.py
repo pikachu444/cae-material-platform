@@ -19,7 +19,13 @@ from cmp.curve_artifact_registry import (
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.domain import ArtifactKind
 from cmp.modules.catalog.adapters.api.catalog import CatalogHttpError, _etag, _scope
+from cmp.modules.catalog.adapters.api.json_record_registration import (
+    install_json_record_registration_api,
+)
 from cmp.modules.catalog.application.configurable import ConfigRevision
+from cmp.modules.catalog.application.json_record_registration import (
+    JsonRecordRegistrationService,
+)
 from cmp.modules.catalog.application.records import (
     CatalogRecordService,
     CreateFolder,
@@ -739,10 +745,20 @@ def install_catalog_record_api(
     *,
     service: CatalogRecordService | None,
     artifact_service: ArtifactService | None = None,
+    json_registration_service: JsonRecordRegistrationService | None = None,
     security_dependency: Dependency,
     read_dependency: Dependency,
     write_dependency: Dependency,
 ) -> None:
+    install_json_record_registration_api(
+        application,
+        service=json_registration_service,
+        artifact_service=artifact_service,
+        security_dependency=security_dependency,
+        read_dependency=read_dependency,
+        write_dependency=write_dependency,
+    )
+
     def required(context: Any) -> CatalogRecordService:
         if service is None:
             raise CatalogHttpError(

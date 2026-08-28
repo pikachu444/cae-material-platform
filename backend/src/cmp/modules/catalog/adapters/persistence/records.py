@@ -48,7 +48,10 @@ from cmp.modules.catalog.domain.records import (
     folder_canonical,
     record_canonical,
 )
-from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+)
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
@@ -375,6 +378,26 @@ _test_run = sa.Table(
     sa.Column("current_revision_id", _uuid, nullable=False),
     schema="testing",
 )
+_specimen_revision = sa.Table(
+    "specimen_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    schema="testing",
+)
+_test_run_revision = sa.Table(
+    "test_run_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    schema="testing",
+)
 _material_model = sa.Table(
     "material_model",
     metadata,
@@ -411,6 +434,16 @@ _processing_output = sa.Table(
     sa.Column("project_id", _uuid, nullable=False),
     sa.Column("classification", sa.String(64), nullable=False),
     sa.Column("current_revision_id", _uuid, nullable=False),
+    schema="processing",
+)
+_processing_output_revision = sa.Table(
+    "common_processing_output_revision",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("aggregate_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
     schema="processing",
 )
 _solver_card = sa.Table(
@@ -480,6 +513,16 @@ _neutral_material_revision = sa.Table(
     sa.Column("processing_output_id", _uuid, nullable=True),
     sa.Column("processing_output_revision_id", _uuid, nullable=True),
     schema="modeling",
+)
+_release_manifest = sa.Table(
+    "release_manifest",
+    metadata,
+    sa.Column("id", _uuid, nullable=False),
+    sa.Column("release_id", _uuid, nullable=False),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    schema="governance",
 )
 domain_record_identity_binding = sa.Table(
     "domain_record_identity_binding",
@@ -903,6 +946,39 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 )
             )
 
+    def validate_exact_domain_binding(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        classification: DataClassification,
+        binding: tuple[str, UUID, UUID],
+    ) -> bool:
+        """Check one caller-supplied domain pin without resolving a mutable head.
+
+        Cross-module revision tables are protected by their own RLS policies.  The
+        boolean-only database helper performs the caller-scoped Catalog permission
+        check before its SECURITY DEFINER exact-tuple lookup, so this adapter never
+        bypasses those policies with a direct cross-module SELECT.
+        """
+
+        kind, object_id, revision_id = binding
+        with self._transaction(context, decision) as session:
+            return bool(
+                session.scalar(
+                    sa.select(
+                        sa.func.access_control.catalog_domain_revision_exists(
+                            context.organization_id,
+                            context.project_id,
+                            sa.cast(classification.value, postgresql.TEXT()),
+                            sa.cast(kind, postgresql.TEXT()),
+                            object_id,
+                            revision_id,
+                        )
+                    )
+                )
+            )
+
     @staticmethod
     def _preview_digest(token: str) -> str:
         return sha256(token.encode("utf-8")).hexdigest()
@@ -1030,7 +1106,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         record_registration_preview.c.expires_at > datetime.now(UTC),
                     )
                     .values(consumed_at=datetime.now(UTC), consumed_by=context.principal.id)
-                )
+                ),
             )
             return result.rowcount == 1
 
@@ -1041,6 +1117,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
         decision: AuthorizationDecision,
         records: Sequence[tuple[UUID, CreateRecord]],
         registration_token: str | None = None,
+        after_create: Callable[[Session, Sequence[RecordSnapshot]], None] | None = None,
     ) -> tuple[RecordSnapshot, ...]:
         """Create a registration batch in one outer database transaction.
 
@@ -1083,7 +1160,45 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 preview_id = preview["id"]
             transaction = SqlAlchemyRevisionTransaction(session, _RECORDS, self._hooks)
             snapshots: list[RecordSnapshot] = []
+            seen_external_keys: set[tuple[UUID, str]] = set()
             for record_id, command in records:
+                external_key = command.content.external_key
+                if external_key is not None:
+                    key = (command.content.table_id, external_key.casefold())
+                    if key in seen_external_keys:
+                        raise ConfigurableCatalogConflict(
+                            "Record external key is duplicated in the registration batch"
+                        )
+                    seen_external_keys.add(key)
+                    existing = session.scalar(
+                        sa.select(sa.literal(True))
+                        .select_from(
+                            catalog_record.join(
+                                catalog_record_revision,
+                                sa.and_(
+                                    catalog_record_revision.c.aggregate_id
+                                    == catalog_record.c.id,
+                                    catalog_record_revision.c.id
+                                    == catalog_record.c.current_revision_id,
+                                    catalog_record_revision.c.organization_id
+                                    == catalog_record.c.organization_id,
+                                    catalog_record_revision.c.project_id
+                                    == catalog_record.c.project_id,
+                                    catalog_record_revision.c.classification
+                                    == catalog_record.c.classification,
+                                ),
+                            )
+                        )
+                        .where(
+                            catalog_record.c.table_id == command.content.table_id,
+                            sa.func.lower(sa.func.btrim(catalog_record_revision.c.external_key))
+                            == external_key.strip().casefold(),
+                        )
+                    )
+                    if existing:
+                        raise ConfigurableCatalogConflict(
+                            "Record external key is already in use"
+                        )
                 for kind, object_id, revision_id in command.domain_bindings:
                     existing_record_id = session.scalar(
                         sa.select(domain_record_identity_binding.c.record_id).where(
@@ -1182,6 +1297,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 )
                 if consumed.rowcount != 1:
                     raise ConfigurableCatalogConflict("registration preview was already consumed")
+            if after_create is not None:
+                after_create(session, tuple(snapshots))
             return tuple(snapshots)
 
     @staticmethod
@@ -1359,6 +1476,86 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 )
             values = self._values_by_revision(session, (rows[0]["id"],))
             return self._record_snapshot(rows[0], values)
+
+    def resolve_record_history_by_external_key(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> tuple[RecordSnapshot, ...]:
+        """Return every published exact revision for one business identifier.
+
+        JSON registration may auto-resolve a reference only when this complete history query
+        yields one immutable published revision.  It intentionally never returns a current/head
+        projection or picks the first row.
+        """
+
+        statement = (
+            self._record_statement(current=False)
+            .join(
+                publication_marker,
+                sa.and_(
+                    publication_marker.c.organization_id == catalog_record.c.organization_id,
+                    publication_marker.c.project_id == catalog_record.c.project_id,
+                    publication_marker.c.classification == catalog_record.c.classification,
+                    publication_marker.c.aggregate_type == RECORD_AGGREGATE_TYPE,
+                    publication_marker.c.aggregate_id == catalog_record.c.id,
+                    publication_marker.c.revision_id == catalog_record_revision.c.id,
+                ),
+            )
+            .where(
+                catalog_record_revision.c.table_id == table_id,
+                sa.func.lower(sa.func.btrim(catalog_record_revision.c.external_key))
+                == external_key.strip().casefold(),
+            )
+            .order_by(
+                catalog_record_revision.c.revision_no.asc(),
+                catalog_record_revision.c.id.asc(),
+            )
+        )
+        with self._transaction(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+            if not rows:
+                return ()
+            values = self._values_by_revision(session, tuple(row["id"] for row in rows))
+            return tuple(self._record_snapshot(row, values) for row in rows)
+
+    def resolve_record_candidates_by_external_key(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        external_key: str,
+    ) -> tuple[RecordSnapshot, ...]:
+        """Return every scoped immutable revision eligible for an authorized draft pin.
+
+        Draft registration may reference a prior DRAFT, IN_REVIEW, APPROVED, or PUBLISHED
+        Record revision.  The Record store has no mutable lifecycle field; exact visibility
+        and scope are enforced by the RLS-bound revision query, while publication remains a
+        separate Materials projection concern.
+        """
+
+        statement = (
+            self._record_statement(current=False)
+            .where(
+                catalog_record_revision.c.table_id == table_id,
+                sa.func.lower(sa.func.btrim(catalog_record_revision.c.external_key))
+                == external_key.strip().casefold(),
+            )
+            .order_by(
+                catalog_record_revision.c.revision_no.asc(),
+                catalog_record_revision.c.id.asc(),
+            )
+        )
+        with self._transaction(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+            if not rows:
+                return ()
+            values = self._values_by_revision(session, tuple(row["id"] for row in rows))
+            return tuple(self._record_snapshot(row, values) for row in rows)
 
     @staticmethod
     def _folder_snapshot(row: Any) -> FolderSnapshot:

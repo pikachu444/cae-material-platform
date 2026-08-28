@@ -1,0 +1,570 @@
+{
+  "source": "fresh Docker PostgreSQL/API/web; exact source-v2 DP780 fixture",
+  "surroundingSurface": {
+    "recordTypeSelectorVisible": false,
+    "searchPanelVisible": false,
+    "resultsPanelVisible": false
+  },
+  "viewports": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "document": {
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "clientHeight": 768,
+        "scrollHeight": 768
+      },
+      "panes": {
+        "steps": {
+          "x": 37.21875,
+          "y": 131,
+          "width": 315.3125,
+          "height": 524,
+          "clientHeight": 524,
+          "scrollHeight": 524,
+          "overflow": "auto"
+        },
+        "files": {
+          "x": 352.53125,
+          "y": 131,
+          "width": 542.359375,
+          "height": 524,
+          "clientHeight": 524,
+          "scrollHeight": 524,
+          "overflow": "auto"
+        },
+        "preview": {
+          "x": 894.890625,
+          "y": 131,
+          "width": 433.875,
+          "height": 524,
+          "clientHeight": 524,
+          "scrollHeight": 830,
+          "overflow": "auto"
+        }
+      },
+      "workspace": {
+        "x": 37.21875,
+        "y": 131,
+        "width": 1291.5625,
+        "height": 524,
+        "clientHeight": 524,
+        "scrollHeight": 524,
+        "overflow": "hidden"
+      },
+      "previewFields": {
+        "x": 909.890625,
+        "y": 259.6875,
+        "width": 404.875,
+        "height": 596,
+        "clientHeight": 596,
+        "scrollHeight": 596,
+        "overflow": "visible"
+      },
+      "saveRow": {
+        "x": 909.890625,
+        "y": 869.6875,
+        "width": 404.875,
+        "height": 77,
+        "clientHeight": 76,
+        "scrollHeight": 76,
+        "overflow": "visible"
+      },
+      "addFiles": {
+        "x": 775.046875,
+        "y": 145,
+        "width": 105.84375,
+        "height": 38,
+        "clientHeight": 36,
+        "scrollHeight": 36,
+        "overflow": "visible"
+      },
+      "fileHeadingCells": [
+        {
+          "x": 377.53125,
+          "width": 204.234375
+        },
+        {
+          "x": 591.765625,
+          "width": 157.125
+        },
+        {
+          "x": 758.890625,
+          "width": 112
+        }
+      ],
+      "firstFileRowCells": [
+        {
+          "x": 377.53125,
+          "width": 204.234375
+        },
+        {
+          "x": 591.765625,
+          "width": 157.125
+        },
+        {
+          "x": 758.890625,
+          "width": 112
+        }
+      ],
+      "surrounding": {
+        "recordTypeSelector": false,
+        "searchPanel": null,
+        "resultsPanel": null
+      }
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "document": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "clientHeight": 900,
+        "scrollHeight": 900
+      },
+      "panes": {
+        "steps": {
+          "x": 38.46875,
+          "y": 131,
+          "width": 316.796875,
+          "height": 656,
+          "clientHeight": 656,
+          "scrollHeight": 656,
+          "overflow": "auto"
+        },
+        "files": {
+          "x": 355.265625,
+          "y": 131,
+          "width": 581.25,
+          "height": 656,
+          "clientHeight": 656,
+          "scrollHeight": 656,
+          "overflow": "auto"
+        },
+        "preview": {
+          "x": 936.515625,
+          "y": 131,
+          "width": 465.015625,
+          "height": 656,
+          "clientHeight": 656,
+          "scrollHeight": 830,
+          "overflow": "auto"
+        }
+      },
+      "workspace": {
+        "x": 38.46875,
+        "y": 131,
+        "width": 1363.0625,
+        "height": 656,
+        "clientHeight": 656,
+        "scrollHeight": 656,
+        "overflow": "hidden"
+      },
+      "previewFields": {
+        "x": 951.515625,
+        "y": 259.6875,
+        "width": 436.015625,
+        "height": 596,
+        "clientHeight": 596,
+        "scrollHeight": 596,
+        "overflow": "visible"
+      },
+      "saveRow": {
+        "x": 951.515625,
+        "y": 869.6875,
+        "width": 436.015625,
+        "height": 77,
+        "clientHeight": 76,
+        "scrollHeight": 76,
+        "overflow": "visible"
+      },
+      "addFiles": {
+        "x": 816.671875,
+        "y": 145,
+        "width": 105.84375,
+        "height": 38,
+        "clientHeight": 36,
+        "scrollHeight": 36,
+        "overflow": "visible"
+      },
+      "fileHeadingCells": [
+        {
+          "x": 380.265625,
+          "width": 226.21875
+        },
+        {
+          "x": 616.484375,
+          "width": 174.03125
+        },
+        {
+          "x": 800.515625,
+          "width": 112
+        }
+      ],
+      "firstFileRowCells": [
+        {
+          "x": 380.265625,
+          "width": 226.21875
+        },
+        {
+          "x": 616.484375,
+          "width": 174.03125
+        },
+        {
+          "x": 800.515625,
+          "width": 112
+        }
+      ],
+      "surrounding": {
+        "recordTypeSelector": false,
+        "searchPanel": null,
+        "resultsPanel": null
+      }
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "document": {
+        "clientWidth": 1920,
+        "scrollWidth": 1920,
+        "clientHeight": 1080,
+        "scrollHeight": 1080
+      },
+      "panes": {
+        "steps": {
+          "x": 46,
+          "y": 131,
+          "width": 326.390625,
+          "height": 836,
+          "clientHeight": 836,
+          "scrollHeight": 836,
+          "overflow": "auto"
+        },
+        "files": {
+          "x": 372.390625,
+          "y": 131,
+          "width": 834.21875,
+          "height": 836,
+          "clientHeight": 836,
+          "scrollHeight": 836,
+          "overflow": "auto"
+        },
+        "preview": {
+          "x": 1206.609375,
+          "y": 131,
+          "width": 667.390625,
+          "height": 836,
+          "clientHeight": 836,
+          "scrollHeight": 836,
+          "overflow": "auto"
+        }
+      },
+      "workspace": {
+        "x": 46,
+        "y": 131,
+        "width": 1828,
+        "height": 836,
+        "clientHeight": 836,
+        "scrollHeight": 836,
+        "overflow": "hidden"
+      },
+      "previewFields": {
+        "x": 1221.609375,
+        "y": 259.6875,
+        "width": 638.390625,
+        "height": 596,
+        "clientHeight": 596,
+        "scrollHeight": 596,
+        "overflow": "visible"
+      },
+      "saveRow": {
+        "x": 1221.609375,
+        "y": 869.6875,
+        "width": 638.390625,
+        "height": 77,
+        "clientHeight": 76,
+        "scrollHeight": 76,
+        "overflow": "visible"
+      },
+      "addFiles": {
+        "x": 1086.765625,
+        "y": 145,
+        "width": 105.84375,
+        "height": 38,
+        "clientHeight": 36,
+        "scrollHeight": 36,
+        "overflow": "visible"
+      },
+      "fileHeadingCells": [
+        {
+          "x": 397.390625,
+          "width": 369.203125
+        },
+        {
+          "x": 776.59375,
+          "width": 284
+        },
+        {
+          "x": 1070.59375,
+          "width": 112.015625
+        }
+      ],
+      "firstFileRowCells": [
+        {
+          "x": 397.390625,
+          "width": 369.203125
+        },
+        {
+          "x": 776.59375,
+          "width": 284
+        },
+        {
+          "x": 1070.59375,
+          "width": 112.015625
+        }
+      ],
+      "surrounding": {
+        "recordTypeSelector": false,
+        "searchPanel": null,
+        "resultsPanel": null
+      }
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "document": {
+        "clientWidth": 2560,
+        "scrollWidth": 2560,
+        "clientHeight": 1440,
+        "scrollHeight": 1440
+      },
+      "panes": {
+        "steps": {
+          "x": 46,
+          "y": 131,
+          "width": 339.1875,
+          "height": 1196,
+          "clientHeight": 1196,
+          "scrollHeight": 1196,
+          "overflow": "auto"
+        },
+        "files": {
+          "x": 385.1875,
+          "y": 131,
+          "width": 1182.671875,
+          "height": 1196,
+          "clientHeight": 1196,
+          "scrollHeight": 1196,
+          "overflow": "auto"
+        },
+        "preview": {
+          "x": 1567.859375,
+          "y": 131,
+          "width": 946.140625,
+          "height": 1196,
+          "clientHeight": 1196,
+          "scrollHeight": 1196,
+          "overflow": "auto"
+        }
+      },
+      "workspace": {
+        "x": 46,
+        "y": 131,
+        "width": 2468,
+        "height": 1196,
+        "clientHeight": 1196,
+        "scrollHeight": 1196,
+        "overflow": "hidden"
+      },
+      "previewFields": {
+        "x": 1582.859375,
+        "y": 259.6875,
+        "width": 800,
+        "height": 596,
+        "clientHeight": 596,
+        "scrollHeight": 596,
+        "overflow": "visible"
+      },
+      "saveRow": {
+        "x": 1582.859375,
+        "y": 869.6875,
+        "width": 800,
+        "height": 77,
+        "clientHeight": 76,
+        "scrollHeight": 76,
+        "overflow": "visible"
+      },
+      "addFiles": {
+        "x": 1448.015625,
+        "y": 145,
+        "width": 105.84375,
+        "height": 38,
+        "clientHeight": 36,
+        "scrollHeight": 36,
+        "overflow": "visible"
+      },
+      "fileHeadingCells": [
+        {
+          "x": 410.1875,
+          "width": 566.15625
+        },
+        {
+          "x": 986.34375,
+          "width": 435.515625
+        },
+        {
+          "x": 1431.859375,
+          "width": 112
+        }
+      ],
+      "firstFileRowCells": [
+        {
+          "x": 410.1875,
+          "width": 566.15625
+        },
+        {
+          "x": 986.34375,
+          "width": 435.515625
+        },
+        {
+          "x": 1431.859375,
+          "width": 112
+        }
+      ],
+      "surrounding": {
+        "recordTypeSelector": false,
+        "searchPanel": null,
+        "resultsPanel": null
+      }
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "devicePixelRatio": 1,
+      "visualViewportScale": 1,
+      "document": {
+        "clientWidth": 3840,
+        "scrollWidth": 3840,
+        "clientHeight": 2160,
+        "scrollHeight": 2160
+      },
+      "panes": {
+        "steps": {
+          "x": 46,
+          "y": 131,
+          "width": 364.796875,
+          "height": 1916,
+          "clientHeight": 1916,
+          "scrollHeight": 1916,
+          "overflow": "auto"
+        },
+        "files": {
+          "x": 410.796875,
+          "y": 131,
+          "width": 1879.546875,
+          "height": 1916,
+          "clientHeight": 1916,
+          "scrollHeight": 1916,
+          "overflow": "auto"
+        },
+        "preview": {
+          "x": 2290.34375,
+          "y": 131,
+          "width": 1503.65625,
+          "height": 1916,
+          "clientHeight": 1916,
+          "scrollHeight": 1916,
+          "overflow": "auto"
+        }
+      },
+      "workspace": {
+        "x": 46,
+        "y": 131,
+        "width": 3748,
+        "height": 1916,
+        "clientHeight": 1916,
+        "scrollHeight": 1916,
+        "overflow": "hidden"
+      },
+      "previewFields": {
+        "x": 2305.34375,
+        "y": 259.6875,
+        "width": 800,
+        "height": 596,
+        "clientHeight": 596,
+        "scrollHeight": 596,
+        "overflow": "visible"
+      },
+      "saveRow": {
+        "x": 2305.34375,
+        "y": 869.6875,
+        "width": 800,
+        "height": 77,
+        "clientHeight": 76,
+        "scrollHeight": 76,
+        "overflow": "visible"
+      },
+      "addFiles": {
+        "x": 2170.5,
+        "y": 145,
+        "width": 105.84375,
+        "height": 38,
+        "clientHeight": 36,
+        "scrollHeight": 36,
+        "overflow": "visible"
+      },
+      "fileHeadingCells": [
+        {
+          "x": 435.796875,
+          "width": 960.046875
+        },
+        {
+          "x": 1405.84375,
+          "width": 738.5
+        },
+        {
+          "x": 2154.34375,
+          "width": 112
+        }
+      ],
+      "firstFileRowCells": [
+        {
+          "x": 435.796875,
+          "width": 960.046875
+        },
+        {
+          "x": 1405.84375,
+          "width": 738.5
+        },
+        {
+          "x": 2154.34375,
+          "width": 112
+        }
+      ],
+      "surrounding": {
+        "recordTypeSelector": false,
+        "searchPanel": null,
+        "resultsPanel": null
+      }
+    }
+  ]
+}

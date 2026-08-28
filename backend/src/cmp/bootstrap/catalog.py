@@ -14,6 +14,10 @@ from cmp.modules.audit.adapters.persistence.repository import (
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
 )
+from cmp.modules.catalog.adapters.persistence.json_record_registration import (
+    SqlAlchemyInstalledJsonRecordFormatResolver,
+    SqlAlchemyJsonRegistrationRepository,
+)
 from cmp.modules.catalog.adapters.persistence.links import SqlAlchemyCatalogLinkRepository
 from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
 from cmp.modules.catalog.adapters.persistence.repository import SqlAlchemyCatalogRepository
@@ -24,6 +28,9 @@ from cmp.modules.catalog.adapters.persistence.schema_bundles import (
     SqlAlchemySchemaBundleSnapshotRepository,
 )
 from cmp.modules.catalog.application.configurable import ConfigurableCatalogService
+from cmp.modules.catalog.application.json_record_registration import (
+    JsonRecordRegistrationService,
+)
 from cmp.modules.catalog.application.links import CatalogLinkService
 from cmp.modules.catalog.application.records import CatalogRecordService
 from cmp.modules.catalog.application.schema_bundles import SchemaBundlePlannerService
@@ -136,6 +143,47 @@ def build_catalog_record_service(identity: IdentityServices) -> CatalogRecordSer
             revision_hooks=hooks,
         ),
         schema_repository=schema_repository,
+    )
+
+
+def build_json_record_registration_service(
+    identity: IdentityServices,
+    records: CatalogRecordService | None,
+    artifacts: ArtifactService | None,
+) -> JsonRecordRegistrationService | None:
+    """Wire exact JSON registration token/provenance persistence to Catalog records."""
+
+    if identity.engine is None or identity.rls_context is None or records is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    hooks = (
+        SqlInitialLifecycleHook(),
+        SqlAlchemyRevisionProvenanceHook(),
+        SqlAlchemyRevisionAuditHook(),
+    )
+    schema_repository = SqlAlchemyConfigurableCatalogRepository(
+        session_factory=sessions,
+        rls_context=identity.rls_context,
+        revision_hooks=hooks,
+    )
+    return JsonRecordRegistrationService(
+        records,
+        async_format_resolver=(
+            SqlAlchemyInstalledJsonRecordFormatResolver(
+                session_factory=sessions,
+                rls_context=identity.rls_context,
+                artifacts=artifacts,
+                schemas=schema_repository,
+            )
+            if artifacts is not None
+            else None
+        ),
+        artifact_service=artifacts,
+        persistence=SqlAlchemyJsonRegistrationRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=hooks,
+        ),
     )
 
 

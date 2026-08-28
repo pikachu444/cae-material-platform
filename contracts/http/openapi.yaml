@@ -2391,6 +2391,179 @@ paths:
         "403": {description: Catalog read is not authorized.}
         "404": {description: No visible Table matches the identifier.}
         "422": {description: Typed search filter is invalid.}
+  /api/v1/catalog/json-record-formats:
+    get:
+      operationId: listInstalledJsonRecordFormats
+      tags: [catalog-records]
+      summary: List installed exact JSON Record format revisions available to the selected scope.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Format, application, source Artifact, Table, Attribute, Link Type, and unit-profile revision pins.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "../catalog/json-record-registration.schema.json#/$defs/InstalledFormat"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+  /api/v1/catalog/json-record-registrations:preview:
+    post:
+      operationId: previewCatalogJsonRecordRegistration
+      tags: [catalog-records]
+      summary: Resolve an installed exact JSON format, validate source files, and issue a short-lived durable preview token.
+      description: Preview is non-authoritative. It writes no Catalog business rows and every file in the package must pass before save. The optional format_revision_id is only a compatibility assertion; the server resolves exactly one installed format from the common root wrapper and returns the complete immutable format pin. A single application/json item or one application/zip package is accepted; the server verifies the same deterministic package contract for both paths.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/json-record-registration.schema.json#/$defs/PreviewRequest"}
+      responses:
+        "200":
+          description: Per-file validation, warning, error, server-projected record_name, and ordered sections/fields; exact reference resolution remains pinned by the preview token.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/json-record-registration.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: The optional format assertion is stale or the package identity conflicts.}
+        "422": {description: UTF-8, lexical, duplicate-key, schema, unit, curve, or reference input is invalid.}
+  /api/v1/catalog/json-record-registrations/{preview_token}:save:
+    post:
+      operationId: saveCatalogJsonRecordRegistration
+      tags: [catalog-records]
+      summary: Atomically save every valid JSON item as a DRAFT Record batch.
+      description: Save is idempotent for the same caller and package digest. The preview token pins the authoritative format and source package; optional request assertions must match it. It creates DRAFT Records only and never publishes; governed review remains the sole publication boundary.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: preview_token, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/json-record-registration.schema.json#/$defs/SaveRequest"}
+      responses:
+        "200":
+          description: The committed draft batch or the same batch on an idempotent retry.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/json-record-registration.schema.json#/$defs/SaveResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Token expiry, caller/package mismatch, stale format, stale exact reference, or atomic conflict.}
+        "422": {description: The preview is not valid or change reason is invalid.}
+  /api/v1/catalog/records/{record_id}/revisions/{record_revision_id}/source.json:
+    get:
+      operationId: downloadExactJsonCatalogRecordSource
+      tags: [catalog-records]
+      summary: Download verified original JSON bytes for one exact Record revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: record_revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Original JSON source bytes and original filename.
+          headers:
+            X-Content-SHA256: {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            application/json:
+              schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: Exact Record revision or source provenance is not visible.}
+        "409": {description: Source Artifact integrity evidence is inconsistent.}
+  /api/v1/catalog/records/{record_id}/revisions/{record_revision_id}/source-availability:
+    get:
+      operationId: getExactJsonCatalogRecordSourceAvailability
+      tags: [catalog-records]
+      summary: Report whether a published exact Record revision has ready JSON source provenance.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: record_revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Exact source readiness projection for Materials actions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [available, published, ready]
+                properties:
+                  available: {type: boolean}
+                  published: {type: boolean}
+                  ready: {type: boolean}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+  /api/v1/catalog/records/{record_id}/revisions/{record_revision_id}/source.csv:
+    get:
+      operationId: downloadExactJsonCatalogRecordSourceCsv
+      tags: [catalog-records]
+      summary: Download the deterministic source-aware CSV projection for one exact JSON Record revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: record_revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: UTF-8 LF RFC4180 source-aware CSV bytes.
+          headers:
+            X-Content-SHA256: {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            text/csv:
+              schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: Exact Record revision or source provenance is not visible.}
+        "409": {description: Source Artifact integrity evidence is inconsistent.}
+  /api/v1/catalog/record-registrations:preview:
+    post:
+      operationId: previewCatalogRecordRegistrationLegacy
+      tags: [catalog-records]
+      summary: Legacy tabular/manual registration preview retained for existing clients.
+      description: This compatibility route remains tabular-only. Its token is a draft-registration token; the legacy publish name does not publish Records or bypass governed publication.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RegistrationPreviewRequest"}
+      responses:
+        "200":
+          description: Legacy tabular preview.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RegistrationPreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "422": {description: Legacy tabular registration is invalid.}
+  /api/v1/catalog/record-registrations:publish:
+    post:
+      operationId: publishCatalogRecordRegistrationLegacy
+      tags: [catalog-records]
+      summary: Legacy tabular registration command retained for existing clients.
+      description: Despite the historical operation name, this route creates DRAFT Records only. Review and governed publication remain separate commands.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RegistrationPublishRequest"}
+      responses:
+        "200":
+          description: Draft Records created from the validated legacy preview.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Legacy preview token or Record conflict.}
   /api/v1/catalog/tables/{table_id}/records:
     post:
       operationId: createCatalogRecord

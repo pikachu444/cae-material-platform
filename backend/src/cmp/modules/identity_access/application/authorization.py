@@ -397,10 +397,13 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.EXPORT_READ,
         }
     ),
-    # Catalog registration parses a verified immutable source Artifact before it creates
-    # typed Record revisions. This is an internal command capability only; the public
-    # Artifact endpoints continue to require artifact.read explicitly.
-    Permission.CATALOG_WRITE: frozenset({Permission.ARTIFACT_READ, Permission.UNITS_READ}),
+    # Catalog registration reads a verified immutable source Artifact and may materialize
+    # normalized curve Artifacts before it creates typed Record revisions. These are internal
+    # command capabilities only; the public Artifact endpoints continue to require their own
+    # explicit artifact permission.
+    Permission.CATALOG_WRITE: frozenset(
+        {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.UNITS_READ}
+    ),
     Permission.CATALOG_SCHEMA_APPLY: frozenset(
         {
             Permission.ARTIFACT_READ,
@@ -603,6 +606,7 @@ _PROVENANCE_WRITING_COMMANDS = frozenset(
 # inbox capabilities belong exclusively to the project-scoped operational Job Runner.
 _EVENT_PUBLISHING_COMMANDS = frozenset(
     {
+        Permission.CATALOG_WRITE,
         Permission.CATALOG_SCHEMA_APPLY,
         Permission.ARTIFACT_WRITE,
         Permission.TESTING_WRITE,

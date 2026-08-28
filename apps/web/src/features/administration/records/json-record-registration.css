@@ -1,0 +1,263 @@
+.json-registration-panel {
+  box-sizing: border-box;
+  display: grid;
+  gap: var(--ux-space-4);
+  width: 100%;
+  max-width: none;
+  height: calc(
+    100dvh - var(--ux-shell-top-height) - var(--ux-status-bar-height) -
+      var(--ux-space-8) - var(--ux-interactive-min-block-size)
+  );
+  min-height: 0;
+  max-height: calc(
+    100dvh - var(--ux-shell-top-height) - var(--ux-status-bar-height) -
+      var(--ux-space-8) - var(--ux-interactive-min-block-size)
+  );
+  margin-inline: 0;
+  overflow: hidden;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.json-registration-panel.has-message {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.json-registration-section-heading,
+.json-registration-steps-header {
+  align-items: center;
+  display: flex;
+  gap: var(--ux-space-3);
+  justify-content: space-between;
+}
+
+.json-registration-workspace {
+  align-items: stretch;
+  display: grid;
+  gap: 0;
+  grid-template-columns:
+    minmax(
+      var(--ux-navigator-min-inline-size),
+      clamp(
+        var(--ux-navigator-min-inline-size),
+        calc(var(--ux-navigator-default-inline-size) + 2vw),
+        var(--ux-navigator-max-inline-size)
+      )
+    )
+    minmax(var(--ux-context-min-inline-size), 1.25fr)
+    minmax(var(--ux-context-min-inline-size), 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.json-registration-region {
+  align-content: start;
+  display: grid;
+  gap: var(--ux-space-3);
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--ux-space-3);
+}
+
+.json-registration-region + .json-registration-region {
+  border-inline-start: 1px solid var(--ux-border);
+}
+
+.json-registration-step-list {
+  display: grid;
+  gap: var(--ux-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.json-registration-step {
+  align-items: center;
+  color: var(--ux-text-muted);
+  display: grid;
+  gap: var(--ux-space-2);
+  grid-template-columns: 1.5rem 1fr;
+  padding-block: var(--ux-space-2);
+}
+
+.json-registration-step > span:first-child {
+  align-items: center;
+  border: 1px solid var(--ux-border);
+  display: inline-flex;
+  height: 1.5rem;
+  justify-content: center;
+  width: 1.5rem;
+}
+
+.json-registration-step.is-current {
+  color: var(--ux-text);
+  font-weight: var(--ux-font-weight-heading);
+}
+
+.json-registration-step.is-current > span:first-child {
+  border-color: var(--ux-accent);
+  color: var(--ux-accent);
+}
+
+.json-registration-step.is-complete > span:first-child {
+  color: var(--ux-success);
+}
+
+.json-registration-file-table {
+  border-block: 1px solid var(--ux-border);
+  display: grid;
+  min-width: 0;
+}
+
+.json-registration-file-heading,
+.json-registration-file-row {
+  align-items: center;
+  display: grid;
+  gap: var(--ux-space-2);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(7rem, auto);
+  min-width: 0;
+  padding: var(--ux-space-2);
+  text-align: start;
+}
+
+.json-registration-file-heading {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+}
+
+.json-registration-file-row {
+  background: transparent;
+  border: 0;
+  border-block-start: 1px solid var(--ux-border);
+  color: var(--ux-text);
+  cursor: pointer;
+  font: inherit;
+  width: 100%;
+}
+
+.json-registration-file-row:hover,
+.json-registration-file-row:focus-visible,
+.json-registration-file-row.is-selected {
+  background: var(--ux-selection);
+}
+
+.json-registration-file-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.json-registration-batch-summary {
+  border-block-end: 1px solid var(--ux-border);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+  padding-block-end: var(--ux-space-2);
+}
+
+.json-registration-preview {
+  overflow: auto;
+}
+
+.json-registration-preview-fields {
+  display: grid;
+  gap: var(--ux-space-2);
+  max-inline-size: var(--ux-readable-form-max-inline-size);
+}
+
+.json-registration-preview-field {
+  border-block-end: 1px solid var(--ux-border);
+  display: grid;
+  gap: var(--ux-space-1);
+  min-width: 0;
+  padding-block: var(--ux-space-2);
+}
+
+.json-registration-preview-field-section {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-data-font-size);
+}
+
+.json-registration-preview-field > span:last-child {
+  overflow-wrap: anywhere;
+}
+
+.json-registration-diagnostics {
+  border-block: 1px solid var(--ux-border);
+  display: grid;
+  gap: var(--ux-space-2);
+  max-inline-size: var(--ux-readable-form-max-inline-size);
+  padding-block: var(--ux-space-2);
+}
+
+.json-registration-diagnostics p {
+  display: grid;
+  gap: var(--ux-space-1);
+  color: var(--ux-danger);
+  margin: 0;
+}
+
+.json-registration-diagnostics p > span {
+  overflow-wrap: anywhere;
+}
+
+.json-registration-save-row {
+  align-items: end;
+  border-block-start: 1px solid var(--ux-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ux-space-2);
+  max-width: var(--ux-readable-form-max-inline-size);
+  padding-block-start: var(--ux-space-3);
+}
+
+.json-registration-save-row .ux-field {
+  flex: 1 1 var(--ux-context-min-inline-size);
+  max-width: var(--ux-readable-form-max-inline-size);
+  min-width: 0;
+}
+
+.json-registration-saved {
+  align-items: start;
+  border-block: 1px solid var(--ux-border);
+  display: grid;
+  gap: var(--ux-space-3);
+  padding-block: var(--ux-space-3);
+}
+
+.json-registration-saved p {
+  margin: 0;
+}
+
+@media (max-width: 60rem) {
+  .json-registration-workspace {
+    grid-template-columns: minmax(8rem, 0.3fr) minmax(0, 1fr);
+  }
+
+  .json-registration-preview {
+    border-block-start: 1px solid var(--ux-border);
+    border-inline-start: 0;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 42rem) {
+  .json-registration-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .json-registration-region + .json-registration-region,
+  .json-registration-preview {
+    border-block-start: 1px solid var(--ux-border);
+    border-inline-start: 0;
+  }
+
+  .json-registration-preview {
+    grid-column: auto;
+  }
+
+  .json-registration-file-heading,
+  .json-registration-file-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) auto;
+  }
+}

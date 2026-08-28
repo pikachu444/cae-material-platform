@@ -356,7 +356,10 @@ _COMPATIBILITY_SEMANTICS: Final[Mapping[str, DimensionId]] = MappingProxyType(
         },
         **{item: DimensionId.SPEED for item in ("kinematics.speed",)},
         **{item: DimensionId.MASS for item in ("mass", "mass.sample")},
-        **{item: DimensionId.MASS_PER_VOLUME for item in ("density", "mass.density")},
+        **{
+            item: DimensionId.MASS_PER_VOLUME
+            for item in ("density", "mass.density", "physics.density")
+        },
         **{
             item: DimensionId.TEMPERATURE
             for item in ("temperature.absolute", "temperature.test", "temperature.difference")

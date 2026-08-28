@@ -2,6 +2,8 @@
 Makefile text eol=lf
 fixtures/synthetic/metal-hardening-reference-v1.json text eol=lf
 fixtures/manifests/metal-hardening-reference-v1.yaml text eol=lf
+fixtures/schema-record-data/source-v2-task1b/** text eol=lf
+fixtures/schema-definition-bundle/source-v2/** text eol=crlf
 plugins/reference/contract_echo/dependency.lock text eol=lf
 plugins/reference/contract_echo/contract_echo/__init__.py text eol=lf
 plugins/reference/contract_echo/contract_echo/plugin.py text eol=lf

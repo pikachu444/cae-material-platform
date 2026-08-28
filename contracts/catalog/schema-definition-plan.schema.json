@@ -215,10 +215,24 @@
           ]
         },
         "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
-        "source_schema_id": {"type": "string", "minLength": 1, "maxLength": 500},
-        "source_schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
-        "source_file": {"type": "string", "minLength": 1, "maxLength": 1000},
-        "source_file_sha256": {"$ref": "#/$defs/Sha256"},
+        "source_schema_id": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_schema_version": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "source_file": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "source_file_sha256": {
+          "oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]
+        },
         "source_pointer": {"type": "string", "pattern": "^(/(?:[^/~]|~[01])*)+$"},
         "adapter_semantics": {"$ref": "#/$defs/AdapterSemanticsProjection"},
         "business_key": {"type": "boolean"}

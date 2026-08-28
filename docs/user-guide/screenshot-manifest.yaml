@@ -1,10 +1,11 @@
-version: 137
-verified_at: 2026-08-24
-scope: issue-262-fe07a-materials-architecture-ui
-source_commit: 5de648936887422191b08ed227b5680015f16a22+issue262-owner-correction-worktree
-capture_script: ../../scripts/capture_issue_262_fe07a_visual_evidence.py
-capture_command: 'Main-owned Issue #262 FE-07A owner-correction before/after Product evidence at five CSS viewports, browser zoom 100% and DPR 1; the flow verifies Material/Code search, four peer Browse roots, exact Technical/Test/Simulation/Solver Card hops, exact detail/curve read-back, query-error recovery, browser Back/Forward/Reload, Results return continuity and exact Start Modeling context, and Main opened all originals and direct 100%-pixel crops; physical Windows 4K readability remains deferred to #223'
+version: 138
+verified_at: 2026-08-28
+scope: issue-342-task1b-json-record-registration
+source_commit: 713bafc75a9b0974281126f30b50c78eb1a9dd2a+issue342-task1b-worktree
+capture_script: ../../scripts/capture_current_product.py
+capture_command: 'Main-owned Issue #342 Task 1B capture at five CSS viewports, browser zoom 100% and DPR 1; the five valid-preview originals use a fully fresh Docker PostgreSQL/API/browser run, while the other 40 state/viewport originals use the repository-standard mocked API boundary. Main opened all 45 originals and valid-preview direct 100%-pixel crops. Fresh-Docker source/provenance/name reload, atomic, publication and exact-download acceptance passed; the product owner approved the presented 1920/2560/3840 originals on 2026-08-28.'
 notes:
+  - "Issue #342 Task 1B adds the current Administration Records JSON valid-preview captures at all five required viewports. The single Import records workspace infers JSON versus existing CSV/TSV/XLSX from selected files, keeps exact format revision/provenance out of the normal surface, and presents Files, Preview, Reason for change and local Save with Save draft as the result step. The complete nine-state matrix, direct crops and measurements are under docs/17-evidence/issue-342-ui-acceptance/live. Five valid-preview originals use fresh-Docker PostgreSQL/API/browser evidence; the other 40 state/viewport originals use the deterministic mocked API boundary. Main visual and fresh-Docker acceptance pass, and the product owner approved the presented 1920/2560/3840 originals on 2026-08-28."
   - "Issue #262 FE-07A owner correction preserves the published architecture work while making Search identity explicit through separate Material and Code columns; bounding Key properties and condition rows; grouping Related data under the four peer engineering categories; exposing truthful exact Test Data, Simulation subtype and Solver Card contract fields; and removing redundant normal-surface helper copy. The partial owner-review packet under docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/ contains 40 before/after originals, 140 direct 100%-pixel crops and two query-error/recovery originals across Search, Browse, Detail and Curves. Main opened every asset at original resolution; five-viewport geometry and all supported exact hops pass. Product Owner visual/geometry approval remains pending, and physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M6 audits the exact PR #318 556-row/495-group zero-consumer handoff as one batch. Static producer/reference, production bundle and 13-topology live DOM evidence authorize removal of 511 rows touching 462 groups; 45 false-positive rows in 43 groups remain explicit HOLD with truthful current owners and removal conditions. The five-viewport audit restored `.materials-scroll-rail-x` after proving its narrow Export producer. The packet under docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json registers 610 PNGs and 305 before/after pairs with Main visual/runtime acceptance. The current guide's 1920x1080 Export PNG reuses the accepted M6 after original; physical Windows 4K readability remains deferred to #223."
   - "Issue #261 FE-06 freezes the corrected 525-row/438-group residual owner-boundary packet at 599278067ab5f69d46ea59559344499399b51fed, moves every approved tuple to a truthful feature or shared owner, and accepts 22 shared-layout rows in place to preserve eager cascade rank. The original 529-row/475-group M6 candidate is preserved, with 27 audited no-current-DOM rows added after truthful owner review for a 556-row/495-group next handoff. The registered live packet under docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/manifest.json covers 13 topologies and five CSS viewports with 610 images and 305 before/after pairs; Main accepted the runtime and original-resolution evidence. No current-guide PNG is replaced, and physical Windows 4K readability remains deferred to #223."
@@ -2326,7 +2327,7 @@ visual_evidence:
   current_source: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1+issue309-worktree
   capture_source: 12e592dc546e6b8a0dd77216f8ab0f7aee8c72f1+issue309-worktree
   evidence_artifacts_are_not_current_captures: true
-  current_capture_count: 124
+  current_capture_count: 128
   b4_combined_report: docs/17-evidence/issue-261-b4-css-ownership-integration.md
   b4_combined_manifest: docs/17-evidence/issue-261-b4-css-ownership-integration-manifest.json
   b4_combined_batch_status: PASS
@@ -2440,6 +2441,10 @@ visual_evidence:
   independent_read_only_review: required_issue309_exact_candidate_before_commit
   product_owner_review: task_owner_supplied_exact_issue309_scope_and_acceptance
 capture_provenance:
+  - source_commit: 713bafc75a9b0974281126f30b50c78eb1a9dd2a+issue342-task1b-worktree
+    captured_at: '2026-08-28'
+    command: 'Issue #342 fresh-Docker PostgreSQL/API/browser run captured the valid-preview state at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160 at browser zoom 100% and DPR 1; the remaining normal, empty, loading, error, upload-error, invalid-preview, save-error and saved originals use the production React shell with the repository-standard mocked API boundary for deterministic state coverage.'
+    ids: [administration-records-import-json-1366, administration-records-import-json-1440, administration-records-import-json-1920, administration-records-import-json-2560, administration-records-import-json-3840]
   - source_commit: 1333c64553c884fcc9187f39d862cd2146880dc5+issue262-fe07b-worktree
     captured_at: '2026-08-26'
     command: 'Current-worktree Vite on 127.0.0.1:5174 proxying the preserved Docker web and actual demo API at 127.0.0.1:5173; issue262-administration-visual.spec.ts captures Database, Preview, Records and Access, while schema-definition-bundle-administration.spec.ts uses the canonical contract fixture and deterministic mocked API read-back for Format definitions. Playwright runs at browser zoom 100%, DPR 1 and CSS viewports 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160. The owner-corrected capture preserves Materials, Modeling and Activity plus one Database, Format definitions, Records and Access taskbar. The exact journey keeps No database selected while choosing the independent Demo Material Records Revision 1, opens Layout Version 1, selects DP780 Record Revision 2, creates and revises a Record with exact reload read-back, grants and removes one assignment, and completes choose/review/apply/verify read-back. Direct 100%-pixel header, taskbar, navigator/table and form/preview crops and geometry measurements are retained under the issue evidence directory. Rejected inspection captures are excluded.'
@@ -3393,6 +3398,41 @@ captures:
     workflow: search-dominant-results-and-exact-record-read-back
     fixture: real DP780 synthetic Material Record Revision 2; elastic server-scoped Name, Material code, Revision and Status results remain dominant beside the bounded exact editor, without a third inspector or latest fallback
     image: images/current/administration-records-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: administration-records-import-json-1366
+    route: /administration/records
+    workflow: import-json-files-preview-and-save-atomic-draft
+    fixture: three synthetic non-production Task 1B Technical Data JSON files matched server-side to one installed exact format; valid Preview with Reason for change still blank and local Save disabled
+    image: images/current/administration-records-import-json-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-records-import-json-1440
+    route: /administration/records
+    workflow: import-json-files-preview-and-save-atomic-draft
+    fixture: three synthetic non-production Task 1B Technical Data JSON files matched server-side to one installed exact format; valid Preview with Reason for change still blank and local Save disabled
+    image: images/current/administration-records-import-json-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-records-import-json-1920
+    route: /administration/records
+    workflow: import-json-files-preview-and-save-atomic-draft
+    fixture: three synthetic non-production Task 1B Technical Data JSON files matched server-side to one installed exact format; the bounded navigator and elastic Files/Preview panes retain clear task order without visible revision/provenance controls
+    image: images/current/administration-records-import-json-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: administration-records-import-json-2560
+    route: /administration/records
+    workflow: import-json-files-preview-and-save-atomic-draft
+    fixture: three synthetic non-production Task 1B Technical Data JSON files matched server-side to one installed exact format; additional width goes to the file list and selected-file Preview while form content remains bounded
+    image: images/current/administration-records-import-json-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: administration-records-import-json-3840
+    route: /administration/records
+    workflow: import-json-files-preview-and-save-atomic-draft
+    fixture: three synthetic non-production Task 1B Technical Data JSON files matched server-side to one installed exact format; additional width goes to the file list and selected-file Preview while form content remains bounded
+    image: images/current/administration-records-import-json-3840x2160.png
     width: 3840
     height: 2160
   - id: administration-access-1366

@@ -124,6 +124,30 @@ token은 저장하지 않는다. Stale plan이면 기존 Apply를 반복하지 �
    모든 행이 유효할 때만 **Import validated records**를 누른다. 이미 데이터가 연결된 재료 상태는 검색 결과에서 기존 Record를
    열어 수정한다. 등록 과정에서 기존 재료나 상태를 자동으로 만들거나 덮어쓰지 않는다.
 
+### JSON 파일로 실제 Record 등록하기
+
+**Administration → Records → Import records**를 열고 **Add files**에서 JSON, CSV, TSV 또는 XLSX를
+고른다. 파일 형식은 파일을 고르는 창에서 정하며, import 작업면에서 Record type이나 format revision을
+다시 선택하지 않는다. JSON의 정확한 형식은 서버가 설치된 정의와 일치시키고 저장 결과에 고정한다.
+
+1. 같은 종류의 JSON 파일을 한 개 이상 선택한다. 한 파일은 한 Record가 되며 원본 파일명과 bytes를 보존한다.
+2. **Preview**에서 파일별 상태를 확인한다. 잘못된 파일은 파일명, JSON 위치, 원인과 고치는 방법을 함께
+   표시한다. 하나라도 유효하지 않으면 전체 묶음을 저장할 수 없다.
+3. 연결 대상이 모호하거나 정확한 revision을 찾을 수 없으면 저장하지 않고 복구 방법을 표시한다. 화면이
+   임의로 최신 revision이나 첫 항목을 대신 고르지 않는다.
+4. 모든 파일이 유효하면 **Reason for change**를 입력하고 **Save**를 누른다. **Save draft** 단계에서 전체
+   묶음을 한 번에 draft로 저장하므로 일부 파일만 남지 않는다. 검토와 공개는 이 화면 밖의 후속 단계다.
+5. 저장 뒤 exact Record에서 **source JSON**과 **source CSV**를 내려받을 수 있다. JSON은 원본 구조와
+   파일명을 보존하고, CSV는 사람이 읽을 수 있는 열과 단위·curve 순서를 유지한다.
+
+![JSON 파일 세 건의 유효한 Preview와 Save draft 단계](images/current/administration-records-import-json-1440x900.png)
+
+같은 Import records 작업면은 [1366×768](images/current/administration-records-import-json-1366x768.png),
+[1920×1080](images/current/administration-records-import-json-1920x1080.png),
+[2560×1440](images/current/administration-records-import-json-2560x1440.png),
+[3840×2160](images/current/administration-records-import-json-3840x2160.png)에서도 파일 목록과 Preview가
+함께 보이고, 큰 화면의 추가 폭은 두 작업 영역에 배정된다.
+
 ![검색 결과가 중심인 Records 작업 영역](images/current/administration-records-1440x900.png)
 
 같은 검색 결과 화면은 [1366×768](images/current/administration-records-1366x768.png),

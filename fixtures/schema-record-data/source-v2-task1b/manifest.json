@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract": "cmp.schema-record-data-fixture",
+  "contract_version": "1.0.0",
+  "files": [
+    {
+      "external_key": "CMP-246-TECH-DP780",
+      "filename": "cmp-246-technical-dp780.json",
+      "path": "technical/cmp-246-technical-dp780.json",
+      "sha256": "d9b0d67202594f177b0dc0fb2c58ffa8965aadee300e5e6b1888c0ddd7155490",
+      "size_bytes": 364,
+      "wrapper": "technical-data"
+    },
+    {
+      "external_key": "CMP-246-TECH-POLYMER",
+      "filename": "polymer.json",
+      "path": "technical/polymer.json",
+      "sha256": "106a1ce972491829073b08f75a65474e758f2e2ec6cbade8cc4012a0f8bcd175",
+      "size_bytes": 351,
+      "wrapper": "technical-data"
+    },
+    {
+      "external_key": "CMP-246-TECH-ELASTOMER",
+      "filename": "elastomer.json",
+      "path": "technical/elastomer.json",
+      "sha256": "80976398a9bfc852f8ae41646c3d397b4a27f4853bb1cdcc8011c14f06c0ca2c",
+      "size_bytes": 358,
+      "wrapper": "technical-data"
+    },
+    {
+      "external_key": "CMP-246-TENSILE-ROOM",
+      "filename": "room.json",
+      "path": "tensile/room.json",
+      "sha256": "7362b700dcf2111302a958c965d8eed74f74c26f5e953e250de10bac6b0a0f31",
+      "size_bytes": 542,
+      "wrapper": "tensile-test"
+    },
+    {
+      "external_key": "CMP-246-TENSILE-HOT",
+      "filename": "hot.json",
+      "path": "tensile/hot.json",
+      "sha256": "90ad8c2b096765ab1f3e1224548e1d7d7662a65d4760093c4fcaa15c4f04665a",
+      "size_bytes": 540,
+      "wrapper": "tensile-test"
+    },
+    {
+      "external_key": "CMP-246-TENSILE-SLOW",
+      "filename": "slow.json",
+      "path": "tensile/slow.json",
+      "sha256": "1c1431b006cfd036878c01a41cbdb758d2ae4c6e3c49d03f72957fefa32b768b",
+      "size_bytes": 568,
+      "wrapper": "tensile-test"
+    },
+    {
+      "external_key": "CMP-246-TENSILE-FAST",
+      "filename": "fast.json",
+      "path": "tensile/fast.json",
+      "sha256": "256481efdbc991f7339f6f85dbca5cf57b6d537edd96b8ae9974072a6a1a5738",
+      "size_bytes": 570,
+      "wrapper": "tensile-test"
+    },
+    {
+      "external_key": "CMP-246-DMA-+00C",
+      "filename": "000c.json",
+      "path": "dma/000c.json",
+      "sha256": "90c6a9fe0e935b99651627dda6e2b719402b85ade360b54d7bcb11232eb06201",
+      "size_bytes": 939,
+      "wrapper": "dma-test"
+    },
+    {
+      "external_key": "CMP-246-DMA-+23C",
+      "filename": "023c.json",
+      "path": "dma/023c.json",
+      "sha256": "a76d0843bc4d69a3703893690a9e4deacfcc31f83428d77de652775d4faaed00",
+      "size_bytes": 941,
+      "wrapper": "dma-test"
+    },
+    {
+      "external_key": "CMP-246-DMA-+60C",
+      "filename": "060c.json",
+      "path": "dma/060c.json",
+      "sha256": "91221a73295888532cd7f5e29b2042dd115e9dd3b28c5fe5fa5fe8def1622ee9",
+      "size_bytes": 937,
+      "wrapper": "dma-test"
+    },
+    {
+      "external_key": "CMP-246-FLD-NAKAJIMA",
+      "filename": "nakajima.json",
+      "path": "fld/nakajima.json",
+      "sha256": "ce7e943c0f7c2f4c67eee605c101ce5242381ce195d818fe8798c896dff0aa6f",
+      "size_bytes": 487,
+      "wrapper": "fld-test"
+    },
+    {
+      "external_key": "CMP-246-FLD-MARCINIAK",
+      "filename": "marciniak.json",
+      "path": "fld/marciniak.json",
+      "sha256": "99a736a813a25e6cee7613a13c2c44b4ee438685147a8de7673a85231452bc17",
+      "size_bytes": 492,
+      "wrapper": "fld-test"
+    },
+    {
+      "external_key": "CMP-246-EP-VOCE",
+      "filename": "voce.json",
+      "path": "elastoplasticity/voce.json",
+      "sha256": "ade172f0804913ce7f35f03a3d35e40f5c723901d0654dde1789ca37d1c1e1bd",
+      "size_bytes": 701,
+      "wrapper": "elastoplasticity"
+    },
+    {
+      "external_key": "CMP-246-EP-TABULATED",
+      "filename": "tabulated.json",
+      "path": "elastoplasticity/tabulated.json",
+      "sha256": "267655fd2069a25ced69db8c2efa4060ba643581193c817a81b7db4b0cecde66",
+      "size_bytes": 718,
+      "wrapper": "elastoplasticity"
+    },
+    {
+      "external_key": "CMP-246-STAT-TENSILE",
+      "filename": "tensile.json",
+      "path": "statistics/tensile.json",
+      "sha256": "83e5ec67fb968c4790ea1ce5cb16a33e14e438f22033a1419a437e435854e388",
+      "size_bytes": 1118,
+      "wrapper": "statistics"
+    }
+  ],
+  "batches": [
+    {
+      "ordinal": 1,
+      "external_keys": [
+        "CMP-246-TECH-DP780",
+        "CMP-246-TECH-POLYMER",
+        "CMP-246-TECH-ELASTOMER"
+      ]
+    },
+    {
+      "ordinal": 2,
+      "external_keys": [
+        "CMP-246-TENSILE-ROOM",
+        "CMP-246-TENSILE-HOT",
+        "CMP-246-TENSILE-SLOW",
+        "CMP-246-TENSILE-FAST"
+      ]
+    },
+    {
+      "ordinal": 3,
+      "external_keys": [
+        "CMP-246-DMA-+00C",
+        "CMP-246-DMA-+23C",
+        "CMP-246-DMA-+60C"
+      ]
+    },
+    {
+      "ordinal": 4,
+      "external_keys": [
+        "CMP-246-FLD-NAKAJIMA",
+        "CMP-246-FLD-MARCINIAK"
+      ]
+    },
+    {
+      "ordinal": 5,
+      "external_keys": [
+        "CMP-246-EP-VOCE",
+        "CMP-246-EP-TABULATED"
+      ]
+    },
+    {
+      "ordinal": 6,
+      "external_keys": [
+        "CMP-246-STAT-TENSILE"
+      ]
+    }
+  ],
+  "format": {
+    "application_revision": {
+      "derivation": "catalog.schema_definition_bundle.current_application_id",
+      "source": "catalog.schema_definition_bundle_application.id",
+      "identity": "immutable application_id reused as application_revision_id"
+    },
+    "format_key": "cmp-246-source-v2",
+    "source_schemas": [
+      {
+        "file": "schema-definition-bundle/source-v2/record-schemas/technical-data-v2.json",
+        "pointer": "/technical-data",
+        "sha256": "3c51f60f9df6218d874c5c0a82f8fff9888f2c56ec3df204bcf810b2def7b4a0"
+      },
+      {
+        "file": "schema-definition-bundle/source-v2/record-schemas/tensile-test-v2.json",
+        "pointer": "/tensile-test",
+        "sha256": "8a310ecc215b67ca5abd23c56984d74355b633f6e40662a9c56880c2f0a7926e"
+      },
+      {
+        "file": "schema-definition-bundle/source-v2/record-schemas/dma-test-v1.json",
+        "pointer": "/dma-test",
+        "sha256": "d6cd0befc77a50d957870924da22527f630e048d9f2975262d86d09485eca3c0"
+      },
+      {
+        "file": "schema-definition-bundle/source-v2/record-schemas/fld-test-v1.json",
+        "pointer": "/fld-test",
+        "sha256": "c6ec09caccedce017b5904f8460dbe0be3995f1bc36235f4179ab84bfcfba4ac"
+      },
+      {
+        "file": "schema-definition-bundle/source-v2/record-schemas/elastoplasticity-v2.json",
+        "pointer": "/elastoplasticity",
+        "sha256": "d42508e828951adeb00382f812c22756c778d19431c4211acdf260e94afe77b6"
+      },
+      {
+        "file": "schema-definition-bundle/source-v2/record-schemas/statistics-v2.json",
+        "pointer": "/statistics",
+        "sha256": "10210a75fc01d754163a2abe00374e91bd0cbb26ac262847d938a8e4a5cac11a"
+      }
+    ],
+    "table_revision": {
+      "derivation": "catalog.schema_definition_bundle_binding.revision_id",
+      "source": "catalog.schema_definition_bundle_binding.aggregate_id + revision_id",
+      "identity": "immutable Catalog Table revision id"
+    }
+  },
+  "links": [
+    {
+      "type": "technical_to_tensile",
+      "source": "CMP-246-TECH-DP780",
+      "target": "CMP-246-TENSILE-ROOM"
+    },
+    {
+      "type": "technical_to_tensile",
+      "source": "CMP-246-TECH-DP780",
+      "target": "CMP-246-TENSILE-HOT"
+    },
+    {
+      "type": "technical_to_tensile",
+      "source": "CMP-246-TECH-DP780",
+      "target": "CMP-246-TENSILE-SLOW"
+    },
+    {
+      "type": "technical_to_tensile",
+      "source": "CMP-246-TECH-DP780",
+      "target": "CMP-246-TENSILE-FAST"
+    },
+    {
+      "type": "technical_to_dma",
+      "source": "CMP-246-TECH-POLYMER",
+      "target": "CMP-246-DMA-+00C"
+    },
+    {
+      "type": "technical_to_dma",
+      "source": "CMP-246-TECH-POLYMER",
+      "target": "CMP-246-DMA-+23C"
+    },
+    {
+      "type": "technical_to_dma",
+      "source": "CMP-246-TECH-POLYMER",
+      "target": "CMP-246-DMA-+60C"
+    },
+    {
+      "type": "technical_to_fld",
+      "source": "CMP-246-TECH-DP780",
+      "target": "CMP-246-FLD-NAKAJIMA"
+    },
+    {
+      "type": "technical_to_fld",
+      "source": "CMP-246-TECH-DP780",
+      "target": "CMP-246-FLD-MARCINIAK"
+    },
+    {
+      "type": "tensile_to_elastoplasticity",
+      "source": "CMP-246-TENSILE-ROOM",
+      "target": "CMP-246-EP-VOCE"
+    },
+    {
+      "type": "tensile_to_elastoplasticity",
+      "source": "CMP-246-TENSILE-FAST",
+      "target": "CMP-246-EP-TABULATED"
+    },
+    {
+      "type": "tensile_to_statistics",
+      "source": "CMP-246-TENSILE-ROOM",
+      "target": "CMP-246-STAT-TENSILE"
+    },
+    {
+      "type": "tensile_to_statistics",
+      "source": "CMP-246-TENSILE-HOT",
+      "target": "CMP-246-STAT-TENSILE"
+    },
+    {
+      "type": "tensile_to_statistics",
+      "source": "CMP-246-TENSILE-SLOW",
+      "target": "CMP-246-STAT-TENSILE"
+    },
+    {
+      "type": "tensile_to_statistics",
+      "source": "CMP-246-TENSILE-FAST",
+      "target": "CMP-246-STAT-TENSILE"
+    }
+  ],
+  "scope": "issue-342-task-1b"
+}
