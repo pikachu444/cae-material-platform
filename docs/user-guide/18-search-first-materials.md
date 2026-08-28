@@ -335,16 +335,15 @@ Cards는 왼쪽 **Related data**에서 종류별로 확인합니다. revision, �
 ### Issue #261 M2 Materials CSS evidence provenance
 
 The Materials ownership extraction is recorded in
-[`Issue #261 M2 evidence`](../17-evidence/issue-261-m2-materials-css-ownership.md). Its before
+[`Issue #261`](https://github.com/pikachu444/cae-material-platform/issues/261). Its before
 and after search/detail/card originals, direct 100%-pixel crops, exact-revision recovery journey,
 and #249 three-axis review are linked from the evidence packet. The paired captures are pixel-identical.
 No user-facing Materials copy or workflow contract is changed by this provenance entry.
 
 ### Issue #261 B4 combined CSS ownership evidence provenance
 
-The completed combined batch is recorded in
-[`Issue #261 B4 evidence`](../17-evidence/issue-261-b4-css-ownership-integration.md) and its
-[`structured image manifest`](../17-evidence/issue-261-b4-css-ownership-integration-manifest.json).
+The completed combined batch and its validation are recorded in
+[`Issue #261`](https://github.com/pikachu444/cae-material-platform/issues/261).
 It retains the exact Browse → Filters → detail → download/Start Modeling journey, settled M2
 Materials contract evidence, and the five CSS viewport originals at browser zoom 100%. Main
 original-resolution review passed the Carbon hierarchy, COMSOL engineering flow and SAP responsive
@@ -354,8 +353,7 @@ download or fail-closed contract is changed by this provenance entry.
 ### Issue #262 FE-07A Materials architecture and UI evidence provenance
 
 The FE-07A Materials responsibility extraction and semantic refinement are recorded in
-[`Issue #262 FE-07A evidence`](../17-evidence/issue-262-fe07a-materials-architecture-ui.md) and its
-[`structured image manifest`](../17-evidence/images/issue-262-fe07a-materials-architecture-ui/manifest.json).
+[`Issue #262`](https://github.com/pikachu444/cae-material-platform/issues/262).
 The packet preserves the server-scoped query, exact Material/Record pins, reload/read-back, recovery,
 Results return continuity and exact Start Modeling handoff. It contains search, Browse, detail and curve
 states at the five required CSS viewports with direct 100%-pixel crops. Automated 3840×2160 geometry does

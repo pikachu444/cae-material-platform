@@ -24,6 +24,21 @@ _JPEG_SIGNATURE = b"\xff\xd8\xff"
 _NON_CURRENT_IMAGE = re.compile(r"docs/17-evidence/images/")
 _CURRENT_IMAGE_PREFIX = "docs/user-guide/images/current/"
 _EVIDENCE_IMAGE_PREFIX = "docs/17-evidence/images/"
+_RETIRED_SCREENSHOT_EVIDENCE_FIELDS = frozenset(
+    {"comparison_evidence", "evidence_source", "owner_direction_images"}
+)
+_RETIRED_VISUAL_EVIDENCE_PATH_FIELDS = frozenset(
+    {
+        "b4_combined_manifest",
+        "b4_combined_report",
+        "geometry_measurements",
+        "issue_261_m1e3_after_provenance",
+        "issue_261_m1e3_before_after",
+        "issue_261_m1e3_before_provenance",
+        "issue_261_m1e3_report",
+        "sidecar",
+    }
+)
 _REPOSITORY_LITERAL = re.compile(
     r"`((?:apps|backend|contracts|deploy|docs|fixtures|plugins|scripts|tests)/"
     r"[^`\s]+\.(?:css|json|md|mjs|png|jpg|jpeg|py|tsx|yaml|yml))`",
@@ -1115,6 +1130,15 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         yaml.safe_load((guide_root / "screenshot-manifest.yaml").read_text(encoding="utf-8")),
         "screenshot manifest",
     )
+    visual_evidence = _mapping(
+        manifest.get("visual_evidence"), "screenshot manifest visual_evidence"
+    )
+    retired_visual_fields = _RETIRED_VISUAL_EVIDENCE_PATH_FIELDS & visual_evidence.keys()
+    if retired_visual_fields:
+        raise UserGuideContractError(
+            "screenshot manifest retains retired local evidence fields: "
+            f"{sorted(retired_visual_fields)}"
+        )
     captures = _sequence(manifest.get("captures"), "screenshot manifest captures")
     capture_ids: set[str] = set()
     registered_images: set[str] = set()
@@ -1124,6 +1148,12 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         if capture_id in capture_ids:
             raise UserGuideContractError(f"duplicate screenshot id: {capture_id}")
         capture_ids.add(capture_id)
+        retired_capture_fields = _RETIRED_SCREENSHOT_EVIDENCE_FIELDS & capture.keys()
+        if retired_capture_fields:
+            raise UserGuideContractError(
+                f"capture {capture_id} retains retired local evidence fields: "
+                f"{sorted(retired_capture_fields)}"
+            )
         route = _text(capture.get("route"), f"capture {capture_id} route")
         _text(capture.get("workflow"), f"capture {capture_id} workflow")
         _text(capture.get("fixture"), f"capture {capture_id} fixture")

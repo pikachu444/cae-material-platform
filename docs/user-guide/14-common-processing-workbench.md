@@ -43,22 +43,22 @@ channel**을 선택할 수 있으며, 이 선택과 focus는 같은 local mappin
 그래프만 비교에 유용한 범위까지 커집니다.
 
 이 **Match file columns** 영역의 CSS 소유권 이동은
-[M1A17 live evidence](../17-evidence/images/issue-261-fe06-m1a17-data-mapping-attention/manifest.json)에
+[#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 다섯 viewport 원본, 내부 scroll-end 상태, 직접 crop과 exact journey read-back으로 기록합니다. 화면의
 문구·선택·revision·graph·복구 흐름과 좁은 화면의 의도된 내부 스크롤은 바꾸지 않습니다.
 
 유효한 column 연결 뒤 표시되는 **Columns ready · Change mapping · Update preview** 영역의 CSS 소유권
-이동은 [M1A18 live evidence](../17-evidence/images/issue-261-fe06-m1a18-data-mapping-resolved/manifest.json)에
+이동은 [#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 다섯 viewport 원본, 안정 상태, 직접 crop과 exact journey read-back으로 기록합니다. 이 compact 상태는
 내부 스크롤이 필요하지 않지만, Local file 영역의 기존 keyboard scroll 계약은 그대로 유지합니다.
 
 **Choose data file · Test record · Save details · JSON result**에 공통으로 쓰이는 Data intake field-row의
-CSS 소유권 이동은 [M1A19 live evidence](../17-evidence/images/issue-261-fe06-m1a19-data-intake-field-rows/manifest.json)에
+CSS 소유권 이동은 [#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 다섯 viewport 원본과 header/source/controls/graph 직접 crop으로 기록합니다. 정확한 Test Data와 revision,
 Update preview, graph, reload 복구와 Data→Process→Data 흐름은 바꾸지 않습니다.
 
 **Match file columns** 결정 프레임의 CSS 소유권 이동은
-[M1A20 live evidence](../17-evidence/images/issue-261-fe06-m1a20-data-mapping-decision-frame/manifest.json)에
+[#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 다섯 viewport 원본과 header/navigator/controls/Save details/graph 100% crop으로 기록합니다. 1366 화면의
 Data 설정 내부 스크롤, Test type focus, 정확한 선택·revision, #309 graph와 Process 왕복은 그대로 유지합니다.
 
@@ -632,9 +632,8 @@ Data, Process, Fit, Export 화면의 스타일도 각 stage 소유 파일로 정
 
 ### Issue #261 B4 combined CSS ownership evidence provenance
 
-The completed combined ownership batch is recorded in
-[`Issue #261 B4 evidence`](../17-evidence/issue-261-b4-css-ownership-integration.md) and its
-[`structured image manifest`](../17-evidence/issue-261-b4-css-ownership-integration-manifest.json).
+The completed combined ownership batch and its validation are recorded in
+[`Issue #261`](https://github.com/pikachu444/cae-material-platform/issues/261).
 It preserves the exact Data → Process → Fit → Export session, Administration plan → confirm →
 apply/read-back, and Activity error/recovery journeys across five CSS viewports at browser zoom
 100%. Main original-resolution review passed the Carbon hierarchy, COMSOL engineering flow and SAP
@@ -650,7 +649,7 @@ producers. This changes stylesheet ownership only. The exact Test Data → Proce
 saved model → Export journey, selected-model identity, acknowledgement, solver preview, recovery and
 route aliases remain unchanged.
 
-The [M1E3 evidence](../17-evidence/issue-261-m1e3-modeling-family-ownership.md) registers frozen-base
+The [Issue #261 approval history](https://github.com/pikachu444/cae-material-platform/issues/261) records frozen-base
 and current Product/Storybook states at browser zoom 100%, including all five CSS viewports, direct
 100%-pixel crops, generated bundle provenance, and reload read-back. No current-guide PNG is replaced
 because the move is behavior-preserving. Automated 3840×2160 proves geometry only; physical Windows
@@ -665,8 +664,7 @@ URL, API, stage 순서, graph, exact revision, 저장·복구 상태는 바꾸�
 기존처럼 exact `CMP-DEMO-DP780-TEST-JSON` Test Data를 고른 뒤 Data → Process → Fit → Export를
 진행하고, 선택된 `swift + voce 50/50`, target/native preview와 reload read-back을 확인합니다.
 
-이번 결과는 [M1E4 evidence manifest](../17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/manifest.json)와
-[M1E4 evidence report](https://github.com/pikachu444/cae-material-platform/issues/261)에
+이번 결과는 [#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 최종 acceptance 기록으로 남겼습니다. 다섯 CSS viewport의 before/after 원본과 header·navigator·
 stage controls·engineering graph 100%-pixel crop을 실제 크기로 검토했고, computed-style·geometry와
 Storybook bundle도 같은 동작을 유지했습니다. 48개 비교 record와 220개 image pair에서 geometry·
@@ -704,11 +702,9 @@ mapping-report producer stylesheet로 옮깁니다. 두 hyperelastic chart-axis/
 선택, 저장·reload read-back, route alias, copy와 API 계약을 바꾸지 않습니다.
 
 M1E5의 일곱 topology에 대한 다섯 viewport before/after 및 직접 100%-pixel crop은
-[M1E5 evidence manifest](../17-evidence/images/issue-261-m1e5-producer-routed-residual/manifest.json)에
+[#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 Main visual/runtime acceptance PASS로 기록됩니다. 현재 guide의 1920×1080 Data PNG는
-동일 viewport의 승인된 live capture
-(`docs/17-evidence/images/issue-261-m1e5-producer-routed-residual/after/modeling-data-metal/1920x1080/original.png`)를
-재사용하며 새 route나 screenshot을 추가하지 않았습니다. 자동 3840×2160 검사는 geometry만
+승인된 캡처를 재사용하며 새 route나 screenshot을 추가하지 않았습니다. 자동 3840×2160 검사는 geometry만
 증명하고 physical Windows 4K readability는 #223 gate로 남습니다.
 
 ### Issue #261 M4 shared CSS ownership consolidation provenance
@@ -723,7 +719,7 @@ M4 규칙과 기존 Fit baseline을 별도 import slot으로 유지하고, 반�
 family 전체를 원래 source 순서대로 함께 소유해 generic Modeling cascade를 역전시키지 않습니다.
 
 다섯 CSS viewport의 13개 topology before/after 원본과 header·navigator·table/form·stage
-controls·engineering graph/native preview crop은 [M4 evidence manifest](../17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/manifest.json)에
+controls·engineering graph/native preview crop은 [#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 기록되어 있습니다. Main은 원본과 직접 crop에서 1366px Fit control 잘림이 제거되고 원래
 cascade와 폭이 복구된 것을 확인했으며, 현재 상태는 `ACCEPTED_MAIN_VISUAL_AND_RUNTIME`입니다.
 현재 guide PNG는 검토된 M4 after 원본을 재사용하고, 자동 3840×2160은 geometry만 증명하며
@@ -738,7 +734,7 @@ M6는 PR #318이 넘긴 556개 selector row/495개 rule group을 하나의 froze
 React, DOM, 문구, API, route, state, exact revision/session contract는 변경하지 않습니다.
 
 다섯 CSS viewport의 305개 before/after pair와 원본·header·navigator·table/form·stage
-controls·engineering graph/native preview crop은 [M6 evidence manifest](../17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json)에
+controls·engineering graph/native preview crop은 [#261 승인 이력](https://github.com/pikachu444/cae-material-platform/issues/261)에
 `ACCEPTED_MAIN_VISUAL_AND_RUNTIME`으로 기록됩니다. 차이는 생성된 revision/UUID/hash 문자열과
 큰 viewport의 Search 화면에서 확인된 2–15개의 저강도 raster pixel뿐이며, geometry와 interaction
 reachability는 동일합니다. 현재 guide의 1920×1080

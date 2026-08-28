@@ -308,6 +308,38 @@ def test_frozen_default_reports_the_exact_changed_path() -> None:
         evaluate_documentation_impact({path})
 
 
+def test_issue_351_cleanup_requires_one_complete_approved_root(tmp_path: Path) -> None:
+    _write(tmp_path / "docs/documentation-manifest.yaml", _manifest())
+    approved_root = (
+        tmp_path / "docs/17-evidence/images/issue-160-activity-density"
+    )
+    _write(approved_root / "first.png", b"\x89PNG\r\n\x1a\nfirst")
+    _write(approved_root / "second.png", b"\x89PNG\r\n\x1a\nsecond")
+    _init_repo(tmp_path)
+
+    (approved_root / "first.png").unlink()
+    with pytest.raises(DocumentationImpactError, match="complete approved root"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+    (approved_root / "second.png").unlink()
+    approved_root.rmdir()
+    report = verify_documentation_impact(tmp_path, "worktree")
+
+    assert any(path.endswith("issue-160-activity-density/first.png") for path in report.changed_files)
+
+
+def test_issue_351_cleanup_does_not_unlock_an_adjacent_frozen_root(tmp_path: Path) -> None:
+    _write(tmp_path / "docs/documentation-manifest.yaml", _manifest())
+    adjacent = tmp_path / "docs/17-evidence/images/issue-160-unapproved/first.png"
+    _write(adjacent, b"\x89PNG\r\n\x1a\nadjacent")
+    _init_repo(tmp_path)
+
+    adjacent.unlink()
+
+    with pytest.raises(DocumentationImpactError, match="frozen visual evidence is immutable"):
+        verify_documentation_impact(tmp_path, "worktree")
+
+
 def test_issue_167_exception_requires_both_coupling_manifests() -> None:
     image = (
         "docs/17-evidence/images/issue-289-administration-database-workflow/after/"

@@ -8,6 +8,10 @@ branch: `issue-261-fe06-css-inventory`
 
 상위 program: #249, FE-06
 
+> #351 Task 3 정리: M1A0~M1A20의 로컬 이미지 패킷은 승인된 26개 삭제 루트에 포함되어
+> 작업 트리에서 제거했다. 아래 기록은 당시 판정과 파일 설명을 보존하지만 삭제된 로컬 파일로
+> 연결하지 않는다. 정확한 승인·검증·복구 이력은 [Issue #351](https://github.com/pikachu444/cae-material-platform/issues/351)과 Git 기록에서 확인한다.
+
 ## 범위와 판정
 
 이 단위는 #261의 권장 순서 중 첫 항목인 **inventory와 migration plan**만 수행한다. production
@@ -333,7 +337,7 @@ state, token 또는 breakpoint를 변경하지 않고 아래 effective declarati
 
 ### Visual 및 guide evidence
 
-- [M1A0 image manifest](images/issue-261-fe06-m1a0-data-same-selector-overlap/manifest.json)은 100% zoom,
+- M1A0 image manifest은 100% zoom,
   DPR 1, Standard density에서 두 Data route의 normal 다섯 viewport와
   empty/invalid/locally-scrolled 상태 before/after 원본 32개 및 `/modeling` 원본에서 직접 자른
   100%-pixel crop 64개를 기록한다.
@@ -356,100 +360,100 @@ state, token 또는 breakpoint를 변경하지 않고 아래 effective declarati
 <details>
 <summary>Retained before/after originals and direct 100%-pixel crops</summary>
 
-- [before original normal 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1366x768.png)
-- [before header 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-header-100pct.png)
-- [before navigator 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-navigator-100pct.png)
-- [before controls 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-controls-100pct.png)
-- [before graph 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1366x768-graph-100pct.png)
-- [before original normal 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1440x900.png)
-- [before header 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-header-100pct.png)
-- [before navigator 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-navigator-100pct.png)
-- [before controls 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-controls-100pct.png)
-- [before graph 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1440x900-graph-100pct.png)
-- [before original normal 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-1920x1080.png)
-- [before header 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-header-100pct.png)
-- [before navigator 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-navigator-100pct.png)
-- [before controls 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-controls-100pct.png)
-- [before graph 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-1920x1080-graph-100pct.png)
-- [before original normal 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-2560x1440.png)
-- [before header 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-header-100pct.png)
-- [before navigator 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-navigator-100pct.png)
-- [before controls 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-controls-100pct.png)
-- [before graph 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-2560x1440-graph-100pct.png)
-- [before original normal 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-3840x2160.png)
-- [before header 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-header-100pct.png)
-- [before navigator 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-navigator-100pct.png)
-- [before controls 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-controls-100pct.png)
-- [before graph 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-3840x2160-graph-100pct.png)
-- [before original empty new session](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-empty-1440x900.png)
-- [before empty header](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-header-100pct.png)
-- [before empty navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-navigator-100pct.png)
-- [before empty controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-controls-100pct.png)
-- [before empty graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-empty-1440x900-graph-100pct.png)
-- [before original invalid mapping](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-1440x900.png)
-- [before invalid header](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-header-100pct.png)
-- [before invalid navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-navigator-100pct.png)
-- [before invalid controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-controls-100pct.png)
-- [before invalid graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-1440x900-graph-100pct.png)
-- [before original invalid mapping locally scrolled](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/originals/modeling-data-invalid-scrolled-1440x900.png)
-- [before invalid-scrolled header](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png)
-- [before invalid-scrolled navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png)
-- [before invalid-scrolled controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png)
-- [before invalid-scrolled graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
-- [after original normal 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1366x768.png)
-- [after header 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-header-100pct.png)
-- [after navigator 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-navigator-100pct.png)
-- [after controls 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-controls-100pct.png)
-- [after graph 1366x768](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1366x768-graph-100pct.png)
-- [after original normal 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1440x900.png)
-- [after header 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-header-100pct.png)
-- [after navigator 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-navigator-100pct.png)
-- [after controls 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-controls-100pct.png)
-- [after graph 1440x900](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1440x900-graph-100pct.png)
-- [after original normal 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-1920x1080.png)
-- [after header 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-header-100pct.png)
-- [after navigator 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-navigator-100pct.png)
-- [after controls 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-controls-100pct.png)
-- [after graph 1920x1080](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-1920x1080-graph-100pct.png)
-- [after original normal 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-2560x1440.png)
-- [after header 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-header-100pct.png)
-- [after navigator 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-navigator-100pct.png)
-- [after controls 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-controls-100pct.png)
-- [after graph 2560x1440](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-2560x1440-graph-100pct.png)
-- [after original normal 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-3840x2160.png)
-- [after header 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-header-100pct.png)
-- [after navigator 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-navigator-100pct.png)
-- [after controls 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-controls-100pct.png)
-- [after graph 3840x2160](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-3840x2160-graph-100pct.png)
-- [after original empty new session](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-empty-1440x900.png)
-- [after empty header](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-header-100pct.png)
-- [after empty navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-navigator-100pct.png)
-- [after empty controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-controls-100pct.png)
-- [after empty graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-empty-1440x900-graph-100pct.png)
-- [after original invalid mapping](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-1440x900.png)
-- [after invalid header](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-header-100pct.png)
-- [after invalid navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-navigator-100pct.png)
-- [after invalid controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-controls-100pct.png)
-- [after invalid graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-1440x900-graph-100pct.png)
-- [after original invalid mapping locally scrolled](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/originals/modeling-data-invalid-scrolled-1440x900.png)
-- [after invalid-scrolled header](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png)
-- [after invalid-scrolled navigator](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png)
-- [after invalid-scrolled controls](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png)
-- [after invalid-scrolled graph](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
+- before original normal 1366x768
+- before header 1366x768
+- before navigator 1366x768
+- before controls 1366x768
+- before graph 1366x768
+- before original normal 1440x900
+- before header 1440x900
+- before navigator 1440x900
+- before controls 1440x900
+- before graph 1440x900
+- before original normal 1920x1080
+- before header 1920x1080
+- before navigator 1920x1080
+- before controls 1920x1080
+- before graph 1920x1080
+- before original normal 2560x1440
+- before header 2560x1440
+- before navigator 2560x1440
+- before controls 2560x1440
+- before graph 2560x1440
+- before original normal 3840x2160
+- before header 3840x2160
+- before navigator 3840x2160
+- before controls 3840x2160
+- before graph 3840x2160
+- before original empty new session
+- before empty header
+- before empty navigator
+- before empty controls
+- before empty graph
+- before original invalid mapping
+- before invalid header
+- before invalid navigator
+- before invalid controls
+- before invalid graph
+- before original invalid mapping locally scrolled
+- before invalid-scrolled header
+- before invalid-scrolled navigator
+- before invalid-scrolled controls
+- before invalid-scrolled graph
+- after original normal 1366x768
+- after header 1366x768
+- after navigator 1366x768
+- after controls 1366x768
+- after graph 1366x768
+- after original normal 1440x900
+- after header 1440x900
+- after navigator 1440x900
+- after controls 1440x900
+- after graph 1440x900
+- after original normal 1920x1080
+- after header 1920x1080
+- after navigator 1920x1080
+- after controls 1920x1080
+- after graph 1920x1080
+- after original normal 2560x1440
+- after header 2560x1440
+- after navigator 2560x1440
+- after controls 2560x1440
+- after graph 2560x1440
+- after original normal 3840x2160
+- after header 3840x2160
+- after navigator 3840x2160
+- after controls 3840x2160
+- after graph 3840x2160
+- after original empty new session
+- after empty header
+- after empty navigator
+- after empty controls
+- after empty graph
+- after original invalid mapping
+- after invalid header
+- after invalid navigator
+- after invalid controls
+- after invalid graph
+- after original invalid mapping locally scrolled
+- after invalid-scrolled header
+- after invalid-scrolled navigator
+- after invalid-scrolled controls
+- after invalid-scrolled graph
 
 </details>
 
 <details>
 <summary>Retained /datasets/processing route-identified before/after originals</summary>
 
-- 1366×768 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1366x768.png)
-- 1440×900 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1440x900.png)
-- 1920×1080 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-1920x1080.png)
-- 2560×1440 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-2560x1440.png)
-- 3840×2160 normal/mapping-resolved: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-3840x2160.png)
-- 1440×900 empty-new-session: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-empty-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-empty-1440x900.png)
-- 1440×900 long-invalid-mapping-blocked: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-invalid-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-invalid-1440x900.png)
-- 1440×900 long-invalid locally scrolled: [before](images/issue-261-fe06-m1a0-data-same-selector-overlap/before/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a0-data-same-selector-overlap/after/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png)
+- 1366×768 normal/mapping-resolved: before / after
+- 1440×900 normal/mapping-resolved: before / after
+- 1920×1080 normal/mapping-resolved: before / after
+- 2560×1440 normal/mapping-resolved: before / after
+- 3840×2160 normal/mapping-resolved: before / after
+- 1440×900 empty-new-session: before / after
+- 1440×900 long-invalid-mapping-blocked: before / after
+- 1440×900 long-invalid locally scrolled: before / after
 
 </details>
 
@@ -515,7 +519,7 @@ state, token, breakpoint, current guide PNG와 guide Markdown은 바꾸지 않�
 | `docs/17-evidence/issue-261-css-selector-inventory.json` | M1A1 candidate에서 결정적으로 재생성한 inventory |
 | `docs/17-evidence/issue-261-css-inventory-and-migration-plan.md` | 이 owned evidence와 다음 bounded router |
 | `docs/user-guide/screenshot-manifest.yaml` | byte-identical M1A1 original/crop의 exact duplicate provenance |
-| `docs/17-evidence/images/issue-261-fe06-m1a1-data-source-tabs/**` | 두 route before/after originals, direct crops와 strict manifest |
+| #351에서 제거된 M1A1 로컬 evidence root | 두 route before/after originals, direct crops와 strict manifest |
 
 금지 범위는 TSX/DOM/API/session contract 수정, selector rename, token normalization, shared shell/density
 정리, adjacent Data selector 이동, route별 workaround, current guide PNG 재인코딩, guide prose 변경과 M1A2
@@ -546,7 +550,7 @@ TARGET-0678의 border-bottom과 TARGET-0679의 color는 이 component 내부 cas
 | M1A Data rows | 221 | 216 | -5 |
 | M1A1 exact legacy residual | 5 | 0 | -5 |
 
-[M1A1 image manifest](images/issue-261-fe06-m1a1-data-source-tabs/manifest.json)은 browser zoom 100%,
+M1A1 image manifest은 browser zoom 100%,
 DPR 1, Standard density에서 `/modeling?stage=data&family=metal`과
 `/datasets/processing?stage=data&family=metal`의 normal 다섯 viewport 및 empty/invalid/locally-scrolled
 상태를 등록한다. 두 route 합계 before/after original 32개와 primary `/modeling` 원본의 direct
@@ -558,86 +562,86 @@ after도 대응 primary after와 같다. 모든 96 PNG는 screenshot manifest의
 
 <summary>M1A1 retained primary-route originals and direct 100%-pixel crops</summary>
 
-- [before normal original  1366x768](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-1366x768.png)
-- [before normal crop header 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1366x768-header-100pct.png)
-- [before normal crop navigator 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1366x768-navigator-100pct.png)
-- [before normal crop controls 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1366x768-controls-100pct.png)
-- [before normal crop graph 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1366x768-graph-100pct.png)
-- [before normal original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-1440x900.png)
-- [before normal crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1440x900-header-100pct.png)
-- [before normal crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1440x900-navigator-100pct.png)
-- [before normal crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1440x900-controls-100pct.png)
-- [before normal crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1440x900-graph-100pct.png)
-- [before normal original  1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-1920x1080.png)
-- [before normal crop header 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1920x1080-header-100pct.png)
-- [before normal crop navigator 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1920x1080-navigator-100pct.png)
-- [before normal crop controls 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1920x1080-controls-100pct.png)
-- [before normal crop graph 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-1920x1080-graph-100pct.png)
-- [before normal original  2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-2560x1440.png)
-- [before normal crop header 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-2560x1440-header-100pct.png)
-- [before normal crop navigator 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-2560x1440-navigator-100pct.png)
-- [before normal crop controls 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-2560x1440-controls-100pct.png)
-- [before normal crop graph 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-2560x1440-graph-100pct.png)
-- [before normal original  3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-3840x2160.png)
-- [before normal crop header 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-3840x2160-header-100pct.png)
-- [before normal crop navigator 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-3840x2160-navigator-100pct.png)
-- [before normal crop controls 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-3840x2160-controls-100pct.png)
-- [before normal crop graph 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-3840x2160-graph-100pct.png)
-- [before empty-new-session original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-empty-1440x900.png)
-- [before empty-new-session crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-empty-1440x900-header-100pct.png)
-- [before empty-new-session crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-empty-1440x900-navigator-100pct.png)
-- [before empty-new-session crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-empty-1440x900-controls-100pct.png)
-- [before empty-new-session crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-empty-1440x900-graph-100pct.png)
-- [before long-invalid-mapping-blocked original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-invalid-1440x900.png)
-- [before long-invalid-mapping-blocked crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-1440x900-header-100pct.png)
-- [before long-invalid-mapping-blocked crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-1440x900-navigator-100pct.png)
-- [before long-invalid-mapping-blocked crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-1440x900-controls-100pct.png)
-- [before long-invalid-mapping-blocked crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-1440x900-graph-100pct.png)
-- [before long-invalid-mapping-blocked-scrolled original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/originals/modeling-data-invalid-scrolled-1440x900.png)
-- [before long-invalid-mapping-blocked-scrolled crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png)
-- [before long-invalid-mapping-blocked-scrolled crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png)
-- [before long-invalid-mapping-blocked-scrolled crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png)
-- [before long-invalid-mapping-blocked-scrolled crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/before/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
-- [after normal original  1366x768](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-1366x768.png)
-- [after normal crop header 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1366x768-header-100pct.png)
-- [after normal crop navigator 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1366x768-navigator-100pct.png)
-- [after normal crop controls 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1366x768-controls-100pct.png)
-- [after normal crop graph 1366x768](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1366x768-graph-100pct.png)
-- [after normal original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-1440x900.png)
-- [after normal crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1440x900-header-100pct.png)
-- [after normal crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1440x900-navigator-100pct.png)
-- [after normal crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1440x900-controls-100pct.png)
-- [after normal crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1440x900-graph-100pct.png)
-- [after normal original  1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-1920x1080.png)
-- [after normal crop header 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1920x1080-header-100pct.png)
-- [after normal crop navigator 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1920x1080-navigator-100pct.png)
-- [after normal crop controls 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1920x1080-controls-100pct.png)
-- [after normal crop graph 1920x1080](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-1920x1080-graph-100pct.png)
-- [after normal original  2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-2560x1440.png)
-- [after normal crop header 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-2560x1440-header-100pct.png)
-- [after normal crop navigator 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-2560x1440-navigator-100pct.png)
-- [after normal crop controls 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-2560x1440-controls-100pct.png)
-- [after normal crop graph 2560x1440](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-2560x1440-graph-100pct.png)
-- [after normal original  3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-3840x2160.png)
-- [after normal crop header 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-3840x2160-header-100pct.png)
-- [after normal crop navigator 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-3840x2160-navigator-100pct.png)
-- [after normal crop controls 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-3840x2160-controls-100pct.png)
-- [after normal crop graph 3840x2160](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-3840x2160-graph-100pct.png)
-- [after empty-new-session original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-empty-1440x900.png)
-- [after empty-new-session crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-empty-1440x900-header-100pct.png)
-- [after empty-new-session crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-empty-1440x900-navigator-100pct.png)
-- [after empty-new-session crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-empty-1440x900-controls-100pct.png)
-- [after empty-new-session crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-empty-1440x900-graph-100pct.png)
-- [after long-invalid-mapping-blocked original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-invalid-1440x900.png)
-- [after long-invalid-mapping-blocked crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-1440x900-header-100pct.png)
-- [after long-invalid-mapping-blocked crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-1440x900-navigator-100pct.png)
-- [after long-invalid-mapping-blocked crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-1440x900-controls-100pct.png)
-- [after long-invalid-mapping-blocked crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-1440x900-graph-100pct.png)
-- [after long-invalid-mapping-blocked-scrolled original  1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/originals/modeling-data-invalid-scrolled-1440x900.png)
-- [after long-invalid-mapping-blocked-scrolled crop header 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png)
-- [after long-invalid-mapping-blocked-scrolled crop navigator 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png)
-- [after long-invalid-mapping-blocked-scrolled crop controls 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png)
-- [after long-invalid-mapping-blocked-scrolled crop graph 1440x900](images/issue-261-fe06-m1a1-data-source-tabs/after/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
+- before normal original  1366x768
+- before normal crop header 1366x768
+- before normal crop navigator 1366x768
+- before normal crop controls 1366x768
+- before normal crop graph 1366x768
+- before normal original  1440x900
+- before normal crop header 1440x900
+- before normal crop navigator 1440x900
+- before normal crop controls 1440x900
+- before normal crop graph 1440x900
+- before normal original  1920x1080
+- before normal crop header 1920x1080
+- before normal crop navigator 1920x1080
+- before normal crop controls 1920x1080
+- before normal crop graph 1920x1080
+- before normal original  2560x1440
+- before normal crop header 2560x1440
+- before normal crop navigator 2560x1440
+- before normal crop controls 2560x1440
+- before normal crop graph 2560x1440
+- before normal original  3840x2160
+- before normal crop header 3840x2160
+- before normal crop navigator 3840x2160
+- before normal crop controls 3840x2160
+- before normal crop graph 3840x2160
+- before empty-new-session original  1440x900
+- before empty-new-session crop header 1440x900
+- before empty-new-session crop navigator 1440x900
+- before empty-new-session crop controls 1440x900
+- before empty-new-session crop graph 1440x900
+- before long-invalid-mapping-blocked original  1440x900
+- before long-invalid-mapping-blocked crop header 1440x900
+- before long-invalid-mapping-blocked crop navigator 1440x900
+- before long-invalid-mapping-blocked crop controls 1440x900
+- before long-invalid-mapping-blocked crop graph 1440x900
+- before long-invalid-mapping-blocked-scrolled original  1440x900
+- before long-invalid-mapping-blocked-scrolled crop header 1440x900
+- before long-invalid-mapping-blocked-scrolled crop navigator 1440x900
+- before long-invalid-mapping-blocked-scrolled crop controls 1440x900
+- before long-invalid-mapping-blocked-scrolled crop graph 1440x900
+- after normal original  1366x768
+- after normal crop header 1366x768
+- after normal crop navigator 1366x768
+- after normal crop controls 1366x768
+- after normal crop graph 1366x768
+- after normal original  1440x900
+- after normal crop header 1440x900
+- after normal crop navigator 1440x900
+- after normal crop controls 1440x900
+- after normal crop graph 1440x900
+- after normal original  1920x1080
+- after normal crop header 1920x1080
+- after normal crop navigator 1920x1080
+- after normal crop controls 1920x1080
+- after normal crop graph 1920x1080
+- after normal original  2560x1440
+- after normal crop header 2560x1440
+- after normal crop navigator 2560x1440
+- after normal crop controls 2560x1440
+- after normal crop graph 2560x1440
+- after normal original  3840x2160
+- after normal crop header 3840x2160
+- after normal crop navigator 3840x2160
+- after normal crop controls 3840x2160
+- after normal crop graph 3840x2160
+- after empty-new-session original  1440x900
+- after empty-new-session crop header 1440x900
+- after empty-new-session crop navigator 1440x900
+- after empty-new-session crop controls 1440x900
+- after empty-new-session crop graph 1440x900
+- after long-invalid-mapping-blocked original  1440x900
+- after long-invalid-mapping-blocked crop header 1440x900
+- after long-invalid-mapping-blocked crop navigator 1440x900
+- after long-invalid-mapping-blocked crop controls 1440x900
+- after long-invalid-mapping-blocked crop graph 1440x900
+- after long-invalid-mapping-blocked-scrolled original  1440x900
+- after long-invalid-mapping-blocked-scrolled crop header 1440x900
+- after long-invalid-mapping-blocked-scrolled crop navigator 1440x900
+- after long-invalid-mapping-blocked-scrolled crop controls 1440x900
+- after long-invalid-mapping-blocked-scrolled crop graph 1440x900
 
 </details>
 
@@ -645,14 +649,14 @@ after도 대응 primary after와 같다. 모든 96 PNG는 screenshot manifest의
 
 <summary>M1A1 retained /datasets/processing route-identified before/after originals</summary>
 
-- normal-mapping-resolved 1366x768: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-1366x768.png)
-- normal-mapping-resolved 1440x900: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-1440x900.png)
-- normal-mapping-resolved 1920x1080: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-1920x1080.png)
-- normal-mapping-resolved 2560x1440: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-2560x1440.png)
-- normal-mapping-resolved 3840x2160: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-3840x2160.png)
-- empty-new-session 1440x900: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-empty-1440x900.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-empty-1440x900.png)
-- long-invalid-mapping-blocked 1440x900: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-invalid-1440x900.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-invalid-1440x900.png)
-- long-invalid-mapping-blocked-locally-scrolled 1440x900: [before](images/issue-261-fe06-m1a1-data-source-tabs/before/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a1-data-source-tabs/after/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png)
+- normal-mapping-resolved 1366x768: before / after
+- normal-mapping-resolved 1440x900: before / after
+- normal-mapping-resolved 1920x1080: before / after
+- normal-mapping-resolved 2560x1440: before / after
+- normal-mapping-resolved 3840x2160: before / after
+- empty-new-session 1440x900: before / after
+- long-invalid-mapping-blocked 1440x900: before / after
+- long-invalid-mapping-blocked-locally-scrolled 1440x900: before / after
 
 </details>
 
@@ -713,7 +717,7 @@ M1A2는 committed M1A1 `8361e85d80e254759e170c1ce7355b9fe49e56ce`을 implementat
 | `apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css` | 같은 effective declaration을 existing lazy Data owner에 둔다. 뒤쪽 shared metadata token의 현재 cascade를 보존한다. |
 | `apps/web/frontend-guard-baseline.json` | 실제 global rule-group과 `layout.css` line 감소만 잠근다. allowance를 늘리지 않는다. |
 | `scripts/check_issue_261_css_inventory.mjs`, `scripts/check_issue_261_css_inventory.test.mjs`, `docs/17-evidence/issue-261-css-selector-inventory.json` | M1A2 3/3/3/0 packet, zero residual과 다음 M1A3 경계를 고정한다. |
-| `docs/user-guide/screenshot-manifest.yaml`, 이 evidence 문서, `docs/17-evidence/images/issue-261-fe06-m1a2-data-source-advanced/**` | current image를 바꾸지 않고 fresh before/after, alias와 direct crops의 exact provenance만 등록한다. |
+| `docs/user-guide/screenshot-manifest.yaml`, 이 evidence 문서, #351에서 제거된 M1A2 로컬 evidence root | current image를 바꾸지 않고 fresh before/after, alias와 direct crops의 exact provenance만 등록한다. |
 
 `modeling-data-intake.tsx`와 그 DOM, 다른 stage CSS, shared primitives/tokens, user-guide current PNG는 변경하지
 않는다. Data 213개 잔여행, diagnostics, Library, mapping, responsive rule, M1B 이후 batch, dead/HOLD 후보를
@@ -739,7 +743,7 @@ route-shell coupling, route-specific wide workaround 후보가 아니다. 이동
 
 ### Live visual evidence
 
-[M1A2 manifest](images/issue-261-fe06-m1a2-data-source-advanced/manifest.json)은 browser zoom 100%, DPR 1,
+M1A2 manifest은 browser zoom 100%, DPR 1,
 Standard density에서 primary `/modeling?stage=data&family=metal`과 alias
 `/datasets/processing?stage=data&family=metal`을 각각 clean M1A1 before/current M1A2 after로 실행한다.
 다섯 normal viewport와 empty, invalid mapping, locally-scrolled recovery의 primary 8쌍, alias 8쌍 및
@@ -751,14 +755,14 @@ header, navigator, table/form controls와 graph 영역으로 잘랐다.
 
 <summary>M1A2 exact originals and direct 100%-pixel crops</summary>
 
-- 1366x768 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1366x768.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1366x768.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-1366x768.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1366x768.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1366x768-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1366x768-graph-100pct.png)
-- 1440x900 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1440x900-graph-100pct.png)
-- 1920x1080 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-1920x1080.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-1920x1080.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-1920x1080.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-1920x1080.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-1920x1080-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-1920x1080-graph-100pct.png)
-- 2560x1440 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-2560x1440.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-2560x1440.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-2560x1440.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-2560x1440.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-2560x1440-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-2560x1440-graph-100pct.png)
-- 3840x2160 normal: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-3840x2160.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-3840x2160.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-3840x2160.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-3840x2160.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-3840x2160-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-3840x2160-graph-100pct.png)
-- 1440x900 empty: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-empty-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-empty-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-empty-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-empty-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-empty-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-empty-1440x900-graph-100pct.png)
-- 1440x900 invalid mapping: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-invalid-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-invalid-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-invalid-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-invalid-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-1440x900-graph-100pct.png)
-- 1440x900 invalid mapping scrolled: [before original](images/issue-261-fe06-m1a2-data-source-advanced/before/originals/modeling-data-invalid-scrolled-1440x900.png), [after original](images/issue-261-fe06-m1a2-data-source-advanced/after/originals/modeling-data-invalid-scrolled-1440x900.png), [alias before](images/issue-261-fe06-m1a2-data-source-advanced/before/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png), [alias after](images/issue-261-fe06-m1a2-data-source-advanced/after/routes/datasets-processing/modeling-data-invalid-scrolled-1440x900.png), [before header](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png), [before navigator](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png), [before controls](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png), [before graph](images/issue-261-fe06-m1a2-data-source-advanced/before/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png), [after header](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-header-100pct.png), [after navigator](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-navigator-100pct.png), [after controls](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-controls-100pct.png), [after graph](images/issue-261-fe06-m1a2-data-source-advanced/after/crops/modeling-data-invalid-scrolled-1440x900-graph-100pct.png)
+- 1366x768 normal: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 1440x900 normal: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 1920x1080 normal: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 2560x1440 normal: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 3840x2160 normal: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 1440x900 empty: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 1440x900 invalid mapping: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
+- 1440x900 invalid mapping scrolled: before original, after original, alias before, alias after, before header, before navigator, before controls, before graph, after header, after navigator, after controls, after graph
 
 </details>
 
@@ -812,7 +816,7 @@ import에서 보이는 `.data-import-diagnostics` region의 재생성 inventory 
 | `apps/web/src/features/modeling/ui/stages/data/modeling-data-stage.css` | 같은 declaration block을 existing lazy Data owner에 선언 순서 그대로 둔다. |
 | `apps/web/frontend-guard-baseline.json` | 실제 global rule-group과 `layout.css` line 감소만 잠근다. allowance나 warning budget은 늘리지 않는다. |
 | `scripts/check_issue_261_css_inventory.mjs`, `scripts/check_issue_261_css_inventory.test.mjs`, `docs/17-evidence/issue-261-css-selector-inventory.json` | M1A3 `7/6/6/0`, zero residual과 다음 M1A4 owner-packet 경계를 고정한다. |
-| `docs/user-guide/screenshot-manifest.yaml`, 이 evidence 문서, `docs/17-evidence/images/issue-261-fe06-m1a3-data-import-diagnostics/**` | current image를 바꾸지 않고 fresh before/after, alias, direct crop, computed-style provenance만 등록한다. |
+| `docs/user-guide/screenshot-manifest.yaml`, 이 evidence 문서, #351에서 제거된 M1A3 로컬 evidence root | current image를 바꾸지 않고 fresh before/after, alias, direct crop, computed-style provenance만 등록한다. |
 
 `modeling-data-intake.tsx`와 그 DOM, 다른 stage CSS, shared primitives/tokens, user-guide current PNG는 변경하지
 않는다. `.data-mapping-blockers`와 나머지 M1A 206행, Library/mapping/responsive rule, M1B 이후 batch,
@@ -844,7 +848,7 @@ live zero-consumer 판정 전까지 dead로 간주하지 않는다. 이동 후 e
 
 ### Live visual evidence
 
-[M1A3 manifest](images/issue-261-fe06-m1a3-data-import-diagnostics/manifest.json)은 browser zoom 100%, DPR 1,
+M1A3 manifest은 browser zoom 100%, DPR 1,
 Standard density에서 primary `/modeling?stage=data`와 alias `/datasets/processing?stage=data`를 각각 다섯
 final-size fresh browser context로 시작했다. 각 context는 고유한 natural idempotency key로 실제 DMA import를
 한 번 거절시키고, 동일한 five-row diagnostics와 recovery를 캡처했다. before 10개와 after 10개의 key는 모두
@@ -861,11 +865,11 @@ before/after에 보존하며 current PNG 자체는 변경하지 않는다.
 
 <summary>M1A3 exact originals and direct 100%-pixel crops</summary>
 
-- 1366x768: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-1366x768.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-1366x768.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-1366x768.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1366x768.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-1366x768.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1366x768.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1366x768-graph-100pct.png)
-- 1440x900: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-1440x900.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-1440x900.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-1440x900.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1440x900.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-1440x900.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1440x900.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1440x900-graph-100pct.png)
-- 1920x1080: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-1920x1080.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-1920x1080.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-1920x1080.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-1920x1080.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-1920x1080.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-1920x1080.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-1920x1080-graph-100pct.png)
-- 2560x1440: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-2560x1440.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-2560x1440.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-2560x1440.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-2560x1440.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-2560x1440.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-2560x1440.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-2560x1440-graph-100pct.png)
-- 3840x2160: [normal before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-3840x2160.png), [normal after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-3840x2160.png), [rejected before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/originals/modeling-data-import-rejected-3840x2160.png), [rejected after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/originals/modeling-data-import-rejected-3840x2160.png), [alias before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/routes/datasets-processing/modeling-data-import-rejected-3840x2160.png), [alias after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/routes/datasets-processing/modeling-data-import-rejected-3840x2160.png), [header before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-header-100pct.png), [controls before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-controls-100pct.png), [controls after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-controls-100pct.png), [diagnostics before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-diagnostics-100pct.png), [diagnostics after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-diagnostics-100pct.png), [graph before](images/issue-261-fe06-m1a3-data-import-diagnostics/before/crops/modeling-data-import-rejected-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a3-data-import-diagnostics/after/crops/modeling-data-import-rejected-3840x2160-graph-100pct.png)
+- 1366x768: normal before, normal after, rejected before, rejected after, alias before, alias after, header before, header after, controls before, controls after, diagnostics before, diagnostics after, graph before, graph after
+- 1440x900: normal before, normal after, rejected before, rejected after, alias before, alias after, header before, header after, controls before, controls after, diagnostics before, diagnostics after, graph before, graph after
+- 1920x1080: normal before, normal after, rejected before, rejected after, alias before, alias after, header before, header after, controls before, controls after, diagnostics before, diagnostics after, graph before, graph after
+- 2560x1440: normal before, normal after, rejected before, rejected after, alias before, alias after, header before, header after, controls before, controls after, diagnostics before, diagnostics after, graph before, graph after
+- 3840x2160: normal before, normal after, rejected before, rejected after, alias before, alias after, header before, header after, controls before, controls after, diagnostics before, diagnostics after, graph before, graph after
 
 </details>
 
@@ -925,7 +929,7 @@ historical member는 `CSS-1009`, `1011`, `1013`, `1014`, `1017`, `1019`, `1044`�
 
 ### Live journey와 evidence
 
-[M1A4 manifest](images/issue-261-fe06-m1a4-data-raw-source-preview/manifest.json)은 Standard, browser zoom
+M1A4 manifest은 Standard, browser zoom
 100%, DPR 1에서 primary `/modeling?stage=data&family=metal`과 alias
 `/datasets/processing?stage=data&family=metal`을 각각 final-size fresh context로 열었다. 두 route 모두 exact
 `DP780 synthetic reference steel` r1 / `As received · synthetic reference` r1,
@@ -940,31 +944,31 @@ geometry measurement가 같음을 확인했다. horizontal pointer wheel, Shift+
 `engineering_stress_pa` 열 도달을 모두 검증했다. 1440×900 reload는 exact Test Data/graph를 복구하고 component-local
 file state만 비운 뒤 같은 file/Test Run을 재검사했다.
 
-[equivalence](images/issue-261-fe06-m1a4-data-raw-source-preview/equivalence.json)는 original/alias/crop 30쌍 모두
+equivalence는 original/alias/crop 30쌍 모두
 source-pixel identical, context 10쌍 모두 runtime/session/graph/measurements/error-free equivalence임을 기록한다.
 PNG encoder bytes가 같은 pair는 별도로 exact hash provenance에 등록하며, 픽셀 판정은 resize나 resampling 없이
 RGBA source pixels로 수행한다. current guide PNG와 guide workflow copy는 바꾸지 않는다. Documentation-impact
 지원 증거는 현 candidate로 canonical normal Data 화면을 다시 캡처해 current guide와 byte-identical임을 확인한
-다음 다섯 쌍이다: [1366 before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1366x768.png),
-[1366 after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1366x768.png),
-[1440 before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1440x900.png),
-[1440 after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1440x900.png),
-[1920 before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-1920x1080.png),
-[1920 after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-1920x1080.png),
-[2560 before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-2560x1440.png),
-[2560 after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-2560x1440.png),
-[3840 before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-3840x2160.png),
-[3840 after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-3840x2160.png).
+다음 다섯 쌍이다: 1366 before,
+1366 after,
+1440 before,
+1440 after,
+1920 before,
+1920 after,
+2560 before,
+2560 after,
+3840 before,
+3840 after.
 
 <details>
 
 <summary>M1A4 exact originals and direct 100%-pixel crops</summary>
 
-- 1366x768: [before original](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-1366x768.png), [after original](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1366x768.png), [alias before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-1366x768.png), [alias after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1366x768.png), [header before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-header-100pct.png), [controls before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-controls-100pct.png), [controls after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-controls-100pct.png), [raw table before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-raw-table-100pct.png), [raw table after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-raw-table-100pct.png), [graph before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1366x768-graph-100pct.png)
-- 1440x900: [before original](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-1440x900.png), [after original](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1440x900.png), [alias before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-1440x900.png), [alias after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1440x900.png), [header before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-header-100pct.png), [controls before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-controls-100pct.png), [controls after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-controls-100pct.png), [raw table before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-raw-table-100pct.png), [raw table after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-raw-table-100pct.png), [graph before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1440x900-graph-100pct.png)
-- 1920x1080: [before original](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-1920x1080.png), [after original](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-1920x1080.png), [alias before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-1920x1080.png), [alias after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-1920x1080.png), [header before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-header-100pct.png), [controls before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-controls-100pct.png), [controls after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-controls-100pct.png), [raw table before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-raw-table-100pct.png), [raw table after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-raw-table-100pct.png), [graph before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-1920x1080-graph-100pct.png)
-- 2560x1440: [before original](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-2560x1440.png), [after original](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-2560x1440.png), [alias before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-2560x1440.png), [alias after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-2560x1440.png), [header before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-header-100pct.png), [controls before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-controls-100pct.png), [controls after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-controls-100pct.png), [raw table before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-raw-table-100pct.png), [raw table after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-raw-table-100pct.png), [graph before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-2560x1440-graph-100pct.png)
-- 3840x2160: [before original](images/issue-261-fe06-m1a4-data-raw-source-preview/before/originals/modeling-data-raw-source-preview-3840x2160.png), [after original](images/issue-261-fe06-m1a4-data-raw-source-preview/after/originals/modeling-data-raw-source-preview-3840x2160.png), [alias before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/routes/datasets-processing/modeling-data-raw-source-preview-3840x2160.png), [alias after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/routes/datasets-processing/modeling-data-raw-source-preview-3840x2160.png), [header before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-header-100pct.png), [controls before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-controls-100pct.png), [controls after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-controls-100pct.png), [raw table before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-raw-table-100pct.png), [raw table after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-raw-table-100pct.png), [graph before](images/issue-261-fe06-m1a4-data-raw-source-preview/before/crops/modeling-data-raw-source-preview-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a4-data-raw-source-preview/after/crops/modeling-data-raw-source-preview-3840x2160-graph-100pct.png)
+- 1366x768: before original, after original, alias before, alias after, header before, header after, controls before, controls after, raw table before, raw table after, graph before, graph after
+- 1440x900: before original, after original, alias before, alias after, header before, header after, controls before, controls after, raw table before, raw table after, graph before, graph after
+- 1920x1080: before original, after original, alias before, alias after, header before, header after, controls before, controls after, raw table before, raw table after, graph before, graph after
+- 2560x1440: before original, after original, alias before, alias after, header before, header after, controls before, controls after, raw table before, raw table after, graph before, graph after
+- 3840x2160: before original, after original, alias before, alias after, header before, header after, controls before, controls after, raw table before, raw table after, graph before, graph after
 
 </details>
 
@@ -1031,7 +1035,7 @@ fallback `ModelingDataIntake` Library branch는 current revision r2가 존재해
 historical contract는 component test가 소유하고, live evidence는 production route의 현재 Library workflow와
 CSS 이동의 collateral no-change를 검증한다. `latest`, first-item 또는 다른 session fallback은 사용하지 않았다.
 
-[M1A5 manifest](images/issue-261-fe06-m1a5-data-library-source-list/manifest.json)은 Standard, browser zoom 100%,
+M1A5 manifest은 Standard, browser zoom 100%,
 DPR 1에서 primary `/modeling?stage=data&family=metal`과 alias
 `/datasets/processing?stage=data&family=metal`을 1366×768, 1440×900, 1920×1080, 2560×1440,
 3840×2160으로 캡처했다. 두 route 모두 exact Test Data `CMP-DEMO-DP780-TEST-JSON` r1
@@ -1042,7 +1046,7 @@ border/rounding behavior로 판정했다. 따라서 synthetic row나 fake rail�
 not-applicable로 바로잡았다. Data→Process→Data round-trip, Process identity, reload 뒤 session v4/DOM exact pin,
 graph와 action reachability는 확인했다.
 
-[equivalence](images/issue-261-fe06-m1a5-data-library-source-list/equivalence.json)는 primary/alias original 10쌍과
+equivalence는 primary/alias original 10쌍과
 header/navigator/library/graph direct 100%-pixel crop 20쌍, 합계 30쌍이 encoder bytes와 source pixels까지 모두
 동일하고 measurement/recovery JSON도 동일함을 기록한다. Main은 before/after PNG 60장을 original resolution으로
 열어 확인했다. 수치는 regression 보조 증거로만 사용했고, #249의 정보 계층, engineering task flow,
@@ -1051,26 +1055,26 @@ bounded navigator, persistent graph와 Continue to Process는 다섯 viewport에
 wrapping, arbitrary width overfit 또는 4K workaround가 없다.
 
 Documentation-impact 지원 증거는 live target before/after가 current guide와 source-pixel identical임을 먼저 확인한 뒤
-registered current PNG byte stream으로 보존한 다음 다섯 쌍이다: [1366 before](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-1366x768.png),
-[1366 after](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-1366x768.png),
-[1440 before](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-1440x900.png),
-[1440 after](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-1440x900.png),
-[1920 before](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-1920x1080.png),
-[1920 after](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-1920x1080.png),
-[2560 before](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-2560x1440.png),
-[2560 after](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-2560x1440.png),
-[3840 before](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-3840x2160.png),
-[3840 after](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-3840x2160.png).
+registered current PNG byte stream으로 보존한 다음 다섯 쌍이다: 1366 before,
+1366 after,
+1440 before,
+1440 after,
+1920 before,
+1920 after,
+2560 before,
+2560 after,
+3840 before,
+3840 after.
 
 <details>
 
 <summary>M1A5 exact originals and direct 100%-pixel crops</summary>
 
-- 1366x768: [before original](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-library-source-list-1366x768.png), [after original](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-library-source-list-1366x768.png), [alias before](images/issue-261-fe06-m1a5-data-library-source-list/before/routes/datasets-processing/modeling-data-library-source-list-1366x768.png), [alias after](images/issue-261-fe06-m1a5-data-library-source-list/after/routes/datasets-processing/modeling-data-library-source-list-1366x768.png), [header before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1366x768-header-100pct.png), [navigator before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1366x768-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1366x768-navigator-100pct.png), [Library before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1366x768-library-100pct.png), [Library after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1366x768-library-100pct.png), [graph before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1366x768-graph-100pct.png)
-- 1440x900: [before original](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-library-source-list-1440x900.png), [after original](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-library-source-list-1440x900.png), [alias before](images/issue-261-fe06-m1a5-data-library-source-list/before/routes/datasets-processing/modeling-data-library-source-list-1440x900.png), [alias after](images/issue-261-fe06-m1a5-data-library-source-list/after/routes/datasets-processing/modeling-data-library-source-list-1440x900.png), [header before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1440x900-header-100pct.png), [navigator before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1440x900-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1440x900-navigator-100pct.png), [Library before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1440x900-library-100pct.png), [Library after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1440x900-library-100pct.png), [graph before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1440x900-graph-100pct.png)
-- 1920x1080: [before original](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-library-source-list-1920x1080.png), [after original](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-library-source-list-1920x1080.png), [alias before](images/issue-261-fe06-m1a5-data-library-source-list/before/routes/datasets-processing/modeling-data-library-source-list-1920x1080.png), [alias after](images/issue-261-fe06-m1a5-data-library-source-list/after/routes/datasets-processing/modeling-data-library-source-list-1920x1080.png), [header before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1920x1080-header-100pct.png), [navigator before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1920x1080-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1920x1080-navigator-100pct.png), [Library before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1920x1080-library-100pct.png), [Library after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1920x1080-library-100pct.png), [graph before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-1920x1080-graph-100pct.png)
-- 2560x1440: [before original](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-library-source-list-2560x1440.png), [after original](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-library-source-list-2560x1440.png), [alias before](images/issue-261-fe06-m1a5-data-library-source-list/before/routes/datasets-processing/modeling-data-library-source-list-2560x1440.png), [alias after](images/issue-261-fe06-m1a5-data-library-source-list/after/routes/datasets-processing/modeling-data-library-source-list-2560x1440.png), [header before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-2560x1440-header-100pct.png), [navigator before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-2560x1440-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-2560x1440-navigator-100pct.png), [Library before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-2560x1440-library-100pct.png), [Library after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-2560x1440-library-100pct.png), [graph before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-2560x1440-graph-100pct.png)
-- 3840x2160: [before original](images/issue-261-fe06-m1a5-data-library-source-list/before/originals/modeling-data-library-source-list-3840x2160.png), [after original](images/issue-261-fe06-m1a5-data-library-source-list/after/originals/modeling-data-library-source-list-3840x2160.png), [alias before](images/issue-261-fe06-m1a5-data-library-source-list/before/routes/datasets-processing/modeling-data-library-source-list-3840x2160.png), [alias after](images/issue-261-fe06-m1a5-data-library-source-list/after/routes/datasets-processing/modeling-data-library-source-list-3840x2160.png), [header before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-3840x2160-header-100pct.png), [navigator before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-3840x2160-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-3840x2160-navigator-100pct.png), [Library before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-3840x2160-library-100pct.png), [Library after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-3840x2160-library-100pct.png), [graph before](images/issue-261-fe06-m1a5-data-library-source-list/before/crops/modeling-data-library-source-list-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a5-data-library-source-list/after/crops/modeling-data-library-source-list-3840x2160-graph-100pct.png)
+- 1366x768: before original, after original, alias before, alias after, header before, header after, navigator before, navigator after, Library before, Library after, graph before, graph after
+- 1440x900: before original, after original, alias before, alias after, header before, header after, navigator before, navigator after, Library before, Library after, graph before, graph after
+- 1920x1080: before original, after original, alias before, alias after, header before, header after, navigator before, navigator after, Library before, Library after, graph before, graph after
+- 2560x1440: before original, after original, alias before, alias after, header before, header after, navigator before, navigator after, Library before, Library after, graph before, graph after
+- 3840x2160: before original, after original, alias before, alias after, header before, header after, navigator before, navigator after, Library before, Library after, graph before, graph after
 
 </details>
 
@@ -1125,20 +1129,20 @@ M1A5 역사값 `2787/3512/13`을 고정하고 M1A6 실제값 `2784/3509/14`, str
 
 ### Live journey와 visual evidence
 
-[M1A6 manifest](images/issue-261-fe06-m1a6-data-curve-row-label/manifest.json)은 Standard, browser zoom
+M1A6 manifest은 Standard, browser zoom
 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. canonical normal
 원본 5쌍, focus 상태 primary 원본 5쌍, header/navigator/table/graph direct 100%-pixel crop 20쌍, 모두 30쌍은
 encoder bytes와 source pixel이 동일하다. geometry와 runtime identity JSON도 before/after가 동일하다.
-현재 guide 보존 원본도 [1366 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-1366x768.png),
-[1366 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-1366x768.png),
-[1440 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-1440x900.png),
-[1440 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-1440x900.png),
-[1920 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-1920x1080.png),
-[1920 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-1920x1080.png),
-[2560 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-2560x1440.png),
-[2560 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-2560x1440.png),
-[3840 before](images/issue-261-fe06-m1a6-data-curve-row-label/before/documentation/modeling-data-3840x2160.png),
-[3840 after](images/issue-261-fe06-m1a6-data-curve-row-label/after/documentation/modeling-data-3840x2160.png)이며,
+현재 guide 보존 원본도 1366 before,
+1366 after,
+1440 before,
+1440 after,
+1920 before,
+1920 after,
+2560 before,
+2560 after,
+3840 before,
+3840 after이며,
 각각 등록된 `docs/user-guide/images/current/modeling-data-*`와 encoder bytes가 동일하다.
 
 1366 상태의 read-only probe는 focus 가능한 Test Data result region, exact primary row와 graph를 확인하고,
@@ -1157,11 +1161,11 @@ Q-01/Q-02/Q-09는 not-applicable이다. 자동 3840×2160은 geometry 증거일 
 
 <summary>M1A6 exact originals and direct 100%-pixel crops</summary>
 
-- 1366x768: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1366x768.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1366x768.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-1366x768.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-1366x768.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1366x768-graph-100pct.png)
-- 1440x900: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1440x900.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1440x900.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-1440x900.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-1440x900.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1440x900-graph-100pct.png)
-- 1920x1080: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1920x1080.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1920x1080.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-1920x1080.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-1920x1080.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-1920x1080-graph-100pct.png)
-- 2560x1440: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-2560x1440.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-2560x1440.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-2560x1440.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-2560x1440.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-2560x1440-graph-100pct.png)
-- 3840x2160: [canonical before](images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-3840x2160.png), [canonical after](images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-3840x2160.png), [focus before](images/issue-261-fe06-m1a6-data-curve-row-label/before/originals/modeling-data-curve-row-label-3840x2160.png), [focus after](images/issue-261-fe06-m1a6-data-curve-row-label/after/originals/modeling-data-curve-row-label-3840x2160.png), [alias before](images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-3840x2160.png), [alias after](images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-3840x2160.png), [header before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-header-100pct.png), [navigator before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-navigator-100pct.png), [table before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-table-100pct.png), [table after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-table-100pct.png), [graph before](images/issue-261-fe06-m1a6-data-curve-row-label/before/crops/modeling-data-curve-row-label-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a6-data-curve-row-label/after/crops/modeling-data-curve-row-label-3840x2160-graph-100pct.png)
+- 1366x768: canonical before, canonical after, focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, table before, table after, graph before, graph after
+- 1440x900: canonical before, canonical after, focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, table before, table after, graph before, graph after
+- 1920x1080: canonical before, canonical after, focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, table before, table after, graph before, graph after
+- 2560x1440: canonical before, canonical after, focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, table before, table after, graph before, graph after
+- 3840x2160: canonical before, canonical after, focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, table before, table after, graph before, graph after
 
 </details>
 
@@ -1224,24 +1228,24 @@ rule count를 내리고, 이동한 literal `font-weight: 650` 한 건만 #261 �
 
 ### Live journey와 visual evidence
 
-[M1A7 manifest](images/issue-261-fe06-m1a7-data-mapping-heading/manifest.json)은 Standard, browser zoom 100%,
+M1A7 manifest은 Standard, browser zoom 100%,
 DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. normal Data/session과
 reload 흐름, primary와 `/datasets/processing` alias의 동일한 long invalid-mapping 상태, 적용 가능한
 header/navigator/mapping/target-heading/graph direct source-pixel crop을 캡처했다. 46개 before/after pair는
-[hash와 pixel 비교](images/issue-261-fe06-m1a7-data-mapping-heading/equivalence.json)에서 모두 byte/pixel
-identical이고 current guide normal 5개도 [동일 hash](images/issue-261-fe06-m1a7-data-mapping-heading/documentation-impact-equivalence.json)다.
+hash와 pixel 비교에서 모두 byte/pixel
+identical이고 current guide normal 5개도 동일 hash다.
 
-current guide 보존 원본은 [1366 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1366x768.png), [1366 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1366x768.png), [1440 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1440x900.png), [1440 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1440x900.png), [1920 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-1920x1080.png), [1920 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-1920x1080.png), [2560 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-2560x1440.png), [2560 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-2560x1440.png), [3840 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-3840x2160.png), [3840 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-3840x2160.png)다.
+current guide 보존 원본은 1366 before, 1366 after, 1440 before, 1440 after, 1920 before, 1920 after, 2560 before, 2560 after, 3840 before, 3840 after다.
 
-canonical 상태 증거는 [empty before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-empty-1440x900.png), [empty after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-empty-1440x900.png), [invalid before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-invalid-1440x900.png), [invalid after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-invalid-1440x900.png), [invalid scrolled before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-data-invalid-scrolled-1440x900.png), [invalid scrolled after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-data-invalid-scrolled-1440x900.png), [session 1366 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1366x768.png), [session 1366 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1366x768.png), [session 1440 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1440x900.png), [session 1440 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1440x900.png), [session 1920 before](images/issue-261-fe06-m1a7-data-mapping-heading/before/canonical/modeling-session-1920x1080.png), [session 1920 after](images/issue-261-fe06-m1a7-data-mapping-heading/after/canonical/modeling-session-1920x1080.png)다.
+canonical 상태 증거는 empty before, empty after, invalid before, invalid after, invalid scrolled before, invalid scrolled after, session 1366 before, session 1366 after, session 1440 before, session 1440 after, session 1920 before, session 1920 after다.
 
-- 1366×768: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-1366x768.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1366x768.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-1366x768.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-1366x768.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1366x768-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1366x768-graph-100pct.png)
-- 1440×900: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-1440x900.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1440x900.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-1440x900.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-1440x900.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1440x900-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1440x900-graph-100pct.png)
-- 1920×1080: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-1920x1080.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-1920x1080.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-1920x1080.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-1920x1080.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-1920x1080-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-1920x1080-graph-100pct.png)
-- 2560×1440: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-2560x1440.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-2560x1440.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-2560x1440.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-2560x1440.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-2560x1440-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-2560x1440-graph-100pct.png)
-- 3840×2160: [focus before](images/issue-261-fe06-m1a7-data-mapping-heading/before/originals/modeling-data-mapping-heading-3840x2160.png), [focus after](images/issue-261-fe06-m1a7-data-mapping-heading/after/originals/modeling-data-mapping-heading-3840x2160.png), [alias before](images/issue-261-fe06-m1a7-data-mapping-heading/before/routes/datasets-processing/modeling-data-mapping-heading-3840x2160.png), [alias after](images/issue-261-fe06-m1a7-data-mapping-heading/after/routes/datasets-processing/modeling-data-mapping-heading-3840x2160.png), [header before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png), [header after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-header-100pct.png), [navigator before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-navigator-100pct.png), [navigator after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-navigator-100pct.png), [mapping before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-mapping-100pct.png), [mapping after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-mapping-100pct.png), [heading before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-target-heading-100pct.png), [heading after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-target-heading-100pct.png), [graph before](images/issue-261-fe06-m1a7-data-mapping-heading/before/crops/modeling-data-mapping-heading-3840x2160-graph-100pct.png), [graph after](images/issue-261-fe06-m1a7-data-mapping-heading/after/crops/modeling-data-mapping-heading-3840x2160-graph-100pct.png)
+- 1366×768: focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, mapping before, mapping after, heading before, heading after, graph before, graph after
+- 1440×900: focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, mapping before, mapping after, heading before, heading after, graph before, graph after
+- 1920×1080: focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, mapping before, mapping after, heading before, heading after, graph before, graph after
+- 2560×1440: focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, mapping before, mapping after, heading before, heading after, graph before, graph after
+- 3840×2160: focus before, focus after, alias before, alias after, header before, header after, navigator before, navigator after, mapping before, mapping after, heading before, heading after, graph before, graph after
 
-[runtime identity](images/issue-261-fe06-m1a7-data-mapping-heading/runtime-identity.json)는 exact Test Data r1,
+runtime identity는 exact Test Data r1,
 Mapping Profile r1, selected exact refs 3개, invalid mapping의 blocked update/save, 마지막 유효 graph,
 keyboard-focus 가능한 local region과 Test Data results, Data→Process→Data, reload read-back을 확인한다.
 정보 계층과 engineering task flow는 유지되고, navigator는 readable bound를 지키며 wide 화면의 유효 공간은
@@ -1290,73 +1294,73 @@ checker는 structural delta `4/4/4/0`, exact legacy residual 0, 남은 M1A 150�
 
 ### Live journey와 visual evidence
 
-[M1A8 manifest](images/issue-261-fe06-m1a8-data-optional-channel/manifest.json)은 Standard, browser zoom 100%,
+M1A8 manifest은 Standard, browser zoom 100%,
 DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. normal Data/session과
 reload, primary/alias의 동일한 deterministic `m1a8-dma.csv` optional-channel 상태, header/navigator/
 mapping/target optional-channel/graph direct source-pixel crop을 캡처했다. 46개 before/after pair는
-[hash와 pixel 비교](images/issue-261-fe06-m1a8-data-optional-channel/equivalence.json)에서 모두 byte/pixel
+hash와 pixel 비교에서 모두 byte/pixel
 identical이고 current guide normal 5개도
-[동일 hash](images/issue-261-fe06-m1a8-data-optional-channel/documentation-impact-equivalence.json)다.
+동일 hash다.
 
-- 1366×768: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1366x768.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png)
-- 1440×900: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1440x900.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png)
-- 1920×1080: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1920x1080.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png)
-- 2560×1440: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-2560x1440.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png)
-- 3840×2160: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-3840x2160.png) / [target crop](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png)
+- 1366×768: before / after / target crop
+- 1440×900: before / after / target crop
+- 1920×1080: before / after / target crop
+- 2560×1440: before / after / target crop
+- 3840×2160: before / after / target crop
 
 <details>
 <summary>M1A8 46개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-3840x2160.png)
-- canonical/modeling-data-empty-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-empty-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-empty-1440x900.png)
-- canonical/modeling-data-invalid-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-invalid-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-invalid-1440x900.png)
-- canonical/modeling-data-invalid-scrolled-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-data-invalid-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-data-invalid-scrolled-1440x900.png)
-- canonical/modeling-session-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1366x768.png)
-- canonical/modeling-session-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1440x900.png)
-- canonical/modeling-session-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/canonical/modeling-session-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/canonical/modeling-session-1920x1080.png)
-- crops/modeling-data-optional-channel-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-graph-100pct.png)
-- crops/modeling-data-optional-channel-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-header-100pct.png)
-- crops/modeling-data-optional-channel-1366x768-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-mapping-100pct.png)
-- crops/modeling-data-optional-channel-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-navigator-100pct.png)
-- crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png)
-- crops/modeling-data-optional-channel-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-graph-100pct.png)
-- crops/modeling-data-optional-channel-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-header-100pct.png)
-- crops/modeling-data-optional-channel-1440x900-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-mapping-100pct.png)
-- crops/modeling-data-optional-channel-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-navigator-100pct.png)
-- crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png)
-- crops/modeling-data-optional-channel-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-graph-100pct.png)
-- crops/modeling-data-optional-channel-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-header-100pct.png)
-- crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png)
-- crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png)
-- crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png)
-- crops/modeling-data-optional-channel-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-graph-100pct.png)
-- crops/modeling-data-optional-channel-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-header-100pct.png)
-- crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png)
-- crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png)
-- crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png)
-- crops/modeling-data-optional-channel-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-graph-100pct.png)
-- crops/modeling-data-optional-channel-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-header-100pct.png)
-- crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png)
-- crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png)
-- crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png)
-- originals/modeling-data-optional-channel-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1366x768.png)
-- originals/modeling-data-optional-channel-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1440x900.png)
-- originals/modeling-data-optional-channel-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-1920x1080.png)
-- originals/modeling-data-optional-channel-2560x1440.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-2560x1440.png)
-- originals/modeling-data-optional-channel-3840x2160.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/originals/modeling-data-optional-channel-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/originals/modeling-data-optional-channel-3840x2160.png)
-- routes/datasets-processing/modeling-data-optional-channel-1366x768.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-1366x768.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-1366x768.png)
-- routes/datasets-processing/modeling-data-optional-channel-1440x900.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-1440x900.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-1440x900.png)
-- routes/datasets-processing/modeling-data-optional-channel-1920x1080.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-1920x1080.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-1920x1080.png)
-- routes/datasets-processing/modeling-data-optional-channel-2560x1440.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-2560x1440.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-2560x1440.png)
-- routes/datasets-processing/modeling-data-optional-channel-3840x2160.png: [before](images/issue-261-fe06-m1a8-data-optional-channel/before/routes/datasets-processing/modeling-data-optional-channel-3840x2160.png) / [after](images/issue-261-fe06-m1a8-data-optional-channel/after/routes/datasets-processing/modeling-data-optional-channel-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- canonical/modeling-data-empty-1440x900.png: before / after
+- canonical/modeling-data-invalid-1440x900.png: before / after
+- canonical/modeling-data-invalid-scrolled-1440x900.png: before / after
+- canonical/modeling-session-1366x768.png: before / after
+- canonical/modeling-session-1440x900.png: before / after
+- canonical/modeling-session-1920x1080.png: before / after
+- crops/modeling-data-optional-channel-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-optional-channel-1366x768-header-100pct.png: before / after
+- crops/modeling-data-optional-channel-1366x768-mapping-100pct.png: before / after
+- crops/modeling-data-optional-channel-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-optional-channel-1366x768-target-optional-channel-100pct.png: before / after
+- crops/modeling-data-optional-channel-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-optional-channel-1440x900-header-100pct.png: before / after
+- crops/modeling-data-optional-channel-1440x900-mapping-100pct.png: before / after
+- crops/modeling-data-optional-channel-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-optional-channel-1440x900-target-optional-channel-100pct.png: before / after
+- crops/modeling-data-optional-channel-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-optional-channel-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-optional-channel-1920x1080-mapping-100pct.png: before / after
+- crops/modeling-data-optional-channel-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-optional-channel-1920x1080-target-optional-channel-100pct.png: before / after
+- crops/modeling-data-optional-channel-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-optional-channel-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-optional-channel-2560x1440-mapping-100pct.png: before / after
+- crops/modeling-data-optional-channel-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-optional-channel-2560x1440-target-optional-channel-100pct.png: before / after
+- crops/modeling-data-optional-channel-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-optional-channel-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-optional-channel-3840x2160-mapping-100pct.png: before / after
+- crops/modeling-data-optional-channel-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-optional-channel-3840x2160-target-optional-channel-100pct.png: before / after
+- originals/modeling-data-optional-channel-1366x768.png: before / after
+- originals/modeling-data-optional-channel-1440x900.png: before / after
+- originals/modeling-data-optional-channel-1920x1080.png: before / after
+- originals/modeling-data-optional-channel-2560x1440.png: before / after
+- originals/modeling-data-optional-channel-3840x2160.png: before / after
+- routes/datasets-processing/modeling-data-optional-channel-1366x768.png: before / after
+- routes/datasets-processing/modeling-data-optional-channel-1440x900.png: before / after
+- routes/datasets-processing/modeling-data-optional-channel-1920x1080.png: before / after
+- routes/datasets-processing/modeling-data-optional-channel-2560x1440.png: before / after
+- routes/datasets-processing/modeling-data-optional-channel-3840x2160.png: before / after
 
 </details>
 
-[runtime identity](images/issue-261-fe06-m1a8-data-optional-channel/runtime-identity.json)는 exact Material/State/
+runtime identity는 exact Material/State/
 Test Data r1, optional checkbox check/uncheck와 focus, 1 graph line/legend, Data→Process→Data 및 reload read-back을
 확인한다. 모든 viewport에서 target은 local `scrollTop=0`일 때 완전히 보이고 page horizontal overflow는
 없다. 1366의 이후 mapping row가 사용하는 `overflow-y:auto`는 기존 의도된 local scroll이며 target
@@ -1419,19 +1423,19 @@ count를 낮추고, 부분 축소된 다섯 legacy group과 이동한 literal `f
 
 ### Live journey와 visual evidence
 
-[M1A9 manifest](images/issue-261-fe06-m1a9-data-mapping-table/manifest.json)은 Standard, browser zoom 100%,
+M1A9 manifest은 Standard, browser zoom 100%,
 DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. normal Data/session과
 reload, primary/alias의 동일한 deterministic `m1a9-long-columns.csv` 상태, header/navigator/mapping/
 table/graph direct source-pixel crop을 캡처했다. 46개 before/after pair는
-[hash와 pixel 비교](images/issue-261-fe06-m1a9-data-mapping-table/equivalence.json)에서 모두 byte/pixel
+hash와 pixel 비교에서 모두 byte/pixel
 identical이고 current guide normal 5개도
-[동일 hash](images/issue-261-fe06-m1a9-data-mapping-table/documentation-impact-equivalence.json)다.
+동일 hash다.
 
-- 1366×768: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-1366x768.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1366x768.png) / [table crop](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-table-100pct.png)
-- 1440×900: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1440x900.png) / [table crop](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-table-100pct.png)
-- 1920×1080: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-1920x1080.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1920x1080.png) / [table crop](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-table-100pct.png)
-- 2560×1440: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-2560x1440.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-2560x1440.png) / [table crop](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-table-100pct.png)
-- 3840×2160: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-3840x2160.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-3840x2160.png) / [table crop](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-table-100pct.png)
+- 1366×768: before / after / table crop
+- 1440×900: before / after / table crop
+- 1920×1080: before / after / table crop
+- 2560×1440: before / after / table crop
+- 3840×2160: before / after / table crop
 
 필수 다섯 viewport에서 table은 `overflow:auto` 정책을 유지하면서 client/scroll width가 각각
 1,262/1,262, 1,336/1,336, 1,816/1,816, 2,456/2,456, 3,736/3,736 px로 같아 실제 table 또는 page
@@ -1443,52 +1447,52 @@ Engineering stress focus outline, MPa→Pa unit mapping, Save details와 exact S
 <details>
 <summary>M1A9 46개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-3840x2160.png)
-- canonical/modeling-data-empty-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-empty-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-empty-1440x900.png)
-- canonical/modeling-data-invalid-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-invalid-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-invalid-1440x900.png)
-- canonical/modeling-data-invalid-scrolled-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-data-invalid-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-data-invalid-scrolled-1440x900.png)
-- canonical/modeling-session-1366x768.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-session-1366x768.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-session-1366x768.png)
-- canonical/modeling-session-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-session-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-session-1440x900.png)
-- canonical/modeling-session-1920x1080.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/canonical/modeling-session-1920x1080.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/canonical/modeling-session-1920x1080.png)
-- crops/modeling-data-mapping-table-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-graph-100pct.png)
-- crops/modeling-data-mapping-table-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-header-100pct.png)
-- crops/modeling-data-mapping-table-1366x768-mapping-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-mapping-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-mapping-100pct.png)
-- crops/modeling-data-mapping-table-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-navigator-100pct.png)
-- crops/modeling-data-mapping-table-1366x768-table-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1366x768-table-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1366x768-table-100pct.png)
-- crops/modeling-data-mapping-table-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-graph-100pct.png)
-- crops/modeling-data-mapping-table-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-header-100pct.png)
-- crops/modeling-data-mapping-table-1440x900-mapping-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-mapping-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-mapping-100pct.png)
-- crops/modeling-data-mapping-table-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-navigator-100pct.png)
-- crops/modeling-data-mapping-table-1440x900-table-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1440x900-table-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1440x900-table-100pct.png)
-- crops/modeling-data-mapping-table-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-graph-100pct.png)
-- crops/modeling-data-mapping-table-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-header-100pct.png)
-- crops/modeling-data-mapping-table-1920x1080-mapping-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-mapping-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-mapping-100pct.png)
-- crops/modeling-data-mapping-table-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-navigator-100pct.png)
-- crops/modeling-data-mapping-table-1920x1080-table-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-1920x1080-table-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-1920x1080-table-100pct.png)
-- crops/modeling-data-mapping-table-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-graph-100pct.png)
-- crops/modeling-data-mapping-table-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-header-100pct.png)
-- crops/modeling-data-mapping-table-2560x1440-mapping-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-mapping-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-mapping-100pct.png)
-- crops/modeling-data-mapping-table-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-navigator-100pct.png)
-- crops/modeling-data-mapping-table-2560x1440-table-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-2560x1440-table-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-2560x1440-table-100pct.png)
-- crops/modeling-data-mapping-table-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-graph-100pct.png)
-- crops/modeling-data-mapping-table-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-header-100pct.png)
-- crops/modeling-data-mapping-table-3840x2160-mapping-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-mapping-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-mapping-100pct.png)
-- crops/modeling-data-mapping-table-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-navigator-100pct.png)
-- crops/modeling-data-mapping-table-3840x2160-table-100pct.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/crops/modeling-data-mapping-table-3840x2160-table-100pct.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/crops/modeling-data-mapping-table-3840x2160-table-100pct.png)
-- originals/modeling-data-mapping-table-1366x768.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-1366x768.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1366x768.png)
-- originals/modeling-data-mapping-table-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1440x900.png)
-- originals/modeling-data-mapping-table-1920x1080.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-1920x1080.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-1920x1080.png)
-- originals/modeling-data-mapping-table-2560x1440.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-2560x1440.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-2560x1440.png)
-- originals/modeling-data-mapping-table-3840x2160.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/originals/modeling-data-mapping-table-3840x2160.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/originals/modeling-data-mapping-table-3840x2160.png)
-- routes/datasets-processing/modeling-data-mapping-table-1366x768.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/routes/datasets-processing/modeling-data-mapping-table-1366x768.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/routes/datasets-processing/modeling-data-mapping-table-1366x768.png)
-- routes/datasets-processing/modeling-data-mapping-table-1440x900.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/routes/datasets-processing/modeling-data-mapping-table-1440x900.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/routes/datasets-processing/modeling-data-mapping-table-1440x900.png)
-- routes/datasets-processing/modeling-data-mapping-table-1920x1080.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/routes/datasets-processing/modeling-data-mapping-table-1920x1080.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/routes/datasets-processing/modeling-data-mapping-table-1920x1080.png)
-- routes/datasets-processing/modeling-data-mapping-table-2560x1440.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/routes/datasets-processing/modeling-data-mapping-table-2560x1440.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/routes/datasets-processing/modeling-data-mapping-table-2560x1440.png)
-- routes/datasets-processing/modeling-data-mapping-table-3840x2160.png: [before](images/issue-261-fe06-m1a9-data-mapping-table/before/routes/datasets-processing/modeling-data-mapping-table-3840x2160.png) / [after](images/issue-261-fe06-m1a9-data-mapping-table/after/routes/datasets-processing/modeling-data-mapping-table-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- canonical/modeling-data-empty-1440x900.png: before / after
+- canonical/modeling-data-invalid-1440x900.png: before / after
+- canonical/modeling-data-invalid-scrolled-1440x900.png: before / after
+- canonical/modeling-session-1366x768.png: before / after
+- canonical/modeling-session-1440x900.png: before / after
+- canonical/modeling-session-1920x1080.png: before / after
+- crops/modeling-data-mapping-table-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-mapping-table-1366x768-header-100pct.png: before / after
+- crops/modeling-data-mapping-table-1366x768-mapping-100pct.png: before / after
+- crops/modeling-data-mapping-table-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-table-1366x768-table-100pct.png: before / after
+- crops/modeling-data-mapping-table-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-mapping-table-1440x900-header-100pct.png: before / after
+- crops/modeling-data-mapping-table-1440x900-mapping-100pct.png: before / after
+- crops/modeling-data-mapping-table-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-table-1440x900-table-100pct.png: before / after
+- crops/modeling-data-mapping-table-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-mapping-table-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-mapping-table-1920x1080-mapping-100pct.png: before / after
+- crops/modeling-data-mapping-table-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-table-1920x1080-table-100pct.png: before / after
+- crops/modeling-data-mapping-table-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-mapping-table-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-mapping-table-2560x1440-mapping-100pct.png: before / after
+- crops/modeling-data-mapping-table-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-table-2560x1440-table-100pct.png: before / after
+- crops/modeling-data-mapping-table-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-mapping-table-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-mapping-table-3840x2160-mapping-100pct.png: before / after
+- crops/modeling-data-mapping-table-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-table-3840x2160-table-100pct.png: before / after
+- originals/modeling-data-mapping-table-1366x768.png: before / after
+- originals/modeling-data-mapping-table-1440x900.png: before / after
+- originals/modeling-data-mapping-table-1920x1080.png: before / after
+- originals/modeling-data-mapping-table-2560x1440.png: before / after
+- originals/modeling-data-mapping-table-3840x2160.png: before / after
+- routes/datasets-processing/modeling-data-mapping-table-1366x768.png: before / after
+- routes/datasets-processing/modeling-data-mapping-table-1440x900.png: before / after
+- routes/datasets-processing/modeling-data-mapping-table-1920x1080.png: before / after
+- routes/datasets-processing/modeling-data-mapping-table-2560x1440.png: before / after
+- routes/datasets-processing/modeling-data-mapping-table-3840x2160.png: before / after
 
 </details>
 
@@ -1543,24 +1547,24 @@ count를 낮추고, 이동으로 줄 번호만 달라진 latest-main #298 baseli
 
 ### Live journey와 visual evidence
 
-[M1A10 manifest](images/issue-261-fe06-m1a10-data-split-frame/manifest.json)은 Standard, browser zoom
+M1A10 manifest은 Standard, browser zoom
 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. 시작 commit의
 exact archive baseline과 candidate가 같은 API proxy, route, deterministic `m1a10-split-frame.csv` 입력과
 최종 viewport 크기를 사용했다. primary `/modeling`과 alias `/datasets/processing`에서 exact Test record
 `Tensile test 0001`, graph `DP780 · Tensile test 0001`, divider keyboard focus/ArrowUp resize,
 Data→Process→Data, reload 복구를 확인했다. 등록된 current normal 5쌍과 버리지 않고 별도 state로 보존한
 fresh live normal 5쌍을 포함한 46개 before/after pair는
-[hash와 pixel 비교](images/issue-261-fe06-m1a10-data-split-frame/equivalence.json)에서 모두 byte/pixel
-identical이고 [runtime geometry](images/issue-261-fe06-m1a10-data-split-frame/runtime-identity.json)도 같다.
+hash와 pixel 비교에서 모두 byte/pixel
+identical이고 runtime geometry도 같다.
 current guide PNG는 바꾸지 않았고 canonical normal 5쌍이 모두 그 등록 원본과 같다는 사실을
-[documentation impact](images/issue-261-fe06-m1a10-data-split-frame/documentation-impact-equivalence.json)에
+documentation impact에
 그대로 기록했다.
 
-- 1366×768: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1366x768.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-graph-100pct.png)
-- 1440×900: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1440x900.png) / [local scroll](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-local-scroll-1440x900.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-graph-100pct.png)
-- 1920×1080: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1920x1080.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-graph-100pct.png)
-- 2560×1440: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-2560x1440.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-graph-100pct.png)
-- 3840×2160: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-3840x2160.png) / [controls](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-controls-100pct.png) / [divider](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-divider-100pct.png) / [graph](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-graph-100pct.png)
+- 1366×768: before / after / controls / divider / graph
+- 1440×900: before / after / local scroll / divider / graph
+- 1920×1080: before / after / controls / divider / graph
+- 2560×1440: before / after / controls / divider / graph
+- 3840×2160: before / after / controls / divider / graph
 
 각 viewport의 header/navigator/controls/divider/graph direct 100%-pixel crop과 primary/alias original은
 manifest 및 equivalence의 46개 exact path로 닫힌다. 측정 대상 ribbon은 `scrollTop=0`이며 focused
@@ -1571,52 +1575,52 @@ original 상단의 일부 문맥이 잘려 보이는 상태는 M1A7에서 owner�
 <details>
 <summary>M1A10 46개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-split-frame-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-controls-100pct.png)
-- crops/modeling-data-split-frame-1366x768-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-divider-100pct.png)
-- crops/modeling-data-split-frame-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-graph-100pct.png)
-- crops/modeling-data-split-frame-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-header-100pct.png)
-- crops/modeling-data-split-frame-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1366x768-navigator-100pct.png)
-- crops/modeling-data-split-frame-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-controls-100pct.png)
-- crops/modeling-data-split-frame-1440x900-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-divider-100pct.png)
-- crops/modeling-data-split-frame-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-graph-100pct.png)
-- crops/modeling-data-split-frame-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-header-100pct.png)
-- crops/modeling-data-split-frame-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1440x900-navigator-100pct.png)
-- crops/modeling-data-split-frame-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-controls-100pct.png)
-- crops/modeling-data-split-frame-1920x1080-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-divider-100pct.png)
-- crops/modeling-data-split-frame-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-graph-100pct.png)
-- crops/modeling-data-split-frame-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-header-100pct.png)
-- crops/modeling-data-split-frame-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-1920x1080-navigator-100pct.png)
-- crops/modeling-data-split-frame-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-controls-100pct.png)
-- crops/modeling-data-split-frame-2560x1440-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-divider-100pct.png)
-- crops/modeling-data-split-frame-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-graph-100pct.png)
-- crops/modeling-data-split-frame-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-header-100pct.png)
-- crops/modeling-data-split-frame-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-2560x1440-navigator-100pct.png)
-- crops/modeling-data-split-frame-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-controls-100pct.png)
-- crops/modeling-data-split-frame-3840x2160-divider-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-divider-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-divider-100pct.png)
-- crops/modeling-data-split-frame-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-graph-100pct.png)
-- crops/modeling-data-split-frame-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-header-100pct.png)
-- crops/modeling-data-split-frame-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/crops/modeling-data-split-frame-3840x2160-navigator-100pct.png)
-- originals/modeling-data-split-frame-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1366x768.png)
-- originals/modeling-data-split-frame-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1440x900.png)
-- originals/modeling-data-split-frame-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-1920x1080.png)
-- originals/modeling-data-split-frame-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-2560x1440.png)
-- originals/modeling-data-split-frame-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/originals/modeling-data-split-frame-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/originals/modeling-data-split-frame-3840x2160.png)
-- routes/datasets-processing/modeling-data-split-frame-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-1366x768.png)
-- routes/datasets-processing/modeling-data-split-frame-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-1440x900.png)
-- routes/datasets-processing/modeling-data-split-frame-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-1920x1080.png)
-- routes/datasets-processing/modeling-data-split-frame-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-2560x1440.png)
-- routes/datasets-processing/modeling-data-split-frame-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/routes/datasets-processing/modeling-data-split-frame-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/routes/datasets-processing/modeling-data-split-frame-3840x2160.png)
-- states/modeling-data-split-frame-live-normal-1366x768.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-1366x768.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-1366x768.png)
-- states/modeling-data-split-frame-live-normal-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-1440x900.png)
-- states/modeling-data-split-frame-live-normal-1920x1080.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-1920x1080.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-1920x1080.png)
-- states/modeling-data-split-frame-live-normal-2560x1440.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-2560x1440.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-2560x1440.png)
-- states/modeling-data-split-frame-live-normal-3840x2160.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-live-normal-3840x2160.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-live-normal-3840x2160.png)
-- states/modeling-data-split-frame-local-scroll-1440x900.png: [before](images/issue-261-fe06-m1a10-data-split-frame/before/states/modeling-data-split-frame-local-scroll-1440x900.png) / [after](images/issue-261-fe06-m1a10-data-split-frame/after/states/modeling-data-split-frame-local-scroll-1440x900.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-split-frame-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-split-frame-1366x768-divider-100pct.png: before / after
+- crops/modeling-data-split-frame-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-split-frame-1366x768-header-100pct.png: before / after
+- crops/modeling-data-split-frame-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-split-frame-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-split-frame-1440x900-divider-100pct.png: before / after
+- crops/modeling-data-split-frame-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-split-frame-1440x900-header-100pct.png: before / after
+- crops/modeling-data-split-frame-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-split-frame-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-split-frame-1920x1080-divider-100pct.png: before / after
+- crops/modeling-data-split-frame-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-split-frame-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-split-frame-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-split-frame-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-split-frame-2560x1440-divider-100pct.png: before / after
+- crops/modeling-data-split-frame-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-split-frame-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-split-frame-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-split-frame-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-split-frame-3840x2160-divider-100pct.png: before / after
+- crops/modeling-data-split-frame-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-split-frame-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-split-frame-3840x2160-navigator-100pct.png: before / after
+- originals/modeling-data-split-frame-1366x768.png: before / after
+- originals/modeling-data-split-frame-1440x900.png: before / after
+- originals/modeling-data-split-frame-1920x1080.png: before / after
+- originals/modeling-data-split-frame-2560x1440.png: before / after
+- originals/modeling-data-split-frame-3840x2160.png: before / after
+- routes/datasets-processing/modeling-data-split-frame-1366x768.png: before / after
+- routes/datasets-processing/modeling-data-split-frame-1440x900.png: before / after
+- routes/datasets-processing/modeling-data-split-frame-1920x1080.png: before / after
+- routes/datasets-processing/modeling-data-split-frame-2560x1440.png: before / after
+- routes/datasets-processing/modeling-data-split-frame-3840x2160.png: before / after
+- states/modeling-data-split-frame-live-normal-1366x768.png: before / after
+- states/modeling-data-split-frame-live-normal-1440x900.png: before / after
+- states/modeling-data-split-frame-live-normal-1920x1080.png: before / after
+- states/modeling-data-split-frame-live-normal-2560x1440.png: before / after
+- states/modeling-data-split-frame-live-normal-3840x2160.png: before / after
+- states/modeling-data-split-frame-local-scroll-1440x900.png: before / after
 
 </details>
 ### 보존 판정과 실행 gate
@@ -1663,21 +1667,21 @@ count를 낮추고, 기존 #298 baseline과 #261 예외 의미를 바꾸지 않�
 
 ### Live journey와 visual evidence
 
-[M1A11 manifest](images/issue-261-fe06-m1a11-data-file-details/manifest.json)은 Standard, browser zoom
+M1A11 manifest은 Standard, browser zoom
 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. 정확한 M1A10
 시작 commit archive와 candidate가 같은 API, `/modeling` 및 `/datasets/processing`, deterministic
 `m1a11-file-details.csv` 입력을 사용했다. normal Data, File details 접힘/keyboard focus, 펼침/raw table,
 intentional local scroll, exact Test record, graph, Data→Process→Data와 reload를 확인했다.
-[hash와 pixel 비교](images/issue-261-fe06-m1a11-data-file-details/equivalence.json)는 46/46 pair가
-byte/pixel identical이고, [runtime identity](images/issue-261-fe06-m1a11-data-file-details/runtime-identity.json)는
+hash와 pixel 비교는 46/46 pair가
+byte/pixel identical이고, runtime identity는
 다섯 viewport의 geometry와 상태가 같음을 기록한다. current guide normal 5개도
-[동일 hash](images/issue-261-fe06-m1a11-data-file-details/documentation-impact-equivalence.json)다.
+동일 hash다.
 
-- 1366×768: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1366x768.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-graph-100pct.png)
-- 1440×900: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1440x900.png) / [start context](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-start-context-1440x900.png) / [expanded](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1440x900.png)
-- 1920×1080: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1920x1080.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-graph-100pct.png)
-- 2560×1440: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-2560x1440.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-graph-100pct.png)
-- 3840×2160: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-3840x2160.png) / [details](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-details-100pct.png) / [graph](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-graph-100pct.png)
+- 1366×768: before / after / details / graph
+- 1440×900: before / after / start context / expanded
+- 1920×1080: before / after / details / graph
+- 2560×1440: before / after / details / graph
+- 3840×2160: before / after / details / graph
 
 File details는 모든 viewport에서 처음에는 34 px 높이로 접혀 있고 펼치면 raw table과 exact evidence가
 보인다. 1366에서는 펼친 details가 local Data scrollport 안에서 위쪽으로 일부 지나가지만 page clipping이
@@ -1688,52 +1692,52 @@ error는 0이고 선택한 `Tensile test 0001`, 저장 graph `CMP-DEMO-DP780-TES
 <details>
 <summary>M1A11 46개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-file-details-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-controls-100pct.png)
-- crops/modeling-data-file-details-1366x768-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-details-100pct.png)
-- crops/modeling-data-file-details-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-graph-100pct.png)
-- crops/modeling-data-file-details-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-header-100pct.png)
-- crops/modeling-data-file-details-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1366x768-navigator-100pct.png)
-- crops/modeling-data-file-details-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-controls-100pct.png)
-- crops/modeling-data-file-details-1440x900-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-details-100pct.png)
-- crops/modeling-data-file-details-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-graph-100pct.png)
-- crops/modeling-data-file-details-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-header-100pct.png)
-- crops/modeling-data-file-details-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1440x900-navigator-100pct.png)
-- crops/modeling-data-file-details-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-controls-100pct.png)
-- crops/modeling-data-file-details-1920x1080-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-details-100pct.png)
-- crops/modeling-data-file-details-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-graph-100pct.png)
-- crops/modeling-data-file-details-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-header-100pct.png)
-- crops/modeling-data-file-details-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-1920x1080-navigator-100pct.png)
-- crops/modeling-data-file-details-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-controls-100pct.png)
-- crops/modeling-data-file-details-2560x1440-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-details-100pct.png)
-- crops/modeling-data-file-details-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-graph-100pct.png)
-- crops/modeling-data-file-details-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-header-100pct.png)
-- crops/modeling-data-file-details-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-2560x1440-navigator-100pct.png)
-- crops/modeling-data-file-details-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-controls-100pct.png)
-- crops/modeling-data-file-details-3840x2160-details-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-details-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-details-100pct.png)
-- crops/modeling-data-file-details-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-graph-100pct.png)
-- crops/modeling-data-file-details-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-header-100pct.png)
-- crops/modeling-data-file-details-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/crops/modeling-data-file-details-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/crops/modeling-data-file-details-3840x2160-navigator-100pct.png)
-- originals/modeling-data-file-details-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1366x768.png)
-- originals/modeling-data-file-details-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1440x900.png)
-- originals/modeling-data-file-details-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-1920x1080.png)
-- originals/modeling-data-file-details-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-2560x1440.png)
-- originals/modeling-data-file-details-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/originals/modeling-data-file-details-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/originals/modeling-data-file-details-3840x2160.png)
-- routes/datasets-processing/modeling-data-file-details-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-1366x768.png)
-- routes/datasets-processing/modeling-data-file-details-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-1440x900.png)
-- routes/datasets-processing/modeling-data-file-details-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-1920x1080.png)
-- routes/datasets-processing/modeling-data-file-details-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-2560x1440.png)
-- routes/datasets-processing/modeling-data-file-details-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/routes/datasets-processing/modeling-data-file-details-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/routes/datasets-processing/modeling-data-file-details-3840x2160.png)
-- states/modeling-data-file-details-open-1366x768.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-1366x768.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1366x768.png)
-- states/modeling-data-file-details-open-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1440x900.png)
-- states/modeling-data-file-details-open-1920x1080.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-1920x1080.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-1920x1080.png)
-- states/modeling-data-file-details-open-2560x1440.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-2560x1440.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-2560x1440.png)
-- states/modeling-data-file-details-open-3840x2160.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-open-3840x2160.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-open-3840x2160.png)
-- states/modeling-data-file-details-start-context-1440x900.png: [before](images/issue-261-fe06-m1a11-data-file-details/before/states/modeling-data-file-details-start-context-1440x900.png) / [after](images/issue-261-fe06-m1a11-data-file-details/after/states/modeling-data-file-details-start-context-1440x900.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-file-details-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-file-details-1366x768-details-100pct.png: before / after
+- crops/modeling-data-file-details-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-file-details-1366x768-header-100pct.png: before / after
+- crops/modeling-data-file-details-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-file-details-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-file-details-1440x900-details-100pct.png: before / after
+- crops/modeling-data-file-details-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-file-details-1440x900-header-100pct.png: before / after
+- crops/modeling-data-file-details-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-file-details-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-file-details-1920x1080-details-100pct.png: before / after
+- crops/modeling-data-file-details-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-file-details-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-file-details-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-file-details-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-file-details-2560x1440-details-100pct.png: before / after
+- crops/modeling-data-file-details-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-file-details-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-file-details-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-file-details-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-file-details-3840x2160-details-100pct.png: before / after
+- crops/modeling-data-file-details-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-file-details-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-file-details-3840x2160-navigator-100pct.png: before / after
+- originals/modeling-data-file-details-1366x768.png: before / after
+- originals/modeling-data-file-details-1440x900.png: before / after
+- originals/modeling-data-file-details-1920x1080.png: before / after
+- originals/modeling-data-file-details-2560x1440.png: before / after
+- originals/modeling-data-file-details-3840x2160.png: before / after
+- routes/datasets-processing/modeling-data-file-details-1366x768.png: before / after
+- routes/datasets-processing/modeling-data-file-details-1440x900.png: before / after
+- routes/datasets-processing/modeling-data-file-details-1920x1080.png: before / after
+- routes/datasets-processing/modeling-data-file-details-2560x1440.png: before / after
+- routes/datasets-processing/modeling-data-file-details-3840x2160.png: before / after
+- states/modeling-data-file-details-open-1366x768.png: before / after
+- states/modeling-data-file-details-open-1440x900.png: before / after
+- states/modeling-data-file-details-open-1920x1080.png: before / after
+- states/modeling-data-file-details-open-2560x1440.png: before / after
+- states/modeling-data-file-details-open-3840x2160.png: before / after
+- states/modeling-data-file-details-start-context-1440x900.png: before / after
 
 </details>
 ### 보존 판정과 실행 gate
@@ -1788,23 +1792,23 @@ count를 낮추고, 기존 #298 baseline과 #261 예외 의미를 바꾸지 않�
 
 ### Live journey와 visual evidence
 
-[M1A12 manifest](images/issue-261-fe06-m1a12-data-mapping-change-actions/manifest.json)은 Standard,
+M1A12 manifest은 Standard,
 browser zoom 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을
 기록한다. exact M1A11 시작 commit `7a836e9129c06d86314bf3219fa1d063f6293946` archive와 candidate는
 같은 API, `/modeling`, `/datasets/processing` 및 156-byte `m1a11-file-details.csv` 입력(SHA-256
 `37bf7bbfd01ac61fdd83ef6cbbf3801f7d5552f2c83c3682fcd4b03660eb5fc5`)을 사용했다. 변경 사유의
 keyboard focus, reason 전 preview 차단, preview 전 저장 차단, exact `Tensile test 0001`, saved graph
 `CMP-DEMO-DP780-TEST-JSON`, Data→Process→Data와 reload 복구를 확인했다.
-[hash와 pixel 비교](images/issue-261-fe06-m1a12-data-mapping-change-actions/equivalence.json)는 46/46
-pair가 byte/pixel identical이고, [runtime identity](images/issue-261-fe06-m1a12-data-mapping-change-actions/runtime-identity.json)는
+hash와 pixel 비교는 46/46
+pair가 byte/pixel identical이고, runtime identity는
 다섯 viewport의 geometry와 상태가 같음을 기록한다. fresh normal pair 확인 뒤 재사용한 current-guide normal
-5개도 [동일 hash](images/issue-261-fe06-m1a12-data-mapping-change-actions/documentation-impact-equivalence.json)다.
+5개도 동일 hash다.
 
-- 1366×768: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1366x768.png) / [actions](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png)
-- 1440×900: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1440x900.png) / [focus](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1440x900.png) / [start context](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-start-context-1440x900.png)
-- 1920×1080: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1920x1080.png) / [controls](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png)
-- 2560×1440: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-2560x1440.png) / [focus](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png)
-- 3840×2160: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-3840x2160.png) / [focus](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png) / [graph](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png)
+- 1366×768: before / after / actions / graph
+- 1440×900: before / after / focus / start context
+- 1920×1080: before / after / controls / graph
+- 2560×1440: before / after / focus / graph
+- 3840×2160: before / after / focus / graph
 
 모든 viewport에서 page 가로 overflow와 console error는 0이고, reason input의 focus ring과 두 action이
 보인다. 1366의 얕은 graph와 1440 starting-context에서 action 일부가 divider 아래로 지나간 모습은 기존
@@ -1815,52 +1819,52 @@ action 전체가 보이며 before/after scroll geometry와 pixel이 같다. 새 
 <details>
 <summary>M1A12 46개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png)
-- crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png)
-- crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png)
-- crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png)
-- crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png)
-- crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png)
-- crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png)
-- crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png)
-- crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png)
-- crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png)
-- crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png)
-- crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png)
-- crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png)
-- crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png)
-- crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png)
-- crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png)
-- crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png)
-- crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png)
-- crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png)
-- crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png)
-- crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png)
-- crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png)
-- crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png)
-- crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png)
-- crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png)
-- originals/modeling-data-mapping-change-actions-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1366x768.png)
-- originals/modeling-data-mapping-change-actions-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1440x900.png)
-- originals/modeling-data-mapping-change-actions-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-1920x1080.png)
-- originals/modeling-data-mapping-change-actions-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-2560x1440.png)
-- originals/modeling-data-mapping-change-actions-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/originals/modeling-data-mapping-change-actions-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/originals/modeling-data-mapping-change-actions-3840x2160.png)
-- routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png)
-- routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png)
-- routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png)
-- routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png)
-- routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png)
-- states/modeling-data-mapping-change-actions-reason-focus-1366x768.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-1366x768.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1366x768.png)
-- states/modeling-data-mapping-change-actions-reason-focus-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1440x900.png)
-- states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png)
-- states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png)
-- states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png)
-- states/modeling-data-mapping-change-actions-start-context-1440x900.png: [before](images/issue-261-fe06-m1a12-data-mapping-change-actions/before/states/modeling-data-mapping-change-actions-start-context-1440x900.png) / [after](images/issue-261-fe06-m1a12-data-mapping-change-actions/after/states/modeling-data-mapping-change-actions-start-context-1440x900.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-mapping-change-actions-1366x768-actions-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1366x768-header-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1440x900-actions-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1440x900-header-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1920x1080-actions-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-2560x1440-actions-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-3840x2160-actions-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-mapping-change-actions-3840x2160-navigator-100pct.png: before / after
+- originals/modeling-data-mapping-change-actions-1366x768.png: before / after
+- originals/modeling-data-mapping-change-actions-1440x900.png: before / after
+- originals/modeling-data-mapping-change-actions-1920x1080.png: before / after
+- originals/modeling-data-mapping-change-actions-2560x1440.png: before / after
+- originals/modeling-data-mapping-change-actions-3840x2160.png: before / after
+- routes/datasets-processing/modeling-data-mapping-change-actions-1366x768.png: before / after
+- routes/datasets-processing/modeling-data-mapping-change-actions-1440x900.png: before / after
+- routes/datasets-processing/modeling-data-mapping-change-actions-1920x1080.png: before / after
+- routes/datasets-processing/modeling-data-mapping-change-actions-2560x1440.png: before / after
+- routes/datasets-processing/modeling-data-mapping-change-actions-3840x2160.png: before / after
+- states/modeling-data-mapping-change-actions-reason-focus-1366x768.png: before / after
+- states/modeling-data-mapping-change-actions-reason-focus-1440x900.png: before / after
+- states/modeling-data-mapping-change-actions-reason-focus-1920x1080.png: before / after
+- states/modeling-data-mapping-change-actions-reason-focus-2560x1440.png: before / after
+- states/modeling-data-mapping-change-actions-reason-focus-3840x2160.png: before / after
+- states/modeling-data-mapping-change-actions-start-context-1440x900.png: before / after
 
 </details>
 
@@ -1914,7 +1918,7 @@ count를 낮추고, 기존 #298 baseline과 #261 예외 의미를 바꾸지 않�
 
 ### Live journey와 visual evidence
 
-[M1A13 manifest](images/issue-261-fe06-m1a13-data-local-scrollport/manifest.json)은 Standard, browser zoom
+M1A13 manifest은 Standard, browser zoom
 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. exact M1A12
 시작 commit `c04bf0b67838aefbca74bdfaa5b0b6c009ec2baf` archive와 candidate는 같은 기존 API와
 `/modeling` route, 225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
@@ -1923,19 +1927,19 @@ session에서 `Tensile test 0001`을 유지하고, invalid stress unit/source-co
 `.data-intake-local`에 focus하여 PageDown과 scroll-end 이동을 확인했다. invalid 상태에서도 마지막 유효
 graph, exact selection, Data→Process→Data와 reload 복구 contract를 그대로 보존한다.
 
-[hash와 pixel 비교](images/issue-261-fe06-m1a13-data-local-scrollport/equivalence.json)는 canonical 5,
+hash와 pixel 비교는 canonical 5,
 focused start 5, scroll-end 5, header/navigator/controls/scrollport/source/graph 100%-pixel crop 30을 합한
-45/45 pair가 byte/pixel identical임을 기록한다. [runtime identity](images/issue-261-fe06-m1a13-data-local-scrollport/runtime-identity.json)는
+45/45 pair가 byte/pixel identical임을 기록한다. runtime identity는
 1366의 local scrollport가 `301/505`, 나머지 viewport가 `363/505` client/scroll height이고 모두
 `overflow-y:auto`, `tabindex=0`, PageDown 이동 PASS임을 기록한다. 바깥 ribbon은 `321/321` 또는
-`383/383`으로 실제 overflow가 없으므로 두 번째 활성 scrollport가 아니다. [documentation impact](images/issue-261-fe06-m1a13-data-local-scrollport/documentation-impact-equivalence.json)의
+`383/383`으로 실제 overflow가 없으므로 두 번째 활성 scrollport가 아니다. documentation impact의
 canonical 5개도 current guide와 같은 hash다.
 
-- 1366×768: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1366x768.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1366x768.png) / [scrollport crop](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-graph-100pct.png)
-- 1440×900: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1440x900.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1440x900.png) / [controls](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-controls-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-graph-100pct.png)
-- 1920×1080: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1920x1080.png) / [source](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-source-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png)
-- 2560×1440: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-2560x1440.png) / [scrollport crop](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png)
-- 3840×2160: [start](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-3840x2160.png) / [header](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png) / [graph](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png)
+- 1366×768: start / scroll end / scrollport crop / graph
+- 1440×900: start / scroll end / controls / graph
+- 1920×1080: start / scroll end / source / graph
+- 2560×1440: start / scroll end / scrollport crop / graph
+- 3840×2160: start / scroll end / header / graph
 
 모든 viewport에서 page 가로·세로 overflow와 console error는 0이다. start 원본의 Match file columns 아래
 일부 행과 scroll-end 원본의 Save/File details는 같은 내부 scrollport의 서로 다른 위치이며 clipping이
@@ -1946,51 +1950,51 @@ canonical 5개도 current guide와 같은 hash다.
 <details>
 <summary>M1A13 45개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-local-scrollport-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-controls-100pct.png)
-- crops/modeling-data-local-scrollport-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-graph-100pct.png)
-- crops/modeling-data-local-scrollport-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-header-100pct.png)
-- crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png)
-- crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png)
-- crops/modeling-data-local-scrollport-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1366x768-source-100pct.png)
-- crops/modeling-data-local-scrollport-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-controls-100pct.png)
-- crops/modeling-data-local-scrollport-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-graph-100pct.png)
-- crops/modeling-data-local-scrollport-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-header-100pct.png)
-- crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png)
-- crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png)
-- crops/modeling-data-local-scrollport-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1440x900-source-100pct.png)
-- crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png)
-- crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png)
-- crops/modeling-data-local-scrollport-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-header-100pct.png)
-- crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png)
-- crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png)
-- crops/modeling-data-local-scrollport-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-1920x1080-source-100pct.png)
-- crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png)
-- crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png)
-- crops/modeling-data-local-scrollport-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-header-100pct.png)
-- crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png)
-- crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png)
-- crops/modeling-data-local-scrollport-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-2560x1440-source-100pct.png)
-- crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png)
-- crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png)
-- crops/modeling-data-local-scrollport-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-header-100pct.png)
-- crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png)
-- crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png)
-- crops/modeling-data-local-scrollport-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/crops/modeling-data-local-scrollport-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/crops/modeling-data-local-scrollport-3840x2160-source-100pct.png)
-- originals/modeling-data-local-scrollport-1366x768.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-1366x768.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1366x768.png)
-- originals/modeling-data-local-scrollport-1440x900.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-1440x900.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1440x900.png)
-- originals/modeling-data-local-scrollport-1920x1080.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-1920x1080.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-1920x1080.png)
-- originals/modeling-data-local-scrollport-2560x1440.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-2560x1440.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-2560x1440.png)
-- originals/modeling-data-local-scrollport-3840x2160.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/originals/modeling-data-local-scrollport-3840x2160.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/originals/modeling-data-local-scrollport-3840x2160.png)
-- states/modeling-data-local-scrollport-scrolled-1366x768.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-1366x768.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1366x768.png)
-- states/modeling-data-local-scrollport-scrolled-1440x900.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-1440x900.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1440x900.png)
-- states/modeling-data-local-scrollport-scrolled-1920x1080.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-1920x1080.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-1920x1080.png)
-- states/modeling-data-local-scrollport-scrolled-2560x1440.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-2560x1440.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-2560x1440.png)
-- states/modeling-data-local-scrollport-scrolled-3840x2160.png: [before](images/issue-261-fe06-m1a13-data-local-scrollport/before/states/modeling-data-local-scrollport-scrolled-3840x2160.png) / [after](images/issue-261-fe06-m1a13-data-local-scrollport/after/states/modeling-data-local-scrollport-scrolled-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-local-scrollport-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1366x768-header-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1366x768-scrollport-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1366x768-source-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1440x900-header-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1440x900-scrollport-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1440x900-source-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1920x1080-scrollport-100pct.png: before / after
+- crops/modeling-data-local-scrollport-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-local-scrollport-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-local-scrollport-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-local-scrollport-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-local-scrollport-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-local-scrollport-2560x1440-scrollport-100pct.png: before / after
+- crops/modeling-data-local-scrollport-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-local-scrollport-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-local-scrollport-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-local-scrollport-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-local-scrollport-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-local-scrollport-3840x2160-scrollport-100pct.png: before / after
+- crops/modeling-data-local-scrollport-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-local-scrollport-1366x768.png: before / after
+- originals/modeling-data-local-scrollport-1440x900.png: before / after
+- originals/modeling-data-local-scrollport-1920x1080.png: before / after
+- originals/modeling-data-local-scrollport-2560x1440.png: before / after
+- originals/modeling-data-local-scrollport-3840x2160.png: before / after
+- states/modeling-data-local-scrollport-scrolled-1366x768.png: before / after
+- states/modeling-data-local-scrollport-scrolled-1440x900.png: before / after
+- states/modeling-data-local-scrollport-scrolled-1920x1080.png: before / after
+- states/modeling-data-local-scrollport-scrolled-2560x1440.png: before / after
+- states/modeling-data-local-scrollport-scrolled-3840x2160.png: before / after
 
 </details>
 
@@ -2042,7 +2046,7 @@ checker는 structural delta `4/4/3/1`, exact legacy residual 0, 남은 M1A 83행
 
 ### Live journey와 visual evidence
 
-[M1A14 manifest](images/issue-261-fe06-m1a14-data-mapping-blocker/manifest.json)은 Standard, browser zoom
+M1A14 manifest은 Standard, browser zoom
 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. exact M1A13
 시작 commit `2ee433dd80a4076bb56d6e4b897e56a29b67d3ac`과 candidate는 같은 API, `/modeling` route와
 225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
@@ -2051,72 +2055,72 @@ session에서 `Tensile test 0001`, invalid stress unit/source-column blocker와 
 같은 local region의 keyboard scroll-end도 확인했다. exact selection, Data→Process→Data와 reload/read-back
 contract는 그대로다.
 
-[hash와 pixel 비교](images/issue-261-fe06-m1a14-data-mapping-blocker/equivalence.json)는 canonical 5,
+hash와 pixel 비교는 canonical 5,
 focused blocker 원본 5, scroll-end 5, header/navigator/controls/source/blocker/graph 100%-pixel crop 30을
 합한 45 pair를 기록한다. canonical 5쌍을 포함한 30/45쌍은 PNG byte와 decoded pixel이 모두 같다.
 focused 원본 5쌍에는 이동 selector 밖 Test record native control의 source 좌표 `(113,224)`에서
 `FFFFFFFF` → `FFFFFFE6` 한 픽셀 raster variance가 있고, 같은 source pixel을 포함한 controls/source
 crop까지 합쳐 15/45쌍은 exact pixel-identical이 아니다. 각 variant pair는 변경 pixel 1개, 최대 channel
 delta 25이며 blocker geometry/rendering, runtime identity와 interaction은 같다.
-[runtime identity](images/issue-261-fe06-m1a14-data-mapping-blocker/runtime-identity.json)는 다섯 viewport의
+runtime identity는 다섯 viewport의
 geometry, page overflow 0, keyboard local scrolling과 session identity가 before/after에서 같음을 기록한다.
-[documentation impact](images/issue-261-fe06-m1a14-data-mapping-blocker/documentation-impact-equivalence.json)의
+documentation impact의
 canonical 5개도 current guide와 같은 hash다.
 
-- 1366×768: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1366x768.png) / [blocker crop](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png)
-- 1440×900: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1440x900.png) / [scroll end](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1440x900.png) / [controls](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png)
-- 1920×1080: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1920x1080.png) / [source](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png)
-- 2560×1440: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-2560x1440.png) / [blocker crop](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png)
-- 3840×2160: [blocker 원본](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-3840x2160.png) / [navigator](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png) / [graph](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png)
+- 1366×768: blocker 원본 / blocker crop / graph
+- 1440×900: blocker 원본 / scroll end / controls
+- 1920×1080: blocker 원본 / source / graph
+- 2560×1440: blocker 원본 / blocker crop / graph
+- 3840×2160: blocker 원본 / navigator / graph
 
 <details>
 <summary>M1A14 45개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png)
-- crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png)
-- crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png)
-- crops/modeling-data-mapping-blocker-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-header-100pct.png)
-- crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png)
-- crops/modeling-data-mapping-blocker-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1366x768-source-100pct.png)
-- crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png)
-- crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png)
-- crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png)
-- crops/modeling-data-mapping-blocker-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-header-100pct.png)
-- crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png)
-- crops/modeling-data-mapping-blocker-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1440x900-source-100pct.png)
-- crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png)
-- crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png)
-- crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png)
-- crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png)
-- crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png)
-- crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png)
-- crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png)
-- crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png)
-- crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png)
-- crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png)
-- crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png)
-- crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png)
-- crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png)
-- crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png)
-- crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png)
-- crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png)
-- crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png)
-- crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png)
-- originals/modeling-data-mapping-blocker-1366x768.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-1366x768.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1366x768.png)
-- originals/modeling-data-mapping-blocker-1440x900.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-1440x900.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1440x900.png)
-- originals/modeling-data-mapping-blocker-1920x1080.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-1920x1080.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-1920x1080.png)
-- originals/modeling-data-mapping-blocker-2560x1440.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-2560x1440.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-2560x1440.png)
-- originals/modeling-data-mapping-blocker-3840x2160.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/originals/modeling-data-mapping-blocker-3840x2160.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/originals/modeling-data-mapping-blocker-3840x2160.png)
-- states/modeling-data-mapping-blocker-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1366x768.png)
-- states/modeling-data-mapping-blocker-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1440x900.png)
-- states/modeling-data-mapping-blocker-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-1920x1080.png)
-- states/modeling-data-mapping-blocker-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-2560x1440.png)
-- states/modeling-data-mapping-blocker-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a14-data-mapping-blocker/before/states/modeling-data-mapping-blocker-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a14-data-mapping-blocker/after/states/modeling-data-mapping-blocker-scroll-end-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-mapping-blocker-1366x768-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1366x768-header-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1366x768-source-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1440x900-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1440x900-header-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1440x900-source-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1920x1080-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-2560x1440-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-3840x2160-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-mapping-blocker-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-mapping-blocker-1366x768.png: before / after
+- originals/modeling-data-mapping-blocker-1440x900.png: before / after
+- originals/modeling-data-mapping-blocker-1920x1080.png: before / after
+- originals/modeling-data-mapping-blocker-2560x1440.png: before / after
+- originals/modeling-data-mapping-blocker-3840x2160.png: before / after
+- states/modeling-data-mapping-blocker-scroll-end-1366x768.png: before / after
+- states/modeling-data-mapping-blocker-scroll-end-1440x900.png: before / after
+- states/modeling-data-mapping-blocker-scroll-end-1920x1080.png: before / after
+- states/modeling-data-mapping-blocker-scroll-end-2560x1440.png: before / after
+- states/modeling-data-mapping-blocker-scroll-end-3840x2160.png: before / after
 
 </details>
 
@@ -2178,7 +2182,7 @@ checker는 structural delta `4/4/3/1`, exact legacy residual 0, 남은 M1A 79행
 
 ### Live journey와 visual evidence
 
-[M1A15 manifest](images/issue-261-fe06-m1a15-data-intake-surface/manifest.json)은 Standard, browser zoom
+M1A15 manifest은 Standard, browser zoom
 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. before와
 candidate는 exact M1A14 시작 commit `085eb4e0f25cb5feca6d22427aef44b4149bb512`, 같은 API,
 `/modeling?stage=data` route와 225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
@@ -2187,71 +2191,71 @@ session에서 `Tensile test 0001`, invalid stress unit/source-column 복구, 마
 keyboard local-scroll end를 확인했다. exact Material/State/Test Data/revision, 선택, Data→Process→Data와
 reload/read-back contract는 그대로다.
 
-[hash와 pixel 비교](images/issue-261-fe06-m1a15-data-intake-surface/equivalence.json)는 canonical 5,
+hash와 pixel 비교는 canonical 5,
 focused intake-surface 원본 5, scroll-end 5, header/navigator/controls/source/blocker/graph 100%-pixel crop
 30을 합한 45 pair가 모두 PNG byte와 decoded pixel에서 같음을 기록한다.
-[runtime identity](images/issue-261-fe06-m1a15-data-intake-surface/runtime-identity.json)는 다섯 viewport의
+runtime identity는 다섯 viewport의
 geometry, page overflow 0, keyboard local scrolling과 session identity가 before/after에서 같음을 기록한다.
-[documentation impact](images/issue-261-fe06-m1a15-data-intake-surface/documentation-impact-equivalence.json)의
+documentation impact의
 canonical 5개도 current guide와 같은 hash다. manifest에는 45개 pair의 before/after exact path와 SHA-256을
 모두 등록했다.
 
 <details>
 <summary>M1A15 45개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-intake-surface-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-blocker-100pct.png)
-- crops/modeling-data-intake-surface-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-controls-100pct.png)
-- crops/modeling-data-intake-surface-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-graph-100pct.png)
-- crops/modeling-data-intake-surface-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-header-100pct.png)
-- crops/modeling-data-intake-surface-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-navigator-100pct.png)
-- crops/modeling-data-intake-surface-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-source-100pct.png)
-- crops/modeling-data-intake-surface-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-blocker-100pct.png)
-- crops/modeling-data-intake-surface-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-controls-100pct.png)
-- crops/modeling-data-intake-surface-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-graph-100pct.png)
-- crops/modeling-data-intake-surface-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-header-100pct.png)
-- crops/modeling-data-intake-surface-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-navigator-100pct.png)
-- crops/modeling-data-intake-surface-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-source-100pct.png)
-- crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png)
-- crops/modeling-data-intake-surface-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-controls-100pct.png)
-- crops/modeling-data-intake-surface-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-graph-100pct.png)
-- crops/modeling-data-intake-surface-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-header-100pct.png)
-- crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png)
-- crops/modeling-data-intake-surface-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-source-100pct.png)
-- crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png)
-- crops/modeling-data-intake-surface-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-controls-100pct.png)
-- crops/modeling-data-intake-surface-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-graph-100pct.png)
-- crops/modeling-data-intake-surface-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-header-100pct.png)
-- crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png)
-- crops/modeling-data-intake-surface-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-source-100pct.png)
-- crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png)
-- crops/modeling-data-intake-surface-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-controls-100pct.png)
-- crops/modeling-data-intake-surface-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-graph-100pct.png)
-- crops/modeling-data-intake-surface-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-header-100pct.png)
-- crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png)
-- crops/modeling-data-intake-surface-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/crops/modeling-data-intake-surface-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-source-100pct.png)
-- originals/modeling-data-intake-surface-1366x768.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-1366x768.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1366x768.png)
-- originals/modeling-data-intake-surface-1440x900.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-1440x900.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1440x900.png)
-- originals/modeling-data-intake-surface-1920x1080.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-1920x1080.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1920x1080.png)
-- originals/modeling-data-intake-surface-2560x1440.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-2560x1440.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-2560x1440.png)
-- originals/modeling-data-intake-surface-3840x2160.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/originals/modeling-data-intake-surface-3840x2160.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-3840x2160.png)
-- states/modeling-data-intake-surface-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1366x768.png)
-- states/modeling-data-intake-surface-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1440x900.png)
-- states/modeling-data-intake-surface-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1920x1080.png)
-- states/modeling-data-intake-surface-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-2560x1440.png)
-- states/modeling-data-intake-surface-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a15-data-intake-surface/before/states/modeling-data-intake-surface-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-intake-surface-1366x768-blocker-100pct.png: before / after
+- crops/modeling-data-intake-surface-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-intake-surface-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-intake-surface-1366x768-header-100pct.png: before / after
+- crops/modeling-data-intake-surface-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-intake-surface-1366x768-source-100pct.png: before / after
+- crops/modeling-data-intake-surface-1440x900-blocker-100pct.png: before / after
+- crops/modeling-data-intake-surface-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-intake-surface-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-intake-surface-1440x900-header-100pct.png: before / after
+- crops/modeling-data-intake-surface-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-intake-surface-1440x900-source-100pct.png: before / after
+- crops/modeling-data-intake-surface-1920x1080-blocker-100pct.png: before / after
+- crops/modeling-data-intake-surface-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-intake-surface-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-intake-surface-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-intake-surface-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-intake-surface-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-intake-surface-2560x1440-blocker-100pct.png: before / after
+- crops/modeling-data-intake-surface-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-intake-surface-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-intake-surface-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-intake-surface-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-intake-surface-3840x2160-blocker-100pct.png: before / after
+- crops/modeling-data-intake-surface-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-intake-surface-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-intake-surface-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-intake-surface-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-intake-surface-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-intake-surface-1366x768.png: before / after
+- originals/modeling-data-intake-surface-1440x900.png: before / after
+- originals/modeling-data-intake-surface-1920x1080.png: before / after
+- originals/modeling-data-intake-surface-2560x1440.png: before / after
+- originals/modeling-data-intake-surface-3840x2160.png: before / after
+- states/modeling-data-intake-surface-scroll-end-1366x768.png: before / after
+- states/modeling-data-intake-surface-scroll-end-1440x900.png: before / after
+- states/modeling-data-intake-surface-scroll-end-1920x1080.png: before / after
+- states/modeling-data-intake-surface-scroll-end-2560x1440.png: before / after
+- states/modeling-data-intake-surface-scroll-end-3840x2160.png: before / after
 
 </details>
 
-- 1366×768: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1366x768.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1366x768.png) / [controls crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-controls-100pct.png) / [graph crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1366x768-graph-100pct.png)
-- 1440×900: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1440x900.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1440x900.png) / [source crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-source-100pct.png) / [blocker crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1440x900-blocker-100pct.png)
-- 1920×1080: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-1920x1080.png) / [header crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-header-100pct.png) / [graph crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-1920x1080-graph-100pct.png)
-- 2560×1440: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-2560x1440.png) / [navigator crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-navigator-100pct.png) / [controls crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-2560x1440-controls-100pct.png)
-- 3840×2160: [intake 원본](images/issue-261-fe06-m1a15-data-intake-surface/after/originals/modeling-data-intake-surface-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a15-data-intake-surface/after/states/modeling-data-intake-surface-scroll-end-3840x2160.png) / [source crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-source-100pct.png) / [graph crop](images/issue-261-fe06-m1a15-data-intake-surface/after/crops/modeling-data-intake-surface-3840x2160-graph-100pct.png)
+- 1366×768: intake 원본 / scroll end / controls crop / graph crop
+- 1440×900: intake 원본 / scroll end / source crop / blocker crop
+- 1920×1080: intake 원본 / scroll end / header crop / graph crop
+- 2560×1440: intake 원본 / scroll end / navigator crop / controls crop
+- 3840×2160: intake 원본 / scroll end / source crop / graph crop
 
 Main은 canonical 원본 5개, focused 원본 5개, scroll-end 5개와 after 100%-pixel crop 30개를 원본
 해상도로 열었다. 모든 viewport에서 intake surface, blocker, mapping controls와 마지막 유효 graph가
@@ -2308,7 +2312,7 @@ checker는 structural delta `16/13/8/5`, exact legacy residual 0, 남은 M1A 63�
 
 ### Live journey와 visual evidence
 
-[M1A16 manifest](images/issue-261-fe06-m1a16-data-local-import-controls/manifest.json)은 Standard,
+M1A16 manifest은 Standard,
 browser zoom 100%, DPR 1에서 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다.
 before와 candidate는 exact M1A15 시작 commit `b3b99a42db048b326e025c51c7a8c4bd256a230d`, 같은 API,
 `/modeling?stage=data` route와 225-byte `m1a13-local-scrollport.csv` 입력(SHA-256
@@ -2317,72 +2321,72 @@ session에서 `Tensile test 0001`, native file input, invalid stress unit/source
 graph와 keyboard local-scroll end를 확인했다. exact Material/State/Test Data/revision, 선택,
 Data→Process→Data와 reload/read-back contract는 그대로다.
 
-[hash와 pixel 비교](images/issue-261-fe06-m1a16-data-local-import-controls/equivalence.json)는 canonical 5,
+hash와 pixel 비교는 canonical 5,
 focused Local-file 원본 5, scroll-end 5, header/navigator/controls/source/blocker/graph 100%-pixel crop 30을
 합한 45 pair 가운데 44 pair가 PNG byte와 decoded pixel에서 같음을 기록한다. 1366 scroll-end의
 `(13,160)` 한 RGB pixel만 최대 channel delta 1이며, fresh candidate 확인에서도 같은 위치와 값으로
-재현됐다. [runtime identity](images/issue-261-fe06-m1a16-data-local-import-controls/runtime-identity.json)는
+재현됐다. runtime identity는
 다섯 viewport의 geometry, page overflow 0, keyboard local scrolling과 session identity가 before/after에서
-같음을 기록한다. [documentation impact](images/issue-261-fe06-m1a16-data-local-import-controls/documentation-impact-equivalence.json)의
+같음을 기록한다. documentation impact의
 canonical 5개도 current guide와 같은 hash다. manifest에는 45 pair의 before/after exact path와 SHA-256을
 모두 등록했다.
 
 <details>
 <summary>M1A16 45개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-local-import-controls-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-blocker-100pct.png)
-- crops/modeling-data-local-import-controls-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-controls-100pct.png)
-- crops/modeling-data-local-import-controls-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-graph-100pct.png)
-- crops/modeling-data-local-import-controls-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-header-100pct.png)
-- crops/modeling-data-local-import-controls-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-navigator-100pct.png)
-- crops/modeling-data-local-import-controls-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-source-100pct.png)
-- crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png)
-- crops/modeling-data-local-import-controls-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-controls-100pct.png)
-- crops/modeling-data-local-import-controls-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-graph-100pct.png)
-- crops/modeling-data-local-import-controls-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-header-100pct.png)
-- crops/modeling-data-local-import-controls-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-navigator-100pct.png)
-- crops/modeling-data-local-import-controls-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-source-100pct.png)
-- crops/modeling-data-local-import-controls-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-blocker-100pct.png)
-- crops/modeling-data-local-import-controls-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-controls-100pct.png)
-- crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png)
-- crops/modeling-data-local-import-controls-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-header-100pct.png)
-- crops/modeling-data-local-import-controls-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-navigator-100pct.png)
-- crops/modeling-data-local-import-controls-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-source-100pct.png)
-- crops/modeling-data-local-import-controls-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-blocker-100pct.png)
-- crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png)
-- crops/modeling-data-local-import-controls-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-graph-100pct.png)
-- crops/modeling-data-local-import-controls-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-header-100pct.png)
-- crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png)
-- crops/modeling-data-local-import-controls-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-source-100pct.png)
-- crops/modeling-data-local-import-controls-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-blocker-100pct.png)
-- crops/modeling-data-local-import-controls-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-controls-100pct.png)
-- crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png)
-- crops/modeling-data-local-import-controls-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-header-100pct.png)
-- crops/modeling-data-local-import-controls-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-navigator-100pct.png)
-- crops/modeling-data-local-import-controls-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/crops/modeling-data-local-import-controls-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-source-100pct.png)
-- originals/modeling-data-local-import-controls-1366x768.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-1366x768.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1366x768.png)
-- originals/modeling-data-local-import-controls-1440x900.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-1440x900.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1440x900.png)
-- originals/modeling-data-local-import-controls-1920x1080.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-1920x1080.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1920x1080.png)
-- originals/modeling-data-local-import-controls-2560x1440.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-2560x1440.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-2560x1440.png)
-- originals/modeling-data-local-import-controls-3840x2160.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/originals/modeling-data-local-import-controls-3840x2160.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-3840x2160.png)
-- states/modeling-data-local-import-controls-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1366x768.png)
-- states/modeling-data-local-import-controls-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1440x900.png)
-- states/modeling-data-local-import-controls-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1920x1080.png)
-- states/modeling-data-local-import-controls-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-2560x1440.png)
-- states/modeling-data-local-import-controls-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a16-data-local-import-controls/before/states/modeling-data-local-import-controls-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-local-import-controls-1366x768-blocker-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1366x768-header-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1366x768-source-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1440x900-header-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1440x900-source-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1920x1080-blocker-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-local-import-controls-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-local-import-controls-2560x1440-blocker-100pct.png: before / after
+- crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-local-import-controls-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-local-import-controls-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-local-import-controls-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-local-import-controls-3840x2160-blocker-100pct.png: before / after
+- crops/modeling-data-local-import-controls-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-local-import-controls-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-local-import-controls-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-local-import-controls-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-local-import-controls-1366x768.png: before / after
+- originals/modeling-data-local-import-controls-1440x900.png: before / after
+- originals/modeling-data-local-import-controls-1920x1080.png: before / after
+- originals/modeling-data-local-import-controls-2560x1440.png: before / after
+- originals/modeling-data-local-import-controls-3840x2160.png: before / after
+- states/modeling-data-local-import-controls-scroll-end-1366x768.png: before / after
+- states/modeling-data-local-import-controls-scroll-end-1440x900.png: before / after
+- states/modeling-data-local-import-controls-scroll-end-1920x1080.png: before / after
+- states/modeling-data-local-import-controls-scroll-end-2560x1440.png: before / after
+- states/modeling-data-local-import-controls-scroll-end-3840x2160.png: before / after
 
 </details>
 
-- 1366×768: [focused 원본](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1366x768.png) / [scroll end](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1366x768.png) / [controls crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-controls-100pct.png) / [graph crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1366x768-graph-100pct.png)
-- 1440×900: [focused 원본](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1440x900.png) / [scroll end](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1440x900.png) / [source crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-source-100pct.png) / [blocker crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1440x900-blocker-100pct.png)
-- 1920×1080: [focused 원본](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-1920x1080.png) / [header crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-header-100pct.png) / [graph crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-1920x1080-graph-100pct.png)
-- 2560×1440: [focused 원본](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-2560x1440.png) / [navigator crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-navigator-100pct.png) / [controls crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-2560x1440-controls-100pct.png)
-- 3840×2160: [focused 원본](images/issue-261-fe06-m1a16-data-local-import-controls/after/originals/modeling-data-local-import-controls-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a16-data-local-import-controls/after/states/modeling-data-local-import-controls-scroll-end-3840x2160.png) / [source crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-source-100pct.png) / [graph crop](images/issue-261-fe06-m1a16-data-local-import-controls/after/crops/modeling-data-local-import-controls-3840x2160-graph-100pct.png)
+- 1366×768: focused 원본 / scroll end / controls crop / graph crop
+- 1440×900: focused 원본 / scroll end / source crop / blocker crop
+- 1920×1080: focused 원본 / scroll end / header crop / graph crop
+- 2560×1440: focused 원본 / scroll end / navigator crop / controls crop
+- 3840×2160: focused 원본 / scroll end / source crop / graph crop
 
 Main은 canonical 원본 5개, focused 원본 5개, scroll-end 5개와 after 100%-pixel crop 30개를 원본
 해상도로 열었다. 모든 viewport에서 Local-file source, exact Test record, blocker, mapping controls와
@@ -2439,7 +2443,7 @@ surviving selector의 fingerprint와 M1A17 partial-group exception만 현재 sou
 
 ### Live journey와 visual evidence
 
-[M1A17 manifest](images/issue-261-fe06-m1a17-data-mapping-attention/manifest.json)은 Standard, browser zoom 100%, DPR 1에서
+M1A17 manifest은 Standard, browser zoom 100%, DPR 1에서
 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160을 기록한다. before와 candidate는 exact
 M1A16 시작 commit `ce60ce195549b49886e95c4d8edd93acc6d2ba10`, 같은 current-worktree API,
 `/modeling?stage=data&family=metal` route와 225-byte `m1a13-local-scrollport.csv` 입력
@@ -2448,12 +2452,12 @@ clean seed에서 exact governed Test Data를 선택하고 Data→Process→Data,
 invalid stress-unit/source-column mapping과 keyboard local-scroll end를 차례로 확인했다. invalid mapping은
 현재 exact session과 마지막 유효 graph를 바꾸지 않으며 premature preview/save action도 노출하지 않는다.
 
-[hash와 pixel 비교](images/issue-261-fe06-m1a17-data-mapping-attention/equivalence.json)는 current-guide
+hash와 pixel 비교는 current-guide
 documentation pair 5, fresh focused 원본 5, fresh scroll-end 5, header/source/controls/attention/blocker/graph
 fresh 100%-pixel crop 30을 합한 45 pair가 모두 PNG byte와 decoded
-pixel에서 같음을 기록한다. [runtime identity](images/issue-261-fe06-m1a17-data-mapping-attention/runtime-identity.json)는 다섯 viewport의 page
+pixel에서 같음을 기록한다. runtime identity는 다섯 viewport의 page
 overflow 0, blocker clipping 0, 한 개의 keyboard-operable local scrollport, graph geometry와 exact session
-preservation이 before/after에서 같음을 기록한다. [documentation impact](images/issue-261-fe06-m1a17-data-mapping-attention/documentation-impact-equivalence.json)는
+preservation이 before/after에서 같음을 기록한다. documentation impact는
 production CSS before/after hash와 변경되지 않은 current-guide 5개 hash를 기록한다. clean seed에는 unrelated
 Related graph가 없으므로 그 graph를 전제한 canonical helper는 적용하지 않았고, 이 unit의 exact journey를
 직접 fresh capture했다.
@@ -2461,59 +2465,59 @@ Related graph가 없으므로 그 graph를 전제한 canonical helper는 적용�
 <details>
 <summary>M1A17 45개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-mapping-attention-1366x768-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png)
-- crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png)
-- crops/modeling-data-mapping-attention-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-controls-100pct.png)
-- crops/modeling-data-mapping-attention-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png)
-- crops/modeling-data-mapping-attention-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-header-100pct.png)
-- crops/modeling-data-mapping-attention-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-source-100pct.png)
-- crops/modeling-data-mapping-attention-1440x900-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-attention-100pct.png)
-- crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png)
-- crops/modeling-data-mapping-attention-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-controls-100pct.png)
-- crops/modeling-data-mapping-attention-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-graph-100pct.png)
-- crops/modeling-data-mapping-attention-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-header-100pct.png)
-- crops/modeling-data-mapping-attention-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-source-100pct.png)
-- crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png)
-- crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png)
-- crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png)
-- crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png)
-- crops/modeling-data-mapping-attention-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png)
-- crops/modeling-data-mapping-attention-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-source-100pct.png)
-- crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png)
-- crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png)
-- crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png)
-- crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png)
-- crops/modeling-data-mapping-attention-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-header-100pct.png)
-- crops/modeling-data-mapping-attention-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-source-100pct.png)
-- crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png)
-- crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png)
-- crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png)
-- crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png)
-- crops/modeling-data-mapping-attention-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-header-100pct.png)
-- crops/modeling-data-mapping-attention-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png)
-- originals/modeling-data-mapping-attention-1366x768.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1366x768.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1366x768.png)
-- originals/modeling-data-mapping-attention-1440x900.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1440x900.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1440x900.png)
-- originals/modeling-data-mapping-attention-1920x1080.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-1920x1080.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1920x1080.png)
-- originals/modeling-data-mapping-attention-2560x1440.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-2560x1440.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-2560x1440.png)
-- originals/modeling-data-mapping-attention-3840x2160.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/originals/modeling-data-mapping-attention-3840x2160.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-3840x2160.png)
-- states/modeling-data-mapping-attention-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1366x768.png)
-- states/modeling-data-mapping-attention-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1440x900.png)
-- states/modeling-data-mapping-attention-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1920x1080.png)
-- states/modeling-data-mapping-attention-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-2560x1440.png)
-- states/modeling-data-mapping-attention-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a17-data-mapping-attention/before/states/modeling-data-mapping-attention-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-mapping-attention-1366x768-attention-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1366x768-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1366x768-header-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1366x768-source-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1440x900-attention-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1440x900-header-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1440x900-source-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1920x1080-attention-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1920x1080-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-mapping-attention-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png: before / after
+- crops/modeling-data-mapping-attention-2560x1440-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-mapping-attention-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-mapping-attention-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-mapping-attention-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-mapping-attention-3840x2160-attention-100pct.png: before / after
+- crops/modeling-data-mapping-attention-3840x2160-blocker-100pct.png: before / after
+- crops/modeling-data-mapping-attention-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-mapping-attention-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-mapping-attention-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-mapping-attention-1366x768.png: before / after
+- originals/modeling-data-mapping-attention-1440x900.png: before / after
+- originals/modeling-data-mapping-attention-1920x1080.png: before / after
+- originals/modeling-data-mapping-attention-2560x1440.png: before / after
+- originals/modeling-data-mapping-attention-3840x2160.png: before / after
+- states/modeling-data-mapping-attention-scroll-end-1366x768.png: before / after
+- states/modeling-data-mapping-attention-scroll-end-1440x900.png: before / after
+- states/modeling-data-mapping-attention-scroll-end-1920x1080.png: before / after
+- states/modeling-data-mapping-attention-scroll-end-2560x1440.png: before / after
+- states/modeling-data-mapping-attention-scroll-end-3840x2160.png: before / after
 
 </details>
 
-- 1366×768: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1366x768.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1366x768.png) / [attention crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-attention-100pct.png) / [graph crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1366x768-graph-100pct.png)
-- 1440×900: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1440x900.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1440x900.png) / [source crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-source-100pct.png) / [blocker crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1440x900-blocker-100pct.png)
-- 1920×1080: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-1920x1080.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-1920x1080.png) / [header crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-header-100pct.png) / [graph crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-1920x1080-graph-100pct.png)
-- 2560×1440: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-2560x1440.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-2560x1440.png) / [controls crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-controls-100pct.png) / [attention crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-2560x1440-attention-100pct.png)
-- 3840×2160: [focused 원본](images/issue-261-fe06-m1a17-data-mapping-attention/after/originals/modeling-data-mapping-attention-3840x2160.png) / [scroll end](images/issue-261-fe06-m1a17-data-mapping-attention/after/states/modeling-data-mapping-attention-scroll-end-3840x2160.png) / [source crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-source-100pct.png) / [graph crop](images/issue-261-fe06-m1a17-data-mapping-attention/after/crops/modeling-data-mapping-attention-3840x2160-graph-100pct.png)
+- 1366×768: focused 원본 / scroll end / attention crop / graph crop
+- 1440×900: focused 원본 / scroll end / source crop / blocker crop
+- 1920×1080: focused 원본 / scroll end / header crop / graph crop
+- 2560×1440: focused 원본 / scroll end / controls crop / attention crop
+- 3840×2160: focused 원본 / scroll end / source crop / graph crop
 
 Main은 before/after 원본 10개, scroll-end 10개와 after 100%-pixel crop 30개를 원본 해상도로 열었다.
 모든 viewport에서 source, exact Test record, warning, schema/channel mapping controls와 마지막 유효 graph가
@@ -2566,59 +2570,59 @@ resolved 상태는 다섯 viewport 모두 content가 scrollport 안에 들어가
 
 ### M1A18 five-viewport evidence
 
-- [evidence manifest](images/issue-261-fe06-m1a18-data-mapping-resolved/manifest.json) / [40-pair CSS ownership equivalence](images/issue-261-fe06-m1a18-data-mapping-resolved/equivalence.json) / [runtime identity](images/issue-261-fe06-m1a18-data-mapping-resolved/runtime-identity.json) / [documentation impact](images/issue-261-fe06-m1a18-data-mapping-resolved/documentation-impact-equivalence.json)
+- evidence manifest / 40-pair CSS ownership equivalence / runtime identity / documentation impact
 
 <details>
 <summary>M1A18 40개 before/after 원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png)
-- crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png)
-- crops/modeling-data-mapping-resolved-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-header-100pct.png)
-- crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png)
-- crops/modeling-data-mapping-resolved-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-source-100pct.png)
-- crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png)
-- crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png)
-- crops/modeling-data-mapping-resolved-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-header-100pct.png)
-- crops/modeling-data-mapping-resolved-1440x900-resolved-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-resolved-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-resolved-100pct.png)
-- crops/modeling-data-mapping-resolved-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-source-100pct.png)
-- crops/modeling-data-mapping-resolved-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-controls-100pct.png)
-- crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png)
-- crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png)
-- crops/modeling-data-mapping-resolved-1920x1080-resolved-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-resolved-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-resolved-100pct.png)
-- crops/modeling-data-mapping-resolved-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-source-100pct.png)
-- crops/modeling-data-mapping-resolved-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-controls-100pct.png)
-- crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png)
-- crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png)
-- crops/modeling-data-mapping-resolved-2560x1440-resolved-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-resolved-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-resolved-100pct.png)
-- crops/modeling-data-mapping-resolved-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-source-100pct.png)
-- crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png)
-- crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png)
-- crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png)
-- crops/modeling-data-mapping-resolved-3840x2160-resolved-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-resolved-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-resolved-100pct.png)
-- crops/modeling-data-mapping-resolved-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/crops/modeling-data-mapping-resolved-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-source-100pct.png)
-- originals/modeling-data-mapping-resolved-1366x768.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/originals/modeling-data-mapping-resolved-1366x768.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-1366x768.png)
-- originals/modeling-data-mapping-resolved-1440x900.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/originals/modeling-data-mapping-resolved-1440x900.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-1440x900.png)
-- originals/modeling-data-mapping-resolved-1920x1080.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/originals/modeling-data-mapping-resolved-1920x1080.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-1920x1080.png)
-- originals/modeling-data-mapping-resolved-2560x1440.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/originals/modeling-data-mapping-resolved-2560x1440.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-2560x1440.png)
-- originals/modeling-data-mapping-resolved-3840x2160.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/originals/modeling-data-mapping-resolved-3840x2160.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-3840x2160.png)
-- states/modeling-data-mapping-resolved-scroll-end-1366x768.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/states/modeling-data-mapping-resolved-scroll-end-1366x768.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-1366x768.png)
-- states/modeling-data-mapping-resolved-scroll-end-1440x900.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/states/modeling-data-mapping-resolved-scroll-end-1440x900.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-1440x900.png)
-- states/modeling-data-mapping-resolved-scroll-end-1920x1080.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/states/modeling-data-mapping-resolved-scroll-end-1920x1080.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-1920x1080.png)
-- states/modeling-data-mapping-resolved-scroll-end-2560x1440.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/states/modeling-data-mapping-resolved-scroll-end-2560x1440.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-2560x1440.png)
-- states/modeling-data-mapping-resolved-scroll-end-3840x2160.png: [before](images/issue-261-fe06-m1a18-data-mapping-resolved/before/states/modeling-data-mapping-resolved-scroll-end-3840x2160.png) / [after](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-mapping-resolved-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1366x768-header-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1366x768-source-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1440x900-header-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1440x900-resolved-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1440x900-source-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1920x1080-resolved-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-2560x1440-resolved-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-3840x2160-resolved-100pct.png: before / after
+- crops/modeling-data-mapping-resolved-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-mapping-resolved-1366x768.png: before / after
+- originals/modeling-data-mapping-resolved-1440x900.png: before / after
+- originals/modeling-data-mapping-resolved-1920x1080.png: before / after
+- originals/modeling-data-mapping-resolved-2560x1440.png: before / after
+- originals/modeling-data-mapping-resolved-3840x2160.png: before / after
+- states/modeling-data-mapping-resolved-scroll-end-1366x768.png: before / after
+- states/modeling-data-mapping-resolved-scroll-end-1440x900.png: before / after
+- states/modeling-data-mapping-resolved-scroll-end-1920x1080.png: before / after
+- states/modeling-data-mapping-resolved-scroll-end-2560x1440.png: before / after
+- states/modeling-data-mapping-resolved-scroll-end-3840x2160.png: before / after
 
 </details>
 
-- 1366×768: [after 원본](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-1366x768.png) / [resolved crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-resolved-100pct.png) / [graph crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1366x768-graph-100pct.png) / [stable state](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-1366x768.png)
-- 1440×900: [after 원본](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-1440x900.png) / [controls crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-controls-100pct.png) / [source crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1440x900-source-100pct.png) / [stable state](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-1440x900.png)
-- 1920×1080: [after 원본](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-1920x1080.png) / [header crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-header-100pct.png) / [graph crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-1920x1080-graph-100pct.png) / [stable state](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-1920x1080.png)
-- 2560×1440: [after 원본](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-2560x1440.png) / [resolved crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-resolved-100pct.png) / [graph crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-2560x1440-graph-100pct.png) / [stable state](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-2560x1440.png)
-- 3840×2160: [after 원본](images/issue-261-fe06-m1a18-data-mapping-resolved/after/originals/modeling-data-mapping-resolved-3840x2160.png) / [controls crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-controls-100pct.png) / [graph crop](images/issue-261-fe06-m1a18-data-mapping-resolved/after/crops/modeling-data-mapping-resolved-3840x2160-graph-100pct.png) / [stable state](images/issue-261-fe06-m1a18-data-mapping-resolved/after/states/modeling-data-mapping-resolved-scroll-end-3840x2160.png)
+- 1366×768: after 원본 / resolved crop / graph crop / stable state
+- 1440×900: after 원본 / controls crop / source crop / stable state
+- 1920×1080: after 원본 / header crop / graph crop / stable state
+- 2560×1440: after 원본 / resolved crop / graph crop / stable state
+- 3840×2160: after 원본 / controls crop / graph crop / stable state
 
 CSS ownership capture는 merged #309 기준의 documentation-current 5쌍과 fresh resolved-mapping original
 5쌍, crop 25쌍, stable-state 5쌍을 같은 isolated Compose와 deterministic input에서 기록했다. 총 40쌍이
@@ -2662,62 +2666,62 @@ keyboard/focus 계약도 그대로다.
 
 ### M1A19 five-viewport evidence
 
-- [evidence manifest](images/issue-261-fe06-m1a19-data-intake-field-rows/manifest.json) /
-  [30-pair CSS ownership equivalence](images/issue-261-fe06-m1a19-data-intake-field-rows/equivalence.json) /
-  [runtime identity](images/issue-261-fe06-m1a19-data-intake-field-rows/runtime-identity.json) /
-  [documentation impact](images/issue-261-fe06-m1a19-data-intake-field-rows/documentation-impact-equivalence.json)
+- evidence manifest /
+  30-pair CSS ownership equivalence /
+  runtime identity /
+  documentation impact
 
 <details>
 <summary>M1A19 30개 before/after canonical·원본·crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-intake-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-controls-100pct.png)
-- crops/modeling-data-intake-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-graph-100pct.png)
-- crops/modeling-data-intake-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-header-100pct.png)
-- crops/modeling-data-intake-1366x768-source-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1366x768-source-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-source-100pct.png)
-- crops/modeling-data-intake-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-controls-100pct.png)
-- crops/modeling-data-intake-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-graph-100pct.png)
-- crops/modeling-data-intake-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-header-100pct.png)
-- crops/modeling-data-intake-1440x900-source-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1440x900-source-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-source-100pct.png)
-- crops/modeling-data-intake-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-controls-100pct.png)
-- crops/modeling-data-intake-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-graph-100pct.png)
-- crops/modeling-data-intake-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-header-100pct.png)
-- crops/modeling-data-intake-1920x1080-source-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-1920x1080-source-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-source-100pct.png)
-- crops/modeling-data-intake-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-controls-100pct.png)
-- crops/modeling-data-intake-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-graph-100pct.png)
-- crops/modeling-data-intake-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-header-100pct.png)
-- crops/modeling-data-intake-2560x1440-source-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-2560x1440-source-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-source-100pct.png)
-- crops/modeling-data-intake-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-controls-100pct.png)
-- crops/modeling-data-intake-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-graph-100pct.png)
-- crops/modeling-data-intake-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-header-100pct.png)
-- crops/modeling-data-intake-3840x2160-source-100pct.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/crops/modeling-data-intake-3840x2160-source-100pct.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-source-100pct.png)
-- originals/modeling-data-intake-1366x768.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-1366x768.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1366x768.png)
-- originals/modeling-data-intake-1440x900.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-1440x900.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1440x900.png)
-- originals/modeling-data-intake-1920x1080.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-1920x1080.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1920x1080.png)
-- originals/modeling-data-intake-2560x1440.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-2560x1440.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-2560x1440.png)
-- originals/modeling-data-intake-3840x2160.png: [before](images/issue-261-fe06-m1a19-data-intake-field-rows/before/originals/modeling-data-intake-3840x2160.png) / [after](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-intake-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-intake-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-intake-1366x768-header-100pct.png: before / after
+- crops/modeling-data-intake-1366x768-source-100pct.png: before / after
+- crops/modeling-data-intake-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-intake-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-intake-1440x900-header-100pct.png: before / after
+- crops/modeling-data-intake-1440x900-source-100pct.png: before / after
+- crops/modeling-data-intake-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-intake-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-intake-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-intake-1920x1080-source-100pct.png: before / after
+- crops/modeling-data-intake-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-intake-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-intake-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-intake-2560x1440-source-100pct.png: before / after
+- crops/modeling-data-intake-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-intake-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-intake-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-intake-3840x2160-source-100pct.png: before / after
+- originals/modeling-data-intake-1366x768.png: before / after
+- originals/modeling-data-intake-1440x900.png: before / after
+- originals/modeling-data-intake-1920x1080.png: before / after
+- originals/modeling-data-intake-2560x1440.png: before / after
+- originals/modeling-data-intake-3840x2160.png: before / after
 
 </details>
 
-- 1366×768: [after 원본](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1366x768.png) /
-  [controls crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-controls-100pct.png) /
-  [graph crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1366x768-graph-100pct.png)
-- 1440×900: [after 원본](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1440x900.png) /
-  [source crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-source-100pct.png) /
-  [graph crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1440x900-graph-100pct.png)
-- 1920×1080: [after 원본](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-1920x1080.png) /
-  [header crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-header-100pct.png) /
-  [controls crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-1920x1080-controls-100pct.png)
-- 2560×1440: [after 원본](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-2560x1440.png) /
-  [source crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-source-100pct.png) /
-  [graph crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-2560x1440-graph-100pct.png)
-- 3840×2160: [after 원본](images/issue-261-fe06-m1a19-data-intake-field-rows/after/originals/modeling-data-intake-3840x2160.png) /
-  [controls crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-controls-100pct.png) /
-  [graph crop](images/issue-261-fe06-m1a19-data-intake-field-rows/after/crops/modeling-data-intake-3840x2160-graph-100pct.png)
+- 1366×768: after 원본 /
+  controls crop /
+  graph crop
+- 1440×900: after 원본 /
+  source crop /
+  graph crop
+- 1920×1080: after 원본 /
+  header crop /
+  controls crop
+- 2560×1440: after 원본 /
+  source crop /
+  graph crop
+- 3840×2160: after 원본 /
+  controls crop /
+  graph crop
 
 documentation-current canonical 5쌍과 같은 isolated Compose·deterministic CSV에서 캡처한 focused original
 5쌍, direct 100%-pixel crop 20쌍, 총 30쌍은 byte·pixel 모두 동일하고 focused runtime measurement도 동일하다.
@@ -2759,67 +2763,67 @@ Data→Process→Data read-back 및 #309 y-axis 가독성 계약을 그대로 �
 
 ### M1A20 five-viewport evidence
 
-- [evidence manifest](images/issue-261-fe06-m1a20-data-mapping-decision-frame/manifest.json) /
-  [35-pair CSS ownership equivalence](images/issue-261-fe06-m1a20-data-mapping-decision-frame/equivalence.json) /
-  [runtime identity](images/issue-261-fe06-m1a20-data-mapping-decision-frame/runtime-identity.json) /
-  [documentation impact](images/issue-261-fe06-m1a20-data-mapping-decision-frame/documentation-impact-equivalence.json)
+- evidence manifest /
+  35-pair CSS ownership equivalence /
+  runtime identity /
+  documentation impact
 
 <details>
 <summary>M1A20 35개 before/after canonical·원본·100% crop pair 경로</summary>
 
-- canonical/modeling-data-1366x768.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1366x768.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1366x768.png)
-- canonical/modeling-data-1440x900.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1440x900.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1440x900.png)
-- canonical/modeling-data-1920x1080.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-1920x1080.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-1920x1080.png)
-- canonical/modeling-data-2560x1440.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-2560x1440.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-2560x1440.png)
-- canonical/modeling-data-3840x2160.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/canonical/modeling-data-3840x2160.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/canonical/modeling-data-3840x2160.png)
-- crops/modeling-data-decision-1366x768-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-controls-100pct.png)
-- crops/modeling-data-decision-1366x768-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-graph-100pct.png)
-- crops/modeling-data-decision-1366x768-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-header-100pct.png)
-- crops/modeling-data-decision-1366x768-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-navigator-100pct.png)
-- crops/modeling-data-decision-1366x768-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1366x768-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-save-details-100pct.png)
-- crops/modeling-data-decision-1440x900-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-controls-100pct.png)
-- crops/modeling-data-decision-1440x900-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-graph-100pct.png)
-- crops/modeling-data-decision-1440x900-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-header-100pct.png)
-- crops/modeling-data-decision-1440x900-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-navigator-100pct.png)
-- crops/modeling-data-decision-1440x900-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1440x900-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-save-details-100pct.png)
-- crops/modeling-data-decision-1920x1080-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-controls-100pct.png)
-- crops/modeling-data-decision-1920x1080-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-graph-100pct.png)
-- crops/modeling-data-decision-1920x1080-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-header-100pct.png)
-- crops/modeling-data-decision-1920x1080-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png)
-- crops/modeling-data-decision-1920x1080-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-1920x1080-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-save-details-100pct.png)
-- crops/modeling-data-decision-2560x1440-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-controls-100pct.png)
-- crops/modeling-data-decision-2560x1440-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-graph-100pct.png)
-- crops/modeling-data-decision-2560x1440-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-header-100pct.png)
-- crops/modeling-data-decision-2560x1440-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-navigator-100pct.png)
-- crops/modeling-data-decision-2560x1440-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-2560x1440-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-save-details-100pct.png)
-- crops/modeling-data-decision-3840x2160-controls-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-controls-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-controls-100pct.png)
-- crops/modeling-data-decision-3840x2160-graph-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-graph-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-graph-100pct.png)
-- crops/modeling-data-decision-3840x2160-header-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-header-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-header-100pct.png)
-- crops/modeling-data-decision-3840x2160-navigator-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-navigator-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-navigator-100pct.png)
-- crops/modeling-data-decision-3840x2160-save-details-100pct.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/crops/modeling-data-decision-3840x2160-save-details-100pct.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-save-details-100pct.png)
-- originals/modeling-data-decision-1366x768.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1366x768.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1366x768.png)
-- originals/modeling-data-decision-1440x900.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1440x900.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1440x900.png)
-- originals/modeling-data-decision-1920x1080.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-1920x1080.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1920x1080.png)
-- originals/modeling-data-decision-2560x1440.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-2560x1440.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-2560x1440.png)
-- originals/modeling-data-decision-3840x2160.png: [before](images/issue-261-fe06-m1a20-data-mapping-decision-frame/before/originals/modeling-data-decision-3840x2160.png) / [after](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-3840x2160.png)
+- canonical/modeling-data-1366x768.png: before / after
+- canonical/modeling-data-1440x900.png: before / after
+- canonical/modeling-data-1920x1080.png: before / after
+- canonical/modeling-data-2560x1440.png: before / after
+- canonical/modeling-data-3840x2160.png: before / after
+- crops/modeling-data-decision-1366x768-controls-100pct.png: before / after
+- crops/modeling-data-decision-1366x768-graph-100pct.png: before / after
+- crops/modeling-data-decision-1366x768-header-100pct.png: before / after
+- crops/modeling-data-decision-1366x768-navigator-100pct.png: before / after
+- crops/modeling-data-decision-1366x768-save-details-100pct.png: before / after
+- crops/modeling-data-decision-1440x900-controls-100pct.png: before / after
+- crops/modeling-data-decision-1440x900-graph-100pct.png: before / after
+- crops/modeling-data-decision-1440x900-header-100pct.png: before / after
+- crops/modeling-data-decision-1440x900-navigator-100pct.png: before / after
+- crops/modeling-data-decision-1440x900-save-details-100pct.png: before / after
+- crops/modeling-data-decision-1920x1080-controls-100pct.png: before / after
+- crops/modeling-data-decision-1920x1080-graph-100pct.png: before / after
+- crops/modeling-data-decision-1920x1080-header-100pct.png: before / after
+- crops/modeling-data-decision-1920x1080-navigator-100pct.png: before / after
+- crops/modeling-data-decision-1920x1080-save-details-100pct.png: before / after
+- crops/modeling-data-decision-2560x1440-controls-100pct.png: before / after
+- crops/modeling-data-decision-2560x1440-graph-100pct.png: before / after
+- crops/modeling-data-decision-2560x1440-header-100pct.png: before / after
+- crops/modeling-data-decision-2560x1440-navigator-100pct.png: before / after
+- crops/modeling-data-decision-2560x1440-save-details-100pct.png: before / after
+- crops/modeling-data-decision-3840x2160-controls-100pct.png: before / after
+- crops/modeling-data-decision-3840x2160-graph-100pct.png: before / after
+- crops/modeling-data-decision-3840x2160-header-100pct.png: before / after
+- crops/modeling-data-decision-3840x2160-navigator-100pct.png: before / after
+- crops/modeling-data-decision-3840x2160-save-details-100pct.png: before / after
+- originals/modeling-data-decision-1366x768.png: before / after
+- originals/modeling-data-decision-1440x900.png: before / after
+- originals/modeling-data-decision-1920x1080.png: before / after
+- originals/modeling-data-decision-2560x1440.png: before / after
+- originals/modeling-data-decision-3840x2160.png: before / after
 
 </details>
 
-- 1366×768: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1366x768.png) /
-  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-controls-100pct.png) /
-  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1366x768-graph-100pct.png)
-- 1440×900: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1440x900.png) /
-  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-controls-100pct.png) /
-  [Save details 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1440x900-save-details-100pct.png)
-- 1920×1080: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-1920x1080.png) /
-  [navigator 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-navigator-100pct.png) /
-  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-1920x1080-graph-100pct.png)
-- 2560×1440: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-2560x1440.png) /
-  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-controls-100pct.png) /
-  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-2560x1440-graph-100pct.png)
-- 3840×2160: [after 원본](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/originals/modeling-data-decision-3840x2160.png) /
-  [controls 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-controls-100pct.png) /
-  [graph 100% crop](images/issue-261-fe06-m1a20-data-mapping-decision-frame/after/crops/modeling-data-decision-3840x2160-graph-100pct.png)
+- 1366×768: after 원본 /
+  controls 100% crop /
+  graph 100% crop
+- 1440×900: after 원본 /
+  controls 100% crop /
+  Save details 100% crop
+- 1920×1080: after 원본 /
+  navigator 100% crop /
+  graph 100% crop
+- 2560×1440: after 원본 /
+  controls 100% crop /
+  graph 100% crop
+- 3840×2160: after 원본 /
+  controls 100% crop /
+  graph 100% crop
 
 documentation-current canonical 5쌍, focused original 5쌍과 direct 100%-pixel crop 25쌍, 총 35쌍은
 byte·pixel 모두 동일하고 runtime measurement도 동일하다. 모든 viewport에서 page overflow, graph y-tick
