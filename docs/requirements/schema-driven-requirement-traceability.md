@@ -1,7 +1,7 @@
 # 스키마 기반 통합 요구사항 추적표
 
 상태: `authoritative`
-현재 구현 기준선: `main@712bda0`
+현재 구현 기준선: `main@1dcd4c90`
 원본 요구 기준선: `main@31f9a3f`
 원본 패키지: [`schema-driven-integration-source`](../00-research/schema-driven-integration-source/README.md)
 보완 추적: [#246](https://github.com/pikachu444/cae-material-platform/issues/246)
@@ -73,7 +73,7 @@ DMA→master curve/Prony→IR production 확장은 #209 완료에 포함하지 �
 Task 1A source-v2 bundle adapter와 business-key/reference E2E는 PR #250, main `b9a82e9`에서
 완료했다. #341은 Task 2의 `mm/min`·`tonne/mm3`와 변경하지 않은 source-v2 전체
 apply/export/no-op을 완료했고, Task 1B 실제 JSON 데이터 등록은 PR #353, main `fa4e451`에서
-완료했다. 남은 순서는 #343 Task 2B와 #344 Task 3+4다. #276은 이 과정에서 드러난
+완료했다. #343 Task 2B는 PR #356, #344 Task 3+4는 PR #357에서 완료했다. #276은 이 과정에서 드러난
 Simulation Data→Modeling/solver-card 후보 후속이지만 native parent와 실행 순서는 승인되지 않았다.
 
 각 Task는 별도 branch/PR로 처리하며 이미 구현된 기능을 재작성하지 않는다. #246이 닫힐 때
@@ -85,18 +85,19 @@ P1~P10/G1~G24 각 행은 구현 완료, 기존 Issue 소유, 제품 보류 또�
 `dma_strain_sweep`은 현재 계약 열거값과 사용자 선택지에 없으므로 추측해 변환하지 않고 명시적으로
 지원하지 않는다. source-v2 `dma-test` 형식의 `Test Type` 값은 동적 Record로 검증·보존할 수 있지만,
 그 값만으로 canonical 처리·master curve·Prony·LinearViscoelastic IR 경로를 만들지 않는다.
-production 점탄성 입력 의미, 계산 정책, 수치 검증과 사용자 흐름은 #195가 소유한다. 다음 #246 단위는
-#344의 후속 이슈 정합과 보류 항목 결정이다.
+production 점탄성 입력 의미, 계산 정책, 수치 검증과 사용자 흐름은 #195가 소유한다. #344까지 완료해
+#246을 닫았으며 현재 제품 작업은 #195다.
 
-### 4. #344 — 후속 소유권과 보류 결정 (PR #357)
+### 4. #344 — 후속 소유권과 보류 결정 (PR #357, main `1dcd4c90`)
 
 #211은 대표곡선 잔여, #213/#214는 Template·solver·다중 단위, #215는 SPA OIDC와 기존 역할 정합,
 #216은 구현된 제품 command의 audit coverage를 각각 소유한다. `data_manager`, `offset_shift`,
 Differential Evolution, 다단계 승인, generic plugin wiring, 새 비동기 계산 구조와 추가 경화식은
 위 G행의 재개 근거가 생길 때까지 보류하며 이번 순서에 새 이슈를 만들지 않는다. 점탄성 production
-입력·수치 acceptance·사용자 흐름은 #195가 소유하고 #246 뒤의 다음 제품 작업으로 진행한다.
+입력·수치 acceptance·사용자 흐름은 #195가 소유한다. #246은 이 결정과 함께 완료했으며 #195를
+현재 제품 작업으로 진행한다.
 
-### 5. #211 — #246 뒤의 좁은 대표곡선 잔여
+### 5. #211 — #195 뒤의 좁은 대표곡선 잔여
 
 #211은 existing common-grid piecewise-linear/no-extrapolation alignment, append-only inclusion/exclusion
 assessment와 exact Dataset/Test Run lineage, pointwise mean/95% CI immutable Artifact, calibration input

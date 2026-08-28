@@ -91,7 +91,8 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   #246 완료만으로 구현됐다고 간주하지 않습니다. #344 Task 3+4의
   [PR #357](https://github.com/pikachu444/cae-material-platform/pull/357)은 #211·#213~#216의 실제 잔여를
   기존 이슈에 유지하고, 근거 없는 역할·optimizer·승인 단계·plugin·비동기 계산·경화식 확장을
-  보류했습니다. #246 뒤의 다음 제품 작업은 #195입니다.
+  보류했으며 main `1dcd4c90ec8636bc66de46961cbb93a8392fda47`에서 #246을 완료했습니다. 현재 제품 작업은
+  #195입니다.
 - #195 polymer viscoelastic과 #196 elastomer hyperelastic/hyper-viscoelastic에는 bounded synthetic
   `reference/non-production` 계산·선택·IR/Neutral/export 기반과 각각의 current planning packet이 이미
   있습니다. #195의 다음 범위는 이 기반을 재작성하는 일이 아니라 production DMA/relaxation 입력 의미,
