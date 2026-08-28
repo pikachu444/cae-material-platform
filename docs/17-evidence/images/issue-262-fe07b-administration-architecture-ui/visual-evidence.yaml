@@ -214,7 +214,7 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-preview-3840x2160-header.png
       - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-records-3840x2160-header.png
       - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/format-definitions/administration-format-definitions-review-3840x2160-header-crop.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+  - rationale: "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group."
     images:
       - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1366x768.png
       - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/original.png
@@ -222,8 +222,7 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/original.png
       - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1366x768/original.png
       - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1366x768/original.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1366x768.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+  - rationale: "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group."
     images:
       - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1440x900.png
       - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/original.png
@@ -231,8 +230,7 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/original.png
       - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1440x900/original.png
       - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1440x900/original.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1440x900.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
+  - rationale: "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group."
     images:
       - docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1920x1080.png
       - docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/original.png
@@ -241,7 +239,6 @@ allowed_duplicate_groups:
       - docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-preview/1920x1080/original.png
       - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1920x1080/original.png
       - docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1920x1080/original.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1920x1080.png
   - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
     images:
       - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/crops/administration-database-1366x768-taskbar.png
@@ -346,31 +343,6 @@ allowed_duplicate_groups:
     images:
       - docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/after/originals/administration-records-3840x2160.png
       - docs/user-guide/images/current/administration-records-3840x2160.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
-    images:
-      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1366x768.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1366x768.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1366x768.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
-    images:
-      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1440x900.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1440x900.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1440x900.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
-    images:
-      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1920x1080.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-1920x1080.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-1920x1080.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
-    images:
-      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-2560x1440.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-2560x1440.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-2560x1440.png
-  - rationale: "Issue #262 FE-07B retains byte-identical current/evidence originals and shared Administration crops as separate lifecycle records; duplicate bytes do not imply another design state."
-    images:
-      - docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-3840x2160.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-3840x2160.png
-      - docs/17-evidence/images/issue-298-frontend-guard-297-correction/before/originals/administration-database-3840x2160.png
 verification:
   frontend_vitest: pass-full-447-tests-74-files
   frontend_guard: pass-zero-violations-15-baseline-warnings

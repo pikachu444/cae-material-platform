@@ -389,7 +389,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 1836
+    assert report.duplicate_image_group_count == 1452
 
 
 @pytest.mark.parametrize(
@@ -546,9 +546,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
-    assert manifest["visual_evidence"]["sidecar"] == (
-        "docs/17-evidence/images/issue-309-modeling-data-axis-overlap/visual-evidence.yaml"
-    )
+    assert {
+        "b4_combined_manifest",
+        "b4_combined_report",
+        "geometry_measurements",
+        "issue_261_m1e3_after_provenance",
+        "issue_261_m1e3_before_after",
+        "issue_261_m1e3_before_provenance",
+        "issue_261_m1e3_report",
+        "sidecar",
+    }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
     assert "Issue #342 Task 1B" in manifest["capture_command"]
     assert "five CSS viewports" in manifest["capture_command"]
@@ -927,7 +934,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         assert "one immutable card/receipt" in capture["fixture"]
 
 
-def test_mat_detail_captures_resolve_to_approved_references_and_comparison_evidence() -> None:
+def test_mat_detail_captures_resolve_to_approved_references_without_local_evidence() -> None:
     root = Path(__file__).parents[2]
     manifest = yaml.safe_load(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
@@ -941,24 +948,18 @@ def test_mat_detail_captures_resolve_to_approved_references_and_comparison_evide
         capture for capture in manifest["captures"] if capture["id"].startswith("material-detail-")
     ]
     assert {capture["width"] for capture in detail_captures} == {1366, 1440, 1920, 2560, 3840}
+    retired_fields = {"comparison_evidence", "evidence_source", "owner_direction_images"}
+    assert all(retired_fields.isdisjoint(capture) for capture in manifest["captures"])
     for capture in detail_captures:
         approved_ids = capture.get("approved_reference_ids")
         assert approved_ids
         assert set(approved_ids) <= reference_ids
-        comparison = root / capture["comparison_evidence"]
-        assert comparison.is_file()
         current_image = root / "docs/user-guide" / capture["image"]
         assert current_image.is_file()
-        linked_images = {
-            (comparison.parent / target).resolve()
-            for target in re.findall(r"\]\(([^)\s]+)\)", comparison.read_text(encoding="utf-8"))
-        }
-        assert current_image.resolve() in linked_images
         for reference_id in approved_ids:
             reference = next(entry for entry in references if entry["id"] == reference_id)
             reference_image = root / reference["image"]
             assert reference_image.is_file()
-            assert reference_image.resolve() in linked_images
 
 
 def test_current_images_are_product_routes_and_storybook_captures_are_untracked() -> None:

@@ -1,9 +1,0 @@
-{
-  "schema_version": "cmp.documentation-impact.css-unchanged-current-guide.v1",
-  "issue": "#261",
-  "source_sha": "b561da5a102001565267b1db70e452829ed92cec",
-  "classification": "behavior-preserving-css-ownership-migration",
-  "current_guide_files_changed": false,
-  "reason": "Canonical live before/after originals and all direct review crops are byte- and pixel-identical. Current guide workflow copy and registered current images remain valid; issue-owned evidence and screenshot manifest provenance are updated.",
-  "equivalence": "equivalence.json"
-}

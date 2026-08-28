@@ -56,6 +56,37 @@ _ISSUE_184_ROOT = "docs/17-evidence/images/issue-184-high-dpi-global-implementat
 # constant with a temporary fixture commit; production must keep this SHA.
 _ISSUE_184_POLICY_BASE = "94d8a1cdefa104fb41865171093b0657966b159f"
 _ISSUE_223_PREFIX = "docs/17-evidence/images/issue-223-"
+_ISSUE_351_RETIRED_EVIDENCE_ROOTS = frozenset(
+    f"docs/17-evidence/images/{name}"
+    for name in (
+        "issue-160-activity-density",
+        "issue-160-review-publication",
+        "issue-161-administration-button-semantics",
+        "issue-261-b4-css-ownership-publication",
+        "issue-261-fe06-m1a0-data-same-selector-overlap",
+        "issue-261-fe06-m1a1-data-source-tabs",
+        "issue-261-fe06-m1a2-data-source-advanced",
+        "issue-261-fe06-m1a3-data-import-diagnostics",
+        "issue-261-fe06-m1a4-data-raw-source-preview",
+        "issue-261-fe06-m1a5-data-library-source-list",
+        "issue-261-fe06-m1a6-data-curve-row-label",
+        "issue-261-fe06-m1a7-data-mapping-heading",
+        "issue-261-fe06-m1a8-data-optional-channel",
+        "issue-261-fe06-m1a9-data-mapping-table",
+        "issue-261-fe06-m1a10-data-split-frame",
+        "issue-261-fe06-m1a11-data-file-details",
+        "issue-261-fe06-m1a12-data-mapping-change-actions",
+        "issue-261-fe06-m1a13-data-local-scrollport",
+        "issue-261-fe06-m1a14-data-mapping-blocker",
+        "issue-261-fe06-m1a15-data-intake-surface",
+        "issue-261-fe06-m1a16-data-local-import-controls",
+        "issue-261-fe06-m1a17-data-mapping-attention",
+        "issue-261-fe06-m1a18-data-mapping-resolved",
+        "issue-261-fe06-m1a19-data-intake-field-rows",
+        "issue-261-fe06-m1a20-data-mapping-decision-frame",
+        "issue-298-frontend-guard-297-correction",
+    )
+)
 _SHARED_DESIGN_PREFIX = "apps/web/src/design/"
 _PRESERVED_FOUNDATION_FILES = {
     "apps/web/src/design/primitives.css",
@@ -4089,6 +4120,13 @@ def _issue_223_root(path: str) -> str | None:
     return f"{_ISSUE_223_PREFIX}{issue_root_name}"
 
 
+def _issue_351_retired_root(path: str) -> str | None:
+    return next(
+        (root for root in _ISSUE_351_RETIRED_EVIDENCE_ROOTS if _path_is_under(path, root)),
+        None,
+    )
+
+
 def _validate_visual_evidence_changes(
     entries: Mapping[str, bool],
     config: _VisualEvidenceConfig,
@@ -4106,6 +4144,27 @@ def _validate_visual_evidence_changes(
     issue_184_allowlist = (
         _issue_184_add_only_allowlist(project, merge_base) if issue_184_paths else set()
     )
+    issue_351_roots = {
+        retired_root
+        for path in changed
+        if PurePosixPath(path).suffix.lower() in config.raster_extensions
+        if (retired_root := _issue_351_retired_root(path)) is not None
+    }
+    if issue_351_roots:
+        if project is None or merge_base is None:
+            raise DocumentationImpactError(
+                "issue-351 retired evidence deletion requires a repository merge base"
+            )
+        for retired_root in issue_351_roots:
+            if not _git_path_exists(project, merge_base, retired_root):
+                raise DocumentationImpactError(
+                    f"issue-351 retired evidence root is absent from the merge base: {retired_root}"
+                )
+            root_path = project.joinpath(*PurePosixPath(retired_root).parts)
+            if root_path.exists():
+                raise DocumentationImpactError(
+                    f"issue-351 cleanup must delete the complete approved root: {retired_root}"
+                )
     issue_184_additions: set[str] = set()
     for raw_path, current in entries.items():
         path = raw_path.strip().replace("\\", "/")
@@ -4113,6 +4172,12 @@ def _validate_visual_evidence_changes(
             continue
         lifecycle = _visual_evidence_lifecycle(path, config)
         if lifecycle is None or lifecycle == "transient":
+            continue
+        if _issue_351_retired_root(path) is not None:
+            if current:
+                raise DocumentationImpactError(
+                    f"issue-351 retired evidence roots permit deletion only: {path}"
+                )
             continue
         if path in _ISSUE_167_EXCEPTION_FILES:
             if not all(entries.get(dependency, False) for dependency in _ISSUE_167_DEPENDENCIES):

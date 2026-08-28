@@ -4018,14 +4018,10 @@
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1366x768.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1366x768.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1366x768.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1366x768/original.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1366x768/original.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1366x768.png",
@@ -4041,13 +4037,10 @@
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1440x900.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1440x900.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1440x900.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1440x900/original.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1440x900/original.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1440x900.png",
@@ -4062,14 +4055,10 @@
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-1920x1080.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-1920x1080.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/routes/datasets-processing/modeling-data-curve-row-label-1920x1080.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/1920x1080/original.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/1920x1080/original.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-1920x1080.png",
@@ -4085,13 +4074,10 @@
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-2560x1440.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-2560x1440.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-2560x1440.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/routes/datasets-processing/modeling-data-curve-row-label-2560x1440.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-2560x1440.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/2560x1440/original.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/2560x1440/original.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-2560x1440.png",
@@ -4104,12 +4090,10 @@
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-data-3840x2160.png",
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-data-3840x2160.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/after/canonical/modeling-data-3840x2160.png",
-        "docs/17-evidence/images/issue-261-fe06-m1a6-data-curve-row-label/before/canonical/modeling-data-3840x2160.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-data/3840x2160/original.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-data/3840x2160/original.png",
         "docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-data-3840x2160.png",
@@ -4181,7 +4165,7 @@
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1366x768.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1366x768/original.png",
@@ -4189,12 +4173,11 @@
         "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1366x768/original.png",
         "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1366x768/original.png",
         "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1366x768/original.png",
-        "docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1366x768.png",
         "docs/user-guide/images/current/administration-database-preview-1366x768.png"
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1440x900.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1440x900/original.png",
@@ -4202,12 +4185,11 @@
         "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/administration-preview/1440x900/original.png",
         "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1440x900/original.png",
         "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1440x900/original.png",
-        "docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1440x900.png",
         "docs/user-guide/images/current/administration-database-preview-1440x900.png"
       ]
     },
     {
-      "rationale": "Byte-identical before/after, crop, and prior-evidence files are equivalent existing evidence bytes; no new capture is implied.",
+      "rationale": "#351 removed retired evidence paths; the remaining entries are the complete surviving exact-hash group.",
       "images": [
         "docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/administration-database-live/administration-database-preview-1920x1080.png",
         "docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/administration-preview/1920x1080/original.png",
@@ -4216,7 +4198,6 @@
         "docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/administration-preview/1920x1080/original.png",
         "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/administration-preview/1920x1080/original.png",
         "docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/administration-preview/1920x1080/original.png",
-        "docs/17-evidence/images/issue-298-frontend-guard-297-correction/after/originals/administration-database-preview-1920x1080.png",
         "docs/user-guide/images/current/administration-database-preview-1920x1080.png"
       ]
     },

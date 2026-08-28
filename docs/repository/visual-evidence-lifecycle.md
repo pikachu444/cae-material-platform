@@ -6,9 +6,10 @@ The authoritative machine-readable rules are in
 enforces them before documentation is accepted.
 
 The approved repository-owner choice is to keep only the affected canonical current screenshot
-families and manifest tracked for new product guidance, while preserving governed historical raster
-evidence and the explicitly retained top-level reports in place and using the .artifacts directory
-for transient review material.
+families and manifest tracked for new product guidance. Historical raster evidence is frozen unless
+an exact owner-approved cleanup list, such as #351, removes a retired packet after its current-guide
+and contract references are decoupled. Explicitly retained top-level reports remain in place, and the
+.artifacts directory is used for transient review material.
 
 ## Three states
 
@@ -45,6 +46,11 @@ satisfy it.
   the added name as no longer missing.
 - Actual-device #223 rasters may be added or modified only with `manifest.json` or
   `visual-evidence.yaml` in the same issue root. Deletes and renames are rejected.
+- #351 authorizes the one-time deletion of the approved 26 immediate evidence roots after removing
+  their current screenshot-manifest fields and inbound repository-local links. The 128 current
+  screenshots, #223 handoff roots, #289 exception files, #167 static bundle and the retained
+  top-level Markdown allowlist are outside that deletion authority. The exact root list and measured
+  byte count are recorded in the issue and its Task 3 pull request.
 
 ## Retained top-level evidence Markdown
 
@@ -62,11 +68,13 @@ The fixed-base historical helper-link test reads these two reports directly:
 - [`issue-261-css-inventory-and-migration-plan.md`](../17-evidence/issue-261-css-inventory-and-migration-plan.md)
 - [`issue-261-m1e5-producer-routed-residual.md`](../17-evidence/issue-261-m1e5-producer-routed-residual.md)
 
-### B. Local screenshot-evidence inputs
+### B. Retained local contract and selector inputs
 
-The current guide's screenshot manifest and the CSS selector inventory resolve these ten reports as
-repository-local paths. Keeping them local preserves offline `is_file()` and `read_text()` validation;
-replacing them with live GitHub URLs would violate the rule that hooks never depend on a live lookup.
+The #351 reaggregation keeps these ten reports because contract tests, repository tools or the CSS
+selector inventory still consume them as repository-local inputs. The current screenshot manifest
+no longer points to historical evidence reports or images; current capture registration and frozen
+task evidence are separate contracts. Offline hooks continue to validate only the local inputs they
+actually own and never require a live GitHub lookup.
 
 - [`issue-260-modeling-data-visual-normalization.md`](../17-evidence/issue-260-modeling-data-visual-normalization.md)
 - [`issue-261-b1-modeling-stage-css-ownership.md`](../17-evidence/issue-261-b1-modeling-stage-css-ownership.md)
@@ -94,15 +102,16 @@ Task 1B packets as fixed reference inputs pending the final Task 4 allowlist.
 
 ## Recovery
 
-The lifecycle gate does not delete historical bytes. If a mistaken raster or script is introduced
-under a frozen path, move a review capture to `.artifacts` or promote it through the current
-lifecycle; restore a historical byte or helper from the fixed base snapshot with:
+Except for an exact owner-approved cleanup such as #351, the lifecycle gate does not delete
+historical bytes. If a mistaken raster or script is introduced under a frozen path, move a review
+capture to `.artifacts` or promote it through the current lifecycle; inspect or restore a historical
+byte or helper from the fixed base snapshot with:
 
 ```powershell
 git show 94d8a1cdefa104fb41865171093b0657966b159f:<path>
 ```
 
 The command restores or inspects one exact path; it does not imply that a full-clone history has
-shrunk. The existing approximately 514 MB evidence collection remains untouched. Checksums,
-provenance, exact viewport identity and five-view preservation remain authoritative, and hooks never
-depend on a live GitHub lookup.
+shrunk. An approved working-tree deletion likewise does not rewrite Git history. Checksums,
+provenance, exact viewport identity and five-view preservation remain authoritative for retained
+packets, and hooks never depend on a live GitHub lookup.
