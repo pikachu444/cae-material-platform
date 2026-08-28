@@ -3,19 +3,23 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createMaterialLot,
   createProcessDefinition,
   createProcessRun,
-  createSpecimenSource,
   createStateGenealogy,
   getStateGenealogy,
-  getSpecimenSource,
   listMaterialLots,
   listProcessDefinitions,
   listProcessRuns,
-  listSpecimensForMaterialState,
   reviseStateGenealogy,
-} from "./api";
+} from "./features/materials";
+import {
+  createSpecimenSource,
+  getSpecimenSource,
+  listSpecimensForMaterialState,
+} from "./features/test-data";
 import type {
   LotKind,
   BalanceBasis,

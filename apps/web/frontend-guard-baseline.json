@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "97e79e0a8431c6b8b68949a312b2e78a6d7e79c6",
+  "sourceSha": "70a96b97beacec72698824ca4ed840fcafbe8763",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -25,16 +25,6 @@
       ],
       "followUpIssue": "#262",
       "removalCondition": "FE-07 moves Materials and Activity responsibilities to owned feature boundaries."
-    },
-    {
-      "path": "apps/web/src/api.ts",
-      "baselineLines": 4770,
-      "responsibilities": [
-        "cross-feature HTTP calls",
-        "request and response mapping"
-      ],
-      "followUpIssue": "#263",
-      "removalCondition": "FE-08 moves resource calls to feature-owned API modules with bounded compatibility exports."
     },
     {
       "path": "apps/web/src/types.ts",
@@ -69,12 +59,12 @@
   ],
   "debt": [
     {
-      "ruleId": "CMP-FE-IMPORT-DIRECTION",
-      "scope": "apps/web/src/design",
-      "count": 1,
-      "reason": "The legacy display-density adapter still imports the root API compatibility module.",
-      "followUpIssue": "#263",
-      "removalCondition": "FE-08 provides the owned API boundary and design no longer imports a legacy feature module."
+      "ruleId": "CMP-FE-ROOT-API-COMPATIBILITY",
+      "scope": "apps/web/src",
+      "count": 5,
+      "reason": "Five registered legacy composition modules still consume the bounded root API facade.",
+      "followUpIssue": "#331",
+      "removalCondition": "Remove after app/legacy-route-pages.tsx, common-processing-workbench.tsx, material-library.tsx, reference-voce-calibration-workbench.tsx, and scalar-distribution-workbench.tsx move to their final route/feature owners and zero production imports remain."
     },
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
@@ -134,6 +124,15 @@
     }
   ],
   "exceptions": [
+    {
+      "ruleId": "CMP-FE-IMPORT-DIRECTION",
+      "path": "apps/web/src/shared/api/auth.ts",
+      "fingerprint": "105a6c38cd28938f5b167beb5745437fbe71b5674e02f546b43ad85ef6b9dbf3",
+      "maxOccurrences": 1,
+      "reason": "FE-08B keeps the existing authenticated principal and access summary type imports while shared takes ownership of authentication requests.",
+      "ownerIssue": "#360",
+      "removalCondition": "Remove in #361 when these two existing contracts move to their approved type/model owner and shared auth no longer imports root types.ts."
+    },
     {
       "ruleId": "CMP-FE-EYEBROW",
       "path": "apps/web/src/app/legacy-route-pages.tsx",
@@ -7387,15 +7386,6 @@
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
       "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-IMPORT-DIRECTION",
-      "path": "apps/web/src/shared/catalog/configurable-definition-api.ts",
-      "fingerprint": "3bbc86adb894c86841decc2924d648afb3d237c14e5409ea2a3ecb8586c0b493",
-      "maxOccurrences": 1,
-      "reason": "Issue #298 preserves the exact PR #297 configurable catalog API boundary until FE-08C relocates its legacy catalog types.",
-      "ownerIssue": "#298",
-      "removalCondition": "Remove in #263 FE-08C when configurable catalog types move to an owned type or model module and this shared module no longer imports apps/web/src/types.ts."
     },
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",

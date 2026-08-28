@@ -1,6 +1,9 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 
-import { ApiError, type ApiConfig } from "../../../api";
+import {
+  ApiError,
+  type ApiConfig,
+} from "../../../shared/api";
 import type {
   CatalogWorkflowGraphResponse,
   ConfigurableCatalogRecordResponse,

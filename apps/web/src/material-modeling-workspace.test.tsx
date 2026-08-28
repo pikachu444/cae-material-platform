@@ -9,8 +9,8 @@ const mocks = vi.hoisted(() => ({
   listMaterials: vi.fn(),
 }));
 
-vi.mock("./api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./api")>()),
+vi.mock("./features/materials", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./features/materials")>()),
   getMaterialDetail: mocks.getMaterialDetail,
   listMaterials: mocks.listMaterials,
 }));

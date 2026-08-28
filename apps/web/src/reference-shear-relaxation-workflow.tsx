@@ -3,9 +3,10 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferencePronyCalibrationPlan,
   createReferencePronyCandidateSelection,
-  downloadNeutralMaterial,
   createReferenceShearRelaxationTestMethod,
   createReferenceShearRelaxationCropRecipe,
   createReferenceShearRelaxationTestRun,
@@ -14,16 +15,19 @@ import {
   executeReferenceShearRelaxationCrop,
   executeReferencePronyCalibration,
   getReferencePronyCandidateDiagnostics,
-  listLinearViscoelasticModels,
   listShearRelaxationDatasetsForMaterialState,
   listSpecimensForMaterialState,
   listTestMethods,
   listTestRunsForMaterialState,
   previewShearRelaxationDataset,
   promoteReferencePronyCandidate,
-  promoteModelToNeutralMaterial,
   uploadReferenceTensileCsv,
-} from "./api";
+} from "./features/test-data";
+import {
+  downloadNeutralMaterial,
+  listLinearViscoelasticModels,
+  promoteModelToNeutralMaterial,
+} from "./features/modeling";
 import type {
   MaterialStateResponse,
   NeutralMaterialResponse,

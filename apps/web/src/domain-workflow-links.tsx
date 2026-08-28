@@ -4,10 +4,12 @@ import "./domain-workflow-links.css";
 
 import {
   ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
   getCatalogWorkflowGraph,
   resolveCatalogDomainRevision,
-  type ApiConfig,
-} from "./api";
+} from "./features/catalog";
 import type {
   CatalogWorkflowGraphResponse,
   DomainBindingKind,

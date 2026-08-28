@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   ApiError,
+  type ApiConfig,
+} from "../../../../../shared/api";
+import {
   getCatalogWorkflowGraph,
   resolveCatalogDomainRevision,
-  type ApiConfig,
-} from "../../../../../api";
+} from "../../../../catalog";
 import {
   CATALOG_DATA_CATEGORIES,
   dataCategoryForEndpoint,

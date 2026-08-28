@@ -1,9 +1,15 @@
 import {
   ApiError,
+  authenticatedHeaders,
+  endpoint,
+  request,
+  throwResponseError,
   type ApiConfig,
   type ApiResult,
+} from "../../../shared/api";
+import {
   type SolverCardDownload,
-} from "../../../api";
+} from "./modeling-resource-api";
 import type { DataClassification } from "../../../types";
 import type {
   CommonEnsemblePreview,
@@ -30,13 +36,6 @@ import type {
   TargetDeliveryResponse,
   TargetPreviewResponse,
 } from "../model/export-contracts";
-
-const {
-  authenticatedHeaders,
-  endpoint,
-  request,
-  throwResponseError,
-} = ApiError.modelingTransportCompatibility;
 
 export function listCommonProcessingMethods(
   config: ApiConfig,

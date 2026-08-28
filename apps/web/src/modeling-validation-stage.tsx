@@ -5,18 +5,22 @@ import "./features/modeling/ui/modeling-validation-stage.css";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferenceValidationPlan,
   evaluateReferenceValidationRun,
   getReferenceValidationResult,
-  listDatasetRevisionSelections,
-  listDatasetsForMaterialState,
   listMaterialModels,
   listSolverCards,
   listValidationPlans,
   listValidationTemplates,
   pollReferenceValidationRun,
   submitReferenceValidationRun,
-} from "./api";
+} from "./features/modeling";
+import {
+  listDatasetRevisionSelections,
+  listDatasetsForMaterialState,
+} from "./features/test-data";
 import type {
   DatasetSelectionResponse,
   MaterialModelResponse,

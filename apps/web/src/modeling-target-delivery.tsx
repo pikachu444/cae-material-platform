@@ -1,6 +1,9 @@
 import { useState } from "react";
 
-import { ApiError, type ApiConfig } from "./api";
+import {
+  ApiError,
+  type ApiConfig,
+} from "./shared/api";
 import {
   deliverExactTargetPreview,
   type TargetDeliveryResponse,

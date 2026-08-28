@@ -6,8 +6,8 @@ const apiMocks = vi.hoisted(() => ({
   getCatalogWorkflowGraph: vi.fn(),
 }));
 
-vi.mock("../../../../../api", async () => {
-  const actual = await vi.importActual<typeof import("../../../../../api")>("../../../../../api");
+vi.mock("../../../../catalog", async () => {
+  const actual = await vi.importActual<typeof import("../../../../catalog")>("../../../../catalog");
   return { ...actual, ...apiMocks };
 });
 

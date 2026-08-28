@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-import { ApiError, createReviewRequest, listReviewRequests, type ApiConfig } from "./api";
+import {
+  ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
+  createReviewRequest,
+  listReviewRequests,
+} from "./features/activity";
 import type { DataClassification, ReviewRequestResponse } from "./types";
 
 export interface ReviewSubject {

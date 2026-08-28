@@ -2,6 +2,8 @@ import { type ChangeEvent, type FormEvent, useCallback, useEffect, useMemo, useR
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferenceDatasetSelection,
   createReferenceTensileCropRecipe,
   createReferenceTensilePairOutlierAssessment,
@@ -30,7 +32,7 @@ import {
   previewDatasetCurve,
   previewStatisticalResultCurve,
   uploadReferenceTensileCsv,
-} from "./api";
+} from "./features/test-data";
 import type {
   CurvePreview,
   DatasetSelectionResponse,

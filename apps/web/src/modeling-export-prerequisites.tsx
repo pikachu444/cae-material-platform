@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
   promoteModelToNeutralMaterial,
   promoteProcessingOutputToTabulatedPlasticity,
-  type ApiConfig,
-} from "./api";
+} from "./features/modeling";
 import { ReviewRequestAction } from "./review-request-action";
 import type {
   CommonProcessingOutputResponse,

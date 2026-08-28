@@ -72,6 +72,7 @@ export type {
 } from "./model/export-contracts";
 export { exportPrerequisites } from "./model/export-eligibility";
 export type { ExportPrerequisite } from "./model/export-eligibility";
+export * from "./api/modeling-resource-api";
 export {
   METAL_HARDENING_EQUATION_CONTRACT,
   buildFitDecisionSnapshot,

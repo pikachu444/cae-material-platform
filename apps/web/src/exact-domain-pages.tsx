@@ -2,13 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   getCatalogWorkflowGraph,
+  resolveCatalogDomainRevision,
+} from "./features/catalog";
+import {
   getMaterialModel,
   getNeutralMaterial,
   getNeutralSolverCard,
   getSolverCard,
-  resolveCatalogDomainRevision,
+} from "./features/modeling";
+import {
   type ApiConfig,
-} from "./api";
+} from "./shared/api";
 import { downloadSelectedModelNeutralMaterial } from "./features/modeling";
 import type { CatalogWorkflowGraphResponse, DomainBindingKind, DomainRevisionBinding } from "./types";
 import {

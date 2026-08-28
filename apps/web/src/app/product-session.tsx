@@ -6,7 +6,7 @@ import {
   loadApiConfig,
   requestLocalDemoAccessToken,
   saveApiConfig,
-} from "../api";
+} from "../shared/api";
 
 export type ProductSessionStatus = "loading" | "ready" | "signed_out";
 

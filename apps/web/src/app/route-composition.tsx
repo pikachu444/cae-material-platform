@@ -1,5 +1,7 @@
 import { lazy } from "react";
-import type { ApiConfig } from "../api";
+import {
+  type ApiConfig,
+} from "../shared/api";
 import { MaterialCreatePage, ModuleHubPage } from "./legacy-route-pages";
 import type { Navigate } from "./navigation";
 import type { AppRoute } from "./routes";

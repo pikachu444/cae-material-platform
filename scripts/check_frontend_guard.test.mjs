@@ -89,6 +89,25 @@ test("rejects reverse imports, feature deep imports, and dependency cycles", asy
   ]));
 });
 
+test("caps root API compatibility at the recorded legacy consumers", async () => {
+  const root = await fixture({
+    "apps/web/src/api.ts": "export const legacy = 1;\n",
+    "apps/web/src/legacy.ts": "import { legacy } from './api';\nvoid legacy;\n",
+  });
+  const rejected = await evaluateGuard({ projectRoot: root, baseline: baseline() });
+  assert.equal(rejected.passed, false);
+  assert.equal(rejected.violations[0].ruleId, "CMP-FE-ROOT-API-COMPATIBILITY");
+
+  const allowed = await evaluateGuard({
+    projectRoot: root,
+    baseline: baseline({
+      debt: [debt("CMP-FE-ROOT-API-COMPATIBILITY", "apps/web/src", 1)],
+    }),
+  });
+  assert.equal(allowed.passed, true);
+  assert.equal(allowed.warnings[0].count, 1);
+});
+
 test("treats hotspot growth as a review signal and top-level additions as responsibility", async () => {
   const path = "apps/web/src/app.tsx";
   const root = await fixture({ [path]: "const first = 1;\nconst second = 2;\n" });

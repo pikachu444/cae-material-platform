@@ -13,7 +13,7 @@ import {
   listProductAccessAssignments,
   revokeProductAccess,
   type ApiConfig,
-} from "./api";
+} from "./access-api";
 import type {
   DataClassification,
   FeatureGrant,

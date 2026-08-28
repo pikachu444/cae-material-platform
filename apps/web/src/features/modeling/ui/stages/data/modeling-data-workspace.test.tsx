@@ -8,9 +8,22 @@ const apiMocks = vi.hoisted(() => ({
   getCatalogWorkflowGraph: vi.fn(),
 }));
 
-vi.mock("../../../../../api", async () => {
-  const actual = await vi.importActual<typeof import("../../../../../api")>("../../../../../api");
-  return { ...actual, ...apiMocks };
+vi.mock("../../../../test-data", async () => {
+  const actual = await vi.importActual<typeof import("../../../../test-data")>("../../../../test-data");
+  return {
+    ...actual,
+    listTestRunsForMaterialState: apiMocks.listTestRunsForMaterialState,
+    listGovernedImportProfiles: apiMocks.listGovernedImportProfiles,
+  };
+});
+
+vi.mock("../../../../catalog", async () => {
+  const actual = await vi.importActual<typeof import("../../../../catalog")>("../../../../catalog");
+  return {
+    ...actual,
+    resolveCatalogDomainRevision: apiMocks.resolveCatalogDomainRevision,
+    getCatalogWorkflowGraph: apiMocks.getCatalogWorkflowGraph,
+  };
 });
 
 import { ModelingDataWorkspace } from "./modeling-data-workspace";

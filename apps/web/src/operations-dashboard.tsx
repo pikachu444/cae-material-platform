@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, type ApiConfig, getOperationalObservability } from "./api";
+import {
+  ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
+  getOperationalObservability,
+} from "./features/activity";
 import type { OperationalSnapshotResponse } from "./types";
 
 function errorMessage(error: unknown): string {

@@ -5,6 +5,8 @@ import "./features/test-data/ui/canonical-test-data-workbench.css";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createInstrument,
   createInstrumentCalibration,
   createTestCampaign,
@@ -16,7 +18,7 @@ import {
   listTestCampaigns,
   listTestMethods,
   listTestRunsForMaterialState,
-} from "./api";
+} from "./features/test-data";
 import type {
   InstrumentCalibrationResponse,
   InstrumentResponse,

@@ -167,8 +167,8 @@ const layout = {
 
 const mocks = vi.hoisted(() => ({ record: vi.fn(), attributes: vi.fn(), layouts: vi.fn(), previewCurve: vi.fn() }));
 
-vi.mock("./api", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./api")>();
+vi.mock("./features/catalog", async (importOriginal) => {
+  const original = await importOriginal<typeof import("./features/catalog")>();
   return {
     ...original,
     getConfigurableCatalogRecord: mocks.record,

@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ApiConfig } from "../api";
+import {
+  type ApiConfig,
+} from "../shared/api";
 import mainSource from "../main.tsx?raw";
 import { ApplicationShell } from "./application-shell";
 import {

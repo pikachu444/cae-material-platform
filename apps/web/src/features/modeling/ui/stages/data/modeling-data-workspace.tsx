@@ -9,8 +9,10 @@ import {
 
 import {
   listTestRunsForMaterialState,
+} from "../../../../test-data";
+import {
   type ApiConfig,
-} from "../../../../../api";
+} from "../../../../../shared/api";
 import { ModelingWorkspaceLayout } from "../../../../../design/modeling-workspace-layout";
 import type { ObservedCurveInput } from "../../../../../engineering-curve-plot";
 import type {

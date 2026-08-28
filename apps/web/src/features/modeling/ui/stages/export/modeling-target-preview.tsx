@@ -4,7 +4,7 @@ import {
   ApiError,
   getAuthenticatedPrincipal,
   type ApiConfig,
-} from "../../../../../api";
+} from "../../../../../shared/api";
 import {
   createExactTargetPreview,
   deliverExactTargetPreview,

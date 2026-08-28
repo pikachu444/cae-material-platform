@@ -2,6 +2,8 @@ import { type FormEvent, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   findProvenanceEntityByReference,
   getAuditIntegrity,
   getProvenanceCompleteness,
@@ -9,7 +11,7 @@ import {
   getProvenanceImpact,
   getProvenanceLineage,
   listAuditEvents,
-} from "./api";
+} from "./features/activity";
 import type {
   AuditEvent,
   AuditIntegrityReport,

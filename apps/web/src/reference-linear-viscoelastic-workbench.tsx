@@ -2,14 +2,18 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   type ApiConfig,
+} from "./shared/api";
+import {
   createLinearViscoelasticModel,
   getNeutralMaterial,
-  listBulkExportCandidates,
   listLinearViscoelasticModels,
   previewLinearViscoelasticResponse,
   promoteModelToNeutralMaterial,
   promotePronyProcessingOutput,
-} from "./api";
+} from "./features/modeling";
+import {
+  listBulkExportCandidates,
+} from "./features/materials";
 import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ReferenceLinearViscoelasticExport } from "./reference-linear-viscoelastic-export";
 import type {

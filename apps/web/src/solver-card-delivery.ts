@@ -7,9 +7,11 @@ import {
   getSolverCard,
   previewNeutralHyperelasticSolverCard,
   previewSolverCard,
-  type ApiConfig,
   type SolverCardDownload,
-} from "./api";
+} from "./features/modeling";
+import {
+  type ApiConfig,
+} from "./shared/api";
 import type { ExportTarget, MappingItem, MappingStatus } from "./types";
 
 export type SolverCardKind = "solver_card" | "neutral_solver_card";

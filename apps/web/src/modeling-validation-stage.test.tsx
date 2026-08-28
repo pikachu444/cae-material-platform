@@ -15,9 +15,23 @@ const api = vi.hoisted(() => ({
   evaluateReferenceValidationRun: vi.fn(),
 }));
 
-vi.mock("./api", () => ({
-  ...api,
-  ApiError: class ApiError extends Error {},
+vi.mock("./features/modeling", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./features/modeling")>()),
+  listValidationTemplates: api.listValidationTemplates,
+  listValidationPlans: api.listValidationPlans,
+  listMaterialModels: api.listMaterialModels,
+  listSolverCards: api.listSolverCards,
+  createReferenceValidationPlan: api.createReferenceValidationPlan,
+  getReferenceValidationResult: api.getReferenceValidationResult,
+  submitReferenceValidationRun: api.submitReferenceValidationRun,
+  pollReferenceValidationRun: api.pollReferenceValidationRun,
+  evaluateReferenceValidationRun: api.evaluateReferenceValidationRun,
+}));
+
+vi.mock("./features/test-data", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./features/test-data")>()),
+  listDatasetsForMaterialState: api.listDatasetsForMaterialState,
+  listDatasetRevisionSelections: api.listDatasetRevisionSelections,
 }));
 
 import { ModelingValidationStage } from "./modeling-validation-stage";

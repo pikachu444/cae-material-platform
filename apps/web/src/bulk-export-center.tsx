@@ -6,6 +6,8 @@ import "./features/modeling/ui/stages/export/modeling-export-stage.css";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createBulkExportJob,
   createBulkExportSelection,
   downloadBulkExportBundle,
@@ -13,7 +15,7 @@ import {
   listBulkExportCandidates,
   listBulkExportJobs,
   listMaterials,
-} from "./api";
+} from "./features/materials";
 import type {
   BulkExportBundleResponse,
   BulkExportCandidate,

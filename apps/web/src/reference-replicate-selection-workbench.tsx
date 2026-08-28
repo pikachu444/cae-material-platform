@@ -3,13 +3,15 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createReferenceTensileAlignmentRecipe,
   createReferenceTensileReplicateSelection,
   executeReferenceTensileAlignment,
   listReferenceTensileReplicateSelections,
   previewDatasetCurve,
   reviseReferenceTensileReplicateSelection,
-} from "./api";
+} from "./features/test-data";
 import type {
   CurvePreview,
   DatasetResponse,

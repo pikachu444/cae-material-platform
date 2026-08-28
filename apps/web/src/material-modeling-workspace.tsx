@@ -4,7 +4,14 @@ import "./features/modeling/ui/stages/fit/modeling-fit-stage.css";
 import "./features/modeling/ui/modeling-core-workbench.css";
 import "./features/modeling/ui/stages/fit/modeling-fit-stage-base.css";
 
-import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
+import {
+  ApiError,
+  type ApiConfig,
+} from "./shared/api";
+import {
+  getMaterialDetail,
+  listMaterials,
+} from "./features/materials";
 import { dispatchModelingSession, loadModelingSession, saveModelingSession, type ModelingMaterialFamily, type ModelingSessionSummary, type ModelingTrack } from "./features/modeling";
 import { PolymerTemperatureShiftInspector } from "./polymer-temperature-shift-inspector";
 import type {

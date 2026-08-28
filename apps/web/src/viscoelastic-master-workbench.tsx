@@ -3,11 +3,13 @@ import { type FormEvent, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   createViscoelasticMasterPlan,
   createViscoelasticSelection,
   executeViscoelasticMasterPlan,
   previewViscoelasticMasterRun,
-} from "./api";
+} from "./features/modeling";
 import type {
   MaterialStateResponse,
   ShearRelaxationDatasetResponse,

@@ -14,8 +14,8 @@ const mocks = vi.hoisted(() => ({
   convertTabular: vi.fn(),
 }));
 
-vi.mock("./api", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./api")>();
+vi.mock("./features/test-data", async (importOriginal) => {
+  const original = await importOriginal<typeof import("./features/test-data")>();
   return {
     ...original,
     validateCanonicalTestData: mocks.validate,

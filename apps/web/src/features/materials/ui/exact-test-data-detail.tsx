@@ -1,6 +1,8 @@
 import { useEffect, useId, useMemo, useState } from "react";
 
-import type { ApiConfig } from "../../../api";
+import {
+  type ApiConfig,
+} from "../../../shared/api";
 import {
   loadExactTestData,
   type ExactTestData,

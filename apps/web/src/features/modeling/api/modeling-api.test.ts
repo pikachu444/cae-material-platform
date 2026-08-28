@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { ApiError } from "../../../api";
+import {
+  ApiError,
+} from "../../../shared/api";
 import {
   commitCommonProcessingOutput,
   createCommonMappingProfile,

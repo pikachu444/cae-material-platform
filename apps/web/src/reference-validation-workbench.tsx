@@ -2,13 +2,13 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+} from "./shared/api";
+import {
   attachManualValidationResult,
   cancelValidationRun,
   createReferenceValidationPlan,
   createReferenceValidationTemplate,
   evaluateReferenceValidationRun,
-  listDatasetRevisionSelections,
-  listDatasetsForMaterialState,
   listMaterialModels,
   listSolverCards,
   listValidationPlans,
@@ -16,7 +16,11 @@ import {
   pollReferenceValidationRun,
   previewReferenceValidationResultCurve,
   submitReferenceValidationRun,
-} from "./api";
+} from "./features/modeling";
+import {
+  listDatasetRevisionSelections,
+  listDatasetsForMaterialState,
+} from "./features/test-data";
 import type {
   DatasetSelectionResponse,
   MaterialModelResponse,

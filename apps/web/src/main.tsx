@@ -1,7 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app";
-import { loadApiConfig } from "./api";
+import {
+  loadApiConfig,
+} from "./shared/api";
 import { bootstrapDisplayDensity } from "./design/display-density";
 import "./styles.css";
 import "./design/tokens.css";
