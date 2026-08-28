@@ -79,11 +79,11 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   파일별 JSON Pointer/위치 진단과 명시적 reference pin을 포함한 durable preview token을 발급하며,
   전체 파일을 한 PostgreSQL transaction에서 DRAFT Record batch로 저장합니다. 원본 bytes/name/MIME/length/SHA,
   binding·unit·curve provenance와 결정론적 source JSON/CSV download는 exact Record revision에 고정되고,
-  publication은 기존 review 경계에 남습니다.
+  publication은 기존 review 경계에 남습니다. 이 범위는 #342의 [PR #353](https://github.com/pikachu444/cae-material-platform/pull/353)에서
+  fresh PostgreSQL/API/browser 검증, Full 독립 감수와 2026-08-28 제품 소유자 화면 승인을 통과했습니다.
   #341은 additive common-unit `1.1.0`에서 explicit `speed`의 `m/s`·`mm/s`·`mm/min`과 density의
-  `tonne/mm3`를 구현하고 변경하지 않은 source-v2 apply/export/no-op을 닫습니다. #246의 다음 책임은
-  Task 1B installed-format 기반 실제 JSON 데이터 등록과 Task 2B의 `dma_strain_sweep` 명시적 미지원 및
-  후속 ownership 결정입니다. master curve·Prony·
+  `tonne/mm3`를 구현하고 변경하지 않은 source-v2 apply/export/no-op을 닫았습니다. #246의 다음 실행 단위는
+  #343 Task 2B의 `dma_strain_sweep` 명시적 미지원 및 후속 ownership 결정입니다. master curve·Prony·
   LinearViscoelastic IR의 production 입력·정책·수치 검증 확장은 #195 또는 이후 승인 이슈가 소유하며,
   #246 완료만으로 구현됐다고 간주하지 않습니다.
 - #195 polymer viscoelastic과 #196 elastomer hyperelastic/hyper-viscoelastic에는 bounded synthetic
