@@ -15,7 +15,6 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
-from cmp.modules.artifacts.adapters.persistence.content import artifact_table
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
@@ -37,6 +36,7 @@ from cmp.modules.catalog.application.configurable import AttributeSnapshot
 from cmp.modules.catalog.application.json_record_registration import (
     InstalledJsonRecordFormat,
     JsonAttributeBinding,
+    JsonCurveArtifactIdentity,
     JsonRegistrationToken,
 )
 from cmp.modules.catalog.application.links import RECORD_LINK_AGGREGATE_TYPE
@@ -419,26 +419,6 @@ class SqlAlchemyJsonRegistrationRepository:
             raise ValueError("curve Artifact requires an artifacts_pending JSON batch")
         if batch["classification"] != token.classification.value:
             raise ValueError("curve Artifact classification differs from JSON batch")
-        artifact = (
-            session.execute(
-                sa.select(artifact_table)
-                .where(
-                    artifact_table.c.organization_id == context.organization_id,
-                    artifact_table.c.project_id == context.project_id,
-                    artifact_table.c.classification == token.classification.value,
-                    artifact_table.c.id == artifact_id,
-                )
-            )
-            .mappings()
-            .one_or_none()
-        )
-        if artifact is None:
-            raise ValueError("finalized curve Artifact is not visible in this scope")
-        if (
-            str(artifact["sha256"]) != artifact_sha256
-            or int(artifact["size_bytes"]) != artifact_size_bytes
-        ):
-            raise ValueError("finalized curve Artifact differs from its immutable identity")
         existing = (
             session.execute(
                 sa.select(json_record_registration_curve_artifact)
@@ -1074,13 +1054,13 @@ class SqlAlchemyJsonRegistrationRepository:
         *,
         session: Session,
         context: SecurityContext,
-        token: JsonRegistrationToken,
         format_value: InstalledJsonRecordFormat,
         batch_id: UUID,
         file_documents: Mapping[tuple[str, str], Mapping[str, Any]],
         ordered_files: Sequence[Any],
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity],
     ) -> None:
-        expected: dict[tuple[str, str], int] = {}
+        expected: dict[tuple[str, str], tuple[int, JsonCurveArtifactIdentity]] = {}
         for ordinal, file in enumerate(ordered_files, start=1):
             document = file_documents[(file.filename, file.sha256)]
             for binding in format_value.attributes:
@@ -1091,7 +1071,13 @@ class SqlAlchemyJsonRegistrationRepository:
                 except (KeyError, IndexError, TypeError, ValueError):
                     continue
                 if value is not None:
-                    expected[(file.filename, binding.json_pointer)] = ordinal
+                    key = (file.filename, binding.json_pointer)
+                    identity = curve_artifacts.get(key)
+                    if identity is None:
+                        raise ValueError("finalized JSON curve Artifact identity is missing")
+                    expected[key] = (ordinal, identity)
+        if set(curve_artifacts) != set(expected):
+            raise ValueError("finalized JSON curve Artifact identities are inconsistent")
         rows = (
             session.execute(
                 sa.select(json_record_registration_curve_artifact)
@@ -1108,26 +1094,14 @@ class SqlAlchemyJsonRegistrationRepository:
         actual = {(str(row["original_filename"]), str(row["json_pointer"])): row for row in rows}
         if set(actual) != set(expected):
             raise ValueError("pending JSON curve Artifact associations are incomplete")
-        for key, ordinal in expected.items():
+        for key, (ordinal, identity) in expected.items():
             row = actual[key]
             if int(row["component_ordinal"]) != ordinal:
                 raise ValueError("pending JSON curve Artifact component order changed")
-            artifact = (
-                session.execute(
-                    sa.select(artifact_table.c.sha256, artifact_table.c.size_bytes)
-                    .where(
-                        artifact_table.c.organization_id == context.organization_id,
-                        artifact_table.c.project_id == context.project_id,
-                        artifact_table.c.classification == token.classification.value,
-                        artifact_table.c.id == row["artifact_id"],
-                    )
-                )
-                .mappings()
-                .one_or_none()
-            )
-            if artifact is None or (
-                str(artifact["sha256"]) != str(row["artifact_sha256"])
-                or int(artifact["size_bytes"]) != int(row["artifact_size_bytes"])
+            if (
+                row["artifact_id"] != identity.artifact_id
+                or str(row["artifact_sha256"]) != identity.sha256
+                or int(row["artifact_size_bytes"]) != identity.size_bytes
             ):
                 raise ValueError("pending JSON curve Artifact identity is inconsistent")
 
@@ -1141,6 +1115,7 @@ class SqlAlchemyJsonRegistrationRepository:
         format_value: InstalledJsonRecordFormat,
         batch_id: UUID,
         records: Sequence[Any],
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity],
         resolved_links: Sequence[tuple[str, str, str, str, UUID, UUID]] = (),
     ) -> None:
         """Insert batch/provenance and consume the token in the Record transaction.
@@ -1215,11 +1190,11 @@ class SqlAlchemyJsonRegistrationRepository:
             self._validate_curve_associations_in_transaction(
                 session=session,
                 context=context,
-                token=token,
                 format_value=format_value,
                 batch_id=batch_id,
                 file_documents=file_documents,
                 ordered_files=ordered_files,
+                curve_artifacts=curve_artifacts,
             )
         record_by_file = {
             (file.filename, file.sha256): record

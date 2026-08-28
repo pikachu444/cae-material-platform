@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import cast
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -32,6 +32,7 @@ from cmp.modules.catalog.application.configurable import AttributeSnapshot
 from cmp.modules.catalog.application.json_record_registration import (
     InstalledJsonRecordFormat,
     JsonAttributeBinding,
+    JsonCurveArtifactIdentity,
     JsonRecordRegistrationService,
     JsonRegistrationPersistence,
     JsonRegistrationToken,
@@ -555,6 +556,7 @@ def test_existing_pending_batch_appends_ready_before_preview_commit() -> None:
         format_value=format_value,
         batch_id=batch_id,
         records=(record,),
+        curve_artifacts={},
     )
 
     compiled = [
@@ -1099,6 +1101,126 @@ def _curve_format() -> InstalledJsonRecordFormat:
     )
 
 
+class _CurveAssociationResult:
+    def __init__(self, rows: Sequence[Mapping[str, object]]) -> None:
+        self.rows = tuple(rows)
+
+    def mappings(self) -> _CurveAssociationResult:
+        return self
+
+    def all(self) -> list[Mapping[str, object]]:
+        return list(self.rows)
+
+
+class _CurveAssociationSession:
+    def __init__(self, rows: Sequence[Mapping[str, object]]) -> None:
+        self.rows = tuple(rows)
+
+    def execute(self, _statement: sa.ClauseElement) -> _CurveAssociationResult:
+        return _CurveAssociationResult(self.rows)
+
+
+def _curve_association_inputs() -> tuple[
+    SecurityContext,
+    InstalledJsonRecordFormat,
+    JsonRegistrationFile,
+    Mapping[str, Any],
+    UUID,
+    JsonCurveArtifactIdentity,
+    dict[str, object],
+]:
+    context, _ = _security()
+    format_value = _curve_format()
+    source = JsonRegistrationFile(
+        "curve.json",
+        b'{"record":{"id":"CURVE-1","curve":{"x":[0,1],"y":[10,20]}}}',
+    )
+    document = cast(Mapping[str, Any], parse_strict_json(source.content, filename=source.filename))
+    batch_id = uuid4()
+    identity = JsonCurveArtifactIdentity(uuid4(), "c" * 64, 12)
+    row: dict[str, object] = {
+        "original_filename": source.filename,
+        "json_pointer": "/record/curve",
+        "component_ordinal": 1,
+        "artifact_id": identity.artifact_id,
+        "artifact_sha256": identity.sha256,
+        "artifact_size_bytes": identity.size_bytes,
+    }
+    return context, format_value, source, document, batch_id, identity, row
+
+
+def test_curve_associations_match_finalized_artifact_identity() -> None:
+    context, format_value, source, document, batch_id, identity, row = (
+        _curve_association_inputs()
+    )
+    repository = SqlAlchemyJsonRegistrationRepository(
+        session_factory=cast(Callable[[], Session], lambda: None),
+        rls_context=cast(RlsContext, SimpleNamespace()),
+    )
+
+    repository._validate_curve_associations_in_transaction(
+        session=cast(Session, _CurveAssociationSession((row,))),
+        context=context,
+        format_value=format_value,
+        batch_id=batch_id,
+        file_documents={(source.filename, source.sha256): document},
+        ordered_files=(source,),
+        curve_artifacts={(source.filename, "/record/curve"): identity},
+    )
+
+
+@pytest.mark.parametrize(
+    ("case", "message"),
+    (
+        ("missing", "incomplete"),
+        ("extra", "incomplete"),
+        ("artifact_id", "identity is inconsistent"),
+        ("artifact_sha256", "identity is inconsistent"),
+        ("artifact_size_bytes", "identity is inconsistent"),
+        ("component_ordinal", "component order changed"),
+    ),
+)
+def test_curve_associations_reject_missing_extra_or_mismatched_identity(
+    case: str, message: str
+) -> None:
+    context, format_value, source, document, batch_id, identity, row = (
+        _curve_association_inputs()
+    )
+    rows: tuple[Mapping[str, object], ...]
+    if case == "missing":
+        rows = ()
+    elif case == "extra":
+        extra = dict(row)
+        extra["json_pointer"] = "/record/other-curve"
+        rows = (row, extra)
+    else:
+        changed = dict(row)
+        if case == "artifact_id":
+            changed["artifact_id"] = uuid4()
+        elif case == "artifact_sha256":
+            changed["artifact_sha256"] = "d" * 64
+        elif case == "artifact_size_bytes":
+            changed["artifact_size_bytes"] = identity.size_bytes + 1
+        else:
+            changed["component_ordinal"] = 2
+        rows = (changed,)
+    repository = SqlAlchemyJsonRegistrationRepository(
+        session_factory=cast(Callable[[], Session], lambda: None),
+        rls_context=cast(RlsContext, SimpleNamespace()),
+    )
+
+    with pytest.raises(ValueError, match=message):
+        repository._validate_curve_associations_in_transaction(
+            session=cast(Session, _CurveAssociationSession(rows)),
+            context=context,
+            format_value=format_value,
+            batch_id=batch_id,
+            file_documents={(source.filename, source.sha256): document},
+            ordered_files=(source,),
+            curve_artifacts={(source.filename, "/record/curve"): identity},
+        )
+
+
 class _FakeCurveArtifacts:
     def __init__(self) -> None:
         self.calls = 0
@@ -1128,6 +1250,9 @@ class _CurvePersistence:
     def __init__(self) -> None:
         self.batch_id: UUID | None = None
         self.associations: list[tuple[UUID, str, str, UUID]] = []
+        self.curve_artifacts: dict[
+            tuple[str, str], JsonCurveArtifactIdentity
+        ] = {}
         self.persist_attempts = 0
         self.ready_events = 0
         self.record_facts = 0
@@ -1151,7 +1276,14 @@ class _CurvePersistence:
         if association not in self.associations:
             self.associations.append(association)
 
-    def persist_batch_in_transaction(self, *, records: Sequence[object], **_kwargs: object) -> None:
+    def persist_batch_in_transaction(
+        self,
+        *,
+        records: Sequence[object],
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity],
+        **_kwargs: object,
+    ) -> None:
+        self.curve_artifacts = dict(curve_artifacts)
         self.persist_attempts += 1
         if self.persist_attempts == 1:
             raise RuntimeError("injected post-Artifact Record transaction failure")
@@ -1249,6 +1381,12 @@ async def test_curve_artifact_failure_reuses_batch_and_artifact_identities() -> 
     assert persistence.ready_events == 1
     assert persistence.record_facts == 1
     assert len(persistence.associations) == 1
+    identity = persistence.curve_artifacts[("curve.json", "/record/curve")]
+    assert (identity.artifact_id, identity.sha256, identity.size_bytes) == (
+        artifacts.artifact_id,
+        artifacts.artifact_sha256,
+        artifacts.artifact_size_bytes,
+    )
 
 
 @pytest.mark.anyio

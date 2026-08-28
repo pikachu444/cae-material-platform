@@ -21,6 +21,7 @@ from uuid import UUID, uuid4
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.artifacts.application.content import FinalizedArtifact
 from cmp.modules.catalog.application.configurable import AttributeSnapshot
 from cmp.modules.catalog.application.records import (
     CatalogRecordService,
@@ -189,6 +190,15 @@ class JsonAttributeBinding:
     # Exact source-schema x-key used for semantic projections.  This is internal binding
     # metadata and is intentionally omitted from response() and other API projections.
     source_key: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class JsonCurveArtifactIdentity:
+    """Immutable identity returned by the Artifact service for one curve component."""
+
+    artifact_id: UUID
+    sha256: str
+    size_bytes: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -483,6 +493,7 @@ class JsonRegistrationPersistence(Protocol):
         format_value: InstalledJsonRecordFormat,
         batch_id: UUID,
         records: Sequence[Any],
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity],
         resolved_links: Sequence[tuple[str, str, str, str, UUID, UUID]] = (),
     ) -> None: ...
 
@@ -1988,7 +1999,7 @@ class JsonRecordRegistrationService:
         document: Mapping[str, Any],
         *,
         references: Mapping[str, tuple[UUID, UUID]],
-        curve_artifacts: Mapping[tuple[str, str], tuple[UUID, str]],
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity],
         filename: str,
     ) -> CatalogRecordValue | None:
         attribute = binding.attribute
@@ -2017,8 +2028,8 @@ class JsonRecordRegistrationService:
                 attribute.id,
                 revision_id,
                 definition.data_type,
-                artifact_id=artifact[0],
-                artifact_sha256=artifact[1],
+                artifact_id=artifact.artifact_id,
+                artifact_sha256=artifact.sha256,
             )
         if definition.data_type is AttributeDataType.NUMBER:
             # A numeric source value remains immutable pointer/unit evidence until the
@@ -2084,7 +2095,7 @@ class JsonRecordRegistrationService:
         result: JsonRegistrationFileResult,
         *,
         references: Mapping[str, tuple[UUID, UUID]],
-        curve_artifacts: Mapping[tuple[str, str], tuple[UUID, str]],
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity],
     ) -> CatalogRecordContent:
         values: list[CatalogRecordValue] = []
         name = result.record_name or result.external_key or format_value.table_key
@@ -2134,7 +2145,7 @@ class JsonRecordRegistrationService:
         format_value: InstalledJsonRecordFormat,
         *,
         batch_id: UUID,
-    ) -> dict[tuple[str, str], tuple[UUID, str]]:
+    ) -> dict[tuple[str, str], JsonCurveArtifactIdentity]:
         """Materialize validated curve arrays through the immutable Artifact lifecycle."""
 
         persist_curve = getattr(
@@ -2156,7 +2167,7 @@ class JsonRecordRegistrationService:
             (file.filename, file.sha256): ordinal
             for ordinal, file in enumerate(ordered_files, start=1)
         }
-        prepared: dict[tuple[str, str], tuple[UUID, str]] = {}
+        prepared: dict[tuple[str, str], JsonCurveArtifactIdentity] = {}
         for file, document in zip(pending.files, pending.documents, strict=True):
             for binding in format_value.attributes:
                 if binding.attribute.current.content.data_type is not AttributeDataType.CURVE:
@@ -2181,7 +2192,7 @@ class JsonRecordRegistrationService:
 
                 def persist_curve_artifact(
                     session: Any,
-                    finalized: Any,
+                    finalized: FinalizedArtifact,
                     *,
                     file: JsonRegistrationFile = file,
                     binding: JsonAttributeBinding = binding,
@@ -2211,9 +2222,10 @@ class JsonRecordRegistrationService:
                     idempotency_key=f"json-record-curve-{command_digest}",
                     commit_hook=persist_curve_artifact,
                 )
-                prepared[(file.filename, binding.json_pointer)] = (
-                    artifact.artifact.id,
-                    artifact.artifact.sha256,
+                prepared[(file.filename, binding.json_pointer)] = JsonCurveArtifactIdentity(
+                    artifact_id=artifact.artifact.id,
+                    sha256=artifact.artifact.sha256,
+                    size_bytes=artifact.artifact.size_bytes,
                 )
         return prepared
 
@@ -2351,7 +2363,7 @@ class JsonRecordRegistrationService:
         change_reason: str,
         reference_pins: Mapping[tuple[str, str], Mapping[str, str]] | None = None,
         domain_bindings: Sequence[tuple[Any, ...]] | None = None,
-        curve_artifacts: Mapping[tuple[str, str], tuple[UUID, str]] | None = None,
+        curve_artifacts: Mapping[tuple[str, str], JsonCurveArtifactIdentity] | None = None,
     ) -> JsonRegistrationSaveResult:
         self._require(context, decision, Permission.CATALOG_WRITE)
         pending = self._tokens.get(token)
@@ -2491,6 +2503,7 @@ class JsonRecordRegistrationService:
                 batch_id=batch_id,
                 records=created,
                 resolved_links=resolved_links,
+                curve_artifacts=resolved_curve_artifacts,
             )
 
         create_kwargs: dict[str, Any] = {
@@ -2824,6 +2837,7 @@ __all__ = [
     "JSON_REGISTRATION_TTL",
     "InstalledJsonRecordFormat",
     "JsonAttributeBinding",
+    "JsonCurveArtifactIdentity",
     "JsonRecordRegistrationService",
     "JsonRegistrationErrorCode",
     "JsonRegistrationPersistence",
