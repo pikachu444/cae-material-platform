@@ -1,6 +1,6 @@
 # 스키마 기반 물성 DB 통합 계획
 
-상태: **승인된 기획 gate, #246 잔여 범위 진행 전 배치 결정 대기**
+상태: **승인된 기획 gate, #246 Task 2B PR #356 병합 대기**
 원기획 기준선: `main@63a076c`
 현재 대조 기준선: `main@5d7f65a`
 승인일: 2026-08-08
@@ -72,7 +72,7 @@ positive/negative fixture와 함께 확정한다.
 | Artifact/Provenance | immutable bytes/digest, exact revision lineage와 source-v2 원본 파일·JSON pointer·해시 보존 | 실제 데이터 등록 결과의 source-to-Record/Test Data lineage | Task 1A를 재작성하지 않고 Task 1B가 exact installed-format revision을 고정 |
 | Unit | #205 공통 dimension/Unit Profile과 #209의 `Hz` 구현 | `mm/min`, `tonne/mm3`, 추가 solver unit system과 Unit Profile 관리 UI | 앞의 두 단위는 #246 Task 2, solver profile/UI는 #214; production 기본값을 정하지 않음 |
 | Curve | #206 공통 channel/deviation 계약, source-v2 객체형 `x-curve` adapter와 기존 통계 projection | p05/p95 representative revision과 승인된 Fit 연결 | additive representative result/review 계약; 기존 Artifact·과거 revision 유지 |
-| Import | CSV/TSV/XLSX, versioned Test Data JSON, #209 DMA frequency-temperature/FLD governed import | installed format 기반 실제 JSON 다건 등록; `dma_strain_sweep` 전용 처리는 보류 | #246 Task 1B로 실제 등록, Task 2B로 명시적 미지원·후속 ownership 기록 |
+| Import | CSV/TSV/XLSX, versioned Test Data JSON, #209 DMA frequency-temperature/FLD governed import, #246 Task 1B exact JSON 다건 등록 | `dma_strain_sweep` 전용 처리는 운용 자료·승인 요구가 없어 보류 | #343은 현재 계약·UI의 명시적 미지원과 #195 production 점탄성 소유권을 기록하며 새 처리 기능을 만들지 않음 |
 | Statistics | scalar distribution, common-grid piecewise-linear/no-extrapolation alignment, append-only outlier 판단, pointwise mean/95% CI와 exact Dataset/Test Run lineage | p05/p95 representative revision·review/approval/invalidation·approved representative exact revision→Fit selection | 기존 기반을 회귀검증하고 #211의 좁은 잔여만 추가 |
 | Process/Fit | explicit Process, toe compensation, exact Fit input/selection/reload와 calibration scope exact pinning | 승인된 representative exact revision을 Fit source로 선택하는 연결 | 원본 불변, explicit option, stale propagation을 재사용 |
 | Export | Abaqus/OpenRadioss preview/delivery, mapping status와 exact Unit Profile trace; 기존 `kg_m_s` bytes 보존 | governed text Template, LS-DYNA와 추가 solver unit system 없음 | 기존 renderer를 compatibility baseline으로 유지 |
@@ -118,7 +118,7 @@ module 경계로 분해했다.
 | 10 | [#208](https://github.com/pikachu444/cae-material-platform/issues/208) | bundle Administration plan/apply UI | #184, #204, #207 |
 | 11 | [#212](https://github.com/pikachu444/cae-material-platform/issues/212) | explicit toe compensation | #184, method/tolerance 결정 gate |
 | 12 | [#209](https://github.com/pikachu444/cae-material-platform/issues/209) | DMA·FLD governed import — PR #248 완료 | #160, #184, #205~#207 |
-| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 — Task 1A PR #250 완료, 잔여 OPEN | #209, 원본 패키지와 추적표 |
+| 13 | [#246](https://github.com/pikachu444/cae-material-platform/issues/246) | source-v2 원본 정합과 누락 범위 폐쇄 — Task 1A PR #250, Task 2 PR #345, Task 1B PR #353 완료; Task 2B PR #356 병합 대기, #344 잔여 OPEN | #209, 원본 패키지와 추적표 |
 | 14 | [#211](https://github.com/pikachu444/cae-material-platform/issues/211) | p05/p95 representative revision·review/approval/invalidation·approved exact Fit selection | #160, #184, #206, #210, #246 Task 3; 기존 alignment/outlier/mean CI/exact pinning 재사용 |
 | 15 | [#213](https://github.com/pikachu444/cae-material-platform/issues/213) | governed solver-card Template/renderer | #160, #184, #205, #246 Task 3, sandbox ADR |
 | 16 | [#214](https://github.com/pikachu444/cae-material-platform/issues/214) | LS-DYNA MAT_024·다중 단위·Template UI | #160, #184, #205, #213 |
@@ -135,9 +135,11 @@ module 경계로 분해했다.
 ## 5. 권장 실행과 제한된 병렬화
 
 저장소의 기본 규칙은 `docs/planning/backlog.md`의 첫 미완료 단위 하나만 진행하는 것이다.
-#209는 PR #248, main `3e642e8`에서 완료했고 #246 Task 1A도 PR #250, main `b9a82e9`에서
-완료했다. 현재 첫 미완료 단위는 추가 보완 배치 결정을 기다리는 #246이다. 승인된 #246 잔여를
-닫은 뒤 #211로 진행하며, #211은 이미 구현된 alignment·outlier·mean/95% CI·exact input pinning을
+#209는 PR #248, main `3e642e8`에서 완료했고 #246의 Task 1A·Task 2·Task 1B도 각각
+PR #250·#345·#353에서 완료했다. 현재 첫 미완료 단위는 #343 Task 2B의 PR #356이며, 코드 추가 없이
+frequency-temperature DMA 지원, strain sweep 미지원과 #195 production 점탄성 소유권을 확정한다.
+이어 #344가 Task 3+4의 후속 소유권·보류 결정을 닫는다. #246을 닫은 뒤 #211로 진행하며,
+#211은 이미 구현된 alignment·outlier·mean/95% CI·exact input pinning을
 재사용하고 pointwise p05/p95 representative revision, review/approval/invalidation과 approved
 representative exact revision→Fit selection만 구현한다.
 
