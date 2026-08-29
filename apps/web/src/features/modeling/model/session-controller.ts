@@ -1,4 +1,4 @@
-import type { DataClassification } from "../../../types";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 
 export type ModelingMaterialFamily = "metal" | "polymer" | "elastomer";
 export type ModelingStage = "data" | "process" | "fit" | "validate" | "review" | "export";

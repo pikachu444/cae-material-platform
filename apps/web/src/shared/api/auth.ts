@@ -1,7 +1,7 @@
 import type {
   AuthenticatedPrincipal,
   ProductAccessSummary,
-} from "../../types";
+} from "./auth-contracts";
 
 import {
   request,

@@ -2,7 +2,7 @@ import type {
   CatalogDataCategory,
   ConfigurableLinkEndpoint,
   DomainRevisionBinding,
-} from "./types";
+} from "./features/catalog/contracts";
 
 export const CATALOG_DATA_CATEGORIES: ReadonlyArray<{
   key: CatalogDataCategory;

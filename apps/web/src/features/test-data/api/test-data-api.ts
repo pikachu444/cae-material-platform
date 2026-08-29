@@ -1,10 +1,20 @@
 import type {
+  CommonExportProvenance,
+  LinearViscoelasticModelResponse,
+  PronyCalibrationDiagnosticsResponse,
+  PronyCalibrationPlanResponse,
+  PronyCalibrationRunResponse,
+  PronyCandidateSelectionResponse,
+  ShearRelaxationCurvePreview,
+  ShearRelaxationDatasetResponse,
+  ShearRelaxationProcessingRecipeResponse,
+  ShearRelaxationProcessingRunResponse,
+} from "../../modeling/contracts";
+import type {
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
-  CommonExportProvenance,
   CompletedUpload,
   CurvePreview,
-  DataClassification,
   DatasetResponse,
   DatasetSelectionResponse,
   DistributionFamily,
@@ -21,17 +31,12 @@ import type {
   InstrumentCalibrationResponse,
   InstrumentContent,
   InstrumentResponse,
-  LinearViscoelasticModelResponse,
   OutlierAssessmentResponse,
   OutlierDetectionPlanResponse,
   OutlierDetectionRunResponse,
   OutlierScopeComparisonResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
-  PronyCalibrationDiagnosticsResponse,
-  PronyCalibrationPlanResponse,
-  PronyCalibrationRunResponse,
-  PronyCandidateSelectionResponse,
   ReferenceCalibrationScopeResponse,
   ReferenceTensileMapping,
   ReplicateAlignmentBatchResponse,
@@ -45,10 +50,6 @@ import type {
   ReplicateStatisticalRunResponse,
   ScalarDistributionResultResponse,
   ScalarDistributionSelectionResponse,
-  ShearRelaxationCurvePreview,
-  ShearRelaxationDatasetResponse,
-  ShearRelaxationProcessingRecipeResponse,
-  ShearRelaxationProcessingRunResponse,
   SpecimenResponse,
   SpecimenSourceResponse,
   StatisticalCurvePreview,
@@ -65,7 +66,8 @@ import type {
   TestRunContextResponse,
   TestRunResponse,
   UploadSession,
-} from "../../../types";
+} from "../contracts";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 
 import {
   ApiError,

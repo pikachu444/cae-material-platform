@@ -1,8 +1,8 @@
+import type { MaterialResponse } from "../../../../materials/contracts";
 import type {
   CanonicalTestDataDocumentResponse,
-  MaterialResponse,
   TestRunResponse,
-} from "../../../../../types";
+} from "../../../../test-data/contracts";
 import type { ModelingSessionRecordRef } from "../../../model/session-controller";
 
 export const MODELING_DATA_PAGE_SIZE = 25;

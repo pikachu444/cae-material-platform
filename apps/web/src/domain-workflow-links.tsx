@@ -14,7 +14,7 @@ import type {
   CatalogWorkflowGraphResponse,
   DomainBindingKind,
   DomainRevisionBinding,
-} from "./types";
+} from "./features/catalog/contracts";
 
 export interface DomainWorkflowTarget {
   kind: DomainBindingKind;

@@ -21,16 +21,16 @@ import {
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
 } from "./features/test-data";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  DatasetSelectionResponse,
   MaterialModelResponse,
-  MaterialStateResponse,
   ReferenceValidationResultResponse,
   SolverCardResponse,
   ValidationPlanResponse,
   ValidationRunResponse,
   ValidationTemplateResponse,
-} from "./types";
+} from "./features/modeling/contracts";
+import type { DatasetSelectionResponse } from "./features/test-data/contracts";
 import type { ModelingMaterialFamily, ModelingSessionEvent, ModelingSessionSummary } from "./features/modeling";
 
 type Props = {

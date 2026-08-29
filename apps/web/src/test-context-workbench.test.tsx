@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TestContextWorkbench } from "./test-context-workbench";
-import type { MaterialStateResponse } from "./types";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 
 function response(body: unknown): Response {
   return {

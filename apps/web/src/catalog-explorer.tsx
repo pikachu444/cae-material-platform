@@ -26,7 +26,7 @@ import type {
   ConfigurableSubsetResponse,
   ConfigurableTableResponse,
   DomainBindingKind,
-} from "./types";
+} from "./features/catalog/contracts";
 
 interface CatalogExplorerProps {
   config: ApiConfig;

@@ -21,10 +21,9 @@ import {
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
 } from "./features/test-data";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  DatasetSelectionResponse,
   MaterialModelResponse,
-  MaterialStateResponse,
   ReferenceRunnerOutcome,
   SolverCardResponse,
   ValidationExecutionMode,
@@ -32,7 +31,8 @@ import type {
   ValidationResultCurveResponse,
   ValidationRunResponse,
   ValidationTemplateResponse,
-} from "./types";
+} from "./features/modeling/contracts";
+import type { DatasetSelectionResponse } from "./features/test-data/contracts";
 import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
 function messageFor(error: unknown): string {

@@ -1,4 +1,4 @@
-import type { TargetPreviewResponse } from "./types";
+import type { TargetPreviewResponse } from "./features/modeling/contracts";
 
 export function TargetPreviewResult({ preview }: { preview: TargetPreviewResponse }) {
   return <div className="target-preview-result">

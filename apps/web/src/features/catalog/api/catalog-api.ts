@@ -27,13 +27,15 @@ import type {
   ConfigurableSubsetResponse,
   ConfigurableTableContent,
   ConfigurableTableResponse,
-  DataClassification,
   DomainBindingKind,
   DomainRevisionBinding,
-  GovernedTabularFileFormat,
-  ProductAccessSummary,
+} from "../contracts";
+import type { GovernedTabularFileFormat } from "../../test-data/contracts";
+import type { ProductAccessSummary } from "../../../shared/api/auth-contracts";
+import type {
+  DataClassification,
   RevisionMetadata,
-} from "../../../types";
+} from "../../../shared/model/core-contracts";
 
 import {
   request,
@@ -203,8 +205,8 @@ export function bindCatalogRecordDomainRevision(
   config: ApiConfig,
   recordId: string,
   revisionId: string,
-  input: { kind: import("../../../types").DomainBindingKind; object_id: string; revision_id: string },
-): Promise<ApiResult<import("../../../types").DomainRevisionBinding>> {
+  input: { kind: DomainBindingKind; object_id: string; revision_id: string },
+): Promise<ApiResult<DomainRevisionBinding>> {
   return request(
     config,
     `/catalog/records/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}/domain-binding`,

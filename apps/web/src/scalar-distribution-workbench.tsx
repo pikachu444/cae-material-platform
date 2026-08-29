@@ -16,19 +16,19 @@ import {
   listScalarDistributionSelections,
   reviseScalarDistributionSelection,
 } from "./api";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  DataClassification,
   DatasetResponse,
   DistributionFamily,
   ExactUnitProfilePin,
-  MaterialStateResponse,
   ReplicateStatisticalPlanResponse,
   ReplicateStatisticalRunResponse,
   ScalarDistributionCandidate,
   ScalarDistributionResultResponse,
   ScalarDistributionSelectionResponse,
   TensileReplicateSelectionResponse,
-} from "./types";
+} from "./features/test-data/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 import "./features/modeling/ui/modeling-scalar-distribution.css";
 
 interface Props {

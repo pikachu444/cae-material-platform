@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { NeutralHyperelasticExport } from "./neutral-hyperelastic-export";
-import type { NeutralMaterialResponse } from "./types";
+import type { NeutralMaterialResponse } from "./features/modeling/contracts";
 
 const neutralId = "e5700000-0000-4000-8000-000000000001";
 const neutralRevisionId = "e5700000-0000-4000-8000-000000000002";

@@ -14,7 +14,8 @@ import {
   displayCurveValue,
   originalUnitSummary,
 } from "./curve-contract";
-import type { CatalogCurvePreviewResponse, CurveChannelContract } from "./types";
+import type { CatalogCurvePreviewResponse } from "./features/catalog/contracts";
+import type { CurveChannelContract } from "./shared/model/curve-contracts";
 import "./features/materials/ui/curve-contract-chart.css";
 
 const VIEW_WIDTH = 960;

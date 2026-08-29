@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { OgdenScientificProfilePanel } from "./scientific-profile-panel";
-import type { ScientificProfileResponse } from "./types";
+import type { ScientificProfileResponse } from "./features/modeling/contracts";
 
 function response(body: unknown, status = 200): Response {
   return {

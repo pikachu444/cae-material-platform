@@ -2,11 +2,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ScalarDistributionWorkbench } from "./scalar-distribution-workbench";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  MaterialStateResponse,
   ScalarDistributionCandidate,
   ScalarDistributionSelectionResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {

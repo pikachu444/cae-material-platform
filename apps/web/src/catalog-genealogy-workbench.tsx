@@ -30,9 +30,11 @@ import type {
   ProcessRunResponse,
   ProcessKind,
   StateGenealogyResponse,
+} from "./features/materials/contracts";
+import type {
   SpecimenResponse,
   SpecimenSourceResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 
 interface FlowDraft {
   key: number;

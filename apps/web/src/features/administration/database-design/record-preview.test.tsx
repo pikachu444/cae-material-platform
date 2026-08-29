@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type {
   ConfigurableAttributeResponse,
   ConfigurableCatalogRecordResponse,
-} from "../../../types";
+} from "../../catalog/contracts";
 import { RecordPreview } from "./record-preview";
 
 describe("RecordPreview", () => {

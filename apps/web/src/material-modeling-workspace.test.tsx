@@ -1,7 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { MaterialClass, MaterialDetail, MaterialResponse } from "./types";
+import type {
+  MaterialClass,
+  MaterialDetail,
+  MaterialResponse,
+} from "./features/materials/contracts";
 import { clearModelingSession, loadModelingSession } from "./features/modeling";
 
 const mocks = vi.hoisted(() => ({

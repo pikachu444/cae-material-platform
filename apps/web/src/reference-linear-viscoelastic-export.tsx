@@ -14,7 +14,7 @@ import type {
   LinearViscoelasticCardResponse,
   LinearViscoelasticMappingReport,
   LinearViscoelasticModelResponse,
-} from "./types";
+} from "./features/modeling/contracts";
 
 function errorMessage(cause: unknown): string {
   return cause instanceof Error ? cause.message : "The Abaqus card workflow failed.";

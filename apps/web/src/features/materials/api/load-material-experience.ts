@@ -15,9 +15,11 @@ import type {
   CatalogWorkflowGraphResponse,
   ConfigurableCatalogRecordResponse,
   DomainRevisionBinding,
+} from "../../catalog/contracts";
+import type {
   MaterialDetail,
   MaterialResponse,
-} from "../../../types";
+} from "../contracts";
 import {
   previewSolverCardText as previewExactSolverCardText,
   type SolverCardSummary,

@@ -14,11 +14,13 @@ import {
 } from "./features/modeling";
 import type {
   MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
   OgdenPronyCardResponse,
   OgdenPronyMappingResponse,
   OgdenPronyModelResponse,
-  PropertySetResponse,
-} from "./types";
+} from "./features/modeling/contracts";
 import { OgdenScientificProfilePanel } from "./scientific-profile-panel";
 import { ReferenceOgdenCalibrationWorkbench } from "./reference-ogden-calibration-workbench";
 import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";

@@ -8,7 +8,10 @@ import {
   createNeutralHyperelasticSolverCard,
   preflightNeutralHyperelasticSolverCard,
 } from "./features/modeling";
-import type { MappingStatus, NeutralHyperelasticMappingReport } from "./types";
+import type {
+  MappingStatus,
+  NeutralHyperelasticMappingReport,
+} from "./features/modeling/contracts";
 import {
   downloadSolverCardArtifact,
   loadSolverCardEvidence,

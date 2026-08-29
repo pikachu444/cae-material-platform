@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CatalogGenealogyWorkbench } from "./catalog-genealogy-workbench";
-import type { MaterialStateResponse } from "./types";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 
 function response(body: unknown, status = 200): Response {
   return {

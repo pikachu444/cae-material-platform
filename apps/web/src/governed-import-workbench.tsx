@@ -12,8 +12,8 @@ import {
   previewGovernedTabularImport,
   uploadGovernedTabularFile,
 } from "./features/test-data";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  DataClassification,
   GovernedChannelMapping,
   GovernedImportPreview,
   GovernedImportProfileResponse,
@@ -21,9 +21,9 @@ import type {
   GovernedQuantityKind,
   GovernedTabularDataSchema,
   GovernedTabularFileFormat,
-  MaterialStateResponse,
   TestRunResponse,
-} from "./types";
+} from "./features/test-data/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;

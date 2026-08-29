@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GovernedImportWorkbench } from "./governed-import-workbench";
-import type { MaterialStateResponse } from "./types";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 
 const ids = Array.from({ length: 8 }, (_, index) =>
   `5b000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,

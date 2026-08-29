@@ -20,10 +20,13 @@ import {
 } from "../../../../test-data";
 import type { ObservedCurveInput } from "../../../../../engineering-curve-plot";
 import type {
+  MaterialResponse,
+  MaterialStateResponse,
+} from "../../../../materials/contracts";
+import type {
   CanonicalTestDataChannelPreview,
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
-  DataClassification,
   GovernedChannelMapping,
   GovernedImportPreview,
   GovernedImportProfileContent,
@@ -32,10 +35,9 @@ import type {
   GovernedQuantityKind,
   GovernedTabularDataSchema,
   GovernedTabularFileFormat,
-  MaterialResponse,
-  MaterialStateResponse,
   TestRunResponse,
-} from "../../../../../types";
+} from "../../../../test-data/contracts";
+import type { DataClassification } from "../../../../../shared/model/core-contracts";
 import { previewCommonProcessing } from "../../../api/modeling-api";
 import type {
   CommonMappingProfileContent,

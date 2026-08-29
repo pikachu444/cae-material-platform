@@ -4,7 +4,7 @@ import type {
   ConfigurableCatalogRecordResponse,
   ConfigurableLayoutItem,
   ConfigurableRecordValue,
-} from "../../../types";
+} from "../../catalog/contracts";
 import { EngineeringPane, SemanticText } from "../../../design/semantic-ui";
 
 export interface DatasheetLayoutPreviewValue {

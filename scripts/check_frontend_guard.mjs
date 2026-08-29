@@ -292,6 +292,14 @@ function scanCodeFile({ absolute, path, source, fileSet, projectRoot, changedLin
   const edges = [];
   const sourceLayer = layer(path);
 
+  if (path === "apps/web/src/types.ts") {
+    findings.push(finding(
+      "CMP-FE-ROOT-TYPES-COMPATIBILITY", path, 1, path,
+      "root types.ts recreates a cross-feature ownership facade",
+      "Keep shared primitives in shared/model and expose feature-owned contracts through features/<owner>/contracts.ts.",
+    ));
+  }
+
   for (const item of moduleSpecifiers(source)) {
     const targetAbsolute = resolveImport(absolute, item.specifier, fileSet);
     if (!targetAbsolute) continue;
@@ -322,12 +330,14 @@ function scanCodeFile({ absolute, path, source, fileSet, projectRoot, changedLin
     }
     if (sourceLayer.kind === "feature" && targetLayer.kind === "feature" && sourceLayer.name !== targetLayer.name) {
       const targetRelative = targetPath.replace(/^apps\/web\/src\/features\//, "");
-      const publicEntry = targetRelative === `${targetLayer.name}/index.ts` || targetRelative === `${targetLayer.name}/index.tsx`;
+      const publicEntry = targetRelative === `${targetLayer.name}/index.ts`
+        || targetRelative === `${targetLayer.name}/index.tsx`
+        || targetRelative === `${targetLayer.name}/contracts.ts`;
       if (!publicEntry) {
         findings.push(finding(
           "CMP-FE-FEATURE-DEEP-IMPORT", path, line, `${path}->${targetPath}`,
           `feature ${sourceLayer.name} deep-imports ${targetLayer.name} internals`,
-          `Import through features/${targetLayer.name}/index.ts or move cross-feature orchestration to app.`,
+          `Import through features/${targetLayer.name}/index.ts, use its type-only contracts.ts entry, or move cross-feature orchestration to app.`,
         ));
       }
     }
@@ -361,6 +371,7 @@ function scanCodeFile({ absolute, path, source, fileSet, projectRoot, changedLin
     for (const line of [...changedLines].sort((left, right) => left - right)) {
       const text = lines[line - 1] ?? "";
       if (!HOTSPOT_DECLARATION.test(text)) continue;
+      if (/^import\s+type\b/.test(text)) continue;
       const kind = /^(?:import|export|function|class|interface|type|enum|namespace|const|let|var)\b/.exec(text)?.[0] ?? "declaration";
       findings.push(finding(
         "CMP-FE-HOTSPOT-RESPONSIBILITY", path, line, `${kind}:${normalizeSpace(text)}`,

@@ -1,10 +1,12 @@
 import type {
+  DataClassification,
+  RevisionMetadata,
+} from "../../../shared/model/core-contracts";
+import type {
   CurveDefinitionContract,
   CurveMetadataState,
   CurveSeriesPreviewContract,
-  DataClassification,
-  RevisionMetadata,
-} from "../../../types";
+} from "../../../shared/model/curve-contracts";
 import type {
   CommonExactRevisionPin,
   CommonExportProvenance,

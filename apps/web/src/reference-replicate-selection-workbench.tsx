@@ -13,12 +13,14 @@ import {
   reviseReferenceTensileReplicateSelection,
 } from "./features/test-data";
 import type {
-  CurvePreview,
-  DatasetResponse,
   MaterialStateResponse,
   PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
+  CurvePreview,
+  DatasetResponse,
   TensileReplicateSelectionResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 import { ReferenceReplicateStatisticsWorkbench } from "./reference-replicate-statistics-workbench";
 
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b", "#9cdb5d"];

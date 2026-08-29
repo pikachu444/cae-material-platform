@@ -17,7 +17,7 @@ import type {
   CatalogWorkflowGraphResponse,
   ConfigurableLinkEndpoint,
   DomainRevisionBinding,
-} from "../../../../../types";
+} from "../../../../catalog/contracts";
 
 interface ModelingDataRelatedProps {
   config: ApiConfig;

@@ -14,7 +14,11 @@ import {
   type ApiConfig,
 } from "./shared/api";
 import { downloadSelectedModelNeutralMaterial } from "./features/modeling";
-import type { CatalogWorkflowGraphResponse, DomainBindingKind, DomainRevisionBinding } from "./types";
+import type {
+  CatalogWorkflowGraphResponse,
+  DomainBindingKind,
+  DomainRevisionBinding,
+} from "./features/catalog/contracts";
 import {
   downloadSolverCardArtifact,
   loadSolverCardEvidence,

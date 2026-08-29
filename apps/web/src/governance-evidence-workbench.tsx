@@ -19,7 +19,7 @@ import type {
   ProvenanceCompletenessReport,
   ProvenanceEntityResponse,
   ProvenanceLineagePage,
-} from "./types";
+} from "./features/activity/contracts";
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {

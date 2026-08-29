@@ -27,16 +27,18 @@ import {
   listDatasetsForMaterialState,
 } from "./features/test-data";
 import type {
-  DatasetResponse,
+  MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
   ElastoplasticCardResponse,
   ExportTarget,
   HardeningCurveResponse,
   MappingReport,
-  MaterialStateResponse,
   NeutralMaterialResponse,
-  PropertySetResponse,
   TabulatedPlasticityModelResponse,
-} from "./types";
+} from "./features/modeling/contracts";
+import type { DatasetResponse } from "./features/test-data/contracts";
 import {
   listCommonProcessingOutputs,
   METAL_HARDENING_EQUATION_CONTRACT,

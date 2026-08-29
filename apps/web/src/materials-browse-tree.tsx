@@ -30,7 +30,7 @@ import type {
   ConfigurableSubsetResponse,
   ConfigurableTableResponse,
   ConfigurableLinkEndpoint,
-} from "./types";
+} from "./features/catalog/contracts";
 import {
   CATALOG_DATA_CATEGORIES,
   dataCategoryForEndpoint,

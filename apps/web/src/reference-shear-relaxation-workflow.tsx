@@ -28,8 +28,8 @@ import {
   listLinearViscoelasticModels,
   promoteModelToNeutralMaterial,
 } from "./features/modeling";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  MaterialStateResponse,
   NeutralMaterialResponse,
   LinearViscoelasticModelResponse,
   PronyCalibrationDiagnosticsResponse,
@@ -37,10 +37,12 @@ import type {
   ShearRelaxationCurvePreview,
   ShearRelaxationDatasetResponse,
   ShearRelaxationProcessingRunResponse,
+} from "./features/modeling/contracts";
+import type {
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
 import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";

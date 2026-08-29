@@ -7,7 +7,7 @@ import {
   createOgdenScientificProfile,
   listScientificProfiles,
 } from "./features/modeling";
-import type { ScientificProfileResponse } from "./types";
+import type { ScientificProfileResponse } from "./features/modeling/contracts";
 
 function errorMessage(cause: unknown): string {
   return cause instanceof Error ? cause.message : "The scientific profile request failed.";

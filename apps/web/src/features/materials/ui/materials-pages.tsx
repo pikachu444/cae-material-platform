@@ -29,9 +29,11 @@ import type {
   ConfigurableLinkEndpoint,
   ConfigurableRecordValue,
   DomainRevisionBinding,
+} from "../../catalog/contracts";
+import type {
   MaterialResponse,
   PropertySetResponse,
-} from "../../../types";
+} from "../contracts";
 import {
   CATALOG_DATA_CATEGORIES,
   dataCategoryForEndpoint,

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ReferenceReplicateStatisticsWorkbench } from "./reference-replicate-statistics-workbench";
-import type { TensileReplicateSelectionResponse } from "./types";
+import type { TensileReplicateSelectionResponse } from "./features/test-data/contracts";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {

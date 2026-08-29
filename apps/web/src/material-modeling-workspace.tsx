@@ -19,7 +19,7 @@ import type {
   MaterialResponse,
   MaterialStateResponse,
   PropertySetResponse,
-} from "./types";
+} from "./features/materials/contracts";
 
 const ReferenceElastoplasticWorkbench = lazy(() =>
   import("./reference-elastoplastic-workbench").then((module) => ({

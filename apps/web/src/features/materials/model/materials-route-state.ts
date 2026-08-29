@@ -1,4 +1,4 @@
-import type { ConfigurableLinkEndpoint } from "../../../types";
+import type { ConfigurableLinkEndpoint } from "../../catalog/contracts";
 import type { MaterialsBrowseScope } from "../../../materials-browse-tree";
 
 export type MaterialTab =

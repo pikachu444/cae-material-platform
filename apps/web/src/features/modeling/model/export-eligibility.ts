@@ -1,8 +1,8 @@
 import type {
-  CanonicalTestDataDocumentResponse,
   MaterialResponse,
   MaterialStateResponse,
-} from "../../../types";
+} from "../../materials/contracts";
+import type { CanonicalTestDataDocumentResponse } from "../../test-data/contracts";
 import type { CommonProcessingOutputResponse } from "./common-processing-contracts";
 import type { ModelingSessionSummary } from "./session-controller";
 

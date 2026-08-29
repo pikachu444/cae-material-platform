@@ -1,4 +1,5 @@
-/** Bounded Administration Records contracts; root DTO ownership moves in #263. */
+/** Administration Records composes the Catalog and Materials public contracts. */
+export type { DataClassification } from "../../../shared/model/core-contracts";
 export type {
   ConfigurableAttributeResponse,
   ConfigurableCatalogFolderResponse,
@@ -10,7 +11,5 @@ export type {
   ConfigurableRecordValue,
   ConfigurableSubsetResponse,
   ConfigurableTableResponse,
-  DataClassification,
-  MaterialResponse,
-  MaterialStateResponse,
-} from "../../../types";
+} from "../../catalog/contracts";
+export type { MaterialResponse, MaterialStateResponse } from "../../materials/contracts";

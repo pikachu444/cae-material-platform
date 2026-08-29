@@ -3,7 +3,6 @@ import type {
   BulkExportCandidate,
   BulkExportJobResponse,
   BulkExportSourceRef,
-  DataClassification,
   ExportSelectionResponse,
   MaterialCreateInput,
   MaterialDetail,
@@ -25,7 +24,8 @@ import type {
   PropertySetResponse,
   StateGenealogyCreateInput,
   StateGenealogyResponse,
-} from "../../../types";
+} from "../contracts";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 
 import {
   authenticatedHeaders,

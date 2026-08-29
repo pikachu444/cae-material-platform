@@ -16,11 +16,13 @@ import {
 import { ModelingWorkspaceLayout } from "../../../../../design/modeling-workspace-layout";
 import type { ObservedCurveInput } from "../../../../../engineering-curve-plot";
 import type {
-  CanonicalTestDataDocumentResponse,
   MaterialResponse,
   MaterialStateResponse,
+} from "../../../../materials/contracts";
+import type {
+  CanonicalTestDataDocumentResponse,
   TestRunResponse,
-} from "../../../../../types";
+} from "../../../../test-data/contracts";
 import type { CommonProcessingPreview } from "../../../model/common-processing-contracts";
 import type { ModelingSessionRecordRef } from "../../../model/session-controller";
 import { ModelingDataIntake, type ModelingDataLayoutMode } from "./modeling-data-intake";

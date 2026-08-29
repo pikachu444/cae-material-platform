@@ -16,3 +16,5 @@ export type {
   TargetDeliveryResponse,
   TargetPreviewResponse,
 } from "./model/export-contracts";
+export type * from "./model/common-processing-contracts";
+export type * from "./model/modeling-resource-contracts";

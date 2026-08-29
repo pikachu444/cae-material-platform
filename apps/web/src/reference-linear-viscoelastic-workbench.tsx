@@ -17,13 +17,15 @@ import {
 import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ReferenceLinearViscoelasticExport } from "./reference-linear-viscoelastic-export";
 import type {
+  MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
   BulkRelaxationStatus,
   LinearViscoelasticModelResponse,
   LinearViscoelasticResponse,
-  MaterialStateResponse,
   NeutralMaterialResponse,
-  PropertySetResponse,
-} from "./types";
+} from "./features/modeling/contracts";
 import { listCommonProcessingOutputs, type CommonProcessingOutputResponse } from "./features/modeling";
 import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 

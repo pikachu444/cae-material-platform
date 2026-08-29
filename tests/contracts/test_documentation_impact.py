@@ -1226,6 +1226,57 @@ def test_static_import_parser_accepts_self_closing_jsx_after_literal_attribute()
     assert imports[0].module == "./helper"
 
 
+def test_static_import_parser_treats_numeric_division_as_code() -> None:
+    imports = _static_imports(
+        'import type { Shape } from "./contract";\n'
+        "const ratio = 1 / (1 + 0.5);\n"
+    )
+
+    assert len(imports) == 1
+    assert imports[0].module == "./contract"
+
+
+def test_import_only_rewire_allows_optional_property_import_type_owner_change(
+    tmp_path: Path,
+) -> None:
+    source_root = tmp_path / "apps/web/src"
+    source_root.mkdir(parents=True)
+    (source_root / "legacy.ts").write_text(
+        "export interface Shape { id: string }\n"
+        "export type Classification = 'internal';\n",
+        encoding="utf-8",
+    )
+    (source_root / "owned.ts").write_text(
+        "export interface Shape { id: string }\n"
+        "export type Classification = 'internal';\n",
+        encoding="utf-8",
+    )
+    view = source_root / "view.tsx"
+    view.write_text(
+        'import type { Shape } from "./legacy";\n'
+        "interface Props {\n"
+        '  classification?: import("./legacy").Classification;\n'
+        "}\n"
+        "export const View = ({ classification }: Props & Shape) => <div>{classification}</div>;\n",
+        encoding="utf-8",
+    )
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "branch", "-M", "feature")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", base_sha)
+
+    view.write_text(
+        view.read_text(encoding="utf-8").replace('"./legacy"', '"./owned"'),
+        encoding="utf-8",
+    )
+
+    assert _is_import_only_visual_change(tmp_path, base_sha, "apps/web/src/view.tsx")
+
+
 @pytest.mark.parametrize(
     ("original", "replacement"),
     (

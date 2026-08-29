@@ -6,10 +6,10 @@ import {
   listMaterials,
 } from "../api";
 import type {
-  DataClassification,
   MaterialClass,
   MaterialResponse,
-} from "../types";
+} from "../features/materials/contracts";
+import type { DataClassification } from "../shared/model/core-contracts";
 import type { Navigate } from "./navigation";
 import { ProductSessionBoundary } from "./product-session";
 import type { ModuleArea } from "./routes";

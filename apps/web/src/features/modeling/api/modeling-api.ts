@@ -10,7 +10,7 @@ import {
 import {
   type SolverCardDownload,
 } from "./modeling-resource-api";
-import type { DataClassification } from "../../../types";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 import type {
   CommonEnsemblePreview,
   CommonMappingProfileContent,

@@ -27,11 +27,11 @@ import {
   type ApiConfig,
 } from "./api";
 import type {
-  CanonicalTestDataDocumentResponse,
-  DataClassification,
-  MaterialResponse,
-  MaterialStateResponse,
-  PropertySetResponse} from "./types";
+  MaterialResponse, MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
+import type { CanonicalTestDataDocumentResponse } from "./features/test-data/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { ModelingStageShell } from "./modeling-stage-shell";
 import {

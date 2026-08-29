@@ -43,9 +43,11 @@ import type {
   ConfigurableTableResponse,
   ConfigurableDatabaseResponse,
   ConfigurableProfileResponse,
+} from "../../catalog/contracts";
+import type {
   DataClassification,
   RevisionMetadata,
-} from "../../../types";
+} from "../../../shared/model/core-contracts";
 import { publishWorkspaceStatus } from "../../../design/application-shell";
 import { EngineeringPane, SemanticText } from "../../../design/semantic-ui";
 import {

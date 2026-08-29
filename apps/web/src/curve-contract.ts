@@ -3,7 +3,7 @@ import type {
   CurveDefinitionContract,
   CurveDeviationContract,
   CurveSeriesPreviewContract,
-} from "./types";
+} from "./shared/model/curve-contracts";
 
 export interface CurveDisplayBand {
   group: string;

@@ -19,16 +19,16 @@ import {
   listTestMethods,
   listTestRunsForMaterialState,
 } from "./features/test-data";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
   InstrumentCalibrationResponse,
   InstrumentResponse,
-  MaterialStateResponse,
   StandardConformance,
   TestCampaignResponse,
   TestMethodResponse,
   TestRunContextResponse,
   TestRunResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 
 function message(cause: unknown): string {
   return cause instanceof ApiError || cause instanceof Error

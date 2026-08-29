@@ -2,11 +2,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ReferenceOgdenCalibrationWorkbench } from "./reference-ogden-calibration-workbench";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  MaterialStateResponse,
   OgdenPronyModelResponse,
   ScientificProfileResponse,
-} from "./types";
+} from "./features/modeling/contracts";
 
 const ids = Array.from({ length: 24 }, (_, index) =>
   `f4300000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,

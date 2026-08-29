@@ -1,6 +1,6 @@
 export { ApiError } from "../../../shared/api/http";
 export type { ApiConfig } from "../../../shared/api/http";
-import type { ConfigurableCatalogRecordSearchResponse } from "../../../types";
+import type { ConfigurableCatalogRecordSearchResponse } from "../../catalog/contracts";
 import type { ApiConfig, ApiResult } from "../../../shared/api/http";
 import { searchConfigurableCatalogRecords as searchCatalogRecords } from "../../catalog";
 export {

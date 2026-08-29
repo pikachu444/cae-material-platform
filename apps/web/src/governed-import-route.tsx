@@ -10,7 +10,10 @@ import {
 } from "./features/materials";
 import { GovernedImportWorkbench } from "./governed-import-workbench";
 import { loadModelingSession } from "./features/modeling";
-import type { MaterialDetail, MaterialStateResponse } from "./types";
+import type {
+  MaterialDetail,
+  MaterialStateResponse,
+} from "./features/materials/contracts";
 
 interface ImportContext {
   detail: MaterialDetail;

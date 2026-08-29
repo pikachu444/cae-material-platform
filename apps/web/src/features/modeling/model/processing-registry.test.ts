@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type {
-  CanonicalTestDataDocumentResponse,
-} from "../../../types";
+import type { CanonicalTestDataDocumentResponse } from "../../test-data/contracts";
 import type { CommonMappingProfileResponse, CommonProcessingStep } from "./common-processing-contracts";
 import {
   DEFAULT_PROFILE,
