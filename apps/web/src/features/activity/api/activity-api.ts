@@ -2,8 +2,6 @@ import type {
   AuditEventPage,
   AuditIntegrityReport,
   AuditOutcome,
-  CommonProcessingBatchResponse,
-  DataClassification,
   OperationalSnapshotResponse,
   ProvenanceCompletenessReport,
   ProvenanceEntityResponse,
@@ -19,7 +17,9 @@ import type {
   ReviewRequestResponse,
   SupersedeReleaseInput,
   WithdrawReleaseInput,
-} from "../../../types";
+} from "../contracts";
+import type { CommonProcessingBatchResponse } from "../../modeling/contracts";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 
 import {
   authenticatedHeaders,

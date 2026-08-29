@@ -1,11 +1,13 @@
 import type {
-  CompletedUpload,
-  DataClassification,
   SchemaDefinitionBundleApplication,
   SchemaDefinitionBundleExport,
   SchemaDefinitionBundlePlan,
+} from "../contracts";
+import type {
+  CompletedUpload,
   UploadSession,
-} from "../../../types";
+} from "../../test-data/contracts";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 
 import {
   ApiError,

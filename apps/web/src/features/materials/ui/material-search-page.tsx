@@ -3,7 +3,7 @@ import { lazy, Suspense, type ReactNode, useState } from "react";
 import {
   type ApiConfig,
 } from "../../../shared/api";
-import type { CatalogDataCategory } from "../../../types";
+import type { CatalogDataCategory } from "../../catalog/contracts";
 import { CATALOG_DATA_CATEGORIES } from "../../../catalog-data-categories";
 import { MaterialsScrollRegion } from "../../../materials-scroll-rail";
 import { ResizableSplitPane } from "../../../design/resizable-split-pane";

@@ -34,6 +34,10 @@ import {
   uploadReferenceTensileCsv,
 } from "./features/test-data";
 import type {
+  MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
   CurvePreview,
   DatasetSelectionResponse,
   DatasetResponse,
@@ -41,11 +45,9 @@ import type {
   ImportDetectionReportResponse,
   ImportMappingResponse,
   ImportRunResponse,
-  MaterialStateResponse,
   OutlierDetectionPlanResponse,
   OutlierDetectionRunResponse,
   OutlierScopeComparisonResponse,
-  PropertySetResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
   ReferenceTensileMapping,
@@ -56,7 +58,7 @@ import type {
   StatisticalRunResponse,
   TestMethodResponse,
   TestRunResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 import { ReferenceReplicateSelectionWorkbench } from "./reference-replicate-selection-workbench";
 
 function messageFor(error: unknown): string {

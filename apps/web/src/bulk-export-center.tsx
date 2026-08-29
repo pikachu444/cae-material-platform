@@ -21,9 +21,9 @@ import type {
   BulkExportCandidate,
   BulkExportMemberKind,
   BulkExportJobResponse,
-  DataClassification,
   MaterialResponse,
-} from "./types";
+} from "./features/materials/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 
 const kindLabels: Record<BulkExportMemberKind, string> = {
   raw_original: "Raw original",

@@ -1,7 +1,7 @@
 import type {
   GrantProductAccessInput,
   ProductAccessAssignment,
-} from "../../../types";
+} from "../contracts";
 
 import {
   request,

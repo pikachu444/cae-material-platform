@@ -18,7 +18,8 @@ import {
 import type {
   MaterialStateResponse,
   PropertySetResponse,
-  ReferenceCalibrationScopeResponse,
+} from "./features/materials/contracts";
+import type {
   VoceCalibrationPlanResponse,
   VoceCalibrationDiagnosticPreview,
   VoceCalibrationRunResponse,
@@ -26,10 +27,13 @@ import type {
   TabulatedPlasticityModelResponse,
   MappingReport,
   ElastoplasticCardResponse,
-  DatasetResponse,
   VoceHoldoutPlanResponse,
   VoceHoldoutResultResponse,
-} from "./types";
+} from "./features/modeling/contracts";
+import type {
+  ReferenceCalibrationScopeResponse,
+  DatasetResponse,
+} from "./features/test-data/contracts";
 import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b"];

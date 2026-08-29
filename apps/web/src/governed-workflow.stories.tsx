@@ -5,7 +5,7 @@ import type { ModelingSessionSummary } from "./features/modeling";
 import { TargetPreviewResult } from "./modeling-target-preview-result";
 import { MappingStatusList } from "./solver-card-delivery-ui";
 import type { SolverCardEvidence } from "./solver-card-delivery";
-import type { TargetPreviewResponse } from "./types";
+import type { TargetPreviewResponse } from "./features/modeling/contracts";
 
 const currentSession = {
   version: 3,

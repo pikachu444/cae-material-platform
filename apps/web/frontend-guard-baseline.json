@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "365dea4e62b53671846bb7722b9706725af2863e",
+  "sourceSha": "8bfd4c6f0ceb6b75eb627f91ea7209faa4e0565c",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -25,16 +25,6 @@
       ],
       "followUpIssue": "#262",
       "removalCondition": "FE-07 moves Materials and Activity responsibilities to owned feature boundaries."
-    },
-    {
-      "path": "apps/web/src/types.ts",
-      "baselineLines": 4695,
-      "responsibilities": [
-        "cross-feature API DTOs",
-        "domain-facing frontend types"
-      ],
-      "followUpIssue": "#263",
-      "removalCondition": "FE-08 moves types to feature-owned model modules with bounded compatibility exports."
     },
     {
       "path": "apps/web/src/styles.css",
@@ -124,15 +114,6 @@
     }
   ],
   "exceptions": [
-    {
-      "ruleId": "CMP-FE-IMPORT-DIRECTION",
-      "path": "apps/web/src/shared/api/auth.ts",
-      "fingerprint": "105a6c38cd28938f5b167beb5745437fbe71b5674e02f546b43ad85ef6b9dbf3",
-      "maxOccurrences": 1,
-      "reason": "FE-08B keeps the existing authenticated principal and access summary type imports while shared takes ownership of authentication requests.",
-      "ownerIssue": "#360",
-      "removalCondition": "Remove in #361 when these two existing contracts move to their approved type/model owner and shared auth no longer imports root types.ts."
-    },
     {
       "ruleId": "CMP-FE-EYEBROW",
       "path": "apps/web/src/app/legacy-route-pages.tsx",

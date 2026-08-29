@@ -14,7 +14,7 @@ import "./features/modeling/ui/modeling-engineering-curve-plot.css";
 import type {
   CurveChannelContract,
   CurveDeviationContract,
-} from "./types";
+} from "./shared/model/curve-contracts";
 import type {
   CommonCurveStage,
   CommonEnsemblePreview,

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CurveContractChart } from "./curve-contract-chart";
-import type { CatalogCurvePreviewResponse } from "./types";
+import type { CatalogCurvePreviewResponse } from "./features/catalog/contracts";
 
 const source = {
   binding_id: "10000000-0000-4000-8000-000000000001",

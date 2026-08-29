@@ -6,7 +6,7 @@ import {
 import {
   getOperationalObservability,
 } from "./features/activity";
-import type { OperationalSnapshotResponse } from "./types";
+import type { OperationalSnapshotResponse } from "./features/activity/contracts";
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {

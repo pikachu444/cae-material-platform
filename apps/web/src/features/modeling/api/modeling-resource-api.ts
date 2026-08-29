@@ -4,7 +4,6 @@ import type {
   CalibrationDiagnosticPreview,
   CalibrationPlanResponse,
   CalibrationRunResponse,
-  DataClassification,
   ElastoplasticCardCreatedResponse,
   ElastoplasticCardResponse,
   ExportTarget,
@@ -54,7 +53,8 @@ import type {
   VoceCandidateSelectionResponse,
   VoceHoldoutPlanResponse,
   VoceHoldoutResultResponse,
-} from "../../../types";
+} from "../contracts";
+import type { DataClassification } from "../../../shared/model/core-contracts";
 
 import {
   authenticatedHeaders,

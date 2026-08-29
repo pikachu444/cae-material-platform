@@ -6,7 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
-import type { ConfigurableAttributeResponse } from "../../../types";
+import type { ConfigurableAttributeResponse } from "../../catalog/contracts";
 import { SemanticText } from "../../../design/semantic-ui";
 
 const valueTypeLabels: Record<string, string> = {

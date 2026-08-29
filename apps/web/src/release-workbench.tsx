@@ -13,11 +13,11 @@ import {
   withdrawRelease,
 } from "./features/activity";
 import type {
-  DataClassification,
   ReleaseCreateInput,
   ReleaseImpactResponse,
   ReleaseResponse,
-} from "./types";
+} from "./features/activity/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
 
 const classifications: DataClassification[] = [

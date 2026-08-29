@@ -9,7 +9,9 @@ import {
   listShearRelaxationDatasetsForMaterialState,
   listTestRunsForMaterialState,
 } from "./features/test-data";
-import type { MaterialStateResponse, ShearRelaxationDatasetResponse, TestRunResponse } from "./types";
+import type { MaterialStateResponse } from "./features/materials/contracts";
+import type { ShearRelaxationDatasetResponse } from "./features/modeling/contracts";
+import type { TestRunResponse } from "./features/test-data/contracts";
 import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
 
 function message(cause: unknown): string {

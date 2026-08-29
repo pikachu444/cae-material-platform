@@ -2,7 +2,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ReferenceElastoplasticWorkbench } from "./reference-elastoplastic-workbench";
-import type { MaterialStateResponse, PropertySetResponse } from "./types";
+import type {
+  MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {

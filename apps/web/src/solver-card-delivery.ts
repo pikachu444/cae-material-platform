@@ -12,7 +12,12 @@ import {
 import {
   type ApiConfig,
 } from "./shared/api";
-import type { ExportTarget, MappingItem, MappingStatus } from "./types";
+import type {
+  ExportTarget,
+  MappingItem,
+  MappingStatus,
+} from "./features/modeling/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 
 export type SolverCardKind = "solver_card" | "neutral_solver_card";
 
@@ -43,7 +48,7 @@ export interface SolverCardEvidence {
   cardSha256: string | null;
   reviewRevisionId: string;
   reviewContentHash: string;
-  reviewClassification: import("./types").DataClassification;
+  reviewClassification: DataClassification;
   reviewAggregateType: "exporting.solver_card" | "exporting.neutral_solver_card";
   solverMaterialId: number;
   materialName: string;

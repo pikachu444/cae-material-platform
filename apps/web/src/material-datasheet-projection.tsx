@@ -19,7 +19,7 @@ import type {
   CatalogCurvePreviewResponse,
   DomainBindingKind,
   DomainRevisionBinding,
-} from "./types";
+} from "./features/catalog/contracts";
 import { appendActivityFailure, appendActivityOutcome } from "./activity-recovery";
 import {
   modelingFamilyFromQuantities,

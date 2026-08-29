@@ -3,10 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ReferenceLinearViscoelasticWorkbench } from "./reference-linear-viscoelastic-workbench";
 import type {
-  LinearViscoelasticModelResponse,
   MaterialStateResponse,
   PropertySetResponse,
-} from "./types";
+} from "./features/materials/contracts";
+import type { LinearViscoelasticModelResponse } from "./features/modeling/contracts";
 
 function response(body: unknown, status = 200): Response {
   return {

@@ -15,14 +15,14 @@ import type {
   ModelingSessionEvent,
   ModelingSessionSummary,
 } from "./features/modeling";
-import type { PropertySetResponse } from "./types";
+import type { PropertySetResponse } from "./features/materials/contracts";
 
 interface UpstreamModelRef {
   id: string;
   revisionId: string;
   revisionNo: number;
   manifestSha256?: string;
-  classification?: import("./types").DataClassification;
+  classification?: import("./shared/model/core-contracts").DataClassification;
   lifecycleState?: "draft" | "published";
 }
 

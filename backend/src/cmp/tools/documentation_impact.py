@@ -305,6 +305,16 @@ def _is_visual_source(path: str) -> bool:
 
 
 _IDENTIFIER_RE = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
+_NUMBER_LITERAL_RE = re.compile(
+    r"(?:0[xX][0-9A-Fa-f_]+n?|0[bB][01_]+n?|0[oO][0-7_]+n?|"
+    r"(?:\d[\d_]*(?:\.[\d_]*)?|\.[\d_]+)(?:[eE][+-]?[\d_]+)?n?)"
+)
+_OPTIONAL_PROPERTY_IMPORT_TYPE_RE = re.compile(
+    r'^(?P<prefix>\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*)'
+    r'import\(\s*["\'](?:\.{1,2}/)[^"\']+["\']\s*\)\s*\.\s*'
+    r"(?P<name>[A-Za-z_$][A-Za-z0-9_$]*)",
+    flags=re.MULTILINE,
+)
 
 
 def _canonical_repo_path(value: object, field: str) -> str:
@@ -1475,6 +1485,11 @@ def _scan_ts(text: str, *, include_template_expressions: bool = False) -> tuple[
         if match:
             add("identifier", i, match.end())
             i = match.end()
+            continue
+        number_match = _NUMBER_LITERAL_RE.match(text, i)
+        if number_match:
+            add("literal", i, number_match.end())
+            i = number_match.end()
             continue
         # Keep multi-character operators together only where this affects parsing.
         operator = next(
@@ -3083,6 +3098,12 @@ def _is_import_only_visual_change(
     current_remaining = _remove_spans(
         current_text, ((item.start, item.end) for item in current_imports)
     ).replace("\r\n", "\n")
+    base_remaining = _OPTIONAL_PROPERTY_IMPORT_TYPE_RE.sub(
+        r"\g<prefix>import(\"<type-owner>\").\g<name>", base_remaining
+    )
+    current_remaining = _OPTIONAL_PROPERTY_IMPORT_TYPE_RE.sub(
+        r"\g<prefix>import(\"<type-owner>\").\g<name>", current_remaining
+    )
     if _nonblank_lines(base_remaining) != _nonblank_lines(current_remaining):
         return False
 

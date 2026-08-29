@@ -12,13 +12,11 @@ import {
   retryFailedCommonProcessingBatch,
   type ApiConfig,
 } from "./api";
-import type {
-  CanonicalTestDataDocumentResponse,
-  CommonProcessingBatchResponse,
-  MaterialResponse,
-  ProductRole,
-  ReviewRequestResponse,
-} from "./types";
+import type { ReviewRequestResponse } from "./features/activity/contracts";
+import type { MaterialResponse } from "./features/materials/contracts";
+import type { CommonProcessingBatchResponse } from "./features/modeling/contracts";
+import type { CanonicalTestDataDocumentResponse } from "./features/test-data/contracts";
+import type { ProductRole } from "./shared/api/auth-contracts";
 import { MaterialsScrollRegion } from "./materials-scroll-rail";
 import { publishWorkspaceStatus } from "./design/application-shell";
 import { loadModelingSession } from "./modeling-session-context";

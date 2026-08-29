@@ -17,8 +17,8 @@ import {
 import type {
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
-  DataClassification,
-} from "./types";
+} from "./features/test-data/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { modelingFamilyFromQuantities, saveModelingSession } from "./features/modeling";
 import { ReviewRequestAction } from "./review-request-action";

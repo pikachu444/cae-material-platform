@@ -15,7 +15,7 @@ import {
 import type {
   ConfigurableAttributeResponse,
   ConfigurableCatalogRecordResponse,
-} from "../../../types";
+} from "../../catalog/contracts";
 
 /** Resolve the published Materials projection without depending on Browse UI effects. */
 export async function findDefaultMaterialsTableId(

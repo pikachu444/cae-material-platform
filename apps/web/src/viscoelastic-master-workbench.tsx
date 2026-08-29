@@ -10,13 +10,13 @@ import {
   executeViscoelasticMasterPlan,
   previewViscoelasticMasterRun,
 } from "./features/modeling";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  MaterialStateResponse,
   ShearRelaxationDatasetResponse,
-  TestRunResponse,
   ViscoelasticMasterPreviewResponse,
   ViscoelasticShiftMethod,
-} from "./types";
+} from "./features/modeling/contracts";
+import type { TestRunResponse } from "./features/test-data/contracts";
 import "./features/modeling/ui/modeling-viscoelastic-workbenches.css";
 
 function errorMessage(error: unknown): string {

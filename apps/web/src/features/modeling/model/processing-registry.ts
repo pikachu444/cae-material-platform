@@ -1,6 +1,4 @@
-import type {
-  CanonicalTestDataDocumentResponse,
-} from "../../../types";
+import type { CanonicalTestDataDocumentResponse } from "../../test-data/contracts";
 import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,

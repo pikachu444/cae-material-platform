@@ -8,7 +8,8 @@ import {
   createReviewRequest,
   listReviewRequests,
 } from "./features/activity";
-import type { DataClassification, ReviewRequestResponse } from "./types";
+import type { ReviewRequestResponse } from "./features/activity/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 
 export interface ReviewSubject {
   aggregateType:

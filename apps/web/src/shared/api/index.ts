@@ -20,3 +20,9 @@ export type {
   LocalDemoPersona,
   LocalDemoTokenSession,
 } from "./auth";
+export type {
+  AuthenticatedPrincipal,
+  FeatureGrant,
+  ProductAccessSummary,
+  ProductRole,
+} from "./auth-contracts";

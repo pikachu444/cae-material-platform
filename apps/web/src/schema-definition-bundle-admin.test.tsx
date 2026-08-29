@@ -13,7 +13,7 @@ import {
 import type {
   SchemaDefinitionBundleApplication,
   SchemaDefinitionBundlePlan,
-} from "./types";
+} from "./features/administration/contracts";
 
 const artifactId = "20800000-0000-4000-8000-000000000001";
 const applicationId = "20800000-0000-4000-8000-000000000002";

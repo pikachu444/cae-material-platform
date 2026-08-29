@@ -8,7 +8,7 @@ import type {
   CatalogWorkflowGraphResponse,
   ConfigurableCatalogRecordResponse,
   ConfigurableLinkEndpoint,
-} from "../../../types";
+} from "../../catalog/contracts";
 import type {
   MaterialsBrowseResults,
   MaterialsBrowseScope,

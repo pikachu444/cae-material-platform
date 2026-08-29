@@ -1,12 +1,10 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type {
-  MaterialStateResponse,
-  RevisionMetadata,
-  ShearRelaxationDatasetResponse,
-  TestRunResponse,
-} from "./types";
+import type { MaterialStateResponse } from "./features/materials/contracts";
+import type { ShearRelaxationDatasetResponse } from "./features/modeling/contracts";
+import type { TestRunResponse } from "./features/test-data/contracts";
+import type { RevisionMetadata } from "./shared/model/core-contracts";
 import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
 
 const ids = Array.from({ length: 20 }, (_, index) =>

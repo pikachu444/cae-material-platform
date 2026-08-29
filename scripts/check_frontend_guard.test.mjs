@@ -65,12 +65,23 @@ test("allows public feature and downward shared imports", async () => {
   const root = await fixture({
     "apps/web/src/shared/value.ts": "export const value = 1;\n",
     "apps/web/src/features/b/index.ts": "export { value } from '../../shared/value';\n",
+    "apps/web/src/features/b/contracts.ts": "export type PublicContract = { value: number };\n",
     "apps/web/src/features/a/view.ts": "import { value } from '../b';\nexport const view = value;\n",
+    "apps/web/src/features/a/model.ts": "import type { PublicContract } from '../b/contracts';\nexport const model: PublicContract = { value: 1 };\n",
     "apps/web/src/app/main.ts": "import { view } from '../features/a/view';\nvoid view;\n",
   });
   const report = await evaluateGuard({ projectRoot: root, baseline: baseline() });
   assert.equal(report.passed, true);
   assert.deepEqual(report.violations, []);
+});
+
+test("rejects recreation of the root types compatibility facade", async () => {
+  const root = await fixture({
+    "apps/web/src/types.ts": "export interface LegacyContract { id: string }\n",
+  });
+  const report = await evaluateGuard({ projectRoot: root, baseline: baseline() });
+  assert.equal(report.passed, false);
+  assert.equal(report.violations[0].ruleId, "CMP-FE-ROOT-TYPES-COMPATIBILITY");
 });
 
 test("rejects reverse imports, feature deep imports, and dependency cycles", async () => {
@@ -121,6 +132,21 @@ test("treats hotspot growth as a review signal and top-level additions as respon
     "CMP-FE-HOTSPOT-GROWTH",
     "CMP-FE-HOTSPOT-RESPONSIBILITY",
   ]));
+});
+
+test("does not treat a type-only hotspot import as a runtime responsibility", async () => {
+  const path = "apps/web/src/app.tsx";
+  const root = await fixture({
+    [path]: "import type { Contract } from './shared/contract';\nvoid 0;\n",
+    "apps/web/src/shared/contract.ts": "export interface Contract { id: string }\n",
+  });
+  const report = await evaluateGuard({
+    projectRoot: root,
+    baseline: baseline({ hotspots: [hotspot(path, 2)] }),
+    changedLines: changed(path, 1),
+  });
+  assert.equal(report.passed, true);
+  assert.equal(report.violations.length, 0);
 });
 
 test("allows only an exact issue-owned exception and rejects it after the finding disappears", async () => {

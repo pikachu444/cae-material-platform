@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
-import type { MaterialStateResponse } from "./types";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {

@@ -2,7 +2,14 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ReferenceVoceCalibrationWorkbench } from "./reference-voce-calibration-workbench";
-import type { DatasetResponse, MaterialStateResponse, PropertySetResponse, ReferenceCalibrationScopeResponse } from "./types";
+import type {
+  MaterialStateResponse,
+  PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
+  DatasetResponse,
+  ReferenceCalibrationScopeResponse,
+} from "./features/test-data/contracts";
 
 const ids = Array.from({ length: 32 }, (_, index) => `a1000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`);
 

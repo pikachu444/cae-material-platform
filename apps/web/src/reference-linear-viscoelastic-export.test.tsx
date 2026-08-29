@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { ReferenceLinearViscoelasticExport } from "./reference-linear-viscoelastic-export";
-import type { LinearViscoelasticModelResponse } from "./types";
+import type { LinearViscoelasticModelResponse } from "./features/modeling/contracts";
 
 const modelId = "c1000000-0000-4000-8000-000000000001";
 const revisionId = "c1000000-0000-4000-8000-000000000002";

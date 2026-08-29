@@ -17,7 +17,7 @@ import type {
   NeutralHyperelasticMappingReport,
   NeutralHyperelasticSolverCardResponse,
   NeutralMaterialResponse,
-} from "./types";
+} from "./features/modeling/contracts";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 
 function messageFor(cause: unknown): string {

@@ -15,15 +15,15 @@ import {
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
 } from "./features/test-data";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
   CalibrationCandidateSelectionResponse,
   CalibrationDiagnosticPreview,
   CalibrationPlanResponse,
   CalibrationRunResponse,
-  DatasetSelectionResponse,
   MaterialModelResponse,
-  MaterialStateResponse,
-} from "./types";
+} from "./features/modeling/contracts";
+import type { DatasetSelectionResponse } from "./features/test-data/contracts";
 import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
 function messageFor(error: unknown): string {

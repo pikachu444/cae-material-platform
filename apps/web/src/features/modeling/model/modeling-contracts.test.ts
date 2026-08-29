@@ -11,7 +11,7 @@ import type {
   TargetDeliveryLinks as RootTargetDeliveryLinks,
   TargetDeliveryResponse as RootTargetDeliveryResponse,
   TargetPreviewResponse as RootTargetPreviewResponse,
-} from "../../../types";
+} from "../contracts";
 import type {
   CommonProcessingBatchResponse,
   CommonProcessingFitDecision,

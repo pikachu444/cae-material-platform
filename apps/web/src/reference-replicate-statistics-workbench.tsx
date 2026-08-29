@@ -18,10 +18,11 @@ import {
   previewReferenceTensileReplicateStatisticalResultCurve,
 } from "./features/test-data";
 import type {
-  DataClassification,
-  DatasetResponse,
   MaterialStateResponse,
   PropertySetResponse,
+} from "./features/materials/contracts";
+import type {
+  DatasetResponse,
   ReplicateStatisticalCurveResponse,
   ReplicateStatisticalPlanResponse,
   ReplicateStatisticalResultResponse,
@@ -31,7 +32,8 @@ import type {
   ReplicateOutlierRunResponse,
   ReferenceCalibrationScopeResponse,
   TensileReplicateSelectionResponse,
-} from "./types";
+} from "./features/test-data/contracts";
+import type { DataClassification } from "./shared/model/core-contracts";
 import { ReferenceVoceCalibrationWorkbench } from "./reference-voce-calibration-workbench";
 
 function messageFor(error: unknown): string {

@@ -28,9 +28,8 @@ import {
   listGovernedDatasetsForTestRun,
   listTestRunsForMaterialState,
 } from "./features/test-data";
+import type { MaterialStateResponse } from "./features/materials/contracts";
 import type {
-  GovernedDatasetResponse,
-  MaterialStateResponse,
   OgdenCalibrationPlanResponse,
   OgdenCalibrationRole,
   OgdenCalibrationRunResponse,
@@ -42,8 +41,11 @@ import type {
   OgdenPronyModelResponse,
   OgdenTestMode,
   ScientificProfileResponse,
+} from "./features/modeling/contracts";
+import type {
+  GovernedDatasetResponse,
   TestRunResponse,
-} from "./types";
+} from "./features/test-data/contracts";
 import { NeutralHyperelasticExport } from "./neutral-hyperelastic-export";
 import "./features/modeling/ui/modeling-calibration-workbenches.css";
 
