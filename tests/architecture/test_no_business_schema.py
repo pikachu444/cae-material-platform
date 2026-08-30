@@ -111,6 +111,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20261003_102_issue246_task2_common_units.py",
         "20261004_103_issue342_json_record_registration.py",
         "20261005_104_linear_viscoelastic_calibration.py",
+        "20261006_105_dma_frequency_master_curve.py",
     ]
 
 

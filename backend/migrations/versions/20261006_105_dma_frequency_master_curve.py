@@ -61,7 +61,12 @@ def upgrade() -> None:
     )
     op.add_column(
         _TABLE,
-        sa.Column("source_profile_kind", sa.String(64), nullable=True),
+        sa.Column(
+            "source_profile_kind",
+            sa.String(64),
+            nullable=False,
+            server_default=sa.text("'common_mapping_profile'"),
+        ),
         schema=_SCHEMA,
     )
     op.add_column(
@@ -99,14 +104,11 @@ def upgrade() -> None:
         sa.Column("result_media_type", sa.String(255), nullable=True),
         schema=_SCHEMA,
     )
-    op.execute(
-        "UPDATE processing.common_processing_output_revision "
-        "SET source_profile_kind = 'common_mapping_profile'"
-    )
     op.alter_column(
         _TABLE,
         "source_profile_kind",
         existing_type=sa.String(64),
+        server_default=None,
         nullable=False,
         schema=_SCHEMA,
     )
