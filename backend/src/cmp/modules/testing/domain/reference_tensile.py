@@ -20,6 +20,16 @@ REFERENCE_BIAXIAL_TENSION_METHOD_CODE = "reference_biaxial_tension"
 REFERENCE_BIAXIAL_TENSION_METHOD_DISPLAY_NAME = "Reference biaxial tension CSV"
 REFERENCE_SHEAR_RELAXATION_METHOD_CODE = "reference_shear_relaxation"
 REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME = "Reference shear relaxation CSV"
+REFERENCE_SHEAR_DMA_FREQUENCY_SWEEP_METHOD_CODE = "reference_shear_dma_frequency_sweep"
+REFERENCE_SHEAR_DMA_FREQUENCY_SWEEP_METHOD_DISPLAY_NAME = (
+    "Reference shear DMA frequency sweep"
+)
+REFERENCE_SHEAR_DMA_TEMPERATURE_SWEEP_METHOD_CODE = (
+    "reference_shear_dma_temperature_sweep"
+)
+REFERENCE_SHEAR_DMA_TEMPERATURE_SWEEP_METHOD_DISPLAY_NAME = (
+    "Reference fixed-frequency shear DMA temperature sweep"
+)
 REFERENCE_TENSILE_SCHEMA_VERSION = "1.0.0"
 
 
@@ -123,6 +133,12 @@ class TestMethodContent:
             **REFERENCE_TENSION_METHODS,
             REFERENCE_SHEAR_RELAXATION_METHOD_CODE: (
                 REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME
+            ),
+            REFERENCE_SHEAR_DMA_FREQUENCY_SWEEP_METHOD_CODE: (
+                REFERENCE_SHEAR_DMA_FREQUENCY_SWEEP_METHOD_DISPLAY_NAME
+            ),
+            REFERENCE_SHEAR_DMA_TEMPERATURE_SWEEP_METHOD_CODE: (
+                REFERENCE_SHEAR_DMA_TEMPERATURE_SWEEP_METHOD_DISPLAY_NAME
             ),
         }
         if expected.get(self.method_code) != self.display_name:

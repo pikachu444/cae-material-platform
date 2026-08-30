@@ -111,6 +111,15 @@ class PluginRegistryRepository(Protocol):
         package_digest: str,
     ) -> PackageRecord: ...
 
+    def get_active_for_plugin(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plugin_id: str,
+        plugin_version: str,
+    ) -> PackageRecord: ...
+
     def transition(
         self,
         *,
@@ -329,6 +338,36 @@ class PluginRegistryService:
             plugin_id=plugin_id,
             plugin_version=plugin_version,
             package_digest=package_digest,
+        )
+
+    def get_active_for_plugin(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        plugin_id: str,
+        plugin_version: str,
+    ) -> PackageRecord:
+        """Resolve the one active package selected by an exact plugin identity.
+
+        Calibration Plans deliberately do not carry a mutable ``latest`` package pointer.
+        This bounded resolver is only used while a new Run is being created and fails closed
+        when the tenant has no (or more than one) active package for the fixed identity.
+        The returned manifest digest is then copied into the immutable Job Spec.
+        """
+
+        _require_decision(context, decision, Permission.PLUGIN_READ)
+        if (
+            _PLUGIN_ID.fullmatch(plugin_id) is None
+            or len(plugin_id) > 255
+            or _SEMVER.fullmatch(plugin_version) is None
+        ):
+            raise ValueError("active plugin identity/version is invalid")
+        return self._repository.get_active_for_plugin(
+            context=context,
+            decision=decision,
+            plugin_id=plugin_id,
+            plugin_version=plugin_version,
         )
 
     def verify(

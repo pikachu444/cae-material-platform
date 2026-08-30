@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:plugin:linear-viscoelastic-calibrator:config:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "plan_revision_id", "plan_sha256", "recommendation_policy", "seed_status"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "run_id": {"type": "string", "format": "uuid"},
+    "plan_revision_id": {"type": "string", "format": "uuid"},
+    "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "recommendation_policy": {"const": "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"},
+    "seed_status": {"const": "not_applicable"}
+  }
+}

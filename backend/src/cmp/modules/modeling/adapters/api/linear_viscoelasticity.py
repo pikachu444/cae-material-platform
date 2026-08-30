@@ -97,6 +97,7 @@ class LinearViscoelasticContentResponse(BaseModel):
     non_production: bool
     prony_promotion_evidence: dict[str, object] | None = None
     processing_promotion_evidence: dict[str, object] | None = None
+    calibration_promotion_evidence: dict[str, object] | None = None
 
     @classmethod
     def from_domain(
@@ -109,6 +110,9 @@ class LinearViscoelasticContentResponse(BaseModel):
         processing_evidence = canonical.get("processing_promotion_evidence")
         if not isinstance(processing_evidence, dict):
             processing_evidence = None
+        calibration_evidence = canonical.get("calibration_promotion_evidence")
+        if not isinstance(calibration_evidence, dict):
+            calibration_evidence = None
         return cls(
             model_family_id=value.model_family_id,
             model_schema_version=schema_version,
@@ -137,6 +141,7 @@ class LinearViscoelasticContentResponse(BaseModel):
             non_production=value.non_production,
             prony_promotion_evidence=promotion_evidence,
             processing_promotion_evidence=processing_evidence,
+            calibration_promotion_evidence=calibration_evidence,
         )
 
 

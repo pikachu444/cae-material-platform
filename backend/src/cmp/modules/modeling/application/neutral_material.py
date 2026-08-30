@@ -683,12 +683,17 @@ class NeutralMaterialService:
             content.processing_output_id,
             content.processing_output_revision_id,
         )
+        mapping_profile = output.content.mapping_profile
+        if mapping_profile is None:
+            raise NeutralMaterialConflict(
+                "metal Neutral promotion requires a common Mapping Profile"
+            )
         if (
             output.content.output_sha256 != content.processing_output_sha256
             or output.content.source_document.aggregate_id != content.source_test_data_id
             or output.content.source_document.revision_id != content.source_test_data_revision_id
-            or output.content.mapping_profile.aggregate_id != content.mapping_profile_id
-            or output.content.mapping_profile.revision_id != content.mapping_profile_revision_id
+            or mapping_profile.aggregate_id != content.mapping_profile_id
+            or mapping_profile.revision_id != content.mapping_profile_revision_id
         ):
             raise NeutralMaterialConflict(
                 "metal IR no longer resolves to its exact Processing/Profile/Test evidence"
@@ -857,6 +862,11 @@ class NeutralMaterialService:
                 processing_evidence.processing_output_id,
                 processing_evidence.processing_output_revision_id,
             )
+            mapping_profile = output.content.mapping_profile
+            if mapping_profile is None:
+                raise NeutralMaterialConflict(
+                    "legacy polymer Neutral promotion requires a common Mapping Profile"
+                )
             output_fit_decision = output.content.fit_decision
             if (output_fit_decision is None) != (processing_evidence.fit_decision is None) or (
                 output_fit_decision is not None
@@ -942,9 +952,8 @@ class NeutralMaterialService:
                 != processing_evidence.source_test_data_id
                 or output.content.source_document.revision_id
                 != processing_evidence.source_test_data_revision_id
-                or output.content.mapping_profile.aggregate_id
-                != processing_evidence.mapping_profile_id
-                or output.content.mapping_profile.revision_id
+                or mapping_profile.aggregate_id != processing_evidence.mapping_profile_id
+                or mapping_profile.revision_id
                 != processing_evidence.mapping_profile_revision_id
                 or method_id not in {"polymer.prony_fit_compare", "polymer.dma_prony_fit_compare"}
                 or independent["unit"] != expected_independent_unit

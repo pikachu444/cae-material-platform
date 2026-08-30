@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:modeling:linear-viscoelastic-calibration-objective-history:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "evaluations"],
+  "properties": {"schema_id": {"const": "urn:cmp:modeling:linear-viscoelastic-calibration-objective-history:1.0.0"}, "schema_version": {"const": "1.0.0"}, "evaluations": {"type": "array", "items": {"type": "object"}}}
+}

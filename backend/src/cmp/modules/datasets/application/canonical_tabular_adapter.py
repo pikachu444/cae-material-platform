@@ -18,7 +18,10 @@ from cmp.modules.datasets.domain.canonical_test_data import (
 )
 from cmp.modules.datasets.domain.governed_tabular import (
     GovernedImportProfileContent,
+    ImportDiagnostic,
+    InvalidGovernedImport,
     QuantityKind,
+    TabularDataSchema,
     TabularFileFormat,
     parse_governed_source_evidence,
 )
@@ -58,9 +61,42 @@ class CanonicalTabularAdapterInput:
     profile: GovernedImportProfileContent
 
 
+def _validate_dma_temperature_sweep_frequency(
+    command: CanonicalTabularAdapterInput,
+) -> None:
+    if command.profile.data_schema is not TabularDataSchema.DMA_TEMPERATURE_SWEEP:
+        return
+    matches = tuple(item for item in command.conditions if item.key == "frequency")
+    valid = (
+        len(matches) == 1
+        and matches[0].quantity_semantics == "frequency.cyclic"
+        and matches[0].normalized_unit == "Hz"
+        and matches[0].normalized_value > 0
+    )
+    if valid:
+        return
+    diagnostic = ImportDiagnostic(
+        ordinal=0,
+        row_number=None,
+        column_name=None,
+        channel_key="frequency",
+        error_code="fixed_cyclic_frequency_required",
+        error_detail=(
+            "DMA temperature sweep requires exactly one positive frequency.cyclic "
+            "TestCondition normalized to Hz"
+        ),
+        recovery_hint=(
+            "Add the measured fixed cyclic frequency as the frequency TestCondition, "
+            "including its original value and unit."
+        ),
+    )
+    raise InvalidGovernedImport(diagnostic.error_detail, (diagnostic,))
+
+
 def canonical_from_governed_tabular(
     command: CanonicalTabularAdapterInput,
 ) -> CanonicalTestDataDocument:
+    _validate_dma_temperature_sweep_frequency(command)
     evidence = parse_governed_source_evidence(command.source_bytes, command.profile)
     channels: list[TestDataChannel] = []
     for ordinal, mapping in enumerate(command.profile.channels):

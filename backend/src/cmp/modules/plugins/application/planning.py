@@ -52,9 +52,13 @@ class PluginExecutionMaterializer(Protocol):
         job_spec: dict[str, Any],
     ) -> ExecutionMaterialization: ...
 
+    def cleanup(self, materialization: ExecutionMaterialization) -> None: ...
+
 
 class PluginExecutionPlanner(Protocol):
     async def prepare(self, claimed: ClaimedAttempt) -> ExecutePlugin: ...
+
+    def cleanup(self, command: ExecutePlugin) -> None: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,6 +148,25 @@ class RegistryPluginExecutionPlanner:
         self._sandbox = sandbox
         self._limit_policy = limit_policy or RunnerLimitPolicy()
         self._production = production
+        self._materializations: dict[Path, ExecutionMaterialization] = {}
+
+    def _cleanup_materialization(self, materialized: ExecutionMaterialization) -> None:
+        cleanup = getattr(self._materializer, "cleanup", None)
+        if cleanup is not None:
+            cleanup(materialized)
+
+    def cleanup(self, command: ExecutePlugin) -> None:
+        """Release the materializer-owned root for one prepared command.
+
+        The handler calls this from its terminal ``finally`` block.  The output root is
+        the only handle carried across the planner boundary; resolving it here prevents
+        an arbitrary caller path from being treated as an owned attempt directory.
+        """
+
+        key = Path(command.output_staging_root).resolve(strict=False)
+        materialized = self._materializations.pop(key, None)
+        if materialized is not None:
+            self._cleanup_materialization(materialized)
 
     async def prepare(self, claimed: ClaimedAttempt) -> ExecutePlugin:
         if (
@@ -222,10 +245,14 @@ class RegistryPluginExecutionPlanner:
             )
             limits = self._limit_policy.for_attempt(claimed, package)
         except ValueError as error:
+            self._cleanup_materialization(materialized)
             raise InvalidExecutionRequest(
                 "registry or runner resource facts cannot form a valid execution plan"
             ) from error
-        return ExecutePlugin(
+        except BaseException:
+            self._cleanup_materialization(materialized)
+            raise
+        command = ExecutePlugin(
             job_spec=job,
             package=executable,
             staged_inputs=materialized.staged_inputs,
@@ -235,3 +262,9 @@ class RegistryPluginExecutionPlanner:
             output_staging_root=materialized.output_staging_root,
             production=self._production,
         )
+        key = Path(command.output_staging_root).resolve(strict=False)
+        if key in self._materializations:
+            self._cleanup_materialization(materialized)
+            raise InvalidExecutionRequest("prepared plugin output root is already in use")
+        self._materializations[key] = materialized
+        return command

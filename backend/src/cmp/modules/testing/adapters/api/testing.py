@@ -26,6 +26,10 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.testing.application.service import (
     CreateReferenceImportMapping,
     CreateReferenceMultiaxialTensionMethod,
+    CreateReferenceShearDmaFrequencySweepMethod,
+    CreateReferenceShearDmaFrequencySweepRun,
+    CreateReferenceShearDmaTemperatureSweepMethod,
+    CreateReferenceShearDmaTemperatureSweepRun,
     CreateReferenceShearRelaxationMethod,
     CreateReferenceShearRelaxationRun,
     CreateReferenceTensileMethod,
@@ -166,6 +170,31 @@ class ShearRelaxationRunCreateRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+class ShearDmaFrequencySweepRunCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    specimen_id: UUID
+    specimen_revision_id: UUID
+    test_method_id: UUID
+    test_method_revision_id: UUID
+    run_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    performed_at: datetime
+    test_temperature_k: float | None = Field(default=None, gt=0.0)
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ShearDmaTemperatureSweepRunCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    specimen_id: UUID
+    specimen_revision_id: UUID
+    test_method_id: UUID
+    test_method_revision_id: UUID
+    run_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    performed_at: datetime
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
 class DetectReferenceImportRequest(BaseModel):
     """Ask the non-production header-only detector for immutable evidence."""
 
@@ -285,7 +314,6 @@ class TestRunContentResponse(BaseModel):
     test_temperature_k: float | None
     crosshead_speed_mm_per_min: float | None
     reference_only: bool
-
     @classmethod
     def from_domain(cls, value: TestRunContent) -> TestRunContentResponse:
         return cls(
@@ -937,6 +965,66 @@ def install_testing_api(
         return TestMethodResponse.from_snapshot(result)
 
     @application.post(
+        "/api/v1/test-methods/reference-shear-dma-frequency-sweep",
+        operation_id="createReferenceShearDmaFrequencySweepTestMethod",
+        response_model=TestMethodResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Create the non-production reference shear DMA frequency-sweep Test Method.",
+    )
+    def create_reference_shear_dma_frequency_sweep_method(
+        request: Request, response: Response, body: ReferenceMethodCreateRequest
+    ) -> TestMethodResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_shear_dma_frequency_sweep_method(
+                context,
+                decision,
+                CreateReferenceShearDmaFrequencySweepMethod(
+                    body.classification, body.change_reason
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-methods/{result.id}"
+        _etag(response, result.current.record)
+        return TestMethodResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/test-methods/reference-shear-dma-temperature-sweep",
+        operation_id="createReferenceShearDmaTemperatureSweepTestMethod",
+        response_model=TestMethodResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Create a fixed-frequency shear DMA temperature-sweep Test Method.",
+    )
+    def create_reference_shear_dma_temperature_sweep_method(
+        request: Request, response: Response, body: ReferenceMethodCreateRequest
+    ) -> TestMethodResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_shear_dma_temperature_sweep_method(
+                context,
+                decision,
+                CreateReferenceShearDmaTemperatureSweepMethod(
+                    body.classification, body.change_reason
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-methods/{result.id}"
+        _etag(response, result.current.record)
+        return TestMethodResponse.from_snapshot(result)
+
+    @application.post(
         "/api/v1/test-methods/reference-multiaxial-tension",
         operation_id="createReferenceMultiaxialTensionTestMethod",
         response_model=TestMethodResponse,
@@ -1054,6 +1142,83 @@ def install_testing_api(
                     body.run_label,
                     body.performed_at,
                     body.test_temperature_k,
+                    body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-runs/{result.id}"
+        _etag(response, result.current.record)
+        return TestRunResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/test-runs/reference-shear-dma-frequency-sweep",
+        operation_id="createReferenceShearDmaFrequencySweepTestRun",
+        response_model=TestRunResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Create a reference shear DMA frequency-sweep Test Run.",
+    )
+    def create_shear_dma_frequency_sweep_test_run(
+        request: Request,
+        response: Response,
+        body: ShearDmaFrequencySweepRunCreateRequest,
+    ) -> TestRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_shear_dma_frequency_sweep_run(
+                context,
+                decision,
+                CreateReferenceShearDmaFrequencySweepRun(
+                    body.specimen_id,
+                    body.specimen_revision_id,
+                    body.test_method_id,
+                    body.test_method_revision_id,
+                    body.run_label,
+                    body.performed_at,
+                    body.test_temperature_k,
+                    body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-runs/{result.id}"
+        _etag(response, result.current.record)
+        return TestRunResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/test-runs/reference-shear-dma-temperature-sweep",
+        operation_id="createReferenceShearDmaTemperatureSweepTestRun",
+        response_model=TestRunResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Create a fixed-frequency shear DMA temperature-sweep Test Run.",
+    )
+    def create_shear_dma_temperature_sweep_test_run(
+        request: Request,
+        response: Response,
+        body: ShearDmaTemperatureSweepRunCreateRequest,
+    ) -> TestRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_shear_dma_temperature_sweep_run(
+                context,
+                decision,
+                CreateReferenceShearDmaTemperatureSweepRun(
+                    body.specimen_id,
+                    body.specimen_revision_id,
+                    body.test_method_id,
+                    body.test_method_revision_id,
+                    body.run_label,
+                    body.performed_at,
                     body.change_reason,
                 ),
             )

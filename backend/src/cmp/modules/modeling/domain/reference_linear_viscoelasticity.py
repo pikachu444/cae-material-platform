@@ -31,6 +31,10 @@ REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID = (
     "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.3.0"
 )
 REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.3.0"
+REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID_1_4 = (
+    "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.4.0"
+)
+REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION_1_4 = "1.4.0"
 
 _SCHEMA_DOCUMENT = {
     "family": REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID,
@@ -60,6 +64,16 @@ _RECIPE_PROCESSING_SCHEMA_DOCUMENT = {
 }
 REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST = hashlib.sha256(
     json.dumps(_RECIPE_PROCESSING_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+).hexdigest()
+_CALIBRATION_SCHEMA_DOCUMENT = {
+    **_PROCESSING_SCHEMA_DOCUMENT,
+    "version": REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION_1_4,
+    "promotion_evidence": "linear_viscoelastic_calibration_plan_run_candidate_selection",
+}
+REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_DIGEST_1_4 = hashlib.sha256(
+    json.dumps(_CALIBRATION_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode(
         "utf-8"
     )
 ).hexdigest()
@@ -106,6 +120,66 @@ class ReferencePronyPromotionEvidence:
         ):
             _nonzero(name, getattr(self, name))
         for name in ("candidate_sha256", "diagnostics_sha256"):
+            value = getattr(self, name)
+            if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
+                raise InvalidLinearViscoelasticModel(f"{name} must be lowercase SHA-256")
+
+
+@dataclass(frozen=True, slots=True)
+class ReferenceLinearViscoelasticCalibrationEvidence:
+    """Exact Plan/Run/Candidate/Selection evidence for IR schema 1.4."""
+
+    plan_id: UUID
+    plan_revision_id: UUID
+    plan_sha256: str
+    run_id: UUID
+    run_sha256: str
+    candidate_id: UUID
+    candidate_sha256: str
+    selection_id: UUID
+    selection_revision_id: UUID
+    selection_sha256: str
+    recommendation_id: UUID
+    recommendation_sha256: str
+    canonical_test_data_id: UUID
+    canonical_test_data_revision_id: UUID
+    canonical_test_data_sha256: str
+    canonical_artifact_id: UUID
+    canonical_artifact_sha256: str
+    normalized_artifact_id: UUID
+    normalized_artifact_sha256: str
+    import_profile_id: UUID
+    import_profile_revision_id: UUID
+    import_profile_sha256: str
+
+    def __post_init__(self) -> None:
+        for name in (
+            "plan_id",
+            "plan_revision_id",
+            "run_id",
+            "candidate_id",
+            "selection_id",
+            "selection_revision_id",
+            "recommendation_id",
+            "canonical_test_data_id",
+            "canonical_test_data_revision_id",
+            "canonical_artifact_id",
+            "normalized_artifact_id",
+            "import_profile_id",
+            "import_profile_revision_id",
+        ):
+            _nonzero(name, getattr(self, name))
+        for name in (
+            "plan_sha256",
+            "run_sha256",
+            "candidate_sha256",
+            "selection_sha256",
+            "recommendation_sha256",
+            "canonical_test_data_sha256",
+            "canonical_artifact_sha256",
+            "normalized_artifact_sha256",
+            "import_profile_sha256",
+        ):
             value = getattr(self, name)
             if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
                 raise InvalidLinearViscoelasticModel(f"{name} must be lowercase SHA-256")
@@ -267,6 +341,7 @@ class ReferenceLinearViscoelasticContent:
     model_schema_digest: str = REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
     elastic_moduli_convention: str = "instantaneous"
     non_production: bool = True
+    calibration_evidence: ReferenceLinearViscoelasticCalibrationEvidence | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -290,7 +365,17 @@ class ReferenceLinearViscoelasticContent:
             and self.processing_promotion_evidence is not None
         ):
             raise InvalidLinearViscoelasticModel("linear Prony revision cannot mix promotion kinds")
-        maximum_terms = 10 if self.processing_promotion_evidence is not None else 5
+        if self.calibration_evidence is not None and (
+            self.prony_promotion_evidence is not None
+            or self.processing_promotion_evidence is not None
+        ):
+            raise InvalidLinearViscoelasticModel("linear Prony revision cannot mix promotion kinds")
+        maximum_terms = (
+            10
+            if self.processing_promotion_evidence is not None
+            or self.calibration_evidence is not None
+            else 5
+        )
         if not 1 <= len(self.terms) <= maximum_terms:
             raise InvalidLinearViscoelasticModel(
                 f"Prony term count must be between 1 and {maximum_terms}"
@@ -326,6 +411,8 @@ class ReferenceLinearViscoelasticContent:
         if self.model_family_id != REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID:
             raise InvalidLinearViscoelasticModel("unexpected linear-viscoelastic model family")
         expected_digest = REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+        if self.calibration_evidence is not None:
+            expected_digest = REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_DIGEST_1_4
         if self.processing_promotion_evidence is not None:
             expected_digest = (
                 REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
@@ -479,4 +566,48 @@ def reference_linear_viscoelastic_canonical(
             processing_result["fit_decision"] = processing_evidence.fit_decision.canonical()
             processing_result["fit_decision_digest"] = processing_evidence.fit_decision.digest
         result["processing_promotion_evidence"] = processing_result
+    if content.calibration_evidence is not None:
+        calibration_evidence = content.calibration_evidence
+        result["calibration_promotion_evidence"] = {
+            "plan": {
+                "id": str(calibration_evidence.plan_id),
+                "revision_id": str(calibration_evidence.plan_revision_id),
+                "sha256": calibration_evidence.plan_sha256,
+            },
+            "run": {
+                "id": str(calibration_evidence.run_id),
+                "sha256": calibration_evidence.run_sha256,
+            },
+            "candidate": {
+                "id": str(calibration_evidence.candidate_id),
+                "sha256": calibration_evidence.candidate_sha256,
+            },
+            "selection": {
+                "id": str(calibration_evidence.selection_id),
+                "revision_id": str(calibration_evidence.selection_revision_id),
+                "sha256": calibration_evidence.selection_sha256,
+            },
+            "recommendation": {
+                "id": str(calibration_evidence.recommendation_id),
+                "sha256": calibration_evidence.recommendation_sha256,
+            },
+            "canonical_test_data": {
+                "id": str(calibration_evidence.canonical_test_data_id),
+                "revision_id": str(calibration_evidence.canonical_test_data_revision_id),
+                "sha256": calibration_evidence.canonical_test_data_sha256,
+            },
+            "canonical_artifact": {
+                "id": str(calibration_evidence.canonical_artifact_id),
+                "sha256": calibration_evidence.canonical_artifact_sha256,
+            },
+            "normalized_artifact": {
+                "id": str(calibration_evidence.normalized_artifact_id),
+                "sha256": calibration_evidence.normalized_artifact_sha256,
+            },
+            "import_profile": {
+                "id": str(calibration_evidence.import_profile_id),
+                "revision_id": str(calibration_evidence.import_profile_revision_id),
+                "sha256": calibration_evidence.import_profile_sha256,
+            },
+        }
     return result

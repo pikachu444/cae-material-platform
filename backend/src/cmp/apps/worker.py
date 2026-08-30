@@ -21,8 +21,11 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services, build_object_store
-from cmp.bootstrap.demo_identity import DemoIdentity
+from cmp.bootstrap.demo_identity import DEMO_WORKER_RUNNER_ID, DemoIdentity
 from cmp.bootstrap.exporting import build_bulk_export_service
+from cmp.bootstrap.jobs import build_job_service
+from cmp.bootstrap.modeling import build_linear_viscoelastic_calibration_service
+from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.rotating_secret import RotatingTextFile
 from cmp.bootstrap.security import (
     IdentityServices,
@@ -33,8 +36,12 @@ from cmp.bootstrap.settings import Settings
 from cmp.modules.exporting.application.bulk_export import BulkExportService
 from cmp.modules.identity_access.application.authorization import AuthorizationService
 from cmp.modules.identity_access.application.security import SecurityContextService
-from cmp.modules.identity_access.domain.authorization import Permission
-from cmp.modules.identity_access.domain.security import AuthenticationRequest
+from cmp.modules.identity_access.domain.authorization import (
+    Permission,
+)
+from cmp.modules.identity_access.domain.security import (
+    AuthenticationRequest,
+)
 from cmp.modules.jobs.adapters.persistence.events import SqlAlchemyOutboxRepository
 from cmp.modules.jobs.adapters.signed_connectors import (
     SignedEventEncoder,
@@ -50,6 +57,10 @@ from cmp.modules.jobs.application.jobs import (
     HeartbeatResult,
 )
 from cmp.modules.jobs.domain.jobs import AttemptState, Failure, FailureCategory
+from cmp.modules.modeling.adapters.worker.linear_viscoelastic_calibration_worker import (
+    LinearViscoelasticCalibrationWorker,
+    WorkerCompositionError,
+)
 from cmp.modules.plugins.adapters.worker import PluginAttemptHandler
 from cmp.shared.observability import build_telemetry_runtime, configure_structured_logging
 from cmp.tools.release_signing import ExternalCommandSigner
@@ -85,6 +96,17 @@ class WorkerExecution:
 
 
 type JobHandler = Callable[[WorkerExecution], Awaitable[HandlerResult]]
+type WorkerFinalizeHook = Callable[
+    [ClaimedAttempt, HandlerResult, FinalizeResult], Awaitable[None]
+]
+
+
+class WorkerComponent(Protocol):
+    """Small lifecycle contract used by the composite worker."""
+
+    async def run_once(self) -> WorkerCycleResult: ...
+
+    def stop(self) -> None: ...
 
 
 def isolated_plugin_job_handler(executor: PluginAttemptHandler) -> JobHandler:
@@ -129,6 +151,7 @@ class DurableJobWorker:
         heartbeat_interval_seconds: float = 10.0,
         lease_duration: timedelta = timedelta(seconds=30),
         tracer: Tracer | None = None,
+        finalize_hook: WorkerFinalizeHook | None = None,
     ) -> None:
         if poll_interval_seconds <= 0:
             raise ValueError("poll_interval_seconds must be positive")
@@ -144,6 +167,7 @@ class DurableJobWorker:
         self._heartbeat_interval_seconds = heartbeat_interval_seconds
         self._lease_duration = lease_duration
         self._tracer = tracer
+        self._finalize_hook = finalize_hook
         self._stop = asyncio.Event()
 
     async def _heartbeat(
@@ -234,6 +258,8 @@ class DurableJobWorker:
                 failure=result.failure,
             )
         )
+        if self._finalize_hook is not None:
+            await self._finalize_hook(claimed, result, finalized)
         return WorkerCycleResult(
             status=finalized.attempt.state.value,
             handlers_registered=len(self._handlers),
@@ -338,7 +364,7 @@ class CompositeWorker:
     def __init__(
         self,
         *,
-        generic: DurableJobWorker,
+        generic: WorkerComponent,
         bulk_exports: BulkExportQueueWorker | None,
         event_delivery: OutboxQueueWorker | None,
         poll_interval_seconds: float,
@@ -395,7 +421,7 @@ def _worker_token(
     demo: DemoIdentity | None,
 ) -> Callable[[], str] | None:
     token: Callable[[], str] | None = (
-        (lambda: demo.issue_access_token()) if demo is not None else None
+        (lambda: demo.issue_worker_access_token()) if demo is not None else None
     )
     if token is None and settings.worker_access_token_file is not None:
         token = RotatingTextFile(Path(settings.worker_access_token_file))
@@ -506,23 +532,81 @@ def _build_event_worker(
 
 def _build_workers(
     settings: Settings,
-) -> tuple[BulkExportQueueWorker | None, OutboxQueueWorker | None, IdentityServices]:
+    *,
+    tracer: Tracer | None = None,
+) -> tuple[
+    BulkExportQueueWorker | None,
+    OutboxQueueWorker | None,
+    IdentityServices,
+    WorkerComponent | None,
+]:
     demo = DemoIdentity.from_settings(settings)
     identity = (
         build_demo_identity_services(settings, demo.idp)
         if demo is not None
         else build_identity_services(settings)
     )
-    if identity.security is None or identity.authorization is None or identity.engine is None:
-        return None, None, identity
+    identity_values = (
+        identity.security,
+        identity.authorization,
+        identity.engine,
+        identity.rls_context,
+    )
+    if all(value is None for value in identity_values):
+        return None, None, identity, None
+    if any(value is None for value in identity_values):
+        raise WorkerCompositionError(
+            "worker identity composition is partial; security, authorization, database and RLS "
+            "must be configured together"
+        )
+    assert (
+        identity.security is not None
+        and identity.authorization is not None
+        and identity.engine is not None
+        and identity.rls_context is not None
+    )
     token = _worker_token(settings, demo)
     if token is None:
-        return None, None, identity
+        raise WorkerCompositionError(
+            "configured worker identity requires CMP_WORKER_ACCESS_TOKEN_FILE or an explicit "
+            "non-production CMP_WORKER_ACCESS_TOKEN"
+        )
+    if settings.environment.strip().lower() == "production":
+        raise WorkerCompositionError(
+            "the calibration worker is non-production until an attested OCI runner is approved"
+        )
+
+    artifact_services = build_artifact_services(identity, settings)
+    artifacts = artifact_services.content
+    jobs = build_job_service(identity)
+    plugins = build_plugin_registry_service(identity)
+    calibration = build_linear_viscoelastic_calibration_service(
+        identity,
+        jobs=jobs,
+        artifacts=artifacts,
+        plugins=plugins,
+    )
+    if artifacts is None or jobs is None or plugins is None or calibration is None:
+        raise WorkerCompositionError(
+            "configured worker requires PostgreSQL Job, Plugin Registry, Artifact and "
+            "linear-viscoelastic calibration services"
+        )
+
+    generic: WorkerComponent = LinearViscoelasticCalibrationWorker(
+        jobs=jobs,
+        artifacts=artifacts,
+        plugins=plugins,
+        calibration=calibration,
+        security=identity.security,
+        authorization=identity.authorization,
+        access_token=token,
+        runner_id=DEMO_WORKER_RUNNER_ID if demo is not None else None,
+        tracer=tracer,
+    )
     event_delivery = _build_event_worker(settings, identity, token)
-    artifacts = build_artifact_services(identity, settings).content
     service = build_bulk_export_service(identity, artifacts, settings)
     if service is None:
-        return None, event_delivery, identity
+        return None, event_delivery, identity, generic
     return (
         BulkExportQueueWorker(
             service=service,
@@ -532,6 +616,7 @@ def _build_workers(
         ),
         event_delivery,
         identity,
+        generic,
     )
 
 
@@ -552,11 +637,17 @@ async def _run(args: argparse.Namespace) -> int:
         endpoint=settings.otel_exporter_otlp_endpoint,
         export_interval_ms=settings.otel_metric_export_interval_ms,
     )
-    # Generic plugin handlers still require their isolated production composition. The typed
-    # Bulk Export worker is enabled only when identity, database, object storage and an explicit
-    # demo/operator token are all configured; otherwise the process remains safely idle.
-    generic = DurableJobWorker(poll_interval_seconds=interval, tracer=telemetry.tracer)
-    bulk_exports, event_delivery, identity = _build_workers(settings)
+    # Calibration uses the explicitly non-production local subprocess sandbox until an
+    # attested OCI runner is approved.  With no identity/database configuration the worker
+    # remains the deployment smoke-test idle shell; partial composition fails closed.
+    bulk_exports, event_delivery, identity, configured_generic = _build_workers(
+        settings,
+        tracer=telemetry.tracer,
+    )
+    generic = configured_generic or DurableJobWorker(
+        poll_interval_seconds=interval,
+        tracer=telemetry.tracer,
+    )
     worker = CompositeWorker(
         generic=generic,
         bulk_exports=bulk_exports,

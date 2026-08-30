@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0",
+  "classification": "synthetic_non_confidential_non_production",
+  "non_production": true,
+  "purpose": "Reusable fixed-frequency DMA to TTS, Prony, and Abaqus numerical reference",
+  "input": {
+    "frequency": {
+      "value": "1",
+      "unit": "Hz"
+    },
+    "temperature_unit": "K",
+    "modulus_unit": "Pa",
+    "shift_law": {
+      "kind": "tabulated",
+      "reference_temperature_k": "293.15",
+      "value_origin": "synthetic_closed_form_reference"
+    },
+    "rows": [
+      {
+        "source_ordinal": 0,
+        "temperature_k": "263.15",
+        "storage_modulus_pa": "2999200.3198720515",
+        "loss_modulus_pa": "39984.006397441022",
+        "log10_a_t": "1.2018201316418848",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 1,
+        "temperature_k": "273.15",
+        "storage_modulus_pa": "2991150.4424778763",
+        "loss_modulus_pa": "132743.36283185839",
+        "log10_a_t": "0.67894138636154744",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 2,
+        "temperature_k": "283.15",
+        "storage_modulus_pa": "2923076.923076923",
+        "loss_modulus_pa": "384615.38461538462",
+        "log10_a_t": "0.201820131641885",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 3,
+        "temperature_k": "293.15",
+        "storage_modulus_pa": "2816000.6632992495",
+        "loss_modulus_pa": "578050.96444447245",
+        "log10_a_t": "0",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 4,
+        "temperature_k": "303.15",
+        "storage_modulus_pa": "2384615.3846153845",
+        "loss_modulus_pa": "923076.92307692312",
+        "log10_a_t": "-0.32105861363845262",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 5,
+        "temperature_k": "313.15",
+        "storage_modulus_pa": "1400000",
+        "loss_modulus_pa": "800000",
+        "log10_a_t": "-0.79817986835811505",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 6,
+        "temperature_k": "323.15",
+        "storage_modulus_pa": "1044009.7799511002",
+        "loss_modulus_pa": "293398.53300733498",
+        "log10_a_t": "-1.3210586136384526",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 7,
+        "temperature_k": "333.15",
+        "storage_modulus_pa": "1004987.5311720698",
+        "loss_modulus_pa": "99750.623441396514",
+        "log10_a_t": "-1.7981798683581149",
+        "partition": "HOLDOUT"
+      }
+    ]
+  },
+  "closed_form_truth": {
+    "model": "one_term_generalized_maxwell_shear",
+    "g_inf_pa": "1000000",
+    "terms": [
+      {
+        "g_i_pa": "2000000",
+        "tau_i_s": "0.5"
+      }
+    ],
+    "equations": {
+      "storage": "G_inf+sum(G_i*(omega*tau_i)^2/(1+(omega*tau_i)^2))",
+      "loss": "sum(G_i*omega*tau_i/(1+(omega*tau_i)^2))",
+      "reduced_angular_frequency": "2*pi*frequency_hz*10^log10_a_t"
+    }
+  },
+  "static_properties": {
+    "density_kg_per_m3": "1200",
+    "youngs_modulus_pa": "8100000",
+    "poisson_ratio": "0.35",
+    "bulk_relaxation_status": "not_characterized"
+  },
+  "expected_prony": {
+    "instantaneous_shear_modulus_pa": "3000000",
+    "terms": [
+      {
+        "shear_ratio": "0.6666666666666666",
+        "bulk_ratio": "0",
+        "relaxation_time_s": "0.5"
+      }
+    ]
+  },
+  "fit_policy": {
+    "term_counts": [
+      1
+    ],
+    "bounds": [
+      {
+        "name": "G_inf_pa",
+        "lower": "100000",
+        "start": "900000",
+        "upper": "5000000",
+        "unit": "Pa",
+        "transform": "ln"
+      },
+      {
+        "name": "G_1_pa",
+        "lower": "100000",
+        "start": "1800000",
+        "upper": "5000000",
+        "unit": "Pa",
+        "transform": "ln"
+      },
+      {
+        "name": "tau_1_s",
+        "lower": "0.01",
+        "start": "0.4",
+        "upper": "10",
+        "unit": "s",
+        "transform": "ln"
+      }
+    ],
+    "weights": {
+      "relaxation_weight": "1",
+      "dma_storage_weight": "0.5",
+      "dma_loss_weight": "0.5",
+      "relaxation_scale_pa": "1000000",
+      "dma_storage_scale_pa": "1000000",
+      "dma_loss_scale_pa": "1000000",
+      "q_rule_version": "equal_per_point@1.0.0"
+    },
+    "optimizer": {
+      "method": "trf",
+      "x_scale": "jac",
+      "transform": "ln",
+      "ftol": "1e-11",
+      "xtol": "1e-11",
+      "gtol": "1e-11",
+      "max_nfev": 2000
+    }
+  },
+  "acceptance_tolerances": {
+    "master_curve_relative": "5e-14",
+    "fitted_parameter_relative": "1e-7"
+  },
+  "export": {
+    "solver": "abaqus",
+    "solver_version": "2025",
+    "unit_system": "kg_m_s",
+    "solver_material_id": 43,
+    "material_name": "DMA_TTS_PRONY_REFERENCE",
+    "golden_card_path": "tests/fixtures/abaqus/dma-tts-prony-reference-kg-m-s.inp"
+  }
+}

@@ -1,0 +1,41 @@
+schema_version: "1.0"
+fixture:
+  id: dma-temperature-sweep-linear-viscoelastic-v1
+  path: fixtures/synthetic/dma-temperature-sweep-linear-viscoelastic-v1.json
+  classification: synthetic_non_confidential_non_production
+  non_production: true
+  sha256: 3ef45515f9e24ebb19f8ebc4c927fea0e47bb4981c7d3d4356bac114086b9619
+
+generation:
+  source: repository-maintained synthetic numerical reference
+  production_functions_called: []
+  procedure: >-
+    Evaluate the declared one-term generalized Maxwell shear equations at the reduced
+    angular frequencies produced by a 1 Hz temperature sweep and the declared tabulated
+    horizontal shift factors. Static isotropic properties are declared separately so the
+    recovered normalized shear term can be rendered as an Abaqus material card.
+  public_experiment_values_used: []
+  interpolation: none
+  smoothing: none
+  resampling: none
+
+expected_export:
+  path: tests/fixtures/abaqus/dma-tts-prony-reference-kg-m-s.inp
+  sha256: a857ee218f8f52bcb47a59854b62271535ba227a72b95086f594898c047fedbe
+  scope: material-card bytes only; no finite-element analysis result is claimed
+
+sources:
+  - title: Time Domain Viscoelasticity
+    publisher: Dassault Systemes
+    version: "2024"
+    url: https://docs.software.vt.edu/abaqusv2024/English/SIMACAEMATRefMap/simamat-c-timevisco.htm
+    role: normalized Prony and instantaneous isotropic material semantics
+  - title: Viscoelastic Cylindrical Specimen
+    publisher: Dassault Systemes
+    version: "2025"
+    url: https://docs.software.vt.edu/abaqusv2025/English/SIMACAEVERRefMap/simaver-c-viscocylinder.htm
+    role: Abaqus TIME=PRONY verification context
+
+boundaries:
+  production_material_claim: forbidden
+  finite_element_solver_execution: not_part_of_this_fixture

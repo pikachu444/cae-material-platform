@@ -1,0 +1,149 @@
+schema_version: "1.0"
+fixture:
+  id: smp-shear-dma-283.15k-v1
+  path: fixtures/public/smp-shear-dma-283.15k-v1.csv
+  format: text/csv
+  classification: public_reference_non_production
+  non_production: true
+  owner: CAE Material Platform maintainers
+  digest:
+    algorithm: sha256
+    value: d0ffe8a1956ba3f6ccbe2c30885c77d1e2ed5d17158ae10b0751431d8803b4e4
+    byte_contract: UTF-8, LF line endings, final newline included
+
+source:
+  dataset_title: >-
+    Humidity and thermal triggered Shape Memory Effect - Rheology-based numerical modelling -
+    Dynamic Mechanical Thermal Humidity Analysis
+  authors:
+    - Dominik Fauser
+    - Holger Steeb
+  doi: 10.18419/darus-2021
+  landing_page: https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2021
+  license: CC BY 4.0
+  file_name: frequency_sweep_SMP_30.tab
+  data_file_id: 64498
+  download_url: https://darus.uni-stuttgart.de/api/access/datafile/64498?format=original
+  sha256: 37f70abaae12791d0661ff78e778e2bbe765d46506b4ee9268ad50de4d2523e7
+  md5: b78a18b87e0da001afde544fb820b6c9
+  raw_fixture_path: fixtures/public/frequency-sweep-SMP-30-original.tab
+  raw_fixture_sha256: 37f70abaae12791d0661ff78e778e2bbe765d46506b4ee9268ad50de4d2523e7
+  raw_fixture_md5: b78a18b87e0da001afde544fb820b6c9
+
+derivation:
+  selected_result_number: 1
+  selected_temperature_c: "10"
+  selected_temperature_k: "283.15"
+  rows: 13
+  derived_fixture_path: fixtures/public/smp-shear-dma-283.15k-v1.csv
+  derived_fixture_sha256: d0ffe8a1956ba3f6ccbe2c30885c77d1e2ed5d17158ae10b0751431d8803b4e4
+  selection_columns:
+    result_number: Result No.
+    temperature: Temperature
+  column_mappings:
+    temperature_c: Temperature
+    frequency_hz: Frequency
+    storage_modulus_mpa: Storage Modulus
+    loss_modulus_mpa: Loss Modulus
+    shear_strain_percent: Shear Strain
+    relative_humidity_percent: Relative Humidity
+  operations:
+    - Selected the first published 10 C isothermal frequency sweep.
+    - Kept published row order and numeric text without resampling, smoothing, or unit conversion.
+    - Renamed six source columns so the governed Import Profile can declare their quantities and original units explicitly.
+
+  raw_source_columns:
+    - Result No.
+    - Interval No.
+    - Point No.
+    - Angular Frequency
+    - Frequency
+    - Complex Viscosity
+    - Storage Modulus
+    - Loss Modulus
+    - Complex Shear Modulus
+    - Loss Factor
+    - Shear Strain
+    - Shear Stress
+    - Torque
+    - Temperature
+    - Gap
+    - Test Time
+    - Relative Humidity
+  source_columns:
+    - temperature_c
+    - frequency_hz
+    - storage_modulus_mpa
+    - loss_modulus_mpa
+    - shear_strain_percent
+    - relative_humidity_percent
+
+platform_fixture:
+  metadata_role: deterministic_test_fixture_metadata
+  test_run_performed_at: "2026-08-28T09:00:00Z"
+  note: Platform-assigned timestamp used only to exercise the non-production acceptance flow; it is not a source fact.
+
+governed_channels:
+  - ordinal: 0
+    source_column: temperature_c
+    source_quantity: temperature
+    original_unit: Cel
+    axis_role: independent
+  - ordinal: 1
+    source_column: frequency_hz
+    source_quantity: frequency
+    original_unit: Hz
+    axis_role: independent
+  - ordinal: 2
+    source_column: storage_modulus_mpa
+    source_quantity: storage_modulus
+    original_unit: MPa
+    axis_role: dependent
+  - ordinal: 3
+    source_column: loss_modulus_mpa
+    source_quantity: loss_modulus
+    original_unit: MPa
+    axis_role: dependent
+
+conditions:
+  - key: temperature
+    quantity_semantics: temperature.absolute
+    original_value: "10"
+    original_unit_string: Cel
+    normalized_value: "283.15"
+    normalized_unit: K
+  - key: shear_strain_amplitude
+    quantity_semantics: mechanics.strain.shear
+    original_value: "0.1"
+    original_unit_string: "%"
+    normalized_value: "0.001"
+    normalized_unit: "1"
+
+record:
+  material_name: DaRUS polyurethane shape-memory polymer
+  material_code: CMP-PUBLIC-SMP-DMA
+  material_family: polyurethane shape-memory polymer
+  material_class: polymer
+  material_description: Public DaRUS frequency-sweep reference material; no static Property Set is claimed.
+  state_name: 10 C / 283.15 K shear DMA frequency sweep
+  state_lot_or_batch: DaRUS-2021
+  state_description: 10 C, approximately 30% RH reference isotherm
+  specimen_code: SMP-DARUS-64498-SHEAR-DMA-01
+  specimen_description: Public DaRUS SMP specimen; approximately 0.1% shear strain and 30% RH
+  test_method_code: reference_shear_dma_frequency_sweep
+  test_run_label: DaRUS SMP 10 C shear DMA frequency sweep
+  profile_label: DaRUS SMP shear DMA frequency sweep
+  test_data_document_id: CMP-PUBLIC-SMP-DMA-28315
+  canonical_maker: Fauser and Steeb (DaRUS)
+  canonical_grade: Polyurethane-based shape-memory polymer
+  canonical_operator: DaRUS public dataset
+  canonical_laboratory: University of Stuttgart (source record)
+  canonical_method: reference shear DMA frequency sweep
+  canonical_specimen_description: Public DaRUS SMP frequency sweep; approximately 30% RH
+  static_property_set: absent
+
+use:
+  role: public_reference_shear_dma_frequency_sweep
+  preserve_source_values_and_order: true
+  hidden_conversion_or_resampling: forbidden
+  ir_promotion: forbidden_without_governed_static_property_set

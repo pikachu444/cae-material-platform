@@ -1,0 +1,1374 @@
+schema_version: '1.0'
+classification: public_reference_non_production
+non_production: true
+archive:
+  path: fixtures/public/zenodo-21096098-001_Data_Raw.zip
+  sha256: b44fdef4e8d50911f2876b9e38bf1f66414a9fcf24379c2fda8cc4d41eaf6f06
+  md5: 988a57faa6ff0a044a36c93a55bdac69
+  expected_file_count: 45
+  validated_member_count: 30
+  ignored_members:
+  - 001_Data_Raw/DSC_Raw_original-P1T+P1T-recycled.csv
+  - 001_Data_Raw/DSC_Raw_original-X1T+X1T-recycled.csv
+  - 001_Data_Raw/FTIR_Raw_original-P1J.SPA
+  - 001_Data_Raw/FTIR_Raw_original-P1T.SPA
+  - 001_Data_Raw/FTIR_Raw_original-P3J.SPA
+  - 001_Data_Raw/FTIR_Raw_original-P3T.SPA
+  - 001_Data_Raw/FTIR_Raw_original-X1J.SPA
+  - 001_Data_Raw/FTIR_Raw_original-X1T.SPA
+  - 001_Data_Raw/FTIR_Raw_original-X3J.SPA
+  - 001_Data_Raw/FTIR_Raw_original-X3T.SPA
+  - 001_Data_Raw/NMR_Raw_original-ISO-AA.ZIP
+  - 001_Data_Raw/TGA_Raw_original-P1T-recycled.csv
+  - 001_Data_Raw/TGA_Raw_original-P1T.csv
+  - 001_Data_Raw/TGA_Raw_original-X1T-recycled.csv
+  - 001_Data_Raw/TGA_Raw_original-X1T.csv
+  member_inventory:
+  - path: 001_Data_Raw/DMA_Raw_original-P1J.csv
+    size: 3142
+    sha256: 3d8a89f49579f4383b57105c0c9803aa152ecdb90569ea630f1425372de52758
+    disposition: validated
+    role: shear_dma_temperature_ramp
+  - path: 001_Data_Raw/DMA_Raw_original-P1T.csv
+    size: 4040
+    sha256: bd7b6eb09c3aac1805a0da08d6efe5287713805f6fa70ef98489b2ee3a648d1a
+    disposition: validated
+    role: shear_dma_temperature_ramp
+  - path: 001_Data_Raw/DMA_Raw_original-P3J.csv
+    size: 3210
+    sha256: 989e9c2daa013267185eab40674bacbd1f853d5e943c518a5a725dc5e68d9fa9
+    disposition: validated
+    role: shear_dma_temperature_ramp
+  - path: 001_Data_Raw/DMA_Raw_original-P3T.csv
+    size: 3673
+    sha256: 0a1b1325d747bebe16c68fdf8a5699b8bce5344e8736a6846cf1bcbeb28cee98
+    disposition: validated
+    role: shear_dma_temperature_ramp
+  - path: 001_Data_Raw/DMA_Raw_original-X1T.csv
+    size: 5450
+    sha256: 11b1368fe1ca2037bbe536aa285798332f5627d9b60dcb6ca4ae9f55d05eb1e3
+    disposition: validated
+    role: shear_dma_temperature_ramp
+  - path: 001_Data_Raw/DMA_Raw_original-X3T.csv
+    size: 6552
+    sha256: c79c3f46d547b8d48d3aca34f08681fddf4925e6fa838d465627b8b3d5ca6112
+    disposition: validated
+    role: shear_dma_temperature_ramp
+  - path: 001_Data_Raw/DSC_Raw_original-P1T+P1T-recycled.csv
+    size: 64510
+    sha256: fdadfe5cb7f848f03080f3881d6343175440109e51327e3784a4c480d0613984
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/DSC_Raw_original-X1T+X1T-recycled.csv
+    size: 27944
+    sha256: 479ab88f1ea5634b81a493f65129716c641b92c6513d51ca721a9211eb39d37a
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-P1J.SPA
+    size: 34772
+    sha256: 7d620cfdcd1c8108f4483b550bda962b7a9f819570b9a0849329484d39bf8033
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-P1T.SPA
+    size: 34772
+    sha256: 5377727a1990aa2d47ac63b44fbf57604ef4fe26862c825402618949efe5a871
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-P3J.SPA
+    size: 34772
+    sha256: 181c40271c74bda24b8db4e907fe632f298f75aa7f775c36546056adee922cca
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-P3T.SPA
+    size: 34772
+    sha256: 489829cc4c6a98ca0b75231db9c202b1de20488e87c60c534755fca861c6cf6e
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-X1J.SPA
+    size: 35660
+    sha256: 21dd2f0dc396fd43ee9bf0c92c7839c118ffa39f60130df82e9c44d727488e02
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-X1T.SPA
+    size: 34756
+    sha256: 76398beb8d52bad27724ad558c25e9e6ec5eb7652d71a1d4338ef53448c674ad
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-X3J.SPA
+    size: 34756
+    sha256: 831e4871b8d488c56ca6aaedcc437cde9acb3b0f054c9a5a8e95b4b992a57142
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/FTIR_Raw_original-X3T.SPA
+    size: 34756
+    sha256: a2449b102a5f5b82b2b3f2cd1012b183ba8f75b780ab070805e3ab6db578b12f
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/NMR_Raw_original-ISO-AA.ZIP
+    size: 363994
+    sha256: c0358ff2e03ac1d5af00d85e0fc71a5d5cfd0fc150bf769523388b35f23d864b
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P1T-130\xB0C.csv"
+    size: 74250
+    sha256: 699060434fe963196d15ee333ecbee929bd3d4556116c4c0b44df0ffae24d3f7
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P1T-140\xB0C.csv"
+    size: 47184
+    sha256: 0cc0c011eb877de0677605fa28adff0a5a482409d2b86f628109844889916359
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P1T-150\xB0C.csv"
+    size: 19159
+    sha256: 2314b16622106aa25c95f603894044e27d06d6742da614367fe4d6b45fa48e63
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P1T-160\xB0C.csv"
+    size: 20492
+    sha256: fcf0066e21d0fd7117ea6e5683e1298e58fe7442d847e43a3d684adf1fb35292
+    disposition: validated
+    role: shear_relaxation
+  - path: 001_Data_Raw/Relaxation-test_Raw_original-P1T-Arrhenius.csv
+    size: 161
+    sha256: 4e4e6b3f5628f503ea6191c9fef6d11593dd5975fb8007dff2471198c7485c27
+    disposition: validated
+    role: arrhenius_summary
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P3T-140\xB0C.csv"
+    size: 112286
+    sha256: 1f3ea1dfe4c4b9e28048ff4b9bc5220bd42e7240e52c26d38e0d202ba0a5c039
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P3T-150\xB0C.csv"
+    size: 89988
+    sha256: 7889e72a00706a5f176297086dd8bf2658db8fbc7e895a81c0ee9bfa6c8d7e1f
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P3T-160\xB0C.csv"
+    size: 72131
+    sha256: f6f7fcb2dc9faa6382f5450ef45ad1656a3f8dd4764a4457ae202c289815624d
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-P3T-170\xB0C.csv"
+    size: 42676
+    sha256: 437898ec4b82d528ab2dfbd705a58fcba2dca2bc188bac778f75bbede4d2f588
+    disposition: validated
+    role: shear_relaxation
+  - path: 001_Data_Raw/Relaxation-test_Raw_original-P3T-Arrhenius.csv
+    size: 165
+    sha256: b6e0c9932e9a4f5cd385ed3149a8c196ac1d36e68c420e0029186af473733537
+    disposition: validated
+    role: arrhenius_summary
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X1T-140\xB0C.csv"
+    size: 124618
+    sha256: ecc905cc474308836b4d2f6d890766d1dbfe8f60702efd8fa552f3c2ee662fab
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X1T-150\xB0C.csv"
+    size: 39539
+    sha256: 839ab42a5b6c88e1913d439647d29e19e841fcff1099698924bdde8249dcfbad
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X1T-160\xB0C.csv"
+    size: 25055
+    sha256: e4540a8c0323bbc63dbb630b5cbd9cb15d1569bf32a1e6d1a92860311f6f6fbe
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X1T-170\xB0C.csv"
+    size: 5291
+    sha256: 3da6f8dbf52ffeaa6934fca981273d23390b024f0b2dd30a50816caf644c563b
+    disposition: validated
+    role: shear_relaxation
+  - path: 001_Data_Raw/Relaxation-test_Raw_original-X1T-Arrhenius.csv
+    size: 162
+    sha256: 3750ff7797d12642c4138bbabf3a9a1892017f9b97107ac4b6b92e0e891a7d9c
+    disposition: validated
+    role: arrhenius_summary
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X3T-130\xB0C.csv"
+    size: 16530
+    sha256: c94f238a095578c20cd5c59b7b261e96608bb4cc50a7acbc5d75a7054b934b2a
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X3T-140\xB0C.csv"
+    size: 12513
+    sha256: 7520792630cb64749c2d1717e82f611d4ad8b8010423821dbf72c7241472b5ba
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X3T-150\xB0C.csv"
+    size: 12600
+    sha256: 1e4935018b3546609366816133295804ad4f9c1ee067cc53a4169f9f9257398e
+    disposition: validated
+    role: shear_relaxation
+  - path: "001_Data_Raw/Relaxation-test_Raw_original-X3T-160\xB0C.csv"
+    size: 10037
+    sha256: 60e0ecaa51daaf4a0469476e3fc99337cc81b79d0e25fc8dd3d1d20a75439184
+    disposition: validated
+    role: shear_relaxation
+  - path: 001_Data_Raw/Relaxation-test_Raw_original-X3T-Arrhenius.csv
+    size: 161
+    sha256: aa95c76e9bf0eb439b0a01de31130ba57a136ba502fa53ae48256156d4e952d1
+    disposition: validated
+    role: arrhenius_summary
+  - path: 001_Data_Raw/Tensile-test_Raw_original-P1T-recycled.csv
+    size: 182
+    sha256: 273ef1455182e7951e33043449a26c4b0206058a0720b7569e0cb1158dd2181b
+    disposition: validated
+    role: tensile
+  - path: 001_Data_Raw/Tensile-test_Raw_original-P1T.csv
+    size: 182
+    sha256: 346565e81fe1e1086eed6878458dc378d3c033dfdcd0ee51c12f8de7d8a1df2d
+    disposition: validated
+    role: tensile
+  - path: 001_Data_Raw/Tensile-test_Raw_original-X1T-recycled.csv
+    size: 209
+    sha256: 8560d48eadec2c8a15d8c53b540ca97b7634b3ffde2dc0db7efef27439c81da2
+    disposition: validated
+    role: tensile
+  - path: 001_Data_Raw/Tensile-test_Raw_original-X1T.csv
+    size: 239
+    sha256: ce0b8039abd1be2c5d0d39f5644b5b216a10d344c9f891bcbbd728b30f5577dc
+    disposition: validated
+    role: tensile
+  - path: 001_Data_Raw/TGA_Raw_original-P1T-recycled.csv
+    size: 108959
+    sha256: e97157aad53fca2d80839a7d38c25b4969b7b05eef0e1416337eb024c5b70dd1
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/TGA_Raw_original-P1T.csv
+    size: 109012
+    sha256: 7500cef3a9dec747cb23ceccb1d77a3e26d4976aa590b306607d4dcb2c7361a9
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/TGA_Raw_original-X1T-recycled.csv
+    size: 108914
+    sha256: 721981c8b9827d6393580d44b96c21d8153ae0ab52d14ebeba4a1db6d787889d
+    disposition: ignored
+    role: out_of_scope_source_member
+  - path: 001_Data_Raw/TGA_Raw_original-X1T.csv
+    size: 108969
+    sha256: 3dc0d7f3b1b43d624a1b01a50aaef19118b4132d75ac12337ef74bdcb6823104
+    disposition: ignored
+    role: out_of_scope_source_member
+source:
+  dataset_title: Dataset for Rigid Biobased Vinylogous Urethane Vitrimers from d-isosorbide/Furfural-Derived Monomers
+  authors:
+  - Hynek Benes
+  - Ondrej Sedlacek
+  - Ondrej Kopilec
+  - Jiri Hodan
+  doi: 10.5281/zenodo.21096098
+  version: '1.0'
+  landing_page: https://zenodo.org/records/21096098
+  license: CC BY 4.0
+  data_generation: experiment
+validation:
+  expected_experiment_count: 30
+  expected_kind_counts:
+    shear_dma_temperature_ramp: 6
+    shear_relaxation: 16
+    arrhenius_summary: 4
+    tensile: 4
+  expected_calibration_eligible_count: 0
+  relaxation_ratio_validation: preserve_every_finite_published_value_including_nonpositive_tail_noise
+  unsupported_input_recovery: provide an exact-temperature frequency sweep with storage/loss modulus, or an absolute shear-relaxation
+    modulus in Pa; never invent G0, Poisson ratio, or density
+  expected_member_inventory_count: 45
+experiments:
+- id: dma-raw-original-p1j
+  member: 001_Data_Raw/DMA_Raw_original-P1J.csv
+  sha256: 3d8a89f49579f4383b57105c0c9803aa152ecdb90569ea630f1425372de52758
+  kind: shear_dma_temperature_ramp
+  encoding: cp1252
+  expected_header:
+  - Temperature
+  - Storage modulus
+  - Tan(delta)
+  expected_units:
+  - "\xB0C"
+  - Pa
+  - ''
+  expected_data_rows: 121
+  sample: P1J
+  conditions:
+    frequency_hz: '1'
+    strain_percent: '0.01'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: fixed_1_hz_temperature_ramp_is_not_an_exact_temperature_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: "\xB0C"
+      normalized_unit: K
+    storage_modulus:
+      column: Storage modulus
+      quantity: mechanics.modulus.storage
+      source_unit: Pa
+      normalized_unit: Pa
+    tan_delta:
+      column: Tan(delta)
+      quantity: mechanics.tan_delta
+      source_unit: ''
+      normalized_unit: '1'
+- id: dma-raw-original-p1t
+  member: 001_Data_Raw/DMA_Raw_original-P1T.csv
+  sha256: bd7b6eb09c3aac1805a0da08d6efe5287713805f6fa70ef98489b2ee3a648d1a
+  kind: shear_dma_temperature_ramp
+  encoding: cp1252
+  expected_header:
+  - Temperature
+  - Storage modulus
+  - Tan(delta)
+  expected_units:
+  - "\xB0C"
+  - Pa
+  - ''
+  expected_data_rows: 151
+  sample: P1T
+  conditions:
+    frequency_hz: '1'
+    strain_percent: '0.01'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: fixed_1_hz_temperature_ramp_is_not_an_exact_temperature_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: "\xB0C"
+      normalized_unit: K
+    storage_modulus:
+      column: Storage modulus
+      quantity: mechanics.modulus.storage
+      source_unit: Pa
+      normalized_unit: Pa
+    tan_delta:
+      column: Tan(delta)
+      quantity: mechanics.tan_delta
+      source_unit: ''
+      normalized_unit: '1'
+- id: dma-raw-original-p3j
+  member: 001_Data_Raw/DMA_Raw_original-P3J.csv
+  sha256: 989e9c2daa013267185eab40674bacbd1f853d5e943c518a5a725dc5e68d9fa9
+  kind: shear_dma_temperature_ramp
+  encoding: cp1252
+  expected_header:
+  - Temperature
+  - Storage modulus
+  - Tan(delta)
+  expected_units:
+  - "\xB0C"
+  - Pa
+  - ''
+  expected_data_rows: 125
+  sample: P3J
+  conditions:
+    frequency_hz: '1'
+    strain_percent: '0.01'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: fixed_1_hz_temperature_ramp_is_not_an_exact_temperature_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: "\xB0C"
+      normalized_unit: K
+    storage_modulus:
+      column: Storage modulus
+      quantity: mechanics.modulus.storage
+      source_unit: Pa
+      normalized_unit: Pa
+    tan_delta:
+      column: Tan(delta)
+      quantity: mechanics.tan_delta
+      source_unit: ''
+      normalized_unit: '1'
+- id: dma-raw-original-p3t
+  member: 001_Data_Raw/DMA_Raw_original-P3T.csv
+  sha256: 0a1b1325d747bebe16c68fdf8a5699b8bce5344e8736a6846cf1bcbeb28cee98
+  kind: shear_dma_temperature_ramp
+  encoding: cp1252
+  expected_header:
+  - Temperature
+  - Storage modulus
+  - Tan(delta)
+  expected_units:
+  - "\xB0C"
+  - Pa
+  - ''
+  expected_data_rows: 138
+  sample: P3T
+  conditions:
+    frequency_hz: '1'
+    strain_percent: '0.01'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: fixed_1_hz_temperature_ramp_is_not_an_exact_temperature_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: "\xB0C"
+      normalized_unit: K
+    storage_modulus:
+      column: Storage modulus
+      quantity: mechanics.modulus.storage
+      source_unit: Pa
+      normalized_unit: Pa
+    tan_delta:
+      column: Tan(delta)
+      quantity: mechanics.tan_delta
+      source_unit: ''
+      normalized_unit: '1'
+- id: dma-raw-original-x1t
+  member: 001_Data_Raw/DMA_Raw_original-X1T.csv
+  sha256: 11b1368fe1ca2037bbe536aa285798332f5627d9b60dcb6ca4ae9f55d05eb1e3
+  kind: shear_dma_temperature_ramp
+  encoding: cp1252
+  expected_header:
+  - Temperature
+  - Storage modulus
+  - Temperature
+  - Storage modulus
+  - Tan(delta)
+  expected_units:
+  - "\xB0C"
+  - Pa
+  - "\xB0C"
+  - Pa
+  - ''
+  expected_data_rows: 156
+  sample: X1T
+  conditions:
+    frequency_hz: '1'
+    strain_percent: '0.01'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: fixed_1_hz_temperature_ramp_is_not_an_exact_temperature_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: "\xB0C"
+      normalized_unit: K
+    storage_modulus:
+      column: Storage modulus
+      quantity: mechanics.modulus.storage
+      source_unit: Pa
+      normalized_unit: Pa
+    tan_delta:
+      column: Tan(delta)
+      quantity: mechanics.tan_delta
+      source_unit: ''
+      normalized_unit: '1'
+- id: dma-raw-original-x3t
+  member: 001_Data_Raw/DMA_Raw_original-X3T.csv
+  sha256: c79c3f46d547b8d48d3aca34f08681fddf4925e6fa838d465627b8b3d5ca6112
+  kind: shear_dma_temperature_ramp
+  encoding: cp1252
+  expected_header:
+  - Temperature
+  - Storage modulus
+  - Temperature
+  - Storage modulus
+  - Tan(delta)
+  expected_units:
+  - "\xB0C"
+  - Pa
+  - "\xB0C"
+  - Pa
+  - ''
+  expected_data_rows: 155
+  sample: X3T
+  conditions:
+    frequency_hz: '1'
+    strain_percent: '0.01'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: fixed_1_hz_temperature_ramp_is_not_an_exact_temperature_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: "\xB0C"
+      normalized_unit: K
+    storage_modulus:
+      column: Storage modulus
+      quantity: mechanics.modulus.storage
+      source_unit: Pa
+      normalized_unit: Pa
+    tan_delta:
+      column: Tan(delta)
+      quantity: mechanics.tan_delta
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p1t-130-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P1T-130\xB0C.csv"
+  sha256: 699060434fe963196d15ee333ecbee929bd3d4556116c4c0b44df0ffae24d3f7
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 4037
+  sample: P1T
+  conditions:
+    temperature_c: '130'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p1t-140-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P1T-140\xB0C.csv"
+  sha256: 0cc0c011eb877de0677605fa28adff0a5a482409d2b86f628109844889916359
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 2529
+  sample: P1T
+  conditions:
+    temperature_c: '140'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p1t-150-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P1T-150\xB0C.csv"
+  sha256: 2314b16622106aa25c95f603894044e27d06d6742da614367fe4d6b45fa48e63
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 987
+  sample: P1T
+  conditions:
+    temperature_c: '150'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p1t-160-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P1T-160\xB0C.csv"
+  sha256: fcf0066e21d0fd7117ea6e5683e1298e58fe7442d847e43a3d684adf1fb35292
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 1047
+  sample: P1T
+  conditions:
+    temperature_c: '160'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p1t-arrhenius
+  member: 001_Data_Raw/Relaxation-test_Raw_original-P1T-Arrhenius.csv
+  sha256: 4e4e6b3f5628f503ea6191c9fef6d11593dd5975fb8007dff2471198c7485c27
+  kind: arrhenius_summary
+  encoding: utf-8-sig
+  expected_header:
+  - 1000/T
+  - ln t
+  expected_units:
+  - K\+(-1)
+  - ''
+  expected_data_rows: 4
+  sample: P1T
+  conditions: {}
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: derived_arrhenius_summary_is_not_a_relaxation_curve
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    inverse_temperature:
+      column: 1000/T
+      quantity: temperature.inverse
+      source_unit: K\+(-1)
+      normalized_unit: source_preserved
+    log_time:
+      column: ln t
+      quantity: time.log
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p3t-140-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P3T-140\xB0C.csv"
+  sha256: 1f3ea1dfe4c4b9e28048ff4b9bc5220bd42e7240e52c26d38e0d202ba0a5c039
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 6257
+  sample: P3T
+  conditions:
+    temperature_c: '140'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p3t-150-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P3T-150\xB0C.csv"
+  sha256: 7889e72a00706a5f176297086dd8bf2658db8fbc7e895a81c0ee9bfa6c8d7e1f
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 4982
+  sample: P3T
+  conditions:
+    temperature_c: '150'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p3t-160-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P3T-160\xB0C.csv"
+  sha256: f6f7fcb2dc9faa6382f5450ef45ad1656a3f8dd4764a4457ae202c289815624d
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 3935
+  sample: P3T
+  conditions:
+    temperature_c: '160'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p3t-170-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-P3T-170\xB0C.csv"
+  sha256: 437898ec4b82d528ab2dfbd705a58fcba2dca2bc188bac778f75bbede4d2f588
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 2321
+  sample: P3T
+  conditions:
+    temperature_c: '170'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-p3t-arrhenius
+  member: 001_Data_Raw/Relaxation-test_Raw_original-P3T-Arrhenius.csv
+  sha256: b6e0c9932e9a4f5cd385ed3149a8c196ac1d36e68c420e0029186af473733537
+  kind: arrhenius_summary
+  encoding: utf-8-sig
+  expected_header:
+  - 1000/T
+  - ln t
+  expected_units:
+  - K\+(-1)
+  - ''
+  expected_data_rows: 4
+  sample: P3T
+  conditions: {}
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: derived_arrhenius_summary_is_not_a_relaxation_curve
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    inverse_temperature:
+      column: 1000/T
+      quantity: temperature.inverse
+      source_unit: K\+(-1)
+      normalized_unit: source_preserved
+    log_time:
+      column: ln t
+      quantity: time.log
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x1t-140-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X1T-140\xB0C.csv"
+  sha256: ecc905cc474308836b4d2f6d890766d1dbfe8f60702efd8fa552f3c2ee662fab
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 6599
+  sample: X1T
+  conditions:
+    temperature_c: '140'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x1t-150-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X1T-150\xB0C.csv"
+  sha256: 839ab42a5b6c88e1913d439647d29e19e841fcff1099698924bdde8249dcfbad
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 2088
+  sample: X1T
+  conditions:
+    temperature_c: '150'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x1t-160-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X1T-160\xB0C.csv"
+  sha256: e4540a8c0323bbc63dbb630b5cbd9cb15d1569bf32a1e6d1a92860311f6f6fbe
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 1275
+  sample: X1T
+  conditions:
+    temperature_c: '160'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x1t-170-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X1T-170\xB0C.csv"
+  sha256: 3da6f8dbf52ffeaa6934fca981273d23390b024f0b2dd30a50816caf644c563b
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 275
+  sample: X1T
+  conditions:
+    temperature_c: '170'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x1t-arrhenius
+  member: 001_Data_Raw/Relaxation-test_Raw_original-X1T-Arrhenius.csv
+  sha256: 3750ff7797d12642c4138bbabf3a9a1892017f9b97107ac4b6b92e0e891a7d9c
+  kind: arrhenius_summary
+  encoding: utf-8-sig
+  expected_header:
+  - 1000/T
+  - ln t
+  expected_units:
+  - K\+(-1)
+  - ''
+  expected_data_rows: 4
+  sample: X1T
+  conditions: {}
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: derived_arrhenius_summary_is_not_a_relaxation_curve
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    inverse_temperature:
+      column: 1000/T
+      quantity: temperature.inverse
+      source_unit: K\+(-1)
+      normalized_unit: source_preserved
+    log_time:
+      column: ln t
+      quantity: time.log
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x3t-130-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X3T-130\xB0C.csv"
+  sha256: c94f238a095578c20cd5c59b7b261e96608bb4cc50a7acbc5d75a7054b934b2a
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 856
+  sample: X3T
+  conditions:
+    temperature_c: '130'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x3t-140-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X3T-140\xB0C.csv"
+  sha256: 7520792630cb64749c2d1717e82f611d4ad8b8010423821dbf72c7241472b5ba
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 643
+  sample: X3T
+  conditions:
+    temperature_c: '140'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x3t-150-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X3T-150\xB0C.csv"
+  sha256: 1e4935018b3546609366816133295804ad4f9c1ee067cc53a4169f9f9257398e
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  expected_data_rows: 647
+  sample: X3T
+  conditions:
+    temperature_c: '150'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x3t-160-c
+  member: "001_Data_Raw/Relaxation-test_Raw_original-X3T-160\xB0C.csv"
+  sha256: 60e0ecaa51daaf4a0469476e3fc99337cc81b79d0e25fc8dd3d1d20a75439184
+  kind: shear_relaxation
+  encoding: utf-8-sig
+  expected_header:
+  - Step time
+  - Gt/G0
+  - ''
+  - Gt/G0
+  expected_units:
+  - s
+  - ''
+  - ''
+  - ''
+  expected_data_rows: 475
+  sample: X3T
+  conditions:
+    temperature_c: '160'
+    strain_percent: '4'
+  validation_role: parse_and_calibration_ineligible
+  calibration_eligibility: ineligible
+  ineligibility_reason: source_publishes_only_dimensionless_Gt_over_G0_without_absolute_relaxation_modulus
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    time:
+      column: Step time
+      quantity: time.elapsed
+      source_unit: s
+      normalized_unit: s
+    modulus:
+      column: Gt/G0
+      quantity: mechanics.modulus.shear.relaxation
+      source_unit: ''
+      normalized_unit: '1'
+- id: relaxation-test-raw-original-x3t-arrhenius
+  member: 001_Data_Raw/Relaxation-test_Raw_original-X3T-Arrhenius.csv
+  sha256: aa95c76e9bf0eb439b0a01de31130ba57a136ba502fa53ae48256156d4e952d1
+  kind: arrhenius_summary
+  encoding: utf-8-sig
+  expected_header:
+  - 1000/T
+  - ln t
+  expected_units:
+  - K\+(-1)
+  - ''
+  expected_data_rows: 4
+  sample: X3T
+  conditions: {}
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: derived_arrhenius_summary_is_not_a_relaxation_curve
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    inverse_temperature:
+      column: 1000/T
+      quantity: temperature.inverse
+      source_unit: K\+(-1)
+      normalized_unit: source_preserved
+    log_time:
+      column: ln t
+      quantity: time.log
+      source_unit: ''
+      normalized_unit: '1'
+- id: tensile-test-raw-original-p1t-recycled
+  member: 001_Data_Raw/Tensile-test_Raw_original-P1T-recycled.csv
+  sha256: 273ef1455182e7951e33043449a26c4b0206058a0720b7569e0cb1158dd2181b
+  kind: tensile
+  encoding: utf-8-sig
+  expected_header:
+  - P1T
+  - Youngov modul
+  - Tensile stress at break
+  - Elongation at break
+  - Toughness
+  expected_units:
+  - ''
+  - GPa
+  - MPa
+  - '%'
+  - J/m3
+  expected_data_rows: 4
+  sample: P1T-recycled
+  conditions:
+    temperature: room_temperature_source_method
+    crosshead_speed: 2 mm/min
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: tensile_summary_is_not_a_viscoelastic_calibration_input
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  source_data_quality_note: source-published Youngs modulus values and the original GPa unit text are preserved without correction;
+    no static Property Set is created
+  column_mapping:
+    column_0:
+      column: P1T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Youngov modul
+      quantity: source.column
+      source_unit: GPa
+      normalized_unit: source_preserved
+    column_2:
+      column: Tensile stress at break
+      quantity: source.column
+      source_unit: MPa
+      normalized_unit: Pa
+    column_3:
+      column: Elongation at break
+      quantity: source.column
+      source_unit: '%'
+      normalized_unit: source_preserved
+    column_4:
+      column: Toughness
+      quantity: source.column
+      source_unit: J/m3
+      normalized_unit: source_preserved
+- id: tensile-test-raw-original-p1t
+  member: 001_Data_Raw/Tensile-test_Raw_original-P1T.csv
+  sha256: 346565e81fe1e1086eed6878458dc378d3c033dfdcd0ee51c12f8de7d8a1df2d
+  kind: tensile
+  encoding: utf-8-sig
+  expected_header:
+  - P1T
+  - Youngov modul
+  - Tensile stress at break
+  - Elongation at break
+  - Toughness
+  expected_units:
+  - ''
+  - GPa
+  - MPa
+  - '%'
+  - J/m3
+  expected_data_rows: 4
+  sample: P1T
+  conditions:
+    temperature: room_temperature_source_method
+    crosshead_speed: 2 mm/min
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: tensile_summary_is_not_a_viscoelastic_calibration_input
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  source_data_quality_note: source-published Youngs modulus values and the original GPa unit text are preserved without correction;
+    no static Property Set is created
+  column_mapping:
+    column_0:
+      column: P1T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Youngov modul
+      quantity: source.column
+      source_unit: GPa
+      normalized_unit: source_preserved
+    column_2:
+      column: Tensile stress at break
+      quantity: source.column
+      source_unit: MPa
+      normalized_unit: Pa
+    column_3:
+      column: Elongation at break
+      quantity: source.column
+      source_unit: '%'
+      normalized_unit: source_preserved
+    column_4:
+      column: Toughness
+      quantity: source.column
+      source_unit: J/m3
+      normalized_unit: source_preserved
+- id: tensile-test-raw-original-x1t-recycled
+  member: 001_Data_Raw/Tensile-test_Raw_original-X1T-recycled.csv
+  sha256: 8560d48eadec2c8a15d8c53b540ca97b7634b3ffde2dc0db7efef27439c81da2
+  kind: tensile
+  encoding: utf-8-sig
+  expected_header:
+  - X1T
+  - Youngov modul
+  - Tensile stress at break
+  - Elongation at break
+  - Toughness
+  expected_units:
+  - ''
+  - GPa
+  - MPa
+  - '%'
+  - J/m3
+  expected_data_rows: 5
+  sample: X1T-recycled
+  conditions:
+    temperature: room_temperature_source_method
+    crosshead_speed: 2 mm/min
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: tensile_summary_is_not_a_viscoelastic_calibration_input
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  source_data_quality_note: source-published Youngs modulus values and the original GPa unit text are preserved without correction;
+    no static Property Set is created
+  column_mapping:
+    column_0:
+      column: X1T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Youngov modul
+      quantity: source.column
+      source_unit: GPa
+      normalized_unit: source_preserved
+    column_2:
+      column: Tensile stress at break
+      quantity: source.column
+      source_unit: MPa
+      normalized_unit: Pa
+    column_3:
+      column: Elongation at break
+      quantity: source.column
+      source_unit: '%'
+      normalized_unit: source_preserved
+    column_4:
+      column: Toughness
+      quantity: source.column
+      source_unit: J/m3
+      normalized_unit: source_preserved
+- id: tensile-test-raw-original-x1t
+  member: 001_Data_Raw/Tensile-test_Raw_original-X1T.csv
+  sha256: ce0b8039abd1be2c5d0d39f5644b5b216a10d344c9f891bcbbd728b30f5577dc
+  kind: tensile
+  encoding: utf-8-sig
+  expected_header:
+  - X1T
+  - Youngov modul
+  - Tensile stress at break
+  - Elongation at break
+  - Toughness
+  expected_units:
+  - ''
+  - GPa
+  - MPa
+  - '%'
+  - J/m3
+  expected_data_rows: 7
+  sample: X1T
+  conditions:
+    temperature: room_temperature_source_method
+    crosshead_speed: 2 mm/min
+  validation_role: parse_only_source_summary
+  calibration_eligibility: ineligible
+  ineligibility_reason: tensile_summary_is_not_a_viscoelastic_calibration_input
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  source_data_quality_note: source-published Youngs modulus values and the original GPa unit text are preserved without correction;
+    no static Property Set is created
+  column_mapping:
+    column_0:
+      column: X1T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Youngov modul
+      quantity: source.column
+      source_unit: GPa
+      normalized_unit: source_preserved
+    column_2:
+      column: Tensile stress at break
+      quantity: source.column
+      source_unit: MPa
+      normalized_unit: Pa
+    column_3:
+      column: Elongation at break
+      quantity: source.column
+      source_unit: '%'
+      normalized_unit: source_preserved
+    column_4:
+      column: Toughness
+      quantity: source.column
+      source_unit: J/m3
+      normalized_unit: source_preserved

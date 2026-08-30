@@ -1,0 +1,85 @@
+schema_version: "1.0"
+fixture:
+  id: linear-viscoelastic-abaqus-reference-v1
+  path: fixtures/synthetic/linear-viscoelastic-abaqus-reference-v1.json
+  format: application/json
+  classification: synthetic_non_confidential_non_production
+  non_production: true
+  owner: CAE Material Platform maintainers
+  retention: >-
+    Retain while the linear-viscoelastic Abaqus exporter supports this reference contract.
+    Supersede with a new version instead of changing the recorded values or expected card.
+  digest:
+    algorithm: sha256
+    value: 24d9ba58769715cb3250520b4160c8c8e81379bc6a3a5e762fc562e78bb154d7
+    byte_contract: UTF-8, LF line endings, two-space JSON indentation, final newline included
+
+generation:
+  method_id: declared-complete-property-export-reference-v1
+  production_functions_called: []
+  data_character: deterministic synthetic values; not measured material data
+  procedure: >-
+    Declare one positive density and Young's modulus, one dimensionless Poisson ratio inside
+    the isotropic small-strain domain, and two nonnegative normalized shear Prony ratios with
+    increasing relaxation times. Keep bulk relaxation explicitly not characterized. The two
+    time constants are separated by two decades so row order and scientific-notation rendering
+    are observable. No public experiment is supplemented or relabeled by these values.
+  invariant_checks:
+    - density and Young's modulus are positive
+    - Poisson ratio is greater than -1 and less than 0.5
+    - every normalized ratio is nonnegative and the shear-ratio sum is less than 1
+    - relaxation times are positive and strictly increasing
+    - bulk ratios are zero when bulk relaxation is not characterized
+  optimizer_character: no optimizer, fit, bounds, weighting, or acceptance threshold is used
+
+license:
+  fixture_data: >-
+    Repository-maintained synthetic verification data with no separate external material-data
+    license claim.
+  source_use: >-
+    Official Abaqus pages are cited for syntax and semantic facts only. Their input decks and
+    documentation text are not redistributed in this fixture.
+
+expected_export:
+  path: tests/fixtures/abaqus/reference-linear-viscoelastic-prony-kg-m-s.inp
+  sha256: 42ec1d42d49d055def90121ea6c7728514869ca0e1f302ba878a05d9e0841b4b
+  exact_keywords:
+    - "*DENSITY"
+    - "*ELASTIC"
+    - "*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC"
+  scope: material-card bytes only; no finite-element analysis result is claimed
+
+sources:
+  - id: abaqus-2025-viscoelastic-cylinder-verification
+    type: official_solver_verification_documentation
+    publisher: Dassault Systemes
+    product: Abaqus
+    version: "2025"
+    title: Viscoelastic Cylindrical Specimen
+    url: https://docs.software.vt.edu/abaqusv2025/English/SIMACAEVERRefMap/simaver-c-viscocylinder.htm
+    role: confirms official verification use of isotropic elasticity and TIME=PRONY input
+    redistribution: citation and keyword facts only; official input decks are not copied
+  - id: abaqus-2025-viscocylinder-cax8r-linear-input
+    type: official_solver_input_example
+    publisher: Dassault Systemes
+    product: Abaqus
+    version: "2025"
+    title: viscocylinder_cax8r_linear.inp
+    url: https://docs.software.vt.edu/abaqusv2025/English/SIMAINPRefResources/viscocylinder_cax8r_linear.inp
+    role: confirms MATERIAL, ELASTIC MODULI=INSTANTANEOUS, and VISCOELASTIC TIME=PRONY syntax
+    redistribution: URL and syntax facts only; source deck is not checked in
+  - id: abaqus-2024-time-domain-viscoelasticity
+    type: official_solver_material_documentation
+    publisher: Dassault Systemes
+    product: Abaqus
+    version: "2024"
+    title: Time Domain Viscoelasticity
+    url: https://docs.software.vt.edu/abaqusv2024/English/SIMACAEMATRefMap/simamat-c-timevisco.htm
+    role: normalized Prony and instantaneous isotropic material semantics
+    redistribution: citation and formula facts only
+
+boundaries:
+  public_experiment_values_used: []
+  production_material_claim: forbidden
+  production_fit_policy: none
+  finite_element_solver_execution: not_part_of_this_fixture

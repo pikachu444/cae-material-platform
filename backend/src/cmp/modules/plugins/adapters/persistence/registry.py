@@ -720,6 +720,66 @@ class SqlAlchemyPluginRegistryRepository:
                 session, self._package_row(session, cast(UUID, package_id))
             )
 
+    def get_active_for_plugin(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plugin_id: str,
+        plugin_version: str,
+    ) -> PackageRecord:
+        """Resolve a unique active package without introducing a latest pointer."""
+
+        with self._sessions() as session, session.begin():
+            self._bind(session, context, decision)
+            active = (
+                package_table.join(
+                    definition_table,
+                    sa.and_(
+                        definition_table.c.organization_id == package_table.c.organization_id,
+                        definition_table.c.project_id == package_table.c.project_id,
+                        definition_table.c.id == package_table.c.definition_id,
+                    ),
+                )
+                .join(
+                    state_projection_table,
+                    sa.and_(
+                        state_projection_table.c.organization_id
+                        == package_table.c.organization_id,
+                        state_projection_table.c.project_id == package_table.c.project_id,
+                        state_projection_table.c.package_id == package_table.c.id,
+                    ),
+                )
+                .join(
+                    activation_table,
+                    sa.and_(
+                        activation_table.c.organization_id == package_table.c.organization_id,
+                        activation_table.c.project_id == package_table.c.project_id,
+                        activation_table.c.package_id == package_table.c.id,
+                    ),
+                )
+            )
+            package_ids = tuple(
+                session.execute(
+                    sa.select(package_table.c.id)
+                    .select_from(active)
+                    .where(
+                        definition_table.c.plugin_id == plugin_id,
+                        package_table.c.plugin_version == plugin_version,
+                        state_projection_table.c.state == PackageState.ELIGIBLE.value,
+                    )
+                    .order_by(package_table.c.package_digest)
+                    .limit(2)
+                ).scalars()
+            )
+            if not package_ids:
+                raise PackageNotFound("active plugin package is not visible")
+            if len(package_ids) != 1:
+                raise PackageConflict(
+                    "more than one active package matches the requested plugin identity"
+                )
+            return self._record(session, self._package_row(session, cast(UUID, package_ids[0])))
+
     def transition(
         self,
         *,

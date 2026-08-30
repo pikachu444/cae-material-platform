@@ -34,6 +34,7 @@ from cmp.modules.processing.application.common_outputs import (
     FitDecisionParameter,
     FitDecisionParameterSet,
     FitDecisionSnapshot,
+    ProcessingOutputContent,
     ProcessingOutputSnapshot,
     ProcessingWorkupOverride,
     processing_output_content_canonical,
@@ -104,6 +105,80 @@ _EXPORT_PROVENANCE = GovernedTestDataSource(
         UUID("d5400000-0000-4000-8000-000000000116"),
     ),
 )
+
+
+def test_processing_output_1_6_adds_governed_source_without_changing_legacy_shape() -> None:
+    source = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000121"),
+        UUID("d5400000-0000-4000-8000-000000000122"),
+    )
+    profile = ExactRevisionPin(
+        UUID("d5400000-0000-4000-8000-000000000123"),
+        UUID("d5400000-0000-4000-8000-000000000124"),
+    )
+    common = ProcessingOutputContent(
+        label="legacy common output",
+        source_document=source,
+        source_document_sha256="a" * 64,
+        source_canonical_artifact_sha256="b" * 64,
+        mapping_profile=profile,
+        mapping_profile_sha256="c" * 64,
+        steps=(ProcessingStep("rows.sort_unique", "1.0.0", {}),),
+        independent_quantity="time.elapsed",
+        stage_count=2,
+        final_point_count=2,
+        output_artifact_id=UUID("d5400000-0000-4000-8000-000000000125"),
+        output_sha256="d" * 64,
+    )
+    legacy = processing_output_content_canonical(common)
+    assert legacy["mapping_profile"] == {
+        "aggregate_id": str(profile.aggregate_id),
+        "revision_id": str(profile.revision_id),
+    }
+    assert "source_profile" not in legacy
+    assert "result_artifact" not in legacy
+
+    governed = ProcessingOutputContent(
+        label="DMA frequency master curve",
+        source_document=source,
+        source_document_sha256="a" * 64,
+        source_canonical_artifact_sha256="b" * 64,
+        mapping_profile=None,
+        mapping_profile_sha256=None,
+        steps=(
+            ProcessingStep(
+                "polymer.dma_frequency_master_curve",
+                "1.0.0",
+                {"horizontal_shift_only": True, "tts_adequacy": "not_assessed"},
+            ),
+        ),
+        independent_quantity="frequency.angular.reduced",
+        stage_count=2,
+        final_point_count=3,
+        output_artifact_id=UUID("d5400000-0000-4000-8000-000000000126"),
+        output_sha256="e" * 64,
+        source_profile_kind="governed_import_profile",
+        governed_import_profile=profile,
+        governed_import_profile_sha256="c" * 64,
+        result_artifact_id=UUID("d5400000-0000-4000-8000-000000000127"),
+        result_sha256="f" * 64,
+        result_schema_ref="urn:cmp:processing:dma-frequency-master-curve-parquet:1.0.0",
+        result_media_type="application/vnd.apache.parquet",
+    )
+    current = processing_output_content_canonical(governed)
+    assert current["source_profile"] == {
+        "kind": "governed_import_profile",
+        "aggregate_id": str(profile.aggregate_id),
+        "revision_id": str(profile.revision_id),
+        "sha256": "c" * 64,
+    }
+    assert "mapping_profile" not in current
+    assert current["result_artifact"] == {
+        "artifact_id": "d5400000-0000-4000-8000-000000000127",
+        "sha256": "f" * 64,
+        "schema_ref": "urn:cmp:processing:dma-frequency-master-curve-parquet:1.0.0",
+        "media_type": "application/vnd.apache.parquet",
+    }
 
 
 def test_fit_decision_snapshot_preserves_single_and_blend_identity() -> None:
@@ -361,9 +436,7 @@ def test_fit_preflight_binds_polymer_range_and_parameters_to_actual_server_resul
             preview,
             replace(
                 decision,
-                parameter_sets=(
-                    FitDecisionParameterSet("generalized_maxwell", forged_parameters),
-                ),
+                parameter_sets=(FitDecisionParameterSet("generalized_maxwell", forged_parameters),),
             ),
         )
 
@@ -557,9 +630,7 @@ def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -
 
 
 def test_profile_bearing_processing_output_pins_exact_revision_and_application_locations() -> None:
-    source_payload = Path(
-        "contracts/examples/positive/canonical-test-data.json"
-    ).read_bytes()
+    source_payload = Path("contracts/examples/positive/canonical-test-data.json").read_bytes()
     mapping_profile = MappingProfileContent(
         profile_key="tensile",
         label="Tensile mapping",
@@ -576,9 +647,7 @@ def test_profile_bearing_processing_output_pins_exact_revision_and_application_l
         description="Non-production Processing trace fixture.",
         non_production=True,
         selections=(
-            UnitProfileSelection(
-                "strain.engineering", DimensionId.STRAIN, "1", "%", "1"
-            ),
+            UnitProfileSelection("strain.engineering", DimensionId.STRAIN, "1", "%", "1"),
             UnitProfileSelection(
                 "stress.engineering",
                 DimensionId.FORCE_PER_AREA,
@@ -602,9 +671,7 @@ def test_profile_bearing_processing_output_pins_exact_revision_and_application_l
             )
 
     repository = _RecordingRevisionStore()
-    artifacts = _RecordingArtifacts(
-        (UUID("d5400000-0000-4000-8000-000000000153"),)
-    )
+    artifacts = _RecordingArtifacts((UUID("d5400000-0000-4000-8000-000000000153"),))
     source = ExactRevisionPin(
         UUID("d5400000-0000-4000-8000-000000000154"),
         UUID("d5400000-0000-4000-8000-000000000155"),
@@ -634,9 +701,7 @@ def test_profile_bearing_processing_output_pins_exact_revision_and_application_l
                 source_document=source,
                 mapping_profile=mapping,
                 steps=(
-                    ProcessingStep(
-                        "rows.sort_unique", "1.0.0", {"duplicate_policy": "reject"}
-                    ),
+                    ProcessingStep("rows.sort_unique", "1.0.0", {"duplicate_policy": "reject"}),
                 ),
                 change_reason="Verify exact Unit Profile trace.",
                 unit_profile=pin,
@@ -730,14 +795,18 @@ def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revi
         ),
     )
     repository = _RecordingRevisionStore()
-    artifacts = _RecordingArtifacts((
-        UUID("d5400000-0000-4000-8000-000000000131"),
-        UUID("d5400000-0000-4000-8000-000000000132"),
-    ))
-    output_ids = iter((
-        UUID("d5400000-0000-4000-8000-000000000141"),
-        UUID("d5400000-0000-4000-8000-000000000142"),
-    ))
+    artifacts = _RecordingArtifacts(
+        (
+            UUID("d5400000-0000-4000-8000-000000000131"),
+            UUID("d5400000-0000-4000-8000-000000000132"),
+        )
+    )
+    output_ids = iter(
+        (
+            UUID("d5400000-0000-4000-8000-000000000141"),
+            UUID("d5400000-0000-4000-8000-000000000142"),
+        )
+    )
     service = CommonProcessingOutputService(
         repository=cast(Any, repository),
         test_data=cast(Any, _CommitSource(source_bytes, profile)),
@@ -746,30 +815,34 @@ def test_process_commits_two_exact_sibling_outputs_with_fresh_artifacts_and_revi
         id_factory=lambda: next(output_ids),
     )
 
-    robust = asyncio.run(service.commit(
-        _CONTEXT,
-        _DECISION,
-        CommitProcessingOutput(
-            classification=DataClassification.INTERNAL,
-            label="Robust Process result",
-            source_document=source,
-            mapping_profile=mapping,
-            steps=robust_steps,
-            change_reason="Save robust Process sibling.",
-        ),
-    ))
-    chord = asyncio.run(service.commit(
-        _CONTEXT,
-        _DECISION,
-        CommitProcessingOutput(
-            classification=DataClassification.INTERNAL,
-            label="Chord Process result",
-            source_document=source,
-            mapping_profile=mapping,
-            steps=chord_steps,
-            change_reason="Save chord Process sibling.",
-        ),
-    ))
+    robust = asyncio.run(
+        service.commit(
+            _CONTEXT,
+            _DECISION,
+            CommitProcessingOutput(
+                classification=DataClassification.INTERNAL,
+                label="Robust Process result",
+                source_document=source,
+                mapping_profile=mapping,
+                steps=robust_steps,
+                change_reason="Save robust Process sibling.",
+            ),
+        )
+    )
+    chord = asyncio.run(
+        service.commit(
+            _CONTEXT,
+            _DECISION,
+            CommitProcessingOutput(
+                classification=DataClassification.INTERNAL,
+                label="Chord Process result",
+                source_document=source,
+                mapping_profile=mapping,
+                steps=chord_steps,
+                change_reason="Save chord Process sibling.",
+            ),
+        )
+    )
 
     assert robust.id != chord.id
     assert robust.current.revision_no == chord.current.revision_no == 1
@@ -896,9 +969,7 @@ def test_preflight_projects_proof_only_from_the_exact_test_data_revision() -> No
             del args
             return (
                 SimpleNamespace(
-                    current=SimpleNamespace(
-                        scope=SimpleNamespace(classification="internal")
-                    ),
+                    current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
                     content=SimpleNamespace(
                         canonical_sha256="c" * 64,
                         governed_source=_EXPORT_PROVENANCE,

@@ -80,6 +80,7 @@ class PluginAttemptHandler:
         claimed: ClaimedAttempt,
         cancellation: asyncio.Event,
     ) -> PluginAttemptResult:
+        command = None
         try:
             command = await self._planner.prepare(claimed)
             result = await self._execution.execute(command, cancellation)
@@ -121,6 +122,14 @@ class PluginAttemptHandler:
                 "plugin_result_invalid",
                 "The plugin Result Manifest or staged output failed validation.",
             )
+        finally:
+            # The planner is the owner of the materializer handle.  Cleanup is deliberately
+            # keyed by the prepared command, so a handler can never delete an arbitrary path;
+            # this also runs when the isolated runner or host commit is cancelled.
+            if command is not None:
+                cleanup = getattr(self._planner, "cleanup", None)
+                if cleanup is not None:
+                    cleanup(command)
 
         manifest_values = (committed.manifest_id, committed.manifest_digest)
         if result.status is ResultStatus.SUCCEEDED:

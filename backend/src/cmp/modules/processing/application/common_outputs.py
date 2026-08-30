@@ -82,21 +82,16 @@ PROCESSING_OUTPUT_SCHEMA_ID_V1_3 = "urn:cmp:processing:common-output:1.3.0"
 PROCESSING_OUTPUT_PROFILE_SCHEMA_ID_V1_4 = "urn:cmp:processing:common-output:1.4.0"
 PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.5.0"
 PROCESSING_OUTPUT_SCHEMA_VERSION = "1.5.0"
+PROCESSING_OUTPUT_SCHEMA_ID_1_6 = "urn:cmp:processing:common-output:1.6.0"
+PROCESSING_OUTPUT_SCHEMA_VERSION_1_6 = "1.6.0"
 PROCESSING_OUTPUT_PROFILE_SCHEMA_ID = PROCESSING_OUTPUT_SCHEMA_ID
 PROCESSING_OUTPUT_PROFILE_SCHEMA_VERSION = PROCESSING_OUTPUT_SCHEMA_VERSION
 PROCESSING_OUTPUT_MEDIA_TYPE = "application/vnd.cmp.processing-output+json"
 
 
 def _bounded_trimmed_text(name: str, value: str, limit: int = 160) -> None:
-    if (
-        not value
-        or value != value.strip()
-        or len(value) > limit
-        or "\x00" in value
-    ):
-        raise CommonPipelineError(
-            f"{name} must be trimmed and contain 1..{limit} characters"
-        )
+    if not value or value != value.strip() or len(value) > limit or "\x00" in value:
+        raise CommonPipelineError(f"{name} must be trimmed and contain 1..{limit} characters")
 
 
 class ProcessingOutputNotFound(CommonPipelineError):
@@ -201,16 +196,12 @@ class FitDecisionSnapshot:
     def __post_init__(self) -> None:
         _bounded_trimmed_text("fit-decision candidate key", self.candidate_key)
         _bounded_trimmed_text("fit-decision primary law", self.primary_law)
-        _bounded_trimmed_text(
-            "fit-decision extrapolation policy", self.extrapolation_policy
-        )
+        _bounded_trimmed_text("fit-decision extrapolation policy", self.extrapolation_policy)
         _bounded_trimmed_text("fit-decision metric definition", self.metric_definition)
         if self.secondary_law is not None:
             _bounded_trimmed_text("fit-decision secondary law", self.secondary_law)
         if self.requested_term_policy is not None:
-            _bounded_trimmed_text(
-                "fit-decision requested term policy", self.requested_term_policy
-            )
+            _bounded_trimmed_text("fit-decision requested term policy", self.requested_term_policy)
         if (
             not all(
                 math.isfinite(value)
@@ -224,9 +215,7 @@ class FitDecisionSnapshot:
             or self.extrapolation_maximum < self.fit_maximum
         ):
             raise CommonPipelineError("fit-decision extrapolation maximum is invalid")
-        _bounded_trimmed_text(
-            "fit-decision selection reason", self.selection_reason, 2000
-        )
+        _bounded_trimmed_text("fit-decision selection reason", self.selection_reason, 2000)
         if self.mode == "single":
             if (
                 self.secondary_law is not None
@@ -357,9 +346,7 @@ def validate_fit_decision(
     if step.method_id == "metal.hardening_fit_extrapolate":
         _validate_metal_fit_decision(step, stage, scalar, decision)
     else:
-        _validate_polymer_fit_decision(
-            step, stage, preview.independent_quantity, decision
-        )
+        _validate_polymer_fit_decision(step, stage, preview.independent_quantity, decision)
 
 
 def _same_fit_value(actual: float, expected: float, label: str) -> None:
@@ -420,10 +407,7 @@ def _validate_metal_fit_decision(
         selected_evidence = candidate_by_family.get(decision.primary_law)
     warning_required = any(
         family == "ghosh"
-        or bool(
-            candidate_by_family.get(family)
-            and candidate_by_family[family].active_bound
-        )
+        or bool(candidate_by_family.get(family) and candidate_by_family[family].active_bound)
         for family in laws
     )
     if selected_evidence is not None and selected_evidence.active_bound:
@@ -628,8 +612,8 @@ class ProcessingOutputContent:
     source_document: ExactRevisionPin
     source_document_sha256: str
     source_canonical_artifact_sha256: str
-    mapping_profile: ExactRevisionPin
-    mapping_profile_sha256: str
+    mapping_profile: ExactRevisionPin | None
+    mapping_profile_sha256: str | None
     steps: tuple[ProcessingStep, ...]
     independent_quantity: str
     stage_count: int
@@ -645,6 +629,15 @@ class ProcessingOutputContent:
     export_provenance: GovernedTestDataSource | None = None
     unit_profile: UnitProfilePin | None = None
     unit_applications: tuple[UnitApplication, ...] = ()
+    source_profile_kind: Literal["common_mapping_profile", "governed_import_profile"] = (
+        "common_mapping_profile"
+    )
+    governed_import_profile: ExactRevisionPin | None = None
+    governed_import_profile_sha256: str | None = None
+    result_artifact_id: UUID | None = None
+    result_sha256: str | None = None
+    result_schema_ref: str | None = None
+    result_media_type: str | None = None
 
     def __post_init__(self) -> None:
         if not self.label.strip() or len(self.label) > 200:
@@ -664,6 +657,41 @@ class ProcessingOutputContent:
         if (self.unit_profile is None) != (not self.unit_applications):
             raise CommonPipelineError(
                 "Unit Profile pin and non-empty application trace must be provided together"
+            )
+        mapping_complete = (
+            self.mapping_profile is not None and self.mapping_profile_sha256 is not None
+        )
+        governed_complete = (
+            self.governed_import_profile is not None
+            and self.governed_import_profile_sha256 is not None
+        )
+        if self.source_profile_kind == "common_mapping_profile":
+            if not mapping_complete or governed_complete:
+                raise CommonPipelineError(
+                    "common Mapping Profile source requires only its exact pin and digest"
+                )
+        elif self.source_profile_kind == "governed_import_profile":
+            if mapping_complete or not governed_complete:
+                raise CommonPipelineError(
+                    "governed Import Profile source requires only its exact pin and digest"
+                )
+        else:
+            raise CommonPipelineError("unsupported Processing Output source profile kind")
+        result_fields = (
+            self.result_artifact_id,
+            self.result_sha256,
+            self.result_schema_ref,
+            self.result_media_type,
+        )
+        if any(value is not None for value in result_fields) != all(
+            value is not None for value in result_fields
+        ):
+            raise CommonPipelineError("result Artifact facts must be provided together")
+        if self.source_profile_kind == "governed_import_profile" and not all(
+            value is not None for value in result_fields
+        ):
+            raise CommonPipelineError(
+                "governed DMA Processing Output requires an exact result Artifact"
             )
 
 
@@ -740,11 +768,6 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
         },
         "source_document_sha256": value.source_document_sha256,
         "source_canonical_artifact_sha256": value.source_canonical_artifact_sha256,
-        "mapping_profile": {
-            "aggregate_id": str(value.mapping_profile.aggregate_id),
-            "revision_id": str(value.mapping_profile.revision_id),
-        },
-        "mapping_profile_sha256": value.mapping_profile_sha256,
         "steps": [
             {
                 "method_id": step.method_id,
@@ -779,6 +802,28 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
         "fit_decision": fit_decision_canonical(value.fit_decision),
         "export_provenance": _export_provenance_canonical(value.export_provenance),
     }
+    if value.source_profile_kind == "common_mapping_profile":
+        assert value.mapping_profile is not None
+        result["mapping_profile"] = {
+            "aggregate_id": str(value.mapping_profile.aggregate_id),
+            "revision_id": str(value.mapping_profile.revision_id),
+        }
+        result["mapping_profile_sha256"] = value.mapping_profile_sha256
+    else:
+        assert value.governed_import_profile is not None
+        result["source_profile"] = {
+            "kind": "governed_import_profile",
+            "aggregate_id": str(value.governed_import_profile.aggregate_id),
+            "revision_id": str(value.governed_import_profile.revision_id),
+            "sha256": value.governed_import_profile_sha256,
+        }
+    if value.result_artifact_id is not None:
+        result["result_artifact"] = {
+            "artifact_id": str(value.result_artifact_id),
+            "sha256": value.result_sha256,
+            "schema_ref": value.result_schema_ref,
+            "media_type": value.result_media_type,
+        }
     if value.unit_profile is not None:
         result["unit_profile"] = _unit_profile_pin_canonical(value.unit_profile)
         result["unit_applications"] = [
@@ -847,8 +892,7 @@ def _apply_curve_display_profile(
     if profile is None:
         return preview
     display_units = {
-        selection.quantity_semantics: selection.display_unit_id
-        for selection in profile.selections
+        selection.quantity_semantics: selection.display_unit_id for selection in profile.selections
     }
     stages: list[CurveStage] = []
     for stage in preview.stages:
@@ -1014,6 +1058,10 @@ def _preview_from_exact_processing_output(
         raise CommonPipelineError(
             "Process-only source must not contain a source Processing Output digest"
         )
+    if source.content.mapping_profile is None or source.content.mapping_profile_sha256 is None:
+        raise CommonPipelineError(
+            "this Fit path requires a common Mapping Profile Processing Output"
+        )
     if document.get("source_document") != _pin(source.content.source_document):
         raise CommonPipelineError("exact Processing Output source document pin drifted")
     if (
@@ -1059,9 +1107,8 @@ def _preview_from_exact_processing_output(
         raise CommonPipelineError("exact Processing Output workup metadata drifted")
     if document.get("fit_decision") != fit_decision_canonical(source.content.fit_decision):
         raise CommonPipelineError("Process-only source contains fit decision metadata")
-    if (
-        document.get("export_provenance")
-        != _export_provenance_canonical(source.content.export_provenance)
+    if document.get("export_provenance") != _export_provenance_canonical(
+        source.content.export_provenance
     ):
         raise CommonPipelineError("exact Processing Output provenance metadata drifted")
 
@@ -1178,7 +1225,10 @@ def _preview_from_exact_processing_output(
             }:
                 raise CommonPipelineError("exact Processing Output scalar metadata is malformed")
             key, semantics, value, unit = (
-                item.get("key"), item.get("quantity_semantics"), item.get("value"), item.get("unit")
+                item.get("key"),
+                item.get("quantity_semantics"),
+                item.get("value"),
+                item.get("unit"),
             )
             if (
                 not isinstance(key, str)
@@ -1204,17 +1254,13 @@ def _preview_from_exact_processing_output(
         metadata_state = MetadataState.LEGACY_COMPATIBLE
         if declared_curve_metadata:
             try:
-                curve_definition = curve_definition_from_mapping(
-                    raw_stage.get("curve_definition")
-                )
+                curve_definition = curve_definition_from_mapping(raw_stage.get("curve_definition"))
             except CurveContractError as error:
                 raise CommonPipelineError(
                     f"exact Processing Output curve definition is invalid: {error.message}"
                 ) from error
             if raw_stage.get("curve_definition_sha256") != curve_definition.sha256:
-                raise CommonPipelineError(
-                    "exact Processing Output curve definition digest drifted"
-                )
+                raise CommonPipelineError("exact Processing Output curve definition digest drifted")
             metadata_state = MetadataState.DECLARED
         parsed_stage = CurveStage(
             ordinal,
@@ -1438,6 +1484,10 @@ class CommonProcessingOutputService:
                 command.source_processing_output.aggregate_id,
                 command.source_processing_output.revision_id,
             )
+            if source_output.content.mapping_profile_sha256 is None:
+                raise CommonPipelineError(
+                    "this Fit path requires a common Mapping Profile Processing Output"
+                )
             if source_output.current.scope.classification != command.classification.value:
                 raise CommonPipelineError(
                     "Processing Output classification must match the exact Process source"
@@ -1722,6 +1772,51 @@ class CommonProcessingOutputService:
         snapshot, value = await self.export(context, decision, output_id)
         if snapshot.current.revision_id != output_revision_id:
             raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
+        return snapshot, value
+
+    async def export_exact_result(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+        *,
+        maximum_bytes: int = 64 * 1024 * 1024,
+    ) -> tuple[ProcessingOutputSnapshot, bytes]:
+        """Read one immutable derived result without interpreting its domain schema.
+
+        Consumers must still check ``result_schema_ref`` before decoding the bytes.  This
+        application boundary verifies the exact output revision, Artifact identity, digest,
+        media type, and tenant scope so downstream modeling code never reaches into Processing
+        persistence or substitutes the current output for the requested revision.
+        """
+
+        _require(context, decision, Permission.PROCESSING_READ)
+        snapshot = self._repository.get_output(
+            context=context, decision=decision, output_id=output_id
+        )
+        if snapshot.current.revision_id != output_revision_id:
+            raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
+        content = snapshot.content
+        if (
+            content.result_artifact_id is None
+            or content.result_sha256 is None
+            or content.result_schema_ref is None
+            or content.result_media_type is None
+        ):
+            raise CommonPipelineError("Processing Output has no exact derived result Artifact")
+        artifact, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            content.result_artifact_id,
+            maximum_bytes=maximum_bytes,
+        )
+        if (
+            artifact.artifact.sha256 != content.result_sha256
+            or artifact.artifact.media_type != content.result_media_type
+            or artifact.artifact.schema_ref != content.result_schema_ref
+        ):
+            raise CommonPipelineError("Processing Output result Artifact pin is inconsistent")
         return snapshot, value
 
     def get_output_revision_for_export(

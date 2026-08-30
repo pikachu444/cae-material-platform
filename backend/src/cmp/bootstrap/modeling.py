@@ -12,11 +12,15 @@ from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDa
 from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
+from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.modeling.adapters.persistence.calibration_repository import (
     SqlAlchemyCalibrationRepository,
 )
 from cmp.modules.modeling.adapters.persistence.candidate_selection_repository import (
     SqlAlchemyCandidateSelectionRepository,
+)
+from cmp.modules.modeling.adapters.persistence.linear_viscoelastic_calibration_repository import (
+    SqlAlchemyLinearViscoelasticCalibrationRepository,
 )
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
@@ -54,6 +58,12 @@ from cmp.modules.modeling.adapters.persistence.voce_candidate_selection_reposito
 )
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
+from cmp.modules.modeling.application.linear_viscoelastic_calibration import (
+    LinearViscoelasticCalibrationService,
+)
+from cmp.modules.modeling.application.linear_viscoelastic_input_resolution import (
+    GovernedLinearViscoelasticInputResolver,
+)
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
@@ -82,6 +92,7 @@ from cmp.modules.modeling.application.voce_calibration import (
 from cmp.modules.modeling.application.voce_candidate_projection import (
     VoceCandidateProjectionService,
 )
+from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
@@ -135,6 +146,55 @@ def build_linear_viscoelastic_model_service(
         material_models=material_models,
         processing_outputs=processing_outputs,
         processing_batches=processing_batches,
+    )
+
+
+def build_linear_viscoelastic_calibration_service(
+    identity: IdentityServices,
+    jobs: JobService | None = None,
+    artifacts: ArtifactService | None = None,
+    plugins: PluginRegistryService | None = None,
+    test_data: CanonicalTestDataService | None = None,
+    governed_imports: GovernedImportService | None = None,
+    processing_outputs: CommonProcessingOutputService | None = None,
+    linear_viscoelastic_models: LinearViscoelasticModelService | None = None,
+) -> LinearViscoelasticCalibrationService | None:
+    """Compose calibration persistence from the request-scoped SQL service container.
+
+    Calibration state is never silently replaced by an in-memory repository.  Environments
+    without the canonical database wiring receive ``None`` and the API remains fail-closed.
+    """
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or identity.authorization is None
+        or jobs is None
+        or artifacts is None
+        or plugins is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return LinearViscoelasticCalibrationService(
+        repository=SqlAlchemyLinearViscoelasticCalibrationRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+        ),
+        job_service=jobs,
+        artifact_service=artifacts,
+        plugin_registry=plugins,
+        authorization=identity.authorization,
+        input_resolver=(
+            GovernedLinearViscoelasticInputResolver(
+                test_data=test_data,
+                governed_imports=governed_imports,
+                authorization=identity.authorization,
+                processing_outputs=processing_outputs,
+            )
+            if test_data is not None and governed_imports is not None
+            else None
+        ),
+        linear_viscoelastic_models=linear_viscoelastic_models,
     )
 
 

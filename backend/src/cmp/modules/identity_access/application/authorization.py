@@ -225,14 +225,16 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {Permission.CATALOG_READ, Permission.RELEASE_READ, Permission.UNITS_READ}
     ),
     Role.PLUGIN_MAINTAINER: frozenset({Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}),
-    # Operational role for service principals. T-18 adds only the package and scoped
-    # artifact permissions required to resolve inputs and commit validated outputs.
+    # Operational role for project-scoped service principals.  The configured background
+    # worker executes isolated plugin Jobs and the external export queue, so it needs the
+    # corresponding command permissions while remaining outside human product access.
     # It is provisioned outside the public role-administration service and cannot grant
-    # human business, review, release, or plugin activation permissions.
+    # review, release, or plugin activation permissions.
     Role.JOB_RUNNER: frozenset(
         {
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
+            Permission.EXPORT_EXECUTE,
             Permission.PLUGIN_READ,
             Permission.JOB_READ,
             Permission.JOB_EXECUTE,
@@ -576,7 +578,22 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.PLUGIN_ACTIVATE: frozenset({Permission.PLUGIN_READ}),
     Permission.JOB_SUBMIT: frozenset({Permission.JOB_READ}),
     Permission.JOB_CONTROL: frozenset({Permission.JOB_READ}),
-    Permission.JOB_EXECUTE: frozenset({Permission.JOB_READ}),
+    # The operational runner is authorized through the generic Job command only.  These
+    # capabilities are transaction-local closure for reading exact inputs, committing
+    # immutable output Artifacts, and saving the calibration projection; they do not add
+    # ``calibration.execute`` to the public Job Runner role.
+    Permission.JOB_EXECUTE: frozenset(
+        {
+            Permission.JOB_READ,
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.CALIBRATION_EXECUTE,
+            # Calibration Run reconciliation reads the modeling-owned projection before
+            # committing its immutable execution ledger.  This is transaction-local
+            # closure for JOB_EXECUTE, not a public modeling permission grant.
+            Permission.MODELING_READ,
+        }
+    ),
 }
 
 # These commands may invoke a T-13 fail-closed provenance hook in the owning domain
@@ -602,8 +619,9 @@ _PROVENANCE_WRITING_COMMANDS = frozenset(
     }
 )
 
-# T-16 outbox rows are inserted only by an already-authorized owning command. Dispatch and
-# inbox capabilities belong exclusively to the project-scoped operational Job Runner.
+# T-16 outbox rows are inserted only by an already-authorized owning command, including the
+# transaction-local JOB_EXECUTE closure used when a worker commits an immutable output. Dispatch
+# and inbox capabilities remain exclusive to the project-scoped operational Job Runner.
 _EVENT_PUBLISHING_COMMANDS = frozenset(
     {
         Permission.CATALOG_WRITE,
@@ -619,6 +637,7 @@ _EVENT_PUBLISHING_COMMANDS = frozenset(
         Permission.VALIDATION_EXECUTE,
         Permission.REVIEW_DECIDE,
         Permission.RELEASE_PUBLISH,
+        Permission.JOB_EXECUTE,
     }
 )
 

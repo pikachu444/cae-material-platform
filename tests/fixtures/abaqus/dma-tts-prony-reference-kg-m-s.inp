@@ -1,0 +1,10 @@
+** CMP reference/non-production linear-viscoelastic card
+** Consistent units: kg, m, s, Pa
+** Bulk relaxation evidence: not_characterized
+*MATERIAL, NAME=DMA_TTS_PRONY_REFERENCE
+*DENSITY
+1.200000000000e+03
+*ELASTIC
+8.100000000000e+06, 3.500000000000e-01
+*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC
+6.666666666667e-01, 0.000000000000e+00, 5.000000000000e-01

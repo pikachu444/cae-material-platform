@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -140,3 +142,40 @@ def test_run_context_exposes_cooperative_cancel_and_immutable_deadline(
     )
     with pytest.raises(DeadlineExceeded):
         expired.raise_if_cancelled()
+
+
+def test_development_guard_preserves_socket_type_and_denies_network(tmp_path: Path) -> None:
+    script = """
+from pathlib import Path
+import socket
+
+from cmp_plugin_sdk.guards import DevelopmentSandboxViolation, install_development_guards
+
+root = Path.cwd()
+before = socket.socket
+install_development_guards(
+    package_root=root,
+    input_root=root,
+    output_root=root,
+    workspace_root=root,
+)
+assert socket.socket is before
+import scipy.optimize
+
+try:
+    socket.socket()
+except DevelopmentSandboxViolation:
+    print("network denied")
+else:
+    raise SystemExit("socket creation was not denied")
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "network denied"
