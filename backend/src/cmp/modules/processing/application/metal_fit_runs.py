@@ -345,6 +345,12 @@ class MetalFitRunService:
             command.source_processing_output.aggregate_id,
             command.source_processing_output.revision_id,
         )
+        mapping_profile = source.content.mapping_profile
+        mapping_profile_sha256 = source.content.mapping_profile_sha256
+        if mapping_profile is None or mapping_profile_sha256 is None:
+            raise CommonPipelineError(
+                "metal Fit requires a Processing Output backed by a common Mapping Profile"
+            )
         unit_profile = getattr(source.content, "unit_profile", None)
         unit_applications = tuple(getattr(source.content, "unit_applications", ()))
         families = command.fit_step.options.get("families")
@@ -377,10 +383,10 @@ class MetalFitRunService:
             "source_document_sha256": source.content.source_document_sha256,
             "source_canonical_artifact_sha256": source.content.source_canonical_artifact_sha256,
             "mapping_profile": {
-                "aggregate_id": str(source.content.mapping_profile.aggregate_id),
-                "revision_id": str(source.content.mapping_profile.revision_id),
+                "aggregate_id": str(mapping_profile.aggregate_id),
+                "revision_id": str(mapping_profile.revision_id),
             },
-            "mapping_profile_sha256": source.content.mapping_profile_sha256,
+            "mapping_profile_sha256": mapping_profile_sha256,
             "exact_options": dict(command.fit_step.options),
             "input_plan": {
                 "source": "exact_processing_output",
@@ -424,7 +430,7 @@ class MetalFitRunService:
                 source_processing_output=command.source_processing_output,
                 source_processing_output_sha256=source.content.output_sha256,
                 source_document=source.content.source_document,
-                mapping_profile=source.content.mapping_profile,
+                mapping_profile=mapping_profile,
                 options=dict(command.fit_step.options),
                 reproducibility_evidence=base_reproducibility_evidence,
                 status=MetalFitRunStatus.EXECUTING,
@@ -522,7 +528,7 @@ class MetalFitRunService:
                     classification=command.classification,
                     label=f"Metal Fit run {run.id}",
                     source_document=source.content.source_document,
-                    mapping_profile=source.content.mapping_profile,
+                    mapping_profile=mapping_profile,
                     steps=(*source.content.steps, command.fit_step),
                     change_reason=command.change_reason,
                     source_processing_output=command.source_processing_output,

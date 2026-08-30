@@ -188,6 +188,7 @@ catalog_property_set_table = sa.Table(
     sa.Column("project_id", sa.Uuid(), nullable=False),
     sa.Column("classification", sa.String(64), nullable=False),
     sa.Column("material_state_id", sa.Uuid(), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
     schema="catalog",
 )
 catalog_property_set_revision_table = sa.Table(
@@ -561,6 +562,35 @@ class SqlAlchemyModelingRepository(ModelingRepository):
             str(row["material_class"] or "unclassified"),
             content,
         )
+
+    def get_current_property_set_revision_id(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+        property_set_id: UUID,
+    ) -> UUID:
+        """Return one tenant-scoped Property Set identity's current immutable head."""
+
+        statement = sa.select(catalog_property_set_table.c.current_revision_id).where(
+            catalog_property_set_table.c.id == property_set_id,
+            catalog_property_set_table.c.material_state_id == material_state_id,
+            catalog_property_set_table.c.organization_id == context.organization_id,
+            catalog_property_set_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                revision_id = session.execute(statement).scalar_one_or_none()
+            except DBAPIError as error:
+                raise ReferenceModelNotFound(
+                    "Catalog Property Set identity is not available"
+                ) from error
+        if revision_id is None:
+            raise ReferenceModelNotFound(
+                "Catalog Property Set identity is not visible for this Material State"
+            )
+        return cast(UUID, revision_id)
 
     def _snapshot(self, row: Any) -> MaterialModelSnapshot:
         content = _content(row)

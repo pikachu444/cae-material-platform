@@ -25,7 +25,7 @@ review/release는 Modeling의 normal stage가 아니라 Advanced와 Activity의 
 | 영역 | 구현 상태 |
 | --- | --- |
 | Materials | `/materials`의 Browse 기본 explorer/result/datasheet workspace, server-scoped 검색·정렬·pagination, 기존 Browse Tree 안의 Technical Data/Test Data/Simulation Data/Solver Cards와 각 데이터 항목, 선택 문맥, detail 5개 영역, 직접 연결의 category별 표시, exact-revision curve chart/channel·unit·deviation evidence, solver card preview/download; 내부 저장 구조는 Administration에서만 제공 |
-| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, common-grid piecewise-linear/no-extrapolation alignment, append-only replicate outlier 포함·제외 판단과 exact Dataset/Test Run lineage, immutable pointwise mean/95% CI, calibration input scope exact pinning, 사용자가 고른 구간의 명시적 tensile toe OLS 보정·품질 경고 승인·exact Fit 입력, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
+| Modeling | exact Material/State/Test Data session pin, Data/Process/Fit/Export, Materials와 공유하는 curve definition/display adapter, Process의 exact source/profile preview·last-valid blocked recovery·immutable saved-result comparison, common-grid piecewise-linear/no-extrapolation alignment, append-only replicate outlier 포함·제외 판단과 exact Dataset/Test Run lineage, immutable pointwise mean/95% CI, calibration input scope exact pinning, 사용자가 고른 구간의 명시적 tensile toe OLS 보정·품질 경고 승인·exact Fit 입력, processed replicate `peak_engineering_stress_pa`의 선택형 Distribution analysis sheet와 Normal/Lognormal/Weibull 후보 비교·explicit selected model revision, governed shear relaxation/DMA의 explicit quantity·channel·unit·temperature 입력, 고정 주파수 DMA 온도 sweep의 명시적 shift law 기반 TTS, immutable Plan/Run/Candidate/Recommendation/Selection, processing·fitting, 선택 모델 저장, Material Model IR·Neutral·solver card 생성, upstream 변경에 따른 downstream clear/stale/regenerate |
 | Activity | role-aware review queue, exact Material/Test Data/Solver Card request entry, Reviewer-only approval/change decisions, exact governed Material 또는 current Record 기반 Test Data projection, Processing Batch context/retry, browser recovery facts, and review-backed Record publication projection |
 | Administration | Database/Profile과 configurable Table/Attribute/Layout/Subset/Link Type의 stable identity·immutable revision 관리와 검증, Format Definition upload-plan-confirm-apply-exact read-back-export, 서버가 파일 wrapper로 resolve하는 installed exact JSON format·strict JSON/package preview·파일별 진단·exact reference pin·원자 DRAFT batch save·source-aware JSON/CSV download, Database preview에서 exact Record로 이어지는 Folder/Record tree·typed search·compare·단건·다건 등록, exact Record links와 접근 관리; Database 정의의 일반 Publish 동작은 아직 구성되지 않음 |
 | Catalog schema bundle | canonical bundle JSON, manifest+참조 JSON, checksummed source-set envelope 또는 ZIP의 exact immutable Artifact를 adapter 경계에서 검증하고 임의 개수 JSON Schema draft 2020-12 정의를 source set 내부에서만 resolve해 결정론적 plan 생성; Administrator 전용 화면과 API에서 exact SHA-256/`plan_fingerprint` 재검증, 원자 apply/publication, immutable application read-back, provenance와 checksum-verified current-state export |
@@ -93,12 +93,18 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
   기존 이슈에 유지하고, 근거 없는 역할·optimizer·승인 단계·plugin·비동기 계산·경화식 확장을
   보류했으며 main `1dcd4c90ec8636bc66de46961cbb93a8392fda47`에서 #246을 완료했습니다. 현재 제품 작업은
   #195입니다.
-- #195 polymer viscoelastic과 #196 elastomer hyperelastic/hyper-viscoelastic에는 bounded synthetic
-  `reference/non-production` 계산·선택·IR/Neutral/export 기반과 각각의 current planning packet이 이미
-  있습니다. #195의 다음 범위는 이 기반을 재작성하는 일이 아니라 production DMA/relaxation 입력 의미,
-  독립 수치 reference와 acceptance, API 저장·reload, 실제 Modeling 사용자 흐름을 하나의 승인 packet으로
-  확정하는 것입니다. 현재 reference 계산 결과와 화면은 production 검증 또는 UI 승인을 뜻하지 않습니다.
-  #196의 deferred 잔여도 family별 production 계약이며 기존 packet의 `OPEN_DECISION`은 유지됩니다.
+- #195 polymer viscoelastic backend는 기존 bounded synthetic 기반을 유지하면서 governed shear relaxation과
+  shear DMA의 quantity/channel/original·normalized unit/temperature 의미, 고정 주파수 온도 sweep의
+  명시적 tabulated/WLF/Arrhenius shift law 기반 TTS, hidden default 없는 계산 Plan,
+  격리 worker 계산, 후보·추천·엔지니어 선택 구분, exact input revision을 고정한 PostgreSQL 저장·reload와
+  upstream stale 거절을 현재 작업 브랜치에 추가했습니다. production 구현과 분리된 Decimal oracle 및
+  저장소의 공개 DaRUS·Zenodo 원본 archive와 manifest로 식·단위·재실행을 검증합니다. DaRUS의
+  DMA/shift/master-curve 18개 파일과 Zenodo의 DMA/normalized relaxation/Arrhenius/tensile 30개 파일을
+  누적 회귀 자료로 읽되, 정적 Property Set 또는 절대 완화계수가 없는 공개 자료는 IR로 승격하지 않습니다.
+  합성 relaxation 승격도 계속 `non_production=true`입니다. #195의
+  별도 Modeling UI·시각 acceptance와 publication이 남아 있으므로 기존 화면을 production 승인으로 보지
+  않습니다. #196 elastomer hyperelastic/hyper-viscoelastic의 deferred family별 production 계약과 packet의
+  `OPEN_DECISION`은 유지됩니다.
 - #276은 직접 등록한 Simulation Data와 Modeling 생성 결과를 capability에 따라 무피팅 곡선 또는
   선택형 Fit/solver-card 경로로 잇는 후보 후속입니다. 현재 `배치 결정 대기`이며 native parent와
   #117 실행 순서는 지정되지 않았습니다.

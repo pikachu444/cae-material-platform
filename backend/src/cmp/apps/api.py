@@ -38,6 +38,7 @@ from cmp.bootstrap.exporting import (
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
+    build_linear_viscoelastic_calibration_service,
     build_linear_viscoelastic_model_service,
     build_material_model_service,
     build_neutral_material_service,
@@ -57,6 +58,7 @@ from cmp.bootstrap.processing import (
     build_common_batch_service,
     build_common_processing_output_service,
     build_common_recipe_service,
+    build_dma_frequency_master_curve_service,
     build_mapping_profile_service,
     build_metal_fit_run_service,
     build_processing_service,
@@ -158,6 +160,9 @@ from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.modeling.adapters.api.calibration import install_calibration_api
 from cmp.modules.modeling.adapters.api.candidate_selection import install_candidate_selection_api
+from cmp.modules.modeling.adapters.api.linear_viscoelastic_calibration import (
+    install_linear_viscoelastic_calibration_api,
+)
 from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
     install_linear_viscoelastic_api,
 )
@@ -186,6 +191,9 @@ from cmp.modules.modeling.adapters.api.voce_candidate_projection import (
 )
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
+from cmp.modules.modeling.application.linear_viscoelastic_calibration import (
+    LinearViscoelasticCalibrationService,
+)
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
@@ -219,12 +227,18 @@ from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.processing.adapters.api.common_batches import install_common_batch_api
 from cmp.modules.processing.adapters.api.common_pipeline import install_common_processing_api
 from cmp.modules.processing.adapters.api.common_recipes import install_common_recipe_api
+from cmp.modules.processing.adapters.api.dma_frequency_master_curve import (
+    install_dma_frequency_master_curve_api,
+)
 from cmp.modules.processing.adapters.api.processing import install_processing_api
 from cmp.modules.processing.adapters.api.shear_relaxation import (
     install_shear_relaxation_processing_api,
 )
 from cmp.modules.processing.adapters.api.viscoelastic_master_curve import (
     install_viscoelastic_master_api,
+)
+from cmp.modules.processing.application.dma_frequency_master_curve import (
+    DmaFrequencyMasterCurveService,
 )
 from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.processing.application.shear_relaxation import (
@@ -302,6 +316,7 @@ def create_app(
     shear_relaxation_dataset_service: ShearRelaxationDatasetService | None = None,
     viscoelastic_dataset_service: ViscoelasticDatasetService | None = None,
     processing_service: ProcessingService | None = None,
+    dma_frequency_master_curve_service: DmaFrequencyMasterCurveService | None = None,
     shear_relaxation_processing_service: ShearRelaxationProcessingService | None = None,
     viscoelastic_master_service: ViscoelasticMasterService | None = None,
     statistics_service: StatisticsService | None = None,
@@ -309,6 +324,7 @@ def create_app(
     replicate_outlier_service: ReplicateOutlierService | None = None,
     material_model_service: MaterialModelService | None = None,
     linear_viscoelastic_model_service: LinearViscoelasticModelService | None = None,
+    linear_viscoelastic_calibration_service: LinearViscoelasticCalibrationService | None = None,
     ogden_prony_model_service: OgdenPronyModelService | None = None,
     scientific_profile_service: ScientificProfileService | None = None,
     ogden_calibration_service: ReferenceOgdenCalibrationService | None = None,
@@ -837,6 +853,50 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_dma_frequency_master_curve = (
+        dma_frequency_master_curve_service
+        or build_dma_frequency_master_curve_service(
+            services,
+            resolved_canonical_test_data,
+            resolved_governed_import,
+            resolved_artifacts,
+        )
+    )
+    install_dma_frequency_master_curve_api(
+        application,
+        service=resolved_dma_frequency_master_curve,
+        security_dependency=security_dependency,
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
+    resolved_linear_viscoelastic_calibration = (
+        linear_viscoelastic_calibration_service
+        or build_linear_viscoelastic_calibration_service(
+            services,
+            jobs=resolved_jobs,
+            artifacts=resolved_artifacts,
+            plugins=resolved_plugins,
+            test_data=resolved_canonical_test_data,
+            governed_imports=resolved_governed_import,
+            processing_outputs=resolved_common_outputs,
+            linear_viscoelastic_models=resolved_linear_viscoelastic,
+        )
+    )
+    install_linear_viscoelastic_calibration_api(
+        application,
+        service=resolved_linear_viscoelastic_calibration,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CALIBRATION_EXECUTE
+        ),
+    )
     resolved_ogden_prony = ogden_prony_model_service or build_ogden_prony_model_service(
         services, resolved_material_models
     )
@@ -1287,12 +1347,16 @@ def create_app(
     application.state.shear_relaxation_dataset_service = resolved_shear_relaxation_datasets
     application.state.viscoelastic_dataset_service = resolved_viscoelastic_datasets
     application.state.processing_service = resolved_processing
+    application.state.dma_frequency_master_curve_service = resolved_dma_frequency_master_curve
     application.state.shear_relaxation_processing_service = resolved_shear_relaxation_processing
     application.state.viscoelastic_master_service = resolved_viscoelastic_master
     application.state.statistics_service = resolved_statistics
     application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models
     application.state.linear_viscoelastic_model_service = resolved_linear_viscoelastic
+    application.state.linear_viscoelastic_calibration_service = (
+        resolved_linear_viscoelastic_calibration
+    )
     application.state.ogden_prony_model_service = resolved_ogden_prony
     application.state.scientific_profile_service = resolved_scientific_profiles
     application.state.ogden_calibration_service = resolved_ogden_calibration

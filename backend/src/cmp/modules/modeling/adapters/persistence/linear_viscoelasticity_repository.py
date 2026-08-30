@@ -30,6 +30,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     BulkRelaxationStatus,
     LinearViscoelasticNotFound,
     PronyTerm,
+    ReferenceLinearViscoelasticCalibrationEvidence,
     ReferenceLinearViscoelasticContent,
     ReferencePronyProcessingEvidence,
     ReferencePronyPromotionEvidence,
@@ -106,6 +107,38 @@ linear_viscoelastic_processing_evidence_table = sa.Table(
     sa.Column("processing_batch_attempt_no", sa.Integer(), nullable=True),
     schema="modeling",
 )
+linear_viscoelastic_calibration_evidence_table = sa.Table(
+    "linear_viscoelastic_calibration_evidence",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_model_id", sa.Uuid(), nullable=False),
+    sa.Column("material_model_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("plan_id", sa.Uuid(), nullable=False),
+    sa.Column("plan_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("plan_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("run_id", sa.Uuid(), nullable=False),
+    sa.Column("run_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("candidate_id", sa.Uuid(), nullable=False),
+    sa.Column("candidate_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("selection_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("recommendation_id", sa.Uuid(), nullable=False),
+    sa.Column("recommendation_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("canonical_test_data_id", sa.Uuid(), nullable=False),
+    sa.Column("canonical_test_data_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("canonical_test_data_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("canonical_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("canonical_artifact_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("normalized_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("normalized_artifact_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("import_profile_id", sa.Uuid(), nullable=False),
+    sa.Column("import_profile_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("import_profile_sha256", sa.CHAR(64), nullable=False),
+    schema="modeling",
+)
 
 
 class RlsContext(Protocol):
@@ -164,6 +197,8 @@ def _content_values(content: ReferenceLinearViscoelasticContent) -> dict[str, An
         "calibration_evidence_kind": (
             "reference_prony_candidate_selection"
             if evidence is not None
+            else "linear_viscoelastic_calibration_selection"
+            if content.calibration_evidence is not None
             else "manual_catalog_projection"
         ),
         "prony_selection_id": evidence.selection_id if evidence is not None else None,
@@ -202,6 +237,8 @@ def _write_terms(
             promotion_kind=(
                 "processing_output"
                 if content.processing_promotion_evidence is not None
+                else "calibration_selection"
+                if content.calibration_evidence is not None
                 else "candidate_selection"
                 if content.prony_promotion_evidence is not None
                 else "manual"
@@ -283,6 +320,41 @@ def _write_terms(
                 ),
             )
         )
+    calibration = content.calibration_evidence
+    if calibration is not None:
+        session.execute(
+            sa.insert(linear_viscoelastic_calibration_evidence_table).values(
+                organization_id=scope.organization_id,
+                project_id=scope.project_id,
+                classification=scope.classification,
+                material_model_id=draft.aggregate_id,
+                material_model_revision_id=draft.revision_id,
+                plan_id=calibration.plan_id,
+                plan_revision_id=calibration.plan_revision_id,
+                plan_sha256=calibration.plan_sha256,
+                run_id=calibration.run_id,
+                run_sha256=calibration.run_sha256,
+                candidate_id=calibration.candidate_id,
+                candidate_sha256=calibration.candidate_sha256,
+                selection_id=calibration.selection_id,
+                selection_revision_id=calibration.selection_revision_id,
+                selection_sha256=calibration.selection_sha256,
+                recommendation_id=calibration.recommendation_id,
+                recommendation_sha256=calibration.recommendation_sha256,
+                canonical_test_data_id=calibration.canonical_test_data_id,
+                canonical_test_data_revision_id=(
+                    calibration.canonical_test_data_revision_id
+                ),
+                canonical_test_data_sha256=calibration.canonical_test_data_sha256,
+                canonical_artifact_id=calibration.canonical_artifact_id,
+                canonical_artifact_sha256=calibration.canonical_artifact_sha256,
+                normalized_artifact_id=calibration.normalized_artifact_id,
+                normalized_artifact_sha256=calibration.normalized_artifact_sha256,
+                import_profile_id=calibration.import_profile_id,
+                import_profile_revision_id=calibration.import_profile_revision_id,
+                import_profile_sha256=calibration.import_profile_sha256,
+            )
+        )
 
 
 _TABLES = TypedRevisionTables[ReferenceLinearViscoelasticContent](
@@ -347,6 +419,7 @@ def _content(
     row: Any,
     terms: tuple[PronyTerm, ...],
     processing_evidence: ReferencePronyProcessingEvidence | None = None,
+    calibration_evidence: ReferenceLinearViscoelasticCalibrationEvidence | None = None,
 ) -> ReferenceLinearViscoelasticContent:
     evidence = (
         ReferencePronyPromotionEvidence(
@@ -381,6 +454,7 @@ def _content(
         reference_temperature_k=float(row["reference_temperature_k"]),
         prony_promotion_evidence=evidence,
         processing_promotion_evidence=processing_evidence,
+        calibration_evidence=calibration_evidence,
         model_family_id=str(row["model_family_id"]),
         model_schema_digest=str(row["model_schema_digest"]),
         non_production=bool(row["non_production"]),
@@ -561,11 +635,61 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
             ),
         )
 
+    @staticmethod
+    def _calibration_evidence(
+        session: Session, row: Any
+    ) -> ReferenceLinearViscoelasticCalibrationEvidence | None:
+        value = (
+            session.execute(
+                sa.select(linear_viscoelastic_calibration_evidence_table).where(
+                    linear_viscoelastic_calibration_evidence_table.c.organization_id
+                    == row["organization_id"],
+                    linear_viscoelastic_calibration_evidence_table.c.project_id
+                    == row["project_id"],
+                    linear_viscoelastic_calibration_evidence_table.c.material_model_id
+                    == row["aggregate_id"],
+                    linear_viscoelastic_calibration_evidence_table.c.material_model_revision_id
+                    == row["id"],
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if value is None:
+            return None
+        return ReferenceLinearViscoelasticCalibrationEvidence(
+            plan_id=cast(UUID, value["plan_id"]),
+            plan_revision_id=cast(UUID, value["plan_revision_id"]),
+            plan_sha256=str(value["plan_sha256"]),
+            run_id=cast(UUID, value["run_id"]),
+            run_sha256=str(value["run_sha256"]),
+            candidate_id=cast(UUID, value["candidate_id"]),
+            candidate_sha256=str(value["candidate_sha256"]),
+            selection_id=cast(UUID, value["selection_id"]),
+            selection_revision_id=cast(UUID, value["selection_revision_id"]),
+            selection_sha256=str(value["selection_sha256"]),
+            recommendation_id=cast(UUID, value["recommendation_id"]),
+            recommendation_sha256=str(value["recommendation_sha256"]),
+            canonical_test_data_id=cast(UUID, value["canonical_test_data_id"]),
+            canonical_test_data_revision_id=cast(
+                UUID, value["canonical_test_data_revision_id"]
+            ),
+            canonical_test_data_sha256=str(value["canonical_test_data_sha256"]),
+            canonical_artifact_id=cast(UUID, value["canonical_artifact_id"]),
+            canonical_artifact_sha256=str(value["canonical_artifact_sha256"]),
+            normalized_artifact_id=cast(UUID, value["normalized_artifact_id"]),
+            normalized_artifact_sha256=str(value["normalized_artifact_sha256"]),
+            import_profile_id=cast(UUID, value["import_profile_id"]),
+            import_profile_revision_id=cast(UUID, value["import_profile_revision_id"]),
+            import_profile_sha256=str(value["import_profile_sha256"]),
+        )
+
     def _snapshot(self, session: Session, row: Any) -> LinearViscoelasticModelSnapshot:
         content = _content(
             row,
             self._terms(session, row),
             self._processing_evidence(session, row),
+            self._calibration_evidence(session, row),
         )
         return LinearViscoelasticModelSnapshot(
             cast(UUID, row["aggregate_id"]),
@@ -650,6 +774,7 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
                         row,
                         self._terms(session, row),
                         self._processing_evidence(session, row),
+                        self._calibration_evidence(session, row),
                     ),
                 )
             except DBAPIError as error:

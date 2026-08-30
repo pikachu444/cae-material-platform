@@ -276,6 +276,14 @@ def _translate(context: SecurityContext, error: Exception) -> JobHttpError:
             code="CMP-JOB-0002",
         )
     if isinstance(error, (JobConflict, RetryNotAllowed)):
+        if str(error) == "terminal_calibration_requires_new_run":
+            return JobHttpError(
+                context=context,
+                status=409,
+                title="Terminal calibration requires a new Run",
+                detail="terminal_calibration_requires_new_run",
+                code="CMP-JOB-0006",
+            )
         return JobHttpError(
             context=context,
             status=409,

@@ -12,6 +12,29 @@ normalized RMSE와 `(g_i, tau_i)` 표를 함께 검토합니다. **Engineer sele
 이유가 새 Recipe revision에 저장됩니다. 공개 generalized-Maxwell 주파수 응답식을 사용하며 숨은
 parameter database나 silent smoothing은 없습니다.
 
+## 시험 데이터에서 선택 모델까지의 governed 계산
+
+새 calibration API는 shear relaxation과 shear DMA 시험을 같은 입력으로 뭉개지 않고, 선택한
+Test Data의 정확한 revision과 channel·원본 단위·정규화 단위·시험 온도·유효 domain을 Plan에
+고정합니다. 수치 계산에는 시험 날짜가 아니라 이 물리량과 domain이 사용됩니다.
+
+Plan에는 후보 항수, bounds, objective와 weighting을 모두 명시해야 하며 서버가 숨은 계산 설정을
+보충하지 않습니다. 실행된 Run은 후보별 계산 결과를 남기고, 서버 recommendation과 엔지니어가
+고른 candidate 및 선택 이유를 별도 revision으로 저장합니다. 선택 결과를 linear-viscoelastic
+model로 승격하면 원본 Test Data revision부터 Plan, Run, Candidate, Selection까지 다시 추적할 수
+있으며, 서비스 재시작 뒤에도 같은 revision으로 조회됩니다. 상위 입력에 새 revision이 생기면 기존
+결과를 덮어쓰지 않고 현재 승격 대상으로 사용할 수 없는 상태로 판정합니다.
+
+현재 이 governed 경로는 backend API와 비동기 worker까지 제공됩니다. Modeling 화면 연결은 별도
+프론트엔드 작업에서 추가될 예정입니다. 저장소의 공개 DaRUS·Zenodo 시험 자료는 원본 archive와
+단위를 보존한 회귀 검증용입니다. 등온 주파수 sweep뿐 아니라, 주파수가 일정한 DMA 온도 sweep도
+reference temperature와 각 온도의 `log10(aT)` 표 또는 명시적으로 확인한 WLF/Arrhenius 계수가 있으면
+주파수 master curve로 변환해 Prony 계산에 사용할 수 있습니다. DaRUS 원본의 1 Hz 온도 지점 25개는
+저자가 공개한 shift factor와 master curve에 맞춰 실제 변환 결과를 검증합니다. 절대 계수가 없는
+`Gt/G0` 완화 자료는 이유와 필요한 복구 입력을 남기고 제외됩니다. 공개 인장 요약에 적힌 값도 그대로
+검증하지만 Poisson 비와 density가 없으므로 Property Set이나 Abaqus 입력으로 임의 변환하지 않습니다.
+기존 `non_production` 표시는 production acceptance가 끝날 때까지 유지됩니다.
+
 
 **Export**에서는 현재 선택한 시험 revision에서 승격된 Neutral JSON을 자동으로 엽니다. Abaqus는
 `*VISCOELASTIC, TIME=PRONY`를 직접 생성합니다. OpenRadioss는 `/VISC/LPRONY`의 deviatoric-only

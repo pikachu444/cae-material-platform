@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:modeling:linear-viscoelastic-calibration-result:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "run_id", "plan_revision_id", "status", "attempts", "candidates", "recommendation", "failure_code", "failure_detail", "recovery_hint"],
+  "properties": {
+    "schema_id": {"const": "urn:cmp:modeling:linear-viscoelastic-calibration-result:1.0.0"},
+    "schema_version": {"const": "1.0.0"}, "run_id": {"type": "string", "format": "uuid"}, "plan_revision_id": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["succeeded", "failed"]}, "attempts": {"type": "array", "items": {"type": "object"}}, "candidates": {"type": "array", "items": {"type": "object"}}, "recommendation": {"type": ["object", "null"]},
+    "failure_code": {"type": ["string", "null"]}, "failure_detail": {"type": ["string", "null"]}, "recovery_hint": {"type": ["string", "null"]}
+  }
+}

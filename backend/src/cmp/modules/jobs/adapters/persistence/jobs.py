@@ -558,6 +558,25 @@ class SqlAlchemyJobRepository:
             state = JobState(str(job["state"]))
             if state not in {JobState.FAILED, JobState.TIMED_OUT}:
                 raise RetryNotAllowed(f"job in {state} cannot be retried")
+            # A calibration Run owns the immutable result lifecycle.  Once its generic
+            # plugin Job is terminal, a manual retry would create a second execution under
+            # the same Run and break selection/result identity.  The check runs after the
+            # row lock, so concurrent retry requests cannot bypass it; all unrelated generic
+            # Job types retain the normal T-15 retry policy below.
+            if str(job["job_type"]) == "plugin.run":
+                current_attempt = self._attempt_row(
+                    session, cast(UUID, job["current_attempt_id"]), lock=True
+                )
+                specification = current_attempt["job_spec"]
+                if isinstance(specification, dict):
+                    extension = specification.get("extension")
+                    if (
+                        specification.get("operation") == "execute_plan"
+                        and isinstance(extension, dict)
+                        and extension.get("plugin_id")
+                        == "cmp.linear_viscoelastic.calibrator"
+                    ):
+                        raise RetryNotAllowed("terminal_calibration_requires_new_run")
             if job["cancel_requested_at"] is not None:
                 raise RetryNotAllowed("cancelled execution cannot be retried")
             failure = _failure(job)

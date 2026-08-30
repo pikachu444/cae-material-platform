@@ -32,6 +32,13 @@ from cmp.modules.units.domain.system import (
 from cmp.shared.domain.revisions import content_sha256
 
 GOVERNED_IMPORT_PROFILE_SCHEMA_ID = "urn:cmp:datasets:governed-import-profile:1.1.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_0 = "urn:cmp:datasets:governed-import-profile:1.0.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_2 = "urn:cmp:datasets:governed-import-profile:1.2.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_3 = "urn:cmp:datasets:governed-import-profile:1.3.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_0 = "1.0.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_1 = "1.1.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_2 = "1.2.0"
+GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3 = "1.3.0"
 GOVERNED_DATASET_SCHEMA_ID = "urn:cmp:datasets:governed-tabular-dataset:1.1.0"
 GOVERNED_IMPORTER_ID = "urn:cmp:datasets:governed-tabular-importer:1.1.0"
 GOVERNED_IMPORTER_VERSION = "1.1.0"
@@ -84,6 +91,7 @@ class TabularDataSchema(StrEnum):
     SIMPLE_SHEAR = "simple_shear"
     SHEAR_RELAXATION = "shear_relaxation"
     DMA_FREQUENCY_TEMPERATURE_SWEEP = "dma_frequency_temperature_sweep"
+    DMA_TEMPERATURE_SWEEP = "dma_temperature_sweep"
     FORMING_LIMIT = "forming_limit_diagram"
 
 
@@ -284,9 +292,33 @@ class GovernedImportProfileContent:
     initial_gauge_length_m: float | None = None
     initial_cross_section_area_m2: float | None = None
     approval_kind: str = "human_confirmed"
+    # These fields were appended to preserve positional construction and the exact
+    # canonical bytes of historical 1.0/1.1 revisions.
+    schema_version: str = GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_1
+    deformation_mode: str | None = None
 
     def __post_init__(self) -> None:
         _text("profile_label", self.profile_label, 160)
+        if self.schema_version not in {
+            GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_0,
+            GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_1,
+            GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_2,
+            GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3,
+        }:
+            raise InvalidGovernedImport("unsupported governed Import Profile schema_version")
+        if self.deformation_mode not in (None, "shear"):
+            raise InvalidGovernedImport("deformation_mode is nullable and only permits shear")
+        if (
+            self.schema_version
+            not in {
+                GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_2,
+                GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3,
+            }
+            and self.deformation_mode is not None
+        ):
+            raise InvalidGovernedImport(
+                "historical Import Profile revisions cannot carry deformation_mode"
+            )
         if not 1 <= self.header_row <= 100:
             raise InvalidGovernedImport("header_row must be within 1..100")
         if self.decimal_separator not in (".", ","):
@@ -320,8 +352,28 @@ class GovernedImportProfileContent:
             raise InvalidGovernedImport("source columns must be distinct")
         self._validate_schema(channels)
         object.__setattr__(self, "channels", channels)
+        if (
+            self.schema_version
+            in {
+                GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_2,
+                GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3,
+            }
+            and self.data_schema
+            not in {
+                TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+                TabularDataSchema.DMA_TEMPERATURE_SWEEP,
+            }
+            and self.deformation_mode is not None
+        ):
+            raise InvalidGovernedImport("non-DMA 1.2 profiles require deformation_mode=null")
         if self.approval_kind != "human_confirmed":
             raise InvalidGovernedImport("Import Profile approval must be human_confirmed")
+
+    @property
+    def effective_deformation_mode(self) -> str:
+        """Internal mode for eligibility checks; legacy response/canonical bytes omit it."""
+
+        return self.deformation_mode or "not-characterized"
 
     def _validate_schema(self, channels: tuple[GovernedChannelMapping, ...]) -> None:
         kinds = tuple(channel.source_quantity for channel in channels)
@@ -374,12 +426,51 @@ class GovernedImportProfileContent:
                     "DMA temperature/frequency must be independent and response channels dependent"
                 )
             geometry_required = False
+        elif self.data_schema is TabularDataSchema.DMA_TEMPERATURE_SWEEP:
+            if self.schema_version != GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3:
+                raise InvalidGovernedImport(
+                    "DMA temperature sweep requires Import Profile schema 1.3.0"
+                )
+            if self.deformation_mode != "shear":
+                raise InvalidGovernedImport("DMA temperature sweep requires deformation_mode=shear")
+            accepted = {
+                (
+                    QuantityKind.TEMPERATURE,
+                    QuantityKind.STORAGE_MODULUS,
+                    QuantityKind.LOSS_MODULUS,
+                ),
+                (
+                    QuantityKind.TEMPERATURE,
+                    QuantityKind.STORAGE_MODULUS,
+                    QuantityKind.TAN_DELTA,
+                ),
+                (
+                    QuantityKind.TEMPERATURE,
+                    QuantityKind.STORAGE_MODULUS,
+                    QuantityKind.LOSS_MODULUS,
+                    QuantityKind.TAN_DELTA,
+                ),
+            }
+            if kinds not in accepted:
+                raise InvalidGovernedImport(
+                    "DMA temperature sweep requires temperature/storage_modulus and "
+                    "loss_modulus, tan_delta, or both"
+                )
+            if roles != (
+                AxisRole.INDEPENDENT,
+                *(AxisRole.DEPENDENT for _ in kinds[1:]),
+            ):
+                raise InvalidGovernedImport(
+                    "DMA temperature must be independent and response channels dependent"
+                )
+            geometry_required = False
         else:
             if kinds != (QuantityKind.MINOR_STRAIN, QuantityKind.MAJOR_STRAIN):
                 raise InvalidGovernedImport("forming limit requires minor_strain/major_strain")
             geometry_required = False
         if self.data_schema not in (
             TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+            TabularDataSchema.DMA_TEMPERATURE_SWEEP,
         ) and roles != (AxisRole.INDEPENDENT, AxisRole.DEPENDENT):
             raise InvalidGovernedImport("channel 0/1 must be independent/dependent")
         geometry = (self.initial_gauge_length_m, self.initial_cross_section_area_m2)
@@ -544,7 +635,7 @@ def _channel_canonical(value: GovernedChannelMapping) -> dict[str, object]:
 
 
 def import_profile_canonical(value: GovernedImportProfileContent) -> dict[str, object]:
-    return {
+    result: dict[str, object] = {
         "profile_label": value.profile_label,
         "data_schema": value.data_schema.value,
         "file_format": value.file_format.value,
@@ -560,6 +651,13 @@ def import_profile_canonical(value: GovernedImportProfileContent) -> dict[str, o
         "importer_id": GOVERNED_IMPORTER_ID,
         "importer_version": GOVERNED_IMPORTER_VERSION,
     }
+    if value.schema_version in {
+        GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_2,
+        GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3,
+    }:
+        result["schema_version"] = value.schema_version
+        result["deformation_mode"] = value.deformation_mode
+    return result
 
 
 def governed_dataset_canonical(value: GovernedDatasetContent) -> dict[str, object]:
@@ -1091,13 +1189,49 @@ def parse_governed_source_evidence(
                     channel_key=channel.source_quantity.value,
                     error_code="negative_dma_response",
                     error_detail=(
-                        f"row {row_number}: {channel.source_quantity.value} "
-                        "must be non-negative"
+                        f"row {row_number}: {channel.source_quantity.value} must be non-negative"
                     ),
                     recovery_hint="Correct the DMA response value or its declared unit.",
                 )
                 continue
             coordinate = (point[0], point[1])
+        elif profile.data_schema is TabularDataSchema.DMA_TEMPERATURE_SWEEP:
+            if point[0] <= 0:
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=profile.channels[0].source_column,
+                    channel_key=QuantityKind.TEMPERATURE.value,
+                    error_code="temperature_not_positive_kelvin",
+                    error_detail=(
+                        f"row {row_number}: normalized temperature must be greater than 0 K"
+                    ),
+                    recovery_hint="Correct the temperature value or its declared degC/K unit.",
+                )
+                continue
+            negative_response = next(
+                (
+                    index
+                    for index, channel in enumerate(profile.channels[1:], start=1)
+                    if channel.source_quantity
+                    in {QuantityKind.STORAGE_MODULUS, QuantityKind.LOSS_MODULUS}
+                    and point[index] < 0
+                ),
+                None,
+            )
+            if negative_response is not None:
+                channel = profile.channels[negative_response]
+                add_diagnostic(
+                    row_number=row_number,
+                    column_name=channel.source_column,
+                    channel_key=channel.source_quantity.value,
+                    error_code="negative_dma_modulus",
+                    error_detail=(
+                        f"row {row_number}: {channel.source_quantity.value} must be non-negative"
+                    ),
+                    recovery_hint="Correct the modulus value or its declared unit.",
+                )
+                continue
+            coordinate = (point[0],)
         elif profile.data_schema is TabularDataSchema.FORMING_LIMIT:
             coordinate = (point[0],)
         else:
@@ -1110,6 +1244,8 @@ def parse_governed_source_evidence(
                     channel_key=(
                         "temperature_frequency"
                         if len(coordinate) == 2
+                        else QuantityKind.TEMPERATURE.value
+                        if profile.data_schema is TabularDataSchema.DMA_TEMPERATURE_SWEEP
                         else QuantityKind.MINOR_STRAIN.value
                     ),
                     error_code="duplicate_coordinate",

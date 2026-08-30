@@ -478,6 +478,11 @@ class TabulatedPlasticityModelService:
             idempotency_key=f"processed-tabulated-projection:{derivation_key}",
         )
         source = properties.content
+        mapping_profile = output.content.mapping_profile
+        if mapping_profile is None:
+            raise TabulatedPlasticityConflict(
+                "selected hardening requires a common Mapping Profile Processing Output"
+            )
         execution_origin = (
             self._processing_batches.find_execution_origin(
                 context,
@@ -501,8 +506,8 @@ class TabulatedPlasticityModelService:
             processing_output_sha256=output.content.output_sha256,
             source_test_data_id=output.content.source_document.aggregate_id,
             source_test_data_revision_id=output.content.source_document.revision_id,
-            mapping_profile_id=output.content.mapping_profile.aggregate_id,
-            mapping_profile_revision_id=output.content.mapping_profile.revision_id,
+            mapping_profile_id=mapping_profile.aggregate_id,
+            mapping_profile_revision_id=mapping_profile.revision_id,
             candidate_families=families,
             primary_family=primary,
             secondary_family=secondary,

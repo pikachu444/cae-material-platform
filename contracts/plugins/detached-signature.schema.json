@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:artifact:detached-signature:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "algorithm", "purpose", "key_status", "public_key_b64", "signature_b64"],
+  "properties": {
+    "schema_id": {"const": "urn:cmp:artifact:detached-signature:1.0.0"},
+    "schema_version": {"const": "1.0.0"},
+    "algorithm": {"const": "ed25519"},
+    "purpose": {"const": "cmp-plugin-package-sha256-v1"},
+    "key_status": {"const": "non_production_ephemeral"},
+    "public_key_b64": {"type": "string", "pattern": "^[A-Za-z0-9+/]+={0,2}$"},
+    "signature_b64": {"type": "string", "pattern": "^[A-Za-z0-9+/]+={0,2}$"}
+  }
+}

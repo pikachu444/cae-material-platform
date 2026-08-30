@@ -11,6 +11,10 @@ services:
   api:
     ports: !reset []
 
+  seed:
+    volumes:
+      - ../../fixtures:/app/fixtures:ro
+
   web:
     ports: !override
       - target: 5173

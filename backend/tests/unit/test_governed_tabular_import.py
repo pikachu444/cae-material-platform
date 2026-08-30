@@ -14,6 +14,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     QuantityKind,
     TabularDataSchema,
     TabularFileFormat,
+    import_profile_canonical,
     inspect_tabular_source,
     normalized_parquet_bytes,
     parse_governed_source,
@@ -97,6 +98,44 @@ def _dma_profile(
         ),
         decimal_separator=".",
         channels=channels,
+    )
+
+
+def _dma_temperature_profile() -> GovernedImportProfileContent:
+    return GovernedImportProfileContent(
+        profile_label="Fixed-frequency DMA temperature sweep",
+        data_schema=TabularDataSchema.DMA_TEMPERATURE_SWEEP,
+        file_format=TabularFileFormat.CSV,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter=",",
+        decimal_separator=".",
+        channels=(
+            GovernedChannelMapping(
+                0,
+                "temperature",
+                QuantityKind.TEMPERATURE,
+                "degC",
+                AxisRole.INDEPENDENT,
+            ),
+            GovernedChannelMapping(
+                1,
+                "storage",
+                QuantityKind.STORAGE_MODULUS,
+                "MPa",
+                AxisRole.DEPENDENT,
+            ),
+            GovernedChannelMapping(
+                2,
+                "tan_delta",
+                QuantityKind.TAN_DELTA,
+                "1",
+                AxisRole.DEPENDENT,
+            ),
+        ),
+        schema_version="1.3.0",
+        deformation_mode="shear",
     )
 
 
@@ -436,6 +475,32 @@ def test_dma_optional_tan_delta_and_xlsx_use_the_same_profile_rules() -> None:
     assert parsed.columns[-1] is QuantityKind.TAN_DELTA
     assert parsed.rows[1] == pytest.approx((303.15, 1.0, 800_000_000.0, 80_000_000.0, 0.1))
     assert normalized_parquet_bytes(parsed).startswith(b"PAR1")
+
+
+def test_fixed_frequency_dma_temperature_profile_preserves_signed_loss_factor() -> None:
+    profile = _dma_temperature_profile()
+    evidence = parse_governed_source_evidence(
+        b"temperature,storage,tan_delta\n-30,1100,0.10\n0,900,0.30\n30,700,-0.02\n",
+        profile,
+    )
+
+    assert evidence.normalized.columns == (
+        QuantityKind.TEMPERATURE,
+        QuantityKind.STORAGE_MODULUS,
+        QuantityKind.TAN_DELTA,
+    )
+    assert evidence.original_rows[-1] == (30.0, 700.0, -0.02)
+    assert evidence.normalized.rows[-1] == pytest.approx((303.15, 700_000_000.0, -0.02))
+    canonical = import_profile_canonical(profile)
+    assert canonical["schema_version"] == "1.3.0"
+    assert canonical["deformation_mode"] == "shear"
+
+
+def test_fixed_frequency_dma_temperature_profile_requires_1_3_shear_contract() -> None:
+    with pytest.raises(InvalidGovernedImport, match=r"schema 1\.3\.0"):
+        replace(_dma_temperature_profile(), schema_version="1.2.0")
+    with pytest.raises(InvalidGovernedImport, match="deformation_mode=shear"):
+        replace(_dma_temperature_profile(), deformation_mode=None)
 
 
 def test_forming_limit_accepts_signed_non_monotonic_strain_without_sorting() -> None:

@@ -311,6 +311,7 @@ def test_admin_roles_do_not_implicitly_receive_business_or_approval_access() -> 
     assert ROLE_PERMISSIONS[Role.JOB_RUNNER] == {
         Permission.ARTIFACT_READ,
         Permission.ARTIFACT_WRITE,
+        Permission.EXPORT_EXECUTE,
         Permission.PLUGIN_READ,
         Permission.JOB_READ,
         Permission.JOB_EXECUTE,
@@ -346,12 +347,14 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
                         Permission.ARTIFACT_READ,
                         Permission.CATALOG_READ,
                     Permission.CATALOG_WRITE,
+                        Permission.CALIBRATION_EXECUTE,
                     Permission.DATASET_READ,
                     Permission.EXPORT_READ,
                     Permission.MODELING_READ,
                         Permission.PROCESSING_READ,
                         Permission.STATISTICS_READ,
-                    Permission.TESTING_READ,
+                        Permission.TESTING_READ,
+                        Permission.UNITS_READ,
                 }
             )
             assert typed_dependencies.issubset(permissions)
@@ -535,12 +538,48 @@ def test_export_read_decision_can_resolve_exact_processing_sources() -> None:
     assert "processing.write" not in decision.database_permissions
 
 
-def test_job_runner_receives_only_internal_dispatch_and_consumer_capabilities() -> None:
+def test_job_runner_receives_dispatch_consumer_and_outbox_capabilities() -> None:
     decision = _service(_binding(Role.JOB_RUNNER)).authorize(_context(), Permission.JOB_EXECUTE)
 
-    assert {"events.dispatch", "events.consume"}.issubset(decision.database_permissions)
-    assert "events.publish" not in decision.database_permissions
+    assert {
+        "events.consume",
+        "events.dispatch",
+        "events.publish",
+    }.issubset(decision.database_permissions)
+    assert {
+        Permission.ARTIFACT_READ.value,
+        Permission.ARTIFACT_WRITE.value,
+        Permission.CALIBRATION_EXECUTE.value,
+        Permission.MODELING_READ.value,
+    }.issubset(decision.database_permissions)
     assert "audit.append" in decision.database_permissions
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        _service(_binding(Role.JOB_RUNNER)).authorize(
+            _context(), Permission.CALIBRATION_EXECUTE
+        )
+    assert Permission.CATALOG_WRITE not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
+    assert Permission.REVIEW_DECIDE not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
+    assert Permission.PLUGIN_ACTIVATE not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
+
+
+def test_project_scoped_job_runner_can_execute_the_configured_export_queue() -> None:
+    decision = _service(_binding(Role.JOB_RUNNER)).authorize(
+        _context(), Permission.EXPORT_EXECUTE
+    )
+
+    assert decision.roles == (Role.JOB_RUNNER,)
+    assert Permission.EXPORT_EXECUTE.value in decision.database_permissions
+    assert {
+        Permission.ARTIFACT_READ.value,
+        Permission.ARTIFACT_WRITE.value,
+        Permission.CATALOG_WRITE.value,
+        Permission.EXPORT_READ.value,
+        Permission.MODELING_READ.value,
+        Permission.PROCESSING_READ.value,
+        Permission.TESTING_READ.value,
+        Permission.UNITS_READ.value,
+    }.issubset(decision.database_permissions)
+    assert Permission.CALIBRATION_EXECUTE.value not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
 
 
 class _AdministrationRepository:

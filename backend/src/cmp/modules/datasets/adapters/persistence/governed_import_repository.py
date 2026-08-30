@@ -131,6 +131,8 @@ import_profile_revision_table = _revision_table(
     sa.Column("initial_gauge_length_m", sa.Float(), nullable=True),
     sa.Column("initial_cross_section_area_m2", sa.Float(), nullable=True),
     sa.Column("approval_kind", sa.String(32), nullable=False),
+    # Nullable by design: migration 104 does not backfill historical profile revisions.
+    sa.Column("deformation_mode", sa.String(32), nullable=True),
 )
 import_profile_channel_table = sa.Table(
     "import_profile_channel",
@@ -286,6 +288,7 @@ def _profile_values(value: GovernedImportProfileContent) -> dict[str, object]:
         "initial_gauge_length_m": value.initial_gauge_length_m,
         "initial_cross_section_area_m2": value.initial_cross_section_area_m2,
         "approval_kind": value.approval_kind,
+        "deformation_mode": value.deformation_mode,
     }
 
 
@@ -426,6 +429,8 @@ def _profile(
         initial_gauge_length_m=cast(float | None, row["initial_gauge_length_m"]),
         initial_cross_section_area_m2=cast(float | None, row["initial_cross_section_area_m2"]),
         approval_kind=str(row["approval_kind"]),
+        schema_version=str(row["schema_version"]),
+        deformation_mode=cast(str | None, row.get("deformation_mode")),
     )
 
 

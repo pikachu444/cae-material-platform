@@ -8,7 +8,7 @@ from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Header, Request, Response, status
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_serializer
 
 from cmp.modules.datasets.adapters.api.datasets import (
     DatasetHttpError,
@@ -134,6 +134,8 @@ class ImportProfileContentInput(BaseModel):
     initial_gauge_length_m: float | None = None
     initial_cross_section_area_m2: float | None = None
     approval_kind: str = "human_confirmed"
+    schema_version: str = "1.1.0"
+    deformation_mode: str | None = None
 
     def to_domain(self) -> GovernedImportProfileContent:
         payload = self.model_dump(exclude={"channels"})
@@ -157,6 +159,18 @@ class ImportProfileContentResponse(BaseModel):
     initial_cross_section_area_m2: float | None
     approval_kind: str
     profile_sha256: str
+    schema_version: str = "1.1.0"
+    deformation_mode: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _serialize_legacy_compat(self, handler: Any) -> Any:
+        """Keep historical 1.0/1.1 response bytes free of later fields."""
+
+        payload = handler(self)
+        if self.schema_version not in {"1.2.0", "1.3.0"}:
+            payload.pop("schema_version", None)
+            payload.pop("deformation_mode", None)
+        return payload
 
     @classmethod
     def from_domain(
@@ -180,6 +194,8 @@ class ImportProfileContentResponse(BaseModel):
                     "initial_gauge_length_m",
                     "initial_cross_section_area_m2",
                     "approval_kind",
+                    "schema_version",
+                    "deformation_mode",
                 )
             },
             channels=tuple(ChannelMappingResponse.from_domain(item) for item in value.channels),

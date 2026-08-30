@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.39.0
+  version: 0.40.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3422,6 +3422,54 @@ paths:
         "409": {description: The reference Test Method already exists for this classification.}
         "422": {description: Reference Test Method request is invalid.}
         "503": {description: Testing service unavailable.}
+  /api/v1/test-methods/reference-shear-dma-frequency-sweep:
+    post:
+      operationId: createReferenceShearDmaFrequencySweepTestMethod
+      tags: [testing]
+      summary: Register the non-production reference shear DMA frequency-sweep method.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ReferenceMethodCreateRequest"}
+      responses:
+        "201":
+          description: Stable reference Test Method identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestMethodResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "409": {description: The reference Test Method already exists for this classification.}
+        "422": {description: Reference Test Method request is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-methods/reference-shear-dma-temperature-sweep:
+    post:
+      operationId: createReferenceShearDmaTemperatureSweepTestMethod
+      tags: [testing]
+      summary: Register a fixed-frequency shear DMA temperature-sweep method.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ReferenceMethodCreateRequest"}
+      responses:
+        "201":
+          description: Stable reference Test Method identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestMethodResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "409": {description: The reference Test Method already exists for this classification.}
+        "422": {description: Reference Test Method request is invalid.}
+        "503": {description: Testing service unavailable.}
   /api/v1/test-methods/reference-multiaxial-tension:
     post:
       operationId: createReferenceMultiaxialTensionTestMethod
@@ -3497,6 +3545,56 @@ paths:
         content:
           application/json:
             schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ShearRelaxationRunCreateRequest"}
+      responses:
+        "201":
+          description: Stable Test Run identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: Concrete Specimen or reference Test Method revision is not visible.}
+        "409": {description: Immutable source or Test Run identity conflicts.}
+        "422": {description: Test Run content is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-runs/reference-shear-dma-frequency-sweep:
+    post:
+      operationId: createReferenceShearDmaFrequencySweepTestRun
+      tags: [testing]
+      summary: Create a reference shear DMA frequency-sweep Test Run pinned to exact source revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ShearDmaFrequencySweepRunCreateRequest"}
+      responses:
+        "201":
+          description: Stable Test Run identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: Concrete Specimen or reference Test Method revision is not visible.}
+        "409": {description: Immutable source or Test Run identity conflicts.}
+        "422": {description: Test Run content is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-runs/reference-shear-dma-temperature-sweep:
+    post:
+      operationId: createReferenceShearDmaTemperatureSweepTestRun
+      tags: [testing]
+      summary: Create a fixed-frequency shear DMA temperature-sweep Test Run pinned to exact source revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ShearDmaTemperatureSweepRunCreateRequest"}
       responses:
         "201":
           description: Stable Test Run identity and immutable revision 1 created.
@@ -9764,6 +9862,199 @@ paths:
         - {name: bundle_id, in: path, required: true, schema: {type: string, format: uuid}}
       responses:
         "201": {description: Short-lived download authorization., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/DownloadAuthorization"}}}}
+  /api/v1/processing/dma-frequency-master-curves/recommendations:
+    post:
+      operationId: recommendDmaFrequencyMasterCurve
+      tags: [processing]
+      summary: Inspect an exact fixed-frequency DMA temperature sweep and return a non-material-specific WLF starting suggestion.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/RecommendationRequest"}
+      responses:
+        "200": {description: Read-only starting suggestion that still requires engineer confirmation., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/RecommendationResponse"}}}}
+        "409": {description: An exact source or profile revision is stale.}
+        "422": {description: The sweep has no unique positive interior loss-factor peak.}
+  /api/v1/processing/dma-frequency-master-curves:
+    post:
+      operationId: createDmaFrequencyMasterCurve
+      tags: [processing]
+      summary: Create immutable loss-modulus and horizontal TTS Processing Outputs from governed fixed-frequency DMA.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201": {description: Exact immutable Processing Output and result Artifact pins., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/CreateResponse"}}}}
+        "409": {description: An exact source or profile revision is stale.}
+        "422": {description: Quantity, unit, shift law, confirmation, or row decision is invalid.}
+  /api/v1/linear-viscoelastic-calibration-plans:
+    post:
+      operationId: createLinearViscoelasticCalibrationPlan
+      tags: [modeling]
+      summary: Create an immutable governed linear-viscoelastic calibration Plan.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {$ref: "#/components/parameters/IdempotencyKey"}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PlanRequest"}
+      responses:
+        "201": {description: New immutable Plan revision., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PlanResponse"}}}}
+        "200": {description: Idempotent replay of the same Plan., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PlanResponse"}}}}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Idempotency or immutable source conflict.}
+        "422": {description: Plan bounds, starts, channels, or objective policy is invalid.}
+  /api/v1/linear-viscoelastic-calibration-plans/from-processing-output:
+    post:
+      operationId: createLinearViscoelasticCalibrationPlanFromProcessingOutput
+      tags: [modeling]
+      summary: Create an immutable calibration Plan from an exact confirmed DMA TTS Processing Output.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {$ref: "#/components/parameters/IdempotencyKey"}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/ProcessedPlanRequest"}
+      responses:
+        "201": {description: New immutable Plan with exact Test Data, Import Profile, Processing Output, and result Artifact pins., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PlanResponse"}}}}
+        "200": {description: Idempotent replay of the same processed-input Plan., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PlanResponse"}}}}
+        "403": {description: Calibration execution is not authorized.}
+        "409": {description: Idempotency or immutable Processing Output conflict.}
+        "422": {description: The output schema, lineage, partitions, bounds, starts, or objective policy is invalid.}
+  /api/v1/linear-viscoelastic-calibration-plans/{plan_id}:
+    get:
+      operationId: getLinearViscoelasticCalibrationPlan
+      tags: [modeling]
+      summary: Read the exact current Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: plan_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Exact immutable Plan revision., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PlanResponse"}}}}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Plan is not visible in the selected scope.}
+  /api/v1/linear-viscoelastic-calibration-plans/{plan_id}/runs:
+    post:
+      operationId: createLinearViscoelasticCalibrationRun
+      tags: [modeling]
+      summary: Queue a durable isolated calibration Run for an exact Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: plan_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/IdempotencyKey"}
+        - {name: If-Match, in: header, required: false, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [plan_revision_id, change_reason]
+              properties:
+                plan_revision_id: {type: string, format: uuid}
+                change_reason: {type: string, minLength: 1, maxLength: 2000}
+      responses:
+        "202": {description: Run and generic Job were created transactionally., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/RunAccepted"}}}}
+        "403": {description: Modeling execution is not authorized.}
+        "404": {description: Plan is not visible in the selected scope.}
+        "409": {description: Stale revision, idempotency, or terminal state conflict.}
+        "422": {description: Run request is invalid.}
+  /api/v1/linear-viscoelastic-calibration-runs/{run_id}:
+    get:
+      operationId: getLinearViscoelasticCalibrationRun
+      tags: [modeling]
+      summary: Read a calibration Run, numerical attempts, candidates, and recommendation.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: run_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Durable Run projection., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/RunResponse"}}}}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Run is not visible in the selected scope.}
+  /api/v1/linear-viscoelastic-calibration-runs/{run_id}/candidates:
+    get:
+      operationId: listLinearViscoelasticCalibrationCandidates
+      tags: [modeling]
+      summary: List immutable valid numerical candidates for a Run.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: run_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Candidate comparison rows., content: {application/json: {schema: {type: array, items: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/Candidate"}}}}}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Run is not visible in the selected scope.}
+  /api/v1/linear-viscoelastic-calibration-runs/{run_id}/recommendation:
+    get:
+      operationId: getLinearViscoelasticCalibrationRecommendation
+      tags: [modeling]
+      summary: Read the immutable BIC recommendation without creating a Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: run_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Immutable recommendation., content: {application/json: {schema: {type: object}}}}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Recommendation is not visible in the selected scope.}
+  /api/v1/linear-viscoelastic-calibration-selections:
+    post:
+      operationId: createLinearViscoelasticCalibrationSelection
+      tags: [modeling]
+      summary: Select any valid candidate with an engineer reason and warning acknowledgements.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {$ref: "#/components/parameters/IdempotencyKey"}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/SelectionRequest"}
+      responses:
+        "201": {description: New immutable Selection revision., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/SelectionResponse"}}}}
+        "200": {description: Idempotent replay of the same Selection., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/SelectionResponse"}}}}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Candidate, digest, idempotency, or state conflict.}
+        "422": {description: Selection reason or warning acknowledgement is invalid.}
+  /api/v1/linear-viscoelastic-calibration-selections/{selection_id}:
+    get:
+      operationId: getLinearViscoelasticCalibrationSelection
+      tags: [modeling]
+      summary: Read the exact immutable Selection revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Exact Selection revision., content: {application/json: {schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/SelectionResponse"}}}}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Selection is not visible in the selected scope.}
+  /api/v1/linear-viscoelastic-calibration-selections/{selection_id}/linear-viscoelastic-model:
+    post:
+      operationId: promoteLinearViscoelasticCalibrationSelection
+      tags: [modeling]
+      summary: Promote an exact Selection to non-production LinearViscoelastic IR 1.4.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/linear-viscoelastic-calibration-resources.schema.json#/$defs/PromotionRequest"}
+      responses:
+        "201": {description: New immutable LinearViscoelastic IR 1.4 revision., content: {application/json: {schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ModelResponse"}}}}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: Selection or pinned upstream resource is not visible.}
+        "409": {description: Stale or tampered Selection conflict.}
+        "422": {description: Promotion input is invalid.}
 components:
   securitySchemes:
     BearerAuth:

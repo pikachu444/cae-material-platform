@@ -1,0 +1,5 @@
+# Deterministic runtime dependency declaration for cmp.linear_viscoelastic.calibrator 1.0.0.
+# The isolated worker image supplies wheels; the package ZIP contains no vendored code.
+numpy==2.2.6
+pyarrow==19.0.1
+scipy==1.15.3

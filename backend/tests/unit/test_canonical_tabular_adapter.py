@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
@@ -19,6 +20,9 @@ from cmp.modules.datasets.domain.canonical_test_data import (
     parse_canonical_test_data,
 )
 from cmp.modules.datasets.domain.canonical_test_data import (
+    TestCondition as DataTestCondition,
+)
+from cmp.modules.datasets.domain.canonical_test_data import (
     TestExecutionMetadata as ExecutionMetadata,
 )
 from cmp.modules.datasets.domain.canonical_test_data import (
@@ -31,6 +35,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     AxisRole,
     GovernedChannelMapping,
     GovernedImportProfileContent,
+    InvalidGovernedImport,
     QuantityKind,
     TabularDataSchema,
     TabularFileFormat,
@@ -59,6 +64,30 @@ def _profile() -> GovernedImportProfileContent:
             ),
             GovernedChannelMapping(3, "loss", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT),
         ),
+    )
+
+
+def _temperature_sweep_profile() -> GovernedImportProfileContent:
+    return GovernedImportProfileContent(
+        profile_label="Fixed-frequency DMA temperature sweep",
+        data_schema=TabularDataSchema.DMA_TEMPERATURE_SWEEP,
+        file_format=TabularFileFormat.CSV,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter=",",
+        decimal_separator=".",
+        channels=(
+            GovernedChannelMapping(
+                0, "temperature", QuantityKind.TEMPERATURE, "degC", AxisRole.INDEPENDENT
+            ),
+            GovernedChannelMapping(
+                1, "storage", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
+            ),
+            GovernedChannelMapping(2, "tan_delta", QuantityKind.TAN_DELTA, "1", AxisRole.DEPENDENT),
+        ),
+        schema_version="1.3.0",
+        deformation_mode="shear",
     )
 
 
@@ -100,6 +129,59 @@ def test_dma_governed_adapter_preserves_source_semantics_and_affine_normalizatio
     canonical["channels"][2]["normalized_values"][0] = "1200000001"
     with pytest.raises(CanonicalTestDataError, match="explicit normalization"):
         parse_canonical_test_data(canonical)
+
+
+def test_dma_temperature_sweep_uses_fixed_frequency_test_condition() -> None:
+    frequency = DataTestCondition(
+        key="frequency",
+        quantity_semantics="frequency.cyclic",
+        original_value=Decimal("1.0"),
+        original_unit_string="Hz",
+        normalized_value=Decimal("1.0"),
+        normalized_unit="Hz",
+    )
+    command = CanonicalTabularAdapterInput(
+        document_id="SYNTHETIC-DMA-TEMPERATURE-001",
+        material=MaterialMetadata("Synthetic maker", "Reference polymer"),
+        test=ExecutionMetadata(
+            date(2026, 8, 13),
+            "Modeler",
+            "Reference lab",
+            "DMA temperature sweep",
+        ),
+        specimen=SpecimenMetadata("DMA-TEMPERATURE-SPECIMEN-01"),
+        conditions=(frequency,),
+        source_file_name="synthetic-dma-temperature.csv",
+        source_bytes=(b"temperature,storage,tan_delta\n-30,1100,0.10\n0,900,0.30\n30,700,-0.02\n"),
+        profile=_temperature_sweep_profile(),
+    )
+
+    document = canonical_from_governed_tabular(command)
+    assert document.conditions == (frequency,)
+    assert tuple(channel.key for channel in document.channels) == (
+        "temperature",
+        "storage_modulus",
+        "tan_delta",
+    )
+    assert document.channels[-1].normalized_values[-1] == Decimal("-0.02")
+
+    for conditions in (
+        (),
+        (
+            DataTestCondition(
+                key="temperature",
+                quantity_semantics="physics.temperature",
+                original_value=Decimal("25"),
+                original_unit_string="degC",
+                normalized_value=Decimal("298.15"),
+                normalized_unit="K",
+            ),
+        ),
+    ):
+        with pytest.raises(InvalidGovernedImport) as captured:
+            canonical_from_governed_tabular(replace(command, conditions=conditions))
+        assert captured.value.diagnostics[0].error_code == "fixed_cyclic_frequency_required"
+        assert captured.value.diagnostics[0].recovery_hint
 
 
 def test_fld_governed_adapter_preserves_independent_schema_semantics() -> None:

@@ -119,7 +119,6 @@ def install_development_guards(
 
     sys.addaudithook(audit)
     patches = (
-        (socket, "socket", _network_denied),
         (socket, "create_connection", _network_denied),
         (socket, "getaddrinfo", _network_denied),
         (subprocess, "Popen", _process_denied),

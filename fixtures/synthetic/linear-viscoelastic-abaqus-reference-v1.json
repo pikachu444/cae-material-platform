@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "classification": "synthetic_non_confidential_non_production",
+  "non_production": true,
+  "purpose": "Reusable complete-property reference for linear-viscoelastic Abaqus export regression",
+  "material": {
+    "density": {
+      "value": "1200",
+      "unit": "kg/m^3"
+    },
+    "youngs_modulus": {
+      "value": "3000000000",
+      "unit": "Pa"
+    },
+    "poisson_ratio": {
+      "value": "0.35",
+      "unit": "1"
+    },
+    "bulk_relaxation_status": "not_characterized",
+    "prony_terms": [
+      {
+        "shear_ratio": "0.2",
+        "bulk_ratio": "0",
+        "relaxation_time": "0.1",
+        "relaxation_time_unit": "s"
+      },
+      {
+        "shear_ratio": "0.3",
+        "bulk_ratio": "0",
+        "relaxation_time": "10",
+        "relaxation_time_unit": "s"
+      }
+    ]
+  },
+  "export": {
+    "solver": "abaqus",
+    "solver_version": "2025",
+    "unit_system": "kg_m_s",
+    "solver_material_id": 42,
+    "material_name": "POLYMER_REFERENCE"
+  }
+}

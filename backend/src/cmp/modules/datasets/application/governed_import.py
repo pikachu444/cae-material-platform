@@ -12,6 +12,8 @@ from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.domain.content import ArtifactKind
 from cmp.modules.datasets.domain.governed_tabular import (
     GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
+    GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_2,
+    GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_3,
     GOVERNED_PARQUET_SCHEMA,
     GovernedDatasetContent,
     GovernedDatasetRepresentation,
@@ -45,6 +47,21 @@ from cmp.shared.domain.revisions import RevisionRecord, TenantScope, content_sha
 IMPORT_PROFILE_AGGREGATE_TYPE = "datasets.import_profile"
 GOVERNED_DATASET_AGGREGATE_TYPE = "datasets.governed_tabular_dataset"
 SCHEMA_VERSION = "1.1.0"
+
+
+def _profile_schema(content: GovernedImportProfileContent) -> tuple[str, str]:
+    """Select the schema identity from the explicit content version.
+
+    The default remains the historical 1.1 contract so old callers produce byte-for-byte
+    identical revisions.  A 1.2 profile is the only revision that serializes the new
+    deformation-mode field.
+    """
+
+    if content.schema_version == "1.2.0":
+        return GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_2, "1.2.0"
+    if content.schema_version == "1.3.0":
+        return GOVERNED_IMPORT_PROFILE_SCHEMA_ID_1_3, "1.3.0"
+    return GOVERNED_IMPORT_PROFILE_SCHEMA_ID, content.schema_version
 
 
 @dataclass(frozen=True, slots=True)
@@ -332,8 +349,8 @@ class GovernedImportService:
                     context.project_id,
                     command.classification.value,
                 ),
-                schema_id=GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
-                schema_version=SCHEMA_VERSION,
+                schema_id=_profile_schema(command.content)[0],
+                schema_version=_profile_schema(command.content)[1],
                 content=command.content,
                 created_by=context.principal.id,
                 change_reason=_reason(command.change_reason),
@@ -365,8 +382,8 @@ class GovernedImportService:
                 scope=current.current.record.scope,
                 expected_current_revision_id=command.expected_current_revision_id,
                 based_on_revision_id=command.expected_current_revision_id,
-                schema_id=GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
-                schema_version=SCHEMA_VERSION,
+                schema_id=_profile_schema(command.content)[0],
+                schema_version=_profile_schema(command.content)[1],
                 content=command.content,
                 created_by=context.principal.id,
                 change_reason=_reason(command.change_reason),
@@ -667,4 +684,21 @@ class GovernedImportService:
             decision=decision,
             dataset_id=dataset_id,
             dataset_revision_id=dataset_revision_id,
+        )
+
+    def get_profile_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        profile_id: UUID,
+        profile_revision_id: UUID,
+    ) -> ImportProfileRevisionSnapshot:
+        """Read an exact profile through a calibration decision's Dataset capability."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_profile_revision(
+            context=context,
+            decision=decision,
+            profile_id=profile_id,
+            revision_id=profile_revision_id,
         )

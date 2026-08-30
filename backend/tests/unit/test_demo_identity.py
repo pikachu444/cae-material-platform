@@ -11,6 +11,7 @@ from cmp.bootstrap.demo_identity import (
     DEMO_PROJECT_ID,
     DEMO_REVIEWER_GROUP,
     DEMO_USER_GROUP,
+    DEMO_WORKER_CLIENT_ID,
     DemoIdentity,
     install_demo_identity_api,
 )
@@ -106,6 +107,23 @@ def test_explicit_demo_identity_issues_distinct_user_and_reviewer_personas() -> 
     assert body["group"] == DEMO_REVIEWER_GROUP
     assert claims["sub"] == "cmp-demo-reviewer"
     assert claims["groups"] == [DEMO_REVIEWER_GROUP]
+
+
+def test_demo_worker_token_is_a_distinct_service_principal() -> None:
+    identity = DemoIdentity.from_settings(Settings(environment="demo", demo_identity=True))
+    assert identity is not None
+
+    claims = jwt.decode(
+        identity.issue_worker_access_token(),
+        options={"verify_signature": False, "verify_aud": False},
+    )
+
+    assert claims["sub"] == DEMO_WORKER_CLIENT_ID
+    assert claims["client_id"] == DEMO_WORKER_CLIENT_ID
+    assert claims["gty"] == "client-credentials"
+    assert claims["groups"] == []
+    assert claims["organization_id"] == str(DEMO_ORGANIZATION_ID)
+    assert claims["project_id"] == str(DEMO_PROJECT_ID)
 
 
 def test_demo_identity_rejects_unknown_persona() -> None:

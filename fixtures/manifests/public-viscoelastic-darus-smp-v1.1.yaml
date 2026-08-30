@@ -1,0 +1,1386 @@
+schema_version: '1.0'
+classification: public_reference_non_production
+non_production: true
+archive:
+  path: fixtures/public/darus-2021-v1.1-original.zip
+  sha256: 26568b82a6031edbbeab933bce0273918d1f3dfebbc5202f91742becc51088cf
+  expected_file_count: 19
+  validated_member_count: 18
+  ignored_members:
+  - MANIFEST.TXT
+  member_inventory:
+  - path: dmtha_dry/alpha_T_dry.csv
+    size: 463
+    sha256: b708cc305b211a5c87b4eb730e48cda6a1304275332c916f1ff3acfb3404dabf
+    disposition: validated
+    role: time_temperature_shift
+  - path: dmtha_50/alpha_T_50.csv
+    size: 484
+    sha256: 75bcb1046635c5d27bf38b3fa4a123430c9ee74bf232057fed149d2cf03eabd2
+    disposition: validated
+    role: time_temperature_shift
+  - path: dmtha_wet/master_curve_SMP_wet.csv
+    size: 12155
+    sha256: cf3a721757fb7ccafdc62738858d7429c13160657bda1a630bc105354f85e516
+    disposition: validated
+    role: viscoelastic_master_curve
+  - path: dmtha_wet/alpha_T_wet.csv
+    size: 375
+    sha256: c5b7f0d88f7b8b815ed51808e5b67bf079e9ee450206db5f1a460c4f520659f5
+    disposition: validated
+    role: time_temperature_shift
+  - path: dmtha_70/frequency_sweep_SMP_70.csv
+    size: 37717
+    sha256: 739f8f504942fb30f8caf93914e7bac3aae5c5a4a760f6d95a9dad080a6ace39
+    disposition: validated
+    role: shear_dma_frequency_sweep
+  - path: dmtha_dry/master_curve_SMP_dry.csv
+    size: 18877
+    sha256: 67a49cd263c98d56cb214dfe97e55f254ff934cc0f46b3b8da5858ebbdb1638f
+    disposition: validated
+    role: viscoelastic_master_curve
+  - path: dmtha_wet/frequency_sweep_SMP_wet.csv
+    size: 31546
+    sha256: e8fd00047ff02dc0fb63f6f283a57d164cef323bd268d75ba1a5f668e64f9d87
+    disposition: validated
+    role: shear_dma_frequency_sweep
+  - path: dmtha_70/alpha_T_70.csv
+    size: 417
+    sha256: a76cc161603c33460a98be133db5424b3ce155e9e53d1960a3ff82851ea1b7bc
+    disposition: validated
+    role: time_temperature_shift
+  - path: dmtha_50/master_curve_SMP_50.csv
+    size: 16106
+    sha256: 815431b72ede6134c9ce5a0270d7f86b37ae77c3d856d03571284c4ee6be6532
+    disposition: validated
+    role: viscoelastic_master_curve
+  - path: dmtha_redry/frequency_sweep_SMP_redry.csv
+    size: 32295
+    sha256: 3341cc7d2c68f6e4902f630398b821f36aa73cd3272d2f6adca1e919da5044e0
+    disposition: validated
+    role: shear_dma_frequency_sweep
+  - path: dmtha_30/alpha_T_30.csv
+    size: 577
+    sha256: dc2353cf6c68b2c777bc8bd745a88cdca7ead5247b616ef2ed0e336c8e6d020f
+    disposition: validated
+    role: time_temperature_shift
+  - path: dmtha_dry/frequency_sweep_SMP_dry.csv
+    size: 32368
+    sha256: 288fc35d0b6824f9d41592b586487f167a5457604326ffac03cac4df11ed8047
+    disposition: validated
+    role: shear_dma_frequency_sweep
+  - path: dmtha_redry/master_curve_SMP_redry.csv
+    size: 18016
+    sha256: f9768454e6aeb4a76350294199db062ec82623980bde28b22d56a7f86203582f
+    disposition: validated
+    role: viscoelastic_master_curve
+  - path: dmtha_30/master_curve_SMP_30.csv
+    size: 20003
+    sha256: 17f0fa62b50b5cdf33548769ad62c1a7216365889c54c8c11d28cf6b725036b2
+    disposition: validated
+    role: viscoelastic_master_curve
+  - path: dmtha_70/master_curve_SMP_70.csv
+    size: 13105
+    sha256: 1d57079f624d082b5ea58c5c327f1c0cf1c275f92645f9f094807c738ce2f774
+    disposition: validated
+    role: viscoelastic_master_curve
+  - path: dmtha_redry/alpha_T_redry.csv
+    size: 496
+    sha256: c181d9f7c359898a3cd45f511d81b2febe60eb126967f775607c79a5a0e35243
+    disposition: validated
+    role: time_temperature_shift
+  - path: dmtha_30/frequency_sweep_SMP_30.csv
+    size: 41123
+    sha256: 37f70abaae12791d0661ff78e778e2bbe765d46506b4ee9268ad50de4d2523e7
+    disposition: validated
+    role: shear_dma_frequency_sweep
+  - path: dmtha_50/frequency_sweep_SMP_50.csv
+    size: 31155
+    sha256: 0bf7c4d96f9afad3fe030990c28b942ed61291227add5ec7d9f440aee5fcdc04
+    disposition: validated
+    role: shear_dma_frequency_sweep
+  - path: MANIFEST.TXT
+    size: 1026
+    sha256: 7fdfa982cb7ce91ecfd390c1667f7bc13433644447d36e357588e9fb10cc0f4f
+    disposition: ignored
+    role: archive_manifest
+source:
+  dataset_title: Humidity and thermal triggered Shape Memory Effect - Rheology-based numerical modelling - Dynamic Mechanical
+    Thermal Humidity Analysis
+  authors:
+  - Dominik Fauser
+  - Holger Steeb
+  doi: 10.18419/darus-2021
+  version: '1.1'
+  landing_page: https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2021
+  license: CC BY 4.0
+  data_generation: experiment
+validation:
+  expected_experiment_count: 18
+  expected_exact_temperature_frequency_group_count: 2
+  frequency_group_key:
+  - Result No.
+  - Temperature
+  frequency_columns:
+    frequency: Frequency
+    storage_modulus: Storage Modulus
+    loss_modulus: Loss Modulus
+  frequency_units:
+    frequency: Hz
+    storage_modulus: MPa
+    loss_modulus: MPa
+    temperature: C
+  selection_rule: only a complete Result No. group with one exact published temperature text, at least three points, and strictly
+    increasing positive frequency is calibration-eligible
+  temperature_tolerance: not_defined_no_rows_are_merged
+  expected_member_inventory_count: 19
+  expected_kind_counts:
+    time_temperature_shift: 6
+    shear_dma_frequency_sweep: 6
+    viscoelastic_master_curve: 6
+  expected_calibration_eligible_count: 2
+experiments:
+- id: dmtha-30-alpha-t-30
+  member: dmtha_30/alpha_T_30.csv
+  sha256: dc2353cf6c68b2c777bc8bd745a88cdca7ead5247b616ef2ed0e336c8e6d020f
+  kind: time_temperature_shift
+  encoding: utf-8-sig
+  expected_header:
+  - T
+  - log alpha_T
+  - alpha_T
+  expected_units:
+  - "\xB0C"
+  - ''
+  - ''
+  expected_data_rows: 25
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '30'
+  validation_role: parse_only_shift_factor
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: T
+      quantity: source.column
+      source_unit: "\xB0C"
+      normalized_unit: source_preserved
+    column_1:
+      column: log alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+- id: dmtha-30-frequency-sweep-smp-30
+  member: dmtha_30/frequency_sweep_SMP_30.csv
+  sha256: 37f70abaae12791d0661ff78e778e2bbe765d46506b4ee9268ad50de4d2523e7
+  kind: shear_dma_frequency_sweep
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Angular Frequency
+  - Frequency
+  - Complex Viscosity
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Loss Factor
+  - Shear Strain
+  - Shear Stress
+  - Torque
+  - Temperature
+  - Gap
+  - Test Time
+  - Relative Humidity
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[rad/s]'
+  - '[Hz]'
+  - '[Mpa s]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[1]'
+  - '[%]'
+  - '[Pa]'
+  - '[mN m]'
+  - '[C]'
+  - '[mm]'
+  - '[h]'
+  - '[%]'
+  expected_data_rows: 429
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '30'
+  validation_role: production_calibration_when_exact_group_is_eligible
+  calibration_eligibility: conditional_exact_result_temperature
+  ineligibility_reason: null
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    result_number:
+      column: Result No.
+      quantity: test.result_number
+      source_unit: ''
+      normalized_unit: '1'
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: '[C]'
+      normalized_unit: K
+    frequency:
+      column: Frequency
+      quantity: frequency.cyclic
+      source_unit: '[Hz]'
+      normalized_unit: Hz
+    storage_modulus:
+      column: Storage Modulus
+      quantity: mechanics.modulus.storage
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+    loss_modulus:
+      column: Loss Modulus
+      quantity: mechanics.modulus.loss
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+- id: dmtha-30-master-curve-smp-30
+  member: dmtha_30/master_curve_SMP_30.csv
+  sha256: 17f0fa62b50b5cdf33548769ad62c1a7216365889c54c8c11d28cf6b725036b2
+  kind: viscoelastic_master_curve
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Angular Frequency
+  - Reduced Angular Frequency
+  - Horizontal Shift Factor
+  - Reference Temperature
+  - Temperature
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[rad/s]'
+  - '[rad/s]'
+  - '[-]'
+  - "[\xB0C]"
+  - "[\xB0C]"
+  expected_data_rows: 323
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '30'
+  validation_role: parse_only_existing_master_curve
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: Result No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Interval No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: Point No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_3:
+      column: Storage Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_4:
+      column: Loss Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_5:
+      column: Complex Shear Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_6:
+      column: Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_7:
+      column: Reduced Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_8:
+      column: Horizontal Shift Factor
+      quantity: source.column
+      source_unit: '[-]'
+      normalized_unit: source_preserved
+    column_9:
+      column: Reference Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+    column_10:
+      column: Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+- id: dmtha-50-alpha-t-50
+  member: dmtha_50/alpha_T_50.csv
+  sha256: 75bcb1046635c5d27bf38b3fa4a123430c9ee74bf232057fed149d2cf03eabd2
+  kind: time_temperature_shift
+  encoding: utf-8-sig
+  expected_header:
+  - T
+  - log alpha_T
+  - alpha_T
+  expected_units:
+  - "\xB0C"
+  - ''
+  - ''
+  expected_data_rows: 21
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '50'
+  validation_role: parse_only_shift_factor
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: T
+      quantity: source.column
+      source_unit: "\xB0C"
+      normalized_unit: source_preserved
+    column_1:
+      column: log alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+- id: dmtha-50-frequency-sweep-smp-50
+  member: dmtha_50/frequency_sweep_SMP_50.csv
+  sha256: 0bf7c4d96f9afad3fe030990c28b942ed61291227add5ec7d9f440aee5fcdc04
+  kind: shear_dma_frequency_sweep
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Angular Frequency
+  - Frequency
+  - Complex Viscosity
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Loss Factor
+  - Shear Strain
+  - Shear Stress
+  - Torque
+  - Temperature
+  - Gap
+  - Test Time
+  - Relative Humidity
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[rad/s]'
+  - '[Hz]'
+  - '[Mpa/ s]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[1]'
+  - '[%]'
+  - '[Pa]'
+  - '[mN /m]'
+  - '[C]'
+  - '[mm]'
+  - '[h]'
+  - '[%]'
+  expected_data_rows: 325
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '50'
+  validation_role: production_calibration_when_exact_group_is_eligible
+  calibration_eligibility: conditional_exact_result_temperature
+  ineligibility_reason: null
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    result_number:
+      column: Result No.
+      quantity: test.result_number
+      source_unit: ''
+      normalized_unit: '1'
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: '[C]'
+      normalized_unit: K
+    frequency:
+      column: Frequency
+      quantity: frequency.cyclic
+      source_unit: '[Hz]'
+      normalized_unit: Hz
+    storage_modulus:
+      column: Storage Modulus
+      quantity: mechanics.modulus.storage
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+    loss_modulus:
+      column: Loss Modulus
+      quantity: mechanics.modulus.loss
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+- id: dmtha-50-master-curve-smp-50
+  member: dmtha_50/master_curve_SMP_50.csv
+  sha256: 815431b72ede6134c9ce5a0270d7f86b37ae77c3d856d03571284c4ee6be6532
+  kind: viscoelastic_master_curve
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Angular Frequency
+  - Reduced Angular Frequency
+  - Horizontal Shift Factor
+  - Reference Temperature
+  - Temperature
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[rad/s]'
+  - '[rad/s]'
+  - '[-]'
+  - "[\xB0C]"
+  - "[\xB0C]"
+  expected_data_rows: 283
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '50'
+  validation_role: parse_only_existing_master_curve
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: Result No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Interval No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: Point No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_3:
+      column: Storage Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_4:
+      column: Loss Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_5:
+      column: Complex Shear Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_6:
+      column: Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_7:
+      column: Reduced Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_8:
+      column: Horizontal Shift Factor
+      quantity: source.column
+      source_unit: '[-]'
+      normalized_unit: source_preserved
+    column_9:
+      column: Reference Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+    column_10:
+      column: Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+- id: dmtha-70-alpha-t-70
+  member: dmtha_70/alpha_T_70.csv
+  sha256: a76cc161603c33460a98be133db5424b3ce155e9e53d1960a3ff82851ea1b7bc
+  kind: time_temperature_shift
+  encoding: utf-8-sig
+  expected_header:
+  - T
+  - log alpha_T
+  - alpha_T
+  expected_units:
+  - "\xB0C"
+  - ''
+  - ''
+  expected_data_rows: 17
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '70'
+  validation_role: parse_only_shift_factor
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: T
+      quantity: source.column
+      source_unit: "\xB0C"
+      normalized_unit: source_preserved
+    column_1:
+      column: log alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+- id: dmtha-70-frequency-sweep-smp-70
+  member: dmtha_70/frequency_sweep_SMP_70.csv
+  sha256: 739f8f504942fb30f8caf93914e7bac3aae5c5a4a760f6d95a9dad080a6ace39
+  kind: shear_dma_frequency_sweep
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Angular Frequency
+  - Frequency
+  - Complex Viscosity
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Loss Factor
+  - Shear Strain
+  - Shear Stress
+  - Torque
+  - Temperature
+  - Gap
+  - Test Time
+  - Relative Humidity
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[rad/s]'
+  - '[Hz]'
+  - '[Mpas]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[1]'
+  - '[%]'
+  - '[Pa]'
+  - '[mNm]'
+  - '[C]'
+  - '[mm]'
+  - '[h]'
+  - '[%]'
+  expected_data_rows: 390
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '70'
+  validation_role: production_calibration_when_exact_group_is_eligible
+  calibration_eligibility: conditional_exact_result_temperature
+  ineligibility_reason: null
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    result_number:
+      column: Result No.
+      quantity: test.result_number
+      source_unit: ''
+      normalized_unit: '1'
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: '[C]'
+      normalized_unit: K
+    frequency:
+      column: Frequency
+      quantity: frequency.cyclic
+      source_unit: '[Hz]'
+      normalized_unit: Hz
+    storage_modulus:
+      column: Storage Modulus
+      quantity: mechanics.modulus.storage
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+    loss_modulus:
+      column: Loss Modulus
+      quantity: mechanics.modulus.loss
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+- id: dmtha-70-master-curve-smp-70
+  member: dmtha_70/master_curve_SMP_70.csv
+  sha256: 1d57079f624d082b5ea58c5c327f1c0cf1c275f92645f9f094807c738ce2f774
+  kind: viscoelastic_master_curve
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Angular Frequency
+  - Reduced Angular Frequency
+  - Horizontal Shift Factor
+  - Reference Temperature
+  - Temperature
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[rad/s]'
+  - '[rad/s]'
+  - '[-]'
+  - "[\xB0C]"
+  - "[\xB0C]"
+  expected_data_rows: 216
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: '70'
+  validation_role: parse_only_existing_master_curve
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: Result No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Interval No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: Point No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_3:
+      column: Storage Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_4:
+      column: Loss Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_5:
+      column: Complex Shear Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_6:
+      column: Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_7:
+      column: Reduced Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_8:
+      column: Horizontal Shift Factor
+      quantity: source.column
+      source_unit: '[-]'
+      normalized_unit: source_preserved
+    column_9:
+      column: Reference Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+    column_10:
+      column: Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+- id: dmtha-dry-alpha-t-dry
+  member: dmtha_dry/alpha_T_dry.csv
+  sha256: b708cc305b211a5c87b4eb730e48cda6a1304275332c916f1ff3acfb3404dabf
+  kind: time_temperature_shift
+  encoding: utf-8-sig
+  expected_header:
+  - T
+  - log alpha_T
+  - alpha_T
+  expected_units:
+  - "\xB0C"
+  - ''
+  - ''
+  expected_data_rows: 20
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: dry
+  validation_role: parse_only_shift_factor
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: T
+      quantity: source.column
+      source_unit: "\xB0C"
+      normalized_unit: source_preserved
+    column_1:
+      column: log alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+- id: dmtha-dry-frequency-sweep-smp-dry
+  member: dmtha_dry/frequency_sweep_SMP_dry.csv
+  sha256: 288fc35d0b6824f9d41592b586487f167a5457604326ffac03cac4df11ed8047
+  kind: shear_dma_frequency_sweep
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Angular Frequency
+  - Frequency
+  - Complex Viscosity
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Loss Factor
+  - Shear Strain
+  - Shear Stress
+  - Torque
+  - Temperature
+  - Gap
+  - Test Time
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[rad/s]'
+  - '[Hz]'
+  - '[MpaSs]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[1]'
+  - '[%]'
+  - '[Pa]'
+  - '[mNm]'
+  - '[C]'
+  - '[mm]'
+  - '[h]'
+  expected_data_rows: 351
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: dry
+  validation_role: production_calibration_when_exact_group_is_eligible
+  calibration_eligibility: conditional_exact_result_temperature
+  ineligibility_reason: null
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    result_number:
+      column: Result No.
+      quantity: test.result_number
+      source_unit: ''
+      normalized_unit: '1'
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: '[C]'
+      normalized_unit: K
+    frequency:
+      column: Frequency
+      quantity: frequency.cyclic
+      source_unit: '[Hz]'
+      normalized_unit: Hz
+    storage_modulus:
+      column: Storage Modulus
+      quantity: mechanics.modulus.storage
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+    loss_modulus:
+      column: Loss Modulus
+      quantity: mechanics.modulus.loss
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+- id: dmtha-dry-master-curve-smp-dry
+  member: dmtha_dry/master_curve_SMP_dry.csv
+  sha256: 67a49cd263c98d56cb214dfe97e55f254ff934cc0f46b3b8da5858ebbdb1638f
+  kind: viscoelastic_master_curve
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Angular Frequency
+  - Reduced Angular Frequency
+  - Horizontal Shift Factor
+  - Reference Temperature
+  - Temperature
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[rad/s]'
+  - '[rad/s]'
+  - '[-]'
+  - "[\xB0C]"
+  - "[\xB0C]"
+  expected_data_rows: 290
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: dry
+  validation_role: parse_only_existing_master_curve
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: Result No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Interval No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: Point No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_3:
+      column: Storage Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_4:
+      column: Loss Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_5:
+      column: Complex Shear Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_6:
+      column: Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_7:
+      column: Reduced Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_8:
+      column: Horizontal Shift Factor
+      quantity: source.column
+      source_unit: '[-]'
+      normalized_unit: source_preserved
+    column_9:
+      column: Reference Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+    column_10:
+      column: Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+- id: dmtha-redry-alpha-t-redry
+  member: dmtha_redry/alpha_T_redry.csv
+  sha256: c181d9f7c359898a3cd45f511d81b2febe60eb126967f775607c79a5a0e35243
+  kind: time_temperature_shift
+  encoding: utf-8-sig
+  expected_header:
+  - T
+  - log alpha_T
+  - alpha_T
+  expected_units:
+  - "\xB0C"
+  - ''
+  - ''
+  expected_data_rows: 21
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: redry
+  validation_role: parse_only_shift_factor
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: T
+      quantity: source.column
+      source_unit: "\xB0C"
+      normalized_unit: source_preserved
+    column_1:
+      column: log alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+- id: dmtha-redry-frequency-sweep-smp-redry
+  member: dmtha_redry/frequency_sweep_SMP_redry.csv
+  sha256: 3341cc7d2c68f6e4902f630398b821f36aa73cd3272d2f6adca1e919da5044e0
+  kind: shear_dma_frequency_sweep
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Angular Frequency
+  - Frequency
+  - Complex Viscosity
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Loss Factor
+  - Shear Strain
+  - Shear Stress
+  - Torque
+  - Temperature
+  - Gap
+  - Test Time
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[rad/s]'
+  - '[Hz]'
+  - '[Mpas]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[1]'
+  - '[%]'
+  - '[Pa]'
+  - '[mNm]'
+  - '[C]'
+  - '[mm]'
+  - '[h]'
+  expected_data_rows: 351
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: redry
+  validation_role: production_calibration_when_exact_group_is_eligible
+  calibration_eligibility: conditional_exact_result_temperature
+  ineligibility_reason: null
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    result_number:
+      column: Result No.
+      quantity: test.result_number
+      source_unit: ''
+      normalized_unit: '1'
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: '[C]'
+      normalized_unit: K
+    frequency:
+      column: Frequency
+      quantity: frequency.cyclic
+      source_unit: '[Hz]'
+      normalized_unit: Hz
+    storage_modulus:
+      column: Storage Modulus
+      quantity: mechanics.modulus.storage
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+    loss_modulus:
+      column: Loss Modulus
+      quantity: mechanics.modulus.loss
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+- id: dmtha-redry-master-curve-smp-redry
+  member: dmtha_redry/master_curve_SMP_redry.csv
+  sha256: f9768454e6aeb4a76350294199db062ec82623980bde28b22d56a7f86203582f
+  kind: viscoelastic_master_curve
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Angular Frequency
+  - Reduced Angular Frequency
+  - Horizontal Shift Factor
+  - Reference Temperature
+  - Temperature
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[rad/s]'
+  - '[rad/s]'
+  - '[-]'
+  - "[\xB0C]"
+  - "[\xB0C]"
+  expected_data_rows: 279
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: redry
+  validation_role: parse_only_existing_master_curve
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: Result No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Interval No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: Point No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_3:
+      column: Storage Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_4:
+      column: Loss Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_5:
+      column: Complex Shear Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_6:
+      column: Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_7:
+      column: Reduced Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_8:
+      column: Horizontal Shift Factor
+      quantity: source.column
+      source_unit: '[-]'
+      normalized_unit: source_preserved
+    column_9:
+      column: Reference Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+    column_10:
+      column: Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+- id: dmtha-wet-alpha-t-wet
+  member: dmtha_wet/alpha_T_wet.csv
+  sha256: c5b7f0d88f7b8b815ed51808e5b67bf079e9ee450206db5f1a460c4f520659f5
+  kind: time_temperature_shift
+  encoding: utf-8-sig
+  expected_header:
+  - T
+  - log alpha_T
+  - alpha_T
+  expected_units:
+  - "\xB0C"
+  - ''
+  - ''
+  expected_data_rows: 15
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: wet
+  validation_role: parse_only_shift_factor
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: T
+      quantity: source.column
+      source_unit: "\xB0C"
+      normalized_unit: source_preserved
+    column_1:
+      column: log alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: alpha_T
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+- id: dmtha-wet-frequency-sweep-smp-wet
+  member: dmtha_wet/frequency_sweep_SMP_wet.csv
+  sha256: e8fd00047ff02dc0fb63f6f283a57d164cef323bd268d75ba1a5f668e64f9d87
+  kind: shear_dma_frequency_sweep
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Angular Frequency
+  - Frequency
+  - Complex Viscosity
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Loss Factor
+  - Shear Strain
+  - Shear Stress
+  - Torque
+  - Temperature
+  - Gap
+  - Test Time
+  - Relative Humidity
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[rad/s]'
+  - '[Hz]'
+  - '[Mpas]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[MPa]'
+  - '[1]'
+  - '[%]'
+  - '[Pa]'
+  - '[mNm]'
+  - '[C]'
+  - '[mm]'
+  - '[h]'
+  - '[%]'
+  expected_data_rows: 325
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: wet
+  validation_role: production_calibration_when_exact_group_is_eligible
+  calibration_eligibility: conditional_exact_result_temperature
+  ineligibility_reason: null
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    result_number:
+      column: Result No.
+      quantity: test.result_number
+      source_unit: ''
+      normalized_unit: '1'
+    temperature:
+      column: Temperature
+      quantity: temperature.absolute
+      source_unit: '[C]'
+      normalized_unit: K
+    frequency:
+      column: Frequency
+      quantity: frequency.cyclic
+      source_unit: '[Hz]'
+      normalized_unit: Hz
+    storage_modulus:
+      column: Storage Modulus
+      quantity: mechanics.modulus.storage
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+    loss_modulus:
+      column: Loss Modulus
+      quantity: mechanics.modulus.loss
+      source_unit: '[MPa]'
+      normalized_unit: Pa
+- id: dmtha-wet-master-curve-smp-wet
+  member: dmtha_wet/master_curve_SMP_wet.csv
+  sha256: cf3a721757fb7ccafdc62738858d7429c13160657bda1a630bc105354f85e516
+  kind: viscoelastic_master_curve
+  encoding: utf-8-sig
+  expected_header:
+  - Result No.
+  - Interval No.
+  - Point No.
+  - Storage Modulus
+  - Loss Modulus
+  - Complex Shear Modulus
+  - Angular Frequency
+  - Reduced Angular Frequency
+  - Horizontal Shift Factor
+  - Reference Temperature
+  - Temperature
+  expected_units:
+  - ''
+  - ''
+  - ''
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[Mpa]'
+  - '[rad/s]'
+  - '[rad/s]'
+  - '[-]'
+  - "[\xB0C]"
+  - "[\xB0C]"
+  expected_data_rows: 202
+  sample: polyurethane_shape_memory_polymer
+  conditions:
+    humidity_state: wet
+  validation_role: parse_only_existing_master_curve
+  calibration_eligibility: ineligible
+  ineligibility_reason: not_a_governed_raw_frequency_sweep
+  static_property_set: absent
+  export_eligibility: blocked_missing_static_property_set
+  column_mapping:
+    column_0:
+      column: Result No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_1:
+      column: Interval No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_2:
+      column: Point No.
+      quantity: source.column
+      source_unit: ''
+      normalized_unit: '1'
+    column_3:
+      column: Storage Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_4:
+      column: Loss Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_5:
+      column: Complex Shear Modulus
+      quantity: source.column
+      source_unit: '[Mpa]'
+      normalized_unit: Pa
+    column_6:
+      column: Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_7:
+      column: Reduced Angular Frequency
+      quantity: source.column
+      source_unit: '[rad/s]'
+      normalized_unit: source_preserved
+    column_8:
+      column: Horizontal Shift Factor
+      quantity: source.column
+      source_unit: '[-]'
+      normalized_unit: source_preserved
+    column_9:
+      column: Reference Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved
+    column_10:
+      column: Temperature
+      quantity: source.column
+      source_unit: "[\xB0C]"
+      normalized_unit: source_preserved

@@ -27,6 +27,11 @@ DEMO_USER_GROUP: Final = "cmp-demo-user-team"
 DEMO_USER_SUBJECT: Final = "cmp-demo-user"
 DEMO_REVIEWER_GROUP: Final = "cmp-demo-reviewer-team"
 DEMO_REVIEWER_SUBJECT: Final = "cmp-demo-reviewer"
+DEMO_WORKER_CLIENT_ID: Final = "cmp-demo-worker"
+# The local worker is an operator-provisioned runner, not an arbitrary caller.  Keep
+# its durable identity separate from the service-principal identity so restarts reuse
+# the same runner row and lease/fencing history.
+DEMO_WORKER_RUNNER_ID: Final = UUID("d0000000-0000-4000-8000-000000000005")
 DemoPersona = Literal["administrator", "user", "reviewer"]
 
 
@@ -86,6 +91,20 @@ class DemoIdentity:
             groups=groups,
             scopes=("openid", "profile"),
             lifetime=timedelta(minutes=15),
+        )
+
+    def issue_worker_access_token(self) -> str:
+        """Issue the explicit service-principal token used by the local worker.
+
+        The worker must not reuse the administrator's user token: its operational
+        ``job_runner`` grant is bound to this fixed service identity only.
+        """
+
+        return self.idp.issue_service_token(
+            client_id=DEMO_WORKER_CLIENT_ID,
+            organization_id=DEMO_ORGANIZATION_ID,
+            project_id=DEMO_PROJECT_ID,
+            lifetime=timedelta(minutes=5),
         )
 
 

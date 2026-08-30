@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/linear-viscoelastic-calibration-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "ExactRevision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "revision_id"],
+      "properties": {"id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"}}
+    },
+    "ResolvedExactRevision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "revision_id", "sha256"],
+      "properties": {"id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"}, "sha256": {"$ref": "#/$defs/Sha256"}}
+    },
+    "ArtifactPin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifact_id", "sha256"],
+      "properties": {"artifact_id": {"$ref": "#/$defs/Uuid"}, "sha256": {"$ref": "#/$defs/Sha256"}, "media_type": {"type": ["string", "null"]}}
+    },
+    "ParameterBound": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "lower", "start", "upper", "unit", "transform"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "lower": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "start": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "upper": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "unit": {"type": "string", "minLength": 1}, "transform": {"const": "ln"}
+      }
+    },
+    "ParameterBoundRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "lower", "start", "upper", "unit", "transform"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "lower": {"type": "number", "exclusiveMinimum": 0},
+        "start": {"type": "number", "exclusiveMinimum": 0},
+        "upper": {"type": "number", "exclusiveMinimum": 0},
+        "unit": {"type": "string", "minLength": 1},
+        "transform": {"const": "ln"}
+      }
+    },
+    "Weights": {
+      "type": "object", "additionalProperties": false,
+      "required": ["wd", "relaxation_weight", "dma_storage_weight", "dma_loss_weight", "relaxation_scale_pa", "dma_storage_scale_pa", "dma_loss_scale_pa", "q_rule_version"],
+      "properties": {
+        "wd": {"const": "1"},
+        "relaxation_weight": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_storage_weight": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_loss_weight": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "relaxation_scale_pa": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_storage_scale_pa": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_loss_scale_pa": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "q_rule_version": {"const": "equal_per_point@1.0.0"}
+      }
+    },
+    "WeightsRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["relaxation_weight", "dma_storage_weight", "dma_loss_weight", "relaxation_scale_pa", "dma_storage_scale_pa", "dma_loss_scale_pa", "q_rule_version"],
+      "properties": {
+        "relaxation_weight": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_storage_weight": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_loss_weight": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "relaxation_scale_pa": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_storage_scale_pa": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "dma_loss_scale_pa": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "q_rule_version": {"const": "equal_per_point@1.0.0"}
+      }
+    },
+    "OptimizerPolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "x_scale", "transform", "ftol", "xtol", "gtol", "max_nfev"],
+      "properties": {
+        "method": {"const": "trf"}, "x_scale": {"const": "jac"}, "transform": {"const": "ln"},
+        "ftol": {"type": "number", "exclusiveMinimum": 2.2250738585072014e-308, "exclusiveMaximum": 1},
+        "xtol": {"type": "number", "exclusiveMinimum": 2.2250738585072014e-308, "exclusiveMaximum": 1},
+        "gtol": {"type": "number", "exclusiveMinimum": 2.2250738585072014e-308, "exclusiveMaximum": 1},
+        "max_nfev": {"type": "integer", "minimum": 10, "maximum": 1000000}
+      }
+    },
+    "PointDisposition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ordinal", "partition", "exclusion_reason"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0},
+        "partition": {"enum": ["CALIBRATION", "HOLDOUT", "EXCLUDED"]},
+        "exclusion_reason": {"type": ["string", "null"], "minLength": 1, "maxLength": 500}
+      }
+    },
+    "ChannelAvailability": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ramp", "sweep", "preconditioning", "linear_range"],
+      "properties": {
+        "ramp": {"enum": ["PROVIDED", "NOT_PROVIDED"]},
+        "sweep": {"enum": ["PROVIDED", "NOT_PROVIDED"]},
+        "preconditioning": {"enum": ["PROVIDED", "NOT_PROVIDED"]},
+        "linear_range": {"enum": ["PROVIDED", "NOT_PROVIDED"]}
+      }
+    },
+    "InputChannelSemantics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "quantity_semantics", "axis_role", "original_unit_string", "normalized_unit"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1, "maxLength": 255},
+        "quantity_semantics": {"type": "string", "minLength": 1, "maxLength": 255},
+        "axis_role": {"enum": ["independent", "dependent"]},
+        "original_unit_string": {"type": "string", "minLength": 1, "maxLength": 255},
+        "normalized_unit": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    },
+    "InputSemantics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "deformation_mode", "channels", "point_dispositions", "selected_temperature_k", "temperature_source", "strain_amplitude", "strain_amplitude_quantity", "strain_amplitude_unit", "frequency_kind", "angular_frequency_conversion", "source_kind", "processing_method"],
+      "properties": {
+        "mode": {"enum": ["relaxation", "dma", "dma_frequency_master_curve"]},
+        "deformation_mode": {"const": "shear"},
+        "channels": {"type": "array", "minItems": 2, "maxItems": 4, "items": {"$ref": "#/$defs/InputChannelSemantics"}},
+        "point_dispositions": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/PointDisposition"}},
+        "selected_temperature_k": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "temperature_source": {"enum": ["channel", "condition", "processing_reference_temperature"]},
+        "strain_amplitude": {"type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "strain_amplitude_quantity": {"const": "mechanics.strain.shear"},
+        "strain_amplitude_unit": {"const": "1"},
+        "frequency_kind": {"enum": ["cyclic_hz", "reduced_angular_rad_per_s", "not_applicable"]},
+        "angular_frequency_conversion": {"enum": ["omega_rad_per_s=2*pi*frequency_hz", "omega_reduced_rad_per_s=omega_rad_per_s*shift_factor;frequency_reduced_hz=omega_reduced_rad_per_s/(2*pi)", "not_applicable"]},
+        "source_kind": {"enum": ["governed_test_data", "processing_output"]},
+        "processing_method": {"type": ["string", "null"]}
+      }
+    },
+    "PlanRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["test_data", "selected_temperature_k", "point_dispositions", "availability", "term_counts", "parameter_bounds", "start_vectors", "weights", "optimizer", "recommendation_policy", "change_reason"],
+      "properties": {
+        "test_data": {"$ref": "#/$defs/ExactRevision"},
+        "selected_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "point_dispositions": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/PointDisposition"}},
+        "availability": {"$ref": "#/$defs/ChannelAvailability"},
+        "term_counts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 1, "maximum": 10}},
+        "parameter_bounds": {"type": "object", "additionalProperties": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/ParameterBoundRequest"}}},
+        "start_vectors": {"type": "object", "additionalProperties": {"type": "array", "minItems": 1, "items": {"type": "array", "minItems": 3, "items": {"type": "number"}}}},
+        "weights": {"$ref": "#/$defs/WeightsRequest"}, "optimizer": {"$ref": "#/$defs/OptimizerPolicy"},
+        "recommendation_policy": {"const": "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessedPlanRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["processing_output", "availability", "term_counts", "parameter_bounds", "start_vectors", "weights", "optimizer", "recommendation_policy", "change_reason"],
+      "properties": {
+        "processing_output": {"$ref": "#/$defs/ExactRevision"},
+        "availability": {"$ref": "#/$defs/ChannelAvailability"},
+        "term_counts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 1, "maximum": 10}},
+        "parameter_bounds": {"type": "object", "additionalProperties": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/ParameterBoundRequest"}}},
+        "start_vectors": {"type": "object", "additionalProperties": {"type": "array", "minItems": 1, "items": {"type": "array", "minItems": 3, "items": {"type": "number"}}}},
+        "weights": {"$ref": "#/$defs/WeightsRequest"}, "optimizer": {"$ref": "#/$defs/OptimizerPolicy"},
+        "recommendation_policy": {"const": "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "PlanContent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_id", "schema_version", "plan_id", "plan_revision_id", "test_data", "canonical_artifact", "normalized_artifact", "raw_source_sha256", "import_profile", "profile_sha256", "processing_output", "processing_metadata_artifact", "processing_result_artifact", "input_semantics", "recommendation_policy", "term_counts", "parameter_bounds", "start_vectors", "weights", "optimizer", "seed", "seed_status", "statuses"],
+      "properties": {
+        "schema_id": {"const": "urn:cmp:modeling:linear-viscoelastic-calibration-plan:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "plan_id": {"$ref": "#/$defs/Uuid"}, "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_data": {"$ref": "#/$defs/ResolvedExactRevision"},
+        "canonical_artifact": {"$ref": "#/$defs/ArtifactPin"}, "normalized_artifact": {"$ref": "#/$defs/ArtifactPin"},
+        "raw_source_sha256": {"$ref": "#/$defs/Sha256"},
+        "import_profile": {"$ref": "#/$defs/ResolvedExactRevision"},
+        "profile_sha256": {"$ref": "#/$defs/Sha256"},
+        "processing_output": {"oneOf": [{"$ref": "#/$defs/ResolvedExactRevision"}, {"type": "null"}]},
+        "processing_metadata_artifact": {"oneOf": [{"$ref": "#/$defs/ArtifactPin"}, {"type": "null"}]},
+        "processing_result_artifact": {"oneOf": [{"$ref": "#/$defs/ArtifactPin"}, {"type": "null"}]},
+        "input_semantics": {"$ref": "#/$defs/InputSemantics"},
+        "term_counts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 1, "maximum": 10}},
+        "parameter_bounds": {"type": "object", "additionalProperties": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/ParameterBound"}}},
+        "start_vectors": {"type": "object", "additionalProperties": {"type": "array", "minItems": 1, "items": {"type": "array", "minItems": 3, "items": {"type": "string"}}}},
+        "weights": {"$ref": "#/$defs/Weights"}, "optimizer": {"$ref": "#/$defs/OptimizerPolicy"},
+        "recommendation_policy": {"const": "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"},
+        "seed": {"const": 0}, "seed_status": {"const": "not_applicable"}, "statuses": {"$ref": "#/$defs/ChannelAvailability"}
+      }
+    },
+    "RevisionMetadata": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "aggregate_id", "revision_no", "schema_id", "schema_version", "content_hash", "created_at", "created_by", "change_reason", "classification", "content"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"}, "aggregate_id": {"$ref": "#/$defs/Uuid"}, "revision_no": {"type": "integer", "minimum": 1},
+        "schema_id": {"const": "urn:cmp:modeling:linear-viscoelastic-calibration-plan:1.0.0"}, "schema_version": {"const": "1.0.0"}, "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"}, "created_by": {"$ref": "#/$defs/Uuid"}, "change_reason": {"type": "string"},
+        "classification": {"$ref": "#/$defs/Classification"}, "content": {"$ref": "#/$defs/PlanContent"}
+      }
+    },
+    "PlanResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plan_id", "current_revision", "links"],
+      "properties": {"plan_id": {"$ref": "#/$defs/Uuid"}, "current_revision": {"$ref": "#/$defs/RevisionMetadata"}, "links": {"type": "object", "additionalProperties": {"type": "string"}}}
+    },
+    "RunAccepted": {
+      "type": "object", "additionalProperties": false,
+      "required": ["run_id", "job_id", "run_url", "job_url", "status"],
+      "properties": {"run_id": {"$ref": "#/$defs/Uuid"}, "job_id": {"$ref": "#/$defs/Uuid"}, "run_url": {"type": "string"}, "job_url": {"type": "string"}, "status": {"const": "queued"}}
+    },
+    "Attempt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ordinal", "term_count", "start_vector", "transformed_start_vector", "status", "message", "nfev", "cost", "optimality", "active_mask", "physical_parameters", "transformed_parameters", "rss", "rank", "warnings", "converged", "physical"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1}, "term_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "start_vector": {"type": "array", "items": {"type": "number"}}, "transformed_start_vector": {"type": "array", "items": {"type": "number"}},
+        "status": {"type": "integer"}, "message": {"type": "string"}, "nfev": {"type": "integer", "minimum": 0}, "cost": {"type": "number"}, "optimality": {"type": "number"},
+        "active_mask": {"type": "array", "items": {"type": "integer"}}, "physical_parameters": {"type": "array", "items": {"type": "number"}}, "transformed_parameters": {"type": "array", "items": {"type": "number"}},
+        "rss": {"type": "number", "minimum": 0}, "rank": {"type": "object"}, "warnings": {"type": "array", "items": {"type": "string"}}, "converged": {"type": "boolean"}, "physical": {"type": "boolean"}
+      }
+    },
+    "Candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_id", "attempt_ordinal", "term_count", "physical_parameters", "transformed_parameters", "rss", "bic", "calibration_residuals", "holdout_residuals", "rank", "warnings", "uncertainty_status"],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/Uuid"}, "attempt_ordinal": {"type": "integer", "minimum": 1}, "term_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "physical_parameters": {"type": "array", "items": {"type": "number"}}, "transformed_parameters": {"type": "array", "items": {"type": "number"}}, "rss": {"type": "number", "minimum": 0}, "bic": {"type": "number"},
+        "calibration_residuals": {"type": "array", "items": {"type": "number"}}, "holdout_residuals": {"type": "array", "items": {"type": "number"}}, "rank": {"type": "object"}, "warnings": {"type": "array", "items": {"type": "string"}}, "uncertainty_status": {"const": "NOT_PROVIDED"}
+      }
+    },
+    "RunResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["run_id", "plan_revision_id", "status", "attempts", "candidates", "recommendation", "failure_code", "failure_detail", "recovery_hint", "execution_ledger_sha256"],
+      "properties": {
+        "run_id": {"$ref": "#/$defs/Uuid"}, "plan_revision_id": {"$ref": "#/$defs/Uuid"}, "status": {"enum": ["queued", "running", "succeeded", "failed", "retrying"]},
+        "attempts": {"type": "array", "items": {"$ref": "#/$defs/Attempt"}}, "candidates": {"type": "array", "items": {"$ref": "#/$defs/Candidate"}}, "recommendation": {"type": ["object", "null"]},
+        "failure_code": {"type": ["string", "null"]}, "failure_detail": {"type": ["string", "null"]}, "recovery_hint": {"type": ["string", "null"]}, "execution_ledger_sha256": {"type": ["string", "null"]}
+      }
+    },
+    "SelectionRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plan_revision_id", "run_id", "candidate_id", "candidate_sha256", "reason", "warning_acknowledgements", "change_reason"],
+      "properties": {
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"}, "run_id": {"$ref": "#/$defs/Uuid"}, "candidate_id": {"$ref": "#/$defs/Uuid"}, "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000}, "warning_acknowledgements": {"type": "array", "items": {"type": "object"}}, "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "SelectionResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["selection_id", "selection_revision_id", "plan_revision_id", "run_id", "candidate_id", "candidate_sha256", "reason", "warning_acknowledgements", "actor", "created_at"],
+      "properties": {
+        "selection_id": {"$ref": "#/$defs/Uuid"}, "selection_revision_id": {"$ref": "#/$defs/Uuid"}, "plan_revision_id": {"$ref": "#/$defs/Uuid"}, "run_id": {"$ref": "#/$defs/Uuid"}, "candidate_id": {"$ref": "#/$defs/Uuid"}, "candidate_sha256": {"$ref": "#/$defs/Sha256"}, "reason": {"type": "string"}, "warning_acknowledgements": {"type": "array", "items": {"type": "object"}}, "actor": {"$ref": "#/$defs/Uuid"}, "created_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "PromotionRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["material", "material_state", "property_set", "change_reason"],
+      "properties": {
+        "material": {"$ref": "#/$defs/ExactRevision"},
+        "material_state": {"$ref": "#/$defs/ExactRevision"},
+        "property_set": {"$ref": "#/$defs/ExactRevision"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "Problem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "title", "status", "code", "location", "recovery_hint"],
+      "properties": {"type": {"type": "string"}, "title": {"type": "string"}, "status": {"type": "integer"}, "code": {"pattern": "^CMP-MODELING-[A-Z][A-Z0-9_-]{2,63}$"}, "location": {"type": "string"}, "recovery_hint": {"type": "string"}}
+    }
+  }
+}

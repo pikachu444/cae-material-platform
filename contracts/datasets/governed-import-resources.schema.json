@@ -6,7 +6,9 @@
     "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
     "FileFormat": {"enum": ["csv", "tsv", "xlsx"]},
-    "DataSchema": {"enum": ["monotonic_tension", "monotonic_compression", "planar_tension", "biaxial_tension", "simple_shear", "shear_relaxation", "dma_frequency_temperature_sweep", "forming_limit_diagram"]},
+    "DataSchema": {"enum": ["monotonic_tension", "monotonic_compression", "planar_tension", "biaxial_tension", "simple_shear", "shear_relaxation", "dma_frequency_temperature_sweep", "dma_temperature_sweep", "forming_limit_diagram"]},
+    "ProfileSchemaVersion": {"enum": ["1.0.0", "1.1.0", "1.2.0", "1.3.0"]},
+    "DeformationMode": {"type": ["string", "null"], "enum": ["shear", null]},
     "Quantity": {"enum": ["engineering_strain", "engineering_stress", "shear_strain", "shear_stress", "time", "shear_modulus", "displacement", "force", "temperature", "frequency", "storage_modulus", "loss_modulus", "tan_delta", "minor_strain", "major_strain"]},
     "RevisionMetadata": {
       "type": "object",
@@ -58,7 +60,9 @@
         "channels": {"type": "array", "minItems": 2, "maxItems": 5, "items": {"$ref": "#/$defs/ChannelInput"}},
         "initial_gauge_length_m": {"type": ["number", "null"], "exclusiveMinimum": 0},
         "initial_cross_section_area_m2": {"type": ["number", "null"], "exclusiveMinimum": 0},
-        "approval_kind": {"const": "human_confirmed"}
+        "approval_kind": {"const": "human_confirmed"},
+        "schema_version": {"$ref": "#/$defs/ProfileSchemaVersion"},
+        "deformation_mode": {"$ref": "#/$defs/DeformationMode"}
       }
     },
     "ProfileContentResponse": {
@@ -70,7 +74,9 @@
         "delimiter": {"type": ["string", "null"]}, "decimal_separator": {"type": "string"},
         "channels": {"type": "array", "items": {"$ref": "#/$defs/ChannelResponse"}},
         "initial_gauge_length_m": {"type": ["number", "null"]}, "initial_cross_section_area_m2": {"type": ["number", "null"]},
-        "approval_kind": {"const": "human_confirmed"}, "profile_sha256": {"$ref": "#/$defs/Sha256"}
+        "approval_kind": {"const": "human_confirmed"}, "profile_sha256": {"$ref": "#/$defs/Sha256"},
+        "schema_version": {"$ref": "#/$defs/ProfileSchemaVersion"},
+        "deformation_mode": {"$ref": "#/$defs/DeformationMode"}
       }
     },
     "CreateProfileRequest": {

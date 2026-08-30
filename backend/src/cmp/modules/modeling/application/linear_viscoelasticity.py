@@ -7,9 +7,13 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from typing import Any, Protocol
-from uuid import UUID, uuid4
+from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
-from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+    Permission,
+)
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.modeling.application.fit_decision_evidence import (
     modeling_fit_decision_evidence,
@@ -19,9 +23,19 @@ from cmp.modules.modeling.application.service import (
     MaterialModelService,
     RevisionSnapshot,
 )
+from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
+    CalibrationCandidate,
+    CalibrationRecommendation,
+    CalibrationRunResult,
+    LinearViscoelasticCalibrationPlan,
+    LinearViscoelasticSelection,
+    promote_selected_linear_viscoelastic_candidate,
+)
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID,
+    REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID_1_4,
     REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+    REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION_1_4,
     REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_ID,
     REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
     REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
@@ -32,6 +46,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
     BulkRelaxationStatus,
     LinearViscoelasticConflict,
+    LinearViscoelasticNotFound,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
     ReferencePronyProcessingEvidence,
@@ -75,6 +90,23 @@ class PromotePronyProcessingOutput:
     processing_output_revision_id: UUID
     acknowledged_maximum_relative_mismatch: float
     review_acknowledged: bool
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class PromoteLinearViscoelasticCalibrationSelection:
+    material_id: UUID
+    material_revision_id: UUID
+    material_state_id: UUID
+    material_state_revision_id: UUID
+    property_set_id: UUID
+    property_set_revision_id: UUID
+    classification: DataClassification
+    plan: LinearViscoelasticCalibrationPlan
+    run: CalibrationRunResult
+    candidate: CalibrationCandidate
+    recommendation: CalibrationRecommendation
+    selection: LinearViscoelasticSelection
     change_reason: str
 
 
@@ -256,6 +288,144 @@ class LinearViscoelasticModelService:
             material_model_id=material_model_id,
         )
 
+    def promote_calibration_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PromoteLinearViscoelasticCalibrationSelection,
+    ) -> LinearViscoelasticModelSnapshot:
+        """Create one immutable IR 1.4 from an exact engineer Selection."""
+
+        _require_decision(context, decision, Permission.MODELING_WRITE)
+        source = self._material_models.get_reference_property_source_for_linear_viscoelasticity(
+            context,
+            decision,
+            material_state_id=command.material_state_id,
+            property_set_revision_id=command.property_set_revision_id,
+        )
+        properties = source.content
+        requested = (
+            command.material_id,
+            command.material_revision_id,
+            command.material_state_id,
+            command.material_state_revision_id,
+            command.property_set_id,
+            command.property_set_revision_id,
+        )
+        resolved = (
+            properties.material_id,
+            properties.material_revision_id,
+            properties.material_state_id,
+            properties.material_state_revision_id,
+            properties.property_set_id,
+            properties.property_set_revision_id,
+        )
+        if requested != resolved:
+            raise LinearViscoelasticConflict(
+                "exact Material, State, or Property Set revision is stale or mismatched"
+            )
+        if source.classification != command.classification:
+            raise LinearViscoelasticConflict(
+                "calibration and exact Property Set classifications differ"
+            )
+        if source.material_class not in {"polymer", "elastomer"}:
+            raise LinearViscoelasticConflict(
+                "calibrated linear viscoelasticity requires a polymer or elastomer Material"
+            )
+        current_property_set_revision_id = (
+            self._material_models.get_current_property_set_revision_id_for_linear_viscoelasticity(
+                context,
+                decision,
+                material_state_id=command.material_state_id,
+                property_set_id=command.property_set_id,
+            )
+        )
+        if current_property_set_revision_id != command.property_set_revision_id:
+            raise LinearViscoelasticConflict(
+                "exact Material, State, or Property Set revision is stale or mismatched"
+            )
+        semantics = command.plan.input_semantics
+        if semantics is None or semantics.selected_temperature_k is None:
+            raise LinearViscoelasticConflict(
+                "calibration Plan does not retain an exact reference temperature"
+            )
+        content = promote_selected_linear_viscoelastic_candidate(
+            candidate=command.candidate,
+            selection=command.selection,
+            recommendation=command.recommendation,
+            plan=command.plan,
+            run=command.run,
+            material_id=properties.material_id,
+            material_revision_id=properties.material_revision_id,
+            material_state_id=properties.material_state_id,
+            material_state_revision_id=properties.material_state_revision_id,
+            property_set_id=properties.property_set_id,
+            property_set_revision_id=properties.property_set_revision_id,
+            density_kg_per_m3=properties.density_kg_per_m3,
+            poisson_ratio=properties.poisson_ratio,
+            reference_temperature_k=float(semantics.selected_temperature_k),
+        )
+        content = replace(
+            content,
+            applicable_temperature_min_k=properties.applicable_temperature_min_k,
+            applicable_temperature_max_k=properties.applicable_temperature_max_k,
+            applicable_strain_rate_min_per_s=properties.applicable_strain_rate_min_per_s,
+            applicable_strain_rate_max_per_s=properties.applicable_strain_rate_max_per_s,
+            applicability_note=properties.applicability_note,
+        )
+        identity_scope = (
+            f"{context.organization_id}:{context.project_id}:"
+            f"{command.selection.selection_id}"
+        )
+        aggregate_id = uuid5(
+            NAMESPACE_URL,
+            f"urn:cmp:modeling:linear-viscoelastic-calibration-promotion:{identity_scope}",
+        )
+        try:
+            existing = self._repository.get_material_model(
+                context=context,
+                decision=decision,
+                material_model_id=aggregate_id,
+            )
+        except LinearViscoelasticNotFound:
+            existing = None
+        if existing is not None:
+            if existing.current.content != content:
+                raise LinearViscoelasticConflict(
+                    "immutable Selection was already promoted with different target revisions"
+                )
+            return existing
+        revision_id = uuid5(
+            NAMESPACE_URL,
+            f"urn:cmp:modeling:linear-viscoelastic-calibration-promotion-revision:{identity_scope}",
+        )
+        record = RevisionService(
+            aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+            store=self._repository.material_model_store(context, decision),
+            id_factory=lambda: revision_id,
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=TenantScope(
+                    context.organization_id,
+                    context.project_id,
+                    source.classification.value,
+                ),
+                schema_id=REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID_1_4,
+                schema_version=REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION_1_4,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return LinearViscoelasticModelSnapshot(
+            aggregate_id,
+            command.material_state_id,
+            RevisionSnapshot(record, content),
+        )
+
     async def promote_processing_output(
         self,
         context: SecurityContext,
@@ -365,6 +535,11 @@ class LinearViscoelasticModelService:
             raise LinearViscoelasticConflict(
                 "Processing Output does not retain the selected generalized-Maxwell contract"
             ) from error
+        mapping_profile = output.content.mapping_profile
+        if mapping_profile is None:
+            raise LinearViscoelasticConflict(
+                "legacy Processing Output promotion requires a common Mapping Profile"
+            )
         source = properties.content
         catalog_instantaneous = source.youngs_modulus_pa / (2 * (1 + source.poisson_ratio))
         relative_mismatch = abs(fitted_instantaneous - catalog_instantaneous) / (
@@ -387,8 +562,8 @@ class LinearViscoelasticModelService:
             processing_output_sha256=output.content.output_sha256,
             source_test_data_id=output.content.source_document.aggregate_id,
             source_test_data_revision_id=output.content.source_document.revision_id,
-            mapping_profile_id=output.content.mapping_profile.aggregate_id,
-            mapping_profile_revision_id=output.content.mapping_profile.revision_id,
+            mapping_profile_id=mapping_profile.aggregate_id,
+            mapping_profile_revision_id=mapping_profile.revision_id,
             selection_mode=selection_mode,
             selected_term_count=selected_count,
             normalized_rmse=normalized_rmse,

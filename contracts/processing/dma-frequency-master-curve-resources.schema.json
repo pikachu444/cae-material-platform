@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/processing/dma-frequency-master-curve-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ExactTestData": {
+      "type": "object", "additionalProperties": false,
+      "required": ["document_id", "revision_id", "content_sha256"],
+      "properties": {
+        "document_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "ExactImportProfile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile_id", "revision_id", "content_sha256"],
+      "properties": {
+        "profile_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "SourcePins": {
+      "type": "object",
+      "required": ["test_data", "import_profile"],
+      "properties": {
+        "test_data": {"$ref": "#/$defs/ExactTestData"},
+        "import_profile": {"$ref": "#/$defs/ExactImportProfile"}
+      }
+    },
+    "Disposition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_ordinal", "partition"],
+      "properties": {
+        "source_ordinal": {"type": "integer", "minimum": 0},
+        "partition": {"enum": ["CALIBRATION", "HOLDOUT", "EXCLUDED"]},
+        "exclusion_reason": {"type": ["string", "null"]}
+      }
+    },
+    "TabulatedFactor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["temperature_k", "log10_a_t"],
+      "properties": {
+        "temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "log10_a_t": {"type": "number"}
+      }
+    },
+    "ShiftLaw": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "reference_temperature_k", "factors", "value_origin"],
+          "properties": {
+            "kind": {"const": "tabulated"},
+            "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+            "factors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/TabulatedFactor"}},
+            "value_origin": {"enum": ["source_shift_factors", "engineer_edited", "engineer_entered"]}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "reference_temperature_k", "c1", "c2_k", "value_origin"],
+          "properties": {
+            "kind": {"const": "wlf"},
+            "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+            "c1": {"type": "number", "exclusiveMinimum": 0},
+            "c2_k": {"type": "number", "exclusiveMinimum": 0},
+            "value_origin": {"enum": ["generic_wlf_at_tg_starting_suggestion", "engineer_edited", "engineer_entered"]}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "reference_temperature_k", "activation_energy_j_per_mol", "value_origin"],
+          "properties": {
+            "kind": {"const": "arrhenius"},
+            "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+            "activation_energy_j_per_mol": {"type": "number", "exclusiveMinimum": 0},
+            "value_origin": {"enum": ["source_shift_factors", "engineer_edited", "engineer_entered"]}
+          }
+        }
+      ]
+    },
+    "RecommendationRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["test_data", "import_profile"],
+      "properties": {
+        "test_data": {"$ref": "#/$defs/ExactTestData"},
+        "import_profile": {"$ref": "#/$defs/ExactImportProfile"}
+      }
+    },
+    "RecommendationResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_evidence", "reference_temperature_k", "source_ordinal", "c1", "c2_k", "value_origin", "material_specific", "requires_confirmation", "rule_id", "rule_version", "recommendation_sha256"],
+      "properties": {
+        "source_evidence": {"type": "object"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "source_ordinal": {"type": "integer", "minimum": 0},
+        "c1": {"type": "number", "exclusiveMinimum": 0},
+        "c2_k": {"type": "number", "exclusiveMinimum": 0},
+        "value_origin": {"const": "generic_wlf_at_tg_starting_suggestion"},
+        "material_specific": {"const": false},
+        "requires_confirmation": {"const": true},
+        "rule_id": {"const": "polymer.dma_wlf_starting_suggestion"},
+        "rule_version": {"const": "1.0.0"},
+        "recommendation_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "CreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "label", "test_data", "import_profile", "dispositions", "shift_law", "confirmation", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "test_data": {"$ref": "#/$defs/ExactTestData"},
+        "import_profile": {"$ref": "#/$defs/ExactImportProfile"},
+        "dispositions": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/Disposition"}},
+        "shift_law": {"$ref": "#/$defs/ShiftLaw"},
+        "confirmation": {
+          "type": "object", "additionalProperties": false,
+          "required": ["confirmed", "reason"],
+          "properties": {"confirmed": {"type": "boolean"}, "reason": {"type": "string", "minLength": 1, "maxLength": 2000}}
+        },
+        "recommendation_sha256": {"oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "OutputPin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_id", "revision_id", "content_sha256", "metadata_artifact_id", "metadata_sha256", "result_artifact_id", "result_sha256", "result_schema_ref", "result_media_type"],
+      "properties": {
+        "output_id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"}, "metadata_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "metadata_sha256": {"$ref": "#/$defs/Sha256"}, "result_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "result_sha256": {"$ref": "#/$defs/Sha256"}, "result_schema_ref": {"type": "string"},
+        "result_media_type": {"const": "application/vnd.apache.parquet"}
+      }
+    },
+    "CreateResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["loss_modulus_output", "master_curve_output"],
+      "properties": {
+        "loss_modulus_output": {"oneOf": [{"$ref": "#/$defs/OutputPin"}, {"type": "null"}]},
+        "master_curve_output": {"$ref": "#/$defs/OutputPin"}
+      }
+    }
+  }
+}

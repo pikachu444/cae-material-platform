@@ -84,6 +84,15 @@ class ModelingRepository(Protocol):
         property_set_revision_id: UUID,
     ) -> ReferencePropertySource: ...
 
+    def get_current_property_set_revision_id(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+        property_set_id: UUID,
+    ) -> UUID: ...
+
     def get_material_model(
         self,
         *,
@@ -335,6 +344,29 @@ class MaterialModelService:
             decision=decision,
             material_state_id=material_state_id,
             property_set_revision_id=property_set_revision_id,
+        )
+
+    def get_current_property_set_revision_id_for_linear_viscoelasticity(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        material_state_id: UUID,
+        property_set_id: UUID,
+    ) -> UUID:
+        """Read the current Catalog head for stale-promotion validation.
+
+        The exact source resolver intentionally supports historical immutable revisions.  A
+        calibration promotion additionally needs to prove that its pinned Property Set remains
+        the current head before an idempotent replay is accepted.
+        """
+
+        _require_capability(context, decision, Permission.MODELING_WRITE)
+        return self._repository.get_current_property_set_revision_id(
+            context=context,
+            decision=decision,
+            material_state_id=material_state_id,
+            property_set_id=property_set_id,
         )
 
     def promote_reference_calibration_candidate(

@@ -475,6 +475,21 @@ class CanonicalTestDataService:
         )
         return TestDataDocumentSnapshot(document_id, record, content)
 
+    def get_document(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        document_id: UUID,
+    ) -> TestDataDocumentSnapshot:
+        """Read the current Test Data revision for upstream-currentness checks."""
+
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.get_document(
+            context=context,
+            decision=decision,
+            document_id=document_id,
+        )
+
     async def revise_document(
         self,
         context: SecurityContext,

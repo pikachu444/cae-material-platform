@@ -524,14 +524,21 @@ class ProcessingOutputResponse(BaseModel):
     source_document: ExactRevisionPinInput
     source_document_sha256: str
     source_canonical_artifact_sha256: str
-    mapping_profile: ExactRevisionPinInput
-    mapping_profile_sha256: str
+    source_profile_kind: str
+    mapping_profile: ExactRevisionPinInput | None
+    mapping_profile_sha256: str | None
+    governed_import_profile: ExactRevisionPinInput | None
+    governed_import_profile_sha256: str | None
     steps: tuple[ProcessingStepInput, ...]
     independent_quantity: str
     stage_count: int
     final_point_count: int
     output_artifact_id: UUID
     output_sha256: str
+    result_artifact_id: UUID | None
+    result_sha256: str | None
+    result_schema_ref: str | None
+    result_media_type: str | None
     source_processing_output: ExactRevisionPinInput | None
     source_processing_output_sha256: str | None
     workup_overrides: tuple[ProcessingWorkupOverrideInput, ...]
@@ -548,6 +555,8 @@ class ProcessingOutputResponse(BaseModel):
         source_processing_output_sha256 = getattr(
             content, "source_processing_output_sha256", None
         )
+        source_profile_kind = getattr(content, "source_profile_kind", "common_mapping_profile")
+        governed_import_profile = getattr(content, "governed_import_profile", None)
         unit_profile = getattr(content, "unit_profile", None)
         unit_applications = getattr(content, "unit_applications", ())
         return cls(
@@ -560,11 +569,23 @@ class ProcessingOutputResponse(BaseModel):
             ),
             source_document_sha256=content.source_document_sha256,
             source_canonical_artifact_sha256=content.source_canonical_artifact_sha256,
-            mapping_profile=ExactRevisionPinInput(
+            source_profile_kind=source_profile_kind,
+            mapping_profile=None
+            if content.mapping_profile is None
+            else ExactRevisionPinInput(
                 aggregate_id=content.mapping_profile.aggregate_id,
                 revision_id=content.mapping_profile.revision_id,
             ),
             mapping_profile_sha256=content.mapping_profile_sha256,
+            governed_import_profile=None
+            if governed_import_profile is None
+            else ExactRevisionPinInput(
+                aggregate_id=governed_import_profile.aggregate_id,
+                revision_id=governed_import_profile.revision_id,
+            ),
+            governed_import_profile_sha256=getattr(
+                content, "governed_import_profile_sha256", None
+            ),
             steps=tuple(
                 ProcessingStepInput(
                     method_id=step.method_id,
@@ -578,6 +599,10 @@ class ProcessingOutputResponse(BaseModel):
             final_point_count=content.final_point_count,
             output_artifact_id=content.output_artifact_id,
             output_sha256=content.output_sha256,
+            result_artifact_id=getattr(content, "result_artifact_id", None),
+            result_sha256=getattr(content, "result_sha256", None),
+            result_schema_ref=getattr(content, "result_schema_ref", None),
+            result_media_type=getattr(content, "result_media_type", None),
             source_processing_output=None
             if source_processing_output is None
             else ExactRevisionPinInput(

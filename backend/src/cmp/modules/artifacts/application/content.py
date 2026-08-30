@@ -7,7 +7,7 @@ import hashlib
 import hmac
 import json
 import re
-from collections.abc import AsyncIterable, Callable
+from collections.abc import AsyncIterable, AsyncIterator, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol, cast
@@ -608,6 +608,58 @@ class ArtifactService:
             raise ArtifactIntegrityError("Artifact bytes no longer match the immutable manifest")
         return record, value
 
+    async def stream_verified_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        maximum_bytes: int,
+    ) -> tuple[ArtifactRecord, AsyncIterable[bytes]]:
+        """Open a capability-scoped, integrity-checked stream for worker materialization.
+
+        Unlike ``read_verified_bytes``, this boundary does not collect the immutable object in
+        API memory.  The returned iterator verifies the object-store stream before it yields its
+        final item; callers must consume it to completion and must not expose the iterator to a
+        plugin or an untrusted caller.
+        """
+
+        if not 1 <= maximum_bytes <= 512 * 1024 * 1024:
+            raise InvalidArtifact("maximum Artifact stream size is outside the supported range")
+        _require_database_capability(context, decision, Permission.ARTIFACT_READ)
+        if artifact_id.int == 0:
+            raise InvalidArtifact("artifact_id must be non-zero")
+        record = self._repository.get_artifact(
+            context=context,
+            decision=decision,
+            artifact_id=artifact_id,
+        )
+        if record.integrity_status is not IntegrityStatus.VERIFIED:
+            raise ArtifactIntegrityError("Artifact is not currently verified")
+        if record.artifact.size_bytes > maximum_bytes:
+            raise InvalidArtifact("Artifact exceeds the worker stream byte limit")
+
+        async def verified_chunks() -> AsyncIterator[bytes]:
+            digest = hashlib.sha256()
+            observed = 0
+            async for chunk in self._store.stream(record.artifact.storage_key):
+                if not isinstance(chunk, bytes):
+                    raise ArtifactIntegrityError("Artifact stream yielded a non-byte chunk")
+                observed += len(chunk)
+                if observed > maximum_bytes:
+                    raise InvalidArtifact("Artifact exceeds the worker stream byte limit")
+                digest.update(chunk)
+                yield chunk
+            if (
+                observed != record.artifact.size_bytes
+                or digest.hexdigest() != record.artifact.sha256
+            ):
+                raise ArtifactIntegrityError(
+                    "Artifact bytes no longer match the immutable manifest"
+                )
+
+        return record, verified_chunks()
+
     async def finalize_staged(
         self,
         context: SecurityContext,
@@ -800,6 +852,23 @@ class ArtifactService:
         artifact_id: UUID,
     ) -> ArtifactRecord:
         _require_decision(context, decision, Permission.ARTIFACT_READ)
+        if artifact_id.int == 0:
+            raise InvalidArtifact("artifact_id must be non-zero")
+        return self._repository.get_artifact(
+            context=context,
+            decision=decision,
+            artifact_id=artifact_id,
+        )
+
+    def get_artifact_with_capability(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+    ) -> ArtifactRecord:
+        """Read one exact Artifact from an owning command's DB capability closure."""
+
+        _require_database_capability(context, decision, Permission.ARTIFACT_READ)
         if artifact_id.int == 0:
             raise InvalidArtifact("artifact_id must be non-zero")
         return self._repository.get_artifact(

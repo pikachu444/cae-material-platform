@@ -8,6 +8,7 @@ from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDataService
+from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.datasets.application.viscoelastic_master import ViscoelasticDatasetService
@@ -36,6 +37,9 @@ from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repos
 from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.modules.processing.application.common_recipes import CommonRecipeService
+from cmp.modules.processing.application.dma_frequency_master_curve import (
+    DmaFrequencyMasterCurveService,
+)
 from cmp.modules.processing.application.mapping_profiles import MappingProfileService
 from cmp.modules.processing.application.metal_fit_runs import MetalFitRunService
 from cmp.modules.processing.application.service import ProcessingService
@@ -98,6 +102,39 @@ def build_common_processing_output_service(
         profiles=profiles,
         artifacts=artifacts,
         units=units,
+    )
+
+
+def build_dma_frequency_master_curve_service(
+    identity: IdentityServices,
+    test_data: CanonicalTestDataService | None,
+    governed_imports: GovernedImportService | None,
+    artifacts: ArtifactService | None,
+) -> DmaFrequencyMasterCurveService | None:
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or identity.authorization is None
+        or test_data is None
+        or governed_imports is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return DmaFrequencyMasterCurveService(
+        test_data=test_data,
+        governed_imports=governed_imports,
+        outputs=SqlAlchemyCommonProcessingOutputRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        artifacts=artifacts,
+        authorization=identity.authorization,
     )
 
 

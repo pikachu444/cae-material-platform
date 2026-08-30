@@ -99,6 +99,41 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "ShearDmaFrequencySweepRunCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specimen_id", "specimen_revision_id", "test_method_id", "test_method_revision_id",
+        "run_label", "performed_at", "change_reason"
+      ],
+      "properties": {
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_revision_id": {"$ref": "#/$defs/Uuid"},
+        "run_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "performed_at": {"type": "string", "format": "date-time"},
+        "test_temperature_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ShearDmaTemperatureSweepRunCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specimen_id", "specimen_revision_id", "test_method_id", "test_method_revision_id",
+        "run_label", "performed_at", "change_reason"
+      ],
+      "properties": {
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_revision_id": {"$ref": "#/$defs/Uuid"},
+        "run_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "performed_at": {"type": "string", "format": "date-time"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "SpecimenContent": {
       "type": "object",
       "additionalProperties": false,
@@ -144,11 +179,17 @@
             "method_code": {"const": "reference_shear_relaxation"},
             "display_name": {"const": "Reference shear relaxation CSV"}
           }
+        },
+        {
+          "properties": {
+            "method_code": {"const": "reference_shear_dma_frequency_sweep"},
+            "display_name": {"const": "Reference shear DMA frequency sweep"}
+          }
         }
       ],
       "properties": {
-        "method_code": {"enum": ["reference_uniaxial_tensile", "reference_planar_tension", "reference_biaxial_tension", "reference_shear_relaxation"]},
-        "display_name": {"enum": ["Reference uniaxial tensile CSV", "Reference planar tension CSV", "Reference biaxial tension CSV", "Reference shear relaxation CSV"]},
+        "method_code": {"enum": ["reference_uniaxial_tensile", "reference_planar_tension", "reference_biaxial_tension", "reference_shear_relaxation", "reference_shear_dma_frequency_sweep"]},
+        "display_name": {"enum": ["Reference uniaxial tensile CSV", "Reference planar tension CSV", "Reference biaxial tension CSV", "Reference shear relaxation CSV", "Reference shear DMA frequency sweep"]},
         "reference_only": {"const": true}
       }
     },

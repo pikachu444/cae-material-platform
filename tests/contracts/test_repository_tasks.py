@@ -513,7 +513,7 @@ def test_marker_inventory_reports_exact_nodes_and_rejects_drift(
 def test_every_postgresql_module_has_the_container_service_marker() -> None:
     modules = sorted((ROOT / "tests/integration").glob("*_postgresql.py"))
 
-    assert len(modules) == 23
+    assert len(modules) == 24
     for module in modules:
         source = module.read_text(encoding="utf-8")
         assert "pytest.mark.postgresql" in source, module

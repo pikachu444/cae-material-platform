@@ -100,15 +100,23 @@ revision_table = sa.Table(
     sa.Column("source_document_revision_id", sa.Uuid(), nullable=False),
     sa.Column("source_document_sha256", sa.CHAR(64), nullable=False),
     sa.Column("source_canonical_artifact_sha256", sa.CHAR(64), nullable=False),
-    sa.Column("mapping_profile_id", sa.Uuid(), nullable=False),
-    sa.Column("mapping_profile_revision_id", sa.Uuid(), nullable=False),
-    sa.Column("mapping_profile_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("mapping_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("mapping_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("mapping_profile_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("source_profile_kind", sa.String(64), nullable=False),
+    sa.Column("governed_import_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("governed_import_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("governed_import_profile_sha256", sa.CHAR(64), nullable=True),
     sa.Column("independent_quantity", sa.String(160), nullable=False),
     sa.Column("step_count", sa.Integer(), nullable=False),
     sa.Column("stage_count", sa.Integer(), nullable=False),
     sa.Column("final_point_count", sa.Integer(), nullable=False),
     sa.Column("output_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("output_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("result_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("result_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("result_schema_ref", sa.String(255), nullable=True),
+    sa.Column("result_media_type", sa.String(255), nullable=True),
     sa.Column("source_processing_output_id", sa.Uuid(), nullable=True),
     sa.Column("source_processing_output_revision_id", sa.Uuid(), nullable=True),
     sa.Column("source_processing_output_sha256", sa.CHAR(64), nullable=True),
@@ -162,15 +170,35 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
         "source_document_revision_id": value.source_document.revision_id,
         "source_document_sha256": value.source_document_sha256,
         "source_canonical_artifact_sha256": value.source_canonical_artifact_sha256,
-        "mapping_profile_id": value.mapping_profile.aggregate_id,
-        "mapping_profile_revision_id": value.mapping_profile.revision_id,
+        "mapping_profile_id": (
+            None if value.mapping_profile is None else value.mapping_profile.aggregate_id
+        ),
+        "mapping_profile_revision_id": (
+            None if value.mapping_profile is None else value.mapping_profile.revision_id
+        ),
         "mapping_profile_sha256": value.mapping_profile_sha256,
+        "source_profile_kind": value.source_profile_kind,
+        "governed_import_profile_id": (
+            None
+            if value.governed_import_profile is None
+            else value.governed_import_profile.aggregate_id
+        ),
+        "governed_import_profile_revision_id": (
+            None
+            if value.governed_import_profile is None
+            else value.governed_import_profile.revision_id
+        ),
+        "governed_import_profile_sha256": value.governed_import_profile_sha256,
         "independent_quantity": value.independent_quantity,
         "step_count": len(value.steps),
         "stage_count": value.stage_count,
         "final_point_count": value.final_point_count,
         "output_artifact_id": value.output_artifact_id,
         "output_sha256": value.output_sha256,
+        "result_artifact_id": value.result_artifact_id,
+        "result_sha256": value.result_sha256,
+        "result_schema_ref": value.result_schema_ref,
+        "result_media_type": value.result_media_type,
         "source_processing_output_id": (
             value.source_processing_output.aggregate_id
             if value.source_processing_output is not None
@@ -182,9 +210,7 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
             else None
         ),
         "source_processing_output_sha256": value.source_processing_output_sha256,
-        "unit_profile_id": (
-            None if value.unit_profile is None else value.unit_profile.profile_id
-        ),
+        "unit_profile_id": (None if value.unit_profile is None else value.unit_profile.profile_id),
         "unit_profile_revision_id": (
             None if value.unit_profile is None else value.unit_profile.revision_id
         ),
@@ -343,11 +369,17 @@ def _content(
         ),
         source_document_sha256=str(row["source_document_sha256"]),
         source_canonical_artifact_sha256=str(row["source_canonical_artifact_sha256"]),
-        mapping_profile=ExactRevisionPin(
-            cast(UUID, row["mapping_profile_id"]),
-            cast(UUID, row["mapping_profile_revision_id"]),
+        mapping_profile=(
+            None
+            if row["mapping_profile_id"] is None
+            else ExactRevisionPin(
+                cast(UUID, row["mapping_profile_id"]),
+                cast(UUID, row["mapping_profile_revision_id"]),
+            )
         ),
-        mapping_profile_sha256=str(row["mapping_profile_sha256"]),
+        mapping_profile_sha256=(
+            None if row["mapping_profile_sha256"] is None else str(row["mapping_profile_sha256"])
+        ),
         steps=tuple(
             ProcessingStep(
                 method_id=str(step["method_id"]),
@@ -361,6 +393,31 @@ def _content(
         final_point_count=int(row["final_point_count"]),
         output_artifact_id=cast(UUID, row["output_artifact_id"]),
         output_sha256=str(row["output_sha256"]),
+        source_profile_kind=cast(
+            Literal["common_mapping_profile", "governed_import_profile"],
+            str(row["source_profile_kind"]),
+        ),
+        governed_import_profile=(
+            None
+            if row["governed_import_profile_id"] is None
+            else ExactRevisionPin(
+                cast(UUID, row["governed_import_profile_id"]),
+                cast(UUID, row["governed_import_profile_revision_id"]),
+            )
+        ),
+        governed_import_profile_sha256=(
+            None
+            if row["governed_import_profile_sha256"] is None
+            else str(row["governed_import_profile_sha256"])
+        ),
+        result_artifact_id=cast(UUID | None, row["result_artifact_id"]),
+        result_sha256=(None if row["result_sha256"] is None else str(row["result_sha256"])),
+        result_schema_ref=(
+            None if row["result_schema_ref"] is None else str(row["result_schema_ref"])
+        ),
+        result_media_type=(
+            None if row["result_media_type"] is None else str(row["result_media_type"])
+        ),
         source_processing_output=(
             None
             if row["source_processing_output_id"] is None
