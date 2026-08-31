@@ -4219,7 +4219,7 @@ def _issue_351_retired_root(path: str) -> str | None:
     )
 
 
-def _git_blob_bytes(project: Path, revision: str, path: str) -> bytes:
+def _retired_materials_blob_bytes(project: Path, revision: str, path: str) -> bytes:
     result = subprocess.run(
         ["git", "cat-file", "blob", f"{revision}:{path}"],
         cwd=project,
@@ -4268,7 +4268,9 @@ def _validate_retired_materials_reference_changes(
                 "retired Materials reference set is unavailable at this merge base: "
                 f"{path}"
             )
-        actual_sha256 = hashlib.sha256(_git_blob_bytes(project, merge_base, path)).hexdigest()
+        actual_sha256 = hashlib.sha256(
+            _retired_materials_blob_bytes(project, merge_base, path)
+        ).hexdigest()
         if actual_sha256 != expected_sha256:
             raise DocumentationImpactError(
                 "retired Materials reference merge-base blob hash drifted: "
@@ -4527,7 +4529,9 @@ def _can_use_unchanged_current_family(
             candidate_path = project / Path(*PurePosixPath(candidate).parts)
             if not candidate_path.is_file() or not _git_path_exists(project, merge_base, candidate):
                 break
-            if candidate_path.read_bytes() != _git_blob_bytes(project, merge_base, candidate):
+            if candidate_path.read_bytes() != _retired_materials_blob_bytes(
+                project, merge_base, candidate
+            ):
                 break
             if not _path_is_referenced_by_changed_documentation(project, candidate, changed):
                 break

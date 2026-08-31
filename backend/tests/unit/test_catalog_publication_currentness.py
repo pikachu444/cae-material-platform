@@ -82,9 +82,9 @@ def test_published_record_subject_uses_a_direct_currentness_fast_path() -> None:
         CatalogRecordQuery(uuid4(), published_only=True)
     )
     compiled = statement.compile(
-        dialect=postgresql.dialect(),
+        dialect=postgresql.dialect(),  # type: ignore[no-untyped-call]
         compile_kwargs={"literal_binds": True},
-    )  # type: ignore[no-untyped-call]
+    )
     sql = str(compiled)
 
     direct_subject = (
@@ -110,9 +110,9 @@ def test_published_solver_card_bindings_recheck_card_heads_and_source_pins() -> 
         CatalogRecordQuery(None, published_only=True, data_category="solver_cards")
     )
     compiled = statement.compile(
-        dialect=postgresql.dialect(),
+        dialect=postgresql.dialect(),  # type: ignore[no-untyped-call]
         compile_kwargs={"literal_binds": True},
-    )  # type: ignore[no-untyped-call]
+    )
     sql = str(compiled)
 
     assert "review_solver_card_identity.current_revision_id" in sql

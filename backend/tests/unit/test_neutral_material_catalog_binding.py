@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import TypedDict, cast
 from uuid import UUID
 
 import pytest
 from cmp.modules.catalog.adapters.persistence import neutral_material_binding as binding
 from cmp.shared.domain.revisions import RevisionCreated, RevisionRecord, TenantScope
+from sqlalchemy.orm import Session
 
 ORG = UUID("72000000-0000-4000-8000-000000000001")
 PROJECT = UUID("72000000-0000-4000-8000-000000000002")
@@ -63,9 +66,9 @@ def _model_event() -> RevisionCreated:
 
 
 class _Result:
-    def __init__(self, *, one: object = None, many: list[object] | None = None) -> None:
+    def __init__(self, *, one: object = None, many: Sequence[object] | None = None) -> None:
         self._one = one
-        self._many = many or []
+        self._many = list(many or ())
 
     def mappings(self) -> _Result:
         return self
@@ -93,7 +96,9 @@ class _Session:
 
 
 class _OwnerSession:
-    def __init__(self, rows: list[dict[str, UUID]], identity_exists: bool = False) -> None:
+    def __init__(
+        self, rows: Sequence[Mapping[str, object]], identity_exists: bool = False
+    ) -> None:
         self.rows = rows
         self.identity_exists = identity_exists
 
@@ -104,7 +109,7 @@ class _OwnerSession:
         return self.identity_exists
 
 
-def _neutral_row(event: RevisionCreated) -> dict[str, UUID]:
+def _neutral_row(event: RevisionCreated) -> dict[str, object]:
     return {
         "id": event.revision.revision_id,
         "aggregate_id": event.revision.aggregate_id,
@@ -120,7 +125,7 @@ def _neutral_row(event: RevisionCreated) -> dict[str, UUID]:
     }
 
 
-def _model_row(event: RevisionCreated) -> dict[str, UUID]:
+def _model_row(event: RevisionCreated) -> dict[str, object]:
     return {
         "id": event.revision.revision_id,
         "aggregate_id": event.revision.aggregate_id,
@@ -138,6 +143,21 @@ def _model_row(event: RevisionCreated) -> dict[str, UUID]:
         "processing_source_document_id": UUID("72000000-0000-4000-8000-000000000024"),
         "processing_source_document_revision_id": UUID("72000000-0000-4000-8000-000000000025"),
     }
+
+
+def _as_session(value: _Session | _OwnerSession) -> Session:
+    """Adapt a deliberately small fake to the concrete production Session type."""
+
+    return cast(Session, value)
+
+
+class _OwnerLookup(TypedDict):
+    organization_id: UUID
+    project_id: UUID
+    classification: str
+    domain_kind: str
+    domain_object_id: UUID
+    domain_revision_id: UUID
 
 
 def test_material_model_projects_the_exact_peer_model_owner(
@@ -167,7 +187,7 @@ def test_material_model_projects_the_exact_peer_model_owner(
     )
     monkeypatch.setattr(binding, "_owner_for_model", lambda *_args, **_kwargs: owner)
 
-    binding.catalog_binding_for_material_model(session, event)
+    binding.catalog_binding_for_material_model(_as_session(session), event)
 
     assert session.writes == 2
 
@@ -208,7 +228,7 @@ def test_material_model_projects_peer_when_schema_digest_is_representation_drift
         ),
     )
 
-    binding.catalog_binding_for_material_model(session, event)
+    binding.catalog_binding_for_material_model(_as_session(session), event)
 
     assert session.writes == 2
 
@@ -218,7 +238,7 @@ def test_unbound_material_model_is_a_valid_no_op(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(binding, "_owner_for_model", lambda *_args, **_kwargs: None)
     session = _Session(_Result(one=_model_row(event)), _Result(many=[]))
 
-    binding.catalog_binding_for_material_model(session, event)
+    binding.catalog_binding_for_material_model(_as_session(session), event)
 
     assert session.writes == 0
 
@@ -239,7 +259,7 @@ def test_material_model_without_source_lineage_is_not_matched_to_null_peer(
     )
     session = _Session(_Result(one=model))
 
-    binding.catalog_binding_for_material_model(session, event)
+    binding.catalog_binding_for_material_model(_as_session(session), event)
 
     assert session.writes == 0
 
@@ -271,7 +291,7 @@ def test_material_model_owner_conflict_fails_before_catalog_write(
     )
 
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="conflicting"):
-        binding.catalog_binding_for_material_model(session, event)
+        binding.catalog_binding_for_material_model(_as_session(session), event)
 
     assert session.writes == 0
 
@@ -300,7 +320,7 @@ def test_stale_peer_model_owner_fails_closed(monkeypatch: pytest.MonkeyPatch) ->
     )
 
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="stale"):
-        binding.catalog_binding_for_material_model(session, event)
+        binding.catalog_binding_for_material_model(_as_session(session), event)
 
     assert session.writes == 0
 
@@ -328,13 +348,13 @@ def test_solver_card_projects_the_exact_model_owner_and_is_idempotent(
     )
     session = _Session(_Result(one=card_row))
 
-    binding.catalog_binding_for_solver_card(session, event)
+    binding.catalog_binding_for_solver_card(_as_session(session), event)
 
     assert session.writes == 2
 
     monkeypatch.setattr(binding, "_current_catalog_owner", lambda *_args, **_kwargs: owner)
     idempotent_session = _Session(_Result(one=card_row))
-    binding.catalog_binding_for_solver_card(idempotent_session, event)
+    binding.catalog_binding_for_solver_card(_as_session(idempotent_session), event)
     assert idempotent_session.writes == 0
 
 
@@ -364,13 +384,13 @@ def test_neutral_solver_card_projects_the_exact_neutral_owner(
         )
     )
 
-    binding.catalog_binding_for_neutral_solver_card(session, event)
+    binding.catalog_binding_for_neutral_solver_card(_as_session(session), event)
 
     assert session.writes == 2
 
 
 def test_catalog_owner_resolution_fails_closed_for_partial_and_stale_rows() -> None:
-    kwargs = {
+    kwargs: _OwnerLookup = {
         "organization_id": ORG,
         "project_id": PROJECT,
         "classification": "internal",
@@ -380,12 +400,12 @@ def test_catalog_owner_resolution_fails_closed_for_partial_and_stale_rows() -> N
     }
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="stale"):
         binding._current_catalog_owner(
-            _OwnerSession([], identity_exists=True),
+            _as_session(_OwnerSession([], identity_exists=True)),
             **kwargs,
         )
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="stale"):
         binding._current_catalog_owner(
-            _OwnerSession(
+            _as_session(_OwnerSession(
                 [
                     {
                         "record_id": UUID("72000000-0000-4000-8000-000000000082"),
@@ -393,13 +413,13 @@ def test_catalog_owner_resolution_fails_closed_for_partial_and_stale_rows() -> N
                         "current_revision_id": UUID("72000000-0000-4000-8000-000000000084"),
                     }
                 ]
-            ),
+            )),
             **kwargs,
         )
 
 
 def test_catalog_owner_resolution_fails_closed_for_conflicting_records() -> None:
-    kwargs = {
+    kwargs: _OwnerLookup = {
         "organization_id": ORG,
         "project_id": PROJECT,
         "classification": "internal",
@@ -409,7 +429,7 @@ def test_catalog_owner_resolution_fails_closed_for_conflicting_records() -> None
     }
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="conflicting"):
         binding._current_catalog_owner(
-            _OwnerSession(
+            _as_session(_OwnerSession(
                 [
                     {
                         "record_id": UUID("72000000-0000-4000-8000-000000000092"),
@@ -422,7 +442,7 @@ def test_catalog_owner_resolution_fails_closed_for_conflicting_records() -> None
                         "current_revision_id": UUID("72000000-0000-4000-8000-000000000095"),
                     },
                 ]
-            ),
+            )),
             **kwargs,
         )
 
@@ -434,7 +454,7 @@ def test_unrelated_neutral_promotion_is_a_valid_no_op(monkeypatch: pytest.Monkey
         _Result(many=[]),
     )
 
-    binding.catalog_binding_for_neutral_material(session, event)
+    binding.catalog_binding_for_neutral_material(_as_session(session), event)
 
     assert session.writes == 0
 
@@ -466,7 +486,7 @@ def test_conflicting_exact_model_owners_fail_before_catalog_write(
     )
 
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="conflicting"):
-        binding.catalog_binding_for_neutral_material(session, event)
+        binding.catalog_binding_for_neutral_material(_as_session(session), event)
 
     assert session.writes == 0
 
@@ -493,6 +513,6 @@ def test_existing_neutral_owner_conflict_is_fail_closed(monkeypatch: pytest.Monk
     )
 
     with pytest.raises(binding.NeutralMaterialCatalogBindingConflict, match="conflicting"):
-        binding.catalog_binding_for_neutral_material(session, event)
+        binding.catalog_binding_for_neutral_material(_as_session(session), event)
 
     assert session.writes == 0
