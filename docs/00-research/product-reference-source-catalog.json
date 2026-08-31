@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "created_at": "2026-07-24",
-  "integrated_from": "docs/_incoming/2026-07-24-organic-ux-update/09_SOURCE_CATALOG.json",
+  "integrated_from": "https://github.com/pikachu444/cae-material-platform/blob/ff8bb1e35aed4667d3d34ababab85db99015df87/docs/_incoming/2026-07-24-organic-ux-update/09_SOURCE_CATALOG.json",
   "policy": {
     "public_official_sources_only": true,
     "external_fact_is_not_automatically_a_product_requirement": true,
