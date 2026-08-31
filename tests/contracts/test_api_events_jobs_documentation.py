@@ -17,7 +17,6 @@ from cmp.modules.provenance.adapters.persistence.repository import (
 )
 from cmp.tools.user_guide import _documentation_classes
 
-
 ROOT = Path(__file__).parents[2]
 API_DOC = ROOT / "docs/architecture/api-events-jobs.md"
 PROVENANCE_DOC = ROOT / "docs/domain/revision-and-provenance.md"
