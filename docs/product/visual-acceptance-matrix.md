@@ -17,7 +17,11 @@ static inventory remains available only for targets that have not been converted
 React/CSS change also supplies deterministic 2560×1440 and 3840×2160 responsive evidence plus
 relevant long, empty, loading, blocked, and error states.
 
-References are implementation authority, not vague inspiration: port their region structure and CSS
+The current Materials and ADM-DB normal references resolve through the screenshot manifest and its
+source-v2 current PNGs. The ADM-DB entries supersede the retired issue-289 fixture; on 2026-09-01 the
+product owner approved the presented 1920/2560/3840 originals as no-regression evidence for the #331
+CSS retirement, not as approval of the existing design quality. References are implementation authority,
+not vague inspiration: port their region structure and CSS
 faithfully while preserving backend/state/domain contracts. Each later visual PR gives the main
 orchestrator and product owner direct reference/current side-by-side live captures, the interaction/test
 result and this rubric. Evaluate full-screen task flow, topology, information priority, readability, dominant

@@ -15,13 +15,14 @@ import re
 import shutil
 import struct
 import tempfile
+import time
 import uuid
 from collections.abc import Callable, Sequence
 from copy import deepcopy
 from itertools import pairwise
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
-from urllib.parse import parse_qs, quote, urlsplit
+from urllib.parse import parse_qs, quote, urlencode, urlsplit
 
 # Embedded Playwright snippets and exact UI labels intentionally exceed Ruff's
 # line length and preserve typographic punctuation for source-contract checks.
@@ -418,6 +419,280 @@ def _new_page(
     return page
 
 
+def _source_v2_object(value: object, label: str) -> dict[str, object]:
+    if not isinstance(value, dict):
+        raise RuntimeError(f"source-v2 {label} is not an object")
+    return value
+
+
+def _source_v2_uuid(value: object, label: str) -> str:
+    if not isinstance(value, str) or UUID_LIKE_PATTERN.fullmatch(value) is None:
+        raise RuntimeError(f"source-v2 {label} is not a UUID")
+    return value
+
+
+def _source_v2_revision(
+    value: object,
+    *,
+    label: str,
+    aggregate_id: str,
+    lifecycle_state: str,
+) -> tuple[dict[str, object], str]:
+    revision = _source_v2_object(value, f"{label} revision")
+    revision_id = _source_v2_uuid(revision.get("id"), f"{label} revision id")
+    if revision.get("aggregate_id") != aggregate_id:
+        raise RuntimeError(f"source-v2 {label} revision identity does not match")
+    if revision.get("revision_no") != 1:
+        raise RuntimeError(f"source-v2 {label} is not revision 1")
+    if revision.get("lifecycle_state") != lifecycle_state:
+        raise RuntimeError(f"source-v2 {label} has the wrong lifecycle state")
+    return revision, revision_id
+
+
+def _resolve_administration_source_v2(page: Page, base_url: str) -> dict[str, str]:
+    raw_config = page.evaluate(
+        """() => {
+            const raw = window.localStorage.getItem("cmp.material-platform.api-config");
+            return raw ? JSON.parse(raw) : null;
+        }"""
+    )
+    config = _source_v2_object(raw_config, "API configuration")
+    access_token = config.get("accessToken")
+    if not isinstance(access_token, str) or not access_token.strip():
+        raise RuntimeError("source-v2 resolver requires an authenticated API token")
+    headers = {
+        "Accept": "application/json",
+        "Authorization": f"Bearer {access_token}",
+    }
+    tables_response = page.context.request.get(
+        f"{base_url}/api/v1/catalog/tables",
+        headers=headers,
+    )
+    if not tables_response.ok:
+        raise RuntimeError(f"source-v2 table resolution failed with HTTP {tables_response.status}")
+    tables_payload = _source_v2_object(tables_response.json(), "table response")
+    table_items = tables_payload.get("items")
+    if not isinstance(table_items, list):
+        raise RuntimeError("source-v2 table response has no item list")
+    table_matches: list[tuple[dict[str, object], dict[str, object], dict[str, object]]] = []
+    for candidate in table_items:
+        table = _source_v2_object(candidate, "table item")
+        revision = _source_v2_object(table.get("current_revision"), "table current revision")
+        content = _source_v2_object(revision.get("content"), "table content")
+        if content.get("key") == "technical_data":
+            table_matches.append((table, revision, content))
+    if len(table_matches) != 1:
+        raise RuntimeError("source-v2 Technical Data table key is not unique")
+    table, table_revision, table_content = table_matches[0]
+    table_id = _source_v2_uuid(table.get("table_id"), "Technical Data table id")
+    table_revision_id = _source_v2_uuid(table_revision.get("id"), "Technical Data table revision id")
+    _source_v2_revision(
+        table_revision,
+        label="Technical Data table",
+        aggregate_id=table_id,
+        lifecycle_state="published",
+    )
+    if table_content.get("key") != "technical_data":
+        raise RuntimeError("source-v2 Technical Data table key changed")
+    if table_content.get("name") != "Technical Data":
+        raise RuntimeError("source-v2 Technical Data table name changed")
+    if table_content.get("data_category") != "technical_data":
+        raise RuntimeError("source-v2 Technical Data table category changed")
+
+    layouts_response = page.context.request.get(
+        f"{base_url}/api/v1/catalog/tables/{table_id}/layouts",
+        headers=headers,
+    )
+    if not layouts_response.ok:
+        raise RuntimeError(f"source-v2 layout resolution failed with HTTP {layouts_response.status}")
+    layouts_payload = _source_v2_object(layouts_response.json(), "layout response")
+    layout_items = layouts_payload.get("items")
+    if not isinstance(layout_items, list):
+        raise RuntimeError("source-v2 layout response has no item list")
+    layout_matches = [
+        _source_v2_object(candidate, "layout item")
+        for candidate in layout_items
+        if _source_v2_object(candidate, "layout item").get("name")
+        == "Technical Data default layout"
+    ]
+    if len(layout_matches) != 1:
+        raise RuntimeError("source-v2 Technical Data default layout is not unique")
+    layout = layout_matches[0]
+    layout_id = _source_v2_uuid(layout.get("layout_id"), "Technical Data layout id")
+    layout_revision_id: str
+    if layout.get("table_id") != table_id or layout.get("table_revision_id") != table_revision_id:
+        raise RuntimeError("source-v2 Technical Data layout is pinned to the wrong table revision")
+    layout_revision, layout_revision_id = _source_v2_revision(
+        layout.get("revision"),
+        label="Technical Data default layout",
+        aggregate_id=layout_id,
+        lifecycle_state="published",
+    )
+    if layout.get("name") != "Technical Data default layout":
+        raise RuntimeError("source-v2 Technical Data layout name changed")
+    if layout.get("version") not in (None, 1) or layout_revision.get("version") not in (None, 1):
+        raise RuntimeError("source-v2 Technical Data layout is not version 1")
+
+    records_response = page.context.request.post(
+        f"{base_url}/api/v1/catalog/records:search",
+        headers={**headers, "Content-Type": "application/json"},
+        data=json.dumps(
+            {
+                "table_id": table_id,
+                "text": "CMP-246-TECH-DP780",
+                "offset": 0,
+                "limit": 100,
+            }
+        ),
+    )
+    if not records_response.ok:
+        raise RuntimeError(f"source-v2 record resolution failed with HTTP {records_response.status}")
+    records_payload = _source_v2_object(records_response.json(), "record response")
+    record_items = records_payload.get("items")
+    if not isinstance(record_items, list):
+        raise RuntimeError("source-v2 record response has no item list")
+    record_matches: list[tuple[dict[str, object], dict[str, object], dict[str, object]]] = []
+    for candidate in record_items:
+        record = _source_v2_object(candidate, "record item")
+        revision = _source_v2_object(record.get("current_revision"), "record current revision")
+        content = _source_v2_object(revision.get("content"), "record content")
+        if content.get("external_key") == "CMP-246-TECH-DP780":
+            record_matches.append((record, revision, content))
+    if len(record_matches) != 1 or records_payload.get("total_count") != 1:
+        raise RuntimeError("source-v2 DP780 technical data record is not unique")
+    record, record_revision, record_content = record_matches[0]
+    record_id = _source_v2_uuid(record.get("record_id"), "DP780 technical data record id")
+    record_revision_id = _source_v2_uuid(
+        record_revision.get("id"), "DP780 technical data record revision id"
+    )
+    _source_v2_revision(
+        record_revision,
+        label="DP780 technical data record",
+        aggregate_id=record_id,
+        lifecycle_state="draft",
+    )
+    if record.get("table_id") != table_id:
+        raise RuntimeError("source-v2 DP780 technical data record uses the wrong table")
+    if record_content.get("table_revision_id") != table_revision_id:
+        raise RuntimeError("source-v2 DP780 technical data record uses the wrong table revision")
+    if record_content.get("name") != "DP780 technical data":
+        raise RuntimeError("source-v2 DP780 technical data record name changed")
+    if record_content.get("external_key") != "CMP-246-TECH-DP780":
+        raise RuntimeError("source-v2 DP780 technical data record key changed")
+
+    return {
+        "table_id": table_id,
+        "table_revision_id": table_revision_id,
+        "layout_id": layout_id,
+        "layout_revision_id": layout_revision_id,
+        "record_id": record_id,
+        "record_revision_id": record_revision_id,
+    }
+
+
+def _administration_database_url(
+    base_url: str,
+    pins: dict[str, str],
+    *,
+    include_record: bool = False,
+) -> str:
+    entries = [
+        ("table_id", pins["table_id"]),
+        ("table_revision_id", pins["table_revision_id"]),
+        ("object_kind", "layouts"),
+        ("object_id", pins["layout_id"]),
+        ("object_revision_id", pins["layout_revision_id"]),
+    ]
+    if include_record:
+        entries.extend(
+            [
+                ("record_id", pins["record_id"]),
+                ("record_revision_id", pins["record_revision_id"]),
+            ]
+        )
+    return f"{base_url}/administration/database?{urlencode(entries)}"
+
+
+def _administration_records_url(base_url: str, pins: dict[str, str], *, include_record: bool = False) -> str:
+    entries = [
+        ("table_id", pins["table_id"]),
+        ("table_revision_id", pins["table_revision_id"]),
+    ]
+    if include_record:
+        entries.extend(
+            [
+                ("record_id", pins["record_id"]),
+                ("record_revision_id", pins["record_revision_id"]),
+            ]
+        )
+    return f"{base_url}/administration/records?{urlencode(entries)}"
+
+
+def _assert_administration_url(page: Page, expected_url: str) -> None:
+    if page.url != expected_url:
+        raise RuntimeError(f"Administration exact URL drifted: expected={expected_url} actual={page.url}")
+
+
+def _wait_for_administration_record_type(page: Page, pins: dict[str, str]) -> Locator:
+    record_type = page.get_by_role("combobox", name="Record type", exact=True)
+    record_type.wait_for(timeout=30_000)
+    deadline = time.monotonic() + 30
+    while record_type.input_value() != pins["table_id"]:
+        if time.monotonic() >= deadline:
+            raise RuntimeError("Administration did not select the resolved source-v2 Record type")
+        page.wait_for_timeout(100)
+    if record_type.input_value() != pins["table_id"]:
+        raise RuntimeError("Administration selected the wrong source-v2 Record type")
+    return record_type
+
+
+def _wait_for_administration_layout(
+    page: Page,
+    pins: dict[str, str],
+    expected_url: str,
+    *,
+    require_property_form: bool = True,
+) -> None:
+    page.get_by_role("region", name="Database design", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("navigation", name="Database objects", exact=True).wait_for(timeout=30_000)
+    _wait_for_administration_record_type(page, pins)
+    page.get_by_role(
+        "heading", name="Technical Data default layout", exact=True
+    ).wait_for(timeout=30_000)
+    if require_property_form:
+        page.locator(".schema-property-editor .property-sheet").wait_for(timeout=30_000)
+    _assert_administration_url(page, expected_url)
+
+
+def _wait_for_administration_preview(page: Page, pins: dict[str, str], expected_url: str) -> None:
+    page.get_by_role("region", name="Datasheet preview", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("region", name="Preview fields", exact=True).wait_for(timeout=30_000)
+    picker = page.get_by_role("combobox", name="Preview with", exact=True)
+    picker.wait_for(timeout=30_000)
+    if picker.input_value() != pins["record_id"]:
+        raise RuntimeError("Administration preview selected the wrong source-v2 Record")
+    selected_option = picker.locator("option:checked")
+    if selected_option.count() != 1 or selected_option.inner_text() != "DP780 technical data (Draft, revision 1)":
+        raise RuntimeError("Administration preview identity is not DP780 technical data r1 draft")
+    _assert_administration_url(page, expected_url)
+
+
+def _wait_for_administration_record(page: Page, pins: dict[str, str], expected_url: str) -> None:
+    page.get_by_role(
+        "region", name="Edit DP780 technical data", exact=True
+    ).wait_for(timeout=30_000)
+    page.get_by_role("heading", name="DP780 technical data", exact=True).wait_for(timeout=30_000)
+    page.get_by_text("Draft · Revision 1", exact=True).wait_for(timeout=30_000)
+    record_type = page.get_by_role("combobox", name="Record type", exact=True)
+    if record_type.input_value() != pins["table_id"]:
+        raise RuntimeError("Administration editor selected the wrong source-v2 Record type")
+    record_code = page.get_by_role("textbox", name="Record code", exact=True)
+    record_code.wait_for(timeout=30_000)
+    if record_code.input_value() != "CMP-246-TECH-DP780":
+        raise RuntimeError("Administration editor lost the exact DP780 record key")
+    _assert_administration_url(page, expected_url)
+
+
 def _bounding_box_edges(box: FloatRect | None) -> dict[str, float] | None:
     """Add viewport edges to Playwright's x/y/width/height bounding box."""
     if box is None:
@@ -654,7 +929,8 @@ def _assert_semantic_three_pane_geometry(
                 right: primaryBox.right,
                 width: primaryBox.width,
               },
-              navigatorDefault: token('--ux-navigator-default-inline-size'),
+              navigatorMinimum: token('--ux-navigator-min-inline-size'),
+              navigatorMaximum: token('--ux-navigator-max-inline-size'),
               readableFormMaximum: token('--ux-readable-form-max-inline-size'),
             };
         }""",
@@ -680,9 +956,13 @@ def _assert_semantic_three_pane_geometry(
         raise RuntimeError(
             f"Administration semantic workgroup did not use the available content width for {path_name}: {geometry}"
         )
-    if geometry["navigator"]["width"] > geometry["navigatorDefault"] + 1:
+    if geometry["navigator"]["width"] < geometry["navigatorMinimum"] - 1:
         raise RuntimeError(
-            f"Administration navigator exceeded its shared readable bound for {path_name}: {geometry}"
+            f"Administration navigator fell below its shared minimum for {path_name}: {geometry}"
+        )
+    if geometry["navigator"]["width"] > geometry["navigatorMaximum"] + 1:
+        raise RuntimeError(
+            f"Administration navigator exceeded its shared maximum for {path_name}: {geometry}"
         )
     if geometry["primary"]["width"] < 288:
         raise RuntimeError(
@@ -696,6 +976,147 @@ def _assert_semantic_three_pane_geometry(
         raise RuntimeError(
             f"Administration property form escaped its semantic workgroup for {path_name}: {geometry}"
         )
+
+
+def _assert_administration_record_editor_geometry(
+    page: Page,
+    *,
+    group_selector: str,
+    form_selector: str,
+    path_name: str,
+) -> None:
+    geometry = page.evaluate(
+        """selectors => {
+            const container = document.querySelector('.administration-content');
+            const group = document.querySelector(selectors.group);
+            const form = document.querySelector(selectors.form);
+            const facets = group?.querySelector('.catalog-facets');
+            const list = group?.querySelector('.catalog-record-list');
+            const datasheet = group?.querySelector('.catalog-datasheet');
+            if (!container || !group || !form || !facets || !list || !datasheet) return null;
+            const root = getComputedStyle(document.documentElement);
+            const token = name => Number.parseFloat(root.getPropertyValue(name));
+            const box = element => {
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return {
+                left: rect.left,
+                right: rect.right,
+                top: rect.top,
+                bottom: rect.bottom,
+                width: rect.width,
+                height: rect.height,
+                visible: element.getClientRects().length > 0 && style.display !== 'none',
+              };
+            };
+            const containerBox = container.getBoundingClientRect();
+            const groupBox = group.getBoundingClientRect();
+            const formBox = form.getBoundingClientRect();
+            const facetsBox = box(facets);
+            const listBox = box(list);
+            const datasheetBox = box(datasheet);
+            return {
+              viewportWidth: innerWidth,
+              container: {
+                left: containerBox.left,
+                right: containerBox.right,
+                width: containerBox.width,
+              },
+              group: {
+                left: groupBox.left,
+                right: groupBox.right,
+                top: groupBox.top,
+                bottom: groupBox.bottom,
+                width: groupBox.width,
+              },
+              form: {
+                left: formBox.left,
+                right: formBox.right,
+                width: formBox.width,
+              },
+              facets: facetsBox,
+              list: listBox,
+              datasheet: datasheetBox,
+              leftAllocation: Math.max(facetsBox.right, listBox.right) -
+                Math.min(facetsBox.left, listBox.left),
+              readableFormMaximum: token('--ux-readable-form-max-inline-size'),
+            };
+        }""",
+        {"group": group_selector, "form": form_selector},
+    )
+    if geometry is None:
+        raise RuntimeError(f"Administration record editor geometry is missing for {path_name}")
+
+    group = geometry["group"]
+    container = geometry["container"]
+    form = geometry["form"]
+    left_margin = group["left"] - container["left"]
+    right_margin = container["right"] - group["right"]
+    if abs(left_margin - right_margin) > 2:
+        raise RuntimeError(
+            f"Administration record editor is not horizontally balanced for {path_name}: {geometry}"
+        )
+    if group["width"] < container["width"] * 0.9:
+        raise RuntimeError(
+            f"Administration record editor did not use the available content width for {path_name}: {geometry}"
+        )
+    if form["width"] > geometry["readableFormMaximum"] + 1:
+        raise RuntimeError(
+            f"Administration record editor form exceeded readable width for {path_name}: {geometry}"
+        )
+    if form["left"] < group["left"] - 1 or form["right"] > group["right"] + 1:
+        raise RuntimeError(
+            f"Administration record editor form escaped its workgroup for {path_name}: {geometry}"
+        )
+    facets = geometry["facets"]
+    record_list = geometry["list"]
+    datasheet = geometry["datasheet"]
+    if not record_list["visible"] or not datasheet["visible"]:
+        raise RuntimeError(
+            f"Administration record editor list or datasheet is not visible for {path_name}: {geometry}"
+        )
+    if geometry["viewportWidth"] < 1600:
+        if facets["visible"]:
+            raise RuntimeError(
+                f"Administration record editor facets should be hidden below 1600px for {path_name}: {geometry}"
+            )
+        if (
+            record_list["top"] >= datasheet["top"]
+            or record_list["bottom"] > datasheet["top"] + 1
+            or abs(record_list["left"] - datasheet["left"]) > 1
+            or abs(record_list["right"] - datasheet["right"]) > 1
+        ):
+            raise RuntimeError(
+                f"Administration record editor list and datasheet are not vertical and non-overlapping below 1600px for {path_name}: {geometry}"
+            )
+    elif geometry["viewportWidth"] >= 1600:
+        if not facets["visible"]:
+            raise RuntimeError(
+                f"Administration record editor facets should be visible at or above 1600px for {path_name}: {geometry}"
+            )
+        if geometry["leftAllocation"] < 288:
+            raise RuntimeError(
+                f"Administration record editor left allocation is too narrow at or above 1600px for {path_name}: {geometry}"
+            )
+        if (
+            datasheet["left"] < facets["right"] - 1
+            or datasheet["left"] < record_list["right"] - 1
+            or datasheet["top"] > group["bottom"] + 1
+            or datasheet["bottom"] < group["top"] - 1
+        ):
+            raise RuntimeError(
+                f"Administration record editor datasheet is not to the right of the left work area at or above 1600px for {path_name}: {geometry}"
+            )
+        for left_box, right_box in ((facets, datasheet), (record_list, datasheet)):
+            if (
+                left_box["left"] < right_box["right"] - 1
+                and left_box["right"] > right_box["left"] + 1
+                and left_box["top"] < right_box["bottom"] - 1
+                and left_box["bottom"] > right_box["top"] + 1
+            ):
+                raise RuntimeError(
+                    f"Administration record editor panes overlap at or above 1600px for {path_name}: {geometry}"
+                )
 
 
 def _capture(
@@ -9743,14 +10164,18 @@ def _capture_modeling_data_exceptions(
 
 
 def _capture_administration_database(browser: Browser, base_url: str, output: Path) -> None:
+    resolver_page = _new_page(browser, base_url, *VIEWPORTS[1])
+    pins = _resolve_administration_source_v2(resolver_page, base_url)
+    resolver_page.context.close()
+    layout_url = _administration_database_url(base_url, pins)
+    preview_url = _administration_database_url(base_url, pins, include_record=True)
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        page.goto(f"{base_url}/administration/database")
-        page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
-        page.get_by_role("heading", name="Database design", exact=True).wait_for(timeout=30_000)
-        page.get_by_role("navigation", name="Database objects").wait_for(timeout=30_000)
-        page.get_by_role("combobox", name="Current table", exact=True).wait_for(timeout=30_000)
-        page.locator(".schema-property-editor .property-sheet").wait_for(timeout=30_000)
+        page.goto(layout_url)
+        page.get_by_role("navigation", name="Administration tasks", exact=True).wait_for(timeout=30_000)
+        _wait_for_administration_layout(page, pins, layout_url)
+        page.reload()
+        _wait_for_administration_layout(page, pins, layout_url)
         page.wait_for_load_state("networkidle")
         if page.get_by_role("alert").count():
             raise RuntimeError(f"Administration shows an error at {width}x{height}")
@@ -9765,15 +10190,16 @@ def _capture_administration_database(browser: Browser, base_url: str, output: Pa
             path_name=f"administration-database-{width}x{height}.png",
         )
         _capture(page, output / f"administration-database-{width}x{height}.png", width, height)
-        page.get_by_role("button", name="Preview datasheet", exact=True).click()
-        page.get_by_label("Adjacent datasheet preview").wait_for(timeout=30_000)
-        page.locator(".schema-preview-identity").wait_for(timeout=30_000)
-        if page.evaluate(
-            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
-        ):
-            raise RuntimeError(
-                f"Administration preview has horizontal overflow at {width}x{height}"
-            )
+        page.get_by_role("button", name="Preview", exact=True).click()
+        picker = page.get_by_role("combobox", name="Preview with", exact=True)
+        picker.wait_for(timeout=30_000)
+        picker.select_option(pins["record_id"])
+        _wait_for_administration_preview(page, pins, preview_url)
+        page.reload()
+        _wait_for_administration_layout(
+            page, pins, preview_url, require_property_form=False
+        )
+        _wait_for_administration_preview(page, pins, preview_url)
         _capture(
             page,
             output / f"administration-database-preview-{width}x{height}.png",
@@ -9784,58 +10210,43 @@ def _capture_administration_database(browser: Browser, base_url: str, output: Pa
 
 
 def _capture_administration_records(browser: Browser, base_url: str, output: Path) -> None:
+    resolver_page = _new_page(browser, base_url, *VIEWPORTS[1])
+    pins = _resolve_administration_source_v2(resolver_page, base_url)
+    resolver_page.context.close()
+    records_url = _administration_records_url(base_url, pins)
+    exact_record_url = _administration_records_url(base_url, pins, include_record=True)
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
         page = _new_page(browser, base_url, width, height)
-        page.goto(f"{base_url}/administration/records")
-        page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
-        page.get_by_role("heading", name="Single entry or multiple rows", exact=True).wait_for(
-            timeout=30_000
-        )
-        page.get_by_role("heading", name="Create Record", exact=True).wait_for(timeout=30_000)
-        single_entry = page.get_by_role("button", name="Single entry", exact=True)
-        single_entry.wait_for(state="visible", timeout=30_000)
-        if "active" not in (single_entry.get_attribute("class") or ""):
-            raise RuntimeError(f"Administration must open in Single entry mode at {width}x{height}")
-        page.get_by_role("button", name="Create record", exact=True).wait_for(
-            state="visible", timeout=30_000
-        )
+        page.goto(records_url)
+        page.get_by_role("navigation", name="Administration tasks", exact=True).wait_for(timeout=30_000)
+        page.get_by_role("region", name="Record scope and search", exact=True).wait_for(timeout=30_000)
+        _wait_for_administration_record_type(page, pins)
+        search = page.get_by_role("textbox", name="Search", exact=True)
+        search.fill("CMP-246-TECH-DP780")
+        page.get_by_role("button", name="Search", exact=True).click()
         record_rows = page.locator(".record-result")
-        record_rows.nth(0).wait_for(state="visible", timeout=30_000)
-        record_rows.nth(0).click()
-        page.get_by_role("heading", name=re.compile(r"^Edit revision \d+$")).wait_for(
-            state="visible", timeout=30_000
-        )
-        review_status = page.get_by_text(
-            re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
-        ).filter(visible=True)
-        review_status.nth(0).wait_for(state="visible", timeout=30_000)
-        if page.get_by_role("button", name="Request review", exact=True).count() == 1:
-            page.get_by_role("button", name="Request review", exact=True).click()
-            reason = page.get_by_role("textbox", name="Review request reason", exact=True)
-            reason.wait_for(state="visible", timeout=30_000)
-            reason.fill(
-                "Check this single Catalog record revision, its immutable values, and the linked Material before publication."
-            )
-            if not reason.input_value().startswith("Check this single Catalog record revision"):
-                raise RuntimeError("single-record review reason did not retain long text")
-            page.get_by_role("button", name="Cancel", exact=True).click()
-            page.get_by_role("button", name="Request review", exact=True).wait_for(
-                state="visible", timeout=30_000
-            )
-        multiple_rows = page.get_by_role("button", name="Multiple rows", exact=True)
-        multiple_rows.wait_for(timeout=30_000)
-        multiple_rows.click()
-        page.get_by_label("Source file", exact=True).wait_for(timeout=30_000)
-        page.get_by_role("button", name="Read columns", exact=True).wait_for(timeout=30_000)
+        expected_record_row = "DP780 technical data\nCMP-246-TECH-DP780\n1\nDraft"
+        deadline = time.monotonic() + 30
+        while (
+            record_rows.count() != 1
+            or record_rows.all_inner_texts() != [expected_record_row]
+        ):
+            if time.monotonic() >= deadline:
+                raise RuntimeError("Administration search did not return one exact DP780 record")
+            page.wait_for_timeout(100)
+        record_rows.click()
+        _wait_for_administration_record(page, pins, exact_record_url)
+        page.reload()
+        _wait_for_administration_record(page, pins, exact_record_url)
         if page.get_by_role("alert").count():
-            raise RuntimeError(f"Administration registration shows an error at {width}x{height}")
+            raise RuntimeError(f"Administration records shows an error at {width}x{height}")
         if page.evaluate(
             "document.documentElement.scrollWidth > document.documentElement.clientWidth"
         ):
             raise RuntimeError(
-                f"Administration registration has horizontal overflow at {width}x{height}"
+                f"Administration records has horizontal overflow at {width}x{height}"
             )
-        _assert_semantic_three_pane_geometry(
+        _assert_administration_record_editor_geometry(
             page,
             group_selector=".catalog-record-grid",
             form_selector=".catalog-datasheet > form",

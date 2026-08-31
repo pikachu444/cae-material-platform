@@ -18,6 +18,31 @@ DESIGN_CSS = "\n".join(
     path.read_text(encoding="utf-8")
     for path in sorted((ROOT / "apps/web/src/design").glob("*.css"))
 )
+RETIRED_ADMINISTRATION_SELECTOR_GROUPS = (
+    ".connection-dot.online",
+    ".material-context-tabs button.active",
+    ".material-list.compact",
+    ".connection-panel > .muted",
+    ".material-database-toolbar .eyebrow",
+    ".database-projection-switch button.active",
+    ".database-tree-node.selected",
+    ".database-tree-node.record",
+    ".record-view-tabs button.active",
+    ".material-workflow-node.current",
+    ".database-context-tabs button.active",
+    ".database-revision-list button.active",
+    ".record-heading-actions .text-button",
+    ".database-facet-group button.active",
+)
+
+
+def _contains_exact_css_rule(css: str, selector: str) -> bool:
+    css_without_comments = re.sub(r"/\*.*?\*/", "", css, flags=re.DOTALL)
+    return re.search(
+        rf"(?:^|[}},])\s*{re.escape(selector)}\s*\{{",
+        css_without_comments,
+        flags=re.MULTILINE,
+    ) is not None
 
 
 def test_shared_semantic_tokens_own_desktop_density_and_layout_boundaries() -> None:
@@ -112,6 +137,24 @@ def test_administration_structure_has_one_active_owner() -> None:
         assert selector in ADMINISTRATION
         assert selector not in LAYOUT
         assert selector not in LEGACY
+
+
+def test_retired_administration_css_groups_have_no_production_consumers() -> None:
+    source_css = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted((ROOT / "apps/web/src").rglob("*.css"))
+    )
+    for selector in RETIRED_ADMINISTRATION_SELECTOR_GROUPS:
+        assert not _contains_exact_css_rule(source_css, selector), selector
+
+    dist_root = ROOT / "apps/web/dist"
+    if dist_root.exists():
+        dist_css = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(dist_root.rglob("*.css"))
+        )
+        for selector in RETIRED_ADMINISTRATION_SELECTOR_GROUPS:
+            assert not _contains_exact_css_rule(dist_css, selector), selector
 
 
 def test_administration_elastic_workgroups_keep_forms_on_shared_semantic_boundaries() -> None:

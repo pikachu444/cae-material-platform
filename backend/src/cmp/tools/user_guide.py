@@ -245,6 +245,41 @@ _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES.update(
         )
     }
 )
+_CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_TARGETS: dict[
+    str, tuple[str, str, int, int, str, str]
+] = {
+    "administration-database-normal-1920x1080": (
+        "administration-database",
+        "normal",
+        1920,
+        1080,
+        "docs/user-guide/images/current/administration-database-1920x1080.png",
+        "administration-database-1920",
+    ),
+    "administration-database-normal-2560x1440": (
+        "administration-database",
+        "normal",
+        2560,
+        1440,
+        "docs/user-guide/images/current/administration-database-2560x1440.png",
+        "administration-database-2560",
+    ),
+    "administration-database-normal-3840x2160": (
+        "administration-database",
+        "normal",
+        3840,
+        2160,
+        "docs/user-guide/images/current/administration-database-3840x2160.png",
+        "administration-database-3840",
+    ),
+}
+_CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_ROUTES = {
+    reference_id: "/administration/database"
+    for reference_id in _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_TARGETS
+}
+_CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS = frozenset(
+    _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_TARGETS
+)
 _CURRENT_PRODUCT_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str]] = {
     "administration-database-normal-1920x1080": (
         "administration-database",
@@ -896,7 +931,10 @@ def _verify_current_product_reference_evidence(
                 f"current product reference screenshot capture is missing: {reference_id}"
             )
         capture = captures[evidence_key]
-        expected_route = _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES[reference_id]
+        expected_route = (
+            _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES
+            | _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_ROUTES
+        )[reference_id]
         if capture.get("route") != expected_route:
             raise UserGuideContractError(
                 f"current product reference route drifted: {reference_id}"
@@ -1398,13 +1436,21 @@ def _verify_service_reference_manifest(
                 raise UserGuideContractError(
                     "final publication requires zero pending service references"
                 )
-        elif pending_ids not in (
-            _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS,
-            set(),
-        ) and operational_ids != expected_operational_ids:
+        elif (
+            pending_ids
+            - (expected_operational_ids | _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS)
+            or pending_ids & _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS
+            not in (_CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS, set())
+            or (
+                pending_ids & expected_operational_ids
+                not in (expected_operational_ids, set())
+                and operational_ids != expected_operational_ids
+            )
+        ):
             raise UserGuideContractError(
                 "ordinary service-reference verification requires exactly the fifteen "
-                "current Materials references to remain pending-owner-disposition or "
+                "current Materials references or the complete three-reference Administration "
+                "Database set to remain pending-owner-disposition or "
                 "operational-evidence-accepted: "
                 f"pending={sorted(pending_ids)}, operational={sorted(operational_ids)}"
             )
@@ -1423,9 +1469,13 @@ def _verify_service_reference_manifest(
         ids.add(reference_id)
         status = reference.get("status")
         pending = status == "pending-owner-disposition"
-        if pending and reference_id not in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+        if pending and reference_id not in (
+            _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+            | _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS
+        ):
             raise UserGuideContractError(
-                f"only current Materials references may be pending: {reference_id}"
+                "only current Materials or Administration Database references may be pending: "
+                f"{reference_id}"
             )
         operational = status == "operational-evidence-accepted"
         if pending:
@@ -1476,6 +1526,19 @@ def _verify_service_reference_manifest(
             screen, state, width, height, expected_image_ref = _CURRENT_PRODUCT_REFERENCE_TARGETS[
                 reference_id
             ]
+            current_admin_screenshot = (
+                reference_id in _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS
+                and reference.get("evidence_manifest") == _CURRENT_PRODUCT_SCREENSHOT_MANIFEST
+            )
+            if current_admin_screenshot:
+                (
+                    screen,
+                    state,
+                    width,
+                    height,
+                    expected_image_ref,
+                    _,
+                ) = _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_TARGETS[reference_id]
             if (reference.get("screen"), reference.get("state")) != (screen, state):
                 raise UserGuideContractError(
                     f"current product reference identity contract drifted: {reference_id}"
@@ -1495,6 +1558,7 @@ def _verify_service_reference_manifest(
             expected_evidence_manifest = (
                 _CURRENT_PRODUCT_SCREENSHOT_MANIFEST
                 if reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                or current_admin_screenshot
                 else _CURRENT_PRODUCT_EVIDENCE_MANIFEST
             )
             if reference.get("evidence_manifest") != expected_evidence_manifest:
@@ -1502,8 +1566,13 @@ def _verify_service_reference_manifest(
                     f"current product reference evidence declaration drifted: {reference_id}"
                 )
             expected_evidence_key = (
-                _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS[reference_id][5]
+                (
+                    _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS[reference_id][5]
+                    if reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                    else _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_TARGETS[reference_id][5]
+                )
                 if reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                or current_admin_screenshot
                 else _CURRENT_PRODUCT_EVIDENCE_KEY
             )
             if reference.get("evidence_key") != expected_evidence_key:
@@ -1523,7 +1592,10 @@ def _verify_service_reference_manifest(
                 )
             guide_screenshot_ids.add(guide_screenshot_id)
             image_parent = current_root
-        elif reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+        elif reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS or (
+            reference_id in _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS
+            and reference.get("evidence_manifest") == _CURRENT_PRODUCT_SCREENSHOT_MANIFEST
+        ):
             image_parent = project / "docs" / "user-guide" / "images" / "current"
         else:
             image_parent = evidence_root
