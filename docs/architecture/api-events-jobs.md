@@ -1,5 +1,13 @@
 # API, 이벤트, 비동기 작업 계약
 
+Status: authoritative semantic guide
+
+현재 HTTP contract는 `0.40.0`이다. HTTP identifier와 payload의 machine-readable source of truth는
+`contracts/http/openapi.yaml`과 runtime OpenAPI다. 외부에 발행하는 event 계약의 source of truth는
+`contracts/events/asyncapi.yaml`과 root event JSON Schema다. Runtime에서만 발행하고 아직 root
+AsyncAPI에 등록하지 않은 event는 emitter와 integration test가 현재 동작의 증거다. 이 문서는 그
+계약들의 의미, 경계와 delivery 원칙을 설명하며 전체 endpoint catalog를 복제하지 않는다.
+
 ## 1. 계약 원칙
 
 - REST API는 command/query와 resource lifecycle을 표현한다.
@@ -34,13 +42,13 @@
 - 검증된 token의 `(issuer, subject)`는 stable principal로 resolve한다. user와 service principal을
   구분하고 client-credentials service token은 `subject == client_id`여야 한다.
 - `organization_id`와 `project_id`는 선택된 request context로 반드시 존재해야 한다. 이 값이
-  membership/role 권한을 증명하는 것은 아니며 T-04가 별도로 검증한다.
+  membership/role 권한을 증명하는 것은 아니며 authorization layer가 별도로 검증한다.
 - `GET /api/v1/me`는 principal UUID/type/display name, 선택된 organization/project, group/scope,
   request/trace ID를 반환한다.
 - 인증 오류는 token, claim, key, stack trace를 노출하지 않는 `application/problem+json`으로
   반환하고 모든 응답에 correlation용 `X-Request-ID`를 둔다.
 
-### 2.2 T-04 authorization contract
+### 2.2 Authorization contract
 
 - 인증된 context는 권한이 아니다. 보호 endpoint는 하나의 명시적 `Permission`으로 service-layer
   authorization을 먼저 수행한다.
@@ -53,27 +61,29 @@
 - `/me`는 identity와 선택 context만 반환한다. Role/permission 관리 API는 아직 public contract가
   아니며 추가할 때 별도 versioned schema를 만든다.
 
-## 3. 주요 REST resource
+## 3. 대표 REST resource
+
+아래 표는 현재 OpenAPI에 존재하는 대표 operation과 의미를 설명한다. 전체 operation 목록과 정확한
+request/response schema는 OpenAPI를 따른다. 동일한 업무 개념도 typed family별 endpoint로 나뉘며,
+generic placeholder endpoint를 현재 계약으로 간주하지 않는다.
 
 ### 3.1 Catalog·testing
 
 | Method/path | 목적 |
 | --- | --- |
 | `POST /materials` | Material identity와 첫 revision 생성 |
-| `GET /materials/{id}` | head 및 요약 조회 |
-| `GET /materials/{id}/revisions` | revision 목록 |
-| `POST /materials/{id}/revisions` | 새 immutable revision 생성 |
-| `POST /material-states` | state identity/revision 생성 |
-| `POST /lots`, `POST /batches` | lot/batch 생성 |
-| `POST /process-runs` | 실제 공정 실행 기록 |
-| `POST /specimens` | specimen 등록 |
-| `POST /test-methods` | plugin schema를 참조하는 method 생성 |
-| `POST /test-campaigns` | campaign 생성 |
+| `GET /materials/{material_id}` | head 및 요약 조회 |
+| `GET /materials/{material_id}/revisions` | revision 목록 |
+| `POST /materials/{material_id}/revisions` | 새 immutable revision 생성 |
+| `POST /materials/{material_id}/states` | Material 아래 state identity/revision 생성 |
+| `POST /materials/{material_id}/lots` | 공급·생산 추적용 Material Lot 생성 |
+| `POST /material-states/{material_state_id}/process-runs` | state에 연결된 실제 공정 실행 기록 |
+| `POST /material-states/{material_state_id}/specimens` | state 아래 specimen 등록 |
+| `POST /test-methods/reference-uniaxial-tensile` | typed reference tensile method 생성 |
 | `POST /test-runs` | specimen test run 생성 |
-| `POST /test-runs/{id}/corrections` | 원본 event를 보존한 correction revision |
 | `POST /catalog/schema-definition-bundles:plan` | exact immutable Artifact의 canonical bundle 또는 checksummed source-set/ZIP을 adapter 경계에서 검증하고 현재 Catalog 대비 no-write plan 반환 |
 | `POST /catalog/schema-definition-bundles:apply` | exact Artifact·SHA-256·`plan_fingerprint`를 다시 검증하고 서버 재계획 결과를 원자 적용 |
-| `GET /catalog/schema-definition-bundle-applications/{id}` | immutable 적용 결과와 source/revision/publication binding 조회 |
+| `GET /catalog/schema-definition-bundle-applications/{application_id}` | immutable 적용 결과와 source/revision/publication binding 조회 |
 | `GET /catalog/schema-definition-bundles/{bundle_key}:export` | 현재 binding이 유지될 때 exact source Artifact의 원본 media type과 bytes 내보내기 |
 
 #### 3.1.1 Catalog Schema Definition Bundle v1
@@ -155,37 +165,38 @@ Artifact bytes 중 하나라도 restore 또는 retention에서 빠지면 재현 
 | Method/path | 목적 |
 | --- | --- |
 | `POST /uploads` | upload session 생성 |
-| `POST /uploads/{id}/parts` | multipart/chunk 정보 등록 또는 발급 |
-| `POST /uploads/{id}:complete` | size/digest 검증과 Raw Asset 생성 |
-| `GET /artifacts/{id}` | metadata와 integrity 상태 조회 |
-| `POST /artifacts/{id}:download-token` | 권한 검사 후 short-lived access 발급 |
+| `PUT /uploads/{upload_id}/parts/{part_number}` | multipart part 업로드 |
+| `POST /uploads/{upload_id}:complete` | size/digest 검증과 Raw Asset 생성 |
+| `GET /artifacts/{artifact_id}` | metadata와 integrity 상태 조회 |
+| `POST /artifacts/{artifact_id}:download-token` | 권한 검사 후 short-lived access 발급 |
 | `POST /imports:detect` | Importer detect job 제출 |
 | `POST /import-mappings` | 승인 mapping revision 생성 |
 | `POST /imports` | normalization/import job 제출 |
-| `GET /datasets/{id}/revisions/{rev}` | dataset manifest 조회 |
-| `POST /selections` | immutable selection revision 생성 |
-| `POST /datasets/{id}/views` | UI용 downsampled view job 제출 |
+| `GET /datasets/{dataset_id}/revisions` | Dataset의 immutable revision 목록 조회 |
+| `GET /dataset-revisions/{dataset_revision_id}/curve` | exact Dataset revision의 bounded curve preview 조회 |
+| `POST /dataset-selections` | immutable Dataset Selection revision 생성 |
 
 ### 3.3 Analysis·model·export·validation
 
 | Method/path | 목적 |
 | --- | --- |
-| `POST /processing-recipes` | recipe revision 생성 |
-| `POST /processing-runs` | processing job 제출 |
-| `POST /statistical-plans` | grouping/method/QC plan 생성 |
-| `POST /statistical-runs` | statistics job 제출 |
-| `POST /outlier-assessments` | candidate 판정 추가 |
+| `POST /common-processing-recipes` | common processing recipe revision 생성 |
+| `POST /common-processing-batches` | exact input과 recipe를 고정한 processing batch 제출 |
+| `POST /replicate-statistical-plans` | replicate grouping/method/QC plan 생성 |
+| `POST /replicate-statistical-runs` | replicate statistics job 제출 |
+| `POST /replicate-outlier-assessments` | replicate outlier candidate 판정 추가 |
 | `POST /calibration-plans` | model/calibrator/input/config 고정 |
 | `POST /calibration-runs` | calibration job 제출 |
-| `POST /material-models/{id}/revisions` | approved result로 IR revision 생성 |
-| `POST /exports:preflight` | mapping report job 제출 |
-| `POST /solver-cards` | approved report 기반 export job 제출 |
+| `POST /material-states/{material_state_id}/material-models` | state에 연결된 typed Material Model 생성 |
+| `POST /material-models/{material_model_id}/mapping-preflight` | exact model의 mapping report 생성 |
+| `POST /material-models/{material_model_id}/solver-cards` | exact model과 승인된 report 기반 Solver Card 생성 |
+| `POST /exporting/target-previews` | target별 변환·근사·미지원 결과 preview |
 | `POST /export-selections` | exact Dataset/IR/Card/Artifact revision과 representation 고정 |
 | `POST /export-jobs` | immutable Bulk Export Bundle assembly job 제출 |
-| `GET /export-bundles/{id}` | manifest, archive Artifact와 integrity 상태 조회 |
+| `GET /export-bundles/{bundle_id}` | manifest, archive Artifact와 integrity 상태 조회 |
 | `POST /validation-plans` | template/card/runner/metric 고정 |
 | `POST /validation-runs` | managed 또는 external validation 실행 |
-| `POST /validation-runs/{id}:attach-external-result` | 수동 실행 Result Manifest 반입 |
+| `POST /validation-runs/{run_id}:attach-result` | 수동 실행 Result Manifest 반입 |
 
 Bulk Export Job 응답은 외부 worker 작업에 대해 nullable `heartbeat_at`과 `lease_expires_at`을
 제공한다. `lease_token`은 worker fencing credential이므로 API와 event payload에 노출하지 않는다.
@@ -197,22 +208,23 @@ commit 또는 Bundle revision을 덮어쓰지 않는다.
 | Method/path | 목적 |
 | --- | --- |
 | `POST /review-requests` | candidate manifest 제출 |
-| `POST /review-requests/{id}/decisions` | approve/reject/request-change |
+| `POST /review-requests/{request_id}/decisions` | approve/reject/request-change |
 | `POST /releases` | 승인된 candidate 발행 |
-| `POST /releases/{id}:supersede` | 새 release로 대체 |
-| `POST /releases/{id}:withdraw` | 사용 중지 event |
-| `GET /lineage/entities/{id}/upstream` | upstream graph query |
-| `GET /lineage/entities/{id}/downstream` | impact query |
-| `GET /lineage/releases/{id}` | release provenance subgraph |
+| `POST /releases/{release_id}/supersede` | 새 release로 대체 |
+| `POST /releases/{release_id}/withdraw` | 사용 중지 event |
+| `GET /provenance/entities/{entity_id}/lineage` | direction query를 사용하는 upstream/downstream graph 조회 |
+| `GET /provenance/entities/{entity_id}/impact` | entity downstream impact 조회 |
+| `GET /releases/{release_id}` | release manifest 조회 |
+| `GET /releases/{release_id}/impact` | release 영향 분석 조회 |
 | `POST /plugins/packages` | package 등록·검증 job |
-| `POST /plugins/packages/{id}:activate` | policy 승인 후 활성화 |
-| `GET /jobs/{id}` | job 상태·attempt·result 조회 |
-| `POST /jobs/{id}:cancel` | cooperative cancel 요청 |
-| `POST /jobs/{id}:retry` | 새 attempt 생성; reason 필수 |
+| `POST /plugins/packages/{package_id}:activate` | policy 승인 후 활성화 |
+| `GET /jobs/{job_id}` | job 상태·attempt·result 조회 |
+| `POST /jobs/{job_id}:cancel` | cooperative cancel 요청 |
+| `POST /jobs/{job_id}:retry` | 새 attempt 생성; reason 필수 |
 
 ### 3.5 Common unit and Unit Profile
 
-HTTP contract `0.35.0` references
+HTTP contract `0.40.0` references
 `contracts/units/unit-resources.schema.json` contract `1.1.0` directly. This additive minor keeps
 all `1.0.0` IDs and aliases, adds explicit `speed` with `m/s`, `mm/s`, `mm/min`, and adds
 `tonne/mm3` to `mass_per_volume`.
@@ -268,7 +280,7 @@ authorization 불일치와 잘못된 exact hash를 silent fallback 없이 구분
 
 ### 3.6 Curve channel metadata and deviation
 
-HTTP contract `0.35.0` references
+HTTP contract `0.40.0` references
 `contracts/datasets/curve-channel-metadata.schema.json` contract `1.0.0`. Dataset, canonical Test
 Data, Processing stage/ensemble and Statistics curve responses add the same `curve_metadata` and
 bounded same-index series shape. The following exact reads are the primary public entry points.
@@ -298,7 +310,7 @@ legacy adapter를 통과해야 하지만, 변경하지 않은 역사적 unknown 
 ## 4. Revision create 예시
 
 ```http
-POST /api/v1/materials/8e.../revisions
+POST /api/v1/materials/{material_id}/revisions
 If-Match: "revision:3:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 Idempotency-Key: 5b...
 Content-Type: application/json
@@ -318,9 +330,8 @@ Content-Type: application/json
 
 성공 시 `201 Created`, 새 resource URL, ETag를 반환한다. head가 달라졌다면 `409 Conflict` 또는 `412 Precondition Failed`와 current revision ref를 반환한다.
 
-`T-06`은 아직 Material endpoint를 만들지 않고 위 endpoint들이 재사용할 strong ETag와
-content-free `RevisionMetadata` component만 구현한다. Weak/wildcard/multiple ETag와 `latest`
-alias는 허용하지 않는다. Concrete Material API와 typed content schema는 `T-07`에서 추가한다.
+Revision kernel에서 도입한 strong ETag와 immutable revision 규칙은 현재 concrete Material API와
+typed content schema에 적용된다. Weak/wildcard/multiple ETag와 `latest` alias는 허용하지 않는다.
 
 ## 5. Job resource
 
@@ -401,43 +412,39 @@ CloudEvents 1.0 JSON 형식을 사용한다. CloudEvents는 transport가 아니�
 ```json
 {
   "specversion": "1.0",
-  "id": "uuid",
-  "source": "/cmp/organizations/org-id/projects/project-id",
-  "type": "com.cmp.material-model.revision.created.v1",
-  "subject": "material-models/model-id/revisions/revision-id",
-  "time": "RFC3339",
+  "id": "94000000-0000-4000-8000-000000000001",
+  "source": "urn:cmp:module:artifacts",
+  "type": "io.cmp.artifact.available.v1",
+  "subject": "artifacts/94000000-0000-4000-8000-000000000002",
+  "time": "2026-07-13T15:00:00Z",
   "datacontenttype": "application/json",
-  "dataschema": "urn:cmp:event-schema:material-model-revision-created:v1",
-  "traceparent": "...",
+  "dataschema": "urn:cmp:schema:event:artifact-available:1.0.0",
+  "cmpsequence": 1,
+  "cmporganizationid": "94000000-0000-4000-8000-000000000003",
+  "cmpprojectid": "94000000-0000-4000-8000-000000000004",
+  "cmpclassification": "internal",
   "data": {
-    "organization_id": "uuid",
-    "project_id": "uuid",
-    "aggregate_id": "uuid",
-    "revision_id": "uuid",
-    "revision_no": 2,
-    "content_hash": "hex"
+    "artifact_id": "94000000-0000-4000-8000-000000000002",
+    "pending_artifact_id": "94000000-0000-4000-8000-000000000005",
+    "artifact_kind": "raw",
+    "artifact_role": "raw_source",
+    "schema_ref": null,
+    "media_type": "text/csv",
+    "size_bytes": 12,
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "source_raw_asset_id": "94000000-0000-4000-8000-000000000006",
+    "created_at": "2026-07-13T15:00:00Z"
   }
 }
 ```
 
 ### 7.1 핵심 event catalog
 
-| Event type | 발생 시점 |
-| --- | --- |
-| `raw-asset.ingested.v1` | final object와 metadata commit |
-| `dataset.revision.created.v1` | dataset artifact/schema/provenance commit |
-| `qc.run.completed.v1` | QC observations commit |
-| `statistics.run.completed.v1` | statistical results commit |
-| `processing.run.completed.v1` | processed dataset commit |
-| `calibration.run.completed.v1` | result/diagnostics commit |
-| `material-model.revision.created.v1` | IR revision commit |
-| `solver-card.generated.v1` | card + mapping report commit |
-| `validation.run.completed.v1` | result + verdict commit |
-| `review.decision.recorded.v1` | append-only decision commit |
-| `release.published.v1` | immutable release manifest commit |
-| `release.superseded.v1` | lifecycle transition commit |
-| `plugin.package.activated.v1` | activation policy commit |
-| `io.cmp.catalog.schema-definition-bundle.applied.v1` | bundle application, exact publication, provenance와 audit가 같은 transaction에 commit |
+| Event type | 상태 | 정확한 source와 의미 |
+| --- | --- | --- |
+| `io.cmp.artifact.available.v1` | `published-contract` | `contracts/events/asyncapi.yaml`, root JSON Schema와 emitter가 관리하는 immutable Artifact availability |
+| `io.cmp.catalog.schema-definition-bundle.applied.v1` | `published-contract` | `contracts/events/asyncapi.yaml`, root JSON Schema와 emitter가 관리하는 bundle application commit |
+| `io.cmp.exporting.solver-card-delivered.v1` | `runtime-only-uncontracted` | target delivery emitter와 PostgreSQL integration test에만 있으며 root AsyncAPI에는 아직 등록되지 않은 delivery receipt |
 
 `completed`는 성공만 뜻하지 않는다. payload에 terminal outcome을 넣거나 성공/실패 event를 분리하는 정책 중 하나를 event별 schema에서 고정한다. MVP 권고는 `job.completed`에는 outcome을 포함하고, domain artifact event는 성공 commit에만 발행하는 방식이다.
 
@@ -454,7 +461,10 @@ CloudEvents 1.0 JSON 형식을 사용한다. CloudEvents는 transport가 아니�
 
 ## 9. AsyncAPI 문서
 
-event channel, operation, payload schema, delivery/security policy는 AsyncAPI로 관리한다. AsyncAPI는 message-driven API를 machine-readable하게 기술한다. [AsyncAPI specification](https://www.asyncapi.com/docs/reference/specification/latest)
+외부에 발행하는 event channel, operation, payload schema, delivery/security policy는 AsyncAPI로
+관리한다. `runtime-only-uncontracted` event는 현재 동작하지만 public machine contract가 아니며,
+AsyncAPI와 root schema에 등록되기 전에는 외부 consumer 계약으로 사용할 수 없다. AsyncAPI는
+message-driven API를 machine-readable하게 기술한다. [AsyncAPI specification](https://www.asyncapi.com/docs/reference/specification/latest)
 
 Repository 기준 파일:
 

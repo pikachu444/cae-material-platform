@@ -65,67 +65,90 @@ W3C PROV-DM은 provenance를 domain-agnostic한 Entity, Activity, Agent와 관�
 
 ### 3.1 Node tables
 
+아래 pseudo-schema는 현재 application persistence table의 column을 순서대로 보여준다. Primary key,
+foreign key, unique constraint와 RLS는 database migration이 관리하며 이 목록에서 추정하지 않는다.
+
 ```text
-prov_entity(
-  id, organization_id, project_id,
-  entity_type, domain_ref_table, domain_ref_id,
-  content_hash, created_at, classification
+provenance.entity(
+  organization_id, project_id, classification,
+  id, entity_type, reference_kind, reference_type, reference_id,
+  content_sha256, generation_requirement, created_at,
+  recorded_at, recorded_by, request_id, trace_id
 )
 
-prov_activity(
-  id, organization_id, project_id,
+provenance.activity(
+  organization_id, project_id, classification,
+  id,
   activity_type, domain_run_type, domain_run_id,
-  started_at, ended_at, status, trace_id
+  status, input_required, output_required,
+  started_at, ended_at, submission_digest,
+  recorded_at, recorded_by, request_id, trace_id
 )
 
-prov_agent(
-  id, organization_id,
-  agent_type, principal_id?, plugin_package_id?, service_id?
+provenance.agent(
+  organization_id, project_id, classification,
+  id, agent_type, reference_id,
+  recorded_at, recorded_by, request_id, trace_id
 )
 ```
 
-`domain_ref_table`은 허용 목록으로 제한하고 application service가 referenced row 존재를 검증한다. 핵심 entity에는 가능한 경우 별도 unique foreign-key mapping table을 두어 polymorphic reference의 약점을 보완한다.
+`reference_kind`, `reference_type`, `reference_id`, `content_sha256`은 허용된 immutable domain
+reference를 평면 persistence column으로 기록한다. Application service가 referenced row와 digest를
+검증하며 `request_id`와 `trace_id`는 correlation을 위한 persistence 전용 evidence다.
 
 ### 3.2 Typed relation tables
 
 ```text
-prov_usage(
-  activity_id FK, entity_id FK,
-  role, ordinal, usage_metadata JSONB,
-  PRIMARY KEY(activity_id, entity_id, role)
+provenance.usage(
+  organization_id, project_id, classification,
+  activity_id, entity_id, role, ordinal,
+  recorded_at, recorded_by
 )
 
-prov_generation(
-  entity_id FK, activity_id FK,
+provenance.generation(
+  organization_id, project_id, classification,
+  entity_id, activity_id,
   role, generated_at,
-  PRIMARY KEY(entity_id)
+  recorded_at, recorded_by
 )
 
-prov_derivation(
-  generated_entity_id FK, used_entity_id FK,
-  activity_id FK?, derivation_kind,
-  PRIMARY KEY(generated_entity_id, used_entity_id, derivation_kind)
+provenance.derivation(
+  organization_id, project_id, classification,
+  generated_entity_id, used_entity_id, activity_id, derivation_kind,
+  recorded_at, recorded_by
 )
 
-prov_association(
-  activity_id FK, agent_id FK,
-  role, plan_entity_id FK?,
-  PRIMARY KEY(activity_id, agent_id, role)
+provenance.association(
+  organization_id, project_id, classification,
+  activity_id, agent_id, role, plan_entity_id,
+  recorded_at, recorded_by
 )
 
-prov_revision(
-  newer_entity_id FK UNIQUE,
-  prior_entity_id FK,
-  change_reason
+provenance.revision(
+  organization_id, project_id, classification,
+  newer_entity_id, prior_entity_id, change_reason,
+  recorded_at, recorded_by
 )
 
-prov_attribution(
-  entity_id FK, agent_id FK, role,
-  PRIMARY KEY(entity_id, agent_id, role)
+provenance.attribution(
+  organization_id, project_id, classification,
+  entity_id, agent_id, role,
+  recorded_at, recorded_by
 )
 ```
 
-관계 종류를 하나의 unrestricted `edge_type` 문자열에 몰아넣지 않는다. 핵심 relation은 typed table과 constraint로 관리한다. 아직 공통화되지 않은 plugin relation만 `prov_extension_relation`에 namespaced type과 JSON Schema를 요구한다.
+`derivation.activity_id`와 `association.plan_entity_id`만 nullable이다. 관계 종류를 하나의
+unrestricted `edge_type` 문자열에 몰아넣지 않고 핵심 relation은 typed table과 migration constraint로
+관리한다.
+
+### 3.3 Public entity projection
+
+Public JSON은 persistence row를 그대로 노출하지 않는다.
+`contracts/provenance/provenance-entity-resource.schema.json`이 API entity projection의 source of
+truth다. 이 projection은 persistence의 `reference_kind`, `reference_type`, `reference_id`,
+`content_sha256`을 `reference.kind`, `reference.type`, `reference.id`, `reference.sha256`으로 묶고,
+`generation_activity_id`, `completeness`, lineage/impact link를 추가한다. Persistence correlation field인
+`request_id`와 `trace_id`는 public entity JSON field가 아니다.
 
 ## 4. Revision 저장 규칙
 
