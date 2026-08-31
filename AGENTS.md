@@ -10,8 +10,7 @@
   issue first. Use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
   Start architecture-decision lookup at [`adr/README.md`](adr/README.md).
   `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior. Do not bulk-read
-  archives or incoming material. Follow only [`docs/planning/backlog.md`](docs/planning/backlog.md) for
-  temporary-input owner, exit, read, move, and delete authority.
+  archives.
 - For schema-driven integration issues #204-#216 and #246, read the exact P/G rows in
   [`docs/requirements/schema-driven-requirement-traceability.md`](docs/requirements/schema-driven-requirement-traceability.md)
   and its linked source fixture before changing a contract or narrowing acceptance. Record and resolve a

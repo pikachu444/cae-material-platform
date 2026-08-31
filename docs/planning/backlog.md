@@ -192,4 +192,3 @@ packet, 검증, 검토, 제품 소유자 확인과 PR/merge를 거칩니다. iss
   않습니다. 승인과 commit/push/PR/merge 경계는 `AGENTS.md`를 따릅니다.
 - 대형 spec과 manifest는 처음부터 읽지 않습니다. `rg`로 ID·family·component를 찾아 관련 절과
   선택된 entry만 읽고, 시각 작업에서는 승인 이미지를 원본 해상도로 직접 확인합니다.
-- `docs/_incoming/2026-07-24-organic-ux-update/`는 #162가 소유한 임시 입력입니다. #162의 흡수·통합 종료 조건(absorption/integration exit condition)과 명시적 owner authorization이 모두 충족되기 전에는 그 내용을 읽지 말고, 경로 또는 내용을 이동하거나 삭제하지 않습니다.

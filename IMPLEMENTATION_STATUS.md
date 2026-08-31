@@ -113,9 +113,7 @@ Production 표준, plugin, solver correlation과 validation threshold는 domain 
 - Activity의 실패 작업 복구와 review-backed Record publication은 #160 범위입니다. Authoritative
   delivery receipt producer와 full release package projection은 아직 명시적으로 준비되지 않았습니다.
 - #162의 Hyper-V Ubuntu VM은 사용자 제품 설치 방식이 아니라 모든 제품 기능이 병합된 뒤 수행하는
-  별도 최종 통합검증 harness입니다. 임시 입력의 흡수·통합 종료 조건은 [backlog의 canonical
-  temporary-input rule](docs/planning/backlog.md)에서 확인합니다.
-  이 상태 문서는 해당 경로에 대한 접근 권한을 부여하지 않습니다.
+  별도 최종 통합검증 harness입니다.
 - #321/#322~#324로 Docker·WSL 없는 Windows 11 native host와 offline installer 코드 경로가
   `main`에 생겼습니다. 다만 clean-PC offline Demo 전체 흐름, 실제 machine-scope 방화벽·LAN 접속,
   #215 뒤 Server OIDC 검증이 남아 #321은 독립적으로 OPEN이며 #117 순서를 바꾸거나 #162 Ubuntu

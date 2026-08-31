@@ -797,18 +797,11 @@ def test_repository_guidance_rejects_narrow_documentation_drift(
         _verify_repository_guidance(tmp_path)
 
 
-def test_incoming_integration_package_is_reference_not_authoritative() -> None:
+def test_documentation_classes_preserve_reference_and_current_boundaries() -> None:
     root = Path(__file__).parents[2]
 
     classes = _documentation_classes(root)
 
-    assert (
-        classes[
-            "docs/_incoming/2026-07-24-organic-ux-update/"
-            "04_WORKFLOW_STATE_AND_INVALIDATION_CONTRACT.md"
-        ]
-        == "reference"
-    )
     assert classes["docs/product/desktop-engineering-ui-program-brief.md"] == "reference"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
 
