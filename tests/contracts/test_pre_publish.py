@@ -436,6 +436,58 @@ def test_automatic_pipeline_defaults_to_deterministic_checks_without_reviewer(
     assert not (tmp_path / "cache").exists()
 
 
+def test_pre_publish_passes_phase_a_mode_to_default_evidence_verifier(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    observed: list[bool] = []
+    monkeypatch.setattr(
+        pre_publish_module,
+        "verify_user_guide",
+        lambda _project, *, final_publication=False: observed.append(final_publication),
+    )
+    change = _change()
+
+    for final_publication, cache_name in (
+        (False, "cache"),
+        (True, "cache-final"),
+    ):
+        run_pre_publish_pipeline(
+            _ROOT,
+            final_publication=final_publication,
+            cache_root=tmp_path / cache_name,
+            documentation_check=lambda _project: None,
+            whitespace_check=lambda _project, _change: None,
+            change_collector=lambda _project: change,
+            change_revalidator=lambda _project: change,
+            emit=lambda _message: None,
+        )
+
+    assert observed == [False, True]
+
+
+def test_pre_publish_final_mode_fails_closed_when_phase_a_is_pending(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def reject_pending(_project: Path, *, final_publication: bool = False) -> None:
+        assert final_publication is True
+        raise PrePublishError("final publication requires zero pending service references")
+
+    monkeypatch.setattr(pre_publish_module, "verify_user_guide", reject_pending)
+    change = _change()
+
+    with pytest.raises(PrePublishError, match="zero pending service references"):
+        run_pre_publish_pipeline(
+            _ROOT,
+            final_publication=True,
+            cache_root=tmp_path / "cache",
+            documentation_check=lambda _project: None,
+            whitespace_check=lambda _project, _change: None,
+            change_collector=lambda _project: change,
+            change_revalidator=lambda _project: change,
+            emit=lambda _message: None,
+        )
+
+
 @pytest.mark.parametrize(
     ("command", "expected"),
     [

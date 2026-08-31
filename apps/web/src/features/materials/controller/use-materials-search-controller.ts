@@ -350,6 +350,14 @@ export function useMaterialsSearchController(
     setOffset(0);
   }
 
+  function clearUnsupportedFilters(): void {
+    // Preserve query, scope, sort, navigator mode, and selected row.  Only
+    // remove the legacy filters which source-v2 deliberately does not expose.
+    setProvider("");
+    setEvidenceSource("");
+    setOffset(0);
+  }
+
   function clearSearch(): void {
     setDraftQuery("");
     setQuery("");
@@ -376,6 +384,7 @@ export function useMaterialsSearchController(
     changeSort,
     clearComparison,
     clearFilters,
+    clearUnsupportedFilters,
     clearSearch,
     compareIds,
     comparedMaterials,

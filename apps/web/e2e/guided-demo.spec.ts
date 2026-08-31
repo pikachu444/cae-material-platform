@@ -5,14 +5,36 @@ import { readFile } from "node:fs/promises";
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const forbiddenNormalTechnicalLabels = /\b(?:draft|fixture|uuid|sha(?:256)?|hash|lifecycle[_\s-]?state)\b|\bissue\s*#\s*\d+\b|\bimplementation state\b/i;
 const representativeDp780Tests = [
-  "DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
-  "DP780 tensile · 80 °C · 0.0067 s⁻¹ · synthetic reference",
-  "DP780 tensile · 23 °C · 0.0007 s⁻¹ · synthetic reference",
-  "DP780 tensile · 23 °C · 0.067 s⁻¹ · synthetic reference",
-  "DP780 FLD · Nakajima · synthetic reference",
-  "DP780 FLD · Marciniak · synthetic reference",
+  "DP780 room tensile",
+  "DP780 hot tensile",
+  "DP780 slow tensile",
+  "DP780 fast tensile",
+  "DP780 Nakajima FLD",
+  "DP780 Marciniak FLD",
 ] as const;
-const dp780SolverCardRecord = "DP780 Abaqus native material card · synthetic reference";
+const dp780SolverCardRecord = "DP780 tabulated model";
+const sourceV2FamilyLabels = {
+  Metal: "Metal",
+  Plastic: "Polymer",
+  Rubber: "Elastomer",
+} as const;
+const sourceV2TechnicalRecords = [
+  {
+    materialCode: "CMP-246-TECH-DP780",
+    expectedName: "DP780 technical data",
+    sourceFamily: "Metal",
+  },
+  {
+    materialCode: "CMP-246-TECH-POLYMER",
+    expectedName: "Polymer technical data",
+    sourceFamily: "Plastic",
+  },
+  {
+    materialCode: "CMP-246-TECH-ELASTOMER",
+    expectedName: "Elastomer technical data",
+    sourceFamily: "Rubber",
+  },
+] as const;
 
 async function expectMaterialsReady(page: Page): Promise<void> {
   const results = page.locator(".materials-results");
@@ -56,34 +78,28 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await openMaterialFilters(page);
   await expectMaterialsReady(page);
 
-  for (const materialCode of [
-    "CMP-DEMO-DP780",
-    "CMP-DEMO-POLYMER-PRONY",
-    "CMP-DEMO-ELASTOMER-OGDEN",
-  ] as const) {
+  for (const {
+    materialCode,
+    expectedName,
+    sourceFamily,
+  } of sourceV2TechnicalRecords) {
+    const visibleFamily = sourceV2FamilyLabels[sourceFamily];
     await page.getByRole("textbox", { name: "Search materials" }).fill(materialCode);
     await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
     await expectMaterialsReady(page);
     const resultRow = page.getByRole("row").filter({ hasText: materialCode });
     await expect(resultRow).toBeVisible();
-    const expectedReference = materialCode === "CMP-DEMO-DP780"
-      ? /Synthetic reference/i
-      : /synthetic T-60 reference/i;
-    const expectedName = materialCode === "CMP-DEMO-DP780"
-      ? "DP780 synthetic reference steel"
-      : materialCode === "CMP-DEMO-POLYMER-PRONY"
-        ? "Synthetic Polymer Prony"
-        : "Synthetic Elastomer Ogden-Prony";
     const staleHumanNames = /synthetic demo steel|Demo Polymer Prony|Demo Elastomer Ogden-Prony/i;
     const normalResultsText = await page.locator(".materials-page").innerText();
     expect(normalResultsText).not.toMatch(/clean product demo|local demo|fixture/i);
     expect(normalResultsText).not.toMatch(staleHumanNames);
     expect(normalResultsText).toContain(expectedName);
-    expect(normalResultsText).toMatch(expectedReference);
+    expect(normalResultsText).toContain(visibleFamily);
     expect(normalResultsText).not.toContain("not validated for engineering use");
     const normalResultsSurfaceText = await page.locator(".materials-results").innerText();
     expect(normalResultsSurfaceText).not.toMatch(forbiddenNormalTechnicalLabels);
     expect(normalResultsSurfaceText).toContain(expectedName);
+    expect(normalResultsSurfaceText).toContain(visibleFamily);
     expect(normalResultsSurfaceText).toContain("Family");
     await expect(page.getByRole("columnheader", { name: "Status", exact: true })).toHaveCount(0);
     await resultRow.getByRole("button").click();
@@ -120,9 +136,11 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     await expect(page.locator("details.full-lineage")).not.toHaveAttribute("open", "");
     await expect(page.getByRole("heading", { name: "Workflow", exact: true })).toHaveCount(0);
     await expect(page.getByText("Follow related records and the exact material workflow; open technical identifiers only when needed.", { exact: true })).toHaveCount(0);
-    await expect(page.locator(".material-tab-panel")).toContainText(expectedReference);
+    await expect(page.locator(".material-tab-panel")).toContainText(sourceFamily, {
+      timeout: 15_000,
+    });
     await page.getByRole("tab", { name: "Overview", exact: true }).click();
-    if (materialCode === "CMP-DEMO-DP780") {
+    if (materialCode === "CMP-246-TECH-DP780") {
       for (const representativeTest of representativeDp780Tests) {
         expect(relatedContextText).toContain(representativeTest);
       }
@@ -134,7 +152,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     const normalTreeText = await page.locator(".materials-left-pane").innerText();
     expect(normalTreeText).not.toMatch(staleHumanNames);
     expect(normalTreeText).toContain(expectedName);
-    if (materialCode === "CMP-DEMO-DP780") {
+    if (materialCode === "CMP-246-TECH-DP780") {
       const exactMaterialRevisionId = new URL(page.url()).searchParams.get("material_revision_id");
       expect(exactMaterialRevisionId).toBeTruthy();
       await page.getByRole("treeitem", { name: /Solver Cards/ }).click();
@@ -142,25 +160,13 @@ test("clean demo exposes Search-first material-family journeys and progressive b
         timeout: 15_000,
       });
       await page.getByRole("tab", { name: "CAE Cards" }).click();
-      await expect(page.getByText("No native card is available.", { exact: true })).toBeVisible();
-      const startModeling = page
-        .getByRole("tabpanel")
-        .getByRole("button", { name: "Start Modeling", exact: true });
-      await expect(startModeling).toBeVisible();
-      await startModeling.click();
-      await expect(page).toHaveURL(/\/modeling\?stage=data&family=metal&material_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+&material_state_id=[0-9a-f-]+&material_state_revision_id=[0-9a-f-]+$/);
-      await expect(page.getByRole("heading", { name: "Select Test Data" })).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByText("No Test Data selected", { exact: true })).toBeVisible();
-      const exactSession = await page.evaluate(() =>
-        JSON.parse(window.sessionStorage.getItem("cmp.modeling.recent-session.v4") ?? "null"),
-      ) as {
-        material?: { revisionId?: string };
-        materialState?: { revisionId?: string };
-        contextSelectionRequired?: boolean;
-      } | null;
-      expect(exactSession?.material?.revisionId).toBe(exactMaterialRevisionId);
-      expect(exactSession?.materialState?.revisionId).toBeTruthy();
-      expect(exactSession?.contextSelectionRequired).toBe(false);
+      const cardsTable = page.locator(".cae-card-table");
+      await expect(cardsTable).toBeVisible();
+      await expect(cardsTable.locator("tbody tr")).toHaveCount(2);
+      await expect(cardsTable).toContainText("Abaqus");
+      await expect(cardsTable).toContainText("OpenRadioss");
+      await expect(page.getByText("Create one from the selected source data below", { exact: false })).toHaveCount(0);
+      expect(new URL(page.url()).searchParams.get("material_revision_id")).toBe(exactMaterialRevisionId);
     }
     await page.goto("/materials");
     await openMaterialFilters(page);
@@ -168,10 +174,10 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   }
 
   await openMaterialFilters(page);
-  await page.getByRole("textbox", { name: "Search materials" }).fill("CMP-DEMO-DP780");
+  await page.getByRole("textbox", { name: "Search materials" }).fill("CMP-246-TECH-DP780");
   await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
   await expectMaterialsReady(page);
-  const dp780Row = page.getByRole("row").filter({ hasText: "CMP-DEMO-DP780" });
+  const dp780Row = page.getByRole("row").filter({ hasText: "CMP-246-TECH-DP780" });
   await expect(dp780Row).toHaveCount(1);
   await dp780Row.press("Enter");
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
@@ -181,12 +187,12 @@ test("clean demo exposes Search-first material-family journeys and progressive b
   await expect(relatedRecord).toContainText("r1");
   await relatedRecord.click();
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: representativeDp780Tests[0], level: 1 })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "Test Data", level: 1 })).toBeVisible({ timeout: 15_000 });
   await page.goBack();
   await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\?record_id=[0-9a-f-]+&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$/);
   await page.goBack();
-  await expect(page).toHaveURL(/\/materials\?q=CMP-DEMO-DP780/);
-  await expect(page.getByRole("textbox", { name: "Search materials" })).toHaveValue("CMP-DEMO-DP780");
+  await expect(page).toHaveURL(/\/materials\?q=CMP-246-TECH-DP780/);
+  await expect(page.getByRole("textbox", { name: "Search materials" })).toHaveValue("CMP-246-TECH-DP780");
   await expectMaterialsReady(page);
 
   await page.goto("/activity");
@@ -223,8 +229,7 @@ test("Materials workspaces use the viewport and expose exact direct links across
     { accessToken: tokenPayload.access_token },
   );
 
-  const materialCode = "CMP-DEMO-DP780";
-  const expectedName = "DP780 synthetic reference steel";
+  const { materialCode, expectedName } = sourceV2TechnicalRecords[0];
   const staleHumanNames = /synthetic demo steel|Demo Polymer Prony|Demo Elastomer Ogden-Prony/i;
   const staleStateRoutes = /Synthetic reference production route|Public synthetic reference route/i;
   for (const { width, height } of [
@@ -274,7 +279,7 @@ test("Materials workspaces use the viewport and expose exact direct links across
     expect(detailGeometry.width).toBeLessThanOrEqual(width + 1);
     await expect(page.getByText("No representative curve preview.", { exact: true })).toHaveCount(0);
     const related = page.getByRole("region", { name: "Related data" });
-    const fastTensile = related.getByRole("button").filter({ hasText: "DP780 tensile · 23 °C · 0.067 s⁻¹" });
+    const fastTensile = related.getByRole("button").filter({ hasText: "DP780 fast tensile" });
     await expect(fastTensile).toHaveCount(1);
     await expect(fastTensile).toContainText("r1");
     const relatedBox = await related.evaluate((element) => {
@@ -420,11 +425,11 @@ test("an exact approved Tensile revision opens its directly linked selected mode
 
   await page.goto("/materials");
   await openMaterialFilters(page);
-  await page.getByRole("textbox", { name: "Search materials" }).fill("CMP-DEMO-DP780");
+  await page.getByRole("textbox", { name: "Search materials" }).fill("CMP-246-TECH-DP780");
   await page.getByLabel("Material query").getByRole("button", { name: "Find", exact: true }).click();
   await expectMaterialsReady(page);
-  await page.getByRole("row").filter({ hasText: "CMP-DEMO-DP780" }).getByRole("button").click();
-  await expect(page.getByRole("heading", { name: "DP780 synthetic reference steel", level: 1 })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("row").filter({ hasText: "CMP-246-TECH-DP780" }).getByRole("button").click();
+  await expect(page.getByRole("heading", { name: "DP780 technical data", level: 1 })).toBeVisible({ timeout: 30_000 });
 
   const related = page.getByRole("region", { name: "Related data" });
   const fastTensile = related.getByRole("button").filter({ hasText: representativeDp780Tests[3] });
@@ -434,7 +439,7 @@ test("an exact approved Tensile revision opens its directly linked selected mode
   await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
   await expect(page.getByRole("heading", { name: "Test Data", level: 1 })).toBeVisible({ timeout: 30_000 });
 
-  const selectedModelName = "DP780 elastoplasticity · selected tabulated model · synthetic reference";
+  const selectedModelName = "DP780 tabulated model";
   const selectedModel = page.getByRole("region", { name: "Related data" }).getByRole("button").filter({ hasText: selectedModelName });
   await expect(selectedModel).toBeVisible({ timeout: 30_000 });
   await expect(selectedModel).toHaveCount(1);

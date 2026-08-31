@@ -48,6 +48,77 @@ _ISSUE_167_DEPENDENCIES = frozenset(
         "docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml",
     }
 )
+# This is a semantic, one-time retirement policy for the legacy Materials
+# reference bundle. Values are SHA-256 digests of raw Git blob bytes at the
+# merge base (not decoded or newline-normalized worktree text).
+_RETIRED_STATIC_MATERIALS_REFERENCE_ROOT = (
+    "docs/17-evidence/images/issue-167-service-reference"
+)
+_RETIRED_STATIC_MATERIALS_REFERENCE_SHA256: dict[str, str] = {
+    f"{_RETIRED_STATIC_MATERIALS_REFERENCE_ROOT}/{name}": digest
+    for name, digest in (
+        ("materials-search-normal-1440x900.png",
+         "7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0"),
+        ("materials-search-normal-1440x900.measurements.json",
+         "8309dc5d310536fa4d0a0f2f892a4e6c64210e8708a9a6dc68a7b427bffe05d3"),
+        ("materials-search-normal-1366x768.png",
+         "bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89"),
+        ("materials-search-normal-1366x768.measurements.json",
+         "483fc26b3820c081711d2ace7521d009a4827951b53f49d201a0b36a04c0e373"),
+        ("materials-search-normal-1920x1080.png",
+         "57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae"),
+        ("materials-search-normal-1920x1080.measurements.json",
+         "5a5129499769d80b3226b6d2eb6450e8febc0b588ab283e291ab1fd4a37f5e8c"),
+        ("materials-datasheet-overview-normal-1440x900.png",
+         "c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b"),
+        ("materials-datasheet-overview-normal-1440x900.measurements.json",
+         "b2daf32cef06e643f2f2e02ff90b1452b175b8da78e727099dcc13d506fef33a"),
+        ("materials-datasheet-overview-normal-1366x768.png",
+         "d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d"),
+        ("materials-datasheet-overview-normal-1366x768.measurements.json",
+         "fd6898dd1d69e756a5476551d1bc6b7ff90e2b88865b66a9bbfe9eb6cae74c5c"),
+        ("materials-datasheet-overview-normal-1920x1080.png",
+         "8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0"),
+        ("materials-datasheet-overview-normal-1920x1080.measurements.json",
+         "7a4ea2345f6fbd3f355f2669845d6bd5097ebc6cc0b40f2121d278ea0844096f"),
+        ("materials-datasheet-related-long-1440x900.png",
+         "810394678a9a77c1c35adc4a1848ca45eadd71a1a95a69ea94af7266405079b6"),
+        ("materials-datasheet-related-long-1440x900.measurements.json",
+         "a1c6d34bc178393b4c91e4651e33e39ce26edf278a72ce562583cd84358f6794"),
+        ("materials-datasheet-empty-1440x900.png",
+         "8df98559459f03db925e02251e10a84265b9ff1e21cd8f4573dd9d2a090548e6"),
+        ("materials-datasheet-empty-1440x900.measurements.json",
+         "15aba5de7033c0d8a9b6d2fa4dcd96b205534fc209f3010925a728b28cf56692"),
+        ("materials-card-preview-normal-1366x768.png",
+         "b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3"),
+        ("materials-card-preview-normal-1366x768.measurements.json",
+         "3c4f770657f3229cdb03d53fe37a191b0d220d5fa535a09f4081d5878d97f0b1"),
+        ("materials-search-long-1440x900.png",
+         "43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484"),
+        ("materials-search-long-1440x900.measurements.json",
+         "f3ca0dffc71c404ee0fdbd6515cebc56917db16f9ea1798e14b21014b2f64a9d"),
+        ("materials-search-empty-1440x900.png",
+         "d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1"),
+        ("materials-search-empty-1440x900.measurements.json",
+         "06f4afae598ca967bf5c1a3f5ca81f7d11a1d05a5921211885d7534a3bdac5b3"),
+        ("materials-card-preview-normal-1440x900.png",
+         "05b327f3741f27962bb6dc7ee961071ab3dedb2b840fedc5c94799ea6076c8db"),
+        ("materials-card-preview-normal-1440x900.measurements.json",
+         "8b340eef0664941287d0974e5f08f5a4f797ecfa77683500db740db01063df1f"),
+        ("materials-card-preview-normal-1920x1080.png",
+         "963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4"),
+        ("materials-card-preview-normal-1920x1080.measurements.json",
+         "90449452c55577608223f176af17a9884f0ebd57713be7460f2907fc433308d8"),
+        ("materials-card-approximation-blocked-1440x900.png",
+         "6cfe99b8f20b4609c0fc509e79c8013ef13d764ba55166a617cc9b08c2402ec8"),
+        ("materials-card-approximation-blocked-1440x900.measurements.json",
+         "8ea9f5c1baa6918ac279d0e985df348dee225612ff3fd5d17e7650d79bdf0674"),
+        ("materials-card-unsupported-blocked-1440x900.png",
+         "8eba256b6a59e6c9d61a7a3b6574e4878952dd62e690703ce25a88764fd1afc6"),
+        ("materials-card-unsupported-blocked-1440x900.measurements.json",
+         "c21c345ec800923a0a01a97512df43ba3928cd27c4594592419427f15274ddc8"),
+    )
+}
 _ISSUE_184_VISUAL_EVIDENCE = (
     "docs/17-evidence/images/issue-184-high-dpi-global-implementation/visual-evidence.json"
 )
@@ -4148,6 +4219,85 @@ def _issue_351_retired_root(path: str) -> str | None:
     )
 
 
+def _retired_materials_blob_bytes(project: Path, revision: str, path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "cat-file", "blob", f"{revision}:{path}"],
+        cwd=project,
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise DocumentationImpactError(
+            f"retired Materials reference is unavailable at merge base: {path}"
+        )
+    return result.stdout
+
+
+def _validate_retired_materials_reference_changes(
+    entries: Mapping[str, bool],
+    *,
+    project: Path | None,
+    merge_base: str | None,
+) -> None:
+    changed = set(entries)
+    root_paths = {
+        path
+        for path in changed
+        if _path_is_under(path, _RETIRED_STATIC_MATERIALS_REFERENCE_ROOT)
+    }
+    if not root_paths:
+        return
+    retired_paths = set(_RETIRED_STATIC_MATERIALS_REFERENCE_SHA256)
+    adjacent = sorted(root_paths - retired_paths)
+    if adjacent:
+        raise DocumentationImpactError(
+            "retired Materials reference deletion cannot include adjacent assets: "
+            f"{adjacent}"
+        )
+    if root_paths != retired_paths or any(entries[path] for path in retired_paths):
+        raise DocumentationImpactError(
+            "retired Materials references require one complete delete-only PNG/measurement set"
+        )
+    if project is None or merge_base is None:
+        raise DocumentationImpactError(
+            "retired Materials references require a repository merge base"
+        )
+    for path, expected_sha256 in _RETIRED_STATIC_MATERIALS_REFERENCE_SHA256.items():
+        if not _git_path_exists(project, merge_base, path):
+            raise DocumentationImpactError(
+                "retired Materials reference set is unavailable at this merge base: "
+                f"{path}"
+            )
+        actual_sha256 = hashlib.sha256(
+            _retired_materials_blob_bytes(project, merge_base, path)
+        ).hexdigest()
+        if actual_sha256 != expected_sha256:
+            raise DocumentationImpactError(
+                "retired Materials reference merge-base blob hash drifted: "
+                f"{path}"
+            )
+        worktree_path = project.joinpath(*PurePosixPath(path).parts)
+        if worktree_path.exists():
+            raise DocumentationImpactError(
+                "retired Materials reference must be absent from the worktree: "
+                f"{path}"
+            )
+    required_docs = {
+        "docs/product/service-reference-manifest.yaml",
+        _SCREENSHOT_MANIFEST,
+    }
+    if not required_docs.issubset(changed):
+        raise DocumentationImpactError(
+            "retired Materials references require the service and screenshot manifests"
+        )
+    if not any(
+        path.startswith(_GUIDE_PREFIX) and path.endswith(".md") for path in changed
+    ):
+        raise DocumentationImpactError(
+            "retired Materials references require a changed current user guide"
+        )
+
+
 def _validate_visual_evidence_changes(
     entries: Mapping[str, bool],
     config: _VisualEvidenceConfig,
@@ -4156,6 +4306,11 @@ def _validate_visual_evidence_changes(
     merge_base: str | None = None,
 ) -> None:
     changed = set(entries)
+    _validate_retired_materials_reference_changes(
+        entries,
+        project=project,
+        merge_base=merge_base,
+    )
     issue_184_paths = {
         path
         for path in changed
@@ -4190,6 +4345,11 @@ def _validate_visual_evidence_changes(
     for raw_path, current in entries.items():
         path = raw_path.strip().replace("\\", "/")
         if PurePosixPath(path).suffix.lower() not in config.raster_extensions:
+            continue
+        # The exact legacy Materials set is handled by the semantic, complete-set
+        # retirement policy above.  Do not let the generic frozen-root rule
+        # reclassify those approved delete-only members after that validation.
+        if _path_is_under(path, _RETIRED_STATIC_MATERIALS_REFERENCE_ROOT):
             continue
         lifecycle = _visual_evidence_lifecycle(path, config)
         if lifecycle is None or lifecycle == "transient":
@@ -4289,6 +4449,97 @@ def _has_current_five_viewport_family(paths: Iterable[str]) -> bool:
     return any(_CURRENT_FIVE_VIEWPORTS <= viewports for viewports in groups.values())
 
 
+def _current_family_paths(paths: Iterable[str]) -> dict[str, dict[str, str]]:
+    pattern = re.compile(
+        r"^(?P<stem>.+?)[-_](?P<viewport>1366x768|1440x900|1920x1080|2560x1440|3840x2160)\.png$",
+        re.IGNORECASE,
+    )
+    groups: dict[str, dict[str, str]] = {}
+    for path in paths:
+        pure_path = PurePosixPath(path)
+        match = pattern.fullmatch(pure_path.name)
+        if match is None:
+            continue
+        key = f"{pure_path.parent}/{match.group('stem')}"
+        groups.setdefault(key, {})[match.group("viewport")] = path
+    return groups
+
+
+def _path_is_referenced_by_changed_documentation(
+    project: Path, path: str, changed: set[str]
+) -> bool:
+    """Require the exact image path in both changed documentation surfaces.
+
+    A five-viewport family may omit an unchanged member only when the changed
+    screenshot manifest and a changed current guide both continue to name that
+    exact file.  Looking for either surface would let a guide-only or manifest-
+    only edit accidentally make an unrelated same-stem image satisfy the gate.
+    """
+    references = {path, PurePosixPath(path).name, path.removeprefix("docs/user-guide/")}
+    seen_manifest = False
+    seen_guide = False
+    for relative in changed:
+        is_manifest = relative == _SCREENSHOT_MANIFEST
+        is_guide = relative.startswith(_GUIDE_PREFIX) and relative.endswith(".md")
+        if not (is_manifest or is_guide):
+            continue
+        candidate = project / Path(*PurePosixPath(relative).parts)
+        if not candidate.is_file():
+            continue
+        content = candidate.read_text(encoding="utf-8")
+        if any(reference in content for reference in references):
+            if is_manifest:
+                seen_manifest = True
+            if is_guide:
+                seen_guide = True
+    return seen_manifest and seen_guide
+
+
+def _can_use_unchanged_current_family(
+    project: Path | None,
+    merge_base: str | None,
+    changed: set[str],
+    current_pngs: set[str],
+) -> bool:
+    if project is None or merge_base is None or not current_pngs:
+        return False
+    for members in _current_family_paths(current_pngs).values():
+        if not members:
+            continue
+        missing = _CURRENT_FIVE_VIEWPORTS - set(members)
+        if not missing:
+            return True
+        # Derive the exact same-stem path for each missing viewport.  A family
+        # is usable only when every omitted member is byte-identical to the
+        # merge-base blob and both current docs surfaces mention that member.
+        sample = next(iter(members.values()))
+        sample_path = PurePosixPath(sample)
+        stem_match = re.match(
+            r"^(?P<stem>.+?)[-_](?:1366x768|1440x900|1920x1080|2560x1440|3840x2160)\.png$",
+            sample_path.name,
+            flags=re.IGNORECASE,
+        )
+        if stem_match is None:
+            continue
+        for viewport in missing:
+            candidate = (
+                sample_path.parent
+                / f"{stem_match.group('stem')}-{viewport}.png"
+            ).as_posix()
+            candidate_path = project / Path(*PurePosixPath(candidate).parts)
+            if not candidate_path.is_file() or not _git_path_exists(project, merge_base, candidate):
+                break
+            if candidate_path.read_bytes() != _retired_materials_blob_bytes(
+                project, merge_base, candidate
+            ):
+                break
+            if not _path_is_referenced_by_changed_documentation(project, candidate, changed):
+                break
+        else:
+            return True
+    return False
+
+
 def evaluate_documentation_impact(
     paths: Iterable[str] | Mapping[str, bool],
     *,
@@ -4357,7 +4608,15 @@ def evaluate_documentation_impact(
             requirements.append("update docs/user-guide/screenshot-manifest.yaml")
         if not current_pngs:
             requirements.append("add or update a current user-guide PNG")
-        elif not _has_current_five_viewport_family(current_pngs):
+        elif not (
+            _has_current_five_viewport_family(current_pngs)
+            or _can_use_unchanged_current_family(
+                project,
+                merge_base,
+                changed,
+                current_pngs,
+            )
+        ):
             requirements.append(
                 "add or update one complete current user-guide PNG family at "
                 "1366x768, 1440x900, 1920x1080, 2560x1440, and 3840x2160"

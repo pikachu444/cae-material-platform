@@ -2193,7 +2193,489 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     )
                 context_match = sa.exists(sa.select(1).where(*material_context))
                 subject_binding_match = sa.or_(subject_binding_match, context_match)
-            review_current_subject = sa.exists(
+            card_binding_currentness: sa.ColumnElement[bool] = sa.true()
+            if query.data_category == "solver_cards" or query.domain_binding_kind in {
+                "solver_card",
+                "neutral_solver_card",
+            }:
+                # A Record review can outlive a later card projection.  The
+                # requested card binding must still point at the card's exact
+                # immutable head and at a source revision whose typed lineage
+                # remains current.  Evaluate invalid siblings as well so a
+                # stale card cannot make a partially current Record visible.
+                solver_binding_check = domain_record_binding.alias(
+                    "review_solver_card_binding"
+                )
+                solver_identity_check = _solver_card.alias("review_solver_card_identity")
+                solver_revision_check = _solver_card_revision.alias(
+                    "review_solver_card_revision"
+                )
+                source_model_check = _material_model.alias("review_card_source_model")
+                source_model_revision_check = _material_model_revision.alias(
+                    "review_card_source_model_revision"
+                )
+                source_material_check = material.alias("review_card_source_material")
+                source_state_check = material_state.alias("review_card_source_state")
+                source_dataset_check = _test_data_document.alias("review_card_source_dataset")
+                source_processing_check = _processing_output.alias(
+                    "review_card_source_processing"
+                )
+                source_owner_model_identity = domain_record_identity_binding.alias(
+                    "review_card_source_model_owner_identity"
+                )
+                source_owner_model_binding = domain_record_binding.alias(
+                    "review_card_source_model_owner_binding"
+                )
+                source_owner_model_record = catalog_record.alias(
+                    "review_card_source_model_owner_record"
+                )
+                source_model_current: sa.ColumnElement[bool] = sa.exists(
+                    sa.select(1)
+                    .select_from(
+                        source_model_check.join(
+                            source_model_revision_check,
+                            sa.and_(
+                                source_model_revision_check.c.organization_id
+                                == source_model_check.c.organization_id,
+                                source_model_revision_check.c.project_id
+                                == source_model_check.c.project_id,
+                                source_model_revision_check.c.classification
+                                == source_model_check.c.classification,
+                                source_model_revision_check.c.aggregate_id
+                                == source_model_check.c.id,
+                                source_model_revision_check.c.id
+                                == solver_revision_check.c.material_model_revision_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        source_model_check.c.organization_id
+                        == solver_revision_check.c.organization_id,
+                        source_model_check.c.project_id == solver_revision_check.c.project_id,
+                        source_model_check.c.classification
+                        == solver_revision_check.c.classification,
+                        source_model_check.c.id == solver_revision_check.c.material_model_id,
+                        source_model_check.c.current_revision_id
+                        == solver_revision_check.c.material_model_revision_id,
+                        sa.exists(
+                            sa.select(1).where(
+                                source_material_check.c.organization_id
+                                == source_model_revision_check.c.organization_id,
+                                source_material_check.c.project_id
+                                == source_model_revision_check.c.project_id,
+                                source_material_check.c.classification
+                                == source_model_revision_check.c.classification,
+                                source_material_check.c.id
+                                == source_model_revision_check.c.material_id,
+                                source_material_check.c.current_revision_id
+                                == source_model_revision_check.c.material_revision_id,
+                            )
+                        ),
+                        sa.exists(
+                            sa.select(1).where(
+                                source_state_check.c.organization_id
+                                == source_model_revision_check.c.organization_id,
+                                source_state_check.c.project_id
+                                == source_model_revision_check.c.project_id,
+                                source_state_check.c.classification
+                                == source_model_revision_check.c.classification,
+                                source_state_check.c.id
+                                == source_model_revision_check.c.material_state_id,
+                                source_state_check.c.current_revision_id
+                                == source_model_revision_check.c.material_state_revision_id,
+                            )
+                        ),
+                        sa.or_(
+                            source_model_revision_check.c.source_dataset_id.is_(None),
+                            sa.exists(
+                                sa.select(1).where(
+                                    source_dataset_check.c.organization_id
+                                    == source_model_revision_check.c.organization_id,
+                                    source_dataset_check.c.project_id
+                                    == source_model_revision_check.c.project_id,
+                                    source_dataset_check.c.classification
+                                    == source_model_revision_check.c.classification,
+                                    source_dataset_check.c.id
+                                    == source_model_revision_check.c.source_dataset_id,
+                                    source_dataset_check.c.current_revision_id
+                                    == source_model_revision_check.c.source_dataset_revision_id,
+                                )
+                            ),
+                        ),
+                        sa.or_(
+                            source_model_revision_check.c.processing_output_id.is_(None),
+                            sa.exists(
+                                sa.select(1).where(
+                                    source_processing_check.c.organization_id
+                                    == source_model_revision_check.c.organization_id,
+                                    source_processing_check.c.project_id
+                                    == source_model_revision_check.c.project_id,
+                                    source_processing_check.c.classification
+                                    == source_model_revision_check.c.classification,
+                                    source_processing_check.c.id
+                                    == source_model_revision_check.c.processing_output_id,
+                                    source_processing_check.c.current_revision_id
+                                    == source_model_revision_check.c.processing_output_revision_id,
+                                )
+                            ),
+                        ),
+                    )
+                )
+                source_model_owner_current = sa.exists(
+                    sa.select(1)
+                    .select_from(
+                        source_owner_model_identity.join(
+                            source_owner_model_binding,
+                            sa.and_(
+                                source_owner_model_binding.c.organization_id
+                                == source_owner_model_identity.c.organization_id,
+                                source_owner_model_binding.c.project_id
+                                == source_owner_model_identity.c.project_id,
+                                source_owner_model_binding.c.classification
+                                == source_owner_model_identity.c.classification,
+                                source_owner_model_binding.c.domain_kind
+                                == source_owner_model_identity.c.domain_kind,
+                                source_owner_model_binding.c.domain_object_id
+                                == source_owner_model_identity.c.domain_object_id,
+                                source_owner_model_binding.c.domain_revision_id
+                                == source_owner_model_identity.c.domain_revision_id,
+                                source_owner_model_binding.c.record_id
+                                == source_owner_model_identity.c.record_id,
+                            ),
+                        ).join(
+                            source_owner_model_record,
+                            sa.and_(
+                                source_owner_model_record.c.organization_id
+                                == source_owner_model_binding.c.organization_id,
+                                source_owner_model_record.c.project_id
+                                == source_owner_model_binding.c.project_id,
+                                source_owner_model_record.c.classification
+                                == source_owner_model_binding.c.classification,
+                                source_owner_model_record.c.id
+                                == source_owner_model_binding.c.record_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        source_owner_model_identity.c.organization_id
+                        == solver_revision_check.c.organization_id,
+                        source_owner_model_identity.c.project_id
+                        == solver_revision_check.c.project_id,
+                        source_owner_model_identity.c.classification
+                        == solver_revision_check.c.classification,
+                        source_owner_model_identity.c.domain_kind == "material_model",
+                        source_owner_model_identity.c.domain_object_id
+                        == solver_revision_check.c.material_model_id,
+                        source_owner_model_identity.c.domain_revision_id
+                        == solver_revision_check.c.material_model_revision_id,
+                        source_owner_model_binding.c.record_id
+                        == solver_binding_check.c.record_id,
+                        source_owner_model_binding.c.record_revision_id
+                        == solver_binding_check.c.record_revision_id,
+                        source_owner_model_record.c.current_revision_id
+                        == source_owner_model_binding.c.record_revision_id,
+                    )
+                )
+                source_model_current = sa.and_(source_model_current, source_model_owner_current)
+                solver_binding_valid = sa.and_(
+                    solver_identity_check.c.organization_id
+                    == solver_binding_check.c.organization_id,
+                    solver_identity_check.c.project_id == solver_binding_check.c.project_id,
+                    solver_identity_check.c.classification
+                    == solver_binding_check.c.classification,
+                    solver_identity_check.c.id == solver_binding_check.c.domain_object_id,
+                    solver_identity_check.c.current_revision_id
+                    == solver_binding_check.c.domain_revision_id,
+                    solver_revision_check.c.organization_id
+                    == solver_binding_check.c.organization_id,
+                    solver_revision_check.c.project_id == solver_binding_check.c.project_id,
+                    solver_revision_check.c.classification
+                    == solver_binding_check.c.classification,
+                    solver_revision_check.c.aggregate_id
+                    == solver_binding_check.c.domain_object_id,
+                    solver_revision_check.c.id == solver_binding_check.c.domain_revision_id,
+                    source_model_current,
+                )
+                invalid_solver_binding = sa.exists(
+                    sa.select(1)
+                    .select_from(
+                        solver_binding_check.outerjoin(
+                            solver_identity_check,
+                            sa.and_(
+                                solver_identity_check.c.organization_id
+                                == solver_binding_check.c.organization_id,
+                                solver_identity_check.c.project_id
+                                == solver_binding_check.c.project_id,
+                                solver_identity_check.c.classification
+                                == solver_binding_check.c.classification,
+                                solver_identity_check.c.id
+                                == solver_binding_check.c.domain_object_id,
+                            ),
+                        ).outerjoin(
+                            solver_revision_check,
+                            sa.and_(
+                                solver_revision_check.c.organization_id
+                                == solver_binding_check.c.organization_id,
+                                solver_revision_check.c.project_id
+                                == solver_binding_check.c.project_id,
+                                solver_revision_check.c.classification
+                                == solver_binding_check.c.classification,
+                                solver_revision_check.c.aggregate_id
+                                == solver_binding_check.c.domain_object_id,
+                                solver_revision_check.c.id
+                                == solver_binding_check.c.domain_revision_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        solver_binding_check.c.organization_id == catalog_record.c.organization_id,
+                        solver_binding_check.c.project_id == catalog_record.c.project_id,
+                        solver_binding_check.c.classification
+                        == catalog_record_revision.c.classification,
+                        solver_binding_check.c.record_id == catalog_record.c.id,
+                        solver_binding_check.c.record_revision_id == catalog_record_revision.c.id,
+                        solver_binding_check.c.domain_kind == "solver_card",
+                        sa.not_(solver_binding_valid),
+                    )
+                    .correlate(catalog_record, catalog_record_revision)
+                )
+
+                neutral_binding_check = domain_record_binding.alias(
+                    "review_neutral_solver_card_binding"
+                )
+                neutral_identity_check = _neutral_solver_card.alias(
+                    "review_neutral_solver_card_identity"
+                )
+                neutral_revision_check = _neutral_solver_card_revision.alias(
+                    "review_neutral_solver_card_revision"
+                )
+                source_neutral_check = _neutral_material.alias("review_card_source_neutral")
+                source_neutral_revision_check = _neutral_material_revision.alias(
+                    "review_card_source_neutral_revision"
+                )
+                source_owner_neutral_identity = domain_record_identity_binding.alias(
+                    "review_card_source_neutral_owner_identity"
+                )
+                source_owner_neutral_binding = domain_record_binding.alias(
+                    "review_card_source_neutral_owner_binding"
+                )
+                source_owner_neutral_record = catalog_record.alias(
+                    "review_card_source_neutral_owner_record"
+                )
+                source_neutral_current: sa.ColumnElement[bool] = sa.exists(
+                    sa.select(1)
+                    .select_from(
+                        source_neutral_check.join(
+                            source_neutral_revision_check,
+                            sa.and_(
+                                source_neutral_revision_check.c.organization_id
+                                == source_neutral_check.c.organization_id,
+                                source_neutral_revision_check.c.project_id
+                                == source_neutral_check.c.project_id,
+                                source_neutral_revision_check.c.classification
+                                == source_neutral_check.c.classification,
+                                source_neutral_revision_check.c.aggregate_id
+                                == source_neutral_check.c.id,
+                                source_neutral_revision_check.c.id
+                                == neutral_revision_check.c.neutral_material_revision_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        source_neutral_check.c.organization_id
+                        == neutral_revision_check.c.organization_id,
+                        source_neutral_check.c.project_id == neutral_revision_check.c.project_id,
+                        source_neutral_check.c.classification
+                        == neutral_revision_check.c.classification,
+                        source_neutral_check.c.id == neutral_revision_check.c.neutral_material_id,
+                        source_neutral_check.c.current_revision_id
+                        == neutral_revision_check.c.neutral_material_revision_id,
+                    )
+                )
+                source_neutral_owner_current = sa.exists(
+                    sa.select(1)
+                    .select_from(
+                        source_owner_neutral_identity.join(
+                            source_owner_neutral_binding,
+                            sa.and_(
+                                source_owner_neutral_binding.c.organization_id
+                                == source_owner_neutral_identity.c.organization_id,
+                                source_owner_neutral_binding.c.project_id
+                                == source_owner_neutral_identity.c.project_id,
+                                source_owner_neutral_binding.c.classification
+                                == source_owner_neutral_identity.c.classification,
+                                source_owner_neutral_binding.c.domain_kind
+                                == source_owner_neutral_identity.c.domain_kind,
+                                source_owner_neutral_binding.c.domain_object_id
+                                == source_owner_neutral_identity.c.domain_object_id,
+                                source_owner_neutral_binding.c.domain_revision_id
+                                == source_owner_neutral_identity.c.domain_revision_id,
+                                source_owner_neutral_binding.c.record_id
+                                == source_owner_neutral_identity.c.record_id,
+                            ),
+                        ).join(
+                            source_owner_neutral_record,
+                            sa.and_(
+                                source_owner_neutral_record.c.organization_id
+                                == source_owner_neutral_binding.c.organization_id,
+                                source_owner_neutral_record.c.project_id
+                                == source_owner_neutral_binding.c.project_id,
+                                source_owner_neutral_record.c.classification
+                                == source_owner_neutral_binding.c.classification,
+                                source_owner_neutral_record.c.id
+                                == source_owner_neutral_binding.c.record_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        source_owner_neutral_identity.c.organization_id
+                        == neutral_revision_check.c.organization_id,
+                        source_owner_neutral_identity.c.project_id
+                        == neutral_revision_check.c.project_id,
+                        source_owner_neutral_identity.c.classification
+                        == neutral_revision_check.c.classification,
+                        source_owner_neutral_identity.c.domain_kind == "neutral_material",
+                        source_owner_neutral_identity.c.domain_object_id
+                        == neutral_revision_check.c.neutral_material_id,
+                        source_owner_neutral_identity.c.domain_revision_id
+                        == neutral_revision_check.c.neutral_material_revision_id,
+                        source_owner_neutral_binding.c.record_id
+                        == neutral_binding_check.c.record_id,
+                        source_owner_neutral_binding.c.record_revision_id
+                        == neutral_binding_check.c.record_revision_id,
+                        source_owner_neutral_record.c.current_revision_id
+                        == source_owner_neutral_binding.c.record_revision_id,
+                    )
+                )
+                source_neutral_current = sa.and_(
+                    source_neutral_current,
+                    source_neutral_owner_current,
+                )
+                neutral_binding_valid = sa.and_(
+                    neutral_identity_check.c.organization_id
+                    == neutral_binding_check.c.organization_id,
+                    neutral_identity_check.c.project_id == neutral_binding_check.c.project_id,
+                    neutral_identity_check.c.classification
+                    == neutral_binding_check.c.classification,
+                    neutral_identity_check.c.id == neutral_binding_check.c.domain_object_id,
+                    neutral_identity_check.c.current_revision_id
+                    == neutral_binding_check.c.domain_revision_id,
+                    neutral_revision_check.c.organization_id
+                    == neutral_binding_check.c.organization_id,
+                    neutral_revision_check.c.project_id == neutral_binding_check.c.project_id,
+                    neutral_revision_check.c.classification
+                    == neutral_binding_check.c.classification,
+                    neutral_revision_check.c.aggregate_id
+                    == neutral_binding_check.c.domain_object_id,
+                    neutral_revision_check.c.id == neutral_binding_check.c.domain_revision_id,
+                    source_neutral_current,
+                )
+                invalid_neutral_binding = sa.exists(
+                    sa.select(1)
+                    .select_from(
+                        neutral_binding_check.outerjoin(
+                            neutral_identity_check,
+                            sa.and_(
+                                neutral_identity_check.c.organization_id
+                                == neutral_binding_check.c.organization_id,
+                                neutral_identity_check.c.project_id
+                                == neutral_binding_check.c.project_id,
+                                neutral_identity_check.c.classification
+                                == neutral_binding_check.c.classification,
+                                neutral_identity_check.c.id
+                                == neutral_binding_check.c.domain_object_id,
+                            ),
+                        ).outerjoin(
+                            neutral_revision_check,
+                            sa.and_(
+                                neutral_revision_check.c.organization_id
+                                == neutral_binding_check.c.organization_id,
+                                neutral_revision_check.c.project_id
+                                == neutral_binding_check.c.project_id,
+                                neutral_revision_check.c.classification
+                                == neutral_binding_check.c.classification,
+                                neutral_revision_check.c.aggregate_id
+                                == neutral_binding_check.c.domain_object_id,
+                                neutral_revision_check.c.id
+                                == neutral_binding_check.c.domain_revision_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        neutral_binding_check.c.organization_id == catalog_record.c.organization_id,
+                        neutral_binding_check.c.project_id == catalog_record.c.project_id,
+                        neutral_binding_check.c.classification
+                        == catalog_record_revision.c.classification,
+                        neutral_binding_check.c.record_id == catalog_record.c.id,
+                        neutral_binding_check.c.record_revision_id == catalog_record_revision.c.id,
+                        neutral_binding_check.c.domain_kind == "neutral_solver_card",
+                        sa.not_(neutral_binding_valid),
+                    )
+                    .correlate(catalog_record, catalog_record_revision)
+                )
+                card_binding_currentness = sa.and_(
+                    sa.not_(invalid_solver_binding),
+                    sa.not_(invalid_neutral_binding),
+                )
+            # Configurable Record reviews can be rechecked directly against the
+            # outer Record row.  Avoid the six-way current-head union and the
+            # lineage predicates for this common subject type; the projection
+            # still pins the exact Record and Table revisions, and the same
+            # binding/material checks apply to both branches below.
+            review_record_subject = sa.exists(
+                sa.select(1).where(
+                    review_publication_projection.c.organization_id
+                    == catalog_record.c.organization_id,
+                    review_publication_projection.c.project_id == catalog_record.c.project_id,
+                    review_publication_projection.c.classification
+                    == catalog_record_revision.c.classification,
+                    review_publication_projection.c.record_id == catalog_record.c.id,
+                    review_publication_projection.c.record_revision_id
+                    == catalog_record_revision.c.id,
+                    review_publication_projection.c.subject_type
+                    == "catalog.configurable_record",
+                    review_publication_projection.c.subject_id == catalog_record.c.id,
+                    review_publication_projection.c.subject_revision_id
+                    == catalog_record_revision.c.id,
+                    catalog_record.c.current_revision_id == catalog_record_revision.c.id,
+                    review_publication_projection.c.record_table_id
+                    == catalog_record_revision.c.table_id,
+                    review_publication_projection.c.record_table_revision_id
+                    == catalog_record_revision.c.table_revision_id,
+                    subject_binding_match,
+                    card_binding_currentness,
+                    sa.or_(
+                        review_publication_projection.c.neutral_material_id.is_(None),
+                        sa.exists(
+                            sa.select(1).where(
+                                _neutral_material.c.organization_id
+                                == review_publication_projection.c.organization_id,
+                                _neutral_material.c.project_id
+                                == review_publication_projection.c.project_id,
+                                _neutral_material.c.classification
+                                == review_publication_projection.c.classification,
+                                _neutral_material.c.id
+                                == review_publication_projection.c.neutral_material_id,
+                                _neutral_material.c.current_revision_id
+                                == review_publication_projection.c.neutral_material_revision_id,
+                            )
+                        ),
+                    ),
+                    sa.exists(
+                        sa.select(1).where(
+                            schema_table.c.organization_id
+                            == catalog_record_revision.c.organization_id,
+                            schema_table.c.project_id == catalog_record_revision.c.project_id,
+                            schema_table.c.classification
+                            == catalog_record_revision.c.classification,
+                            schema_table.c.id == catalog_record_revision.c.table_id,
+                            schema_table.c.current_revision_id
+                            == catalog_record_revision.c.table_revision_id,
+                        )
+                    ),
+                )
+            )
+            review_non_record_subject = sa.exists(
                 sa.select(1)
                 .select_from(
                     review_publication_projection.join(
@@ -2223,66 +2705,59 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     review_publication_projection.c.record_id == catalog_record.c.id,
                     review_publication_projection.c.record_revision_id
                     == catalog_record_revision.c.id,
+                    review_publication_projection.c.subject_type
+                    != "catalog.configurable_record",
                     catalog_record.c.current_revision_id == catalog_record_revision.c.id,
                     review_publication_projection.c.record_table_id
                     == catalog_record_revision.c.table_id,
                     review_publication_projection.c.record_table_revision_id
                     == catalog_record_revision.c.table_revision_id,
                     subject_binding_match,
-                    sa.or_(
-                        sa.and_(
-                            review_publication_projection.c.subject_type
-                            == "catalog.configurable_record",
-                            review_publication_projection.c.subject_id == catalog_record.c.id,
-                            review_publication_projection.c.subject_revision_id
-                            == catalog_record_revision.c.id,
-                        ),
-                        sa.exists(
-                            sa.select(1).where(
-                                domain_record_binding.c.organization_id
-                                == review_publication_projection.c.organization_id,
-                                domain_record_binding.c.project_id
-                                == review_publication_projection.c.project_id,
-                                domain_record_binding.c.classification
-                                == review_publication_projection.c.classification,
-                                domain_record_binding.c.record_id
-                                == review_publication_projection.c.record_id,
-                                domain_record_binding.c.record_revision_id
-                                == review_publication_projection.c.record_revision_id,
-                                domain_record_binding.c.domain_object_id
-                                == review_publication_projection.c.subject_id,
-                                domain_record_binding.c.domain_revision_id
-                                == review_publication_projection.c.subject_revision_id,
-                                sa.or_(
-                                    sa.and_(
-                                        review_publication_projection.c.subject_type
-                                        == "catalog.material",
-                                        domain_record_binding.c.domain_kind == "material",
-                                    ),
-                                    sa.and_(
-                                        review_publication_projection.c.subject_type
-                                        == "datasets.test_data_document",
-                                        domain_record_binding.c.domain_kind == "test_data",
-                                    ),
-                                    sa.and_(
-                                        review_publication_projection.c.subject_type
-                                        == "modeling.material_model",
-                                        domain_record_binding.c.domain_kind == "material_model",
-                                    ),
-                                    sa.and_(
-                                        review_publication_projection.c.subject_type
-                                        == "exporting.solver_card",
-                                        domain_record_binding.c.domain_kind == "solver_card",
-                                    ),
-                                    sa.and_(
-                                        review_publication_projection.c.subject_type
-                                        == "exporting.neutral_solver_card",
-                                        domain_record_binding.c.domain_kind
-                                        == "neutral_solver_card",
-                                    ),
+                    sa.exists(
+                        sa.select(1).where(
+                            domain_record_binding.c.organization_id
+                            == review_publication_projection.c.organization_id,
+                            domain_record_binding.c.project_id
+                            == review_publication_projection.c.project_id,
+                            domain_record_binding.c.classification
+                            == review_publication_projection.c.classification,
+                            domain_record_binding.c.record_id
+                            == review_publication_projection.c.record_id,
+                            domain_record_binding.c.record_revision_id
+                            == review_publication_projection.c.record_revision_id,
+                            domain_record_binding.c.domain_object_id
+                            == review_publication_projection.c.subject_id,
+                            domain_record_binding.c.domain_revision_id
+                            == review_publication_projection.c.subject_revision_id,
+                            sa.or_(
+                                sa.and_(
+                                    review_publication_projection.c.subject_type
+                                    == "catalog.material",
+                                    domain_record_binding.c.domain_kind == "material",
                                 ),
-                            )
-                        ),
+                                sa.and_(
+                                    review_publication_projection.c.subject_type
+                                    == "datasets.test_data_document",
+                                    domain_record_binding.c.domain_kind == "test_data",
+                                ),
+                                sa.and_(
+                                    review_publication_projection.c.subject_type
+                                    == "modeling.material_model",
+                                    domain_record_binding.c.domain_kind == "material_model",
+                                ),
+                                sa.and_(
+                                    review_publication_projection.c.subject_type
+                                    == "exporting.solver_card",
+                                    domain_record_binding.c.domain_kind == "solver_card",
+                                ),
+                                sa.and_(
+                                    review_publication_projection.c.subject_type
+                                    == "exporting.neutral_solver_card",
+                                    domain_record_binding.c.domain_kind
+                                    == "neutral_solver_card",
+                                ),
+                            ),
+                        )
                     ),
                     sa.or_(
                         review_publication_projection.c.neutral_material_id.is_(None),
@@ -2633,6 +3108,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     ),
                 )
             )
+            review_current_subject = sa.or_(review_record_subject, review_non_record_subject)
             statement = SqlAlchemyCatalogRecordRepository._record_statement(current=False).where(
                 sa.or_(legacy_published, review_current_subject)
             )

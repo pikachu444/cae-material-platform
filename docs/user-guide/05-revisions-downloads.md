@@ -66,6 +66,18 @@ mapping report는 **Advanced mapping evidence**에서만 확인합니다. Previe
 
 ![1920×1080 Solver Card preview](images/current/solver-card-preview-1920x1080.png)
 
+| Wide viewport | 화면 |
+| --- | --- |
+| 2560×1440 | ![2560×1440 Solver Card preview](images/current/solver-card-preview-2560x1440.png) |
+| 3840×2160 | ![3840×2160 Solver Card preview](images/current/solver-card-preview-3840x2160.png) |
+
+근사 매핑은 검토 확인 전까지 다운로드가 차단되고, 지원하지 않는 매핑은 해당 필드와 함께
+다운로드 자체가 차단됩니다.
+
+![근사 매핑 검토 전 Solver Card](images/current/solver-card-approximation-blocked-1440x900.png)
+
+![지원하지 않는 매핑으로 차단된 Solver Card](images/current/solver-card-unsupported-blocked-1440x900.png)
+
 Bulk Export Bundle은 Release와 다릅니다. Release는 review/approval을 통과한 발행 단위이고,
 Bundle은 선택한 데이터를 전달하기 위한 authorization-scoped archive입니다. Bundle을 만들었다고
 승인이나 release가 발생하지 않습니다. 상세 절차는

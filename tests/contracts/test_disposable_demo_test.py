@@ -215,6 +215,9 @@ def test_scale_fixture_runs_inside_the_selected_disposable_project(
 ) -> None:
     project = "cmp-demo-test-proof123"
     commands: list[list[str]] = []
+    snapshot = demo_test.RepeatSeedSnapshot(
+        tables=(("catalog.catalog_record", 3, "a" * 32),)
+    )
 
     def run_command(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
         commands.append(list(args))
@@ -224,12 +227,15 @@ def test_scale_fixture_runs_inside_the_selected_disposable_project(
     monkeypatch.setattr(
         demo_test, "_run_seed_twice_and_assert_stable", lambda *args, **kwargs: None
     )
+    monkeypatch.setattr(demo_test, "_repeat_seed_snapshot", lambda *args: snapshot)
 
     demo_test._run_verification(ROOT, project, e2e=False, scale_fixture=True)
 
-    scale = next(
+    scale_commands = [
         command for command in commands if "scripts/seed_disposable_scale_fixture.py" in command
-    )
+    ]
+    assert len(scale_commands) == 2
+    scale = scale_commands[0]
     assert scale[scale.index("--project-name") + 1] == project
     assert f"CMP_DISPOSABLE_PROJECT_NAME={project}" in scale
     assert "scripts/verify_full_demo.py" in next(

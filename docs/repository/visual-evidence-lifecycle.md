@@ -7,9 +7,12 @@ enforces them before documentation is accepted.
 
 The approved repository-owner choice is to keep only the affected canonical current screenshot
 families and manifest tracked for new product guidance. Historical raster evidence is frozen unless
-an exact owner-approved cleanup list, such as #351, removes a retired packet after its current-guide
-and contract references are decoupled. Explicitly retained top-level reports remain in place, and the
-.artifacts directory is used for transient review material.
+an exact owner-approved cleanup list removes a complete retired packet after its current-guide and
+contract references are decoupled. The Materials service-reference conversion is one such bounded
+operation: every retired image and measurement pair must be removed only after the current-product
+evidence manifest points to the replacement, and the semantic retirement policy verifies raw
+merge-base Git-blob hashes, complete-set coupling and zero adjacent-file impact. Explicitly retained
+top-level reports remain in place, and the .artifacts directory is used for transient review material.
 
 ## Three states
 
@@ -36,10 +39,13 @@ satisfy it.
 
 ## Fixed exceptions
 
-- #167's static bundle is immutable. Only the three issue-289 administration database current-product
-  originals may change, and only when both `docs/product/service-reference-manifest.yaml` and
-  `docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml` change
-  in the same diff. Every other issue-289 raster remains frozen.
+- The historical static bundle is immutable by default. The three Administration database
+  current-product originals may change only when both `docs/product/service-reference-manifest.yaml`
+  and `docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml`
+  change in the same diff. Materials current-product references resolve through the screenshot
+  manifest's exact route/image/viewport mapping; they do not retain inbound approved-reference lists
+  or circular evidence links. Any approved Materials retirement must satisfy the complete-set
+  merge-base hash policy described above, and adjacent historical rasters remain frozen.
 - #184 to #223 permits exactly the 30 names missing in the base snapshot
   `94d8a1cdefa104fb41865171093b0657966b159f` under `after/{compact,standard,large}/`. They are
   add-only, require the issue-184 manifest in the diff, and the working-tree manifest must read back
@@ -48,9 +54,9 @@ satisfy it.
   `visual-evidence.yaml` in the same issue root. Deletes and renames are rejected.
 - #351 authorizes the one-time deletion of the approved 26 immediate evidence roots after removing
   their current screenshot-manifest fields and inbound repository-local links. The 128 current
-  screenshots, #223 handoff roots, #289 exception files, #167 static bundle and the retained
-  top-level Markdown allowlist are outside that deletion authority. The exact root list and measured
-  byte count are recorded in the issue and its Task 3 pull request.
+  screenshots, #223 handoff roots, #289 exception files, unconverted static service-reference
+  targets and the retained top-level Markdown allowlist are outside that deletion authority. The
+  exact root list and measured byte count are recorded in the issue and its Task 3 pull request.
 
 ## Retained top-level evidence Markdown
 

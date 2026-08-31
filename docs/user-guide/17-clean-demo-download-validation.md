@@ -41,18 +41,20 @@ make demo-scale-e2e
 ```
 
 이 명령은 고유한 `cmp-demo-test-*` Compose project와 전용 PostgreSQL/object volume을 만들고, 기존
-소규모 full demo를 구성한 다음 `CMP-SCALE-0000`부터 `CMP-SCALE-0999`까지 metadata-only 합성
-Material/Catalog Record 1,000건을 추가합니다. scale record에는 curve, Material State, Test Data 또는
-모델을 복제하지 않습니다. 실제 곡선과 Modeling 연결은 기존 `CMP-DEMO-DP780` 대표 record를 그대로
-재사용해 확인합니다. 정확 조회 표본 `CMP-SCALE-0731` 한 건만 기존 review request와 승인 경로를
-거쳐 상세 화면에 노출하며, 나머지 999건은 검색·facet·목록 규모 검증용 metadata로만 둡니다.
+소규모 full demo를 구성한 다음 source-v2 `technical_data` Material revision 1,000건과
+metadata-only Catalog Record 1,000건을 exact Material-to-Record binding으로 추가합니다. 합성
+family count는 Metal 500, Plastic 300, Rubber 200으로 결정론적이며 모든 source-v2 Record는 실제
+review lifecycle을 거쳐 승인·게시됩니다. Provider/Evidence mapping, JSON provenance claim,
+canonical key 재사용 또는 Modeling curve 복제는 만들지 않습니다. 두 번 실행하면 두 번째에는
+생성·개정·review가 없고 exact ID, revision, snapshot이 그대로 유지됩니다.
 
 자동 수용 흐름은 Materials에서 다음 결과를 실제 서버와 브라우저로 확인합니다.
 
 - 검색 결과 1,000건과 페이지당 50행
-- Material class, Provider, Evidence source facet의 결정론적 count와 조합 필터
+- source-v2 Material class facet의 결정론적 count와 unsupported legacy filter의
+  **Clear unsupported filters** 복구
 - 결과 영역의 독립 스크롤과 다음/이전 페이지
-- `CMP-SCALE-0731` exact lookup과 exact-revision Material 상세
+- source-v2 fixture row 한 건의 exact lookup과 exact-revision Material 상세
 - URL에 남은 검색·facet·offset의 reload 복원
 - 결과 없음 상태의 **Clear search** 복구
 

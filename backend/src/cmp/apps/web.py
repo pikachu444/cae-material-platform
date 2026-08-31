@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import os
 from collections.abc import Sequence
 from pathlib import Path
@@ -24,6 +25,8 @@ _HOP_BY_HOP = {
     "transfer-encoding",
     "upgrade",
 }
+_DEFAULT_API_TIMEOUT_SECONDS = 30.0
+_API_CONNECT_TIMEOUT_SECONDS = 5.0
 
 
 def _proxy_headers(headers: httpx.Headers) -> dict[str, str]:
@@ -35,6 +38,7 @@ def create_app(
     static_root: Path,
     api_target: str,
     transport: httpx.AsyncBaseTransport | None = None,
+    api_timeout_seconds: float = _DEFAULT_API_TIMEOUT_SECONDS,
 ) -> FastAPI:
     """Create the immutable-build Web server without requiring Node at runtime."""
 
@@ -45,6 +49,12 @@ def create_app(
     target = api_target.rstrip("/")
     if not target.startswith(("http://", "https://")):
         raise ValueError("API target must be an explicit HTTP(S) URL")
+    if not math.isfinite(api_timeout_seconds) or api_timeout_seconds <= 0:
+        raise ValueError("API timeout must be a finite positive number")
+    timeout = httpx.Timeout(
+        api_timeout_seconds,
+        connect=min(_API_CONNECT_TIMEOUT_SECONDS, api_timeout_seconds),
+    )
 
     application = FastAPI(
         title="CAE Material Platform Web front door",
@@ -73,12 +83,26 @@ def create_app(
         headers = {
             key: value for key, value in request.headers.items() if key.lower() not in _HOP_BY_HOP
         }
-        async with httpx.AsyncClient(transport=transport, follow_redirects=False) as client:
-            upstream = await client.request(
-                request.method,
-                url,
-                headers=headers,
-                content=await request.body(),
+        try:
+            async with httpx.AsyncClient(
+                transport=transport,
+                follow_redirects=False,
+                timeout=timeout,
+            ) as client:
+                upstream = await client.request(
+                    request.method,
+                    url,
+                    headers=headers,
+                    content=await request.body(),
+                )
+        except httpx.TimeoutException:
+            return JSONResponse(
+                status_code=504,
+                content={
+                    "code": "CMP-WEB-API-TIMEOUT",
+                    "detail": "The upstream API did not respond within the configured timeout.",
+                },
+                headers={"Retry-After": "1"},
             )
         return Response(
             content=upstream.content,

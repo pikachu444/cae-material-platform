@@ -86,6 +86,165 @@ _CURRENT_PRODUCT_EVIDENCE_MANIFEST = (
     "docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml"
 )
 _CURRENT_PRODUCT_EVIDENCE_KEY = "after_editor"
+_CURRENT_PRODUCT_SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS: dict[
+    str, tuple[str, str, int, int, str, str]
+] = {
+    "materials-search-normal-1366x768": (
+        "materials-search",
+        "normal",
+        1366,
+        768,
+        "docs/user-guide/images/current/materials-search-1366x768.png",
+        "materials-search-1366",
+    ),
+    "materials-search-normal-1440x900": (
+        "materials-search",
+        "normal",
+        1440,
+        900,
+        "docs/user-guide/images/current/materials-search-1440x900.png",
+        "materials-search-1440",
+    ),
+    "materials-search-normal-1920x1080": (
+        "materials-search",
+        "normal",
+        1920,
+        1080,
+        "docs/user-guide/images/current/materials-search-1920x1080.png",
+        "materials-search-1920",
+    ),
+    "materials-search-long-1440x900": (
+        "materials-search",
+        "long",
+        1440,
+        900,
+        "docs/user-guide/images/current/materials-search-long-1440x900.png",
+        "materials-scroll-long-1440",
+    ),
+    "materials-search-empty-1440x900": (
+        "materials-search",
+        "empty",
+        1440,
+        900,
+        "docs/user-guide/images/current/materials-search-empty-1440x900.png",
+        "materials-scroll-empty-1440",
+    ),
+    "materials-datasheet-overview-normal-1366x768": (
+        "materials-datasheet-overview",
+        "normal",
+        1366,
+        768,
+        "docs/user-guide/images/current/material-detail-1366x768.png",
+        "material-detail-1366",
+    ),
+    "materials-datasheet-overview-normal-1440x900": (
+        "materials-datasheet-overview",
+        "normal",
+        1440,
+        900,
+        "docs/user-guide/images/current/material-detail-1440x900.png",
+        "material-detail-1440",
+    ),
+    "materials-datasheet-overview-normal-1920x1080": (
+        "materials-datasheet-overview",
+        "normal",
+        1920,
+        1080,
+        "docs/user-guide/images/current/material-detail-1920x1080.png",
+        "material-detail-1920",
+    ),
+    "materials-datasheet-related-long-1440x900": (
+        "materials-datasheet-related",
+        "related-long",
+        1440,
+        900,
+        "docs/user-guide/images/current/material-detail-related-long-1440x900.png",
+        "material-detail-related-long-1440",
+    ),
+    "materials-datasheet-empty-1440x900": (
+        "materials-datasheet-overview",
+        "empty",
+        1440,
+        900,
+        "docs/user-guide/images/current/material-detail-empty-1440x900.png",
+        "material-detail-empty-1440",
+    ),
+    "materials-card-preview-normal-1366x768": (
+        "materials-card",
+        "normal",
+        1366,
+        768,
+        "docs/user-guide/images/current/solver-card-preview-1366x768.png",
+        "solver-card-preview-1366",
+    ),
+    "materials-card-preview-normal-1440x900": (
+        "materials-card",
+        "normal",
+        1440,
+        900,
+        "docs/user-guide/images/current/solver-card-preview-1440x900.png",
+        "solver-card-preview-1440",
+    ),
+    "materials-card-preview-normal-1920x1080": (
+        "materials-card",
+        "normal",
+        1920,
+        1080,
+        "docs/user-guide/images/current/solver-card-preview-1920x1080.png",
+        "solver-card-preview-1920",
+    ),
+    "materials-card-approximation-blocked-1440x900": (
+        "materials-card",
+        "approximation-blocked",
+        1440,
+        900,
+        "docs/user-guide/images/current/solver-card-approximation-blocked-1440x900.png",
+        "solver-card-approximation-blocked-1440",
+    ),
+    "materials-card-unsupported-blocked-1440x900": (
+        "materials-card",
+        "unsupported-blocked",
+        1440,
+        900,
+        "docs/user-guide/images/current/solver-card-unsupported-blocked-1440x900.png",
+        "solver-card-unsupported-blocked-1440",
+    ),
+}
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES: dict[str, str] = {
+    reference_id: "/materials"
+    for reference_id in (
+        "materials-search-normal-1366x768",
+        "materials-search-normal-1440x900",
+        "materials-search-normal-1920x1080",
+        "materials-search-long-1440x900",
+        "materials-search-empty-1440x900",
+    )
+}
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES.update(
+    {
+        reference_id: "/materials/:materialId"
+        for reference_id in (
+            "materials-datasheet-overview-normal-1366x768",
+            "materials-datasheet-overview-normal-1440x900",
+            "materials-datasheet-overview-normal-1920x1080",
+            "materials-datasheet-related-long-1440x900",
+            "materials-datasheet-empty-1440x900",
+        )
+    }
+)
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES.update(
+    {
+        reference_id: "/materials/:materialId/cards/:cardId"
+        for reference_id in (
+            "materials-card-preview-normal-1366x768",
+            "materials-card-preview-normal-1440x900",
+            "materials-card-preview-normal-1920x1080",
+            "materials-card-approximation-blocked-1440x900",
+            "materials-card-unsupported-blocked-1440x900",
+        )
+    }
+)
 _CURRENT_PRODUCT_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str]] = {
     "administration-database-normal-1920x1080": (
         "administration-database",
@@ -112,6 +271,15 @@ _CURRENT_PRODUCT_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str]] = 
         "originals/administration-database-3840x2160.png",
     ),
 }
+_CURRENT_PRODUCT_REFERENCE_TARGETS.update(
+    {
+        reference_id: target[:5]
+        for reference_id, target in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS.items()
+    }
+)
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS = frozenset(
+    _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS
+)
 _CURRENT_PRODUCT_REFERENCE_VIEWPORTS = (
     "1920x1080",
     "2560x1440",
@@ -638,11 +806,18 @@ def _verify_current_product_reference_evidence(
         reference.get("evidence_manifest"),
         f"service reference {reference_id} evidence manifest",
     )
-    evidence = _inside(
-        project / evidence_ref,
-        evidence_root,
-        f"service reference {reference_id} evidence manifest",
-    )
+    if evidence_ref == _CURRENT_PRODUCT_SCREENSHOT_MANIFEST:
+        evidence = _inside(
+            project / evidence_ref,
+            project,
+            f"service reference {reference_id} evidence manifest",
+        )
+    else:
+        evidence = _inside(
+            project / evidence_ref,
+            evidence_root,
+            f"service reference {reference_id} evidence manifest",
+        )
     if not evidence.is_file() or evidence.suffix.lower() not in {".yaml", ".yml"}:
         raise UserGuideContractError(
             f"current product reference evidence is missing or unsupported: {reference_id}"
@@ -655,6 +830,50 @@ def _verify_current_product_reference_evidence(
         reference.get("evidence_key"),
         f"service reference {reference_id} evidence key",
     )
+    if evidence_ref == _CURRENT_PRODUCT_SCREENSHOT_MANIFEST:
+        captures = {
+            _text(item.get("id"), "screenshot manifest capture id"): _mapping(
+                item, "screenshot manifest capture"
+            )
+            for item in _sequence(
+                evidence_manifest.get("captures"),
+                f"service reference {reference_id} screenshot captures",
+            )
+            if isinstance(item, dict) and item.get("id")
+        }
+        if evidence_key not in captures:
+            raise UserGuideContractError(
+                f"current product reference screenshot capture is missing: {reference_id}"
+            )
+        capture = captures[evidence_key]
+        expected_route = _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES[reference_id]
+        if capture.get("route") != expected_route:
+            raise UserGuideContractError(
+                f"current product reference route drifted: {reference_id}"
+            )
+        evidence_image_ref = _text(
+            capture.get("image"),
+            f"service reference {reference_id} screenshot image",
+        )
+        evidence_image = _inside(
+            evidence.parent / evidence_image_ref,
+            project / "docs" / "user-guide",
+            f"service reference {reference_id} screenshot image",
+        )
+        if evidence_image != image:
+            raise UserGuideContractError(
+                f"current product reference image differs from screenshot capture: {reference_id}"
+            )
+        if (capture.get("width"), capture.get("height")) != (
+            viewport.get("width"),
+            viewport.get("height"),
+        ):
+            raise UserGuideContractError(
+                "current product reference viewport differs from screenshot capture: "
+                f"{reference_id}"
+            )
+        return
+
     viewport_key = f"{viewport.get('width')}x{viewport.get('height')}"
     evidence_viewports = [
         _mapping(item, f"service reference {reference_id} evidence viewport")
@@ -754,11 +973,94 @@ def _verify_service_reference_inventory(project: Path) -> None:
         raise UserGuideContractError(
             "service reference inventory ADM-DB approved viewports drifted"
         )
-    if family.get("image_count") != len(_CURRENT_PRODUCT_REFERENCE_TARGETS):
+    if family.get("image_count") != 3:
         raise UserGuideContractError("service reference inventory ADM-DB image count drifted")
 
+    # Materials references are current-product captures in the source-v2
+    # lifecycle.  Keep the small legacy fixture accepted by contract tests,
+    # while enforcing the complete production family when it is registered.
+    material_families = {
+        str(item.get("id")): item
+        for item in families
+        if isinstance(item.get("id"), str)
+    }
+    expected_material_families = {
+        "MAT-EXP": (
+            "materials-search-normal",
+            ("materials-search-long-1440x900", "materials-search-empty-1440x900"),
+        ),
+        "MAT-DETAIL": (
+            "materials-datasheet-overview-normal",
+            (
+                "materials-datasheet-related-long-1440x900",
+                "materials-datasheet-empty-1440x900",
+            ),
+        ),
+        "MAT-CARD": (
+            "materials-card-preview-normal",
+            (
+                "materials-card-approximation-blocked-1440x900",
+                "materials-card-unsupported-blocked-1440x900",
+            ),
+        ),
+    }
+    if any(
+        isinstance(material_families.get(identifier, {}).get("normal"), dict)
+        and material_families[identifier]["normal"].get("lifecycle")
+        == "current-product-evidence"
+        for identifier in expected_material_families
+    ):
+        for identifier, (target_base, exception_ids) in expected_material_families.items():
+            material = material_families.get(identifier)
+            if material is None:
+                raise UserGuideContractError(
+                    f"service reference inventory is missing Materials family: {identifier}"
+                )
+            normal = _mapping(
+                material.get("normal"),
+                f"service reference inventory {identifier} normal",
+            )
+            if any(
+                normal.get(key) != value
+                for key, value in {
+                    "target_base": target_base,
+                    "state": "normal",
+                    "lifecycle": "current-product-evidence",
+                    "images": 3,
+                }.items()
+            ):
+                raise UserGuideContractError(
+                    f"service reference inventory {identifier} lifecycle contract drifted"
+                )
+            approved_viewports = tuple(
+                _text(item, f"service reference inventory {identifier} approved viewport")
+                for item in _sequence(
+                    normal.get("approved_viewports"),
+                    f"service reference inventory {identifier} approved viewports",
+                )
+            )
+            if approved_viewports != ("1366x768", "1440x900", "1920x1080"):
+                raise UserGuideContractError(
+                    f"service reference inventory {identifier} approved viewports drifted"
+                )
+            exceptions = _sequence(
+                material.get("exceptions", []),
+                f"service reference inventory {identifier} exceptions",
+            )
+            actual_exception_ids = tuple(
+                _text(_mapping(item, "service reference inventory exception").get("id"),
+                      "service reference inventory exception id")
+                for item in exceptions
+            )
+            if actual_exception_ids != exception_ids or material.get("image_count") != 5:
+                raise UserGuideContractError(
+                    f"service reference inventory {identifier} exception contract drifted"
+                )
 
-def _verify_service_reference_manifest(project: Path) -> set[str]:
+
+def _verify_service_reference_manifest(
+    project: Path, *, final_publication: bool = False
+) -> set[str]:
     _verify_service_reference_inventory(project)
     manifest_path = project / "docs" / "product" / "service-reference-manifest.yaml"
     manifest = _mapping(
@@ -807,7 +1109,21 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
         for reference_id, lifecycle in lifecycle_by_id.items()
         if lifecycle == "current-product-evidence"
     }
+    # A minimal dual-lifecycle fixture remains useful to unit-test the legacy
+    # checker.  A production manifest must include all current Materials
+    # references alongside the existing Administration captures.
     expected_current_product_ids = set(_CURRENT_PRODUCT_REFERENCE_TARGETS)
+    legacy_fixture = current_product_ids == {
+        "administration-database-normal-1920x1080",
+        "administration-database-normal-2560x1440",
+        "administration-database-normal-3840x2160",
+    }
+    if legacy_fixture:
+        expected_current_product_ids = {
+            "administration-database-normal-1920x1080",
+            "administration-database-normal-2560x1440",
+            "administration-database-normal-3840x2160",
+        }
     if current_product_ids != expected_current_product_ids:
         raise UserGuideContractError(
             "current product reference targets drifted: "
@@ -819,10 +1135,78 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
         for reference_id, lifecycle in lifecycle_by_id.items()
         if lifecycle == "static-bundle"
     }
-    if len(legacy_ids) != 69:
+    expected_legacy_count = 69 if legacy_fixture else 54
+    if len(legacy_ids) != expected_legacy_count:
         raise UserGuideContractError(
-            f"service reference manifest must contain 69 legacy targets: {len(legacy_ids)}"
+            "service reference manifest has an unexpected legacy target count: "
+            f"expected={expected_legacy_count}, actual={len(legacy_ids)}"
         )
+
+    operational_ids = {
+        reference_id
+        for reference_id, reference in zip(reference_ids, references, strict=True)
+        if reference.get("status") == "operational-evidence-accepted"
+    }
+    if not legacy_fixture:
+        expected_operational_ids = _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+        operational_disposition = manifest.get("current_materials_operational_disposition")
+        if operational_ids:
+            disposition = _mapping(
+                operational_disposition,
+                "current Materials operational evidence disposition",
+            )
+            targets = {
+                _text(target, "operational evidence target")
+                for target in _sequence(
+                    disposition.get("targets"),
+                    "current Materials operational evidence targets",
+                )
+            }
+            if targets != expected_operational_ids:
+                raise UserGuideContractError(
+                    "operational evidence disposition must identify exactly the current "
+                    "Materials targets"
+                )
+            if disposition.get("status") != "accepted":
+                raise UserGuideContractError(
+                    "current Materials operational evidence disposition is not accepted"
+                )
+            if disposition.get("scope") != "behavioral-operation-evidence-only":
+                raise UserGuideContractError(
+                    "current Materials operational evidence scope drifted"
+                )
+            if disposition.get("visual_quality") != "pending-owner-disposition":
+                raise UserGuideContractError(
+                    "current Materials visual-quality disposition must remain pending"
+                )
+            if not isinstance(disposition.get("date"), str) or not disposition["date"].strip():
+                raise UserGuideContractError(
+                    "current Materials operational evidence disposition lacks a date"
+                )
+        elif operational_disposition not in (None, {}):
+            raise UserGuideContractError(
+                "operational evidence disposition exists without operational references"
+            )
+        pending_ids = {
+            reference_id
+            for reference_id, reference in zip(reference_ids, references, strict=True)
+            if reference.get("status") == "pending-owner-disposition"
+        }
+        if final_publication:
+            if pending_ids:
+                raise UserGuideContractError(
+                    "final publication requires zero pending service references"
+                )
+        elif pending_ids not in (
+            _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS,
+            set(),
+        ) and operational_ids != expected_operational_ids:
+            raise UserGuideContractError(
+                "ordinary service-reference verification requires exactly the fifteen "
+                "current Materials references to remain pending-owner-disposition or "
+                "operational-evidence-accepted: "
+                f"pending={sorted(pending_ids)}, operational={sorted(operational_ids)}"
+            )
 
     source_root = project / "docs" / "00-research" / "ux-service-reference"
     reference_root = project / "docs" / "17-evidence" / "images" / "issue-167-service-reference"
@@ -833,14 +1217,53 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
     for ordinal, reference in enumerate(references, start=1):
         reference_id = reference_ids[ordinal - 1]
         ids.add(reference_id)
-        if reference.get("status") != "approved":
-            raise UserGuideContractError(f"service reference is not approved: {reference_id}")
-        owner = _mapping(
-            reference.get("product_owner_approval"),
-            f"service reference {reference_id} owner approval",
-        )
-        if owner.get("status") != "approved":
-            raise UserGuideContractError(f"service reference lacks owner approval: {reference_id}")
+        status = reference.get("status")
+        pending = status == "pending-owner-disposition"
+        if pending and reference_id not in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+            raise UserGuideContractError(
+                f"only current Materials references may be pending: {reference_id}"
+            )
+        operational = status == "operational-evidence-accepted"
+        if pending:
+            if reference.get("product_owner_approval") not in (None, {}):
+                raise UserGuideContractError(
+                    f"pending service reference must not claim owner approval: {reference_id}"
+                )
+            if final_publication:
+                raise UserGuideContractError(
+                    f"final publication has pending service reference: {reference_id}"
+                )
+        elif operational:
+            if reference_id not in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+                raise UserGuideContractError(
+                    "only current Materials references may use operational evidence "
+                    f"disposition: {reference_id}"
+                )
+            if reference.get("product_owner_approval") not in (None, {}):
+                raise UserGuideContractError(
+                    "operational service reference must not claim visual owner "
+                    f"approval: {reference_id}"
+                )
+            if operational_ids != _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+                raise UserGuideContractError(
+                    "all current Materials references must share operational evidence disposition"
+                )
+        else:
+            if status != "approved":
+                raise UserGuideContractError(f"service reference is not approved: {reference_id}")
+            owner = _mapping(
+                reference.get("product_owner_approval"),
+                f"service reference {reference_id} owner approval",
+            )
+            if owner.get("status") != "approved":
+                raise UserGuideContractError(
+                    f"service reference lacks owner approval: {reference_id}"
+                )
+        if final_publication and status not in {"approved", "operational-evidence-accepted"}:
+            raise UserGuideContractError(
+                "final publication requires approved or operationally accepted "
+                f"service references: {reference_id}"
+            )
 
         lifecycle = reference.get("lifecycle", manifest["default_lifecycle"])
         image_ref = _text(reference.get("image"), f"service reference {reference_id} image")
@@ -865,15 +1288,30 @@ def _verify_service_reference_manifest(project: Path) -> set[str]:
                 raise UserGuideContractError(
                     f"current product reference image contract drifted: {reference_id}"
                 )
-            if reference.get("evidence_manifest") != _CURRENT_PRODUCT_EVIDENCE_MANIFEST:
+            expected_evidence_manifest = (
+                _CURRENT_PRODUCT_SCREENSHOT_MANIFEST
+                if reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                else _CURRENT_PRODUCT_EVIDENCE_MANIFEST
+            )
+            if reference.get("evidence_manifest") != expected_evidence_manifest:
                 raise UserGuideContractError(
                     f"current product reference evidence declaration drifted: {reference_id}"
                 )
-            if reference.get("evidence_key") != _CURRENT_PRODUCT_EVIDENCE_KEY:
+            expected_evidence_key = (
+                _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS[reference_id][5]
+                if reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                else _CURRENT_PRODUCT_EVIDENCE_KEY
+            )
+            if reference.get("evidence_key") != expected_evidence_key:
                 raise UserGuideContractError(
                     f"current product reference evidence key drifted: {reference_id}"
                 )
-        image_parent = reference_root if lifecycle == "static-bundle" else evidence_root
+        if lifecycle == "static-bundle":
+            image_parent = reference_root
+        elif reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+            image_parent = project / "docs" / "user-guide" / "images" / "current"
+        else:
+            image_parent = evidence_root
         image = _inside(
             project / image_ref, image_parent, f"service reference {reference_id} image"
         )
@@ -1113,7 +1551,7 @@ def _verify_image_inventory(
     return len(images), len(orphan_images), len(duplicate_groups)
 
 
-def verify_user_guide(root: Path) -> UserGuideReport:
+def verify_user_guide(root: Path, *, final_publication: bool = False) -> UserGuideReport:
     project = root.resolve()
     guide_root = project / "docs" / "user-guide"
     image_root = guide_root / "images" / "current"
@@ -1243,7 +1681,9 @@ def verify_user_guide(root: Path) -> UserGuideReport:
             raise UserGuideContractError(f"navigation guide is missing from the index: {label}")
 
     structured_manifest_images = _structured_manifest_images(project)
-    service_reference_images = _verify_service_reference_manifest(project)
+    service_reference_images = _verify_service_reference_manifest(
+        project, final_publication=final_publication
+    )
     referenced_images = (
         document_images
         | registered_images

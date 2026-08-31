@@ -15,7 +15,9 @@ import re
 import shutil
 import struct
 import tempfile
+import uuid
 from collections.abc import Callable, Sequence
+from copy import deepcopy
 from itertools import pairwise
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -156,10 +158,25 @@ MATERIAL_CURVE_OUTPUTS = tuple(
     f"material-curves-{width}x{height}.png"
     for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)
 )
+MATERIAL_DETAIL_EXCEPTION_OUTPUTS = (
+    "material-detail-related-long-1440x900.png",
+    "material-detail-empty-1440x900.png",
+)
+SOLVER_CARD_EXCEPTION_OUTPUTS = (
+    "solver-card-approximation-blocked-1440x900.png",
+    "solver-card-unsupported-blocked-1440x900.png",
+)
+SOLVER_CARD_WIDE_OUTPUTS = (
+    "solver-card-preview-2560x1440.png",
+    "solver-card-preview-3840x2160.png",
+)
 MATERIALS_OUTPUTS = (
     *MATERIALS_WORKSPACE_OUTPUTS,
     *MATERIAL_DETAIL_OUTPUTS,
     *MATERIAL_CURVE_OUTPUTS,
+    *MATERIAL_DETAIL_EXCEPTION_OUTPUTS,
+    *SOLVER_CARD_EXCEPTION_OUTPUTS,
+    *SOLVER_CARD_WIDE_OUTPUTS,
     "material-cae-cards-1440x900.png",
 )
 CURRENT_CAPTURE_OUTPUTS = (
@@ -191,6 +208,12 @@ CURRENT_CAPTURE_OUTPUTS = (
     "solver-card-preview-1366x768.png",
     "solver-card-preview-1440x900.png",
     "solver-card-preview-1920x1080.png",
+    "solver-card-preview-2560x1440.png",
+    "solver-card-preview-3840x2160.png",
+    "material-detail-related-long-1440x900.png",
+    "material-detail-empty-1440x900.png",
+    "solver-card-approximation-blocked-1440x900.png",
+    "solver-card-unsupported-blocked-1440x900.png",
     "modeling-data-1366x768.png",
     "modeling-data-1440x900.png",
     "modeling-data-1920x1080.png",
@@ -602,6 +625,7 @@ def _capture(
             if (document.activeElement instanceof HTMLElement) {
               document.activeElement.blur();
             }
+            window.getSelection()?.removeAllRanges();
             window.scrollTo(0, 0);
             for (const selector of [
               ".application-workspace",
@@ -631,6 +655,7 @@ def _capture(
             if (document.activeElement instanceof HTMLElement) {
               document.activeElement.blur();
             }
+            window.getSelection()?.removeAllRanges();
             await new Promise(requestAnimationFrame);
             await new Promise(requestAnimationFrame);
         }"""
@@ -890,7 +915,11 @@ def _assert_export_recovery_capture(page: Page) -> None:
 
 
 def _open_materials_search(page: Page, base_url: str) -> None:
-    page.goto(f"{base_url}/materials")
+    # The current Materials workspace opens in the Browse navigator by
+    # default.  Search controls are intentionally available in Filters mode;
+    # enter that explicit mode instead of relying on stale route state from a
+    # prior capture or session.
+    page.goto(f"{base_url}/materials?mode=filters")
     search = page.get_by_role("textbox", name="Search materials")
     search.wait_for(timeout=30_000)
     search.fill("DP780")
@@ -902,14 +931,17 @@ def _open_materials_search(page: Page, base_url: str) -> None:
         raise RuntimeError("the deterministic DP780 Material result is missing")
     if page.get_by_text("Checking…", exact=True).count():
         raise RuntimeError("Material enrichment is incomplete")
-    rows.filter(has_text="DP780").first.click()
-    page.get_by_text("Selected material", exact=True).wait_for(timeout=30_000)
+    # A result row is an exact-revision navigation target in the current
+    # workspace, not a separate selection toggle.  The controller selects the
+    # first authorized row while the query settles; leave the row untouched so
+    # this helper remains on the search surface for viewport captures.
+    page.get_by_text("Material selected", exact=True).wait_for(timeout=30_000)
     page.locator(".application-status-bar").get_by_text(REVISION_LABEL_PATTERN).wait_for(
         timeout=30_000
     )
     if page.get_by_role("columnheader", name="Status", exact=True).count():
         raise RuntimeError("normal Materials results must not expose a Status column")
-    for selector in (".materials-results", ".materials-selection", ".application-status-bar"):
+    for selector in (".materials-results", ".application-status-bar"):
         surface = page.locator(selector)
         surface.wait_for(timeout=30_000)
         surface_text = surface.inner_text()
@@ -922,7 +954,9 @@ def _open_materials_search(page: Page, base_url: str) -> None:
 def _assert_material_pane_reset(page: Page, width: int) -> None:
     expected_navigator = _css_token_px(page, "--ux-navigator-default-inline-size")
     navigator = page.locator(".navigator-panel")
-    navigator_separator = page.get_by_role("separator", name="Resize navigator")
+    navigator_separator = page.get_by_role(
+        "separator", name=re.compile(r"^Resize (?:navigator|filters)(?: materials)?$")
+    )
     before = navigator.bounding_box()
     separator = navigator_separator.bounding_box()
     if before is None or separator is None:
@@ -948,6 +982,11 @@ def _assert_material_pane_reset(page: Page, width: int) -> None:
         return
     expected_context = _css_token_px(page, "--ux-context-default-inline-size")
     context = page.locator(".context-panel")
+    # Source-v2 Materials is a two-pane explorer/results workspace.  The
+    # optional detail context pane is not rendered on the search surface; do
+    # not require a legacy third-pane divider that has no consumer here.
+    if context.count() == 0:
+        return
     context_separator = page.get_by_role("separator", name="Resize details")
     context_before = context.bounding_box()
     context_divider = context_separator.bounding_box()
@@ -973,6 +1012,11 @@ def _assert_material_pane_reset(page: Page, width: int) -> None:
 
 def _assert_response_points_table(page: Page, width: int) -> None:
     table = page.get_by_role("table", name="Representative response points")
+    # The source-v2 Technical Data detail can truthfully omit response-point
+    # attributes while linked Test Data remains available below.  In that
+    # layout there is no response table or rail to validate.
+    if table.count() == 0:
+        return
     if width < 1800:
         if table.is_visible():
             raise RuntimeError(f"response points table leaked into compact {width}px layout")
@@ -1279,7 +1323,7 @@ def _install_material_scroll_fixture(page: Page) -> None:
 
 
 def _open_material_scroll_state(page: Page, base_url: str, search_text: str) -> None:
-    page.goto(f"{base_url}/materials")
+    page.goto(f"{base_url}/materials?mode=filters")
     search = page.get_by_role("textbox", name="Search materials")
     search.wait_for(timeout=30_000)
     search.fill(search_text)
@@ -1328,7 +1372,13 @@ def _open_material_detail(page: Page, base_url: str) -> None:
         timeout=30_000,
     )
     page.get_by_role("heading", name="Key properties", exact=True).wait_for(timeout=30_000)
-    for tab_name in ("Overview", "Properties", "Curves", "CAE Cards", "Evidence"):
+    for tab_name in (
+        "Overview",
+        "Properties",
+        "Curves",
+        "CAE Cards",
+        "Source & history",
+    ):
         page.get_by_role("tab", name=tab_name, exact=True).wait_for(timeout=30_000)
     _wait_for_settled(page)
     page.get_by_text(
@@ -1339,7 +1389,7 @@ def _open_material_detail(page: Page, base_url: str) -> None:
     )
     for selector in (
         ".material-detail-header",
-        '[aria-label="Related exact records"]',
+        '[aria-label="Related data"]',
         ".application-status-bar",
     ):
         surface = page.locator(selector)
@@ -1355,6 +1405,19 @@ def _open_material_detail(page: Page, base_url: str) -> None:
 def _open_material_curves(page: Page) -> None:
     page.get_by_role("tab", name="Curves", exact=True).click()
     browser = page.locator(".material-curve-browser")
+    if browser.count() == 0:
+        # Source-v2 Technical Data records own the linked Test Data records,
+        # while their configured Material layout may legitimately contain no
+        # curve attributes.  Keep that truthful empty state instead of
+        # inventing a curve preview from a related record.
+        page.get_by_text(
+            "No curve data is included in this Layout.", exact=True
+        ).wait_for(timeout=30_000)
+        page.get_by_role("table", name="Modeling inputs", exact=True).wait_for(
+            timeout=30_000
+        )
+        _wait_for_settled(page)
+        return
     browser.wait_for(timeout=30_000)
     curve_buttons = browser.locator(".material-curve-list button")
     if curve_buttons.count() < 2:
@@ -1368,6 +1431,227 @@ def _open_material_curves(page: Page) -> None:
     page.get_by_text("No deviation recorded", exact=True).wait_for(timeout=30_000)
     _wait_for_settled(page)
     page.locator(".contract-curve-frame").scroll_into_view_if_needed()
+
+
+def _material_graph_fixture(route: Route, state: str) -> None:
+    """Apply one explicit, browser-local graph fixture for Materials state evidence."""
+    if route.request.method != "GET":
+        route.continue_()
+        return
+    response = route.fetch()
+    payload = response.json()
+    if not isinstance(payload, dict) or not isinstance(payload.get("links"), list):
+        route.fulfill(response=response)
+        return
+    if state == "empty":
+        # Keep the exact selected root and its material binding, while proving
+        # the honest no-linked-record surface without a first/latest fallback.
+        payload["links"] = []
+        payload["nodes"] = [payload["root"]]
+    elif state == "related-long":
+        links = payload["links"]
+        if not links:
+            raise RuntimeError("related-long fixture requires one exact source link")
+        fixture_links = []
+        for index in range(12):
+            link = deepcopy(links[index % len(links)])
+            link_id = str(
+                uuid.uuid5(
+                    uuid.NAMESPACE_URL,
+                    f"cmp-material-detail-related-long:{index}:{link['record_link_id']}",
+                )
+            )
+            endpoint = link["target"]
+            endpoint_id = str(
+                uuid.uuid5(uuid.NAMESPACE_URL, f"{link_id}:record")
+            )
+            endpoint_revision_id = str(
+                uuid.uuid5(uuid.NAMESPACE_URL, f"{link_id}:revision")
+            )
+            endpoint["record_id"] = endpoint_id
+            endpoint["record_revision_id"] = endpoint_revision_id
+            endpoint["name"] = f"DP780 related tensile {index + 1:02d}"
+            endpoint["external_key"] = f"CMP-371-RELATED-{index + 1:02d}"
+            link["record_link_id"] = link_id
+            link["current_revision"]["aggregate_id"] = link_id
+            link["current_revision"]["id"] = str(
+                uuid.uuid5(uuid.NAMESPACE_URL, f"{link_id}:link-revision")
+            )
+            content = link["current_revision"].get("content")
+            if isinstance(content, dict):
+                content["target_record_id"] = endpoint_id
+                content["target_record_revision_id"] = endpoint_revision_id
+            fixture_links.append(link)
+        payload["links"] = [*links, *fixture_links]
+    else:
+        raise RuntimeError(f"unsupported Material graph fixture state: {state}")
+    route.fulfill(response=response, json=payload)
+
+
+def _material_graph_route_handler(state: str) -> Callable[[Route], None]:
+    def handle(route: Route) -> None:
+        _material_graph_fixture(route, state)
+
+    return handle
+
+
+def _capture_material_detail_exceptions(
+    browser: Browser, base_url: str, output: Path
+) -> None:
+    """Capture the approved empty and related-long Materials detail states."""
+    for state, filename in (
+        ("related-long", "material-detail-related-long-1440x900.png"),
+        ("empty", "material-detail-empty-1440x900.png"),
+    ):
+        page = _new_page(browser, base_url, 1440, 900)
+        page.route(
+            "**/api/v1/catalog/workflow-explorer/**",
+            _material_graph_route_handler(state),
+        )
+        _open_material_detail(page, base_url)
+        page.get_by_role("tab", name="Overview", exact=True).click()
+        if state == "related-long":
+            group = page.locator(".related-record-group").filter(has_text="Test Data")
+            group.wait_for(timeout=30_000)
+            if group.locator(".related-record-list li").count() != 12:
+                raise RuntimeError(
+                    "related-long detail fixture did not expose twelve exact related records"
+                )
+        else:
+            page.get_by_text("No directly linked data.", exact=True).first.wait_for(
+                timeout=30_000
+            )
+            page.get_by_text(
+                "No released reference card is available yet.", exact=True
+            ).wait_for(timeout=30_000)
+            if page.locator(".solver-availability-list").count():
+                raise RuntimeError("empty detail fixture exposed a solver-card fallback")
+        _capture(page, output / filename, 1440, 900)
+        page.context.close()
+
+
+def _solver_card_mapping_fixture(route: Route, state: str) -> None:
+    """Return an explicit mapping-report state for card delivery evidence."""
+    if route.request.method != "GET":
+        route.continue_()
+        return
+    response = route.fetch()
+    payload = response.json()
+    if not isinstance(payload, dict) or not isinstance(payload.get("report"), dict):
+        route.fulfill(response=response)
+        return
+    report = payload["report"]
+    items = report.get("items")
+    if not isinstance(items, list) or not items:
+        raise RuntimeError("solver-card state fixture requires a mapping report")
+    fixture_items = deepcopy(items)
+    if state == "approximation-blocked":
+        # Preserve the live card's explicit approximation and leave the
+        # acknowledgement unchecked so the download remains blocked.
+        if not any(
+            isinstance(item, dict)
+            and item.get("status") in {"approximated", "ignored"}
+            for item in fixture_items
+        ):
+            fixture_items[0]["status"] = "approximated"
+    elif state == "unsupported-blocked":
+        fixture_items[0]["status"] = "unsupported"
+        payload["exportable"] = False
+    else:
+        raise RuntimeError(f"unsupported solver-card fixture state: {state}")
+    report["items"] = fixture_items
+    route.fulfill(response=response, json=payload)
+
+
+def _solver_card_mapping_route_handler(state: str) -> Callable[[Route], None]:
+    def handle(route: Route) -> None:
+        _solver_card_mapping_fixture(route, state)
+
+    return handle
+
+
+def _open_solver_card_for_capture(page: Page, base_url: str) -> None:
+    _open_materials_search(page, base_url)
+    page.locator('table[aria-label="Material results"] tbody tr').filter(
+        has_text="DP780"
+    ).first.dblclick()
+    page.wait_for_url(
+        re.compile(
+            r"/materials/[0-9a-f-]+\?record_id=[0-9a-f-]+"
+            r"&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$"
+        ),
+        timeout=30_000,
+    )
+    page.get_by_role("tab", name="CAE Cards", exact=True).click()
+    openradioss = page.locator(".cae-card-table tbody tr").filter(
+        has_text="OpenRadioss"
+    ).first
+    openradioss.get_by_role("button", name=re.compile(r"^Preview(?: card)?$")).click()
+    page.wait_for_url(
+        re.compile(
+            r"/materials/[0-9a-f-]+/cards/[0-9a-f-]+\?record_id=[0-9a-f-]+"
+            r"&record_revision_id=[0-9a-f-]+&material_revision_id=[0-9a-f-]+$"
+        ),
+        timeout=30_000,
+    )
+    page.get_by_role("heading", name="Delivery check", exact=True).wait_for(
+        timeout=30_000
+    )
+    page.get_by_label("Native card and linked response").wait_for(timeout=30_000)
+
+
+def _capture_solver_card_exceptions(
+    browser: Browser, base_url: str, output: Path
+) -> None:
+    """Capture explicit approximation and unsupported card delivery blockers."""
+    for state, filename in (
+        ("approximation-blocked", "solver-card-approximation-blocked-1440x900.png"),
+        ("unsupported-blocked", "solver-card-unsupported-blocked-1440x900.png"),
+    ):
+        page = _new_page(browser, base_url, 1440, 900)
+        page.route(
+            "**/api/v1/neutral-solver-cards/*/mapping-report**",
+            _solver_card_mapping_route_handler(state),
+        )
+        _open_solver_card_for_capture(page, base_url)
+        if state == "approximation-blocked":
+            page.get_by_text(
+                "Review the highlighted delivery note, then acknowledge it to enable this download.",
+                exact=True,
+            ).wait_for(timeout=30_000)
+            checkbox = page.get_by_role(
+                "checkbox", name="I reviewed the delivery notes before downloading this card."
+            )
+            checkbox.wait_for(timeout=30_000)
+            if page.get_by_role("button", name="Download blocked", exact=True).count():
+                raise RuntimeError("approximation state must use the normal download command")
+            if not page.get_by_role("button", name="Download .rad", exact=True).is_disabled():
+                raise RuntimeError("approximation state must remain blocked before acknowledgement")
+        else:
+            page.get_by_text(
+                "This card cannot be downloaded because some values are not supported by the selected solver.",
+                exact=True,
+            ).wait_for(timeout=30_000)
+            page.get_by_role("button", name="Download blocked", exact=True).wait_for(
+                timeout=30_000
+            )
+        _capture(page, output / filename, 1440, 900)
+        page.context.close()
+
+
+def _capture_solver_card_wide(
+    browser: Browser, base_url: str, output: Path
+) -> None:
+    """Capture exact solver-card previews at the two wide product viewports."""
+    for width, height in WIDE_VIEWPORTS:
+        page = _new_page(browser, base_url, width, height, persona="user")
+        _open_solver_card_for_capture(page, base_url)
+        page.get_by_role("button", name="Download .rad", exact=True).wait_for(
+            timeout=30_000
+        )
+        page.get_by_label("Native card and linked response").wait_for(timeout=30_000)
+        _capture(page, output / f"solver-card-preview-{width}x{height}.png", width, height)
+        page.context.close()
 
 
 def _capture_materials_workspace(browser: Browser, base_url: str, output: Path) -> None:
@@ -1393,9 +1677,16 @@ def _capture_materials_workspace(browser: Browser, base_url: str, output: Path) 
     page.get_by_role("complementary", name="Materials navigator").wait_for(timeout=30_000)
     tree_find = page.get_by_role("textbox", name="Find in tree")
     tree_find.wait_for(timeout=30_000)
-    tree_find.fill("Material Library")
+    # Source-v2 exposes four peer data categories rather than the retired
+    # Material Library bucket.  Capture the same browse surface through the
+    # canonical Technical Data category.
+    tree_find.fill("Technical Data")
     page.get_by_test_id("navigator").get_by_role("button", name="Find", exact=True).click()
-    page.get_by_text("Material Library", exact=True).wait_for(timeout=30_000)
+    page.locator('.materials-tree-row.kind-category[title="Technical Data"]').wait_for(
+        timeout=30_000
+    )
+    page.locator("#browse-results-title").wait_for(timeout=30_000)
+    page.get_by_text("3 data items", exact=True).wait_for(timeout=30_000)
     _capture(page, output / "materials-browse-1440x900.png", width, height)
     page.context.close()
 
@@ -1417,7 +1708,7 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
         ".material-detail-header .card-action-row button.ux-button.primary"
     )
     if primary_delivery_actions.count() != 1 or not re.match(
-        r"^(Download|Preview card|Create card|Start Modeling)",
+        r"^(Download|Preview card|Create card|Start Modeling|View solver cards)",
         primary_delivery_actions.first.inner_text(),
     ):
         raise RuntimeError("CAE Cards must expose exactly one contextual filled delivery command")
@@ -1441,6 +1732,10 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
         _open_material_curves(page)
         _capture(page, output / f"material-curves-{width}x{height}.png", width, height)
         page.context.close()
+
+    _capture_material_detail_exceptions(browser, base_url, output)
+    _capture_solver_card_exceptions(browser, base_url, output)
+    _capture_solver_card_wide(browser, base_url, output)
 
 
 def _assert_linked_response_labels_visible(page: Page) -> None:
@@ -2357,30 +2652,57 @@ def _assert_modeling_data_surface(
     workspace_box = _bounding_box_edges(workspace.bounding_box())
     plot_panel_box = _bounding_box_edges(plot_panel.bounding_box())
     plot_box = _bounding_box_edges(plot.bounding_box())
-    svg_box = _bounding_box_edges(plot.locator("svg").bounding_box())
-    browser_box = _bounding_box_edges(browser.bounding_box())
-    related_box = _bounding_box_edges(
-        browser.locator(".modeling-data-related-slot").bounding_box()
+    page.wait_for_function(
+        """() => {
+          const svg = document.querySelector('.modeling-data-plot svg');
+          if (!svg) return false;
+          const box = svg.getBoundingClientRect();
+          return box.width > 0 && box.height > 0;
+        }""",
+        timeout=30_000,
     )
+    svg_rect = page.evaluate(
+        """() => {
+          const svg = document.querySelector('.modeling-data-plot svg');
+          if (!svg) return null;
+          const box = svg.getBoundingClientRect();
+          return { x: box.x, y: box.y, width: box.width, height: box.height };
+        }"""
+    )
+    svg_box = _bounding_box_edges(svg_rect)
+    browser_box = _bounding_box_edges(browser.bounding_box())
+    related_slot = browser.locator(".modeling-data-related-slot")
+    if related_slot.count() != 1:
+        raise RuntimeError("Modeling Data Related slot is not uniquely present")
+    related_box = _bounding_box_edges(related_slot.bounding_box())
     browser_heading_box = _bounding_box_edges(
         browser.locator(".modeling-data-tree > .modeling-data-rail-heading").bounding_box()
     )
-    related_heading_box = _bounding_box_edges(
-        browser.locator(".modeling-data-related .modeling-data-rail-heading").bounding_box()
+    related = browser.locator(".modeling-data-related")
+    related_count = related.count()
+    if related_count > 1:
+        raise RuntimeError("Modeling Data Related content is not unique")
+    related_heading_box = (
+        _bounding_box_edges(
+            related.locator(".modeling-data-rail-heading").bounding_box()
+        )
+        if related_count == 1
+        else None
     )
-    if None in (
-        ribbon_box,
-        divider_box,
-        workspace_box,
-        plot_panel_box,
-        plot_box,
-        svg_box,
-        browser_box,
-        related_box,
-        browser_heading_box,
-        related_heading_box,
-    ):
-        raise RuntimeError("Modeling Data geometry is incomplete")
+    geometry = {
+        "ribbon": ribbon_box,
+        "divider": divider_box,
+        "workspace": workspace_box,
+        "plot_panel": plot_panel_box,
+        "plot": plot_box,
+        "svg": svg_box,
+        "browser": browser_box,
+        "related_slot": related_box,
+        "browser_heading": browser_heading_box,
+    }
+    missing = [name for name, value in geometry.items() if value is None]
+    if missing:
+        raise RuntimeError(f"Modeling Data geometry is incomplete: missing={missing}")
     assert ribbon_box is not None
     assert divider_box is not None
     assert workspace_box is not None
@@ -2390,16 +2712,28 @@ def _assert_modeling_data_surface(
     assert browser_box is not None
     assert related_box is not None
     assert browser_heading_box is not None
-    assert related_heading_box is not None
-
-    if (
-        abs(browser_heading_box["left"] - related_heading_box["left"]) > 1
-        or abs(browser_heading_box["right"] - related_heading_box["right"]) > 1
-    ):
-        raise RuntimeError(
-            "Modeling Data Browser and Related data headings are not aligned: "
-            f"browser={browser_heading_box}, related={related_heading_box}"
-        )
+    if related_count == 1:
+        if related_heading_box is None:
+            raise RuntimeError("Modeling Data Related content has incomplete heading geometry")
+        if (
+            abs(browser_heading_box["left"] - related_heading_box["left"]) > 1
+            or abs(browser_heading_box["right"] - related_heading_box["right"]) > 1
+        ):
+            raise RuntimeError(
+                "Modeling Data Browser and Related data headings are not aligned: "
+                f"browser={browser_heading_box}, related={related_heading_box}"
+            )
+    else:
+        if related_slot.inner_text().strip():
+            raise RuntimeError(
+                "Modeling Data empty Related slot contains unexpected content"
+            )
+        if related_slot.evaluate(
+            "element => element.scrollWidth > element.clientWidth + 1"
+        ):
+            raise RuntimeError(
+                "Modeling Data empty Related slot exposes horizontal overflow"
+            )
 
     if abs(related_box["bottom"] - browser_box["bottom"]) > 1:
         raise RuntimeError(
@@ -4007,9 +4341,40 @@ def _save_exact_fit_selection(
     )
     _close_fit_evidence(page, trigger)
     save_candidate.click()
-    page.locator(".fit-surface-state").get_by_text(
-        "Saved current", exact=True
-    ).wait_for(timeout=30_000)
+    try:
+        page.wait_for_function(
+            """expected => {
+              const visible = element => Boolean(element && element.getClientRects().length);
+              const saved = [...document.querySelectorAll('.fit-surface-state')]
+                .some(element => visible(element) && element.textContent?.trim() === 'Saved current');
+              const error = [...document.querySelectorAll('.error-banner')]
+                .find(element => visible(element));
+              return saved || (expected.allowError
+                && Boolean(error)
+                && (error.textContent?.trim() || '').startsWith(expected.error));
+            }""",
+            arg={
+                "allowError": allow_expected_exact_restore_failure,
+                "error": EXPECTED_EXACT_FIT_RESTORE_ERROR,
+            },
+            timeout=30_000,
+        )
+    except Exception as error:
+        diagnostics = page.evaluate(
+            """() => ({
+              state: [...document.querySelectorAll('.fit-surface-state')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+              errors: [...document.querySelectorAll('.error-banner')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+              url: window.location.href,
+            })"""
+        )
+        raise RuntimeError(
+            "Fit save did not reach its exact Saved current/error boundary: "
+            f"allow_error={allow_expected_exact_restore_failure}, diagnostics={diagnostics!r}"
+        ) from error
     if parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]:
         raise RuntimeError(f"Fit save unexpectedly navigated away from Fit: {page.url}")
     page.wait_for_function(
@@ -4188,81 +4553,6 @@ def _resolve_exact_material_record(page: Page, base_url: str) -> dict[str, str]:
     }
 
 
-def _ensure_neutral_material_record_binding(page: Page, base_url: str) -> None:
-    """Bind the fresh exact Neutral revision to its exact Material's current Record."""
-
-    material_record = _resolve_exact_material_record(page, base_url)
-    outcome = page.evaluate(
-        """async ({ baseUrl, materialRecord }) => {
-          const config = JSON.parse(
-            localStorage.getItem("cmp.material-platform.api-config") || "{}"
-          );
-          const session = JSON.parse(
-            sessionStorage.getItem("cmp.modeling.recent-session.v4") || "{}"
-          );
-          const neutral = session.neutralModel;
-          if (!config.accessToken || !neutral?.id || !neutral?.revisionId) {
-            throw new Error("exact Neutral session pointer is required");
-          }
-          const headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${config.accessToken}`,
-          };
-          const read = async (response, label) => {
-            const text = await response.text();
-            if (!response.ok) {
-              throw new Error(`${label}: ${response.status} ${text.slice(0, 500)}`);
-            }
-            return text ? JSON.parse(text) : null;
-          };
-          const exactParams = new URLSearchParams({
-            kind: "neutral_material",
-            object_id: neutral.id,
-            revision_id: neutral.revisionId,
-          });
-          const existing = await read(await fetch(
-            `${baseUrl}/api/v1/catalog/domain-bindings:resolve?${exactParams}`,
-            { headers },
-          ), "resolve promoted Neutral binding");
-          if (existing) {
-            if (existing.record_id !== materialRecord.record_id
-                || existing.record_revision_id !== materialRecord.record_revision_id) {
-              throw new Error("promoted Neutral revision is bound to an unexpected Record");
-            }
-            return { status: "reused", binding: existing };
-          }
-          const created = await read(await fetch(
-            `${baseUrl}/api/v1/catalog/records/${materialRecord.record_id}`
-              + `/revisions/${materialRecord.record_revision_id}/domain-binding`,
-            {
-              method: "POST",
-              headers,
-              body: JSON.stringify({
-                kind: "neutral_material",
-                object_id: neutral.id,
-                revision_id: neutral.revisionId,
-              }),
-            },
-          ), "bind promoted Neutral revision");
-          const verified = await read(await fetch(
-            `${baseUrl}/api/v1/catalog/domain-bindings:resolve?${exactParams}`,
-            { headers },
-          ), "read back promoted Neutral binding");
-          if (!verified
-              || verified.binding_id !== created.binding_id
-              || verified.record_id !== materialRecord.record_id
-              || verified.record_revision_id !== materialRecord.record_revision_id) {
-            throw new Error("promoted Neutral binding did not read back exactly");
-          }
-          return { status: "created", binding: verified };
-        }""",
-        {"baseUrl": base_url, "materialRecord": material_record},
-    )
-    if not isinstance(outcome, dict) or outcome.get("status") not in {"created", "reused"}:
-        raise RuntimeError(f"unexpected promoted Neutral binding outcome: {outcome!r}")
-
-
 def _prepare_exact_target_preview(
     page: Page,
     *,
@@ -4436,6 +4726,295 @@ def _prepare_exact_target_preview(
     _wait_for_settled(page)
 
 
+def _assert_saved_fit_survives_export_reload(page: Page, base_url: str) -> None:
+    """Prove the exact saved Fit context survives the pre-Export reload."""
+    before = _modeling_session(page)
+    context_text, context_title = _read_fit_context_header(page)
+    pointer = before.get("processingOutput")
+    if not isinstance(pointer, dict) or not all(
+        isinstance(pointer.get(key), str) and pointer.get(key)
+        for key in ("id", "revisionId")
+    ):
+        raise RuntimeError("Export preflight requires one exact saved Fit pointer")
+    before_outputs = _list_processing_outputs(page, base_url)
+    before_persisted = next(
+        (
+            item
+            for item in before_outputs
+            if _has_processing_output_revision(
+                item, pointer.get("id"), pointer.get("revisionId")
+            )
+        ),
+        None,
+    )
+    before_decision = (
+        before_persisted.get("fit_decision")
+        if isinstance(before_persisted, dict)
+        else None
+    )
+    if (
+        not isinstance(before_decision, dict)
+        or not before_decision.get("candidate_key")
+        or not before_decision.get("selection_reason")
+        or not isinstance(before_decision.get("warning_acknowledged"), bool)
+    ):
+        raise RuntimeError("Export preflight requires complete exact Fit decision evidence")
+    expected_warning_acknowledged = before_decision["warning_acknowledged"]
+    requests: list[tuple[str, str]] = []
+    def record_request(request: object) -> None:
+        requests.append((str(getattr(request, "method", "")), str(getattr(request, "url", ""))))
+
+    page.on("request", record_request)
+    try:
+        page.reload()
+        page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
+        _wait_for_fit_title_state(page, "Saved current")
+        _wait_for_fit_context_header(page, context_text, context_title)
+        page.get_by_role(
+            "img", name="Hardening candidate and selected extrapolation curves", exact=True
+        ).wait_for(state="visible", timeout=30_000)
+        after = _modeling_session(page)
+        for key in (
+            "material",
+            "materialState",
+            "workspace",
+            "processingOutput",
+            "materialModelIr",
+            "neutralModel",
+        ):
+            if after.get(key) != before.get(key):
+                raise RuntimeError(
+                    f"Export preflight reload changed exact Fit session field {key}: "
+                    f"before={before.get(key)!r}, after={after.get(key)!r}"
+                )
+        persisted_outputs = _list_processing_outputs(page, base_url)
+        persisted = next(
+            (
+                item for item in persisted_outputs
+                if _has_processing_output_revision(
+                    item, pointer.get("id"), pointer.get("revisionId")
+                )
+            ),
+            None,
+        )
+        decision = persisted.get("fit_decision") if isinstance(persisted, dict) else None
+        if (
+            not isinstance(decision, dict)
+            or not decision.get("candidate_key")
+            or not decision.get("selection_reason")
+            or decision.get("warning_acknowledged") is not expected_warning_acknowledged
+        ):
+            raise RuntimeError("Export preflight reload lost the exact Fit decision evidence")
+        source_pin = persisted.get("source_processing_output") if isinstance(persisted, dict) else None
+        if not isinstance(source_pin, dict) or not source_pin.get("aggregate_id") or not source_pin.get("revision_id"):
+            raise RuntimeError("Export preflight reload lost the exact Process source pin")
+        trigger, _body, table = _open_fit_evidence(page)
+        _assert_fit_selected_evidence(page)
+        if table.locator("tbody tr.selected").count() != 1:
+            raise RuntimeError("Export preflight reload lost the selected Fit candidate")
+        if page.get_by_role(
+            "textbox", name="Candidate selection reason", exact=True
+        ).input_value() != "Best agreement over the measured strain range.":
+            raise RuntimeError("Export preflight reload changed the Fit selection reason")
+        warning_acknowledgement = page.get_by_role(
+            "checkbox", name="Acknowledge selected candidate warning", exact=True
+        )
+        if warning_acknowledgement.count():
+            if warning_acknowledgement.is_checked() is not expected_warning_acknowledged:
+                raise RuntimeError(
+                    "Export preflight reload changed the Fit warning acknowledgement"
+                )
+        elif expected_warning_acknowledged:
+            raise RuntimeError("Export preflight reload lost the Fit warning acknowledgement")
+        _close_fit_evidence(page, trigger)
+    finally:
+        page.remove_listener("request", record_request)
+    unexpected = [
+        f"{method} {url}"
+        for method, url in requests
+        if method.upper() not in {"GET", "HEAD", "OPTIONS"}
+    ]
+    if unexpected:
+        raise RuntimeError(
+            f"Export preflight reload issued a mutation request: {unexpected!r}"
+        )
+
+
+def _read_delivered_card_identity(page: Page) -> tuple[str, str]:
+    """Read the actual immutable card and revision IDs from Delivery details."""
+    details = page.locator("details.export-delivery-details")
+    details.wait_for(state="visible", timeout=30_000)
+    summary = details.locator(":scope > summary")
+    if details.get_attribute("open") is None:
+        summary.click()
+    values = details.evaluate(
+        """element => Object.fromEntries(
+          [...element.querySelectorAll('dl > dt')].map(label => [
+            label.textContent?.trim() || '',
+            label.nextElementSibling?.matches('dd')
+              ? label.nextElementSibling.textContent?.trim() || ''
+              : '',
+          ])
+        )"""
+    )
+    card_id = values.get("Solver card") if isinstance(values, dict) else None
+    revision_id = values.get("Card revision") if isinstance(values, dict) else None
+    uuid_like = re.compile(
+        r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+        re.IGNORECASE,
+    )
+    if not isinstance(card_id, str) or not uuid_like.fullmatch(card_id):
+        raise RuntimeError(f"Delivery details did not expose a UUID-like solver card id: {card_id!r}")
+    if not isinstance(revision_id, str) or not uuid_like.fullmatch(revision_id):
+        raise RuntimeError(
+            f"Delivery details did not expose a UUID-like solver card revision id: {revision_id!r}"
+        )
+    return card_id, revision_id
+
+
+def _assert_exact_material_solver_card_readback(
+    page: Page,
+    base_url: str,
+) -> None:
+    """Open the delivered card through Materials and verify its exact API record."""
+    card_id, card_revision_id = _read_delivered_card_identity(page)
+    material = _modeling_session(page).get("material")
+    material_id = material.get("id") if isinstance(material, dict) else None
+    if not isinstance(material_id, str) or not material_id:
+        raise RuntimeError("Delivery read-back requires the exact session Material id")
+    expected_path = f"/materials/{material_id}/cards/{card_id}"
+    open_card = page.get_by_role("button", name="Open solver card", exact=True)
+    if open_card.count() != 1:
+        raise RuntimeError("Delivered Export must expose one exact Open solver card action")
+    open_card.click()
+    page.wait_for_url(re.compile(re.escape(expected_path) + r"$"), timeout=30_000)
+    if urlsplit(page.url).path != expected_path:
+        raise RuntimeError(
+            f"Materials card read-back used a non-exact route: expected={expected_path!r}, "
+            f"actual={urlsplit(page.url).path!r}"
+        )
+    expected_api_url = (
+        f"{base_url.rstrip('/')}/api/v1/neutral-solver-cards/"
+        f"{quote(card_id, safe='')}?revision_id={quote(card_revision_id, safe='')}"
+    )
+    try:
+        page.wait_for_function(
+            """expected => {
+              const visible = element => Boolean(element && element.getClientRects().length);
+              const heading = document.querySelector('.card-preview-header h1');
+              const preview = document.querySelector('[aria-label="Native solver card preview"]');
+              const pending = [...document.querySelectorAll('[role="status"], .delivery-progress-line')]
+                .some(element => visible(element)
+                  && /^(?:Loading|Preparing|Checking)\\b/i.test(element.textContent?.trim() || ''));
+              const alert = [...document.querySelectorAll('[role="alert"]')].some(visible);
+              return window.location.pathname === expected.path
+                && visible(heading)
+                && Boolean(heading.textContent?.trim())
+                && heading.textContent.trim() !== 'Card preview'
+                && visible(preview)
+                && Boolean(preview.textContent?.trim())
+                && !/Loading native card preview…?/i.test(preview.textContent || '')
+                && !pending
+                && !alert;
+            }""",
+            arg={"path": expected_path},
+            timeout=30_000,
+        )
+    except Exception as error:
+        diagnostics = page.evaluate(
+            """() => ({
+              url: window.location.href,
+              h1: document.querySelector('.card-preview-header h1')?.textContent?.trim() || null,
+              preview: document.querySelector('[aria-label="Native solver card preview"]')?.textContent?.trim() || null,
+              alerts: [...document.querySelectorAll('[role="alert"]')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+              statuses: [...document.querySelectorAll('[role="status"], .delivery-progress-line')]
+                .filter(element => element.getClientRects().length)
+                .map(element => element.textContent?.trim()),
+            })"""
+        )
+        raise RuntimeError(
+            f"Materials solver-card read-back did not settle: diagnostics={diagnostics!r}"
+        ) from error
+    readback = page.evaluate(
+        """async ({ url, cardId, cardRevisionId }) => {
+          const config = JSON.parse(
+            localStorage.getItem('cmp.material-platform.api-config') || '{}'
+          );
+          const response = await fetch(url, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${config.accessToken || ''}`,
+            },
+          });
+          const text = await response.text();
+          let payload = null;
+          try { payload = text ? JSON.parse(text) : null; } catch { /* fail below */ }
+          return { url, status: response.status, cardId, cardRevisionId, payload, text };
+        }""",
+        {
+            "url": expected_api_url,
+            "cardId": card_id,
+            "cardRevisionId": card_revision_id,
+        },
+    )
+    if not isinstance(readback, dict) or readback.get("url") != expected_api_url or readback.get("status") != 200:
+        raise RuntimeError(f"Exact delivered solver-card read-back failed: {readback!r}")
+    payload = readback.get("payload")
+    current_revision = payload.get("current_revision") if isinstance(payload, dict) else None
+    content = current_revision.get("content") if isinstance(current_revision, dict) else None
+    target = payload.get("target") if isinstance(payload, dict) else None
+    if (
+        not isinstance(payload, dict)
+        or payload.get("solver_card_id") != card_id
+        or not isinstance(current_revision, dict)
+        or current_revision.get("id") != card_revision_id
+        or not isinstance(target, dict)
+        or target.get("solver") != "abaqus"
+        or target.get("version") != "2025"
+        or target.get("unit_system") != "kg_m_s"
+        or not isinstance(content, dict)
+        or content.get("material_name") != "DP780_C1_REFERENCE"
+    ):
+        raise RuntimeError(f"Delivered solver-card API identity drifted: {readback!r}")
+    heading = page.locator(".card-preview-header h1")
+    heading_text = heading.inner_text().strip()
+    if not heading_text or heading_text in {"Card preview", "Solver card"}:
+        raise RuntimeError(f"Materials read-back lost the exact card label: {heading_text!r}")
+    native_preview = page.get_by_label("Native solver card preview", exact=True)
+    native_preview.wait_for(state="visible", timeout=30_000)
+    preview_text = native_preview.inner_text().strip()
+    if not preview_text or preview_text.startswith("Loading native card preview"):
+        raise RuntimeError("Materials read-back lost the completed native solver-card preview")
+    download = page.get_by_role("button", name=re.compile(r"^Download\b"))
+    if download.count() != 1:
+        raise RuntimeError("Materials read-back must expose one exact card download action")
+    review_acknowledgement = page.get_by_role("checkbox")
+    if review_acknowledgement.count() == 1:
+        if review_acknowledgement.is_checked():
+            raise RuntimeError("Materials read-back review acknowledgement must start unchecked")
+        review_acknowledgement.check()
+    elif review_acknowledgement.count() > 1:
+        raise RuntimeError("Materials read-back must expose at most one delivery acknowledgement")
+    if download.is_disabled():
+        raise RuntimeError(
+            "Materials read-back exact card download remained disabled after delivery checks"
+        )
+    expected_download_url = (
+        f"{base_url.rstrip('/')}/api/v1/neutral-solver-cards/"
+        f"{quote(card_id, safe='')}/download?revision_id={quote(card_revision_id, safe='')}"
+    )
+    with page.expect_response(
+        lambda response: response.url == expected_download_url,
+        timeout=30_000,
+    ) as download_response:
+        download.click()
+    response = download_response.value
+    if response.status != 200:
+        raise RuntimeError(f"Materials exact solver-card download failed: {response.status}")
+
+
 def _capture_modeling_export_only(
     browser: Browser,
     base_url: str,
@@ -4533,9 +5112,9 @@ def _capture_modeling_export_only(
         label="Export delivered Process result",
     )
     _save_exact_fit_selection(delivered, candidate_key="swift+voce", require_warning=False)
+    _assert_saved_fit_survives_export_reload(delivered, base_url)
     _open_modeling_stage(delivered, "export")
     _prepare_exact_metal_source_if_needed(delivered)
-    _ensure_neutral_material_record_binding(delivered, base_url)
     _prepare_exact_target_preview(delivered, acknowledge=True, create=True)
     _assert_export_exact_source_surface(
         delivered,
@@ -4551,10 +5130,7 @@ def _capture_modeling_export_only(
         before_screenshot=lambda: _assert_export_action_visible(delivered, "Open solver card"),
         after_animation=lambda: _assert_export_capture_shell(delivered),
     )
-    open_card = delivered.get_by_role("button", name="Open solver card", exact=True)
-    open_card.wait_for(timeout=30_000)
-    open_card.click()
-    delivered.wait_for_url(re.compile(r"/materials/"), timeout=30_000)
+    _assert_exact_material_solver_card_readback(delivered, base_url)
     delivered.context.close()
 
 
@@ -6178,11 +6754,65 @@ def _scroll_fit_evidence_locally(
         timeout=30_000,
     )
     after_page_down = body.evaluate("el => el.scrollTop")
+    if after_page_down <= 0:
+        raise RuntimeError("Fit evidence PageDown proof did not move the local body")
+    # PageDown can land at the bottom of a short drawer.  Reset only this
+    # focusable local scrollport before the wheel proof so the wheel has a
+    # deterministic, observable range; the page itself remains untouched.
+    body.evaluate(
+        """el => {
+          el.scrollTop = 0;
+          el.scrollLeft = 0;
+          el.focus({ preventScroll: true });
+        }"""
+    )
+    page.wait_for_function(
+        """() => {
+          const body = document.querySelector('.fit-evidence-body');
+          return Boolean(body && body.scrollTop === 0 && body.scrollLeft === 0);
+        }""",
+        timeout=30_000,
+    )
+    wheel_before = body.evaluate(
+        """el => ({
+          scrollLeft: el.scrollLeft,
+          rectLeft: el.getBoundingClientRect().left,
+          rectRight: el.getBoundingClientRect().right,
+        })"""
+    )
     page.mouse.move(metrics["rect"]["left"] + metrics["clientWidth"] / 2, metrics["rect"]["top"] + metrics["clientHeight"] / 2)
     page.mouse.wheel(0, 92)
+    page.wait_for_function(
+        """() => {
+          const body = document.querySelector('.fit-evidence-body');
+          return Boolean(body && body.scrollTop > 0);
+        }""",
+        timeout=30_000,
+    )
     after_wheel = body.evaluate("el => el.scrollTop")
-    if after_wheel <= after_page_down:
+    wheel_after = body.evaluate(
+        """el => ({
+          scrollTop: el.scrollTop,
+          scrollLeft: el.scrollLeft,
+          rectLeft: el.getBoundingClientRect().left,
+          rectRight: el.getBoundingClientRect().right,
+        })"""
+    )
+    if after_wheel <= 0:
         raise RuntimeError("Fit evidence wheel did not move the local body")
+    if wheel_after["scrollLeft"] != wheel_before["scrollLeft"]:
+        raise RuntimeError(
+            "Fit evidence wheel horizontally shifted the local body: "
+            f"before={wheel_before!r}, after={wheel_after!r}"
+        )
+    if (
+        wheel_after["rectLeft"] != wheel_before["rectLeft"]
+        or wheel_after["rectRight"] != wheel_before["rectRight"]
+    ):
+        raise RuntimeError(
+            "Fit evidence wheel horizontally shifted the scrollport geometry: "
+            f"before={wheel_before!r}, after={wheel_after!r}"
+        )
     body.evaluate("el => { el.scrollTop = 0; el.scrollLeft = 0; }")
     refreshed = body.evaluate(
         """el => ({
@@ -6871,6 +7501,90 @@ def _assert_fit_title_state(page: Page, expected: str) -> None:
         raise RuntimeError(f"Fit title-row state drifted: expected {expected!r}, got {actual!r}")
 
 
+def _read_fit_context_header(page: Page) -> tuple[str, str]:
+    """Read the human Material/Test Data context owned by the Fit header."""
+    source = page.locator(".fit-context-source")
+    source.wait_for(state="visible", timeout=30_000)
+    text = source.inner_text().strip()
+    title = (source.get_attribute("title") or "").strip()
+    if not text or not title or text != title:
+        raise RuntimeError(
+            "Fit context header must expose one non-empty matching text/title pair: "
+            f"text={text!r}, title={title!r}"
+        )
+    if text in {"Select Test Data", "No saved Process Output"}:
+        raise RuntimeError(f"Fit context header is not a Material/Test Data identity: {text!r}")
+    return text, title
+
+
+def _wait_for_fit_context_header(
+    page: Page,
+    expected_text: str,
+    expected_title: str,
+) -> None:
+    """Wait bounded/fail-closed for the exact restored Fit header identity."""
+    try:
+        page.wait_for_function(
+            """expected => {
+              const source = document.querySelector('.fit-context-source');
+              const visible = Boolean(source && source.getClientRects().length);
+              const text = source?.textContent?.trim() || '';
+              const title = source?.getAttribute('title')?.trim() || '';
+              return visible
+                && text === expected.text
+                && title === expected.title
+                && Boolean(text)
+                && text !== 'Select Test Data'
+                && text !== 'No saved Process Output';
+            }""",
+            arg={"text": expected_text, "title": expected_title},
+            timeout=30_000,
+        )
+    except Exception as error:
+        diagnostics = page.evaluate(
+            """() => {
+              const source = document.querySelector('.fit-context-source');
+              return {
+                text: source?.textContent?.trim() || null,
+                title: source?.getAttribute('title') || null,
+                url: window.location.href,
+              };
+            }"""
+        )
+        raise RuntimeError(
+            "Fit context header did not settle to its recorded Material/Test Data identity: "
+            f"expected={{text:{expected_text!r}, title:{expected_title!r}}}, observed={diagnostics!r}"
+        ) from error
+
+
+def _wait_for_fit_title_state(page: Page, expected: str) -> None:
+    """Wait bounded/fail-closed for the exact Fit title-row state."""
+    try:
+        page.wait_for_function(
+            """expected => {
+              const state = document.querySelector(
+                '.processing-workbench-page.stage-fit .modeling-work-title > .fit-surface-state'
+              );
+              return Boolean(state && state.getClientRects().length
+                && state.textContent?.trim() === expected);
+            }""",
+            arg=expected,
+            timeout=30_000,
+        )
+    except Exception as error:
+        diagnostics = page.evaluate(
+            """() => ({
+              state: document.querySelector(
+                '.processing-workbench-page.stage-fit .modeling-work-title > .fit-surface-state'
+              )?.textContent?.trim() || null,
+              url: window.location.href,
+            })"""
+        )
+        raise RuntimeError(
+            f"Fit title-row state did not settle to {expected!r}: {diagnostics!r}"
+        ) from error
+
+
 def _capture_modeling_fit_states(
     browser: Browser,
     base_url: str,
@@ -7008,6 +7722,7 @@ def _capture_modeling_fit_states(
 
     fit_blocked = _new_page(browser, base_url, 1920, 1080)
     _prepare_fit_from_saved_process(fit_blocked, base_url, label="Fit blocked source")
+    blocked_context_text, blocked_context_title = _read_fit_context_header(fit_blocked)
     fit_blocked.evaluate(
         """() => {
           const key = 'cmp.modeling.recent-session.v4';
@@ -7026,9 +7741,13 @@ def _capture_modeling_fit_states(
         exact=True,
     ).wait_for(state="visible", timeout=30_000)
     fit_source_binding = fit_blocked.locator(".fit-context-source")
-    fit_source_binding.wait_for(state="visible", timeout=30_000)
-    if fit_source_binding.inner_text().strip() != "No saved Process Output":
-        raise RuntimeError("Fit exact-source blocker lost its header source status")
+    _wait_for_fit_context_header(
+        fit_blocked,
+        blocked_context_text,
+        blocked_context_title,
+    )
+    if fit_source_binding.inner_text().strip() == "No saved Process Output":
+        raise RuntimeError("Fit exact-source blocker regressed to the stale source literal")
     _assert_fit_title_state(fit_blocked, "Not calculated")
     fit_blocked.get_by_role("button", name="Back to Process", exact=True).wait_for(
         state="visible", timeout=30_000
@@ -7135,7 +7854,7 @@ def _capture_modeling_fit_states(
     ).wait_for(timeout=30_000)
     _assert_fit_title_state(exact_read_failed, "Preview not saved")
     retry_saved_fit = exact_read_failed.get_by_role(
-        "button", name="Retry exact saved Fit", exact=True
+        "button", name="Retry saved Fit", exact=True
     )
     if retry_saved_fit.count() != 1:
         raise RuntimeError("Fit exact saved-output read failure lost its explicit retry action")
@@ -7194,6 +7913,7 @@ def _capture_modeling_fit_states(
         return
 
     restored = prepared_fit("Fit restored source", 1920, 1080)
+    restored_context_text, restored_context_title = _read_fit_context_header(restored)
     _save_exact_fit_selection(restored)
     restored_session = _modeling_session(restored)
     restored_pointer = restored_session.get("processingOutput")
@@ -7208,10 +7928,12 @@ def _capture_modeling_fit_states(
         lambda request: restore_requests.append((request.method, request.url)),
     )
     restored.goto(f"{base_url}/modeling?stage=fit&family=metal")
-    restored.get_by_text(
-        "Saved immutable Fit Output restored with its exact Process source and decision.",
-        exact=False,
-    ).wait_for(timeout=30_000)
+    _wait_for_fit_title_state(restored, "Saved current")
+    _wait_for_fit_context_header(
+        restored,
+        restored_context_text,
+        restored_context_title,
+    )
     _assert_fit_title_state(restored, "Saved current")
     restored.get_by_role("img", name="Hardening candidate and selected extrapolation curves", exact=True).wait_for(
         state="visible", timeout=30_000
@@ -7251,28 +7973,26 @@ def _capture_modeling_fit_states(
     )
     if not isinstance(source_output, dict) or not isinstance(source_output.get("current_revision"), dict):
         raise RuntimeError("Restored Fit output lost its exact Process source identity")
-    source_binding_text = restored.locator(".fit-context-source").inner_text()
     source_revision_record = source_output.get("current_revision")
     if not isinstance(source_revision_record, dict):
         raise RuntimeError("Restored Fit source revision record is unavailable")
     source_revision = source_revision_record.get("revision_no")
     source_digest = source_output.get("output_sha256")
     source_label = source_output.get("label")
-    if (
-        not isinstance(source_label, str)
-        or source_label not in source_binding_text
-        or f"r{source_revision}" not in source_binding_text
-        or not isinstance(source_digest, str)
-    ):
-        raise RuntimeError(f"Restored Fit source header lost label/revision: {source_binding_text!r}")
+    if not isinstance(source_label, str) or not source_label or not isinstance(source_digest, str) or not source_digest:
+        raise RuntimeError("Restored Fit source evidence identity is unavailable")
     saved_revision_record = persisted.get("current_revision") if isinstance(persisted, dict) else None
     if not isinstance(saved_revision_record, dict):
         raise RuntimeError("Restored Fit output revision identity is unavailable")
     saved_revision_no = saved_revision_record.get("revision_no")
     restore_trigger, _restore_body, restore_table = _open_fit_evidence(restored)
     source_evidence_text = restored.locator(".fit-source-evidence").inner_text()
-    if not isinstance(source_digest, str) or source_digest not in source_evidence_text:
-        raise RuntimeError("Restored Fit candidate evidence lost the full source digest")
+    if (
+        source_label not in source_evidence_text
+        or f"r{source_revision}" not in source_evidence_text
+        or source_digest not in source_evidence_text
+    ):
+        raise RuntimeError("Restored Fit candidate evidence lost the exact source label/revision/digest")
     if restored_pointer["label"] not in source_evidence_text or f"r{saved_revision_no}" not in source_evidence_text:
         raise RuntimeError("Restored Fit candidate evidence lost the saved output identity")
     _assert_fit_selected_evidence(restored)
@@ -7314,6 +8034,7 @@ def _capture_modeling_fit_restored_only(
     _prepare_fit_from_saved_process(restored, base_url, label="Fit restored source")
     _click_modeling_fit_preview_and_wait(restored)
     _assert_fit_title_state(restored, "Preview not saved")
+    restored_context_text, restored_context_title = _read_fit_context_header(restored)
     _save_exact_fit_selection(restored)
     restored_pointer = _modeling_session(restored).get("processingOutput")
     if not isinstance(restored_pointer, dict) or not all(
@@ -7333,29 +8054,12 @@ def _capture_modeling_fit_restored_only(
         lambda response: restore_responses.append((response.status, response.url)),
     )
     restored.goto(f"{base_url}/modeling?stage=fit&family=metal")
-    try:
-        restored.get_by_text(
-            "Saved immutable Fit Output restored with its exact Process source and decision.",
-            exact=False,
-        ).wait_for(timeout=30_000)
-    except Exception as error:
-        diagnostics = restored.evaluate(
-            """() => ({
-              titleState: document.querySelector('.processing-workbench-page.stage-fit .modeling-work-title > .fit-surface-state')?.textContent?.trim() ?? null,
-              notices: [...document.querySelectorAll('.notice-banner, [role="status"]')]
-                .filter(element => element.getClientRects().length)
-                .map(element => element.textContent?.trim()),
-              errors: [...document.querySelectorAll('.error-banner, [role="alert"]')]
-                .filter(element => element.getClientRects().length)
-                .map(element => element.textContent?.trim()),
-              session: sessionStorage.getItem('cmp.modeling.recent-session.v4'),
-            })"""
-        )
-        raise RuntimeError(
-            "Saved Fit restore did not reach its visible success contract: "
-            f"dom={diagnostics}, requests={restore_requests}, responses={restore_responses}"
-        ) from error
-
+    _wait_for_fit_title_state(restored, "Saved current")
+    _wait_for_fit_context_header(
+        restored,
+        restored_context_text,
+        restored_context_title,
+    )
     _assert_fit_title_state(restored, "Saved current")
     restored.get_by_role(
         "img", name="Hardening candidate and selected extrapolation curves", exact=True
@@ -7382,8 +8086,32 @@ def _capture_modeling_fit_restored_only(
     source_pin = persisted.get("source_processing_output") if isinstance(persisted, dict) else None
     if not isinstance(source_pin, dict):
         raise RuntimeError("Restored Fit output lost its exact Process source identity")
+    source_output = next(
+        (
+            item for item in persisted_outputs
+            if _has_processing_output_revision(
+                item, source_pin.get("aggregate_id"), source_pin.get("revision_id")
+            )
+        ),
+        None,
+    )
+    if not isinstance(source_output, dict) or not isinstance(source_output.get("current_revision"), dict):
+        raise RuntimeError("Restored Fit output lost its exact Process source evidence")
+    source_revision_record = source_output["current_revision"]
+    source_revision = source_revision_record.get("revision_no")
+    source_label = source_output.get("label")
+    source_digest = source_output.get("output_sha256")
+    if not isinstance(source_label, str) or not source_label or not isinstance(source_digest, str) or not source_digest:
+        raise RuntimeError("Restored Fit source evidence identity is unavailable")
 
     restore_trigger, _restore_body, restore_table = _open_fit_evidence(restored)
+    source_evidence_text = restored.locator(".fit-source-evidence").inner_text()
+    if (
+        source_label not in source_evidence_text
+        or f"r{source_revision}" not in source_evidence_text
+        or source_digest not in source_evidence_text
+    ):
+        raise RuntimeError("Restored Fit candidate evidence lost the exact source label/revision/digest")
     _assert_fit_selected_evidence(restored)
     if restore_table.locator("tbody tr.selected").count() != 1:
         raise RuntimeError("Restored Fit output lost the selected candidate row")
@@ -8920,7 +9648,7 @@ def main() -> int:
     parser.add_argument(
         "--only-materials",
         action="store_true",
-        help="Capture and replace only the twenty-two Materials workspace and curve captures.",
+        help="Capture and replace the Materials workspace, detail/card states, and wide card previews.",
     )
     parser.add_argument(
         "--only-materials-workspace",

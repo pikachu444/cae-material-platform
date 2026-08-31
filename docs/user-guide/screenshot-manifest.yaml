@@ -127,7 +127,7 @@ notes:
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
   - "UXC-00G adds the implemented User, Reviewer, and Administrator task presets. The current access screen deliberately shows readable included work instead of editable feature-grant checkboxes."
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
-  - "Issue #159 keeps the existing MAT-EXP and MAT-DETAIL routes, verifies server-scoped Material class, Provider and Evidence source filters, uses user-facing Family capitalization, and keeps current Layout CSV values human-readable without internal identifiers on normal surfaces."
+  - "The Materials MAT-EXP and MAT-DETAIL routes use one server-scoped source-v2 Technical Data query, expose Material class as Family, keep Category and Manufacturer out of unrelated filter facets, and fail closed with Clear unsupported filters for legacy provider/source URL filters."
   - "Issue #159 Materials Overview keeps the response plot readable from 1366px through 3840px and exposes exact normalized response points in a compact table from 1800px upward. Issue #161 removes the former 1920px outer cap while preserving bounded navigator/context panes."
   - "Issue #159 local scroll-rail captures cover long result/tree overflow, a short six-row result without a result rail, and an empty result without a result rail; the rails are pointer-, track-, wheel-, and keyboard-operable and remain inside the Materials workspace."
   - "Issue #159 MAT-DETAIL captures map each current viewport to its approved MAT-DETAIL reference; Response points reuse the shared MaterialsScrollRegion with genuine local overflow only."
@@ -137,6 +137,16 @@ notes:
   - "Issue #158 Task 3B Fit captures bind the Fit source to one saved Process Output id/revision/digest in Candidate parameters Evidence, show the server candidate response/residual/tangent and diagnostic evidence, preserve the last valid preview after an exact-source read or Fit failure, and show an explicit blocked recovery when the pinned Process Output is missing or stale; Fit save requests carry the exact source pin and never fall back to raw Test Data."
   - "Issue #158 Task 3B current Fit images are registered for route, content and completed qualitative visual acceptance evidence from main 7394070 plus the Fit UI correction worktree."
 allowed_duplicate_groups:
+  - rationale: "Issue #262 has two independently approved Materials correction packets: owner-correction and simulation-output-correction. Their retained Curves after originals are exact byte-identical records of each packet's distinct evidence set, so both consumers remain meaningful."
+    images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1366x768.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-1366x768.png]
+  - rationale: "Issue #262 has two independently approved Materials correction packets: owner-correction and simulation-output-correction. Their retained Curves after originals are exact byte-identical records of each packet's distinct evidence set, so both consumers remain meaningful."
+    images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1440x900.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-1440x900.png]
+  - rationale: "Issue #262 has two independently approved Materials correction packets: owner-correction and simulation-output-correction. Their retained Curves after originals are exact byte-identical records of each packet's distinct evidence set, so both consumers remain meaningful."
+    images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-1920x1080.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-1920x1080.png]
+  - rationale: "Issue #262 has two independently approved Materials correction packets: owner-correction and simulation-output-correction. Their retained Curves after originals are exact byte-identical records of each packet's distinct evidence set, so both consumers remain meaningful."
+    images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-2560x1440.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-2560x1440.png]
+  - rationale: "Issue #262 has two independently approved Materials correction packets: owner-correction and simulation-output-correction. Their retained Curves after originals are exact byte-identical records of each packet's distinct evidence set, so both consumers remain meaningful."
+    images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-3840x2160.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-3840x2160.png]
   - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1366x768."
     images: [docs/user-guide/images/current/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1366x768.png]
   - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1440x900."
@@ -639,6 +649,10 @@ visual_evidence:
   independent_read_only_review: required_issue309_exact_candidate_before_commit
   product_owner_review: task_owner_supplied_exact_issue309_scope_and_acceptance
 capture_provenance:
+  - source_commit: e55d30f597923509607dd7651d734bda3867b583+issue371-catalog-single-owner-worktree
+    captured_at: '2026-08-31'
+    command: 'Preserved current-source Compose environment with the existing PostgreSQL/object data and web capture at browser zoom 100% and DPR 1; capture_current_product.py --only-materials recorded the source-v2 Catalog Material detail related-long and empty states, solver-card approximation/unsupported recovery boundaries at 1440x900, and exact solver-card previews at 2560x1440 and 3840x2160.'
+    ids: [material-detail-related-long-1440, material-detail-empty-1440, solver-card-preview-2560, solver-card-preview-3840, solver-card-approximation-blocked-1440, solver-card-unsupported-blocked-1440]
   - source_commit: 713bafc75a9b0974281126f30b50c78eb1a9dd2a+issue342-task1b-worktree
     captured_at: '2026-08-28'
     command: 'Issue #342 fresh-Docker PostgreSQL/API/browser run captured the valid-preview state at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160 at browser zoom 100% and DPR 1; the remaining normal, empty, loading, error, upload-error, invalid-preview, save-error and saved originals use the production React shell with the repository-standard mocked API boundary for deterministic state coverage.'
@@ -846,7 +860,6 @@ captures:
     image: images/current/material-detail-1440x900.png
     width: 1440
     height: 900
-    approved_reference_ids: [materials-datasheet-overview-normal-1440x900]
   - id: material-detail-1366
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
@@ -854,7 +867,6 @@ captures:
     image: images/current/material-detail-1366x768.png
     width: 1366
     height: 768
-    approved_reference_ids: [materials-datasheet-overview-normal-1366x768]
   - id: material-detail-1920
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
@@ -862,7 +874,6 @@ captures:
     image: images/current/material-detail-1920x1080.png
     width: 1920
     height: 1080
-    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
   - id: material-detail-2560
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-elastic
@@ -870,7 +881,6 @@ captures:
     image: images/current/material-detail-2560x1440.png
     width: 2560
     height: 1440
-    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
   - id: material-detail-3840
     route: /materials/:materialId
     workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status-wide-elastic
@@ -878,47 +888,55 @@ captures:
     image: images/current/material-detail-3840x2160.png
     width: 3840
     height: 2160
-    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
+  - id: material-detail-related-long-1440
+    route: /materials/:materialId
+    workflow: long-exact-related-record-list-with-local-detail-context
+    fixture: explicit browser-local graph projection with twelve additional exact Test Data endpoints and the original selected Material revision preserved
+    image: images/current/material-detail-related-long-1440x900.png
+    width: 1440
+    height: 900
+  - id: material-detail-empty-1440
+    route: /materials/:materialId
+    workflow: empty-exact-related-record-state-without-fallback
+    fixture: explicit browser-local graph projection with the selected Material root preserved and no directly linked records or solver-card fallback
+    image: images/current/material-detail-empty-1440x900.png
+    width: 1440
+    height: 900
   - id: material-curves-1366
     route: /materials/:materialId/curves
-    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
-    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    workflow: inspect-exact-linked-inputs-and-honest-empty-curve-layout
+    fixture: source-v2 DP780 Technical Data revision with six exact Test Data inputs and no curve attributes in the configured Material layout
     image: images/current/material-curves-1366x768.png
     width: 1366
     height: 768
-    approved_reference_ids: [materials-datasheet-overview-normal-1366x768]
   - id: material-curves-1440
     route: /materials/:materialId/curves
-    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
-    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    workflow: inspect-exact-linked-inputs-and-honest-empty-curve-layout
+    fixture: source-v2 DP780 Technical Data revision with six exact Test Data inputs and no curve attributes in the configured Material layout
     image: images/current/material-curves-1440x900.png
     width: 1440
     height: 900
-    approved_reference_ids: [materials-datasheet-overview-normal-1440x900]
   - id: material-curves-1920
     route: /materials/:materialId/curves
-    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
-    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    workflow: inspect-exact-linked-inputs-and-honest-empty-curve-layout
+    fixture: source-v2 DP780 Technical Data revision with six exact Test Data inputs and no curve attributes in the configured Material layout
     image: images/current/material-curves-1920x1080.png
     width: 1920
     height: 1080
-    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
   - id: material-curves-2560
     route: /materials/:materialId/curves
-    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
-    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    workflow: inspect-exact-linked-inputs-and-honest-empty-curve-layout
+    fixture: source-v2 DP780 Technical Data revision with six exact Test Data inputs and no curve attributes in the configured Material layout
     image: images/current/material-curves-2560x1440.png
     width: 2560
     height: 1440
-    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
   - id: material-curves-3840
     route: /materials/:materialId/curves
-    workflow: inspect-exact-curve-channels-units-deviation-and-fit-eligibility
-    fixture: synthetic DP780 exact Record revision with canonical Test Data and replicate Statistics curves
+    workflow: inspect-exact-linked-inputs-and-honest-empty-curve-layout
+    fixture: source-v2 DP780 Technical Data revision with six exact Test Data inputs and no curve attributes in the configured Material layout
     image: images/current/material-curves-3840x2160.png
     width: 3840
     height: 2160
-    approved_reference_ids: [materials-datasheet-overview-normal-1920x1080]
   - id: material-cae-cards-1440
     route: /materials/:materialId/cards
     workflow: native-card-preview-and-download-actions
@@ -947,6 +965,34 @@ captures:
     image: images/current/solver-card-preview-1920x1080.png
     width: 1920
     height: 1080
+  - id: solver-card-preview-2560
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-mapping-and-exact-review-submission-wide-elastic
+    fixture: synthetic draft DP780 OpenRadioss card with exact source pins, linked response graph and bounded mapping property sheet
+    image: images/current/solver-card-preview-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: solver-card-preview-3840
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-mapping-and-exact-review-submission-wide-elastic
+    fixture: synthetic draft DP780 OpenRadioss card with exact source pins, linked response graph and bounded mapping property sheet
+    image: images/current/solver-card-preview-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: solver-card-approximation-blocked-1440
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-approximation-review-before-download
+    fixture: explicit mapping-report fixture with the live bounded post-necking approximation and acknowledgement left unchecked
+    image: images/current/solver-card-approximation-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: solver-card-unsupported-blocked-1440
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-unsupported-field-download-block
+    fixture: explicit mapping-report fixture with one unsupported field and the exact card source retained
+    image: images/current/solver-card-unsupported-blocked-1440x900.png
+    width: 1440
+    height: 900
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
     workflow: exact-session local-file resolved-mapping review with responsive engineering-axis density and invalid-mapping recovery
@@ -1121,7 +1167,6 @@ captures:
     image: images/current/modeling-data-empty-1440x900.png
     width: 1440
     height: 900
-    approved_reference_ids: [modeling-data-empty-new-session-1440x900]
   - id: modeling-data-invalid-1440
     route: /modeling?stage=data&family=metal
     workflow: runtime-csv-invalid-channel-mapping
@@ -1129,7 +1174,6 @@ captures:
     image: images/current/modeling-data-invalid-1440x900.png
     width: 1440
     height: 900
-    approved_reference_ids: [modeling-data-long-invalid-mapping-blocked-1440x900]
   - id: modeling-data-invalid-scrolled-1440
     route: /modeling?stage=data&family=metal
     workflow: runtime-csv-invalid-channel-mapping-local-scroll-recovery
@@ -1137,7 +1181,6 @@ captures:
     image: images/current/modeling-data-invalid-scrolled-1440x900.png
     width: 1440
     height: 900
-    approved_reference_ids: [modeling-data-long-invalid-mapping-blocked-1440x900]
   - id: MOD-PROCESS-CURRENT-1366
     route: /modeling?stage=process&family=metal
     workflow: one-current-input Process flow with optional graph comparison, ordered steps, exact preview and save

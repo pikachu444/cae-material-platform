@@ -84,6 +84,7 @@ function record(id: string, name: string, folderId: string | null) {
 const metalFolder = folder(metalFolderId, "Metal", null);
 const steelFolder = folder(steelFolderId, "Steel", metalFolderId);
 const dp780Record = record(recordId, "DP780 Sheet", steelFolderId);
+const simulationRecord = record("81000000-0000-0000-0000-000000000080", "DP780 tabulated model", null);
 const tensileRecord = {
   ...record("81000000-0000-4000-8000-000000000070", "Room-temperature tensile test", null),
   table_id: testTableId,
@@ -149,16 +150,32 @@ describe("MaterialsBrowseTree", () => {
     }));
     mocks.folders.mockResolvedValue({ data: { items: [metalFolder, steelFolder] }, etag: null });
     mocks.subsets.mockResolvedValue({ data: { items: [] }, etag: null });
-    mocks.search.mockImplementation((_config, input: { data_category?: string | null }) => Promise.resolve({
+    mocks.search.mockImplementation((_config, input: { data_category?: string | null; text?: string | null }) => Promise.resolve({
       data: {
-        items: input.data_category === "technical_data"
-          ? [dp780Record]
-          : input.data_category === "test_data"
-            ? [tensileRecord]
-            : input.data_category
-              ? []
-              : [dp780Record],
-        total_count: input.data_category === "technical_data" || input.data_category === "test_data" || !input.data_category ? 1 : 0,
+        items: input.text === "DP780"
+          ? input.data_category === "technical_data"
+            ? [dp780Record]
+            : input.data_category === "test_data"
+              ? [tensileRecord]
+              : input.data_category === "simulation_data"
+                ? [simulationRecord]
+                : []
+          : input.data_category === "technical_data"
+            ? [dp780Record]
+            : input.data_category === "test_data"
+              ? [tensileRecord]
+              : input.data_category === "solver_cards"
+                ? [simulationRecord]
+              : [],
+        total_count: input.text === "DP780"
+            ? input.data_category === "technical_data"
+            ? 2
+            : input.data_category === "test_data"
+              ? 3
+              : input.data_category === "simulation_data"
+                ? 1
+                : 0
+          : input.data_category === "technical_data" || input.data_category === "test_data" || input.data_category === "solver_cards" ? 1 : 0,
         offset: 0,
         limit: 100,
         facets: [],
@@ -173,7 +190,8 @@ describe("MaterialsBrowseTree", () => {
     const user = userEvent.setup();
     const selectRecord = vi.fn();
     const openRecord = vi.fn();
-    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onSelectRecord={selectRecord} onOpenRecord={openRecord}/>);
+    const onResultsChange = vi.fn();
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onResultsChange={onResultsChange} onSelectRecord={selectRecord} onOpenRecord={openRecord}/>);
 
     const tree = await screen.findByRole("tree", { name: "Database contents" });
     expect(within(tree).queryByRole("treeitem", { name: /Materials Database/ })).toBeNull();
@@ -210,9 +228,65 @@ describe("MaterialsBrowseTree", () => {
     await user.clear(screen.getByRole("textbox", { name: "Find in tree" }));
     await user.type(screen.getByRole("textbox", { name: "Find in tree" }), "DP780");
     await user.click(screen.getByRole("button", { name: "Find" }));
-    await waitFor(() => expect(mocks.search).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ table_id: null, text: "DP780", limit: 100 })));
-    expect(await screen.findByText("1 data matches")).toBeTruthy();
+    await waitFor(() => expect(mocks.search.mock.calls.filter(([, input]) => input.text === "DP780")).toHaveLength(4));
+    const findInputs = mocks.search.mock.calls
+      .map(([, input]) => input as { data_category?: string | null; table_id?: string | null; text?: string | null; published_only?: boolean })
+      .filter((input) => input.text === "DP780");
+    expect(findInputs.map((input) => input.data_category)).toEqual([
+      "technical_data",
+      "test_data",
+      "simulation_data",
+      "solver_cards",
+    ]);
+    for (const input of findInputs) {
+      expect(input).toMatchObject({ table_id: null, text: "DP780", published_only: false });
+      expect(input).toHaveProperty("data_category");
+    }
+    expect(await screen.findByText("6 data matches · 3 loaded")).toBeTruthy();
     expect(screen.getByRole("treeitem", { name: /DP780 Sheet/ })).toBeTruthy();
+    expect(screen.getByRole("treeitem", { name: /DP780 tabulated model/ })).toBeTruthy();
+    await waitFor(() => expect(onResultsChange).toHaveBeenLastCalledWith(expect.objectContaining({ query: "DP780", totalCount: 6 })));
+    expect(onResultsChange.mock.calls.at(-1)?.[0].items.map(({ category }: { category: string }) => category)).toEqual([
+      "technical_data",
+      "test_data",
+      "simulation_data",
+    ]);
+
+    // Choosing a category after a Find is an explicit return to browsing. The
+    // category branch must load and render even when the active query had no
+    // match there.
+    await user.click(screen.getByRole("treeitem", { name: /Solver Cards/ }));
+    expect(await screen.findByRole("treeitem", { name: /DP780 tabulated model/ })).toBeTruthy();
+  });
+
+  it("fails closed when one category-scoped Find request fails", async () => {
+    const onResultsChange = vi.fn();
+    const searchOnlyRecord = record("81000000-0000-0000-0000-000000000081", "Search-only result", null);
+    mocks.search.mockImplementation((_config, input: { data_category?: string | null; text?: string | null }) => {
+      if (input.text === "DP780" && input.data_category === "simulation_data") {
+        return Promise.reject(new Error("simulation search unavailable"));
+      }
+      return Promise.resolve({
+        data: {
+          items: input.text === "DP780" ? [searchOnlyRecord] : [],
+          total_count: input.text === "DP780" ? 1 : 0,
+          offset: 0,
+          limit: 100,
+          facets: [],
+        },
+        etag: null,
+      });
+    });
+    const user = userEvent.setup();
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} onResultsChange={onResultsChange} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    const find = await screen.findByRole("textbox", { name: "Find in tree" });
+    await user.type(find, "DP780");
+    await user.click(screen.getByRole("button", { name: "Find" }));
+    await waitFor(() => expect(mocks.search.mock.calls.filter(([, input]) => input.text === "DP780")).toHaveLength(4));
+    expect(await screen.findByText("Search unavailable.")).toBeTruthy();
+    expect(screen.queryByRole("treeitem", { name: /Search-only result/ })).toBeNull();
+    expect(onResultsChange).toHaveBeenLastCalledWith({ category: null, query: "DP780", items: [], totalCount: 0 });
   });
 
   it("keeps a 10,000-Record branch below 150 mounted treeitems", async () => {
@@ -264,6 +338,25 @@ describe("MaterialsBrowseTree", () => {
     expect(screen.queryByText("Reusable governed filter")).toBeNull();
   });
 
+  it("keeps a saved subset Find as one table-scoped request", async () => {
+    mocks.subsets.mockResolvedValue({ data: { items: [{
+      subset_id: "81000000-0000-0000-0000-000000000082",
+      table_id: tableId,
+      revision: metadata("81000000-0000-0000-0000-000000000083", "81000000-0000-0000-0000-000000000082"),
+      name: "DP780 saved subset",
+      description: "Saved filter",
+      filter_definition: { text: "DP780" },
+    }] }, etag: null });
+    const user = userEvent.setup();
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} subsetMode onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    await user.click(await screen.findByRole("button", { name: /DP780 saved subset/ }));
+    await waitFor(() => expect(mocks.search.mock.calls.filter(([, input]) => input.text === "DP780")).toHaveLength(1));
+    const [, input] = mocks.search.mock.calls.find(([, candidate]) => candidate.text === "DP780")!;
+    expect(input).toMatchObject({ table_id: tableId, text: "DP780", published_only: false });
+    expect(input).not.toHaveProperty("data_category");
+  });
+
   it("selects the exact Materials table when another table is listed first", async () => {
     const workflowTable = {
       ...table,
@@ -283,6 +376,46 @@ describe("MaterialsBrowseTree", () => {
     expect(screen.queryByRole("combobox", { name: "Browse table" })).toBeNull();
     expect(mocks.children).not.toHaveBeenCalledWith(expect.anything(), workflowTable.table_id, null);
     expect(availability).toHaveBeenLastCalledWith("ready");
+  });
+
+  it("retries the same published Record revision after an exact graph failure", async () => {
+    mocks.graph
+      .mockRejectedValueOnce(new Error("workflow graph unavailable"))
+      .mockResolvedValueOnce({ data: graph, etag: null });
+    const selectRecord = vi.fn();
+    const user = userEvent.setup();
+
+    render(<MaterialsBrowseTree
+      config={{ baseUrl: "/api/v1", accessToken: "test" }}
+      publishedOnly
+      onSelectRecord={selectRecord}
+      onOpenRecord={() => undefined}
+    />);
+
+    const recordRow = await screen.findByRole("treeitem", { name: /DP780 Sheet/ });
+    await user.click(recordRow);
+    expect(await screen.findByRole("button", { name: "Retry exact Materials graph" })).toBeTruthy();
+    expect(selectRecord).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Retry exact Materials graph" }));
+    await waitFor(() => expect(selectRecord).toHaveBeenCalledWith(dp780Record, graph));
+    expect(mocks.graph).toHaveBeenNthCalledWith(
+      1,
+      expect.anything(),
+      recordId,
+      recordRevisionId,
+      5,
+      true,
+    );
+    expect(mocks.graph).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      recordId,
+      recordRevisionId,
+      5,
+      true,
+    );
+    expect(screen.queryByRole("button", { name: "Retry exact Materials graph" })).toBeNull();
   });
 
   it("reports an unavailable Materials scope when the exact table is absent", async () => {

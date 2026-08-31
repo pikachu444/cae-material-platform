@@ -28,33 +28,71 @@ HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"]
 STATISTICS_ALIGNED_SELECTION_LABEL = "CMP demo DP780 aligned tensile replicates"
 STATISTICS_PLAN_LABEL = "CMP demo DP780 replicate curve statistics"
 MEANINGFUL_DEMO_TEST_RECORDS = {
-    "CMP-246-TENSILE-ROOM": "DP780 tensile · 23 °C · 0.0067 s⁻¹ · synthetic reference",
-    "CMP-246-TENSILE-HOT": "DP780 tensile · 80 °C · 0.0067 s⁻¹ · synthetic reference",
-    "CMP-246-TENSILE-SLOW": "DP780 tensile · 23 °C · 0.0007 s⁻¹ · synthetic reference",
-    "CMP-246-TENSILE-FAST": "DP780 tensile · 23 °C · 0.067 s⁻¹ · synthetic reference",
-    "CMP-246-DMA-+00C": "PA66-GF30 DMA · 0 °C frequency sweep · synthetic reference",
-    "CMP-246-DMA-+23C": "PA66-GF30 DMA · 23 °C frequency sweep · synthetic reference",
-    "CMP-246-DMA-+60C": "PA66-GF30 DMA · 60 °C frequency sweep · synthetic reference",
-    "CMP-246-FLD-NAKAJIMA": "DP780 FLD · Nakajima · synthetic reference",
-    "CMP-246-FLD-MARCINIAK": "DP780 FLD · Marciniak · synthetic reference",
+    "CMP-246-TENSILE-ROOM": "DP780 room tensile",
+    "CMP-246-TENSILE-HOT": "DP780 hot tensile",
+    "CMP-246-TENSILE-SLOW": "DP780 slow tensile",
+    "CMP-246-TENSILE-FAST": "DP780 fast tensile",
+    "CMP-246-DMA-+00C": "Polymer DMA 000C",
+    "CMP-246-DMA-+23C": "Polymer DMA 023C",
+    "CMP-246-DMA-+60C": "Polymer DMA 060C",
+    "CMP-246-FLD-NAKAJIMA": "DP780 Nakajima FLD",
+    "CMP-246-FLD-MARCINIAK": "DP780 Marciniak FLD",
 }
 MEANINGFUL_DEMO_SIMULATION_RECORDS = {
-    "CMP-246-EP-VOCE": "DP780 elastoplasticity · selected Voce result · synthetic reference",
+    "CMP-246-EP-VOCE": "DP780 Voce model",
     "CMP-246-EP-TABULATED": (
-        "DP780 elastoplasticity · selected tabulated model · synthetic reference"
+        "DP780 tabulated model"
     ),
-    "CMP-246-STAT-TENSILE": (
-        "DP780 tensile statistics · mean and 5% envelope · synthetic reference"
-    ),
-    "CMP-246-SOLVER-ABAQUS": "DP780 Abaqus native material card · synthetic reference",
+    "CMP-246-STAT-TENSILE": "DP780 tensile statistics",
 }
 MEANINGFUL_DEMO_BINDING_KINDS = {
     **{key: "test_data" for key in MEANINGFUL_DEMO_TEST_RECORDS},
     "CMP-246-EP-VOCE": "processing_output",
     "CMP-246-EP-TABULATED": "material_model",
     "CMP-246-STAT-TENSILE": None,
-    "CMP-246-SOLVER-ABAQUS": "neutral_solver_card",
 }
+MEANINGFUL_DEMO_RECORD_DESCRIPTIONS = {
+    **{key: None for key in MEANINGFUL_DEMO_TEST_RECORDS},
+    "CMP-246-EP-VOCE": None,
+    "CMP-246-EP-TABULATED": None,
+    "CMP-246-STAT-TENSILE": None,
+}
+MEANINGFUL_DEMO_TECHNICAL_RECORDS = {
+    "CMP-246-TECH-DP780": "DP780 technical data",
+    "CMP-246-TECH-POLYMER": "Polymer technical data",
+    "CMP-246-TECH-ELASTOMER": "Elastomer technical data",
+}
+SOURCE_V2_TECHNICAL_FAMILIES = {
+    "CMP-246-TECH-DP780": "Metal",
+    "CMP-246-TECH-POLYMER": "Plastic",
+    "CMP-246-TECH-ELASTOMER": "Rubber",
+}
+SOURCE_V2_TECHNICAL_ATTRIBUTE_SECTIONS = {
+    "data_information__record_name": "Data Information",
+    "data_information__technical_data_id": "Data Information",
+    "material_information__category": "Material Information",
+    "material_information__details": "Material Information",
+    "material_information__family": "Material Information",
+    "material_information__grade": "Material Information",
+    "material_information__orientation": "Material Information",
+    "material_information__spec_thickness": "Material Information",
+    "sample_information__applied_part": "Sample Information",
+    "sample_information__applied_product": "Sample Information",
+    "sample_information__density": "Sample Information",
+    "sample_information__distributor": "Sample Information",
+    "sample_information__manufacturer": "Sample Information",
+    "sample_information__poisson_ratio": "Sample Information",
+    "sample_information__primary_vendor": "Sample Information",
+    "sample_information__production_date": "Sample Information",
+    "sample_information__sales_type": "Sample Information",
+    "sample_information__sample_type_id": "Sample Information",
+}
+CATALOG_DATA_CATEGORIES = (
+    "technical_data",
+    "test_data",
+    "simulation_data",
+    "solver_cards",
+)
 MEANINGFUL_DEMO_REPLICATE_KEYS = {
     "CMP-DEMO-DP780-TEST-JSON",
     "CMP-DEMO-DP780-TEST-JSON-02",
@@ -440,6 +478,48 @@ def _items(response: Mapping[str, Any]) -> list[dict[str, Any]]:
     return [item for item in value if isinstance(item, dict)]
 
 
+def _strict_items(response: Mapping[str, Any], *, stage: str) -> list[dict[str, Any]]:
+    value = response.get("items")
+    if not isinstance(value, list) or any(not isinstance(item, dict) for item in value):
+        raise RuntimeError(f"{stage} response has no complete item list")
+    return cast(list[dict[str, Any]], value)
+
+
+def _catalog_category_search(
+    client: httpx.Client,
+    category: str,
+    *,
+    text: str | None = None,
+    limit: int = 100,
+    published_only: bool = True,
+) -> tuple[list[dict[str, Any]], int]:
+    """Read one complete published category without manufacturing a Table scope."""
+
+    if category not in CATALOG_DATA_CATEGORIES:
+        raise ValueError(f"unsupported Catalog category {category!r}")
+    payload: dict[str, Any] = {
+        "table_id": None,
+        "data_category": category,
+        "offset": 0,
+        "limit": limit,
+        "published_only": published_only,
+    }
+    if text is not None:
+        payload["text"] = text
+    response = _json(client.post("/catalog/records:search", json=payload))
+    items = _strict_items(response, stage=f"Catalog {category} search")
+    total_count = response.get("total_count")
+    if isinstance(total_count, bool) or not isinstance(total_count, int) or total_count < 0:
+        raise RuntimeError(f"Catalog {category} search has no valid total_count")
+    if response.get("offset") != 0 or response.get("limit") != limit:
+        raise RuntimeError(f"Catalog {category} search did not preserve its requested page")
+    if total_count != len(items):
+        raise RuntimeError(
+            f"Catalog {category} search is incomplete; total={total_count}; loaded={len(items)}"
+        )
+    return items, total_count
+
+
 def _domain_binding_kinds(value: Mapping[str, Any]) -> tuple[str, ...]:
     kinds: list[str] = []
     bindings = value.get("domain_bindings")
@@ -509,8 +589,15 @@ def _meaningful_demo_records(
     *,
     expected_names: Mapping[str, str],
     stage: str,
+    expected_descriptions: Mapping[str, str | None] | None = None,
+    expected_binding_kinds: Mapping[str, str | None] | None = None,
 ) -> dict[str, Mapping[str, Any]]:
     """Fail closed when the small synthetic catalog story drifts or becomes ambiguous."""
+
+    if expected_descriptions is not None and set(expected_descriptions) != set(expected_names):
+        raise RuntimeError(f"{stage} expected description set is incomplete")
+    if expected_binding_kinds is not None and set(expected_binding_kinds) != set(expected_names):
+        raise RuntimeError(f"{stage} expected binding set is incomplete")
 
     by_key: dict[str, list[Mapping[str, Any]]] = {}
     for record in records:
@@ -540,14 +627,24 @@ def _meaningful_demo_records(
                 f"actual={content.get('name')!r}"
             )
         description = content.get("description")
-        if not isinstance(description, str) or not {
-            "synthetic",
-            "non-production",
-        } <= set(description.lower().split()):
+        if expected_descriptions is None:
+            if not isinstance(description, str) or not {
+                "synthetic",
+                "non-production",
+            } <= set(description.lower().split()):
+                raise RuntimeError(
+                    f"{stage} {key} does not clearly identify synthetic non-production data"
+                )
+        elif description != expected_descriptions[key]:
             raise RuntimeError(
-                f"{stage} {key} does not clearly identify synthetic non-production data"
+                f"{stage} {key} description differs; expected={expected_descriptions[key]!r}; "
+                f"actual={description!r}"
             )
-        expected_kind = MEANINGFUL_DEMO_BINDING_KINDS[key]
+        expected_kind = (
+            expected_binding_kinds[key]
+            if expected_binding_kinds is not None
+            else MEANINGFUL_DEMO_BINDING_KINDS[key]
+        )
         kinds = _domain_binding_kinds(record)
         if expected_kind is None:
             if kinds:
@@ -556,6 +653,122 @@ def _meaningful_demo_records(
             raise RuntimeError(
                 f"{stage} {key} does not pin its expected {expected_kind} domain object"
             )
+    return result
+
+
+def _source_v2_technical_schema(
+    table: Mapping[str, Any],
+    attributes: Sequence[Mapping[str, Any]],
+    layouts: Sequence[Mapping[str, Any]],
+    *,
+    stage: str,
+) -> dict[str, str]:
+    """Validate the generated source-v2 technical Layout and return its id-to-key map."""
+
+    table_revision = table.get("current_revision")
+    if not isinstance(table_revision, Mapping) or not isinstance(table_revision.get("id"), str):
+        raise RuntimeError(f"{stage} Table has no exact current revision")
+    table_revision_id = str(table_revision["id"])
+    attribute_keys: dict[str, str] = {}
+    attribute_revision_ids: dict[str, str] = {}
+    for attribute in attributes:
+        attribute_id = attribute.get("attribute_definition_id")
+        revision = attribute.get("current_revision")
+        content = _content(attribute)
+        key = content.get("key")
+        if (
+            not isinstance(attribute_id, str)
+            or not isinstance(revision, Mapping)
+            or revision.get("revision_no") != 1
+            or not isinstance(revision.get("id"), str)
+            or not isinstance(key, str)
+            or key in attribute_keys.values()
+        ):
+            raise RuntimeError(f"{stage} has a duplicate or non-r1 Attribute")
+        attribute_keys[attribute_id] = key
+        attribute_revision_ids[attribute_id] = str(revision["id"])
+    if set(attribute_keys.values()) != set(SOURCE_V2_TECHNICAL_ATTRIBUTE_SECTIONS):
+        raise RuntimeError(
+            f"{stage} Attribute keys differ; "
+            f"expected={sorted(SOURCE_V2_TECHNICAL_ATTRIBUTE_SECTIONS)}; "
+            f"actual={sorted(attribute_keys.values())}"
+        )
+
+    matching_layouts = [
+        layout
+        for layout in layouts
+        if layout.get("table_revision_id") == table_revision_id
+    ]
+    if len(matching_layouts) != 1:
+        raise RuntimeError(
+            f"{stage} requires exactly one Layout for the current Table revision; "
+            f"found={len(matching_layouts)}"
+        )
+    layout = matching_layouts[0]
+    layout_revision = layout.get("revision")
+    layout_items = layout.get("items")
+    if (
+        layout.get("name") != "Technical Data default layout"
+        or not isinstance(layout_revision, Mapping)
+        or layout_revision.get("revision_no") != 1
+        or not isinstance(layout_items, list)
+        or any(not isinstance(item, Mapping) for item in layout_items)
+    ):
+        raise RuntimeError(f"{stage} does not expose the exact current default Layout")
+    if len(layout_items) != len(attribute_keys):
+        raise RuntimeError(f"{stage} Layout does not include every source-v2 Attribute")
+    seen_keys: set[str] = set()
+    seen_ordinals: set[int] = set()
+    for item in layout_items:
+        assert isinstance(item, Mapping)
+        attribute_id = item.get("attribute_definition_id")
+        key = attribute_keys.get(str(attribute_id))
+        ordinal = item.get("ordinal")
+        if (
+            key is None
+            or key in seen_keys
+            or item.get("attribute_definition_revision_id")
+            != attribute_revision_ids[str(attribute_id)]
+            or item.get("section") != SOURCE_V2_TECHNICAL_ATTRIBUTE_SECTIONS[key]
+            or isinstance(ordinal, bool)
+            or not isinstance(ordinal, int)
+            or ordinal in seen_ordinals
+        ):
+            raise RuntimeError(f"{stage} contains a stale, duplicated, or foreign Layout item")
+        seen_keys.add(key)
+        seen_ordinals.add(ordinal)
+    if seen_keys != set(attribute_keys.values()) or seen_ordinals != set(
+        range(len(attribute_keys))
+    ):
+        raise RuntimeError(
+            f"{stage} Layout order is not a complete contiguous source-v2 projection"
+        )
+    return attribute_keys
+
+
+def _source_v2_scalar_values(
+    record: Mapping[str, Any],
+    attribute_keys: Mapping[str, str],
+    *,
+    stage: str,
+) -> dict[str, object]:
+    values = _content(record).get("values")
+    if not isinstance(values, list):
+        raise RuntimeError(f"{stage} has no typed source-v2 values")
+    result: dict[str, object] = {}
+    for value in values:
+        if not isinstance(value, Mapping):
+            raise RuntimeError(f"{stage} contains an invalid typed value")
+        key = attribute_keys.get(str(value.get("attribute_definition_id")))
+        if key is None:
+            raise RuntimeError(f"{stage} contains a value for an unknown Attribute")
+        if key in result:
+            raise RuntimeError(f"{stage} contains a duplicate value for {key}")
+        if "value" not in value:
+            # Number/file/curve/reference values are valid source-v2 fields, but
+            # this helper only reads scalar technical identity/family projections.
+            continue
+        result[key] = value["value"]
     return result
 
 
@@ -1133,139 +1346,173 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             item for item in materials if _content(item).get("material_code") == "CMP-DEMO-DP780"
         )
         metal_id = str(metal["material_id"])
-        tables = _items(_json(client.get("/catalog/tables")))
-        test_table = next(
-            item for item in tables if _content(item).get("key") == "issue246_test_examples"
-        )
-        simulation_table = next(
-            item
-            for item in tables
-            if _content(item).get("key") == "issue246_simulation_examples"
-        )
-        meaningful_test_records = _meaningful_demo_records(
-            _items(
-                _json(
-                    client.post(
-                        "/catalog/records:search",
-                        json={"table_id": test_table["table_id"], "limit": 100},
-                    )
+        category_records: dict[str, list[dict[str, Any]]] = {}
+        category_totals: dict[str, int] = {}
+        expected_category_keys = {
+            "technical_data": set(MEANINGFUL_DEMO_TECHNICAL_RECORDS),
+            "test_data": set(MEANINGFUL_DEMO_TEST_RECORDS),
+            "simulation_data": set(MEANINGFUL_DEMO_SIMULATION_RECORDS)
+            - {"CMP-246-SOLVER-ABAQUS"},
+            # A category result is one Catalog Record, even when that Record
+            # owns both exact native cards.
+            "solver_cards": {"CMP-246-EP-TABULATED"},
+        }
+        for category in CATALOG_DATA_CATEGORIES:
+            found, total = _catalog_category_search(client, category)
+            found_keys = {
+                external_key
+                for item in found
+                if isinstance((external_key := _content(item).get("external_key")), str)
+            }
+            if found_keys != expected_category_keys[category]:
+                raise RuntimeError(
+                    f"clean demo {category} category differs; "
+                    f"expected={sorted(expected_category_keys[category])}; "
+                    f"actual={sorted(found_keys)}"
                 )
-            ),
+            category_records[category] = found
+            category_totals[category] = total
+
+        meaningful_test_records = _meaningful_demo_records(
+            category_records["test_data"],
             expected_names=MEANINGFUL_DEMO_TEST_RECORDS,
             stage="meaningful Demo Test Data",
+            expected_descriptions={
+                key: MEANINGFUL_DEMO_RECORD_DESCRIPTIONS[key]
+                for key in MEANINGFUL_DEMO_TEST_RECORDS
+            },
         )
         meaningful_simulation_records = _meaningful_demo_records(
-            _items(
-                _json(
-                    client.post(
-                        "/catalog/records:search",
-                        json={"table_id": simulation_table["table_id"], "limit": 100},
-                    )
-                )
-            ),
+            category_records["simulation_data"],
             expected_names=MEANINGFUL_DEMO_SIMULATION_RECORDS,
             stage="meaningful Demo Simulation Data",
+            expected_descriptions={
+                key: MEANINGFUL_DEMO_RECORD_DESCRIPTIONS[key]
+                for key in MEANINGFUL_DEMO_SIMULATION_RECORDS
+            },
         )
-        table = next(
-            item for item in tables if _content(item).get("key") == "demo_material_records"
+        meaningful_technical_records = _meaningful_demo_records(
+            category_records["technical_data"],
+            expected_names=MEANINGFUL_DEMO_TECHNICAL_RECORDS,
+            stage="meaningful Demo Technical Data",
+            expected_descriptions={key: None for key in MEANINGFUL_DEMO_TECHNICAL_RECORDS},
+            expected_binding_kinds={key: "material" for key in MEANINGFUL_DEMO_TECHNICAL_RECORDS},
         )
-        subsets = _items(_json(client.get(f"/catalog/tables/{table['table_id']}/subsets")))
-        workflow_subset = next(
-            (item for item in subsets if item.get("name") == "DP780 workflow records"),
-            None,
+        solver_category_record = next(
+            item
+            for item in category_records["solver_cards"]
+            if _content(item).get("external_key") == "CMP-246-EP-TABULATED"
         )
-        if not isinstance(workflow_subset, Mapping):
-            raise RuntimeError("clean demo Explorer has no reusable DP780 Subset")
-        subset_filter = workflow_subset.get("filter_definition")
-        if not isinstance(subset_filter, Mapping) or subset_filter.get("text") != "DP780":
-            raise RuntimeError("clean demo Explorer Subset does not preserve its search")
+        if "neutral_solver_card" not in _domain_binding_kinds(solver_category_record):
+            raise RuntimeError("clean demo Solver Cards category is not owned by EP-TABULATED")
+
+        tables = _items(_json(client.get("/catalog/tables")))
+        technical_tables = [
+            item
+            for item in tables
+            if _content(item).get("key") == "technical_data"
+            and _content(item).get("data_category") == "technical_data"
+        ]
+        if len(technical_tables) != 1:
+            raise RuntimeError(
+                "clean demo must expose exactly one current source-v2 technical_data Table"
+            )
+        technical_table = technical_tables[0]
+        table_revision = technical_table.get("current_revision")
+        if (
+            not isinstance(table_revision, Mapping)
+            or not isinstance(technical_table.get("table_id"), str)
+            or not isinstance(table_revision.get("id"), str)
+            or table_revision.get("revision_no") != 1
+        ):
+            raise RuntimeError("clean demo source-v2 technical_data Table has no exact r1 revision")
+        technical_table_id = str(technical_table["table_id"])
+        technical_table_revision_id = str(table_revision["id"])
         searched = _json(
             client.post(
                 "/catalog/records:search",
                 json={
-                    "table_id": table["table_id"],
-                    "text": "CMP-DEMO-DP780",
+                    "table_id": technical_table_id,
+                    "text": "CMP-246-TECH-DP780",
                     "limit": 20,
+                    "published_only": True,
                 },
             )
         )
-        records = [
-            item
-            for item in _items(searched)
-            if _content(item).get("external_key") == "CMP-DEMO-DP780"
-        ]
-        if len(records) != 1:
-            raise RuntimeError("clean demo Catalog record is missing or ambiguous")
+        records = _strict_items(searched, stage="source-v2 DP780 technical_data search")
+        if searched.get("total_count") != 1 or len(records) != 1:
+            raise RuntimeError("clean demo DP780 technical_data record is missing or ambiguous")
         catalog_record = records[0]
-        catalog_revision = catalog_record.get("current_revision")
-        if not isinstance(catalog_revision, Mapping):
-            raise RuntimeError("clean demo Catalog record has no exact revision")
-        binding = _json(
-            client.get(
-                f"/catalog/records/{catalog_record['record_id']}/revisions/"
-                f"{catalog_revision['id']}/domain-binding"
-            )
-        )
-        if binding.get("object_id") != metal_id or binding.get("kind") != "material":
-            raise RuntimeError("clean demo Catalog binding does not pin the metal Material")
-        catalog_attributes = _items(
-            _json(client.get(f"/catalog/tables/{table['table_id']}/attributes"))
-        )
-        attribute_keys = {
-            str(item.get("attribute_definition_id")): _content(item).get("key")
-            for item in catalog_attributes
-        }
-        projected = _json(
-            client.post(
-                "/catalog/records:search",
-                json={
-                    "table_id": table["table_id"],
-                    "domain_binding_kind": "material",
-                    "limit": 100,
-                },
-            )
-        )
-        for expected_code, expected_material in (
-            ("CMP-DEMO-POLYMER-PRONY", polymer),
-            ("CMP-DEMO-ELASTOMER-OGDEN", elastomer),
+        if (
+            _content(catalog_record).get("external_key") != "CMP-246-TECH-DP780"
+            or catalog_record.get("record_id")
+            != meaningful_technical_records["CMP-246-TECH-DP780"].get("record_id")
         ):
-            projected_record = next(
-                (
-                    item
-                    for item in _items(projected)
-                    if _content(item).get("external_key") == expected_code
-                ),
-                None,
+            raise RuntimeError("clean demo DP780 technical_data search returned the wrong Record")
+        catalog_revision = catalog_record.get("current_revision")
+        if (
+            not isinstance(catalog_revision, Mapping)
+            or catalog_revision.get("revision_no") != 1
+            or catalog_revision.get("content", {}).get("table_revision_id")
+            != technical_table_revision_id
+        ):
+            raise RuntimeError("clean demo DP780 technical_data Record is not the exact Table r1")
+        catalog_record_id = str(catalog_record["record_id"])
+        catalog_record_revision_id = str(catalog_revision["id"])
+        catalog_attributes = _items(
+            _json(client.get(f"/catalog/tables/{technical_table_id}/attributes"))
+        )
+        catalog_layouts = _items(
+            _json(client.get(f"/catalog/tables/{technical_table_id}/layouts"))
+        )
+        attribute_keys = _source_v2_technical_schema(
+            technical_table,
+            catalog_attributes,
+            catalog_layouts,
+            stage="clean demo source-v2 technical_data schema",
+        )
+        for technical_key, expected_family in SOURCE_V2_TECHNICAL_FAMILIES.items():
+            record = meaningful_technical_records[technical_key]
+            revision = record.get("current_revision")
+            if not isinstance(revision, Mapping) or not isinstance(revision.get("id"), str):
+                raise RuntimeError(f"clean demo {technical_key} has no exact Record revision")
+            values = _source_v2_scalar_values(
+                record,
+                attribute_keys,
+                stage=f"clean demo {technical_key} source-v2 values",
             )
-            if not isinstance(projected_record, Mapping):
-                raise RuntimeError(f"clean demo Catalog is missing {expected_code} projection")
-            projected_binding = projected_record.get("domain_binding")
             if (
-                not isinstance(projected_binding, Mapping)
-                or projected_binding.get("kind") != "material"
-                or projected_binding.get("object_id") != expected_material["material_id"]
+                values.get("data_information__technical_data_id") != technical_key
+                or values.get("material_information__family") != expected_family
             ):
-                raise RuntimeError(f"clean demo Catalog binding does not pin {expected_code}")
-            value_keys = {
-                attribute_keys.get(str(value.get("attribute_definition_id")))
-                for value in _content(projected_record).get("values", [])
-                if isinstance(value, Mapping)
-            }
+                raise RuntimeError(f"clean demo {technical_key} has the wrong source-v2 projection")
+            expected_material = {
+                "CMP-246-TECH-DP780": metal,
+                "CMP-246-TECH-POLYMER": polymer,
+                "CMP-246-TECH-ELASTOMER": elastomer,
+            }[technical_key]
+            material_revision = expected_material.get("current_revision")
+            if not isinstance(material_revision, Mapping) or not isinstance(
+                material_revision.get("id"), str
+            ):
+                raise RuntimeError(f"clean demo {technical_key} has no exact Material revision")
+            binding = _json(
+                client.get(
+                    f"/catalog/records/{record['record_id']}/revisions/{revision['id']}"
+                    "/domain-binding"
+                )
+            )
             if (
-                not {
-                    "material_class",
-                    "provider",
-                    "evidence_source",
-                    "condition_summary",
-                }
-                <= value_keys
+                binding.get("kind") != "material"
+                or binding.get("object_id") != expected_material.get("material_id")
+                or binding.get("revision_id") != material_revision["id"]
             ):
-                raise RuntimeError(f"clean demo {expected_code} projection lacks evidence fields")
+                raise RuntimeError(f"clean demo {technical_key} binding is not the exact Material")
         material_links = _items(
             _json(
                 client.get(
-                    f"/catalog/records/{catalog_record['record_id']}/links"
-                    f"?revision_id={catalog_revision['id']}"
+                    f"/catalog/records/{catalog_record_id}/links"
+                    f"?revision_id={catalog_record_revision_id}"
                 )
             )
         )
@@ -1721,21 +1968,145 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         neutral_cards = _items(
             _json(client.get(f"/neutral-materials/{metal_neutral_id}/solver-cards"))
         )
+        if len(neutral_cards) != 2:
+            raise RuntimeError("clean demo Neutral JSON does not have exactly two native cards")
         neutral_solvers = {
             str(card.get("target", {}).get("solver")): card for card in neutral_cards
         }
         if set(neutral_solvers) != {"abaqus", "openradioss"}:
             raise RuntimeError("clean demo Neutral JSON does not have both native cards")
+        neutral_revision_id = metal_neutral.get("neutral_material_revision_id")
+        if not isinstance(neutral_revision_id, str):
+            raise RuntimeError("clean demo Neutral JSON has no exact current revision")
+        selected_model_id = selected_model_record.get("record_id")
+        selected_model_revision_id = selected_model_record.get("record_revision_id")
+        if not isinstance(selected_model_id, str) or not isinstance(
+            selected_model_revision_id, str
+        ):
+            raise RuntimeError("DP780 selected model link has no exact Catalog revision")
+        selected_bindings = _strict_items(
+            _json(
+                client.get(
+                    f"/catalog/records/{selected_model_id}/revisions/"
+                    f"{selected_model_revision_id}/domain-bindings"
+                )
+            ),
+            stage="DP780 selected-model Catalog ownership",
+        )
+        bindings_by_kind: dict[str, list[Mapping[str, Any]]] = {}
+        for selected_binding in selected_bindings:
+            kind = selected_binding.get("kind")
+            if (
+                not isinstance(kind, str)
+                or selected_binding.get("record_id") != selected_model_id
+                or selected_binding.get("record_revision_id") != selected_model_revision_id
+                or not isinstance(selected_binding.get("object_id"), str)
+                or not isinstance(selected_binding.get("revision_id"), str)
+            ):
+                raise RuntimeError("DP780 selected-model Catalog ownership is not exact")
+            bindings_by_kind.setdefault(kind, []).append(selected_binding)
+        expected_binding_kinds = {"material_model", "neutral_material", "neutral_solver_card"}
+        if set(bindings_by_kind) != expected_binding_kinds or any(
+            len(bindings_by_kind[kind]) != (2 if kind == "neutral_solver_card" else 1)
+            for kind in expected_binding_kinds
+        ):
+            raise RuntimeError(
+                "DP780 selected-model Catalog ownership must contain one model, one Neutral, "
+                "and two native-card bindings"
+            )
+        model_revision = metal_model.get("current_revision")
+        if not isinstance(model_revision, Mapping) or not isinstance(model_revision.get("id"), str):
+            raise RuntimeError("clean demo selected Material Model has no exact revision")
+        model_binding = bindings_by_kind["material_model"][0]
+        neutral_binding = bindings_by_kind["neutral_material"][0]
+        if (
+            model_binding.get("object_id") != metal_model.get("material_model_id")
+            or model_binding.get("revision_id") != model_revision.get("id")
+            or neutral_binding.get("object_id") != metal_neutral_id
+            or neutral_binding.get("revision_id") != neutral_revision_id
+        ):
+            raise RuntimeError(
+                "DP780 selected-model Catalog ownership does not pin the exact Model/Neutral"
+            )
+        selected_model_binding_summary: dict[str, Any] = {
+            "material_model": {
+                "object_id": str(model_binding["object_id"]),
+                "revision_id": str(model_binding["revision_id"]),
+            },
+            "neutral_material": {
+                "object_id": str(neutral_binding["object_id"]),
+                "revision_id": str(neutral_binding["revision_id"]),
+            },
+        }
+        card_binding_pairs: set[tuple[str, str]] = set()
         native_downloads: dict[str, str] = {}
+        native_card_revisions: dict[str, str] = {}
         for solver, card in neutral_solvers.items():
-            card_id = str(card["solver_card_id"])
-            native = client.get(f"/neutral-solver-cards/{card_id}/download")
+            card_id = card.get("solver_card_id")
+            card_revision = card.get("current_revision")
+            card_target = card.get("target")
+            if (
+                not isinstance(card_id, str)
+                or not isinstance(card_revision, Mapping)
+                or not isinstance(card_revision.get("id"), str)
+                or card_revision.get("revision_no") != 1
+                or not isinstance(card_target, Mapping)
+                or card.get("neutral_material_id") != metal_neutral_id
+            ):
+                raise RuntimeError(f"clean demo {solver} card has no exact Neutral pin")
+            card_revision_id = str(card_revision["id"])
+            exact_card = _json(
+                client.get(
+                    f"/neutral-solver-cards/{card_id}?revision_id={card_revision_id}"
+                )
+            )
+            exact_card_revision = exact_card.get("current_revision")
+            exact_card_content = (
+                exact_card_revision.get("content")
+                if isinstance(exact_card_revision, Mapping)
+                else None
+            )
+            exact_target = exact_card.get("target")
+            if (
+                exact_card.get("solver_card_id") != card_id
+                or exact_card.get("neutral_material_id") != metal_neutral_id
+                or not isinstance(exact_card_revision, Mapping)
+                or exact_card_revision.get("id") != card_revision_id
+                or exact_card_revision.get("revision_no") != 1
+                or exact_target != card_target
+                or not isinstance(exact_card_content, Mapping)
+                or exact_card_content.get("neutral_material_revision_id") != neutral_revision_id
+            ):
+                raise RuntimeError(f"clean demo {solver} card read-back lost its exact source pin")
+            card_binding_pairs.add((card_id, card_revision_id))
+            native = client.get(
+                f"/neutral-solver-cards/{card_id}/download?revision_id={card_revision_id}"
+            )
             native.raise_for_status()
-            expected = card["current_revision"]["content"]["card_sha256"]
+            expected = card_revision.get("content", {}).get("card_sha256")
+            if not isinstance(expected, str):
+                raise RuntimeError(f"clean demo {solver} card has no committed digest")
             actual = hashlib.sha256(native.content).hexdigest()
             if actual != expected:
                 raise RuntimeError(f"downloaded {solver} card digest does not match")
             native_downloads[solver] = actual
+            native_card_revisions[solver] = card_revision_id
+        card_bindings = bindings_by_kind["neutral_solver_card"]
+        actual_card_binding_pairs = {
+            (str(binding["object_id"]), str(binding["revision_id"]))
+            for binding in card_bindings
+        }
+        if actual_card_binding_pairs != card_binding_pairs:
+            raise RuntimeError(
+                "DP780 selected-model Catalog ownership does not pin both exact native cards"
+            )
+        selected_model_binding_summary["neutral_solver_card"] = {
+            solver: {
+                "object_id": str(card["solver_card_id"]),
+                "revision_id": native_card_revisions[solver],
+            }
+            for solver, card in neutral_solvers.items()
+        }
 
         job = None
         for candidate_job in _items(_json(client.get("/export-jobs"))):
@@ -1787,8 +2158,22 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             manifest = json.loads(package.read("manifest.json"))
 
         result["clean_product_journey"] = {
-            "catalog_record_id": catalog_record["record_id"],
-            "catalog_subset_id": workflow_subset["subset_id"],
+            "catalog_record_id": catalog_record_id,
+            "catalog_record_revision_id": catalog_record_revision_id,
+            "catalog_record_key": "CMP-246-TECH-DP780",
+            "catalog_category_searches": {
+                category: {
+                    "category": category,
+                    "published_only": True,
+                    "total_count": category_totals[category],
+                    "loaded_count": len(category_records[category]),
+                    "external_keys": sorted(
+                        str(_content(item).get("external_key"))
+                        for item in category_records[category]
+                    ),
+                }
+                for category in CATALOG_DATA_CATEGORIES
+            },
             "catalog_direct_link_path": [
                 _content(catalog_record).get("external_key"),
                 fast_tensile.get("external_key"),
@@ -1803,7 +2188,9 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 key for key in meaningful_test_records if key.startswith("CMP-246-FLD-")
             ),
             "selected_model_record_key": "CMP-246-EP-TABULATED",
-            "solver_card_record_key": "CMP-246-SOLVER-ABAQUS",
+            "selected_model_record_id": selected_model_id,
+            "selected_model_record_revision_id": selected_model_revision_id,
+            "selected_model_bindings": selected_model_binding_summary,
             "scalar_distribution_result_id": distribution_result["scalar_distribution_result_id"],
             "scalar_distribution_candidate_count": distribution_candidate_count,
             "mapping_profile_id": profile["mapping_profile_id"],

@@ -476,4 +476,77 @@ describe("MaterialSearchPage navigator and results", () => {
       screen.getByRole("row", { name: /DP780/ }).getAttribute("aria-selected"),
     ).toBe("true");
   });
+
+  it("fails closed for source-v2 legacy filters and clears only those filters while preserving route state", async () => {
+    const requests: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input) => {
+        const url = String(input);
+        requests.push(url);
+        if (url.endsWith("/catalog/tables/demo-material-records/attributes")) {
+          return response({
+            items: [
+              {
+                attribute_definition_id: "source-v2-family",
+                current_revision: {
+                  content: { key: "material_information__family" },
+                },
+              },
+            ],
+          });
+        }
+        if (url.endsWith("/catalog/records:search")) {
+          return response({
+            items: [],
+            total_count: 0,
+            offset: 0,
+            limit: 50,
+            facets: [],
+          });
+        }
+        return response({});
+      }),
+    );
+
+    render(
+      <MaterialSearchPage
+        config={{ baseUrl: "/api/v1", accessToken: "test-token" }}
+        onNavigate={vi.fn()}
+        locationSearch={
+          "?mode=filters&table=demo-material-records&q=DP780&family=polymer&provider=Legacy%20provider&source=Legacy%20source&selected=material-1&offset=50"
+        }
+      />,
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain(
+      "Unsupported legacy provider/source filters",
+    );
+    expect(
+      screen.getByRole("button", { name: "Clear unsupported filters" }),
+    ).toBeTruthy();
+    expect(requests.some((url) => url.endsWith("/catalog/records:search"))).toBe(
+      false,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear unsupported filters" }),
+    );
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+
+    const route = new URL(window.location.href);
+    expect(route.pathname).toBe("/materials");
+    expect(route.searchParams.get("mode")).toBe("filters");
+    expect(route.searchParams.get("table")).toBe("demo-material-records");
+    expect(route.searchParams.get("q")).toBe("DP780");
+    expect(route.searchParams.get("family")).toBe("polymer");
+    expect(route.searchParams.get("selected")).toBe("material-1");
+    expect(route.searchParams.get("offset")).toBeNull();
+    expect(route.searchParams.get("provider")).toBeNull();
+    expect(route.searchParams.get("source")).toBeNull();
+    expect(requests.some((url) => url.endsWith("/catalog/records:search"))).toBe(
+      true,
+    );
+  });
 });

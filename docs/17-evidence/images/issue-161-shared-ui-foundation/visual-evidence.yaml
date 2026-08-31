@@ -84,18 +84,18 @@ crop_policy:
   - readable Administration property workgroup
   - long tree label at its registered 1920 state
 approved_reference_originals:
-- path: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.png
+- path: docs/user-guide/images/current/materials-search-1920x1080.png
   width: 1920
   height: 1080
-  sha256: 57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae
-- path: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png
+  sha256: 462fe3245ba8b3bf84f5308167b99e44586431ebe1cb89fde19aa125f9a911bd
+- path: docs/user-guide/images/current/material-detail-1920x1080.png
   width: 1920
   height: 1080
-  sha256: 8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0
-- path: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png
+  sha256: 1652ed01884b1fe9df14ce3b02a43d166384135f6d6f50c387c06e847e9dbaaf
+- path: docs/user-guide/images/current/solver-card-preview-1920x1080.png
   width: 1920
   height: 1080
-  sha256: 963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4
+  sha256: 06e7eaeec3fcaf4da6ecd8fac3c8b122ca2bb867103aa3a71c2ec9e2b8b02424
 - path: docs/17-evidence/images/issue-167-service-reference/modeling-data-normal-1920x1080.png
   width: 1920
   height: 1080

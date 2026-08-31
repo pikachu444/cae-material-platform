@@ -24,6 +24,11 @@ export async function findDefaultMaterialsTableId(
   const result = await listCatalogExplorerTables(config);
   return (
     result.data.items.find(
+      (table) => table.current_revision.content.key === "technical_data",
+    )?.table_id ??
+    // Keep the legacy fixture as a compatibility fallback for old disposable
+    // workspaces.  A source-v2 workspace always selects technical_data above.
+    result.data.items.find(
       (table) => table.current_revision.content.key === "demo_material_records",
     )?.table_id ?? null
   );
@@ -56,6 +61,22 @@ export interface MaterialCatalogSearchResponse {
   facets: MaterialSearchResponse["facets"];
 }
 
+function sourceFamilyForMaterialClass(value: string): string {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "polymer") return "Plastic";
+  if (normalized === "elastomer") return "Rubber";
+  if (normalized === "metal") return "Metal";
+  return value;
+}
+
+function materialClassForSourceFamily(value: string | null): string {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === "plastic") return "polymer";
+  if (normalized === "rubber") return "elastomer";
+  if (normalized === "metal") return "metal";
+  return value ?? "unclassified";
+}
+
 /** Query the Materials projection for the exact scope selected in Browse. */
 export async function searchMaterialCatalogRecords(
   config: ApiConfig,
@@ -78,9 +99,25 @@ export async function searchMaterialCatalogRecords(
       attribute,
     ]),
   );
-  const classAttribute = attributeByKey.get("material_class");
+  // Source-v2 owns the Materials class projection.  Category and manufacturer
+  // are source fields, not Evidence/Provider facets.
+  const classAttribute =
+    attributeByKey.get("material_information__family") ??
+    attributeByKey.get("material_class");
+  const sourceV2ClassAttribute = attributeByKey.get(
+    "material_information__family",
+  );
   const providerAttribute = attributeByKey.get("provider");
   const evidenceSourceAttribute = attributeByKey.get("evidence_source");
+
+  if (input.provider || input.evidenceSource) {
+    if (sourceV2ClassAttribute || !providerAttribute || !evidenceSourceAttribute) {
+      throw new ApiError(
+        400,
+        "Unsupported legacy provider/source filters. Clear unsupported filters to continue.",
+      );
+    }
+  }
 
   const sortBy =
     input.sortBy === "material_class" && classAttribute ? "attribute" : "name";
@@ -93,7 +130,11 @@ export async function searchMaterialCatalogRecords(
       input.materialClass && classAttribute
         ? {
             attribute_definition_id: classAttribute.attribute_definition_id,
-            values: [input.materialClass],
+            values: [
+              sourceV2ClassAttribute
+                ? sourceFamilyForMaterialClass(input.materialClass)
+                : input.materialClass,
+            ],
           }
         : null,
       input.provider && providerAttribute
@@ -170,8 +211,14 @@ export async function searchMaterialCatalogRecords(
       material_code: content.external_key,
       description: content.description,
       material_family:
-        valueFor(record, "material_family") ?? valueFor(record, "grade"),
-      material_class: valueFor(record, "material_class") ?? "unclassified",
+        valueFor(record, "material_information__family") ??
+        valueFor(record, "material_family") ??
+        valueFor(record, "grade"),
+      material_class: sourceV2ClassAttribute
+        ? materialClassForSourceFamily(
+            valueFor(record, "material_information__family"),
+          )
+        : valueFor(record, "material_class") ?? "unclassified",
       lifecycle_state: record.current_revision.lifecycle_state,
     };
   }
@@ -196,7 +243,12 @@ export async function searchMaterialCatalogRecords(
       limit: result.data.limit,
       facets: {
         material_classes: facetValues(classAttribute).map(
-          ({ value, count }) => ({ material_class: value, count }),
+          ({ value, count }) => ({
+            material_class: sourceV2ClassAttribute
+              ? materialClassForSourceFamily(value)
+              : value,
+            count,
+          }),
         ),
         providers: facetValues(providerAttribute).map(({ value, count }) => ({
           provider: value,

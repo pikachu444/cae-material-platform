@@ -54,15 +54,16 @@ Exact acceptance is satisfied when the affected unit/component/integration and b
 
 Current product authority requires four peer Materials categories and keeps Database/Profile/Table/Folder/Record vocabulary in Administration. Older #167 storage-hierarchy references therefore control only their approved explorer/result/datasheet geometry; they do not authorize the stale `CAE Material Database → Engineering Materials Profile` normal-surface vocabulary. The guide and screenshot manifest now describe the peer-category journey, while registered approved detail references continue to govern their target geometry.
 
-The current guide detail captures and their approved geometry references remain directly comparable:
+The current guide detail captures are now the sole geometry references for this route family; the
+retired #167 static bundle is no longer a live consumer.
 
 | Viewport | Current product | Approved reference |
 | --- | --- | --- |
-| 1366×768 | [current](../user-guide/images/current/material-detail-1366x768.png) | [approved #167 reference](images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.png) |
-| 1440×900 | [current](../user-guide/images/current/material-detail-1440x900.png) | [approved #167 reference](images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.png) |
-| 1920×1080 | [current](../user-guide/images/current/material-detail-1920x1080.png) | [approved #167 reference](images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png) |
-| 2560×1440 | [current](../user-guide/images/current/material-detail-2560x1440.png) | [approved #167 wide-screen reference](images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png) |
-| 3840×2160 | [current](../user-guide/images/current/material-detail-3840x2160.png) | [approved #167 wide-screen reference](images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png) |
+| 1366×768 | [current](../user-guide/images/current/material-detail-1366x768.png) | current product evidence |
+| 1440×900 | [current](../user-guide/images/current/material-detail-1440x900.png) | current product evidence |
+| 1920×1080 | [current](../user-guide/images/current/material-detail-1920x1080.png) | current product evidence |
+| 2560×1440 | [current](../user-guide/images/current/material-detail-2560x1440.png) | current product evidence |
+| 3840×2160 | [current](../user-guide/images/current/material-detail-3840x2160.png) | current product evidence |
 
 ## Visual evidence
 

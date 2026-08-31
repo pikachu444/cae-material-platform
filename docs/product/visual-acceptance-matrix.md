@@ -4,14 +4,18 @@ Status: authoritative visual review gate
 
 ## Reference registration and review gate
 
-Before production React/CSS work, use #167's approved static HTML/CSS and rendered image for
-every target screen/state. The register records direct source/image paths, image hash, viewport, date,
-status, main-agent evaluation and product-owner approval. Required coverage is Materials
-search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery; and
-Administration database/table/attribute/layout/subset/link/access edit/publish. The approved #167
-reference inventory remains 1366×768, 1440×900, and 1920×1080; every user-visible React/CSS change
-also supplies deterministic 2560×1440 and 3840×2160 responsive evidence plus relevant long, empty,
-loading, blocked, and error states.
+Before production React/CSS work, use the registered service-reference inventory and its approved
+static HTML/CSS or current-product capture for every target screen/state. The register records direct
+source/image paths, image hash, viewport, date, status, main-agent evaluation and product-owner
+approval. Materials search/detail/card targets use the source-v2 current-product evidence lifecycle
+and the screenshot manifest's exact route, image and viewport mapping; their Phase-A entries may be
+marked `operational-evidence-accepted` for temporary behavior/read-back evidence, but that status is
+not visual-quality approval and keeps the visual-quality disposition pending. Required coverage
+is Materials search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery;
+and Administration database/table/attribute/layout/subset/link/access edit/publish. The historical
+static inventory remains available only for targets that have not been converted; every user-visible
+React/CSS change also supplies deterministic 2560×1440 and 3840×2160 responsive evidence plus
+relevant long, empty, loading, blocked, and error states.
 
 References are implementation authority, not vague inspiration: port their region structure and CSS
 faithfully while preserving backend/state/domain contracts. Each later visual PR gives the main
@@ -296,8 +300,11 @@ Additional checks:
 
 ## Reference and approval disposition
 
-#167's approved target inventory is `service-reference-inventory.yaml`; exact HTML/CSS/image/hash and
-approval records are in `service-reference-manifest.yaml`. External Materials references include:
+The approved target inventory is `service-reference-inventory.yaml`; exact HTML/CSS/image/hash and
+approval records are in `service-reference-manifest.yaml`. Current Materials evidence resolves
+through `docs/user-guide/screenshot-manifest.yaml` using the exact search, datasheet and solver-card
+routes; it does not import an approved-reference list from a capture or form a circular reference.
+External Materials reference assets include:
 `docs/00-research/images/gui-reference/granta-profile.png`,
 `docs/00-research/images/gui-reference/granta-list-results.png`, and
 `docs/00-research/images/gui-reference/granta-datasheet-embedded.png`. Administration references:
@@ -308,8 +315,8 @@ approval records are in `service-reference-manifest.yaml`. External Materials re
 `modeler-start-data.png`, `modeler-youngs-auto.png`, `modeler-youngs-manual.png`,
 `modeler-necking-point.png`, `modeler-fit-extrapolation.png`, `modeler-create-cae-card.png`, and
 `modeler-cae-card-details.png` in `docs/00-research/images/gui-reference/README.md`. These external
-images explain product grammar but do not override the approved #167 target. Target approval never
-marks a production route complete; live implementation still requires browser evidence and approval.
+images explain product grammar but do not override the registered target. Target approval never marks
+a production route complete; live implementation still requires browser evidence and approval.
 
 ## Required measurement report
 

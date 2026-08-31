@@ -6,6 +6,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any
 
+import httpx
 import pytest
 
 _SCRIPTS = Path(__file__).parents[2] / "scripts"
@@ -26,6 +27,9 @@ domain_binding_kind = _VERIFY_FULL_DEMO._domain_binding_kind
 domain_binding_kinds = _VERIFY_FULL_DEMO._domain_binding_kinds
 exact_forward_link_target = _VERIFY_FULL_DEMO._exact_forward_link_target
 meaningful_demo_records = _VERIFY_FULL_DEMO._meaningful_demo_records
+catalog_category_search = _VERIFY_FULL_DEMO._catalog_category_search
+source_v2_technical_schema = _VERIFY_FULL_DEMO._source_v2_technical_schema
+source_v2_technical_sections = _VERIFY_FULL_DEMO.SOURCE_V2_TECHNICAL_ATTRIBUTE_SECTIONS
 meaningful_demo_test_names = _VERIFY_FULL_DEMO.MEANINGFUL_DEMO_TEST_RECORDS
 meaningful_demo_simulation_names = _VERIFY_FULL_DEMO.MEANINGFUL_DEMO_SIMULATION_RECORDS
 meaningful_demo_binding_kinds = _VERIFY_FULL_DEMO.MEANINGFUL_DEMO_BINDING_KINDS
@@ -343,7 +347,7 @@ def test_meaningful_demo_record_set_is_small_distinct_and_exactly_bound() -> Non
     )
 
     assert set(found) == set(expected_names)
-    assert len(found) == 13
+    assert len(found) == 12
 
 
 @pytest.mark.parametrize(
@@ -382,3 +386,144 @@ def test_meaningful_demo_record_failure_identifies_the_conflicting_stage(
             expected_names=expected_names,
             stage="meaningful Demo Test Data",
         )
+
+
+class _CategorySearchClient:
+    def __init__(self, payload: dict[str, object]) -> None:
+        self.payload = payload
+        self.calls: list[tuple[str, dict[str, object]]] = []
+
+    def post(self, path: str, *, json: dict[str, object]) -> httpx.Response:
+        self.calls.append((path, json))
+        return httpx.Response(
+            200,
+            json=self.payload,
+            request=httpx.Request("POST", "http://test" + path),
+        )
+
+
+def test_catalog_category_search_preserves_category_xor_and_loaded_totals() -> None:
+    client = _CategorySearchClient(
+        {
+            "items": [{"record_id": "record-1"}],
+            "total_count": 1,
+            "offset": 0,
+            "limit": 100,
+            "facets": [],
+        }
+    )
+
+    records, total = catalog_category_search(client, "solver_cards")
+
+    assert len(records) == 1
+    assert total == 1
+    assert client.calls == [
+        (
+            "/catalog/records:search",
+            {
+                "table_id": None,
+                "data_category": "solver_cards",
+                "offset": 0,
+                "limit": 100,
+                "published_only": True,
+            },
+        )
+    ]
+
+
+def test_catalog_category_search_rejects_a_partial_published_page() -> None:
+    client = _CategorySearchClient(
+        {
+            "items": [{"record_id": "record-1"}],
+            "total_count": 2,
+            "offset": 0,
+            "limit": 100,
+            "facets": [],
+        }
+    )
+
+    with pytest.raises(RuntimeError, match="incomplete"):
+        catalog_category_search(client, "test_data")
+
+
+def _technical_schema_fixture() -> tuple[
+    dict[str, object], list[dict[str, object]], list[dict[str, object]]
+]:
+    table: dict[str, object] = {"current_revision": {"id": "table-r1", "revision_no": 1}}
+    attributes: list[dict[str, object]] = []
+    items: list[dict[str, object]] = []
+    for ordinal, (key, section) in enumerate(source_v2_technical_sections.items()):
+        attribute_id = f"attribute-{ordinal}"
+        attributes.append(
+            {
+                "attribute_definition_id": attribute_id,
+                "current_revision": {
+                    "id": f"{attribute_id}-r1",
+                    "revision_no": 1,
+                    "content": {"key": key},
+                },
+            }
+        )
+        items.append(
+            {
+                "attribute_definition_id": attribute_id,
+                "attribute_definition_revision_id": f"{attribute_id}-r1",
+                "section": section,
+                "ordinal": ordinal,
+            }
+        )
+    layouts: list[dict[str, object]] = [
+        {
+            "table_revision_id": "table-r1",
+            "revision": {"revision_no": 1},
+            "name": "Technical Data default layout",
+            "items": items,
+        }
+    ]
+    return table, attributes, layouts
+
+
+def test_source_v2_technical_schema_rejects_a_legacy_attribute_key() -> None:
+    table, attributes, layouts = _technical_schema_fixture()
+
+    attributes[0]["current_revision"]["content"]["key"] = "material_class"  # type: ignore[index]
+
+    with pytest.raises(RuntimeError, match="Attribute keys differ"):
+        source_v2_technical_schema(table, attributes, layouts, stage="source-v2 schema")
+
+
+def test_source_v2_technical_schema_accepts_exact_keys_sections_and_layout_revisions() -> None:
+    table, attributes, layouts = _technical_schema_fixture()
+
+    attribute_keys = source_v2_technical_schema(
+        table, attributes, layouts, stage="source-v2 schema"
+    )
+
+    assert set(attribute_keys.values()) == set(source_v2_technical_sections)
+
+
+def test_source_v2_solver_metadata_is_exactly_unbound_from_native_cards() -> None:
+    key = "CMP-246-SOLVER-ABAQUS"
+    name = "DP780 Abaqus native material card · synthetic reference"
+    description = (
+        "Synthetic non-production card generated through the existing Neutral Material "
+        "solver-card flow; it does not define solver policy."
+    )
+    record = {
+        "record_id": "solver-metadata-record",
+        "current_revision": {
+            "id": "solver-metadata-r1",
+            "revision_no": 1,
+            "content": {"external_key": key, "name": name, "description": description},
+        },
+    }
+
+    found = meaningful_demo_records(
+        [record],
+        expected_names={key: name},
+        stage="source-v2 simulation metadata",
+        expected_descriptions={key: description},
+        expected_binding_kinds={key: None},
+    )
+
+    assert found[key]["record_id"] == "solver-metadata-record"

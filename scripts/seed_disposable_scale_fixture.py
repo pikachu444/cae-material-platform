@@ -15,19 +15,12 @@ FIXTURE_COUNT = 1_000
 PAGE_SIZE = 50
 FIXTURE_PREFIX = "CMP-SCALE-"
 EXACT_LOOKUP_INDEX = 731
+SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS = 60.0
 PROJECT_PATTERN = re.compile(r"^cmp-demo-test-[a-z0-9][a-z0-9-]{0,31}$")
 DISPOSABLE_MARKER = "CMP_DISPOSABLE_PROJECT_NAME"
 DESCRIPTION = "Disposable synthetic scale metadata; no curve or production use."
-PROVIDERS = (
-    "Disposable Lab A",
-    "Disposable Lab B",
-    "Disposable Lab C",
-    "Disposable Lab D",
-)
-EVIDENCE_SOURCES = (
-    "Synthetic metadata only",
-    "Synthetic index only",
-)
+SOURCE_V2_FAMILIES = ("Metal", "Plastic", "Rubber")
+SOURCE_V2_FAMILY_COUNTS = {"Metal": 500, "Plastic": 300, "Rubber": 200}
 CONDITIONS = (
     "Ambient synthetic metadata",
     "Cold synthetic metadata",
@@ -40,11 +33,16 @@ class ScaleRecordSpec:
     index: int
     code: str
     name: str
-    material_class: str
     material_family: str
-    provider: str
-    evidence_source: str
+    category: str
+    grade: str
     condition: str
+
+    @property
+    def material_class(self) -> str:
+        """Compatibility name for the source-v2 Family -> Material class projection."""
+
+        return self.material_family
 
 
 def validate_disposable_context(project_name: str, marker: str | None) -> str:
@@ -66,24 +64,20 @@ def scale_record_spec(index: int) -> ScaleRecordSpec:
     if not 0 <= index < FIXTURE_COUNT:
         raise ValueError(f"scale fixture index must be in [0, {FIXTURE_COUNT}): {index}")
     if index < 500:
-        material_class = "metal"
-        material_family = "dual-phase steel"
+        material_family = "Metal"
     elif index < 800:
-        material_class = "polymer"
-        material_family = "linear viscoelastic polymer"
+        material_family = "Plastic"
     else:
-        material_class = "elastomer"
-        material_family = "Ogden hyper-viscoelastic elastomer"
+        material_family = "Rubber"
     code = f"{FIXTURE_PREFIX}{index:04d}"
     condition = CONDITIONS[index % len(CONDITIONS)]
     return ScaleRecordSpec(
         index=index,
         code=code,
-        name=f"Disposable scale material {index:04d} · {material_class} · {condition}",
-        material_class=material_class,
+        name=f"Disposable scale material {index:04d} · {material_family} · {condition}",
         material_family=material_family,
-        provider=PROVIDERS[index % len(PROVIDERS)],
-        evidence_source=EVIDENCE_SOURCES[0] if index % 5 < 3 else EVIDENCE_SOURCES[1],
+        category="Disposable synthetic scale",
+        grade=f"SCALE-{index:04d}",
         condition=condition,
     )
 
@@ -137,12 +131,12 @@ def _catalog_resources(
         (
             item
             for item in _items(api.get("/catalog/tables"))
-            if _content(item).get("key") == "demo_material_records"
+            if _content(item).get("key") == "technical_data"
         ),
         None,
     )
     if table is None:
-        raise DemoSeedError("full demo Catalog table demo_material_records is missing")
+        raise DemoSeedError("full demo Catalog table technical_data is missing")
     table_id = _stable_id(table, "table_id")
     attributes = {
         str(_content(item).get("key")): item
@@ -150,19 +144,24 @@ def _catalog_resources(
         if _content(item).get("key")
     }
     required = {
-        "material_code",
-        "material_class",
-        "material_family",
-        "provider",
-        "evidence_source",
-        "condition_summary",
-        "grade",
+        "material_information__family",
+        "material_information__category",
+        "material_information__grade",
+        "material_information__details",
+        "data_information__record_name",
+        "data_information__technical_data_id",
     }
     missing = sorted(required - attributes.keys())
     if missing:
         raise DemoSeedError(
             "full demo Catalog table is missing scale fixture attributes: "
             + ", ".join(missing)
+        )
+    forbidden = sorted({"provider", "evidence_source"}.intersection(attributes))
+    if forbidden:
+        raise DemoSeedError(
+            "source-v2 technical_data must not expose legacy Provider/Evidence attributes: "
+            + ", ".join(forbidden)
         )
     return table, attributes
 
@@ -184,13 +183,12 @@ def _record_values(
     attributes: Mapping[str, Mapping[str, Any]], spec: ScaleRecordSpec
 ) -> list[dict[str, str]]:
     return [
-        _text_value(attributes, "material_code", spec.code),
-        _text_value(attributes, "material_class", spec.material_class),
-        _text_value(attributes, "material_family", spec.material_family),
-        _text_value(attributes, "provider", spec.provider),
-        _text_value(attributes, "evidence_source", spec.evidence_source),
-        _text_value(attributes, "condition_summary", spec.condition),
-        _text_value(attributes, "grade", f"Scale-{spec.index:04d}"),
+        _text_value(attributes, "material_information__family", spec.material_family),
+        _text_value(attributes, "material_information__category", spec.category),
+        _text_value(attributes, "material_information__grade", spec.grade),
+        _text_value(attributes, "material_information__details", spec.condition),
+        _text_value(attributes, "data_information__record_name", spec.name),
+        _text_value(attributes, "data_information__technical_data_id", spec.code),
     ]
 
 
@@ -211,7 +209,11 @@ def _create_scale_record(
                     "name": spec.name,
                     "material_code": spec.code,
                     "material_family": spec.material_family,
-                    "material_class": spec.material_class,
+                    "material_class": {
+                        "Metal": "metal",
+                        "Plastic": "polymer",
+                        "Rubber": "elastomer",
+                    }[spec.material_family],
                     "description": DESCRIPTION,
                 },
                 "change_reason": "Create disposable synthetic scale-search metadata.",
@@ -258,22 +260,25 @@ def _search(
     offset: int = 0,
     limit: int = PAGE_SIZE,
     facet_attribute_ids: Sequence[str] = (),
+    published_only: bool = False,
+    timeout: float | None = None,
 ) -> dict[str, Any]:
-    return api.post(
-        "/catalog/records:search",
-        {
-            "table_id": table_id,
-            "text": text,
-            "discrete_filters": [],
-            "number_filters": [],
-            "facet_attribute_ids": list(facet_attribute_ids),
-            "offset": offset,
-            "limit": limit,
-            "domain_binding_kind": "material",
-            "sort_by": "external_key",
-            "sort_direction": "ascending",
-        },
-    )
+    payload = {
+        "table_id": table_id,
+        "text": text,
+        "discrete_filters": [],
+        "number_filters": [],
+        "facet_attribute_ids": list(facet_attribute_ids),
+        "offset": offset,
+        "limit": limit,
+        "domain_binding_kind": "material",
+        "sort_by": "external_key",
+        "sort_direction": "ascending",
+        "published_only": published_only,
+    }
+    if timeout is None:
+        return api.post("/catalog/records:search", payload)
+    return api.post("/catalog/records:search", payload, timeout=timeout)
 
 
 def _ensure_exact_lookup_publication(
@@ -281,7 +286,7 @@ def _ensure_exact_lookup_publication(
     reviewer_api: DemoApi,
     record: Mapping[str, Any],
 ) -> None:
-    """Approve only the representative exact-lookup record revision."""
+    """Approve one exact source-v2 Record revision through the review API."""
 
     record_id = _stable_id(record, "record_id")
     revision_id = _revision_id(record)
@@ -316,7 +321,7 @@ def _ensure_exact_lookup_publication(
                 "revision_id": revision_id,
                 "manifest_sha256": manifest_sha256,
                 "reason": (
-                    "Expose one disposable synthetic exact-lookup record "
+                    "Expose one disposable synthetic source-v2 Record "
                     "for browser verification."
                 ),
             },
@@ -327,9 +332,35 @@ def _ensure_exact_lookup_publication(
             {
                 "expected_manifest_sha256": manifest_sha256,
                 "decision": "approved",
-                "reason": "Approve only the disposable exact-lookup sample revision.",
+                "reason": "Approve the disposable exact source-v2 Record revision.",
             },
         )
+
+
+def _publish_all_records(
+    api: DemoApi,
+    reviewer_api: DemoApi,
+    *,
+    table_id: str,
+) -> None:
+    """Approve every exact fixture Record, reusing existing decisions idempotently."""
+
+    for offset in range(0, FIXTURE_COUNT, PAGE_SIZE):
+        page = _search(
+            api,
+            table_id=table_id,
+            text=FIXTURE_PREFIX,
+            offset=offset,
+            published_only=False,
+            timeout=SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS,
+        )
+        items = _items(page)
+        if len(items) != PAGE_SIZE:
+            raise DemoSeedError(
+                f"scale fixture publication page at offset {offset} returned {len(items)} records"
+            )
+        for record in items:
+            _ensure_exact_lookup_publication(api, reviewer_api, record)
 
 
 def _publish_exact_lookup_sample(
@@ -374,7 +405,7 @@ def verify_scale_fixture(
 ) -> dict[str, object]:
     table_id = _stable_id(table, "table_id")
     specs = fixture_specs()
-    facet_keys = ("material_class", "provider", "evidence_source")
+    facet_keys = ("material_information__family",)
     facet_ids = tuple(
         _stable_id(attributes[key], "attribute_definition_id") for key in facet_keys
     )
@@ -383,6 +414,8 @@ def verify_scale_fixture(
         table_id=table_id,
         text=FIXTURE_PREFIX,
         facet_attribute_ids=facet_ids,
+        published_only=True,
+        timeout=SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS,
     )
     if first_page.get("total_count") != FIXTURE_COUNT:
         raise DemoSeedError(
@@ -397,6 +430,8 @@ def verify_scale_fixture(
             table_id=table_id,
             text=FIXTURE_PREFIX,
             offset=offset,
+            published_only=True,
+            timeout=SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS,
         )
         items = _items(page)
         if page.get("offset") != offset or page.get("limit") != PAGE_SIZE:
@@ -437,9 +472,9 @@ def verify_scale_fixture(
         raise DemoSeedError("scale fixture records must remain metadata-only without curve copies")
 
     expected_facets = {
-        "material_class": dict(Counter(spec.material_class for spec in specs)),
-        "provider": dict(Counter(spec.provider for spec in specs)),
-        "evidence_source": dict(Counter(spec.evidence_source for spec in specs)),
+        "material_information__family": dict(
+            Counter(spec.material_family for spec in specs)
+        ),
     }
     actual_facets = {
         key: _facet_counts(first_page, attribute_id)
@@ -476,30 +511,15 @@ def verify_scale_fixture(
                 f"metadata-only scale fixture Material unexpectedly has {collection}"
             )
 
-    empty = _search(api, table_id=table_id, text=f"{FIXTURE_PREFIX}NOT-FOUND", limit=10)
+    empty = _search(
+        api,
+        table_id=table_id,
+        text=f"{FIXTURE_PREFIX}NOT-FOUND",
+        limit=10,
+        timeout=SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS,
+    )
     if empty.get("total_count") != 0 or _items(empty):
         raise DemoSeedError("scale fixture empty lookup returned records")
-
-    representative = _search(api, table_id=table_id, text="CMP-DEMO-DP780", limit=20)
-    representative_record = next(
-        (
-            item
-            for item in _items(representative)
-            if _content(item).get("external_key") == "CMP-DEMO-DP780"
-        ),
-        None,
-    )
-    representative_curves = (
-        [
-            value
-            for value in _content(representative_record).get("values", [])
-            if isinstance(value, Mapping) and value.get("data_type") == "curve"
-        ]
-        if representative_record is not None
-        else []
-    )
-    if not representative_curves:
-        raise DemoSeedError("existing DP780 representative curve record is missing")
 
     return {
         "record_count": FIXTURE_COUNT,
@@ -508,8 +528,10 @@ def verify_scale_fixture(
         "page_count": FIXTURE_COUNT // PAGE_SIZE,
         "facet_counts": actual_facets,
         "scale_curve_values": 0,
-        "representative_record": "CMP-DEMO-DP780",
-        "representative_curve_values": len(representative_curves),
+        "representative_record": exact_spec.code,
+        "representative_curve_values": 0,
+        "family_counts": SOURCE_V2_FAMILY_COUNTS,
+        "unsupported_filter_recovery": True,
     }
 
 
@@ -531,10 +553,16 @@ def seed_disposable_scale_fixture(
     table, attributes = _catalog_resources(api)
     table_id = _stable_id(table, "table_id")
     table_revision_id = _revision_id(table)
-    existing = _search(api, table_id=table_id, text=FIXTURE_PREFIX, limit=1)
+    existing = _search(
+        api,
+        table_id=table_id,
+        text=FIXTURE_PREFIX,
+        limit=1,
+        timeout=SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS,
+    )
     existing_count = existing.get("total_count")
     if existing_count == FIXTURE_COUNT:
-        _publish_exact_lookup_sample(api, reviewer_api, table_id=table_id)
+        _publish_all_records(api, reviewer_api, table_id=table_id)
         report = verify_scale_fixture(api, table=table, attributes=attributes)
         return {"project": project, "created": 0, **report}
     if existing_count != 0:
@@ -568,7 +596,7 @@ def seed_disposable_scale_fixture(
                 future.cancel()
             raise
 
-    _publish_exact_lookup_sample(api, reviewer_api, table_id=table_id)
+    _publish_all_records(api, reviewer_api, table_id=table_id)
     report = verify_scale_fixture(api, table=table, attributes=attributes)
     return {"project": project, "created": FIXTURE_COUNT, **report}
 

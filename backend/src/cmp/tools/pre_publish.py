@@ -1123,6 +1123,7 @@ def _revalidate_change(
 def run_pre_publish_pipeline(
     project: Path,
     *,
+    final_publication: bool = False,
     independent_reviews: bool = False,
     runner: ReviewerRunner | None = None,
     cache_root: Path | None = None,
@@ -1154,7 +1155,12 @@ def run_pre_publish_pipeline(
     emit(f"pre-publish 3/{step_total}: documentation impact")
     documentation_check(root)
     emit(f"pre-publish 4/{step_total}: deterministic repository checks")
-    deterministic_check(root, change)
+    if deterministic_check is _default_deterministic_check:
+        # The command-line publication boundary opts into the stricter
+        # evidence phase without changing injectable unit-test checks.
+        verify_user_guide(root, final_publication=final_publication)
+    else:
+        deterministic_check(root, change)
     if not independent_reviews:
         inputs = _fingerprint_inputs(
             change,
@@ -1515,6 +1521,7 @@ def main() -> int:
             )
         fingerprint = run_pre_publish_pipeline(
             args.root,
+            final_publication=True,
             independent_reviews=args.independent_review,
             publication_target=publication_target,
         )

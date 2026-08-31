@@ -1458,10 +1458,11 @@ export function MaterialDetailPage({
   const propertySet = currentProperty(experience);
   const property = propertySet?.current_revision.content;
   const catalogRoot = experience.graph?.root ?? null;
-  const preferredCard =
-    experience.cards.find((card) => card.solver === "OpenRadioss") ??
-    experience.cards[0] ??
-    null;
+  // A direct header action is unambiguous only when this exact Material
+  // revision owns one card.  With multiple bound cards, keep all identities
+  // visible in the Cards tab instead of selecting a solver or first item by
+  // inference.
+  const soleCard = experience.cards.length === 1 ? experience.cards[0] : null;
   const neutralMaterial = neutralMaterialBinding(experience);
   const relatedLinks = directRelatedRecords(
     experience.graph,
@@ -1533,13 +1534,21 @@ export function MaterialDetailPage({
           ) : null}
         </div>
         <div className="card-action-row">
-          {preferredCard ? (
+          {soleCard ? (
             <SolverCardAction
               config={config}
-              card={preferredCard}
+              card={soleCard}
               material={deliveryMaterial(material)}
               onNavigate={navigateDetail}
             />
+          ) : experience.cards.length > 1 ? (
+            <button
+              className="ux-button primary"
+              type="button"
+              onClick={() => navigateDetail(`/materials/${materialId}/cards`)}
+            >
+              View solver cards
+            </button>
           ) : neutralMaterial ? (
             <button
               className="ux-button primary"

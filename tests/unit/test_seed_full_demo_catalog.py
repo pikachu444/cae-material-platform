@@ -227,6 +227,135 @@ def test_issue342_schema_apply_uses_only_the_bounded_extended_timeout() -> None:
     )
 
 
+class _SourceV2PreflightApi:
+    def __init__(
+        self,
+        *,
+        records: Mapping[str, Mapping[str, Any]] | None = None,
+        bindings: Mapping[str, list[Mapping[str, Any]]] | None = None,
+    ) -> None:
+        manifest, entries = _SEED_FULL_DEMO._source_v2_fixture_manifest()
+        del manifest
+        self.table_ids = {
+            table_key: f"{table_key}-id"
+            for table_key in _SEED_FULL_DEMO._SOURCE_V2_TABLE_KEYS
+        }
+        self.entries = entries
+        self.records = dict(records or {})
+        self.bindings = {key: list(value) for key, value in (bindings or {}).items()}
+
+    def get(self, path: str) -> dict[str, Any]:
+        if path == "/catalog/tables":
+            return {
+                "items": [
+                    {
+                        "table_id": table_id,
+                        "current_revision": {"content": {"key": table_key}},
+                    }
+                    for table_key, table_id in sorted(self.table_ids.items())
+                ]
+            }
+        marker = "/catalog/records/"
+        if marker in path and path.endswith("/domain-bindings"):
+            record_id = path.split("/")[3]
+            return {"items": self.bindings.get(record_id, [])}
+        raise AssertionError(f"unexpected GET {path}")
+
+    def post(self, path: str, payload: Mapping[str, Any]) -> dict[str, Any]:
+        assert path == "/catalog/records:search"
+        table_id = payload["table_id"]
+        external_key = payload["text"]
+        table_key = next(key for key, value in self.table_ids.items() if value == table_id)
+        entry = self.entries.get(external_key)
+        if entry is None:
+            return {"items": []}
+        wrapper_to_table = {
+            "technical-data": "technical_data",
+            "tensile-test": "tensile_test",
+            "dma-test": "dma_test",
+            "fld-test": "fld_test",
+            "elastoplasticity": "elastoplasticity_data",
+            "statistics": "statistics_data",
+        }
+        if wrapper_to_table[entry["wrapper"]] != table_key:
+            return {"items": []}
+        value = self.records.get(external_key)
+        if value is None:
+            return {"items": []}
+        return {"items": [value]}
+
+
+def _source_v2_records() -> dict[str, dict[str, Any]]:
+    _, entries = _SEED_FULL_DEMO._source_v2_fixture_manifest()
+    return {
+        key: {
+            "record_id": f"record-{index}",
+            "current_revision": {
+                "id": f"record-{index}-r1",
+                "revision_no": 1,
+                "content": {"external_key": key},
+            },
+        }
+        for index, key in enumerate(entries, 1)
+    }
+
+
+def test_source_v2_preflight_rejects_legacy_table_before_mutation() -> None:
+    api = _SourceV2PreflightApi()
+    api.table_ids = {"demo_material_records": "legacy-id"}
+
+    with pytest.raises(_SEED_FULL_DEMO.DemoSeedError, match="legacy demo_material_records"):
+        _SEED_FULL_DEMO._preflight_source_v2_catalog_state(api)
+
+
+def test_source_v2_preflight_rejects_partial_tables_and_records() -> None:
+    api = _SourceV2PreflightApi()
+    api.table_ids.pop("statistics_data")
+    with pytest.raises(_SEED_FULL_DEMO.DemoSeedError, match="partial table installation"):
+        _SEED_FULL_DEMO._preflight_source_v2_catalog_state(api)
+
+    records = _source_v2_records()
+    api = _SourceV2PreflightApi(
+        records={"CMP-246-TECH-DP780": records["CMP-246-TECH-DP780"]}
+    )
+    with pytest.raises(_SEED_FULL_DEMO.DemoSeedError, match="partial fifteen-Record"):
+        _SEED_FULL_DEMO._preflight_source_v2_catalog_state(api)
+
+
+def test_source_v2_preflight_accepts_exact_r1_and_rejects_conflicting_owner() -> None:
+    records = _source_v2_records()
+    tabulated_record_id = records["CMP-246-EP-TABULATED"]["record_id"]
+    api = _SourceV2PreflightApi(
+        records=records,
+        bindings={
+            tabulated_record_id: [
+                {"kind": "material_model", "object_id": "model-1", "revision_id": "model-r1"}
+            ]
+        },
+    )
+    expected = {"CMP-246-EP-TABULATED": ("material_model", "model-1", "model-r1")}
+    assert _SEED_FULL_DEMO._preflight_source_v2_catalog_state(
+        api, domain_targets=expected
+    ) == records
+
+    record_id = records["CMP-246-EP-TABULATED"]["record_id"]
+    api.bindings[record_id] = [
+        {"kind": "material_model", "object_id": "different", "revision_id": "model-r1"}
+    ]
+    with pytest.raises(_SEED_FULL_DEMO.DemoSeedError, match="conflicting domain owner"):
+        _SEED_FULL_DEMO._preflight_source_v2_catalog_state(api, domain_targets=expected)
+
+
+def test_source_v2_preflight_rejects_revised_record_without_guessing() -> None:
+    records = _source_v2_records()
+    revised = records["CMP-246-TECH-DP780"]
+    revised["current_revision"]["revision_no"] = 2
+    api = _SourceV2PreflightApi(records=records)
+
+    with pytest.raises(_SEED_FULL_DEMO.DemoSeedError, match="immutable r1"):
+        _SEED_FULL_DEMO._preflight_source_v2_catalog_state(api)
+
+
 def test_catalog_attribute_contract_repairs_units_and_semantics_idempotently() -> None:
     desired = _SEED_FULL_DEMO._catalog_attribute_updates(
         table_revision_id="table-r1",

@@ -435,7 +435,13 @@ class CatalogLinkService:
         revision_id: UUID,
         *,
         published_only: bool = False,
+        endpoint_cache: dict[tuple[UUID, UUID, bool], LinkEndpoint] | None = None,
     ) -> LinkEndpoint:
+        cache_key = (record_id, revision_id, published_only)
+        if endpoint_cache is not None:
+            cached = endpoint_cache.get(cache_key)
+            if cached is not None:
+                return cached
         revision = self._records.get_record_revision(
             context=context,
             decision=decision,
@@ -493,7 +499,7 @@ class CatalogLinkService:
                 ):
                     filtered_bindings.append(binding)
             domain_bindings = tuple(filtered_bindings)
-        return LinkEndpoint(
+        endpoint = LinkEndpoint(
             record_id=record_id,
             record_revision_id=revision_id,
             revision_no=revision.record.revision_no,
@@ -504,6 +510,9 @@ class CatalogLinkService:
             domain_bindings=domain_bindings,
             data_category=table_revision.content.data_category,
         )
+        if endpoint_cache is not None:
+            endpoint_cache[cache_key] = endpoint
+        return endpoint
 
     def bind_domain_revision(
         self,
@@ -768,14 +777,21 @@ class CatalogLinkService:
         link: RecordLinkSnapshot,
         *,
         published_only: bool = False,
+        endpoint_cache: dict[tuple[UUID, UUID, bool], LinkEndpoint] | None = None,
+        link_type_cache: dict[tuple[UUID, UUID], ConfigRevision[LinkTypeContent]] | None = None,
     ) -> RecordLinkView:
         content = link.current.content
-        link_type = self._repository.get_link_type_revision(
-            context=context,
-            decision=decision,
-            link_type_id=content.link_type_id,
-            revision_id=content.link_type_revision_id,
-        )
+        link_type_key = (content.link_type_id, content.link_type_revision_id)
+        link_type = link_type_cache.get(link_type_key) if link_type_cache is not None else None
+        if link_type is None:
+            link_type = self._repository.get_link_type_revision(
+                context=context,
+                decision=decision,
+                link_type_id=content.link_type_id,
+                revision_id=content.link_type_revision_id,
+            )
+            if link_type_cache is not None:
+                link_type_cache[link_type_key] = link_type
         return RecordLinkView(
             link,
             link_type,
@@ -785,6 +801,7 @@ class CatalogLinkService:
                 content.source_record_id,
                 content.source_record_revision_id,
                 published_only=published_only,
+                endpoint_cache=endpoint_cache,
             ),
             self._record_endpoint(
                 context,
@@ -792,6 +809,7 @@ class CatalogLinkService:
                 content.target_record_id,
                 content.target_record_revision_id,
                 published_only=published_only,
+                endpoint_cache=endpoint_cache,
             ),
         )
 
@@ -805,6 +823,29 @@ class CatalogLinkService:
         include_inactive: bool = False,
         published_only: bool = False,
     ) -> tuple[RecordLinkView, ...]:
+        return self._list_record_links(
+            context,
+            decision,
+            record_id,
+            record_revision_id=record_revision_id,
+            include_inactive=include_inactive,
+            published_only=published_only,
+            endpoint_cache=None,
+            link_type_cache=None,
+        )
+
+    def _list_record_links(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        *,
+        record_revision_id: UUID | None = None,
+        include_inactive: bool = False,
+        published_only: bool = False,
+        endpoint_cache: dict[tuple[UUID, UUID, bool], LinkEndpoint] | None,
+        link_type_cache: dict[tuple[UUID, UUID], ConfigRevision[LinkTypeContent]] | None,
+    ) -> tuple[RecordLinkView, ...]:
         _require(context, decision, Permission.CATALOG_READ)
         if published_only:
             self._record_endpoint(
@@ -817,6 +858,7 @@ class CatalogLinkService:
                     context=context, decision=decision, record_id=record_id
                 ).current.record.revision_id,
                 published_only=True,
+                endpoint_cache=endpoint_cache,
             )
         else:
             self._records.get_record(context=context, decision=decision, record_id=record_id)
@@ -830,7 +872,16 @@ class CatalogLinkService:
         visible: list[RecordLinkView] = []
         for link in links:
             try:
-                visible.append(self._view(context, decision, link, published_only=published_only))
+                visible.append(
+                    self._view(
+                        context,
+                        decision,
+                        link,
+                        published_only=published_only,
+                        endpoint_cache=endpoint_cache,
+                        link_type_cache=link_type_cache,
+                    )
+                )
             except ConfigurableCatalogNotFound:
                 if not published_only:
                     raise
@@ -849,8 +900,15 @@ class CatalogLinkService:
         _require(context, decision, Permission.CATALOG_READ)
         if not 1 <= depth <= 8:
             raise ValueError("workflow depth must be between 1 and 8")
+        endpoint_cache: dict[tuple[UUID, UUID, bool], LinkEndpoint] = {}
+        link_type_cache: dict[tuple[UUID, UUID], ConfigRevision[LinkTypeContent]] = {}
         root = self._record_endpoint(
-            context, decision, record_id, revision_id, published_only=published_only
+            context,
+            decision,
+            record_id,
+            revision_id,
+            published_only=published_only,
+            endpoint_cache=endpoint_cache,
         )
         nodes: dict[tuple[UUID, UUID], LinkEndpoint] = {
             (root.record_id, root.record_revision_id): root
@@ -864,12 +922,14 @@ class CatalogLinkService:
             if key in expanded or level >= depth:
                 continue
             expanded.add(key)
-            for view in self.list_record_links(
+            for view in self._list_record_links(
                 context,
                 decision,
                 endpoint.record_id,
                 record_revision_id=endpoint.record_revision_id,
                 published_only=published_only,
+                endpoint_cache=endpoint_cache,
+                link_type_cache=link_type_cache,
             ):
                 links[view.link.id] = view
                 for candidate in (view.source, view.target):

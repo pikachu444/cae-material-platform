@@ -14,6 +14,8 @@ const densityId = "91000000-0000-4000-8000-000000000004";
 const curveId = "91000000-0000-4000-8000-000000000005";
 const technicalId = "91000000-0000-4000-8000-000000000010";
 const materialClassId = "91000000-0000-4000-8000-000000000011";
+const hardeningModelId = "91000000-0000-4000-8000-000000000012";
+const elasticModulusId = "91000000-0000-4000-8000-000000000013";
 
 function metadata(id: string, aggregateId: string) {
   return {
@@ -114,6 +116,42 @@ const materialClassAttribute = {
   },
 };
 
+const hardeningModelAttribute = {
+  attribute_definition_id: hardeningModelId,
+  table_id: tableId,
+  current_revision: {
+    ...metadata("91000000-0000-4000-8000-000000000018", hardeningModelId),
+    content: {
+      ...densityAttribute.current_revision.content,
+      key: "hardening_model",
+      name: "Hardening Model",
+      data_type: "discrete" as const,
+      quantity_semantics: null,
+      normalized_unit: null,
+      allowed_values: ["tabulated", "voce"],
+      help_text: null,
+    },
+  },
+};
+
+const elasticModulusAttribute = {
+  attribute_definition_id: elasticModulusId,
+  table_id: tableId,
+  current_revision: {
+    ...metadata("91000000-0000-4000-8000-000000000019", elasticModulusId),
+    content: {
+      ...densityAttribute.current_revision.content,
+      key: "computed_elastic_modulus",
+      name: "Computed Elastic Modulus",
+      data_type: "number" as const,
+      quantity_semantics: "pressure",
+      normalized_unit: "MPa",
+      allowed_values: [],
+      help_text: null,
+    },
+  },
+};
+
 const record = {
   record_id: recordId,
   table_id: tableId,
@@ -163,6 +201,54 @@ const layout = {
   name: "Material datasheet",
   description: "Administrator-defined material layout",
   items: [{ attribute_definition_id: materialClassId, attribute_definition_revision_id: materialClassAttribute.current_revision.id, section: "Identity", ordinal: 1 }, { attribute_definition_id: densityId, attribute_definition_revision_id: densityAttribute.current_revision.id, section: "Physical", ordinal: 2 }, { attribute_definition_id: curveId, attribute_definition_revision_id: curveAttribute.current_revision.id, section: "Curves", ordinal: 3 }],
+};
+
+const sourceV2Record = {
+  ...record,
+  current_revision: {
+    ...record.current_revision,
+    content: {
+      ...record.current_revision.content,
+      values: [{
+        attribute_definition_id: hardeningModelId,
+        attribute_definition_revision_id: hardeningModelAttribute.current_revision.id,
+        data_type: "discrete" as const,
+        value: "tabulated",
+      }, {
+        attribute_definition_id: densityId,
+        attribute_definition_revision_id: densityAttribute.current_revision.id,
+        data_type: "number" as const,
+        original_value: "7850",
+        original_unit_string: "kg/m3",
+        normalized_value: "7850",
+        normalized_unit: "kg/m3",
+        quantity_semantics: "mass density",
+      }, {
+        attribute_definition_id: elasticModulusId,
+        attribute_definition_revision_id: elasticModulusAttribute.current_revision.id,
+        data_type: "number" as const,
+        original_value: "210000",
+        original_unit_string: "MPa",
+        normalized_value: "210000",
+        normalized_unit: "MPa",
+        quantity_semantics: "pressure",
+      }, {
+        attribute_definition_id: curveId,
+        attribute_definition_revision_id: curveAttribute.current_revision.id,
+        data_type: "curve" as const,
+        artifact_id: "91000000-0000-4000-8000-000000000007",
+        artifact_sha256: "b".repeat(64),
+      }],
+    },
+  },
+};
+
+const sourceV2Layout = {
+  ...layout,
+  layout_id: "91000000-0000-4000-8000-000000000020",
+  revision: metadata("91000000-0000-4000-8000-000000000021", "91000000-0000-4000-8000-000000000020"),
+  name: "Source-v2 selected model",
+  items: [{ attribute_definition_id: hardeningModelId, attribute_definition_revision_id: hardeningModelAttribute.current_revision.id, section: "Model", ordinal: 1 }, { attribute_definition_id: densityId, attribute_definition_revision_id: densityAttribute.current_revision.id, section: "Properties", ordinal: 2 }, { attribute_definition_id: elasticModulusId, attribute_definition_revision_id: elasticModulusAttribute.current_revision.id, section: "Properties", ordinal: 3 }, { attribute_definition_id: curveId, attribute_definition_revision_id: curveAttribute.current_revision.id, section: "Response", ordinal: 4 }],
 };
 
 const mocks = vi.hoisted(() => ({ record: vi.fn(), attributes: vi.fn(), layouts: vi.fn(), previewCurve: vi.fn() }));
@@ -220,6 +306,36 @@ describe("MaterialDatasheetProjection", () => {
     expect(screen.queryByText("Original and normalized quantity")).toBeNull();
     expect(screen.queryByText("Observed tensile response")).toBe(null);
     expect(screen.queryByText("Internal note")).toBeNull();
+  });
+
+  it("renders source-v2 selected-model scalar fields from the active Layout", async () => {
+    mocks.record.mockResolvedValue({ data: sourceV2Record, etag: null });
+    mocks.attributes.mockResolvedValue({
+      data: {
+        items: [hardeningModelAttribute, densityAttribute, elasticModulusAttribute, curveAttribute],
+      },
+      etag: null,
+    });
+    mocks.layouts.mockResolvedValue({ data: { items: [sourceV2Layout] }, etag: null });
+
+    render(<MaterialDatasheetProjection config={{ baseUrl: "/api/v1", accessToken: "test" }} tableId={tableId} recordId={recordId} mode="properties" recordKind="material_model"/>);
+
+    expect(await screen.findByRole("heading", { name: "Selected Material Model details" })).toBeTruthy();
+    expect(screen.getByText("Hardening Model")).toBeTruthy();
+    expect(screen.getByText("tabulated")).toBeTruthy();
+    expect(screen.getByText("Density")).toBeTruthy();
+    expect(screen.getByText("7850")).toBeTruthy();
+    expect(screen.getByText("kg/m3")).toBeTruthy();
+    expect(screen.getByText("Computed Elastic Modulus")).toBeTruthy();
+    expect(screen.getByText("210000")).toBeTruthy();
+    expect(screen.getByText("MPa")).toBeTruthy();
+    expect(
+      Array.from(document.querySelectorAll(".layout-projection-content > section > h3")).map((heading) => heading.textContent),
+    ).toEqual(["Model", "Properties"]);
+    expect(
+      Array.from(document.querySelectorAll(".layout-projection-table tbody tr")).map((row) => row.textContent),
+    ).toEqual(["Hardening Modeltabulated", "Density7850kg/m3", "Computed Elastic Modulus210000MPa"]);
+    expect(mocks.record).toHaveBeenCalledWith(expect.anything(), recordId);
   });
 
   it("keeps all typed Attribute data in the Evidence Layout disclosure", async () => {

@@ -432,7 +432,7 @@ describe("pinned Material detail", () => {
     const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     render(<SolverCardPreviewPage config={{ baseUrl: "/api/v1", accessToken: "test-token" }} materialId={materialId} cardId={cardId} exactPin={pin} onNavigate={vi.fn()} />);
-    expect(await screen.findByRole("heading", { name: "Pinned OpenRadioss card", level: 1 })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Pinned Material r1", level: 1 })).toBeTruthy();
     const requests = fetchMock.mock.calls.map(([input]) => String(input));
     const cardEndpoint = `/api/v1/neutral-solver-cards/${cardId}`;
     const exactRevision = `?revision_id=${cardRevisionId}`;

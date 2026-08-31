@@ -7,6 +7,10 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
+from cmp.modules.catalog.adapters.persistence.neutral_material_binding import (
+    make_material_model_catalog_binding_hook,
+    make_neutral_material_catalog_binding_hook,
+)
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDataService
 from cmp.modules.datasets.application.governed_import import GovernedImportService
@@ -117,6 +121,7 @@ def build_material_model_service(identity: IdentityServices) -> MaterialModelSer
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_material_model_catalog_binding_hook(),
             ),
         )
     )
@@ -141,6 +146,7 @@ def build_linear_viscoelastic_model_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_material_model_catalog_binding_hook(),
             ),
         ),
         material_models=material_models,
@@ -215,6 +221,7 @@ def build_ogden_prony_model_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_material_model_catalog_binding_hook(),
             ),
         ),
         material_models=material_models,
@@ -273,6 +280,7 @@ def build_reference_ogden_calibration_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_material_model_catalog_binding_hook(),
             ),
         ),
         profiles=profiles,
@@ -347,6 +355,7 @@ def build_neutral_material_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_neutral_material_catalog_binding_hook(),
             ),
         ),
         calibrations=calibrations,
@@ -521,6 +530,7 @@ def build_tabulated_plasticity_model_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_material_model_catalog_binding_hook(),
             ),
         ),
         datasets=datasets,
@@ -582,6 +592,7 @@ def build_voce_candidate_projection_service(
         SqlInitialLifecycleHook(),
         SqlAlchemyRevisionProvenanceHook(),
         SqlAlchemyRevisionAuditHook(),
+        make_material_model_catalog_binding_hook(),
     )
     return VoceCandidateProjectionService(
         selections=SqlAlchemyVoceCandidateSelectionRepository(

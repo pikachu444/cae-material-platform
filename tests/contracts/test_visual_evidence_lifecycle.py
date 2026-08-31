@@ -8,6 +8,7 @@ import pytest
 from cmp.tools import documentation_impact
 from cmp.tools.documentation_impact import (
     DocumentationImpactError,
+    _can_use_unchanged_current_family,
     _load_visual_evidence_config,
     evaluate_documentation_impact,
     verify_documentation_impact,
@@ -193,6 +194,123 @@ def test_worktree_css_change_accepts_promoted_family_and_ignores_artifacts(
     assert report.visual_files == ("apps/web/src/materials.css",)
     assert all(not path.startswith(".artifacts/") for path in report.changed_files)
     assert _git(project, "check-ignore", ".artifacts/before/materials-search-1920x1080.png")
+
+
+def _partial_current_family_fixture(
+    tmp_path: Path,
+    *,
+    manifest_ref: bool = True,
+    guide_ref: bool = True,
+    missing_base_member: bool = False,
+) -> tuple[Path, str, set[str]]:
+    """Create four changed family members plus one unchanged base member."""
+
+    _write(tmp_path / ".gitignore", ".artifacts/\n")
+    _write(tmp_path / "docs/documentation-manifest.yaml", _manifest())
+    _write(tmp_path / "apps/web/src/materials.css", ".materials { display: grid; }\n")
+    _write(tmp_path / "docs/user-guide/materials.md", "# Materials\n")
+    _write(tmp_path / "docs/user-guide/screenshot-manifest.yaml", "captures: []\n")
+    for viewport in VIEWPORTS:
+        _write(
+            tmp_path
+            / f"docs/user-guide/images/current/materials-search-{viewport}.png",
+            f"base-{viewport}".encode(),
+        )
+    base_sha = _init_repo(tmp_path)
+    if missing_base_member:
+        (tmp_path / "docs/user-guide/images/current/materials-search-3840x2160.png").unlink()
+
+    _write(tmp_path / "apps/web/src/materials.css", ".materials { display: grid; min-width: 0; }\n")
+    references = "\n".join(
+        f"images/current/materials-search-{viewport}.png" for viewport in VIEWPORTS
+    )
+    _write(
+        tmp_path / "docs/user-guide/screenshot-manifest.yaml",
+        "captures:\n"
+        + "\n".join(
+            f"  - image: images/current/materials-search-{viewport}.png" for viewport in VIEWPORTS
+        )
+        + "\n",
+    )
+    _write(
+        tmp_path / "docs/user-guide/materials.md",
+        "# Materials\n\n" + (references if guide_ref else "Updated.\n"),
+    )
+    if not manifest_ref:
+        _write(tmp_path / "docs/user-guide/screenshot-manifest.yaml", "captures: []\n")
+    changed: set[str] = {
+        "apps/web/src/materials.css",
+        "docs/user-guide/materials.md",
+        "docs/user-guide/screenshot-manifest.yaml",
+    }
+    for viewport in VIEWPORTS[:-1]:
+        path = f"docs/user-guide/images/current/materials-search-{viewport}.png"
+        _write(tmp_path / path, f"changed-{viewport}".encode())
+        changed.add(path)
+    return tmp_path, base_sha, changed
+
+
+def test_missing_same_stem_viewport_is_allowed_only_with_both_changed_doc_refs(
+    tmp_path: Path,
+) -> None:
+    project, base_sha, changed = _partial_current_family_fixture(tmp_path)
+
+    assert _can_use_unchanged_current_family(
+        project, base_sha, changed, set(changed) - {
+            "docs/user-guide/materials.md",
+            "docs/user-guide/screenshot-manifest.yaml",
+        }
+    )
+    # The direct helper is the fail-closed boundary; the public gate remains
+    # covered by the promoted-family tests above.
+    assert not _can_use_unchanged_current_family(
+        project,
+        base_sha,
+        changed,
+        {
+            path
+            for path in changed
+            if path != "docs/user-guide/images/current/materials-search-1366x768.png"
+        },
+    )
+
+
+@pytest.mark.parametrize(
+    ("manifest_ref", "guide_ref", "missing_base_member"),
+    ((False, True, False), (True, False, False), (True, True, True)),
+)
+def test_unchanged_family_rejects_missing_manifest_guide_or_base_member(
+    tmp_path: Path,
+    manifest_ref: bool,
+    guide_ref: bool,
+    missing_base_member: bool,
+) -> None:
+    project, base_sha, changed = _partial_current_family_fixture(
+        tmp_path,
+        manifest_ref=manifest_ref,
+        guide_ref=guide_ref,
+        missing_base_member=missing_base_member,
+    )
+    current_pngs = {
+        path for path in changed if path.lower().endswith(".png")
+    }
+
+    assert not _can_use_unchanged_current_family(
+        project, base_sha, changed, current_pngs
+    )
+
+
+def test_unchanged_family_rejects_wrong_stem_and_without_changed_member(
+    tmp_path: Path,
+) -> None:
+    project, base_sha, changed = _partial_current_family_fixture(tmp_path)
+    wrong_stem = {
+        path.replace("materials-search-", "different-family-")
+        for path in changed
+        if path.lower().endswith(".png")
+    }
+    assert not _can_use_unchanged_current_family(project, base_sha, changed, wrong_stem)
+    assert not _can_use_unchanged_current_family(project, base_sha, changed, set())
 
 
 @pytest.mark.parametrize("evidence", ("transient", "historical"))

@@ -40,6 +40,11 @@ policy:
   approval: >-
     One product-owner response may approve a batch, but it must identify every image path and
     SHA-256. Each target keeps an independent manifest lifecycle.
+  operational_evidence_disposition: >-
+    The current Materials targets may be marked operational-evidence-accepted when the owner
+    accepts them solely as temporary behavior/read-back evidence. This disposition does not approve
+    visual quality; the visual-quality status remains pending-owner-disposition until the dedicated
+    visual review is completed.
 counts:
   families: 18
   bundles: 13
