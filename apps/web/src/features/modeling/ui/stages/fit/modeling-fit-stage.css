@@ -1,3 +1,47 @@
+/* Fit stage layout ownership. */
+.modeling-task-ribbon > .step-option-panel.fit-stage-options {
+  min-height: 122px;
+  max-height: none;
+  box-sizing: border-box;
+}
+
+.fit-stage-options { position: relative; display: grid; align-items: end; gap: 6px; padding: 5px 8px; }
+
+.fit-stage-options input, .fit-stage-options select { min-width: 0; min-height: 26px; font-size: 11px; }
+
+.fit-stage-options {
+  grid-template-rows: 22px 52px 16px;
+  align-content: start;
+  gap: 3px;
+  padding: 4px 8px;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options :is(label, legend, output, button) {
+  font-size: 10px;
+}
+.application-shell main.processing-workbench-page .fit-stage-options input[type="range"] {
+  min-height: 18px;
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options {
+  display: grid;
+  grid-template-rows: 31px 72px;
+  min-height: 103px;
+  max-height: 103px;
+  gap: 0;
+  padding: 0;
+  background: var(--ux-surface-subtle);
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options {
+  container-type: inline-size;
+  grid-template-rows:
+    var(--ux-workbench-ribbon-header-block-size)
+    var(--ux-workbench-ribbon-band-block-size);
+  min-height: calc(var(--ux-workbench-ribbon-block-size) - 1px);
+  max-height: calc(var(--ux-workbench-ribbon-block-size) - 1px);
+}
+
 /* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#149; peers CSS-0149. */
 .fit-stage-options > .section-heading {
   display: none;

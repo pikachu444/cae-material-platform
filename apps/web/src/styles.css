@@ -55,11 +55,6 @@
   cursor: grab;
 }
 
-.candidate-evidence-list article.selected {
-  border-color: #277b75;
-  box-shadow: 0 0 0 2px rgb(39 123 117 / 10%);
-}
-
 /* Product-facing shell: authentication and infrastructure stay behind the workspace boundary. */
 
 /* T-76 product Material Database: persistent GRANTA-style contents and linked-record workspace. */
@@ -120,9 +115,3 @@
 }
 
 /* T-80 keeps material-family modeling inside the common evidence-to-card workspace. */
-
-.prony-candidate-strip button.selected {
-  border-color: #12847d;
-  background: #effaf8;
-  box-shadow: inset 3px 0 #12847d;
-}

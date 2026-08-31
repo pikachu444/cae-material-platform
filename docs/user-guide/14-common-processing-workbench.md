@@ -285,7 +285,7 @@ label/revision과 Fit surface state가 표시됩니다. 전체 source digest, me
 저장된 Fit Output revision은 **Candidate parameters → Source evidence**에서 확인합니다. Process Output이 없거나 stale이면 graph 중앙에
 **Fit is blocked**와 **Back to Process**가 나타나고, 이 복구는 ref/history/pointer를 바꾸지 않는
 탐색만 수행합니다. Fit 계산/저장 실패에서는 이전 유효 graph와 decision reason, warning acknowledgement를
-유지하고, 저장된 Fit을 다시 읽지 못하면 **Saved Fit result unavailable**과 **Retry exact saved Fit**만
+유지하고, 저장된 Fit을 다시 읽지 못하면 **Saved Fit result unavailable**과 **Retry saved Fit**만
 표시합니다. retry는 같은 saved Output revision의 content URL을 다시 읽으며 raw Test Data나 최신
 Output을 fallback으로 사용하지 않습니다. 저장 후에도 현재 task는 Fit에 남고 Export는 별도 task로
 시작하지 않습니다.

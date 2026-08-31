@@ -36,6 +36,10 @@ DISPLAY_DENSITIES = ("compact", "standard", "large")
 CAPTURE_DISPLAY_DENSITY = "standard"
 ACTIVITY_HISTORY_VIEWPORTS = (VIEWPORTS[1], VIEWPORTS[2], *WIDE_VIEWPORTS)
 REVISION_LABEL_PATTERN = re.compile(r"\br[1-9]\d*\b")
+UUID_LIKE_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 MODELING_EXPORT_OUTPUTS = (
     *(f"modeling-export-{width}x{height}.png" for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS)),
     "modeling-export-source-blocked-1440x900.png",
@@ -471,6 +475,96 @@ def _wait_for_settled(page: Page) -> None:
     ]
     if pending_lines:
         raise RuntimeError(f"unfinished UI state remains: {pending_lines}")
+
+
+def _wait_for_delivered_solver_card_route(page: Page, expected_path: str) -> None:
+    """Wait for the exact Materials card route and its completed native preview."""
+
+    settled_script = """expectedPath => {
+      const visible = element => Boolean(
+        element
+          && element.getClientRects().length > 0
+          && getComputedStyle(element).visibility !== "hidden"
+          && getComputedStyle(element).display !== "none"
+      );
+      const heading = [...document.querySelectorAll("h1")].find(visible);
+      const headingText = heading?.textContent?.trim() ?? "";
+      const nativePreview = document.querySelector(
+        '[aria-label="Native solver card preview"]'
+      );
+      const nativeText = nativePreview?.textContent?.trim() ?? "";
+      const unfinished = /^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\\b.*(?:…|\\.\\.\\.)$/i;
+      const pendingLines = document.body.innerText
+        .split("\\n")
+        .map(line => line.trim())
+        .filter(line => unfinished.test(line));
+      const activeBusy = [...document.querySelectorAll('[aria-busy="true"]')]
+        .filter(visible);
+      const alerts = [...document.querySelectorAll('[role="alert"]')]
+        .filter(visible);
+      const deliveryLoading = [...document.querySelectorAll(
+        '[data-testid="delivery-loading"], .delivery-loading, .export-delivery-loading'
+      )].filter(visible);
+      return window.location.pathname === expectedPath
+        && Boolean(heading && headingText && headingText !== "Card preview")
+        && Boolean(nativePreview && visible(nativePreview) && nativeText
+          && nativeText !== "Loading native card preview…"
+          && nativeText !== "Loading native card preview...")
+        && pendingLines.length === 0
+        && activeBusy.length === 0
+        && alerts.length === 0
+        && deliveryLoading.length === 0;
+    }"""
+
+    try:
+        page.wait_for_function(settled_script, arg=expected_path, timeout=30_000)
+    except Exception as error:
+        diagnostics = page.evaluate(
+            """() => {
+              const visible = element => Boolean(
+                element
+                  && element.getClientRects().length > 0
+                  && getComputedStyle(element).visibility !== "hidden"
+                  && getComputedStyle(element).display !== "none"
+              );
+              const unfinished = /^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\\b.*(?:…|\\.\\.\\.)$/i;
+              const pendingLines = document.body.innerText
+                .split("\\n")
+                .map(line => line.trim())
+                .filter(line => unfinished.test(line));
+              const nativePreview = document.querySelector(
+                '[aria-label="Native solver card preview"]'
+              );
+              return {
+                pathname: window.location.pathname,
+                h1: [...document.querySelectorAll("h1")]
+                  .filter(visible)
+                  .map(element => element.textContent?.trim() ?? ""),
+                nativePreview: nativePreview && visible(nativePreview)
+                  ? nativePreview.textContent?.trim() ?? ""
+                  : null,
+                pendingLines,
+                activeBusy: [...document.querySelectorAll('[aria-busy="true"]')]
+                  .filter(visible)
+                  .map(element => element.textContent?.trim() ?? ""),
+                statuses: [...document.querySelectorAll('[role="status"]')]
+                  .filter(visible)
+                  .map(element => element.textContent?.trim() ?? ""),
+                alerts: [...document.querySelectorAll('[role="alert"]')]
+                  .filter(visible)
+                  .map(element => element.textContent?.trim() ?? ""),
+                deliveryLoading: [...document.querySelectorAll(
+                  '[data-testid="delivery-loading"], .delivery-loading, .export-delivery-loading'
+                )]
+                  .filter(visible)
+                  .map(element => element.textContent?.trim() ?? ""),
+              };
+            }"""
+        )
+        raise RuntimeError(
+            "exact delivered solver-card route did not settle: "
+            f"expected={expected_path!r}, diagnostics={diagnostics!r}"
+        ) from error
 
 
 def _assert_shared_workspace_geometry(page: Page, width: int, path_name: str) -> None:
@@ -2672,23 +2766,36 @@ def _assert_modeling_data_surface(
     svg_box = _bounding_box_edges(svg_rect)
     browser_box = _bounding_box_edges(browser.bounding_box())
     related_slot = browser.locator(".modeling-data-related-slot")
-    if related_slot.count() != 1:
-        raise RuntimeError("Modeling Data Related slot is not uniquely present")
+    if related_slot.count() != 1 or not related_slot.is_visible():
+        raise RuntimeError("Modeling Data Related data slot is missing or not visible")
     related_box = _bounding_box_edges(related_slot.bounding_box())
     browser_heading_box = _bounding_box_edges(
         browser.locator(".modeling-data-tree > .modeling-data-rail-heading").bounding_box()
     )
-    related = browser.locator(".modeling-data-related")
-    related_count = related.count()
+    related_section = related_slot.locator(".modeling-data-related")
+    related_count = related_section.count()
     if related_count > 1:
         raise RuntimeError("Modeling Data Related content is not unique")
     related_heading_box = (
         _bounding_box_edges(
-            related.locator(".modeling-data-rail-heading").bounding_box()
+            related_section.locator(".modeling-data-rail-heading").bounding_box()
         )
         if related_count == 1
         else None
     )
+    if related_count == 1:
+        if not related_section.is_visible():
+            raise RuntimeError("Modeling Data Related data section is not uniquely visible")
+        if related_section.locator(".modeling-data-rail-heading").count() != 1:
+            raise RuntimeError("Modeling Data Related data heading is missing")
+    else:
+        forbidden_related_content = related_slot.locator(
+            ".modeling-data-related, .modeling-data-rail-heading, .error-banner, [role=\"alert\"]"
+        )
+        if forbidden_related_content.count():
+            raise RuntimeError(
+                "Modeling Data Related data slot contains an unexpected section, heading, or error"
+            )
     geometry = {
         "ribbon": ribbon_box,
         "divider": divider_box,
@@ -2715,6 +2822,7 @@ def _assert_modeling_data_surface(
     if related_count == 1:
         if related_heading_box is None:
             raise RuntimeError("Modeling Data Related content has incomplete heading geometry")
+        assert related_heading_box is not None
         if (
             abs(browser_heading_box["left"] - related_heading_box["left"]) > 1
             or abs(browser_heading_box["right"] - related_heading_box["right"]) > 1
@@ -4341,40 +4449,45 @@ def _save_exact_fit_selection(
     )
     _close_fit_evidence(page, trigger)
     save_candidate.click()
-    try:
-        page.wait_for_function(
-            """expected => {
-              const visible = element => Boolean(element && element.getClientRects().length);
-              const saved = [...document.querySelectorAll('.fit-surface-state')]
-                .some(element => visible(element) && element.textContent?.trim() === 'Saved current');
-              const error = [...document.querySelectorAll('.error-banner')]
-                .find(element => visible(element));
-              return saved || (expected.allowError
-                && Boolean(error)
-                && (error.textContent?.trim() || '').startsWith(expected.error));
-            }""",
-            arg={
+    saved_current = page.locator(".fit-surface-state").get_by_text(
+        "Saved current", exact=True
+    )
+    if allow_expected_exact_restore_failure:
+        try:
+            wait_argument = {
                 "allowError": allow_expected_exact_restore_failure,
                 "error": EXPECTED_EXACT_FIT_RESTORE_ERROR,
-            },
-            timeout=30_000,
-        )
-    except Exception as error:
-        diagnostics = page.evaluate(
-            """() => ({
-              state: [...document.querySelectorAll('.fit-surface-state')]
-                .filter(element => element.getClientRects().length)
-                .map(element => element.textContent?.trim()),
-              errors: [...document.querySelectorAll('.error-banner')]
-                .filter(element => element.getClientRects().length)
-                .map(element => element.textContent?.trim()),
-              url: window.location.href,
-            })"""
-        )
-        raise RuntimeError(
-            "Fit save did not reach its exact Saved current/error boundary: "
-            f"allow_error={allow_expected_exact_restore_failure}, diagnostics={diagnostics!r}"
-        ) from error
+            }
+            page.wait_for_function(
+                """expected => {
+                  const state = document.querySelector('.fit-surface-state');
+                  const saved = state?.textContent?.trim() === 'Saved current';
+                  const expectedError = expected.error;
+                  const error = [...document.querySelectorAll('.error-banner')]
+                    .some(element => element.textContent?.trim().startsWith(expectedError));
+                  return Boolean(saved || (expected.allowError && error));
+                }""",
+                arg=wait_argument,
+                timeout=30_000,
+            )
+        except Exception as error:
+            diagnostics = page.evaluate(
+                """() => ({
+                  state: [...document.querySelectorAll('.fit-surface-state')]
+                    .filter(element => element.getClientRects().length)
+                    .map(element => element.textContent?.trim()),
+                  errors: [...document.querySelectorAll('.error-banner')]
+                    .filter(element => element.getClientRects().length)
+                    .map(element => element.textContent?.trim()),
+                  url: window.location.href,
+                })"""
+            )
+            raise RuntimeError(
+                "Fit save did not reach its exact Saved current/error boundary: "
+                f"allow_error={allow_expected_exact_restore_failure}, diagnostics={diagnostics!r}"
+            ) from error
+    else:
+        saved_current.wait_for(timeout=30_000)
     if parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]:
         raise RuntimeError(f"Fit save unexpectedly navigated away from Fit: {page.url}")
     page.wait_for_function(
@@ -5015,6 +5128,98 @@ def _assert_exact_material_solver_card_readback(
         raise RuntimeError(f"Materials exact solver-card download failed: {response.status}")
 
 
+def _read_delivered_solver_card_identity(delivery_details: Locator) -> tuple[str, str]:
+    """Read and validate the immutable IDs displayed by Delivery details."""
+
+    values: dict[str, str] = {}
+    for label in ("Solver card", "Card revision"):
+        definition = delivery_details.locator("dt").filter(
+            has_text=re.compile(rf"^{re.escape(label)}$")
+        )
+        if definition.count() != 1:
+            raise RuntimeError(f"Delivery details must expose exactly one {label} value")
+        code = definition.locator("xpath=following-sibling::dd[1]").locator("code")
+        if code.count() != 1:
+            raise RuntimeError(f"Delivery details {label} value is not a code value")
+        value = code.inner_text().strip()
+        if not UUID_LIKE_PATTERN.fullmatch(value):
+            raise RuntimeError(f"Delivery details {label} is not a UUID-like immutable ID: {value!r}")
+        values[label] = value
+    return values["Solver card"], values["Card revision"]
+
+
+def _assert_delivered_solver_card_readback(
+    page: Page,
+    base_url: str,
+    *,
+    solver_card_id: str,
+    solver_card_revision_id: str,
+) -> None:
+    """Read back the delivered Abaqus card at its exact immutable revision."""
+
+    outcome = page.evaluate(
+        """async ({ baseUrl, solverCardId, solverCardRevisionId }) => {
+          const config = JSON.parse(
+            localStorage.getItem("cmp.material-platform.api-config") || "{}"
+          );
+          if (!config.accessToken) throw new Error("authenticated card read-back requires an access token");
+          const path = `${baseUrl}/api/v1/neutral-solver-cards/${encodeURIComponent(solverCardId)}?revision_id=${encodeURIComponent(solverCardRevisionId)}`;
+          const response = await fetch(path, {
+            headers: {
+              "Accept": "application/json",
+              "Authorization": `Bearer ${config.accessToken}`,
+            },
+          });
+          const text = await response.text();
+          return {
+            status: response.status,
+            payload: text ? JSON.parse(text) : null,
+          };
+        }""",
+        {
+            "baseUrl": base_url,
+            "solverCardId": solver_card_id,
+            "solverCardRevisionId": solver_card_revision_id,
+        },
+    )
+    if not isinstance(outcome, dict) or outcome.get("status") != 200:
+        raise RuntimeError(f"exact delivered solver-card read-back failed: {outcome!r}")
+    payload = outcome.get("payload")
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"exact delivered solver-card response is malformed: {payload!r}")
+    current_revision = payload.get("current_revision")
+    target = payload.get("target")
+    if (
+        payload.get("solver_card_id") != solver_card_id
+        or not isinstance(current_revision, dict)
+        or current_revision.get("id") != solver_card_revision_id
+        or not isinstance(target, dict)
+        or target.get("solver") != "abaqus"
+        or target.get("version") != "2025"
+        or target.get("unit_system") != "kg_m_s"
+    ):
+        raise RuntimeError(f"exact delivered solver-card identity/target drifted: {payload!r}")
+    content = current_revision.get("content")
+    if not isinstance(content, dict) or content.get("material_name") != "DP780_C1_REFERENCE":
+        raise RuntimeError(f"exact delivered solver-card material name drifted: {payload!r}")
+    native_preview = page.get_by_label("Native solver card preview", exact=True)
+    native_preview.wait_for(state="visible", timeout=30_000)
+    if page.locator('[role="alert"]:visible').count():
+        raise RuntimeError("exact delivered Materials card read-back exposes a visible alert")
+    heading = page.get_by_role("heading", level=1)
+    heading.wait_for(state="visible", timeout=30_000)
+    heading_text = heading.inner_text().strip()
+    expected_label = str(content["material_name"])
+    if not heading_text or heading_text == "Card preview" or expected_label not in heading_text:
+        raise RuntimeError(
+            "exact delivered Materials card read-back did not expose its card label: "
+            f"heading={heading_text!r}, expected={expected_label!r}"
+        )
+    native_text = native_preview.inner_text().strip()
+    if not native_text or native_text == "Loading native card preview…":
+        raise RuntimeError("exact delivered Materials card read-back has no completed native preview")
+
+
 def _capture_modeling_export_only(
     browser: Browser,
     base_url: str,
@@ -5116,6 +5321,22 @@ def _capture_modeling_export_only(
     _open_modeling_stage(delivered, "export")
     _prepare_exact_metal_source_if_needed(delivered)
     _prepare_exact_target_preview(delivered, acknowledge=True, create=True)
+    delivery_details = delivered.locator("details.export-delivery-details")
+    delivery_details.wait_for(state="visible", timeout=30_000)
+    if delivery_details.get_attribute("open") is None:
+        delivery_details.locator(":scope > summary").click()
+    solver_card_id, solver_card_revision_id = _read_delivered_solver_card_identity(
+        delivery_details
+    )
+    session = _modeling_session(delivered)
+    material = session.get("material")
+    if (
+        not isinstance(material, dict)
+        or not isinstance(material.get("id"), str)
+        or not material["id"]
+    ):
+        raise RuntimeError(f"delivered Export session has no exact Material identity: {material!r}")
+    expected_card_path = f"/materials/{material['id']}/cards/{solver_card_id}"
     _assert_export_exact_source_surface(
         delivered,
         verify_neutral_download=True,
@@ -5131,6 +5352,22 @@ def _capture_modeling_export_only(
         after_animation=lambda: _assert_export_capture_shell(delivered),
     )
     _assert_exact_material_solver_card_readback(delivered, base_url)
+    open_card = delivered.get_by_role("button", name="Open solver card", exact=True)
+    if open_card.count() == 1:
+        open_card.wait_for(timeout=30_000)
+        open_card.click()
+    delivered.wait_for_url(re.compile(rf"{re.escape(expected_card_path)}$"), timeout=30_000)
+    if urlsplit(delivered.url).path != expected_card_path:
+        raise RuntimeError(
+            f"Open solver card navigated to an unexpected pathname: {delivered.url!r}"
+        )
+    _wait_for_delivered_solver_card_route(delivered, expected_card_path)
+    _assert_delivered_solver_card_readback(
+        delivered,
+        base_url,
+        solver_card_id=solver_card_id,
+        solver_card_revision_id=solver_card_revision_id,
+    )
     delivered.context.close()
 
 
@@ -6780,6 +7017,8 @@ def _scroll_fit_evidence_locally(
           rectRight: el.getBoundingClientRect().right,
         })"""
     )
+    before_wheel_left = wheel_before["scrollLeft"]
+    before_wheel_page_scroll = page.evaluate("() => window.scrollY")
     page.mouse.move(metrics["rect"]["left"] + metrics["clientWidth"] / 2, metrics["rect"]["top"] + metrics["clientHeight"] / 2)
     page.mouse.wheel(0, 92)
     page.wait_for_function(
@@ -6813,6 +7052,10 @@ def _scroll_fit_evidence_locally(
             "Fit evidence wheel horizontally shifted the scrollport geometry: "
             f"before={wheel_before!r}, after={wheel_after!r}"
         )
+    if body.evaluate("el => el.scrollLeft") != before_wheel_left:
+        raise RuntimeError("Fit evidence wheel shifted the local body horizontally")
+    if page.evaluate("() => window.scrollY") != before_wheel_page_scroll:
+        raise RuntimeError("Fit evidence wheel changed the page scroll position")
     body.evaluate("el => { el.scrollTop = 0; el.scrollLeft = 0; }")
     refreshed = body.evaluate(
         """el => ({
@@ -7722,7 +7965,19 @@ def _capture_modeling_fit_states(
 
     fit_blocked = _new_page(browser, base_url, 1920, 1080)
     _prepare_fit_from_saved_process(fit_blocked, base_url, label="Fit blocked source")
-    blocked_context_text, blocked_context_title = _read_fit_context_header(fit_blocked)
+    fit_source_binding = fit_blocked.locator(".fit-context-source")
+    fit_source_binding.wait_for(state="visible", timeout=30_000)
+    fit_source_context = fit_source_binding.inner_text().strip()
+    fit_source_context_title = fit_source_binding.get_attribute("title")
+    if (
+        not fit_source_context
+        or not fit_source_context_title
+        or fit_source_context == "No saved Process Output"
+        or fit_source_context_title == "No saved Process Output"
+    ):
+        raise RuntimeError("Fit exact-source preparation lost its material/Test Data source context")
+    blocked_context_text = fit_source_context
+    blocked_context_title = fit_source_context_title
     fit_blocked.evaluate(
         """() => {
           const key = 'cmp.modeling.recent-session.v4';
@@ -7732,6 +7987,16 @@ def _capture_modeling_fit_states(
         }"""
     )
     fit_blocked.goto(f"{base_url}/modeling?stage=fit&family=metal")
+    fit_blocked.wait_for_function(
+        """([expectedText, expectedTitle]) => {
+          const source = document.querySelector('.fit-context-source');
+          return Boolean(source && source.getClientRects().length
+            && source.textContent?.trim() === expectedText
+            && source.getAttribute('title') === expectedTitle);
+        }""",
+        arg=[fit_source_context, fit_source_context_title],
+        timeout=30_000,
+    )
     fit_blocker_message = "No saved Process Output is bound. Save Process before calculating Fit."
     fit_plot_overlay = fit_blocked.locator(
         "#modeling-fit .engineering-curve-plot-empty-overlay"
@@ -7740,14 +8005,25 @@ def _capture_modeling_fit_states(
         fit_blocker_message,
         exact=True,
     ).wait_for(state="visible", timeout=30_000)
-    fit_source_binding = fit_blocked.locator(".fit-context-source")
     _wait_for_fit_context_header(
         fit_blocked,
         blocked_context_text,
         blocked_context_title,
     )
-    if fit_source_binding.inner_text().strip() == "No saved Process Output":
-        raise RuntimeError("Fit exact-source blocker regressed to the stale source literal")
+    fit_source_binding.wait_for(state="visible", timeout=30_000)
+    blocked_source_context = fit_source_binding.inner_text().strip()
+    blocked_source_context_title = fit_source_binding.get_attribute("title")
+    if (
+        blocked_source_context != fit_source_context
+        or blocked_source_context_title != fit_source_context_title
+        or blocked_source_context == "No saved Process Output"
+        or blocked_source_context_title == "No saved Process Output"
+    ):
+        raise RuntimeError(
+            "Fit exact-source blocker lost its material/Test Data source context: "
+            f"recorded text={fit_source_context!r}, title={fit_source_context_title!r}; "
+            f"blocked text={blocked_source_context!r}, title={blocked_source_context_title!r}"
+        )
     _assert_fit_title_state(fit_blocked, "Not calculated")
     fit_blocked.get_by_role("button", name="Back to Process", exact=True).wait_for(
         state="visible", timeout=30_000
@@ -7928,6 +8204,10 @@ def _capture_modeling_fit_states(
         lambda request: restore_requests.append((request.method, request.url)),
     )
     restored.goto(f"{base_url}/modeling?stage=fit&family=metal")
+    _wait_for_settled(restored)
+    restored.locator(".fit-surface-state").get_by_text(
+        "Saved current", exact=True
+    ).wait_for(timeout=30_000)
     _wait_for_fit_title_state(restored, "Saved current")
     _wait_for_fit_context_header(
         restored,
@@ -7935,6 +8215,23 @@ def _capture_modeling_fit_states(
         restored_context_title,
     )
     _assert_fit_title_state(restored, "Saved current")
+    source_binding = restored.locator(".fit-context-source")
+    source_binding.wait_for(state="visible", timeout=30_000)
+    source_binding_text = source_binding.inner_text().strip()
+    source_binding_title = source_binding.get_attribute("title")
+    source_context_parts = [part.strip() for part in source_binding_text.split("/", 1)]
+    if (
+        not source_binding_text
+        or source_binding_text != source_binding_title
+        or source_binding_text in {"Select Test Data", "No saved Process Output"}
+        or source_binding_title in {"Select Test Data", "No saved Process Output"}
+        or len(source_context_parts) != 2
+        or any(not part for part in source_context_parts)
+    ):
+        raise RuntimeError(
+            "Restored Fit source header lost its material/Test Data context: "
+            f"text={source_binding_text!r}, title={source_binding_title!r}"
+        )
     restored.get_by_role("img", name="Hardening candidate and selected extrapolation curves", exact=True).wait_for(
         state="visible", timeout=30_000
     )
@@ -8054,6 +8351,10 @@ def _capture_modeling_fit_restored_only(
         lambda response: restore_responses.append((response.status, response.url)),
     )
     restored.goto(f"{base_url}/modeling?stage=fit&family=metal")
+    _wait_for_settled(restored)
+    restored.locator(".fit-surface-state").get_by_text(
+        "Saved current", exact=True
+    ).wait_for(timeout=30_000)
     _wait_for_fit_title_state(restored, "Saved current")
     _wait_for_fit_context_header(
         restored,
@@ -8061,6 +8362,23 @@ def _capture_modeling_fit_restored_only(
         restored_context_title,
     )
     _assert_fit_title_state(restored, "Saved current")
+    source_binding = restored.locator(".fit-context-source")
+    source_binding.wait_for(state="visible", timeout=30_000)
+    source_binding_text = source_binding.inner_text().strip()
+    source_binding_title = source_binding.get_attribute("title")
+    source_context_parts = [part.strip() for part in source_binding_text.split("/", 1)]
+    if (
+        not source_binding_text
+        or source_binding_text != source_binding_title
+        or source_binding_text in {"Select Test Data", "No saved Process Output"}
+        or source_binding_title in {"Select Test Data", "No saved Process Output"}
+        or len(source_context_parts) != 2
+        or any(not part for part in source_context_parts)
+    ):
+        raise RuntimeError(
+            "Restored Fit source header lost its material/Test Data context: "
+            f"text={source_binding_text!r}, title={source_binding_title!r}"
+        )
     restored.get_by_role(
         "img", name="Hardening candidate and selected extrapolation curves", exact=True
     ).wait_for(state="visible", timeout=30_000)
@@ -8113,6 +8431,16 @@ def _capture_modeling_fit_restored_only(
     ):
         raise RuntimeError("Restored Fit candidate evidence lost the exact source label/revision/digest")
     _assert_fit_selected_evidence(restored)
+    source_evidence_text = restored.locator(".fit-source-evidence").inner_text()
+    if not isinstance(source_digest, str) or not source_digest or source_digest not in source_evidence_text:
+        raise RuntimeError("Restored Fit candidate evidence lost the full source digest")
+    if (
+        not isinstance(source_label, str)
+        or not source_label
+        or source_label not in source_evidence_text
+        or f"r{source_revision}" not in source_evidence_text
+    ):
+        raise RuntimeError("Restored Fit candidate evidence lost its source label/revision")
     if restore_table.locator("tbody tr.selected").count() != 1:
         raise RuntimeError("Restored Fit output lost the selected candidate row")
     if restored.get_by_role(

@@ -28,6 +28,15 @@ absolute path, backslash, dot segment, unknown lifecycle, or ambiguous exception
 Frozen exceptions are resolved before the frozen default so an intentionally nested exception cannot
 be mistaken for a general historical write permission.
 
+## Service-reference current-guide lifecycle
+
+The service-reference register also supports `current-guide` beside `static-bundle` and
+`current-product-evidence`. A `current-guide` entry is resolved through
+`docs/user-guide/screenshot-manifest.yaml` by its exact `guide_screenshot_id`; its image must be the
+same tracked PNG under `docs/user-guide/images/current/`, with matching route, viewport, dimensions
+and SHA-256. These entries intentionally carry no static-bundle `sources`, `measurements`,
+`evidence_manifest` or `evidence_key` fields.
+
 ## Primary journey
 
 For a user-visible React/CSS change, capture and review before/after originals and direct crops in
@@ -52,6 +61,15 @@ satisfy it.
   the added name as no longer missing.
 - Actual-device #223 rasters may be added or modified only with `manifest.json` or
   `visual-evidence.yaml` in the same issue root. Deletes and renames are rejected.
+- #331 authorizes one exact Fit transition from the frozen #167 static bundle to four
+  `current-guide` entries. The four named PNGs and their four coupled measurement JSON files may be
+  removed only as one eight-member set when the service-reference manifest, service-reference
+  inventory, screenshot manifest and this lifecycle policy change in the same diff. Each deleted
+  blob must exist at its merge base with the recorded Git-blob SHA-256 (raw repository bytes, not
+  host checkout line endings), be absent from the worktree, and the merge base must still be
+  available; adjacent files, partial batches, changed/current members and later reuse are rejected.
+  Only the four exact PNGs bypass the frozen-raster rule; their JSON files are coupled cleanup
+  records, not an additional deletion allowlist.
 - #351 authorizes the one-time deletion of the approved 26 immediate evidence roots after removing
   their current screenshot-manifest fields and inbound repository-local links. The 128 current
   screenshots, #223 handoff roots, #289 exception files, unconverted static service-reference

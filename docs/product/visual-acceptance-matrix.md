@@ -24,6 +24,17 @@ result and this rubric. Evaluate full-screen task flow, topology, information pr
 tree/table/graph region, control-result continuity, overlap, clipping and overflow. Pixel-perfect
 copying and arbitrary fine-number tuning are not acceptance goals; measurements are safety rails.
 
+### Current-guide references
+
+The service-reference register permits `current-guide` beside `static-bundle` and
+`current-product-evidence` for screens represented by the current user guide. Each such entry names
+one exact screenshot-manifest capture, route, state, viewport, tracked current PNG and SHA-256; the
+resolved image and dimensions must agree across both manifests. Current-guide entries do not carry
+static-bundle source, measurement or evidence-record fields. The Modeling Fit current-guide set is
+the metal Fit route at 1366×768, 1440×900 and 1920×1080 plus the long candidate-parameters state at
+1440×900, and is reviewed against Q-04's Carbon hierarchy, COMSOL task flow and SAP wide-screen
+composition without implying a redesign.
+
 ## Locked product-owner feedback trace
 
 Current, explicit product-owner feedback overrides a stale registered visual reference for the affected

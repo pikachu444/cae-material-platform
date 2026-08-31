@@ -158,6 +158,45 @@ _ISSUE_351_RETIRED_EVIDENCE_ROOTS = frozenset(
         "issue-298-frontend-guard-297-correction",
     )
 )
+_ISSUE_331_RETIRED_FIT_ROOT = "docs/17-evidence/images/issue-167-service-reference"
+_ISSUE_331_RETIRED_FIT_FILES = frozenset(
+    {
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1366x768.png",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1366x768.measurements.json",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1440x900.png",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1440x900.measurements.json",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1920x1080.png",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1920x1080.measurements.json",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-candidate-parameters-long-1440x900.png",
+        f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-candidate-parameters-long-1440x900.measurements.json",
+    }
+)
+_ISSUE_331_RETIRED_FIT_HASHES = {
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1366x768.png":
+        "41a775d88b32c9528d742858fdfbcf86dda6b391f3ad704337ee9d9781487a93",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1366x768.measurements.json":
+        "c0f227a2354951e180dcdbfeb7d3745567166e27dc995db4607f37b3f04f6a55",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1440x900.png":
+        "7ba66c5f5d5605dd897f1bb511fcaa888985c5472d378a56ce849ded55ed0db5",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1440x900.measurements.json":
+        "65bb47ad62355da97703a20c67c190f8b23a57c0e6d1360e16bea7f364e6b8c5",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1920x1080.png":
+        "f7a6aaf8720659bdadf1559347e08b8d1c5b920633c8ce954b34ba39aa7ee261",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-normal-1920x1080.measurements.json":
+        "7b324dffd08abe1e152077ba3dd2a39a5e61814e0420cf0555e583fdf92e17c3",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-candidate-parameters-long-1440x900.png":
+        "500e66fa38e8b7f6adde92f7aa3f309a41aa7f27cb5ef3ebe322fad07abce881",
+    f"{_ISSUE_331_RETIRED_FIT_ROOT}/modeling-fit-candidate-parameters-long-1440x900.measurements.json":
+        "b068cb9a55d0996efce943745dab451beeb483e8e4d0f93b10b91f3cb55d7479",
+}
+_ISSUE_331_RETIRED_FIT_DEPENDENCIES = frozenset(
+    {
+        "docs/product/service-reference-manifest.yaml",
+        "docs/product/service-reference-inventory.yaml",
+        "docs/user-guide/screenshot-manifest.yaml",
+        "docs/repository/visual-evidence-lifecycle.md",
+    }
+)
 _SHARED_DESIGN_PREFIX = "apps/web/src/design/"
 _PRESERVED_FOUNDATION_FILES = {
     "apps/web/src/design/primitives.css",
@@ -1000,7 +1039,7 @@ def _patch_sha256(project: Path, source_sha: str, paths: Iterable[str]) -> str:
 
 def _git_blob_bytes(project: Path, revision: str, path: str) -> bytes:
     result = subprocess.run(
-        ["git", "show", f"{revision}:{path}"],
+        ["git", "cat-file", "blob", f"{revision}:{path}"],
         cwd=project,
         check=False,
         capture_output=True,
@@ -4240,11 +4279,15 @@ def _validate_retired_materials_reference_changes(
     merge_base: str | None,
 ) -> None:
     changed = set(entries)
-    root_paths = {
+    all_root_paths = {
         path
         for path in changed
         if _path_is_under(path, _RETIRED_STATIC_MATERIALS_REFERENCE_ROOT)
     }
+    # The #331 Fit retirement intentionally shares this historical directory.
+    # Leave those eight exact members to the Fit-specific policy below; only
+    # the Materials bundle is evaluated by this validator.
+    root_paths = all_root_paths - _ISSUE_331_RETIRED_FIT_FILES
     if not root_paths:
         return
     retired_paths = set(_RETIRED_STATIC_MATERIALS_REFERENCE_SHA256)
@@ -4298,6 +4341,69 @@ def _validate_retired_materials_reference_changes(
         )
 
 
+def _issue_331_retired_fit_cleanup(
+    project: Path | None,
+    entries: Mapping[str, bool],
+    merge_base: str | None,
+) -> None:
+    changed = set(entries)
+    retired_fit_paths = changed & _ISSUE_331_RETIRED_FIT_FILES
+    if not retired_fit_paths:
+        return
+    if project is None or merge_base is None:
+        raise DocumentationImpactError(
+            "issue-331 retired Fit evidence deletion requires a repository merge base"
+        )
+
+    paths_under_retired_root = {
+        path for path in changed if _path_is_under(path, _ISSUE_331_RETIRED_FIT_ROOT)
+    }
+    if paths_under_retired_root != set(_ISSUE_331_RETIRED_FIT_FILES):
+        missing = sorted(set(_ISSUE_331_RETIRED_FIT_FILES) - paths_under_retired_root)
+        adjacent = sorted(paths_under_retired_root - _ISSUE_331_RETIRED_FIT_FILES)
+        detail = []
+        if missing:
+            detail.append(f"missing {', '.join(missing)}")
+        if adjacent:
+            detail.append(f"adjacent {', '.join(adjacent)}")
+        raise DocumentationImpactError(
+            "issue-331 retired Fit evidence cleanup requires exactly all eight approved "
+            f"members ({'; '.join(detail)})"
+        )
+
+    for path in sorted(_ISSUE_331_RETIRED_FIT_FILES):
+        if entries.get(path) is not False:
+            raise DocumentationImpactError(
+                f"issue-331 retired Fit evidence permits deletion only: {path}"
+            )
+        if not _git_path_exists(project, merge_base, path):
+            raise DocumentationImpactError(
+                f"issue-331 retired Fit evidence is absent from the merge base: {path}"
+            )
+        expected_hash = _ISSUE_331_RETIRED_FIT_HASHES[path]
+        actual_hash = hashlib.sha256(_git_blob_bytes(project, merge_base, path)).hexdigest()
+        if actual_hash != expected_hash:
+            raise DocumentationImpactError(
+                f"issue-331 retired Fit evidence base hash mismatch: {path}"
+            )
+        worktree_path = project.joinpath(*PurePosixPath(path).parts)
+        if worktree_path.exists() or worktree_path.is_symlink():
+            raise DocumentationImpactError(
+                f"issue-331 retired Fit evidence must be absent from the worktree: {path}"
+            )
+
+    missing_dependencies = sorted(
+        dependency
+        for dependency in _ISSUE_331_RETIRED_FIT_DEPENDENCIES
+        if entries.get(dependency) is not True
+    )
+    if missing_dependencies:
+        raise DocumentationImpactError(
+            "issue-331 retired Fit evidence cleanup requires the same diff to change "
+            + ", ".join(missing_dependencies)
+        )
+
+
 def _validate_visual_evidence_changes(
     entries: Mapping[str, bool],
     config: _VisualEvidenceConfig,
@@ -4311,6 +4417,7 @@ def _validate_visual_evidence_changes(
         project=project,
         merge_base=merge_base,
     )
+    _issue_331_retired_fit_cleanup(project, entries, merge_base)
     issue_184_paths = {
         path
         for path in changed
@@ -4359,6 +4466,8 @@ def _validate_visual_evidence_changes(
                 raise DocumentationImpactError(
                     f"issue-351 retired evidence roots permit deletion only: {path}"
                 )
+            continue
+        if path in _ISSUE_331_RETIRED_FIT_FILES:
             continue
         if path in _ISSUE_167_EXCEPTION_FILES:
             if not all(entries.get(dependency, False) for dependency in _ISSUE_167_DEPENDENCIES):
@@ -4433,7 +4542,63 @@ def _current_changed_pngs(
     }
 
 
-def _has_current_five_viewport_family(paths: Iterable[str]) -> bool:
+def _exact_document_path_reference(text: str, path: str) -> bool:
+    relative = path
+    if path.startswith(_GUIDE_PREFIX):
+        relative = path[len(_GUIDE_PREFIX) :]
+    for candidate in (path, relative):
+        if re.search(
+            rf"(?<![A-Za-z0-9_./-]){re.escape(candidate)}(?![A-Za-z0-9_./-])",
+            text,
+        ):
+            return True
+    return False
+
+
+def _unchanged_current_viewport_is_attested(
+    project: Path,
+    merge_base: str,
+    path: str,
+    evidence: set[str],
+) -> bool:
+    if _SCREENSHOT_MANIFEST not in evidence:
+        return False
+    worktree_path = project.joinpath(*PurePosixPath(path).parts)
+    if not worktree_path.is_file():
+        return False
+    try:
+        if worktree_path.read_bytes() != _git_blob_bytes(project, merge_base, path):
+            return False
+        manifest_text = (
+            project.joinpath(*PurePosixPath(_SCREENSHOT_MANIFEST).parts)
+            .read_text(encoding="utf-8")
+        )
+    except (DocumentationImpactError, OSError, UnicodeError):
+        return False
+    if not _exact_document_path_reference(manifest_text, path):
+        return False
+    for guide_path in sorted(
+        candidate
+        for candidate in evidence
+        if candidate.startswith(_GUIDE_PREFIX) and candidate.endswith(".md")
+    ):
+        guide_file = project.joinpath(*PurePosixPath(guide_path).parts)
+        try:
+            guide_text = guide_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            continue
+        if _exact_document_path_reference(guide_text, path):
+            return True
+    return False
+
+
+def _has_current_five_viewport_family(
+    paths: Iterable[str],
+    *,
+    project: Path | None = None,
+    merge_base: str | None = None,
+    evidence: set[str] | None = None,
+) -> bool:
     groups: dict[str, set[str]] = {}
     pattern = re.compile(
         r"^(?P<stem>.+?)[-_](?P<viewport>1366x768|1440x900|1920x1080|2560x1440|3840x2160)\.png$",
@@ -4446,7 +4611,26 @@ def _has_current_five_viewport_family(paths: Iterable[str]) -> bool:
         if match is not None:
             key = f"{pure_path.parent}/{match.group('stem')}"
             groups.setdefault(key, set()).add(match.group("viewport"))
-    return any(_CURRENT_FIVE_VIEWPORTS <= viewports for viewports in groups.values())
+    if any(_CURRENT_FIVE_VIEWPORTS <= viewports for viewports in groups.values()):
+        return True
+    if project is None or merge_base is None or not evidence:
+        return False
+    for key, viewports in groups.items():
+        if not viewports or _CURRENT_FIVE_VIEWPORTS <= viewports:
+            continue
+        parent, stem = key.rsplit("/", 1)
+        missing = _CURRENT_FIVE_VIEWPORTS - viewports
+        if all(
+            _unchanged_current_viewport_is_attested(
+                project,
+                merge_base,
+                f"{parent}/{stem}-{viewport}.png",
+                evidence,
+            )
+            for viewport in missing
+        ):
+            return True
+    return False
 
 
 def _current_family_paths(paths: Iterable[str]) -> dict[str, dict[str, str]]:
@@ -4609,7 +4793,12 @@ def evaluate_documentation_impact(
         if not current_pngs:
             requirements.append("add or update a current user-guide PNG")
         elif not (
-            _has_current_five_viewport_family(current_pngs)
+            _has_current_five_viewport_family(
+                current_pngs,
+                project=project,
+                merge_base=merge_base,
+                evidence=evidence,
+            )
             or _can_use_unchanged_current_family(
                 project,
                 merge_base,

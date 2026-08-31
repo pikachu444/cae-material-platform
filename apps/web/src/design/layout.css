@@ -167,67 +167,7 @@
 
 /* All normal surfaces use the same compact top-action grammar. */
 
-/* The open sibling disclosure is reflowed into the ribbon so its rows and
-   actions remain visible and hit-testable without covering the graph. */
-
-.modeling-task-ribbon > .step-option-panel.fit-stage-options {
-  min-height: 122px;
-  max-height: none;
-  box-sizing: border-box;
-}
-
-/* Fit controls remain one shallow, graph-adjacent band; detailed evidence is on demand. */
-.fit-stage-options { position: relative; display: grid; align-items: end; gap: 6px; padding: 5px 8px; }
-
-.fit-stage-options input, .fit-stage-options select { min-width: 0; min-height: 26px; font-size: 11px; }
-
 .stage-data > .section-heading { display: none; }
-/* UXC-04C: the approved Fit reference is a single shallow, labelled control band. */
-.fit-stage-options {
-  grid-template-rows: 22px 52px 16px;
-  align-content: start;
-  gap: 3px;
-  padding: 4px 8px;
-}
-
-/* Override the general workbench form sizing: every Fit control stays inside the labelled ribbon. */
-
-.application-shell main.processing-workbench-page .fit-stage-options :is(label, legend, output, button) {
-  font-size: 10px;
-}
-.application-shell main.processing-workbench-page .fit-stage-options input[type="range"] {
-  min-height: 18px;
-}
-
-.data-source-evidence {
-  min-width: 0;
-  border-top: 1px solid var(--ux-border);
-  padding-top: 6px;
-}
-
-.data-source-evidence header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-}
-
-.data-source-evidence header strong {
-  color: var(--ux-text);
-}
-
-.data-source-evidence p {
-  margin: 4px 0;
-  color: var(--ux-text-muted);
-  font-size: 11.5px;
-  line-height: 1.25;
-}
-
-.fit-candidate-status.ready { color: var(--ux-success); }
-.fit-candidate-status.blocked {
-  color: var(--ux-warning);
-}
 
 /* The plot consumes its grid cell. Fixed minimums created a blank band at desktop heights. */
 
@@ -257,19 +197,6 @@
 
 /* Engineering metadata must remain legible without inflating the workbench chrome. */
 
-/* UXC-04E: production Fit uses the approved modeling.html/review.css workspace
-   topology.  Keep the persistent graph below this exact 31px + 72px ribbon. */
-
-.application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options {
-  display: grid;
-  grid-template-rows: 31px 72px;
-  min-height: 103px;
-  max-height: 103px;
-  gap: 0;
-  padding: 0;
-  background: var(--ux-surface-subtle);
-}
-
 /* Fit evidence is a controlled, graph-adjacent dock. Keep the trigger in the
    closed 31px + 72px ribbon while rendering numerical evidence only on demand. */
 
@@ -296,22 +223,9 @@
    density contract. These are component bindings only: tier values remain in
    tokens.css and no route, viewport, DPR, or resolution selects a density. */
 
-.data-source-evidence :is(header, p) {
-  font-size: var(--ux-metadata-font-size);
-}
-
 /* A content-sized Process ribbon may gain a manual-input row. Bound it by the
    actual shared plot allocation so the graph remains reachable; any extra
    controls use one local vertical scrollbar instead of escaping the shell. */
-
-.application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options {
-  container-type: inline-size;
-  grid-template-rows:
-    var(--ux-workbench-ribbon-header-block-size)
-    var(--ux-workbench-ribbon-band-block-size);
-  min-height: calc(var(--ux-workbench-ribbon-block-size) - 1px);
-  max-height: calc(var(--ux-workbench-ribbon-block-size) - 1px);
-}
 
 /* When browser zoom, pane resizing, or a narrow shell allocation reduces the
    Fit ribbon itself, distribute the same six semantic groups across the real
