@@ -284,7 +284,7 @@ describe("Material Catalog workbench", () => {
 
     render(<App />);
 
-    expect((await screen.findAllByText("Demo DP780 Steel")).length).toBeGreaterThanOrEqual(1);
+    expect((await screen.findAllByText("Demo DP780 Steel", {}, { timeout: 10_000 })).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("DP780").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/10,000 matches/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();

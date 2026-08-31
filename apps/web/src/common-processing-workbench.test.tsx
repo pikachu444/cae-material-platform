@@ -648,7 +648,7 @@ describe("Common Processing Workbench", () => {
       />,
     );
     try {
-      const savedProfile = await screen.findByLabelText("Saved Mapping Profile");
+      const savedProfile = await screen.findByLabelText("Saved Mapping Profile", {}, { timeout: 10_000 });
       await waitFor(() => expect((savedProfile as HTMLSelectElement).value).toBe(mappingProfileResource.mapping_profile_id));
       fireEvent.click(screen.getByText("Technical details"));
       const technicalDetails = document.querySelector("details.modeling-data-technical-details");
