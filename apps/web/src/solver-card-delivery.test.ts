@@ -6,6 +6,10 @@ import {
   mappingDisposition,
   recordDeliveryActivity,
 } from "./solver-card-delivery";
+import {
+  loadExactSolverCardSummaries,
+  solverCardSummaryFromEndpoint,
+} from "./features/materials/api/load-material-experience";
 
 describe("solver-card delivery policy", () => {
   afterEach(() => {
@@ -39,6 +43,216 @@ describe("solver-card delivery policy", () => {
       version: 1,
       ...activity,
     }]);
+  });
+
+  it("projects every exact solver-card binding from the workflow graph", () => {
+    const node = (
+      cardId: string,
+      revisionId: string,
+      name: string,
+      kind: "solver_card" | "neutral_solver_card",
+    ) => ({
+      record_id: `record-${cardId}`,
+      record_revision_id: `record-${cardId}-r1`,
+      name,
+      domain_binding: {
+        binding_id: `binding-${cardId}`,
+        record_id: `record-${cardId}`,
+        record_revision_id: `record-${cardId}-r1`,
+        kind,
+        object_id: cardId,
+        revision_id: revisionId,
+        workbench_path: `/materials/material-1/cards/${cardId}`,
+      },
+    });
+
+    const summaries = [
+      node("abaqus-card", "abaqus-card-r3", "DP780 Abaqus card", "solver_card"),
+      node(
+        "radioss-card",
+        "radioss-card-r2",
+        "DP780 OpenRadioss card",
+        "neutral_solver_card",
+      ),
+    ].map((item) => solverCardSummaryFromEndpoint(item as never));
+
+    expect(summaries).toEqual([
+      {
+        id: "abaqus-card",
+        revisionId: "abaqus-card-r3",
+        kind: "solver_card",
+        label: "DP780 Abaqus card",
+        solver: "Abaqus",
+        extension: ".inp",
+      },
+      {
+        id: "radioss-card",
+        revisionId: "radioss-card-r2",
+        kind: "neutral_solver_card",
+        label: "DP780 OpenRadioss card",
+        solver: "OpenRadioss",
+        extension: ".rad",
+      },
+    ]);
+  });
+
+  it("hydrates every unique card binding from its exact revision response", async () => {
+    const node = (
+      cardId: string,
+      revisionId: string,
+      kind: "solver_card" | "neutral_solver_card",
+    ) => ({
+      record_id: "record-1",
+      record_revision_id: "record-r1",
+      name: "Record label is not card metadata",
+      domain_binding: {
+        binding_id: `binding-${cardId}`,
+        record_id: "record-1",
+        record_revision_id: "record-r1",
+        kind,
+        object_id: cardId,
+        revision_id: revisionId,
+        workbench_path: `/materials/material-1/cards/${cardId}`,
+      },
+    });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      const neutral = url.includes("/neutral-solver-cards/");
+      const cardId = neutral ? "radioss-card" : "abaqus-card";
+      const revisionId = neutral ? "radioss-card-r2" : "abaqus-card-r3";
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({
+          solver_card_id: cardId,
+          ...(neutral
+            ? { neutral_material_id: "neutral-1" }
+            : { material_model_id: "model-1", solver_material_id: 301 }),
+          target: {
+            solver: neutral ? "openradioss" : "abaqus",
+            version: "2025",
+            unit_system: "kg_m_s",
+          },
+          current_revision: {
+            id: revisionId,
+            content: neutral
+              ? { material_name: "Exact OpenRadioss card" }
+              : { card_title: "Exact Abaqus card" },
+          },
+        }),
+      } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const graph = {
+      root: node("abaqus-card", "abaqus-card-r3", "solver_card"),
+      nodes: [
+        node("abaqus-card", "abaqus-card-r3", "solver_card"),
+        node("radioss-card", "radioss-card-r2", "neutral_solver_card"),
+      ],
+      links: [],
+    };
+    const cards = await loadExactSolverCardSummaries(
+      { baseUrl: "/api/v1", accessToken: "token" },
+      graph as never,
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const urls = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(urls).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("/solver-cards/abaqus-card?revision_id=abaqus-card-r3"),
+        expect.stringContaining(
+          "/neutral-solver-cards/radioss-card?revision_id=radioss-card-r2",
+        ),
+      ]),
+    );
+    expect(cards).toEqual([
+      {
+        id: "abaqus-card",
+        revisionId: "abaqus-card-r3",
+        kind: "solver_card",
+        label: "Exact Abaqus card",
+        solver: "Abaqus",
+        extension: ".inp",
+      },
+      {
+        id: "radioss-card",
+        revisionId: "radioss-card-r2",
+        kind: "neutral_solver_card",
+        label: "Exact OpenRadioss card",
+        solver: "OpenRadioss",
+        extension: ".rad",
+      },
+    ]);
+    vi.unstubAllGlobals();
+  });
+
+  it("fails closed when one exact card hydration fails", async () => {
+    const binding = {
+      record_id: "record-1",
+      record_revision_id: "record-r1",
+      name: "Record",
+      domain_binding: {
+        binding_id: "binding-1",
+        record_id: "record-1",
+        record_revision_id: "record-r1",
+        kind: "solver_card" as const,
+        object_id: "card-1",
+        revision_id: "card-r1",
+        workbench_path: "/materials/material-1/cards/card-1",
+      },
+    };
+    const neutralBinding = {
+      ...binding,
+      domain_binding: {
+        ...binding.domain_binding,
+        binding_id: "binding-2",
+        kind: "neutral_solver_card" as const,
+        object_id: "neutral-card-1",
+        revision_id: "neutral-card-r1",
+        workbench_path: "/materials/material-1/cards/neutral-card-1",
+      },
+    };
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("neutral-solver-cards")) {
+        return {
+          ok: false,
+          status: 404,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({ detail: "card revision unavailable" }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({
+          solver_card_id: "card-1",
+          material_model_id: "model-1",
+          target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s" },
+          current_revision: {
+            id: "card-r1",
+            content: { card_title: "Exact Abaqus card" },
+          },
+        }),
+      } as Response;
+    });
+    vi.stubGlobal(
+      "fetch",
+      fetchMock,
+    );
+
+    await expect(
+      loadExactSolverCardSummaries(
+        { baseUrl: "/api/v1", accessToken: "token" },
+        { root: binding, nodes: [neutralBinding], links: [] } as never,
+      ),
+    ).rejects.toThrow();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    vi.unstubAllGlobals();
   });
 
   it("projects review identity from the loaded Solver Card revision, not the summary", async () => {

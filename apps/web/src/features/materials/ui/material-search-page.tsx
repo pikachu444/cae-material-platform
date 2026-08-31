@@ -28,7 +28,9 @@ function familyLabel(value: string | null | undefined): string {
   const normalized = value?.trim().toLowerCase();
   if (normalized === "metal") return "Metal";
   if (normalized === "polymer") return "Polymer";
+  if (normalized === "plastic") return "Polymer";
   if (normalized === "elastomer") return "Elastomer";
+  if (normalized === "rubber") return "Elastomer";
   return value?.trim() || "Unclassified";
 }
 
@@ -65,6 +67,7 @@ export function MaterialSearchPage({
     changeSort,
     clearComparison,
     clearFilters,
+    clearUnsupportedFilters,
     clearSearch,
     compareIds,
     comparedMaterials,
@@ -256,6 +259,15 @@ export function MaterialSearchPage({
           <button className="ux-button tertiary" type="button" onClick={retry}>
             Retry
           </button>
+          {error.includes("Unsupported legacy provider/source filters") ? (
+            <button
+              className="ux-button tertiary"
+              type="button"
+              onClick={clearUnsupportedFilters}
+            >
+              Clear unsupported filters
+            </button>
+          ) : null}
         </div>
       ) : null}
       {!loading && !error && !materials.length ? (

@@ -262,26 +262,8 @@ export function MaterialDatasheetProjection({ config, tableId, recordId, mode, r
   const values = useMemo(() => {
     const projected = layoutValues.filter((item) => included(mode, item.attribute));
     if (mode === "curves") return projected.filter((item) => item.value !== null);
-    if (
-      mode === "properties" &&
-      ["processing_output", "material_model", "neutral_material"].includes(
-        recordKind ?? "",
-      )
-    ) {
-      const simulationKeys = new Set([
-        "data_type",
-        "condition",
-        "result_summary",
-        "source_record",
-      ]);
-      return projected.filter(
-        (item) =>
-          item.value !== null &&
-          simulationKeys.has(item.attribute.current_revision.content.key),
-      );
-    }
     return projected;
-  }, [layoutValues, mode, recordKind]);
+  }, [layoutValues, mode]);
 
   const curveValues = useMemo(() => values.filter((item): item is ProjectedValue & {
     value: Extract<ConfigurableRecordValue, { data_type: "curve" }>;

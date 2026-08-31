@@ -482,6 +482,11 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
             Permission.CATALOG_READ,
+            # Neutral Material promotion atomically registers its exact Catalog
+            # owner in the same transaction.  This is transaction-local
+            # capability closure; the public Catalog write endpoint still
+            # requires an explicit top-level CATALOG_WRITE decision.
+            Permission.CATALOG_WRITE,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
             # A model promotion reads one exact immutable Processing Output revision. This is

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from pytest import MonkeyPatch
 
 ROOT = Path(__file__).parents[2]
 _SPEC = spec_from_file_location(
@@ -31,13 +32,16 @@ def _attribute(key: str, *, discrete: bool = False) -> dict[str, Any]:
 
 def _attributes() -> dict[str, dict[str, Any]]:
     return {
-        "material_code": _attribute("material_code"),
-        "material_class": _attribute("material_class", discrete=True),
-        "material_family": _attribute("material_family", discrete=True),
-        "provider": _attribute("provider"),
-        "evidence_source": _attribute("evidence_source"),
-        "condition_summary": _attribute("condition_summary"),
-        "grade": _attribute("grade"),
+        "material_information__family": _attribute(
+            "material_information__family", discrete=True
+        ),
+        "material_information__category": _attribute("material_information__category"),
+        "material_information__grade": _attribute("material_information__grade"),
+        "material_information__details": _attribute("material_information__details"),
+        "data_information__record_name": _attribute("data_information__record_name"),
+        "data_information__technical_data_id": _attribute(
+            "data_information__technical_data_id"
+        ),
     }
 
 
@@ -49,19 +53,9 @@ def test_fixture_specs_are_exactly_1000_searchable_metadata_records() -> None:
     assert specs[0].code == "CMP-SCALE-0000"
     assert specs[-1].code == "CMP-SCALE-0999"
     assert Counter(item.material_class for item in specs) == {
-        "metal": 500,
-        "polymer": 300,
-        "elastomer": 200,
-    }
-    assert Counter(item.provider for item in specs) == {
-        "Disposable Lab A": 250,
-        "Disposable Lab B": 250,
-        "Disposable Lab C": 250,
-        "Disposable Lab D": 250,
-    }
-    assert Counter(item.evidence_source for item in specs) == {
-        "Synthetic metadata only": 600,
-        "Synthetic index only": 400,
+        "Metal": 500,
+        "Plastic": 300,
+        "Rubber": 200,
     }
     assert all("production" not in item.name.lower() for item in specs)
 
@@ -127,7 +121,7 @@ def test_scale_record_creates_one_exact_material_binding_without_curve_payloads(
         "/catalog/records/record-731/revisions/record-revision-731/domain-binding",
     ]
     record_values = calls[1][1]["content"]["values"]
-    assert len(record_values) == 7
+    assert len(record_values) == 6
     assert {value["data_type"] for value in record_values} == {"text", "discrete"}
     assert calls[2][1] == {
         "kind": "material",
@@ -179,7 +173,7 @@ def test_exact_lookup_publication_approves_only_the_representative_revision() ->
             {
                 "expected_manifest_sha256": "sha256:record-731",
                 "decision": "approved",
-                "reason": "Approve only the disposable exact-lookup sample revision.",
+                "reason": "Approve the disposable exact source-v2 Record revision.",
             },
         )
     ]
@@ -216,3 +210,51 @@ def test_exact_lookup_publication_reuses_an_existing_approval() -> None:
             },
         },
     )
+
+
+def test_full_fixture_publication_search_uses_a_bounded_timeout_for_every_page(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    searches: list[tuple[dict[str, Any], float | None]] = []
+    published: list[str] = []
+
+    class PublicationApi:
+        def post(
+            self,
+            path: str,
+            payload: dict[str, Any],
+            *,
+            timeout: float | None = None,
+        ) -> dict[str, Any]:
+            assert path == "/catalog/records:search"
+            searches.append((payload, timeout))
+            offset = int(payload["offset"])
+            return {
+                "items": [
+                    {
+                        "record_id": f"record-{index}",
+                        "current_revision": {
+                            "id": f"record-revision-{index}",
+                            "content_hash": f"sha256:record-{index}",
+                        },
+                    }
+                    for index in range(offset, offset + scale_fixture.PAGE_SIZE)
+                ]
+            }
+
+    monkeypatch.setattr(
+        scale_fixture,
+        "_ensure_exact_lookup_publication",
+        lambda _api, _reviewer, record: published.append(str(record["record_id"])),
+    )
+
+    scale_fixture._publish_all_records(PublicationApi(), object(), table_id="table-1")
+
+    assert len(searches) == scale_fixture.FIXTURE_COUNT // scale_fixture.PAGE_SIZE
+    assert [payload["offset"] for payload, _ in searches] == list(
+        range(0, scale_fixture.FIXTURE_COUNT, scale_fixture.PAGE_SIZE)
+    )
+    assert {timeout for _, timeout in searches} == {
+        scale_fixture.SCALE_FIXTURE_SEARCH_TIMEOUT_SECONDS
+    }
+    assert len(published) == scale_fixture.FIXTURE_COUNT

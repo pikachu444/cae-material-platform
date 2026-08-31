@@ -1,10 +1,32 @@
 schema_version: 3
 retention: approved-targets-only
 default_lifecycle: static-bundle
+current_materials_operational_disposition:
+  status: accepted
+  date: '2026-08-31'
+  scope: behavioral-operation-evidence-only
+  visual_quality: pending-owner-disposition
+  targets:
+  - materials-search-normal-1440x900
+  - materials-search-normal-1366x768
+  - materials-search-normal-1920x1080
+  - materials-datasheet-overview-normal-1440x900
+  - materials-datasheet-overview-normal-1366x768
+  - materials-datasheet-overview-normal-1920x1080
+  - materials-datasheet-related-long-1440x900
+  - materials-datasheet-empty-1440x900
+  - materials-card-preview-normal-1366x768
+  - materials-search-long-1440x900
+  - materials-search-empty-1440x900
+  - materials-card-preview-normal-1440x900
+  - materials-card-preview-normal-1920x1080
+  - materials-card-approximation-blocked-1440x900
+  - materials-card-unsupported-blocked-1440x900
 status_vocabulary:
   reference:
   - pending
   - approved
+  - operational-evidence-accepted
   - rejected
   main_agent_evaluation:
   - pending
@@ -14,184 +36,107 @@ references:
 - id: materials-search-normal-1440x900
   screen: materials-search
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-search-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-    javascript: docs/00-research/ux-service-reference/reference.js
-    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1440x900.measurements.json
-  image_sha256: 7f96a68d0ff03eb20b95abf831354e6a1052e34f0246871c9318ede0cce367a0
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: materials-search-1440
+  image: docs/user-guide/images/current/materials-search-1440x900.png
+  image_sha256: 4385fba9a7100feb7150b4f1523f8ebc28f01651416eb03fbf59c6b5c9054fea
+  status: operational-evidence-accepted
 - id: materials-search-normal-1366x768
   screen: materials-search
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1366
     height: 768
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-search-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-    css_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.css
-    javascript: docs/00-research/ux-service-reference/reference.js
-    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-    javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1366x768.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1366x768.measurements.json
-  image_sha256: bd400b2f913a0d2c8c1e5dba6565c05b12055118ffbbaac1b9e5845cf6bfff89
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: materials-search-1366
+  image: docs/user-guide/images/current/materials-search-1366x768.png
+  image_sha256: ac00d7ef6b5a302227ad9aeb31f6dce36ac948e0333d4d43f2c09ec0fcbeee73
+  status: operational-evidence-accepted
 - id: materials-search-normal-1920x1080
   screen: materials-search
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1920
     height: 1080
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-search-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-    css_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.css
-    javascript: docs/00-research/ux-service-reference/reference.js
-    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-    javascript_override: docs/00-research/ux-service-reference/materials-search-normal-1920x1080.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-normal-1920x1080.measurements.json
-  image_sha256: 57f136268f52386c99cb13970f694cf40a30bdb57a6bc3badcab0b70a24ed3ae
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: materials-search-1920
+  image: docs/user-guide/images/current/materials-search-1920x1080.png
+  image_sha256: 462fe3245ba8b3bf84f5308167b99e44586431ebe1cb89fde19aa125f9a911bd
+  status: operational-evidence-accepted
 - id: materials-datasheet-overview-normal-1440x900
   screen: materials-datasheet-overview
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1440x900.measurements.json
-  image_sha256: c12ab49d173016db7119f0fc8a898cb66495f0424f3b5629480cd91185c3876b
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: material-detail-1440
+  image: docs/user-guide/images/current/material-detail-1440x900.png
+  image_sha256: c891642c12c3e61f9c530909bce31f5a4b4c974fc6249d2eaebd81866a1820f9
+  status: operational-evidence-accepted
 - id: materials-datasheet-overview-normal-1366x768
   screen: materials-datasheet-overview
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1366
     height: 768
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-    css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.css
-    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1366x768.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1366x768.measurements.json
-  image_sha256: d7b0ff64903b655882987ce4feefb9beb456e6cf5709ff8726ec8e293de9f43d
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: material-detail-1366
+  image: docs/user-guide/images/current/material-detail-1366x768.png
+  image_sha256: 4df34e8d7962af35008a56b241d1159d3b9f1a3b3449cb7920ce2164d2da4e92
+  status: operational-evidence-accepted
 - id: materials-datasheet-overview-normal-1920x1080
   screen: materials-datasheet-overview
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1920
     height: 1080
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-    css_navigator: docs/00-research/ux-service-reference/materials-navigator.css
-    css_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.css
-    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-    javascript_navigator: docs/00-research/ux-service-reference/materials-navigator.js
-    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-overview-normal-1920x1080.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.measurements.json
-  image_sha256: 8ac1d48195a233d385743d3d9d936bcea8047f25967a63f0cff9a8a984ab06f0
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: material-detail-1920
+  image: docs/user-guide/images/current/material-detail-1920x1080.png
+  image_sha256: 1652ed01884b1fe9df14ce3b02a43d166384135f6d6f50c387c06e847e9dbaaf
+  status: operational-evidence-accepted
 - id: materials-datasheet-related-long-1440x900
   screen: materials-datasheet-related
   state: related-long
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-    css_override: docs/00-research/ux-service-reference/materials-datasheet-related-long-1440x900.css
-    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-related-long-1440x900.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.measurements.json
-  image_sha256: 810394678a9a77c1c35adc4a1848ca45eadd71a1a95a69ea94af7266405079b6
-  date: 2026-07-29
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-29
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: material-detail-related-long-1440
+  image: docs/user-guide/images/current/material-detail-related-long-1440x900.png
+  image_sha256: 88ba19e14940567b115334bd799b1081092c838b10d7189e898a941d716dfa73
+  status: operational-evidence-accepted
 - id: materials-datasheet-empty-1440x900
   screen: materials-datasheet-overview
   state: empty
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-datasheet-overview-normal.html
-    css: docs/00-research/ux-service-reference/reference.css
-    css_detail: docs/00-research/ux-service-reference/materials-datasheet.css
-    css_override: docs/00-research/ux-service-reference/materials-datasheet-empty-1440x900.css
-    javascript: docs/00-research/ux-service-reference/materials-datasheet.js
-    javascript_override: docs/00-research/ux-service-reference/materials-datasheet-empty-1440x900.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.measurements.json
-  image_sha256: 8df98559459f03db925e02251e10a84265b9ff1e21cd8f4573dd9d2a090548e6
-  date: 2026-07-29
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-29
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: material-detail-empty-1440
+  image: docs/user-guide/images/current/material-detail-empty-1440x900.png
+  image_sha256: c4ac8cb9b511b6a9e32f5a7648a373a73fa526f21c5313745c265fbd982ad846
+  status: operational-evidence-accepted
 - id: modeling-data-normal-1366x768
   screen: modeling-data
   state: normal
@@ -290,60 +235,42 @@ references:
 - id: materials-card-preview-normal-1366x768
   screen: materials-card
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1366
     height: 768
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
-    css: docs/00-research/ux-service-reference/materials-card-preview.css
-    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.measurements.json
-  image_sha256: b4f38c0117c13f50b9cefbccf833d389b7a91c8c719961c66b9d2226cf3950a3
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: solver-card-preview-1366
+  image: docs/user-guide/images/current/solver-card-preview-1366x768.png
+  image_sha256: d165236cd42c58fdcc55efc5c888212c88a8849724bc9bd1726a5ee5b0a59a6e
+  status: operational-evidence-accepted
 - id: materials-search-long-1440x900
   screen: materials-search
   state: long
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-search-exceptional.html
-    css: docs/00-research/ux-service-reference/materials-search-exceptional.css
-    javascript: docs/00-research/ux-service-reference/materials-search-exceptional.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.measurements.json
-  image_sha256: 43f146e60baf2d933265d952e22fce5cd0c1e2ca0e9145eea0e72a9677da2484
-  date: 2026-07-29
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: materials-scroll-long-1440
+  image: docs/user-guide/images/current/materials-search-long-1440x900.png
+  image_sha256: bc37fad41e980c30a1bf2c4cfdbe2e9eec0db74845f0a365ebf27bc9c2d5cbac
+  status: operational-evidence-accepted
 - id: materials-search-empty-1440x900
   screen: materials-search
   state: empty
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-search-exceptional.html
-    css: docs/00-research/ux-service-reference/materials-search-exceptional.css
-    javascript: docs/00-research/ux-service-reference/materials-search-exceptional.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-search-empty-1440x900.measurements.json
-  image_sha256: d9e4fed1d8c17ca86b7c14dfe57909591b44ff8ec300286bb49f3a940fb5e1b1
-  date: 2026-07-29
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: materials-scroll-empty-1440
+  image: docs/user-guide/images/current/materials-search-empty-1440x900.png
+  image_sha256: 5e7a9fb3985fa8574a21966e27b86a987ca3a2821423deb069902c1eb469ae64
+  status: operational-evidence-accepted
 - id: modeling-fit-normal-1366x768
   screen: modeling-fit
   state: normal
@@ -423,79 +350,55 @@ references:
 - id: materials-card-preview-normal-1440x900
   screen: materials-card
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
-    css: docs/00-research/ux-service-reference/materials-card-preview.css
-    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.measurements.json
-  image_sha256: 05b327f3741f27962bb6dc7ee961071ab3dedb2b840fedc5c94799ea6076c8db
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: solver-card-preview-1440
+  image: docs/user-guide/images/current/solver-card-preview-1440x900.png
+  image_sha256: 37e3c821f30f3d89223f4b0184529e50dd58571b771a75a368bd80feb651ead8
+  status: operational-evidence-accepted
 - id: materials-card-preview-normal-1920x1080
   screen: materials-card
   state: normal
+  lifecycle: current-product-evidence
   viewport:
     width: 1920
     height: 1080
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
-    css: docs/00-research/ux-service-reference/materials-card-preview.css
-    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.measurements.json
-  image_sha256: 963ac2613b244caadde2e9f576c9078ebbf6f6138177b8c25c30018797d77fb4
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: solver-card-preview-1920
+  image: docs/user-guide/images/current/solver-card-preview-1920x1080.png
+  image_sha256: 06e7eaeec3fcaf4da6ecd8fac3c8b122ca2bb867103aa3a71c2ec9e2b8b02424
+  status: operational-evidence-accepted
 - id: materials-card-approximation-blocked-1440x900
   screen: materials-card
   state: approximation-blocked
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
-    css: docs/00-research/ux-service-reference/materials-card-preview.css
-    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.measurements.json
-  image_sha256: 6cfe99b8f20b4609c0fc509e79c8013ef13d764ba55166a617cc9b08c2402ec8
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: solver-card-approximation-blocked-1440
+  image: docs/user-guide/images/current/solver-card-approximation-blocked-1440x900.png
+  image_sha256: c0a3f1eb9d871eefbad85ab9e075f3f408199941e18c4d75a08832106e737504
+  status: operational-evidence-accepted
 - id: materials-card-unsupported-blocked-1440x900
   screen: materials-card
   state: unsupported-blocked
+  lifecycle: current-product-evidence
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/materials-card-preview-normal.html
-    css: docs/00-research/ux-service-reference/materials-card-preview.css
-    javascript: docs/00-research/ux-service-reference/materials-card-preview.js
-  image: docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.measurements.json
-  image_sha256: 8eba256b6a59e6c9d61a7a3b6574e4878952dd62e690703ce25a88764fd1afc6
-  date: 2026-07-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-07-30
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: solver-card-unsupported-blocked-1440
+  image: docs/user-guide/images/current/solver-card-unsupported-blocked-1440x900.png
+  image_sha256: a4016faa7c150e908f1c94a53b61048c28eef5f2c04a39af46a3672bf5ecc9a8
+  status: operational-evidence-accepted
 - id: modeling-process-normal-1366x768
   screen: modeling-process
   state: normal

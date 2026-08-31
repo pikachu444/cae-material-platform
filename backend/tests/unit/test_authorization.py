@@ -320,6 +320,15 @@ def test_admin_roles_do_not_implicitly_receive_business_or_approval_access() -> 
     assert Permission.PLUGIN_SUBMIT not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
 
 
+def test_modeling_write_closes_catalog_binding_transaction_capability() -> None:
+    permissions = set(database_permissions_for(Permission.MODELING_WRITE))
+
+    assert Permission.CATALOG_WRITE.value in permissions
+
+    # This is a database capability closure only.  Public endpoint authorization
+    # continues to use the caller's explicit top-level permission decision.
+
+
 def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
     for permissions in ROLE_PERMISSIONS.values():
         for action in permissions:

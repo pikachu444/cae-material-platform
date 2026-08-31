@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TypedDict
 
 import pytest
+from cmp.tools import documentation_impact
 from cmp.tools.documentation_impact import (
     DocumentationImpactError,
     DocumentationImpactException,
@@ -19,6 +20,7 @@ from cmp.tools.documentation_impact import (
     _static_imports,
     _validate_binding_order,
     _validate_exception,
+    _validate_retired_materials_reference_changes,
     evaluate_documentation_impact,
     verify_documentation_impact,
 )
@@ -1601,3 +1603,88 @@ def test_deleted_visual_evidence_cannot_satisfy_current_documentation_gate() -> 
         evaluate_documentation_impact(entries)
     with pytest.raises(DocumentationImpactError, match="current user-guide PNG"):
         evaluate_documentation_impact(entries)
+
+
+def _retired_material_fixture(tmp_path: Path) -> tuple[Path, str, tuple[str, ...]]:
+    paths = tuple(
+        f"docs/17-evidence/images/issue-167-service-reference/material-{name}.png"
+        for name in ("normal", "empty")
+    )
+    for index, path in enumerate(paths):
+        _write_fixture_file(tmp_path, path, f"legacy-{index}\n")
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Retirement Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "legacy Materials references")
+    base = _git(tmp_path, "rev-parse", "HEAD")
+    return tmp_path, base, paths
+
+
+def _retired_entries(paths: tuple[str, ...]) -> dict[str, bool]:
+    return {
+        **{path: False for path in paths},
+        "docs/product/service-reference-manifest.yaml": True,
+        "docs/user-guide/screenshot-manifest.yaml": True,
+        "docs/user-guide/materials.md": True,
+    }
+
+
+def test_retired_material_policy_accepts_only_the_complete_exact_delete_set(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project, base, paths = _retired_material_fixture(tmp_path)
+    digests = {
+        path: hashlib.sha256(
+            documentation_impact._git_blob_bytes(project, base, path)
+        ).hexdigest()
+        for path in paths
+    }
+    monkeypatch.setattr(
+        documentation_impact, "_RETIRED_STATIC_MATERIALS_REFERENCE_SHA256", digests
+    )
+    for path in paths:
+        (project / path).unlink()
+
+    _validate_retired_materials_reference_changes(
+        _retired_entries(paths), project=project, merge_base=base
+    )
+
+
+@pytest.mark.parametrize("case", ("partial", "hash", "adjacent", "coupling", "readd"))
+def test_retired_material_policy_rejects_partial_hash_adjacent_coupling_or_readd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+) -> None:
+    project, base, paths = _retired_material_fixture(tmp_path)
+    digests = {
+        path: hashlib.sha256(
+            documentation_impact._git_blob_bytes(project, base, path)
+        ).hexdigest()
+        for path in paths
+    }
+    monkeypatch.setattr(
+        documentation_impact, "_RETIRED_STATIC_MATERIALS_REFERENCE_SHA256", digests
+    )
+    for path in paths:
+        (project / path).unlink()
+    entries = _retired_entries(paths)
+    if case == "partial":
+        entries.pop(paths[-1])
+    elif case == "hash":
+        digests[paths[0]] = "0" * 64
+    elif case == "adjacent":
+        entries[
+            "docs/17-evidence/images/issue-167-service-reference/adjacent.png"
+        ] = False
+    elif case == "coupling":
+        entries.pop("docs/user-guide/screenshot-manifest.yaml")
+    else:
+        _write_fixture_file(project, paths[0], "readded\n")
+
+    with pytest.raises(DocumentationImpactError):
+        _validate_retired_materials_reference_changes(
+            entries, project=project, merge_base=base
+        )

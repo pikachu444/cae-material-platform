@@ -8,6 +8,9 @@ from cmp.bootstrap.security import IdentityServices
 from cmp.bootstrap.settings import Settings
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
+from cmp.modules.catalog.adapters.persistence.neutral_material_binding import (
+    make_catalog_ownership_projection_hook,
+)
 from cmp.modules.exporting.adapters.persistence.bulk_export_repository import (
     SqlAlchemyBulkExportRepository,
 )
@@ -110,6 +113,7 @@ def build_solver_card_service(identity: IdentityServices) -> SolverCardService |
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_catalog_ownership_projection_hook(),
             ),
         )
     )
@@ -132,6 +136,7 @@ def build_elastoplastic_solver_card_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_catalog_ownership_projection_hook(),
             ),
         ),
         material_models=material_models,
@@ -155,6 +160,7 @@ def build_linear_viscoelastic_solver_card_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_catalog_ownership_projection_hook(),
             ),
         ),
         material_models=material_models,
@@ -178,6 +184,7 @@ def build_ogden_prony_solver_card_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_catalog_ownership_projection_hook(),
             ),
         ),
         material_models=material_models,
@@ -202,6 +209,7 @@ def build_neutral_hyperelastic_solver_card_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
+                make_catalog_ownership_projection_hook(),
             ),
         ),
         neutral_materials=neutral_materials,

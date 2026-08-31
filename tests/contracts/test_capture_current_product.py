@@ -452,7 +452,7 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 128
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 134
     assert "administration-format-definitions-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-categories-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-linked-test-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
@@ -802,27 +802,15 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert "_ensure_neutral_material_record_binding(" not in approximation_flow
     delivered_open = delivered_flow.index('_open_modeling_stage(delivered, "export")')
     delivered_recovery = delivered_flow.index("_prepare_exact_metal_source_if_needed(delivered)")
-    delivered_binding = delivered_flow.index(
-        "_ensure_neutral_material_record_binding(delivered, base_url)"
-    )
     delivered_preview = delivered_flow.index("_prepare_exact_target_preview(delivered")
     assert delivered_flow.index("_prepare_fit_for_export(") < delivered_flow.index(
         '_save_exact_fit_selection(delivered, candidate_key="swift+voce", require_warning=False)'
-    ) < delivered_open < delivered_recovery < delivered_binding < delivered_preview
-    assert export_capture.count("_ensure_neutral_material_record_binding(") == 1
+    ) < delivered_open < delivered_recovery < delivered_preview
+    assert "_assert_saved_fit_survives_export_reload(delivered, base_url)" in delivered_flow
+    assert "_assert_exact_material_solver_card_readback(delivered, base_url)" in delivered_flow
+    assert "_ensure_neutral_material_record_binding" not in export_capture
     assert "_prepare_exact_metal_source_if_needed" not in source_blocked_flow
-
-    binding_helper = _CAPTURE_SOURCE.split(
-        "def _ensure_neutral_material_record_binding", 1
-    )[1].split("def _prepare_exact_target_preview", 1)[0]
-    assert "/api/v1/catalog/domain-bindings:resolve" in binding_helper
-    assert "material_record = _resolve_exact_material_record(page, base_url)" in binding_helper
-    assert "published_only=true" not in binding_helper
-    assert "published Material workflow has no Neutral Material Record" not in binding_helper
-    assert "/domain-binding`" in binding_helper
-    assert 'kind: "neutral_material"' in binding_helper
-    assert 'status: "created"' in binding_helper
-    assert 'status: "reused"' in binding_helper
+    assert "def _ensure_neutral_material_record_binding" not in _CAPTURE_SOURCE
 
     export_flow = _CAPTURE_SOURCE.split(
         "def _prepare_exact_target_preview", 1
@@ -1004,6 +992,14 @@ def test_modeling_fit_capture_saves_exact_process_source_and_scrolls_evidence_lo
     assert "page.keyboard.press(\"Escape\")" in _CAPTURE_SOURCE
     assert "Candidate selection reason" in _CAPTURE_SOURCE
     assert "Acknowledge selected candidate warning" in _CAPTURE_SOURCE
+    page_down_proof = scroll_fn_source.index("after_page_down =", page_down_index)
+    wheel_reset = scroll_fn_source.index("# PageDown can land", page_down_proof)
+    wheel_wait = scroll_fn_source.index("page.wait_for_function(", wheel_reset)
+    wheel_proof = scroll_fn_source.index("after_wheel =", wheel_wait)
+    assert page_down_index < page_down_proof < wheel_reset < wheel_wait < wheel_proof
+    assert "after_page_down <= 0" in scroll_fn_source
+    assert "wheel_after[\"scrollLeft\"] != wheel_before[\"scrollLeft\"]" in scroll_fn_source
+    assert "wheel_after[\"rectLeft\"] != wheel_before[\"rectLeft\"]" in scroll_fn_source
 
 
 def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() -> None:
@@ -1122,6 +1118,34 @@ def test_modeling_fit_capture_resolves_hardening_clip_path_and_curve_containment
     assert "hardening curves are not contained by a resolved clipPath" in _CAPTURE_SOURCE
 
 
+def test_modeling_export_readback_is_exact_and_does_not_use_a_broad_material_route() -> None:
+    readback_flow = _CAPTURE_SOURCE.split(
+        "def _read_delivered_card_identity", 1
+    )[1].split("def _capture_modeling_export_only", 1)[0]
+    for fragment in (
+        "_read_delivered_card_identity(page)",
+        "UUID-like solver card id",
+        "UUID-like solver card revision id",
+        "expected_path = f\"/materials/{material_id}/cards/{card_id}\"",
+        "wait_for_url(re.compile(re.escape(expected_path) + r\"$\")",
+        "urlsplit(page.url).path != expected_path",
+        "expected_api_url",
+        "/api/v1/neutral-solver-cards/",
+        "?revision_id=",
+        "Authorization",
+        "solver_card_id"):
+        assert fragment in readback_flow
+    assert 'wait_for_url(re.compile(r"/materials/")' not in readback_flow
+    assert "Native solver card preview" in readback_flow
+    assert "Card preview" in readback_flow
+    assert "DP780_C1_REFERENCE" in readback_flow
+    assert "target.get(\"solver\") != \"abaqus\"" in readback_flow
+    assert "target.get(\"version\") != \"2025\"" in readback_flow
+    assert "target.get(\"unit_system\") != \"kg_m_s\"" in readback_flow
+    assert "with page.expect_response(" in readback_flow
+    assert "expected_download_url" in readback_flow
+
+
 def test_modeling_fit_capture_states_route_calculation_save_and_exact_read_failures() -> None:
     for path in MODELING_FIT_STATE_OUTPUTS:
         assert f'output / "{path}"' in _CAPTURE_SOURCE
@@ -1131,7 +1155,8 @@ def test_modeling_fit_capture_states_route_calculation_save_and_exact_read_failu
     assert "deterministic Fit calculation failure" in _CAPTURE_SOURCE
     assert "deterministic Fit save failure" in _CAPTURE_SOURCE
     assert "deterministic saved Fit exact-read failure" in _CAPTURE_SOURCE
-    assert "Retry exact saved Fit" in _CAPTURE_SOURCE
+    assert "Retry saved Fit" in _CAPTURE_SOURCE
+    assert "Retry exact saved Fit" not in _CAPTURE_SOURCE
     assert '"Saved Fit result unavailable", exact=False' in _CAPTURE_SOURCE
     assert (
         "No saved Process Output is bound. Save Process before calculating Fit."
@@ -1162,7 +1187,9 @@ def test_fit_exact_source_blocker_scopes_duplicate_copy_to_plot_overlay() -> Non
     assert 'fit_plot_overlay = fit_blocked.locator(\n        "#modeling-fit .engineering-curve-plot-empty-overlay"\n    )' in blocker_flow
     assert 'fit_plot_overlay.get_by_text(\n        fit_blocker_message,\n        exact=True,\n    )' in blocker_flow
     assert 'fit_source_binding = fit_blocked.locator(".fit-context-source")' in blocker_flow
-    assert 'fit_source_binding.inner_text().strip() != "No saved Process Output"' in blocker_flow
+    assert "blocked_context_text, blocked_context_title = _read_fit_context_header(fit_blocked)" in blocker_flow
+    assert "_wait_for_fit_context_header(" in blocker_flow
+    assert 'fit_source_binding.inner_text().strip() == "No saved Process Output"' in blocker_flow
     assert "fit_blocked.get_by_text(" not in blocker_flow
     assert ".first" not in blocker_flow
 
@@ -1214,7 +1241,8 @@ def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers()
     )
     save_source = ast.get_source_segment(_CAPTURE_SOURCE, save_node)
     assert save_source is not None
-    assert 'get_by_text(\n        "Saved current", exact=True' in save_source
+    assert "expected.allowError" in save_source
+    assert "textContent?.trim() === 'Saved current'" in save_source
     assert 'parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]' in save_source
     assert "processingOutput" in save_source
     assert 'pointer.get(key)' in save_source
@@ -1287,9 +1315,12 @@ def test_fit_save_allows_only_the_expected_exact_restore_error_after_commit_proo
     assert save_source is not None
     assert "allow_expected_exact_restore_failure: bool = False" in save_source
     assert "EXPECTED_EXACT_FIT_RESTORE_ERROR" in save_source
-    assert "not allow_expected_exact_restore_failure or not error_text.startswith(" in save_source
-    assert 'get_by_text(\n        "Saved current", exact=True' in save_source
-    assert save_source.index('get_by_text(\n        "Saved current", exact=True') < save_source.rindex(
+    assert "expected.allowError" in save_source
+    assert '"allowError": allow_expected_exact_restore_failure' in save_source
+    assert "textContent?.trim() === 'Saved current'" in save_source
+    assert save_source.index("save_candidate.click()") < save_source.index(
+        "page.wait_for_function(", save_source.index("save_candidate.click()")
+    ) < save_source.rindex(
         'parse_qs(urlsplit(page.url).query).get("stage") != ["fit"]'
     )
     assert save_source.index('pointer.get(key)') < save_source.index('error_banner = page.locator(".error-banner")')
@@ -1310,6 +1341,15 @@ def test_restored_fit_counts_only_the_exact_processing_output_content_read() -> 
         "    restored = prepared_fit", 1
     )[1].split("def _capture_modeling_process_fit", 1)[0]
 
+    assert "restored_context_text, restored_context_title = _read_fit_context_header(restored)" in restored_flow
+    assert "_wait_for_fit_title_state(restored, \"Saved current\")" in restored_flow
+    assert "_wait_for_fit_context_header(" in restored_flow
+    assert "Saved immutable Fit Output restored with its exact Process source and decision." not in restored_flow
+    assert "source_label not in source_evidence_text" in restored_flow
+    assert 'f\"r{source_revision}\" not in source_evidence_text' in restored_flow
+    assert "source_digest not in source_evidence_text" in restored_flow
+    assert 'source_label not in source_binding_text' not in restored_flow
+    assert 'f\"r{source_revision}\" not in source_binding_text' not in restored_flow
     assert 'r"/api/v1/processing-outputs/[^/]+/content"' in restored_flow
     assert "urlsplit(url).path" in restored_flow
     assert "expected_restore_url" in restored_flow
@@ -1902,6 +1942,12 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
     assert "two optional comparisons" in surface_flow
     assert "optional comparison action drifted from the Modeling action color" in surface_flow
     assert "Modeling Data Browser and Related data headings are not aligned" in surface_flow
+    assert 'related_slot = browser.locator(".modeling-data-related-slot")' in surface_flow
+    assert "related_count = related.count()" in surface_flow
+    assert "if related_count == 1:" in surface_flow
+    assert "empty Related slot contains unexpected content" in surface_flow
+    assert "const svg = document.querySelector('.modeling-data-plot svg');" in surface_flow
+    assert "box.width > 0 && box.height > 0" in surface_flow
     assert "row = _modeling_data_library_row(page, document_key)" in surface_flow
     assert 'library.locator(".data-library-row").nth' not in surface_flow
 
@@ -1928,6 +1974,35 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
     )[1].split("    siblings = _new_page", 1)[0]
     assert "_wait_for_exact_document_load_settled(failed)" not in failed_flow
     assert "failed.reload()" in failed_flow
+
+
+def test_export_preflight_preserves_candidate_specific_warning_state() -> None:
+    helper = _CAPTURE_SOURCE.split(
+        "def _assert_saved_fit_survives_export_reload", 1
+    )[1].split("def _read_delivered_card_identity", 1)[0]
+    assert "before_outputs = _list_processing_outputs(page, base_url)" in helper
+    assert "expected_warning_acknowledged = before_decision[\"warning_acknowledged\"]" in helper
+    assert "isinstance(before_decision.get(\"warning_acknowledged\"), bool)" in helper
+    assert "decision.get(\"warning_acknowledged\") is not expected_warning_acknowledged" in helper
+    assert "changed the Fit warning acknowledgement" in helper
+
+
+def test_export_delivery_readback_reads_direct_dt_dd_pairs() -> None:
+    helper = _CAPTURE_SOURCE.split(
+        "def _read_delivered_card_identity", 1
+    )[1].split("def _assert_exact_material_solver_card_readback", 1)[0]
+    assert "querySelectorAll('dl > dt')" in helper
+    assert "label.nextElementSibling?.matches('dd')" in helper
+    assert "querySelectorAll('dl > div')" not in helper
+
+
+def test_export_delivery_readback_acknowledges_a_required_mapping_review() -> None:
+    helper = _CAPTURE_SOURCE.split(
+        "def _assert_exact_material_solver_card_readback", 1
+    )[1].split("def _capture_modeling_export_only", 1)[0]
+    assert "review_acknowledgement = page.get_by_role(\"checkbox\")" in helper
+    assert "review acknowledgement must start unchecked" in helper
+    assert "download.is_disabled()" in helper
 
 
 def test_capture_settles_focus_and_paint_after_before_screenshot_callback() -> None:

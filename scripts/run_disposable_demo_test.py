@@ -512,6 +512,41 @@ def _run_seed_twice_and_assert_stable(root: Path, project: str) -> None:
     _run_stage("repeat demo seed comparison", lambda: _assert_repeat_seed_stable(first, second))
 
 
+def _run_scale_seed_twice_and_assert_stable(root: Path, project: str) -> None:
+    """Prove the disposable scale population is idempotent as its own batch."""
+
+    seed_command = compose_command(
+        root,
+        project,
+        "run",
+        "--rm",
+        "--no-deps",
+        "--env",
+        f"CMP_DISPOSABLE_PROJECT_NAME={project}",
+        "seed",
+        "python",
+        "scripts/seed_disposable_scale_fixture.py",
+        "--api-base-url",
+        "http://api:8000/api/v1",
+        "--project-name",
+        project,
+    )
+    _run_stage("initial disposable scale fixture", lambda: _run_command(seed_command, cwd=root))
+    first = _run_stage(
+        "initial disposable scale fixture snapshot",
+        lambda: _repeat_seed_snapshot(root, project),
+    )
+    _run_stage("repeat disposable scale fixture", lambda: _run_command(seed_command, cwd=root))
+    second = _run_stage(
+        "repeat disposable scale fixture snapshot",
+        lambda: _repeat_seed_snapshot(root, project),
+    )
+    _run_stage(
+        "repeat disposable scale fixture comparison",
+        lambda: _assert_repeat_seed_stable(first, second),
+    )
+
+
 def _permanent_counts(root: Path) -> tuple[tuple[str, int], ...] | None:
     container = _permanent_postgres_container(root)
     if container is None:
@@ -627,28 +662,7 @@ def _run_verification(
     )
     _run_seed_twice_and_assert_stable(root, project)
     if scale_fixture:
-        _run_stage(
-            "disposable 1,000-record scale fixture",
-            lambda: _run_command(
-                compose_command(
-                    root,
-                    project,
-                    "run",
-                    "--rm",
-                    "--no-deps",
-                    "--env",
-                    f"CMP_DISPOSABLE_PROJECT_NAME={project}",
-                    "seed",
-                    "python",
-                    "scripts/seed_disposable_scale_fixture.py",
-                    "--api-base-url",
-                    "http://api:8000/api/v1",
-                    "--project-name",
-                    project,
-                ),
-                cwd=root,
-            ),
-        )
+        _run_scale_seed_twice_and_assert_stable(root, project)
     if not e2e:
         _run_stage(
             "full demo API verification",

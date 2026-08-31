@@ -21,6 +21,14 @@ import type {
   MaterialResponse,
 } from "../contracts";
 import {
+  getNeutralSolverCard,
+  getSolverCard,
+} from "../../modeling";
+import type {
+  NeutralHyperelasticSolverCardResponse,
+  SolverCardResponse,
+} from "../../modeling/contracts";
+import {
   previewSolverCardText as previewExactSolverCardText,
   type SolverCardSummary,
 } from "../../../solver-card-delivery";
@@ -37,33 +45,117 @@ export interface MaterialExperience {
   catalogRecord: ConfigurableCatalogRecordResponse | null;
 }
 
-function solverFor(
+export interface SolverCardBindingReference {
+  id: string;
+  revisionId: string;
+  kind: SolverCardSummary["kind"];
+}
+
+function solverForTarget(
+  target: { solver: string },
+): Pick<SolverCardSummary, "solver" | "extension"> {
+  const normalized = target.solver.trim().toLowerCase();
+  if (normalized === "openradioss") {
+    return { solver: "OpenRadioss", extension: ".rad" };
+  }
+  if (normalized === "abaqus") {
+    return { solver: "Abaqus", extension: ".inp" };
+  }
+  throw new Error(`Unsupported exact Solver Card target: ${target.solver}`);
+}
+
+function legacySolverForRecordNode(
   name: string,
 ): Pick<SolverCardSummary, "solver" | "extension"> {
   const normalized = name.toLowerCase();
   if (normalized.includes("openradioss") || normalized.includes("radioss")) {
     return { solver: "OpenRadioss", extension: ".rad" };
   }
-  if (normalized.includes("abaqus"))
+  if (normalized.includes("abaqus")) {
     return { solver: "Abaqus", extension: ".inp" };
+  }
   return { solver: "Solver", extension: ".txt" };
 }
 
+export function solverCardBindingsFromEndpoint(
+  node: CatalogWorkflowGraphResponse["nodes"][number],
+): SolverCardBindingReference[] {
+  return nodeBindings(node)
+    .flatMap((binding) => {
+      if (
+        binding.kind !== "neutral_solver_card" &&
+        binding.kind !== "solver_card"
+      ) {
+        return [];
+      }
+      return [{
+        id: binding.object_id,
+        revisionId: binding.revision_id,
+        kind: binding.kind,
+      }];
+    });
+}
+
+type ExactSolverCardResponse = SolverCardResponse | NeutralHyperelasticSolverCardResponse;
+
+function summaryFromExactResponse(
+  reference: SolverCardBindingReference,
+  response: ExactSolverCardResponse,
+): SolverCardSummary {
+  const responseId = response.solver_card_id;
+  if (
+    responseId !== reference.id ||
+    response.current_revision.id !== reference.revisionId
+  ) {
+    throw new Error(
+      `Exact Solver Card ${reference.id} returned an unexpected revision`,
+    );
+  }
+  const label = reference.kind === "solver_card"
+    ? (response as SolverCardResponse).current_revision.content.card_title
+    : (response as NeutralHyperelasticSolverCardResponse).current_revision.content
+      .material_name;
+  if (!label.trim()) {
+    throw new Error(`Exact Solver Card ${reference.id} has no display name`);
+  }
+  return {
+    id: reference.id,
+    revisionId: reference.revisionId,
+    kind: reference.kind,
+    label,
+    ...solverForTarget(response.target),
+  };
+}
+
+async function hydrateSolverCard(
+  config: ApiConfig,
+  reference: SolverCardBindingReference,
+): Promise<SolverCardSummary> {
+  const result = reference.kind === "solver_card"
+    ? await getSolverCard(config, reference.id, reference.revisionId)
+    : await getNeutralSolverCard(config, reference.id, reference.revisionId);
+  return summaryFromExactResponse(reference, result.data);
+}
+
+/**
+ * Compatibility projection for the exact-record route.  The Materials
+ * experience uses `loadExactSolverCardSummaries`, which hydrates every card
+ * from its exact response before exposing a summary.  This synchronous
+ * adapter remains for the legacy single-card detail surface, where the
+ * endpoint itself supplies only a binding and no target metadata.
+ */
 export function solverCardSummaryFromEndpoint(
   node: CatalogWorkflowGraphResponse["nodes"][number],
 ): SolverCardSummary | null {
-  const binding = nodeBindings(node).find(
-    (candidate) =>
-      candidate.kind === "neutral_solver_card" ||
-      candidate.kind === "solver_card",
-  );
-  if (!binding) return null;
+  const bindings = solverCardBindingsFromEndpoint(node);
+  if (bindings.length !== 1) return null;
+  const [binding] = bindings;
   return {
-    id: binding.object_id,
-    revisionId: binding.revision_id,
-    kind: binding.kind as SolverCardSummary["kind"],
+    id: binding.id,
+    revisionId: binding.revisionId,
+    kind: binding.kind,
     label: node.name,
-    ...solverFor(node.name),
+    ...legacySolverForRecordNode(node.name),
   };
 }
 
@@ -86,32 +178,44 @@ export function nodeBindings(
 
 function cardsFromGraph(
   graph: CatalogWorkflowGraphResponse | null,
-): SolverCardSummary[] {
+): SolverCardBindingReference[] {
   if (!graph) return [];
-  return graph.nodes
-    .map(solverCardSummaryFromEndpoint)
-    .filter((card): card is SolverCardSummary => card !== null)
-    .sort((left, right) => left.solver.localeCompare(right.solver));
+  const references = [graph.root, ...graph.nodes].flatMap(
+    solverCardBindingsFromEndpoint,
+  );
+  const unique = new Map<string, SolverCardBindingReference>();
+  for (const reference of references) {
+    unique.set(
+      `${reference.kind}:${reference.id}:${reference.revisionId}`,
+      reference,
+    );
+  }
+  return [...unique.values()];
 }
 
-async function currentCards(
+export async function loadExactSolverCardSummaries(
   config: ApiConfig,
-  materialId: string,
   graph: CatalogWorkflowGraphResponse | null,
 ): Promise<SolverCardSummary[]> {
-  const merged = new Map(
-    cardsFromGraph(graph).map((card) => [
-      `${card.kind}:${card.id}:${card.revisionId}`,
-      card,
-    ]),
+  const references = cardsFromGraph(graph);
+  // Promise.all deliberately rejects the complete projection when one exact
+  // card cannot be hydrated.  A partial card list could mislead an engineer
+  // into treating an incomplete approved graph as complete.
+  const cards = await Promise.all(
+    references.map((reference) => hydrateSolverCard(config, reference)),
   );
-  void config;
-  void materialId;
-  return [...merged.values()].sort(
+  return cards.sort(
     (left, right) =>
       left.solver.localeCompare(right.solver) ||
       left.label.localeCompare(right.label),
   );
+}
+
+async function currentCards(
+  config: ApiConfig,
+  graph: CatalogWorkflowGraphResponse | null,
+): Promise<SolverCardSummary[]> {
+  return loadExactSolverCardSummaries(config, graph);
 }
 
 export function curveFromNativeCard(
@@ -211,14 +315,16 @@ export async function loadMaterialExperience(
   }
   // Bulk-export candidate discovery is an internal Modeling surface.  Materials
   // cards must come only from the approved exact graph projection.
-  const cards = await currentCards(config, material.material_id, graph);
+  const cards = await currentCards(config, graph);
   let representativeResponse: MaterialExperience["representativeResponse"] =
     null;
-  if (includeCurve && cards.length) {
-    const preferred =
-      cards.find((card) => card.solver === "OpenRadioss") ?? cards[0];
+  // A response plot can only be attributed when the exact graph resolves one
+  // card.  Do not infer a preferred solver or first item when several bound
+  // cards exist; the Cards surface renders every exact identity instead.
+  if (includeCurve && cards.length === 1) {
+    const [card] = cards;
     try {
-      const preview = await previewExactSolverCardText(config, preferred);
+      const preview = await previewExactSolverCardText(config, card);
       representativeResponse =
         trueStressPlasticStrainResponseFromNativeCard(preview.data);
     } catch {
@@ -312,14 +418,13 @@ export async function loadPinnedMaterialExperience(
       propertySet.current_revision.content.material_state_revision_id,
     ),
   );
-  const cards = await currentCards(config, materialId, graph);
+  const cards = await currentCards(config, graph);
   let representativeResponse: MaterialExperience["representativeResponse"] =
     null;
-  if (includeCurve && cards.length) {
-    const preferred =
-      cards.find((card) => card.solver === "OpenRadioss") ?? cards[0];
+  if (includeCurve && cards.length === 1) {
+    const [card] = cards;
     try {
-      const preview = await previewExactSolverCardText(config, preferred);
+      const preview = await previewExactSolverCardText(config, card);
       representativeResponse =
         trueStressPlasticStrainResponseFromNativeCard(preview.data);
     } catch {

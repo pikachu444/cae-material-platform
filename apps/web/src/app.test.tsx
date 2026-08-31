@@ -124,6 +124,21 @@ function materialCatalogFetch(
   totalCount = materials.length,
 ): Response | null {
   const url = String(input);
+  if (url.endsWith("/catalog/explorer/tables")) {
+    return jsonResponse({
+      items: [{
+        table_id: materialCatalogTableId,
+        current_revision: {
+          content: {
+            key: "technical_data",
+            name: "Technical Data",
+            description: null,
+            data_category: "technical_data",
+          },
+        },
+      }],
+    });
+  }
   if (url.endsWith("/catalog/tables")) return jsonResponse({ items: [{ table_id: materialCatalogTableId }] });
   if (url.endsWith(`/catalog/tables/${materialCatalogTableId}/attributes`)) return jsonResponse({ items: materialCatalogAttributes });
   if (url.endsWith("/catalog/records:search")) {
@@ -880,7 +895,7 @@ describe("Material Catalog workbench", () => {
 
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "DP780 OpenRadioss native material card" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "DP780" })).toBeTruthy();
     const nativePreview = screen.getByLabelText("Native solver card preview");
     expect(nativePreview.textContent).toContain("/MAT/LAW36/1");
     expect(nativePreview.textContent).not.toMatch(/material-model-revision|mapping-report-sha|abc123/i);

@@ -148,6 +148,237 @@ def _write_dual_lifecycle_service_reference_fixture(
     return manifest, inventory, evidence_manifest, references
 
 
+def _write_material_current_lifecycle_fixture(
+    root: Path, *, approved: bool = False, operational: bool = False
+) -> tuple[Path, list[dict[str, object]]]:
+    if approved and operational:
+        raise ValueError("fixture dispositions are mutually exclusive")
+    manifest, inventory, _, references = _write_dual_lifecycle_service_reference_fixture(root)
+
+    # Replace exactly fifteen synthetic legacy targets with the source-v2
+    # Materials current-product shape.  The fixture deliberately uses small
+    # deterministic PNGs: this exercises schema, identity, route and hash
+    # checks without presenting them as product acceptance evidence.
+    for reference in references[:15]:
+        (root / str(reference["image"])).unlink()
+        (root / str(reference["measurements"])).unlink()
+
+    captures: list[dict[str, object]] = []
+    current_references: list[dict[str, object]] = []
+    for reference_id, (
+        screen,
+        state,
+        width,
+        height,
+        image_ref,
+        evidence_key,
+    ) in user_guide._CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS.items():
+        image = root / image_ref
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image_bytes = _png_with_dimensions(width, height, reference_id.encode())
+        image.write_bytes(image_bytes)
+        current_references.append(
+            {
+                "id": reference_id,
+                "screen": screen,
+                "state": state,
+                "lifecycle": "current-product-evidence",
+                "viewport": {
+                    "width": width,
+                    "height": height,
+                    "device_scale_factor": 1,
+                },
+                "evidence_manifest": "docs/user-guide/screenshot-manifest.yaml",
+                "evidence_key": evidence_key,
+                "image": image_ref,
+                "image_sha256": hashlib.sha256(image_bytes).hexdigest(),
+                "date": "2026-08-30",
+                "status": (
+                    "approved"
+                    if approved
+                    else "operational-evidence-accepted"
+                    if operational
+                    else "pending-owner-disposition"
+                ),
+                "product_owner_approval": (
+                    {"status": "approved", "date": "2026-08-30"} if approved else None
+                ),
+            }
+        )
+        captures.append(
+            {
+                "id": evidence_key,
+                "route": user_guide._CURRENT_PRODUCT_SCREENSHOT_REFERENCE_ROUTES[reference_id],
+                "workflow": "synthetic current-product contract fixture",
+                "fixture": "synthetic source-v2 Materials records",
+                "image": image_ref.removeprefix("docs/user-guide/"),
+                "width": width,
+                "height": height,
+            }
+        )
+
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    content["references"] = current_references + references[15:]
+    if operational:
+        content["current_materials_operational_disposition"] = {
+            "status": "accepted",
+            "date": "2026-08-31",
+            "scope": "behavioral-operation-evidence-only",
+            "visual_quality": "pending-owner-disposition",
+            "targets": [reference["id"] for reference in current_references],
+        }
+    manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    inventory_content = yaml.safe_load(inventory.read_text(encoding="utf-8"))
+    inventory_content["families"].extend(
+        [
+            {
+                "id": "MAT-EXP",
+                "normal": {
+                    "target_base": "materials-search-normal",
+                    "state": "normal",
+                    "lifecycle": "current-product-evidence",
+                    "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
+                    "images": 3,
+                },
+                "exceptions": [
+                    {"id": "materials-search-long-1440x900"},
+                    {"id": "materials-search-empty-1440x900"},
+                ],
+                "image_count": 5,
+            },
+            {
+                "id": "MAT-DETAIL",
+                "normal": {
+                    "target_base": "materials-datasheet-overview-normal",
+                    "state": "normal",
+                    "lifecycle": "current-product-evidence",
+                    "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
+                    "images": 3,
+                },
+                "exceptions": [
+                    {"id": "materials-datasheet-related-long-1440x900"},
+                    {"id": "materials-datasheet-empty-1440x900"},
+                ],
+                "image_count": 5,
+            },
+            {
+                "id": "MAT-CARD",
+                "normal": {
+                    "target_base": "materials-card-preview-normal",
+                    "state": "normal",
+                    "lifecycle": "current-product-evidence",
+                    "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
+                    "images": 3,
+                },
+                "exceptions": [
+                    {"id": "materials-card-approximation-blocked-1440x900"},
+                    {"id": "materials-card-unsupported-blocked-1440x900"},
+                ],
+                "image_count": 5,
+            },
+        ]
+    )
+    inventory.write_text(yaml.safe_dump(inventory_content, sort_keys=False), encoding="utf-8")
+
+    screenshot_manifest = root / "docs/user-guide/screenshot-manifest.yaml"
+    screenshot_manifest.parent.mkdir(parents=True, exist_ok=True)
+    screenshot_manifest.write_text(
+        yaml.safe_dump({"version": 1, "captures": captures}, sort_keys=False),
+        encoding="utf-8",
+    )
+    return manifest, current_references
+
+
+def test_service_reference_manifest_accepts_phase_a_fifteen_pending_materials(
+    tmp_path: Path,
+) -> None:
+    _, references = _write_material_current_lifecycle_fixture(tmp_path)
+
+    registered = _verify_service_reference_manifest(tmp_path)
+
+    assert len(references) == 15
+    assert len(registered) == 72
+    assert sum(reference["status"] == "approved" for reference in references) == 0
+    assert sum(reference["status"] == "pending-owner-disposition" for reference in references) == 15
+
+    with pytest.raises(UserGuideContractError, match="final publication requires zero pending"):
+        _verify_service_reference_manifest(tmp_path, final_publication=True)
+
+
+def test_service_reference_manifest_accepts_final_seventy_two_approved_targets(
+    tmp_path: Path,
+) -> None:
+    manifest, _ = _write_material_current_lifecycle_fixture(tmp_path, approved=True)
+
+    registered = _verify_service_reference_manifest(tmp_path, final_publication=True)
+
+    assert len(registered) == 72
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    references = content["references"]
+    assert sum(reference["status"] == "approved" for reference in references) == 72
+    assert sum(reference.get("status") == "pending-owner-disposition" for reference in references) == 0
+
+
+def test_service_reference_manifest_accepts_operational_materials_at_final_publication(
+    tmp_path: Path,
+) -> None:
+    manifest, references = _write_material_current_lifecycle_fixture(tmp_path, operational=True)
+
+    registered = _verify_service_reference_manifest(tmp_path, final_publication=True)
+
+    assert len(registered) == 72
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    assert sum(
+        reference["status"] == "operational-evidence-accepted" for reference in references
+    ) == 15
+    assert content["current_materials_operational_disposition"]["visual_quality"] == (
+        "pending-owner-disposition"
+    )
+
+
+def test_service_reference_manifest_rejects_operational_scope_drift(
+    tmp_path: Path,
+) -> None:
+    manifest, _ = _write_material_current_lifecycle_fixture(tmp_path, operational=True)
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    content["current_materials_operational_disposition"]["scope"] = "visual-approval"
+    manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(UserGuideContractError, match="operational evidence scope drifted"):
+        _verify_service_reference_manifest(tmp_path, final_publication=True)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("foreign-pending", "ordinary service-reference verification requires exactly"),
+        ("missing-image", "service reference image is missing"),
+        ("route", "current product reference route drifted"),
+    ],
+)
+def test_service_reference_manifest_rejects_phase_a_scope_or_evidence_drift(
+    tmp_path: Path, mutation: str, message: str
+) -> None:
+    manifest, _ = _write_material_current_lifecycle_fixture(tmp_path)
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    references = content["references"]
+    if mutation == "foreign-pending":
+        references[15]["status"] = "pending-owner-disposition"
+        references[15]["product_owner_approval"] = None
+    elif mutation == "missing-image":
+        (tmp_path / references[0]["image"]).unlink()
+    else:
+        screenshot_manifest = tmp_path / "docs/user-guide/screenshot-manifest.yaml"
+        captures = yaml.safe_load(screenshot_manifest.read_text(encoding="utf-8"))
+        captures["captures"][5]["route"] = "/wrong-route"
+        screenshot_manifest.write_text(yaml.safe_dump(captures), encoding="utf-8")
+    manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(UserGuideContractError, match=message):
+        _verify_service_reference_manifest(tmp_path)
+
+
 def test_service_reference_manifest_accepts_strict_dual_lifecycle(tmp_path: Path) -> None:
     _, _, _, references = _write_dual_lifecycle_service_reference_fixture(tmp_path)
     retained_image = (
@@ -382,14 +613,18 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 128
+    assert report.capture_count == 134
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
     assert report.local_link_count >= 150
     assert report.image_count >= 120
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 1452
+    # The current source-v2 Materials captures are intentionally distinct from
+    # the retired historical packet; the exact zero-consumer retirement removes
+    # the stale duplicate groups while independently-owned evidence remains
+    # declared in its manifests.
+    assert report.duplicate_image_group_count == 1439
 
 
 @pytest.mark.parametrize(
@@ -540,6 +775,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "713bafc75a9b0974281126f30b50c78eb1a9dd2a"
         "+issue342-task1b-worktree"
     )
+    issue371_source = (
+        "e55d30f597923509607dd7651d734bda3867b583"
+        "+issue371-catalog-single-owner-worktree"
+    )
     assert manifest["version"] == 138
     assert manifest["scope"] == "issue-342-task1b-json-record-registration"
     assert manifest_source == issue342_source
@@ -567,6 +806,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        issue371_source,
         issue342_source,
         capture_source,
         issue262_source,
@@ -721,6 +961,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in captures
         if capture_id.startswith(("modeling-data-dma-", "modeling-data-fld-"))
     }
+    new_issue_371_captures = {
+        "material-detail-related-long-1440",
+        "material-detail-empty-1440",
+        "solver-card-preview-2560",
+        "solver-card-preview-3840",
+        "solver-card-approximation-blocked-1440",
+        "solver-card-unsupported-blocked-1440",
+    }
     assert set(previous_provenance_ids) == (
         set(captures)
         - new_issue_184_captures
@@ -733,6 +981,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - historically_new_issue_289_preview_captures
         - {"administration-format-definitions-1440"}
         - new_issue_342_captures
+        - new_issue_371_captures
     )
     assert {
         prior_source,
@@ -934,16 +1183,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         assert "one immutable card/receipt" in capture["fixture"]
 
 
-def test_mat_detail_captures_resolve_to_approved_references_without_local_evidence() -> None:
+def test_mat_detail_captures_do_not_claim_stale_approved_references() -> None:
     root = Path(__file__).parents[2]
     manifest = yaml.safe_load(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
-    references_manifest = yaml.safe_load(
-        (root / "docs/product/service-reference-manifest.yaml").read_text(encoding="utf-8")
-    )
-    references = references_manifest["references"]
-    reference_ids = {entry["id"] for entry in references}
     detail_captures = [
         capture for capture in manifest["captures"] if capture["id"].startswith("material-detail-")
     ]
@@ -951,15 +1195,9 @@ def test_mat_detail_captures_resolve_to_approved_references_without_local_eviden
     retired_fields = {"comparison_evidence", "evidence_source", "owner_direction_images"}
     assert all(retired_fields.isdisjoint(capture) for capture in manifest["captures"])
     for capture in detail_captures:
-        approved_ids = capture.get("approved_reference_ids")
-        assert approved_ids
-        assert set(approved_ids) <= reference_ids
+        assert "approved_reference_ids" not in capture
         current_image = root / "docs/user-guide" / capture["image"]
         assert current_image.is_file()
-        for reference_id in approved_ids:
-            reference = next(entry for entry in references if entry["id"] == reference_id)
-            reference_image = root / reference["image"]
-            assert reference_image.is_file()
 
 
 def test_current_images_are_product_routes_and_storybook_captures_are_untracked() -> None:
@@ -968,10 +1206,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 128
+    assert len(manifest["captures"]) == 134
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 128
+    assert len(list(current_images.glob("*.png"))) == 134
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

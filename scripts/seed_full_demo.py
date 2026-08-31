@@ -80,6 +80,17 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 _TASK1B_FIXTURE_ROOT = _PROJECT_ROOT / "fixtures" / "schema-record-data" / "source-v2-task1b"
 _SOURCE_V2_FIXTURE_ROOT = _PROJECT_ROOT / "fixtures" / "schema-definition-bundle" / "source-v2"
 _ISSUE342_SCHEMA_APPLY_TIMEOUT_SECONDS = 180.0
+_SOURCE_V2_TABLE_KEYS = frozenset(
+    {
+        "technical_data",
+        "tensile_test",
+        "dma_test",
+        "fld_test",
+        "elastoplasticity_data",
+        "statistics_data",
+    }
+)
+_SOURCE_V2_LEGACY_TABLE_KEY = "demo_material_records"
 
 
 def _catalog_material_family_allowed_values() -> tuple[str, ...]:
@@ -187,6 +198,162 @@ def _find_by_content(
     values: Sequence[Mapping[str, Any]], key: str, expected: object
 ) -> dict[str, Any] | None:
     return next((dict(value) for value in values if _content(value).get(key) == expected), None)
+
+
+def _catalog_table_key(value: Mapping[str, Any]) -> str | None:
+    content = _content(value)
+    key = content.get("key")
+    if isinstance(key, str) and key:
+        return key
+    key = value.get("key")
+    return key if isinstance(key, str) and key else None
+
+
+def _catalog_table_id(value: Mapping[str, Any]) -> str | None:
+    for key in ("table_id", "id"):
+        candidate = value.get(key)
+        if isinstance(candidate, str) and candidate:
+            return candidate
+    return None
+
+
+def _source_v2_fixture_manifest() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    manifest = json.loads((_TASK1B_FIXTURE_ROOT / "manifest.json").read_text("utf-8"))
+    files = manifest.get("files")
+    if not isinstance(files, list):
+        raise DemoSeedError("source-v2 fixture manifest has no files")
+    entries = {
+        str(item["external_key"]): dict(item)
+        for item in files
+        if isinstance(item, Mapping) and isinstance(item.get("external_key"), str)
+    }
+    if len(entries) != 15:
+        raise DemoSeedError("source-v2 fixture manifest must contain exactly fifteen Records")
+    return manifest, entries
+
+
+def _preflight_source_v2_catalog_state(
+    api: DemoApi,
+    *,
+    domain_targets: Mapping[str, tuple[str, str, str]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Reject stale Catalog ownership before source-v2 registration can write.
+
+    The first pass is deliberately read-only.  It rejects the old generic Materials
+    table, an incomplete source-v2 table installation, duplicate table keys, and a
+    partially present source-v2 Record set.  A complete set may be draft (an
+    interrupted run can still be resumed through the real review lifecycle), but each
+    exact source Record must remain its immutable revision 1.  When target bindings are
+    supplied, the second pass verifies every existing binding before any package upload.
+    """
+
+    tables = _items(api.get("/catalog/tables"))
+    expected_domain_targets = domain_targets or {}
+    by_key: dict[str, list[dict[str, Any]]] = {}
+    for table in tables:
+        key = _catalog_table_key(table)
+        if key is not None:
+            by_key.setdefault(key, []).append(table)
+    if by_key.get(_SOURCE_V2_LEGACY_TABLE_KEY):
+        raise DemoSeedError(
+            "source-v2 stale preflight rejected the legacy demo_material_records table; "
+            "reconcile the legacy Catalog owner before running the deterministic seed"
+        )
+    source_keys = set(by_key) & _SOURCE_V2_TABLE_KEYS
+    if source_keys and source_keys != _SOURCE_V2_TABLE_KEYS:
+        missing = ", ".join(sorted(_SOURCE_V2_TABLE_KEYS - source_keys))
+        raise DemoSeedError(
+            "source-v2 stale preflight found a partial table installation; "
+            f"missing exact tables: {missing}"
+        )
+    if not source_keys:
+        return {}
+    duplicate_keys = sorted(key for key in _SOURCE_V2_TABLE_KEYS if len(by_key[key]) != 1)
+    if duplicate_keys:
+        raise DemoSeedError(
+            "source-v2 stale preflight found duplicate exact table owners: "
+            + ", ".join(duplicate_keys)
+        )
+    table_ids: dict[str, str] = {}
+    for key in sorted(_SOURCE_V2_TABLE_KEYS):
+        table_id = _catalog_table_id(by_key[key][0])
+        if table_id is None:
+            raise DemoSeedError(
+                f"source-v2 stale preflight table {key} has no stable table id"
+            )
+        table_ids[key] = table_id
+
+    _, entries = _source_v2_fixture_manifest()
+    records: dict[str, dict[str, Any]] = {}
+    missing_keys: list[str] = []
+    for external_key, entry in entries.items():
+        wrapper = entry.get("wrapper")
+        expected_table = {
+            "technical-data": "technical_data",
+            "tensile-test": "tensile_test",
+            "dma-test": "dma_test",
+            "fld-test": "fld_test",
+            "elastoplasticity": "elastoplasticity_data",
+            "statistics": "statistics_data",
+        }.get(str(wrapper))
+        if expected_table is None:
+            raise DemoSeedError(f"source-v2 fixture has an unsupported wrapper for {external_key}")
+        record = _record_for_external_key(
+            api, table_id=table_ids[expected_table], external_key=external_key
+        )
+        if record is None:
+            missing_keys.append(external_key)
+            continue
+        revision = record.get("current_revision")
+        revision_no = revision.get("revision_no") if isinstance(revision, Mapping) else None
+        if revision_no != 1:
+            raise DemoSeedError(
+                "source-v2 stale preflight found a revised Record for "
+                f"{external_key}; recover the published fixture at immutable r1"
+            )
+        if _content(record).get("external_key") != external_key:
+            raise DemoSeedError(
+                f"source-v2 stale preflight found a wrong owner for {external_key}"
+            )
+        records[external_key] = record
+    if records and missing_keys:
+        raise DemoSeedError(
+            "source-v2 stale preflight found a partial fifteen-Record owner set; "
+            "missing exact keys: "
+            + ", ".join(sorted(missing_keys))
+        )
+
+    for external_key, target in expected_domain_targets.items():
+        record = records.get(external_key)
+        if record is None:
+            continue
+        record_id = _id(record, "record_id")
+        record_revision_id = _revision_id(record)
+        bindings = _items(
+            api.get(
+                f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-bindings"
+            )
+        )
+        exact = [
+            binding
+            for binding in bindings
+            if binding.get("kind") == target[0]
+            and binding.get("object_id") == target[1]
+            and binding.get("revision_id") == target[2]
+        ]
+        if len(exact) != 1 or any(
+            binding.get("kind") == target[0]
+            and (
+                binding.get("object_id") != target[1]
+                or binding.get("revision_id") != target[2]
+            )
+            for binding in bindings
+        ):
+            raise DemoSeedError(
+                "source-v2 stale preflight found a conflicting domain owner for "
+                f"{external_key}; expected {target[0]} {target[1]} r{target[2]}"
+            )
+    return records
 
 
 def _create_or_recover_catalog_table(
@@ -616,6 +783,7 @@ def _json_reference_pins(
 def _ensure_issue342_json_records(
     api: DemoApi,
     *,
+    reviewer_api: DemoApi,
     materials: Mapping[str, tuple[str, str, str]],
     test_documents: Sequence[Mapping[str, str]],
     processing: Mapping[str, str],
@@ -623,14 +791,7 @@ def _ensure_issue342_json_records(
 ) -> dict[str, str]:
     """Register the fifteen source-v2 fixtures through upload/preview/save batches."""
 
-    installation = _ensure_issue342_schema_bundle(api)
-    formats = installation["formats"]
-    fixture_manifest = json.loads((_TASK1B_FIXTURE_ROOT / "manifest.json").read_text("utf-8"))
-    entries_by_key = {
-        str(item["external_key"]): item
-        for item in fixture_manifest.get("files", ())
-        if isinstance(item, Mapping)
-    }
+    fixture_manifest, entries_by_key = _source_v2_fixture_manifest()
     batches = fixture_manifest.get("batches")
     if not isinstance(batches, list) or [
         len(item.get("external_keys", ())) for item in batches
@@ -645,6 +806,13 @@ def _ensure_issue342_json_records(
             for key, item in test_targets.items()
         }
     )
+
+    # This is the second, owner-aware read-only preflight.  It runs before the
+    # schema upload/package registration path can write anything, and rejects
+    # a partially recovered source-v2 set or a stale EP-TABULATED owner.
+    _preflight_source_v2_catalog_state(api, domain_targets=domain_targets)
+    installation = _ensure_issue342_schema_bundle(api)
+    formats = installation["formats"]
     domain_targets.update(
         {
             "CMP-246-EP-VOCE": (
@@ -794,6 +962,11 @@ def _ensure_issue342_json_records(
                     )
                 prior_records[str(item["external_key"])] = record
         result[f"json_registration_batch_{int(batch['ordinal']):02d}_id"] = batch_id
+    # Keep the source-v2 Records on the real review/publication path.  This is
+    # deliberately after all six batches so the EP-TABULATED owner is complete
+    # before Neutral promotion asks the production binding hook to reuse it.
+    for record in prior_records.values():
+        _ensure_catalog_record_publication(api, reviewer_api, record)
     result["json_registration_record_count"] = "15"
     return result
 
@@ -5193,9 +5366,15 @@ def _ensure_elastomer_neutral_and_cards(api: DemoApi, *, material_id: str) -> di
     return result
 
 
-def _ensure_metal_neutral_and_cards(
+def _ensure_metal_model(
     api: DemoApi, *, material_id: str, processing_batch_id: str
-) -> dict[str, str]:
+) -> Mapping[str, Any]:
+    """Resolve/create the exact tabulated model before source-v2 registration.
+
+    The model must be registered as the source-v2 EP-TABULATED owner before
+    Neutral promotion runs.  This ordering lets the production promotion hook
+    create the Neutral Material -> same Record binding in one transaction.
+    """
     detail = api.get(f"/materials/{material_id}")
     states = detail.get("states")
     if not isinstance(states, list) or not states or not isinstance(states[0], Mapping):
@@ -5245,6 +5424,19 @@ def _ensure_metal_neutral_and_cards(
                 ),
             },
         )
+    if not isinstance(model, Mapping):
+        raise DemoSeedError("clean demo metal selected model is incomplete")
+    return model
+
+
+def _ensure_metal_neutral_and_cards(
+    api: DemoApi, *, material_id: str, processing_batch_id: str
+) -> dict[str, str]:
+    """Promote the exact registered model, then create both native cards."""
+    model = _ensure_metal_model(
+        api, material_id=material_id, processing_batch_id=processing_batch_id
+    )
+    models: Sequence[Mapping[str, Any]] = (model,)
 
     neutral: dict[str, Any] | None = None
     neutral_candidates: list[tuple[dict[str, Any], Mapping[str, Any] | None]] = []
@@ -5496,6 +5688,8 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     api = DemoApi(base_url)
     api.wait_until_healthy()
     api.authenticate()
+    reviewer_api = DemoApi(base_url)
+    reviewer_api.authenticate("reviewer")
     metal = _find_by_content(
         _items(api.get("/materials?q=CMP-DEMO-DP780&limit=20")),
         "material_code",
@@ -5554,18 +5748,23 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         api, material_state_id=_id(metal_state, "material_state_id")
     )
     processing = _ensure_processing_journey(api, test_data=test_data)
-    neutral = _ensure_metal_neutral_and_cards(
-        api,
-        material_id=metal_id,
-        processing_batch_id=processing["processing_batch_id"],
-    )
     issue246_test_documents = _ensure_issue246_test_documents(api)
     polymer_detail = api.get(f"/materials/{polymer_id}").get("material")
     elastomer_detail = api.get(f"/materials/{elastomer_id}").get("material")
     if not isinstance(polymer_detail, Mapping) or not isinstance(elastomer_detail, Mapping):
         raise DemoSeedError("clean demo non-metal Materials have no exact revision metadata")
+    # Register EP-TABULATED's exact Material Model owner before promotion.  The
+    # production Neutral promotion hook then projects that same owner
+    # atomically; the seed never repairs the relationship through a public
+    # Catalog binding endpoint.
+    metal_model = _ensure_metal_model(
+        api,
+        material_id=metal_id,
+        processing_batch_id=processing["processing_batch_id"],
+    )
     json_records = _ensure_issue342_json_records(
         api,
+        reviewer_api=reviewer_api,
         materials={
             "CMP-246-TECH-DP780": ("material", metal_id, _revision_id(metal_material)),
             "CMP-246-TECH-POLYMER": (
@@ -5581,7 +5780,15 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         },
         test_documents=issue246_test_documents,
         processing=processing,
-        neutral=neutral,
+        neutral={
+            "selected_material_model_id": _id(metal_model, "material_model_id"),
+            "selected_material_model_revision_id": _revision_id(metal_model),
+        },
+    )
+    neutral = _ensure_metal_neutral_and_cards(
+        api,
+        material_id=metal_id,
+        processing_batch_id=processing["processing_batch_id"],
     )
     bulk = _ensure_bulk_bundle(api, material_id=metal_id)
     polymer_bulk_source = _ensure_bulk_bundle(

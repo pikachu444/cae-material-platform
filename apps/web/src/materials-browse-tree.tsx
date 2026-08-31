@@ -82,6 +82,13 @@ interface CategoryBranchState {
   error: string | null;
 }
 
+interface SearchRecord {
+  record: ConfigurableCatalogRecordResponse;
+  category: CatalogDataCategory | null;
+}
+
+type SearchStatus = "idle" | "loading" | "success" | "error";
+
 export interface MaterialsBrowseScope {
   tableId: string;
   folderId?: string | null;
@@ -189,12 +196,15 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
   const [draftFind, setDraftFind] = useState("");
   const [activeFind, setActiveFind] = useState("");
   const [searchFolders, setSearchFolders] = useState<ConfigurableCatalogFolderResponse[]>([]);
-  const [searchRecords, setSearchRecords] = useState<ConfigurableCatalogRecordResponse[] | null>(null);
+  const [searchRecords, setSearchRecords] = useState<SearchRecord[] | null>(null);
   const [searchTotal, setSearchTotal] = useState(0);
+  const [searchStatus, setSearchStatus] = useState<SearchStatus>("idle");
   const [subsets, setSubsets] = useState<ConfigurableSubsetResponse[]>([]);
   const [selectedSubsetId, setSelectedSubsetId] = useState("");
   const [loadingKey, setLoadingKey] = useState<string | null>("roots");
   const [error, setError] = useState<string | null>(null);
+  const [graphFailure, setGraphFailure] = useState<ConfigurableCatalogRecordResponse | null>(null);
+  const searchGeneration = useRef(0);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(420);
   const [focusIndex, setFocusIndex] = useState(0);
@@ -206,7 +216,8 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
 
   const isMaterialsTableId = useCallback((tableId: string): boolean => (
     tables.some((table) => table.table_id === tableId
-      && table.current_revision.content.key === "demo_material_records")
+      && (table.current_revision.content.key === "technical_data"
+        || table.current_revision.content.key === "demo_material_records"))
   ), [tables]);
 
   const loadChildren = useCallback(async (tableId: string, folderId: string | null) => {
@@ -277,6 +288,8 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
       const items = Array.isArray(result.data.items) ? result.data.items : [];
       setTables(items);
       const firstTableId = items.find(
+        (item) => item.current_revision.content.key === "technical_data",
+      )?.table_id ?? items.find(
         (item) => item.current_revision.content.key === "demo_material_records",
       )?.table_id ?? "";
       void loadCategory("technical_data");
@@ -310,6 +323,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
   }, [config, loadCategory, onScopeAvailabilityChange, onScopeChange]);
 
   const selectTable = useCallback(async (tableId: string) => {
+    searchGeneration.current += 1;
     setSelectedTableId(tableId);
     if (!isMaterialsTableId(tableId)) {
       setScopeAvailability("unavailable");
@@ -321,6 +335,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
     setSearchRecords(null);
     setSearchFolders([]);
     setExpandedBeforeSearch(null);
+    setSearchStatus("idle");
     setExpanded((current) => {
       const next = new Set(current);
       next.add("catalog");
@@ -355,6 +370,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
     text: string,
     subset?: ConfigurableSubsetResponse,
   ) => {
+    const generation = ++searchGeneration.current;
     if (subsetMode && (!tableId || !isMaterialsTableId(tableId))) {
       setScopeAvailability("unavailable");
       onScopeAvailabilityChange?.("unavailable");
@@ -373,44 +389,85 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
       setSearchRecords(null);
       setSearchFolders([]);
       setSearchTotal(0);
+      setSearchStatus("idle");
       setMatchCursor(-1);
       if (expandedBeforeSearch) setExpanded(expandedBeforeSearch);
       setExpandedBeforeSearch(null);
+      setError(null);
       return;
     }
     setExpandedBeforeSearch((current) => current ?? new Set(expanded));
     setLoadingKey("search");
+    setSearchStatus("loading");
+    setSearchRecords(null);
+    setSearchFolders([]);
+    setSearchTotal(0);
+    setError(null);
+    const searchText = normalizedText || (typeof definition.text === "string" ? definition.text : null);
+    const searchLabel = normalizedText || (typeof definition.text === "string" ? definition.text : subset?.name ?? "Subset");
+    setActiveFind(searchLabel);
     try {
-      const [folderResult, recordResult] = await Promise.all([
-        subsetMode
-          ? listConfigurableCatalogFolders(config, tableId)
-          : Promise.resolve({ data: { items: [] }, etag: null }),
-        searchConfigurableCatalogRecords(config, {
-          table_id: subsetMode ? tableId : null,
-          text: normalizedText || (typeof definition.text === "string" ? definition.text : null),
-          folder_id: typeof definition.folder_id === "string" ? definition.folder_id : null,
-          discrete_filters: Object.entries(discreteDefinition).flatMap(([attribute_definition_id, value]) =>
-            typeof value === "string" ? [{ attribute_definition_id, values: [value] }] : []),
-          number_filters: numberAttributeId ? [{
-            attribute_definition_id: numberAttributeId,
-            minimum: typeof definition.number_minimum === "string" ? definition.number_minimum : null,
-            maximum: typeof definition.number_maximum === "string" ? definition.number_maximum : null,
-          }] : [],
-          facet_attribute_ids: [],
-          limit: SEARCH_LIMIT,
-          published_only: publishedOnly,
-        }),
-      ]);
-      setActiveFind(normalizedText || (typeof definition.text === "string" ? definition.text : subset?.name ?? "Subset"));
-      setSearchFolders(folderResult.data.items);
-      setSearchRecords(recordResult.data.items);
-      setSearchTotal(recordResult.data.total_count);
+      let folderItems: ConfigurableCatalogFolderResponse[] = [];
+      let searchItems: SearchRecord[] = [];
+      let totalCount = 0;
+      if (subsetMode) {
+        const [folderResult, recordResult] = await Promise.all([
+          listConfigurableCatalogFolders(config, tableId),
+          searchConfigurableCatalogRecords(config, {
+            table_id: tableId,
+            text: searchText,
+            folder_id: typeof definition.folder_id === "string" ? definition.folder_id : null,
+            discrete_filters: Object.entries(discreteDefinition).flatMap(([attribute_definition_id, value]) =>
+              typeof value === "string" ? [{ attribute_definition_id, values: [value] }] : []),
+            number_filters: numberAttributeId ? [{
+              attribute_definition_id: numberAttributeId,
+              minimum: typeof definition.number_minimum === "string" ? definition.number_minimum : null,
+              maximum: typeof definition.number_maximum === "string" ? definition.number_maximum : null,
+            }] : [],
+            facet_attribute_ids: [],
+            limit: SEARCH_LIMIT,
+            published_only: publishedOnly,
+          }),
+        ]);
+        folderItems = folderResult.data.items;
+        searchItems = recordResult.data.items.map((record) => ({ record, category: null }));
+        totalCount = recordResult.data.total_count;
+      } else {
+        const categoryResults = await Promise.all(CATALOG_DATA_CATEGORIES.map(async ({ key }) => ({
+          category: key,
+          result: await searchConfigurableCatalogRecords(config, {
+            table_id: null,
+            data_category: key,
+            text: searchText,
+            folder_id: null,
+            discrete_filters: [],
+            number_filters: [],
+            facet_attribute_ids: [],
+            limit: SEARCH_LIMIT,
+            published_only: publishedOnly,
+          }),
+        })));
+        searchItems = categoryResults.flatMap(({ category, result }) =>
+          result.data.items.map((record) => ({ record, category })));
+        totalCount = categoryResults.reduce((total, { result }) => total + result.data.total_count, 0);
+      }
+      if (generation !== searchGeneration.current) return;
+      setSearchFolders(folderItems);
+      setSearchRecords(searchItems);
+      setSearchTotal(totalCount);
+      setSearchStatus("success");
       setMatchCursor(-1);
       setError(null);
     } catch (cause) {
+      if (generation !== searchGeneration.current) return;
+      setSearchFolders([]);
+      setSearchRecords(null);
+      setSearchTotal(0);
+      setSearchStatus("error");
+      setMatchCursor(-1);
       setError(messageFor(cause));
     } finally {
-      setLoadingKey(null);
+      if (generation === searchGeneration.current) setLoadingKey(null);
     }
   }, [config, expanded, expandedBeforeSearch, isMaterialsTableId, onScopeAvailabilityChange, publishedOnly, subsetMode]);
 
@@ -435,6 +492,21 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
 
   const toggleRow = useCallback(async (row: TreeRow) => {
     if (!row.expandable) return;
+    // A category click is an explicit switch from search results back to the
+    // browsable category branch.  Keep the category interaction useful even
+    // when the current Find query did not match a record in that category;
+    // searchedRows intentionally contains only matches and cannot render the
+    // branch loaded by this action.
+    if (row.kind === "category" && !subsetMode && searchStatus !== "idle") {
+      searchGeneration.current += 1;
+      setActiveFind("");
+      setDraftFind("");
+      setSearchRecords(null);
+      setSearchFolders([]);
+      setSearchTotal(0);
+      setSearchStatus("idle");
+      setExpandedBeforeSearch(null);
+    }
     const key = row.kind === "category"
       ? categoryRowId(row.category!)
       : row.kind === "catalog"
@@ -475,7 +547,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
       }
       await loadChildren(row.tableId!, row.folderId ?? null);
     }
-  }, [categoryBranches, expanded, isMaterialsTableId, loadCategory, loadChildren, onScopeAvailabilityChange, onScopeChange]);
+  }, [categoryBranches, expanded, isMaterialsTableId, loadCategory, loadChildren, onScopeAvailabilityChange, onScopeChange, searchRecords, searchStatus, subsetMode]);
 
   const normalRows = useMemo(() => {
     const rows: TreeRow[] = [];
@@ -597,15 +669,13 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
   }, [categoryBranches, children, expanded, loadingKey, subsetMode, tables]);
 
   const searchedRows = useMemo(() => {
-    if (!searchRecords) return null;
+    if (searchStatus !== "success" || !searchRecords) return null;
     if (!subsetMode) {
       const rows: TreeRow[] = [];
       for (const category of CATALOG_DATA_CATEGORIES) {
-        const matches = searchRecords.filter((record) => tables.find(
-          (table) => table.table_id === record.table_id,
-        )?.current_revision.content.data_category === category.key);
+        const matches = searchRecords.filter((item) => item.category === category.key);
         rows.push({ id: categoryRowId(category.key), parentId: null, kind: "category", label: category.label, depth: 0, category: category.key, expandable: true, expanded: true, match: false });
-        for (const record of matches) rows.push({ id: categoryRecordRowId(category.key, record.record_id), parentId: categoryRowId(category.key), kind: "record", label: record.current_revision.content.name, depth: 1, tableId: record.table_id, category: category.key, record, expandable: false, expanded: false, match: true });
+        for (const { record } of matches) rows.push({ id: categoryRecordRowId(category.key, record.record_id), parentId: categoryRowId(category.key), kind: "record", label: record.current_revision.content.name, depth: 1, tableId: record.table_id, category: category.key, record, expandable: false, expanded: false, match: true });
       }
       return rows;
     }
@@ -640,7 +710,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
     for (const folderId of matchedFolderIds) {
       for (const ancestor of folderAncestors(folderId, foldersById)) includedFolderIds.add(ancestor.folder_id);
     }
-    for (const record of searchRecords) {
+    for (const { record } of searchRecords) {
       for (const ancestor of folderAncestors(record.current_revision.content.folder_id, foldersById)) includedFolderIds.add(ancestor.folder_id);
     }
     const childrenByParent = new Map<string | null, ConfigurableCatalogFolderResponse[]>();
@@ -653,7 +723,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
     }
     for (const bucket of childrenByParent.values()) bucket.sort((left, right) => left.content.name.localeCompare(right.content.name));
     const recordsByFolder = new Map<string | null, ConfigurableCatalogRecordResponse[]>();
-    for (const record of searchRecords) {
+    for (const { record } of searchRecords) {
       const folderId = record.current_revision.content.folder_id;
       const bucket = recordsByFolder.get(folderId) ?? [];
       bucket.push(record);
@@ -673,19 +743,20 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
     };
     append(null, 4, tableIdForRow);
     return rows;
-  }, [activeFind, searchFolders, searchRecords, selectedSubsetId, selectedTableId, subsetMode, tables]);
+  }, [activeFind, searchFolders, searchRecords, searchStatus, selectedSubsetId, selectedTableId, subsetMode, tables]);
 
   const rows = searchedRows ?? normalRows;
   useEffect(() => {
     if (subsetMode || !onResultsChange) return;
-    if (searchRecords) {
+    if (searchStatus === "loading" || searchStatus === "error") {
+      onResultsChange({ category: null, query: activeFind, items: [], totalCount: 0 });
+      return;
+    }
+    if (searchStatus === "success" && searchRecords) {
       onResultsChange({
         category: null,
         query: activeFind,
-        items: searchRecords.flatMap((record) => {
-          const category = tables.find((table) => table.table_id === record.table_id)?.current_revision.content.data_category;
-          return category ? [{ record, category }] : [];
-        }),
+        items: searchRecords.flatMap(({ record, category }) => category ? [{ record, category }] : []),
         totalCount: searchTotal,
       });
       return;
@@ -697,9 +768,9 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
       items: (branch?.items ?? []).map((record) => ({ record, category: selectedCategory })),
       totalCount: branch?.totalCount ?? 0,
     });
-  }, [activeFind, categoryBranches, onResultsChange, searchRecords, searchTotal, selectedCategory, subsetMode, tables]);
+  }, [activeFind, categoryBranches, onResultsChange, searchRecords, searchStatus, searchTotal, selectedCategory, subsetMode]);
   const categoryLoading = Object.values(categoryBranches).some((branch) => branch?.loading);
-  const folderMatchCount = searchRecords
+  const folderMatchCount = searchStatus === "success" && searchRecords
     ? searchFolders.filter((folder) => folder.content.name.toLocaleLowerCase().includes(activeFind.toLocaleLowerCase())).length
     : 0;
   const matchIndexes = useMemo(() => rows.flatMap((row, index) => row.match ? [index] : []), [rows]);
@@ -730,6 +801,10 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
 
   const selectRecord = useCallback(async (record: ConfigurableCatalogRecordResponse) => {
     setSelectedRecordId(record.record_id);
+    // A new selection supersedes any prior graph failure.  The recovery
+    // action below must always retry the exact record/revision currently in
+    // focus, never leave a stale retry target from another row.
+    setGraphFailure(null);
     if (isMaterialsTableId(record.table_id)) {
       setScopeAvailability("ready");
       onScopeChange?.({ tableId: record.table_id, recordId: record.record_id });
@@ -739,8 +814,10 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
     try {
       const graph = await getCatalogWorkflowGraph(config, record.record_id, record.current_revision.id, 5, publishedOnly);
       onSelectRecord(record, graph.data);
+      setGraphFailure(null);
       setError(null);
     } catch (cause) {
+      setGraphFailure(record);
       setError(messageFor(cause));
     } finally {
       setLoadingKey(null);
@@ -838,6 +915,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
       setDraftFind("");
       setSearchRecords(null);
       setSearchFolders([]);
+      setSearchStatus("idle");
       setError(null);
       setPendingFocusRecordId(record.record_id);
     }).catch((cause: unknown) => {
@@ -871,11 +949,17 @@ export function MaterialsBrowseTree({ config, subsetMode = false, publishedOnly 
         <input className="ux-input" aria-label="Find in tree" value={draftFind} onChange={(event) => setDraftFind(event.target.value)} placeholder="Find data" />
         <button className="ux-button tertiary" type="submit">Find</button>
       </form>}
-      {scopeAvailability !== "ready" || searchRecords || subsetMode ? <div className="tree-search-status" aria-live="polite">
-        {scopeAvailability === "loading" ? <span>Finding Materials…</span> : scopeAvailability === "unavailable" ? <span>Materials are not available in this workspace.</span> : searchRecords ? <span>{subsetMode && folderMatchCount ? `${new Intl.NumberFormat().format(folderMatchCount)} folder ${folderMatchCount === 1 ? "match" : "matches"} · ` : ""}{new Intl.NumberFormat().format(searchTotal)} data matches{searchTotal > SEARCH_LIMIT ? ` · first ${SEARCH_LIMIT}` : ""}</span> : subsetMode ? <span>Choose a saved subset or table.</span> : null}
-        {searchRecords ? <button type="button" onClick={findNext} disabled={!matchIndexes.length}>Find next</button> : null}
+      {scopeAvailability !== "ready" || searchStatus !== "idle" || subsetMode ? <div className="tree-search-status" aria-live="polite">
+        {scopeAvailability === "loading" ? <span>Finding Materials…</span> : scopeAvailability === "unavailable" ? <span>Materials are not available in this workspace.</span> : searchStatus === "loading" ? <span>Finding data…</span> : searchStatus === "error" ? <span>Search unavailable.</span> : searchStatus === "success" && searchRecords ? <span>{subsetMode && folderMatchCount ? `${new Intl.NumberFormat().format(folderMatchCount)} folder ${folderMatchCount === 1 ? "match" : "matches"} · ` : ""}{new Intl.NumberFormat().format(searchTotal)} data matches{searchTotal > searchRecords.length ? ` · ${new Intl.NumberFormat().format(searchRecords.length)} loaded` : ""}</span> : subsetMode ? <span>Choose a saved subset or table.</span> : null}
+        {searchStatus === "success" && searchRecords ? <button type="button" onClick={findNext} disabled={!matchIndexes.length}>Find next</button> : null}
       </div> : null}
       {error ? <div className="ux-notice error" role="alert">{error}</div> : null}
+      {graphFailure ? <button
+        className="ux-button tertiary"
+        type="button"
+        onClick={() => void selectRecord(graphFailure)}
+        disabled={loadingKey === `record:${graphFailure.record_id}`}
+      >Retry exact Materials graph</button> : null}
       <MaterialsScrollRegion
         id="materials-tree-scroll"
         className="materials-tree-scroll"

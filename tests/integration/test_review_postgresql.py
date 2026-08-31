@@ -114,6 +114,8 @@ TEST_GOVERNED_REVISION = UUID("76000000-0000-4000-8000-000000000032")
 TEST_GOVERNED_EVENT = UUID("76000000-0000-4000-8000-000000000033")
 TEST_GOVERNED_REQUEST = UUID("76000000-0000-4000-8000-000000000034")
 TEST_GOVERNED_DECISION = UUID("76000000-0000-4000-8000-000000000035")
+STALE_TABLE_REVISION = UUID("76000000-0000-4000-8000-000000000036")
+STALE_MATERIAL_REVISION = UUID("76000000-0000-4000-8000-000000000037")
 DIGEST = "e" * 64
 RECORD_DIGEST = "b" * 64
 
@@ -890,6 +892,113 @@ def test_cmp_app_configurable_record_review_resubmits_after_record_head_advance(
     )
     assert published.total_count == 1
     assert published.items[0].current.record.revision_id == RECORD_REVISION
+
+    exact_binding = SqlAlchemyCatalogRecordRepository(
+        session_factory=sessions,
+        rls_context=rls_context,
+    ).search_records(
+        context=reviewer,
+        decision=reviewer_catalog_read,
+        query=CatalogRecordQuery(
+            table_id=SCHEMA_TABLE,
+            record_id=RECORD,
+            published_only=True,
+            domain_binding_kind="material",
+            domain_binding_object_id=AGGREGATE,
+            domain_binding_revision_id=REVISION,
+        ),
+    )
+    assert exact_binding.total_count == 1
+    # A direct Record projection cannot satisfy a stale/unbound exact material
+    # pin, even though the Record and its approved review remain current.
+    stale_binding = SqlAlchemyCatalogRecordRepository(
+        session_factory=sessions,
+        rls_context=rls_context,
+    ).search_records(
+        context=reviewer,
+        decision=reviewer_catalog_read,
+        query=CatalogRecordQuery(
+            table_id=SCHEMA_TABLE,
+            record_id=RECORD,
+            published_only=True,
+            domain_binding_kind="material",
+            domain_binding_object_id=AGGREGATE,
+            domain_binding_revision_id=STALE_MATERIAL_REVISION,
+        ),
+    )
+    assert stale_binding.total_count == 0
+
+    # Advancing the exact Table head invalidates the projection without
+    # mutating the immutable Record or review rows.  Restore the fixture head
+    # before exercising the Record-head replacement below.
+    with admin_engine.begin() as connection:
+        connection.execute(
+            sa.text(
+                """
+                INSERT INTO catalog.schema_table_revision (
+                  id, aggregate_id, organization_id, project_id, classification, revision_no,
+                  based_on_revision_id, schema_id, schema_version, content_hash, created_at,
+                  created_by, change_reason, request_id, trace_id, table_key, name, description
+                ) VALUES (
+                  :revision, :table_id, :org, :project, :classification, 2, :based_on,
+                  'urn:cmp:catalog:schema-table', '1.0.0', :digest, :now, :author,
+                  'advance exact Table head', :request_id, 'fixture-trace',
+                  'review_materials', 'Review Materials v2', 'stale Table regression'
+                )
+                """
+            ),
+            {
+                "revision": STALE_TABLE_REVISION,
+                "table_id": SCHEMA_TABLE,
+                "org": ORG,
+                "project": PROJECT,
+                "classification": DataClassification.INTERNAL.value,
+                "based_on": SCHEMA_TABLE_REVISION,
+                "digest": "d" * 64,
+                "now": NOW,
+                "author": AUTHOR,
+                "request_id": STALE_TABLE_REVISION,
+            },
+        )
+        connection.execute(
+            sa.text(
+                "UPDATE catalog.schema_table SET current_revision_id=:revision, updated_at=:now "
+                "WHERE organization_id=:org AND project_id=:project AND id=:table_id"
+            ),
+            {
+                "revision": STALE_TABLE_REVISION,
+                "now": NOW,
+                "org": ORG,
+                "project": PROJECT,
+                "table_id": SCHEMA_TABLE,
+            },
+        )
+    try:
+        stale_table = SqlAlchemyCatalogRecordRepository(
+            session_factory=sessions,
+            rls_context=rls_context,
+        ).search_records(
+            context=reviewer,
+            decision=reviewer_catalog_read,
+            query=CatalogRecordQuery(table_id=SCHEMA_TABLE, record_id=RECORD, published_only=True),
+        )
+        assert stale_table.total_count == 0
+    finally:
+        with admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE catalog.schema_table SET current_revision_id=:revision, "
+                    "updated_at=:now "
+                    "WHERE organization_id=:org AND project_id=:project AND id=:table_id"
+                ),
+                {
+                    "revision": SCHEMA_TABLE_REVISION,
+                    "now": NOW,
+                    "org": ORG,
+                    "project": PROJECT,
+                    "table_id": SCHEMA_TABLE,
+                },
+            )
 
     # Advance the immutable Record head.  The old approved projection remains
     # history but must no longer satisfy the current-head publication predicate.

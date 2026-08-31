@@ -211,6 +211,13 @@ before/after 및 과거 Task 화면은 `docs/17-evidence`에만 보관하며 현
 CAE Cards에서는 command bar의 현재 형식 다운로드만 filled primary action입니다. 표의 각 형식별
 다운로드는 secondary action이므로 한 화면에서 여러 primary action이 경쟁하지 않습니다.
 
+링크가 많은 상세 화면은 같은 exact revision의 관련 데이터를 계속 읽을 수 있고, 링크가 없으면
+추측하지 않고 빈 상태를 보여 줍니다.
+
+![Related data가 긴 Material Detail](images/current/material-detail-related-long-1440x900.png)
+
+![Related data가 없는 Material Detail](images/current/material-detail-empty-1440x900.png)
+
 ![Persistent Modeling Fit](images/current/modeling-fit-1440x900.png)
 
 Fit keeps the curve rail and response graph visible while model/range/extrapolation inputs stay in the
