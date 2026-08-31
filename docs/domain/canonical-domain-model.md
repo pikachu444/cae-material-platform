@@ -34,17 +34,18 @@
 ### 2.4 Lot과 Batch
 
 - `MaterialLot`: 공급자/생산자가 동일 생산 단위로 식별한 추적 단위
-- `MaterialBatch`: 플랫폼 사용 조직이 실제로 함께 혼합·성형·열처리·가공한 물질 묶음
+- `MaterialBatch`: 플랫폼 사용 조직이 실제로 함께 혼합·성형·열처리·가공한 물질 묶음이라는
+  후속 도메인 개념
 
-Batch는 여러 input lot을 소비할 수 있고, 한 lot은 여러 batch에 나뉠 수 있다. `BatchInput`이 material balance와 관계를 표현한다. 조직 용어가 다르면 UI label을 바꿀 수 있지만 canonical 의미는 유지한다.
+MaterialBatch를 구현할 때에는 여러 input lot의 소비, 한 lot의 여러 batch 분할과 material balance를
+명시적으로 모델링해야 한다. 조직 용어가 다르면 UI label을 바꿀 수 있지만 canonical 의미는 유지한다.
 
-T-07의 현재 bounded 구현은 `ProcessDefinition`, `MaterialLot(kind=lot|batch)`,
+현재 bounded 구현은 `ProcessDefinition`, `MaterialLot(kind=lot|batch)`,
 `StateGenealogy`를 stable identity와 immutable revision으로 분리한다. `StateGenealogyRevision`은
 하나의 concrete Material State revision과 선택된 manufacturing/heat-treatment Process
 revision, Material Lot revision을 정확히 고정한다. 기존 State의 문자열 descriptor는 과거
-입력 보존용이며 governed link를 대신하지 않는다. `ProcessRun`, 별도 `MaterialBatch`,
-`BatchInput`, split/merge와 multi-lot material balance는 이 bounded 구현에 포함되지 않으며
-위 canonical 모델의 후속 T-07 범위로 유지한다(ADR-0024).
+입력 보존용이며 governed link를 대신하지 않는다. 별도 physical `MaterialBatch` resource와
+split/merge, multi-lot material balance는 현재 구현되지 않았고 후속 범위로 남는다(ADR-0024).
 
 ### 2.5 Specimen
 
@@ -88,7 +89,6 @@ revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 �
 | Process Definition | `process_definition` | `process_definition_revision` | plugin schema version 고정 |
 | Process Run | `process_run` | run facts + input/output relation | 완료 후 fact 수정 대신 correction revision |
 | Material Lot | `material_lot` | `material_lot_revision` | producer lot code와 source organization 보존 |
-| Material Batch | `material_batch` | `material_batch_revision` | input lot/batch relation과 process run 연결 |
 | Specimen | `specimen` | `specimen_revision` | physical identity 유지; geometry는 measured/nominal 구분 |
 | Conditioning | event identity | immutable event | specimen, start/end, environment, procedure 연결 |
 
@@ -180,9 +180,6 @@ erDiagram
     PROCESS_DEFINITION ||--o{ PROCESS_DEFINITION_REVISION : has
     PROCESS_DEFINITION_REVISION ||--o{ PROCESS_RUN : executes
     MATERIAL ||--o{ MATERIAL_LOT : identifies
-    MATERIAL_LOT }o--o{ MATERIAL_BATCH : input_to
-    PROCESS_RUN ||--o{ MATERIAL_BATCH : produces
-    MATERIAL_BATCH ||--o{ SPECIMEN : source_of
     MATERIAL_LOT ||--o{ SPECIMEN : source_of
     SPECIMEN ||--o{ CONDITIONING_EVENT : undergoes
     TEST_METHOD ||--o{ TEST_METHOD_REVISION : has
@@ -194,7 +191,9 @@ erDiagram
     TEST_RUN ||--o{ TEST_RUN_INSTRUMENT : uses
 ```
 
-`MATERIAL_LOT`과 `MATERIAL_BATCH`의 실제 many-to-many는 `batch_input` association entity로 구현한다. ERD의 간결성을 위해 관계명으로 표시했다.
+현재 ERD는 implemented physical source인 `MATERIAL_LOT`에서 `SPECIMEN`으로 이어지는 관계만
+표시한다. 별도 physical MaterialBatch와 multi-lot material balance는 후속 설계·구현 전까지
+current aggregate로 표시하지 않는다.
 
 ## 5. ERD — 원본·dataset·분석
 
