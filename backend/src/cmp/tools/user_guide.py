@@ -280,6 +280,54 @@ _CURRENT_PRODUCT_REFERENCE_TARGETS.update(
 _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS = frozenset(
     _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS
 )
+_CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, str]] = {
+    "modeling-fit-normal-1366x768": (
+        "modeling-fit",
+        "normal",
+        1366,
+        768,
+        "modeling-fit-1366",
+        "images/current/modeling-fit-1366x768.png",
+        "/modeling?stage=fit&family=metal",
+    ),
+    "modeling-fit-normal-1440x900": (
+        "modeling-fit",
+        "normal",
+        1440,
+        900,
+        "modeling-fit-1440",
+        "images/current/modeling-fit-1440x900.png",
+        "/modeling?stage=fit&family=metal",
+    ),
+    "modeling-fit-normal-1920x1080": (
+        "modeling-fit",
+        "normal",
+        1920,
+        1080,
+        "modeling-fit-1920",
+        "images/current/modeling-fit-1920x1080.png",
+        "/modeling?stage=fit&family=metal",
+    ),
+    "modeling-fit-candidate-parameters-long-1440x900": (
+        "modeling-fit",
+        "candidate-parameters-long",
+        1440,
+        900,
+        "modeling-fit-candidate-parameters-long-1440",
+        "images/current/modeling-fit-candidate-parameters-long-1440x900.png",
+        "/modeling?stage=fit&family=metal",
+    ),
+}
+_GUIDE_SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
+_RETIRED_CURRENT_GUIDE_LEGACY_IMAGES = frozenset(
+    {
+        "docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/"
+        "modeling-fit-candidate-parameters-long-1440x900.png",
+    }
+)
 _CURRENT_PRODUCT_REFERENCE_VIEWPORTS = (
     "1920x1080",
     "2560x1440",
@@ -737,6 +785,8 @@ def _structured_manifest_images(project: Path) -> set[str]:
             f"image manifest {manifest}",
         )
         if not image.is_file():
+            if normalized in _RETIRED_CURRENT_GUIDE_LEGACY_IMAGES:
+                return None
             raise UserGuideContractError(
                 f"image manifest target is missing: {manifest} -> {normalized}"
             )
@@ -929,6 +979,114 @@ def _verify_current_product_reference_evidence(
         )
 
 
+def _verify_current_guide_reference(
+    project: Path,
+    reference_id: str,
+    reference: dict[str, Any],
+    image: Path,
+    viewport: dict[str, Any],
+    expected_hash: str,
+    guide_captures: dict[str, dict[str, Any]],
+) -> None:
+    forbidden_fields = {
+        "sources",
+        "measurements",
+        "evidence_manifest",
+        "evidence_key",
+    }
+    present_forbidden = forbidden_fields & reference.keys()
+    if present_forbidden:
+        raise UserGuideContractError(
+            f"current guide reference contains forbidden fields: {reference_id} "
+            f"{sorted(present_forbidden)}"
+        )
+
+    expected = _CURRENT_GUIDE_REFERENCE_TARGETS.get(reference_id)
+    if expected is None:
+        raise UserGuideContractError(f"unsupported current guide reference: {reference_id}")
+    screen, state, width, height, guide_screenshot_id, expected_image_ref, expected_route = expected
+    if (reference.get("screen"), reference.get("state")) != (screen, state):
+        raise UserGuideContractError(
+            f"current guide reference identity contract drifted: {reference_id}"
+        )
+    if (
+        viewport.get("width"),
+        viewport.get("height"),
+        viewport.get("device_scale_factor"),
+    ) != (width, height, 1):
+        raise UserGuideContractError(
+            f"current guide reference viewport contract drifted: {reference_id}"
+        )
+    if reference.get("guide_manifest") != _GUIDE_SCREENSHOT_MANIFEST:
+        raise UserGuideContractError(
+            f"current guide reference manifest declaration drifted: {reference_id}"
+        )
+    if reference.get("guide_screenshot_id") != guide_screenshot_id:
+        raise UserGuideContractError(
+            f"current guide screenshot id declaration drifted: {reference_id}"
+        )
+    capture = guide_captures.get(guide_screenshot_id)
+    if capture is None:
+        raise UserGuideContractError(
+            f"current guide screenshot id is missing: {reference_id} -> {guide_screenshot_id}"
+        )
+    if capture.get("route") != expected_route:
+        raise UserGuideContractError(
+            f"current guide screenshot route drifted: {reference_id} -> {guide_screenshot_id}"
+        )
+    if capture.get("image") != expected_image_ref:
+        raise UserGuideContractError(
+            f"current guide screenshot image declaration drifted: {reference_id}"
+        )
+    if (capture.get("width"), capture.get("height")) != (width, height):
+        raise UserGuideContractError(
+            f"current guide screenshot viewport drifted: {reference_id}"
+        )
+    guide_image = _inside(
+        project / "docs" / "user-guide" / expected_image_ref,
+        project / "docs" / "user-guide" / "images" / "current",
+        f"current guide screenshot {guide_screenshot_id} image",
+    )
+    if guide_image != image:
+        raise UserGuideContractError(
+            f"current guide screenshot resolves to a different image: {reference_id}"
+        )
+    if _image_dimensions(guide_image) != (width, height):
+        raise UserGuideContractError(
+            f"current guide screenshot file dimensions drifted: {reference_id}"
+        )
+    guide_hash = hashlib.sha256(guide_image.read_bytes()).hexdigest()
+    if guide_hash != expected_hash:
+        raise UserGuideContractError(
+            f"current guide screenshot hash differs from service reference: {reference_id}"
+        )
+
+
+def _read_current_guide_captures(project: Path) -> dict[str, dict[str, Any]]:
+    manifest_path = project / Path(*_GUIDE_SCREENSHOT_MANIFEST.split("/"))
+    if not manifest_path.is_file():
+        raise UserGuideContractError(
+            f"current guide screenshot manifest is missing: {_GUIDE_SCREENSHOT_MANIFEST}"
+        )
+    manifest = _mapping(
+        yaml.safe_load(manifest_path.read_text(encoding="utf-8")),
+        "current guide screenshot manifest",
+    )
+    captures = _sequence(
+        manifest.get("captures"), "current guide screenshot manifest captures"
+    )
+    by_id: dict[str, dict[str, Any]] = {}
+    for ordinal, raw_capture in enumerate(captures, start=1):
+        capture = _mapping(raw_capture, f"current guide screenshot capture {ordinal}")
+        capture_id = _text(
+            capture.get("id"), f"current guide screenshot capture {ordinal} id"
+        )
+        if capture_id in by_id:
+            raise UserGuideContractError(f"duplicate current guide screenshot id: {capture_id}")
+        by_id[capture_id] = capture
+    return by_id
+
+
 def _verify_service_reference_inventory(project: Path) -> None:
     inventory_path = project / "docs" / "product" / "service-reference-inventory.yaml"
     inventory = _mapping(
@@ -1056,6 +1214,37 @@ def _verify_service_reference_inventory(project: Path) -> None:
                 raise UserGuideContractError(
                     f"service reference inventory {identifier} exception contract drifted"
                 )
+    modeling_fit = [family for family in families if family.get("id") == "MOD-FIT"]
+    if len(modeling_fit) != 1:
+        raise UserGuideContractError("service reference inventory must contain one MOD-FIT family")
+    fit_family = modeling_fit[0]
+    fit_normal = _mapping(fit_family.get("normal"), "service reference inventory MOD-FIT normal")
+    expected_fit_normal = {
+        "target_base": "modeling-fit-normal",
+        "state": "normal",
+        "lifecycle": "current-guide",
+        "images": 3,
+        "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
+    }
+    if any(fit_normal.get(key) != value for key, value in expected_fit_normal.items()):
+        raise UserGuideContractError("service reference inventory MOD-FIT normal lifecycle drifted")
+    fit_exceptions = [
+        _mapping(item, "service reference inventory MOD-FIT exception")
+        for item in _sequence(
+            fit_family.get("exceptions"), "service reference inventory MOD-FIT exceptions"
+        )
+    ]
+    candidate_exception = [
+        item
+        for item in fit_exceptions
+        if item.get("id") == "modeling-fit-candidate-parameters-long-1440x900"
+    ]
+    if len(candidate_exception) != 1 or candidate_exception[0].get("lifecycle") != "current-guide":
+        raise UserGuideContractError(
+            "service reference inventory MOD-FIT candidate lifecycle drifted"
+        )
+    if fit_family.get("image_count") != len(_CURRENT_GUIDE_REFERENCE_TARGETS):
+        raise UserGuideContractError("service reference inventory MOD-FIT image count drifted")
 
 
 def _verify_service_reference_manifest(
@@ -1098,7 +1287,7 @@ def _verify_service_reference_manifest(
     unsupported_lifecycles = {
         reference_id: lifecycle
         for reference_id, lifecycle in lifecycle_by_id.items()
-        if lifecycle not in {"static-bundle", "current-product-evidence"}
+        if lifecycle not in {"static-bundle", "current-product-evidence", "current-guide"}
     }
     if unsupported_lifecycles:
         raise UserGuideContractError(
@@ -1130,12 +1319,24 @@ def _verify_service_reference_manifest(
             f"actual={sorted(current_product_ids)}, "
             f"expected={sorted(expected_current_product_ids)}"
         )
+    current_guide_ids = {
+        reference_id
+        for reference_id, lifecycle in lifecycle_by_id.items()
+        if lifecycle == "current-guide"
+    }
+    expected_current_guide_ids = set(_CURRENT_GUIDE_REFERENCE_TARGETS)
+    if current_guide_ids != expected_current_guide_ids:
+        raise UserGuideContractError(
+            "current guide reference targets drifted: "
+            f"actual={sorted(current_guide_ids)}, "
+            f"expected={sorted(expected_current_guide_ids)}"
+        )
     legacy_ids = {
         reference_id
         for reference_id, lifecycle in lifecycle_by_id.items()
         if lifecycle == "static-bundle"
     }
-    expected_legacy_count = 69 if legacy_fixture else 54
+    expected_legacy_count = 65 if legacy_fixture else 50
     if len(legacy_ids) != expected_legacy_count:
         raise UserGuideContractError(
             "service reference manifest has an unexpected legacy target count: "
@@ -1211,6 +1412,9 @@ def _verify_service_reference_manifest(
     source_root = project / "docs" / "00-research" / "ux-service-reference"
     reference_root = project / "docs" / "17-evidence" / "images" / "issue-167-service-reference"
     evidence_root = project / "docs" / "17-evidence" / "images"
+    current_root = project / "docs" / "user-guide" / "images" / "current"
+    guide_captures = _read_current_guide_captures(project) if current_guide_ids else {}
+    guide_screenshot_ids: set[str] = set()
     ids: set[str] = set()
     images: set[str] = set()
     expected_measurements: set[Path] = set()
@@ -1308,6 +1512,17 @@ def _verify_service_reference_manifest(
                 )
         if lifecycle == "static-bundle":
             image_parent = reference_root
+        elif lifecycle == "current-guide":
+            guide_screenshot_id = _text(
+                reference.get("guide_screenshot_id"),
+                f"service reference {reference_id} guide screenshot id",
+            )
+            if guide_screenshot_id in guide_screenshot_ids:
+                raise UserGuideContractError(
+                    f"current guide screenshot id is not unique: {guide_screenshot_id}"
+                )
+            guide_screenshot_ids.add(guide_screenshot_id)
+            image_parent = current_root
         elif reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
             image_parent = project / "docs" / "user-guide" / "images" / "current"
         else:
@@ -1366,7 +1581,7 @@ def _verify_service_reference_manifest(
                 )
             json.loads(measurement.read_text(encoding="utf-8"))
             expected_measurements.add(measurement)
-        else:
+        elif lifecycle == "current-product-evidence":
             if image.is_relative_to(reference_root.resolve()):
                 raise UserGuideContractError(
                     f"current product reference must not use the static bundle: {reference_id}"
@@ -1379,6 +1594,16 @@ def _verify_service_reference_manifest(
                 viewport,
                 expected_hash,
                 evidence_root,
+            )
+        else:
+            _verify_current_guide_reference(
+                project,
+                reference_id,
+                reference,
+                image,
+                viewport,
+                expected_hash,
+                guide_captures,
             )
         images.add(_relative(image, project))
 

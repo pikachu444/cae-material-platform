@@ -274,79 +274,71 @@ references:
 - id: modeling-fit-normal-1366x768
   screen: modeling-fit
   state: normal
+  lifecycle: current-guide
   viewport:
     width: 1366
     height: 768
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
-    css: docs/00-research/ux-service-reference/modeling-fit.css
-    javascript: docs/00-research/ux-service-reference/modeling-fit.js
-  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1366x768.measurements.json
-  image_sha256: 41a775d88b32c9528d742858fdfbcf86dda6b391f3ad704337ee9d9781487a93
-  date: 2026-07-29
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-1366
+  image: docs/user-guide/images/current/modeling-fit-1366x768.png
+  image_sha256: 8724f2ae47aaf9f21c155beb8b9a2964ae13ea491a91780e61cfe5b426e6bc89
+  date: 2026-08-30
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-07-29
+    date: 2026-08-30
 - id: modeling-fit-normal-1440x900
   screen: modeling-fit
   state: normal
+  lifecycle: current-guide
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
-    css: docs/00-research/ux-service-reference/modeling-fit.css
-    javascript: docs/00-research/ux-service-reference/modeling-fit.js
-  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1440x900.measurements.json
-  image_sha256: 7ba66c5f5d5605dd897f1bb511fcaa888985c5472d378a56ce849ded55ed0db5
-  date: 2026-07-29
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-1440
+  image: docs/user-guide/images/current/modeling-fit-1440x900.png
+  image_sha256: d139950c634bac704ffe49630857e582fff047735cdbd9eac136915961d6129c
+  date: 2026-08-30
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-07-29
+    date: 2026-08-30
 - id: modeling-fit-normal-1920x1080
   screen: modeling-fit
   state: normal
+  lifecycle: current-guide
   viewport:
     width: 1920
     height: 1080
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
-    css: docs/00-research/ux-service-reference/modeling-fit.css
-    javascript: docs/00-research/ux-service-reference/modeling-fit.js
-  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-normal-1920x1080.measurements.json
-  image_sha256: f7a6aaf8720659bdadf1559347e08b8d1c5b920633c8ce954b34ba39aa7ee261
-  date: 2026-07-29
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-1920
+  image: docs/user-guide/images/current/modeling-fit-1920x1080.png
+  image_sha256: 74006a8abcfa242fd6f6d28a45a16813f463eef07c9da7ec144bb1ab94e90e8b
+  date: 2026-08-30
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-07-29
+    date: 2026-08-30
 - id: modeling-fit-candidate-parameters-long-1440x900
   screen: modeling-fit
   state: candidate-parameters-long
+  lifecycle: current-guide
   viewport:
     width: 1440
     height: 900
     device_scale_factor: 1
-  sources:
-    html: docs/00-research/ux-service-reference/modeling-fit-normal.html
-    css: docs/00-research/ux-service-reference/modeling-fit.css
-    javascript: docs/00-research/ux-service-reference/modeling-fit.js
-  image: docs/17-evidence/images/issue-167-service-reference/modeling-fit-candidate-parameters-long-1440x900.png
-  measurements: docs/17-evidence/images/issue-167-service-reference/modeling-fit-candidate-parameters-long-1440x900.measurements.json
-  image_sha256: 500e66fa38e8b7f6adde92f7aa3f309a41aa7f27cb5ef3ebe322fad07abce881
-  date: 2026-07-29
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-candidate-parameters-long-1440
+  image: docs/user-guide/images/current/modeling-fit-candidate-parameters-long-1440x900.png
+  image_sha256: f2faa356076e32c0a0e56648b618e538671dca7afeddf69a0607ac3123e4de4e
+  date: 2026-08-30
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-07-29
+    date: 2026-08-30
 - id: materials-card-preview-normal-1440x900
   screen: materials-card
   state: normal

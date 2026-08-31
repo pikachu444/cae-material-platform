@@ -37,7 +37,7 @@ def _write_dual_lifecycle_service_reference_fixture(
     static_root = root / "docs/17-evidence/images/issue-167-service-reference"
     static_root.mkdir(parents=True)
     references: list[dict[str, object]] = []
-    for ordinal in range(69):
+    for ordinal in range(65):
         image = static_root / f"legacy-{ordinal:02d}.png"
         image_bytes = _png_with_dimensions(32, 24, f"legacy-{ordinal}".encode())
         image.write_bytes(image_bytes)
@@ -101,6 +101,61 @@ def _write_dual_lifecycle_service_reference_fixture(
         encoding="utf-8",
     )
 
+    guide_root = root / "docs/user-guide"
+    guide_images = guide_root / "images/current"
+    guide_images.mkdir(parents=True)
+    guide_captures: list[dict[str, object]] = []
+    guide_targets = (
+        ("modeling-fit-1366", "normal", 1366, 768, "modeling-fit-1366x768.png"),
+        ("modeling-fit-1440", "normal", 1440, 900, "modeling-fit-1440x900.png"),
+        ("modeling-fit-1920", "normal", 1920, 1080, "modeling-fit-1920x1080.png"),
+        (
+            "modeling-fit-candidate-parameters-long-1440",
+            "candidate-parameters-long",
+            1440,
+            900,
+            "modeling-fit-candidate-parameters-long-1440x900.png",
+        ),
+    )
+    for guide_id, state, width, height, filename in guide_targets:
+        image = guide_images / filename
+        image_bytes = _png_with_dimensions(width, height, f"guide-{guide_id}".encode())
+        image.write_bytes(image_bytes)
+        guide_captures.append(
+            {
+                "id": guide_id,
+                "route": "/modeling?stage=fit&family=metal",
+                "workflow": "contract fixture Fit capture",
+                "fixture": f"contract fixture Fit {state}",
+                "image": f"images/current/{filename}",
+                "width": width,
+                "height": height,
+            }
+        )
+        references.append(
+            {
+                "id": (
+                    f"modeling-fit-candidate-parameters-long-{width}x{height}"
+                    if state == "candidate-parameters-long"
+                    else f"modeling-fit-normal-{width}x{height}"
+                ),
+                "screen": "modeling-fit",
+                "state": state,
+                "lifecycle": "current-guide",
+                "viewport": {"width": width, "height": height, "device_scale_factor": 1},
+                "guide_manifest": "docs/user-guide/screenshot-manifest.yaml",
+                "guide_screenshot_id": guide_id,
+                "image": image.relative_to(root).as_posix(),
+                "image_sha256": hashlib.sha256(image_bytes).hexdigest(),
+                "date": "2026-08-30",
+                "status": "approved",
+                "product_owner_approval": {"status": "approved", "date": "2026-08-30"},
+            }
+        )
+    (guide_root / "screenshot-manifest.yaml").write_text(
+        yaml.safe_dump({"captures": guide_captures}, sort_keys=False), encoding="utf-8"
+    )
+
     inventory = root / "docs/product/service-reference-inventory.yaml"
     inventory.parent.mkdir(parents=True, exist_ok=True)
     inventory.write_text(
@@ -123,7 +178,25 @@ def _write_dual_lifecycle_service_reference_fixture(
                             "images": 3,
                         },
                         "image_count": 3,
-                    }
+                    },
+                    {
+                        "id": "MOD-FIT",
+                        "normal": {
+                            "target_base": "modeling-fit-normal",
+                            "state": "normal",
+                            "lifecycle": "current-guide",
+                            "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
+                            "images": 3,
+                        },
+                        "exceptions": [
+                            {
+                                "id": "modeling-fit-candidate-parameters-long-1440x900",
+                                "state": "candidate-parameters-long",
+                                "lifecycle": "current-guide",
+                            }
+                        ],
+                        "image_count": 4,
+                    },
                 ],
             },
             sort_keys=False,
@@ -214,6 +287,33 @@ def _write_material_current_lifecycle_fixture(
                 "image": image_ref.removeprefix("docs/user-guide/"),
                 "width": width,
                 "height": height,
+            }
+        )
+
+    # The fixture retains the four current-guide Fit references from the
+    # shared dual-lifecycle setup.  Keep their screenshot IDs registered too;
+    # the service-reference verifier validates both current-product and
+    # current-guide consumers in one manifest.
+    for reference in references:
+        if reference.get("screen") != "modeling-fit":
+            continue
+        image_ref = str(reference["image"])
+        viewport = reference.get("viewport")
+        if not isinstance(viewport, dict):
+            raise AssertionError("contract fixture Fit reference has no viewport mapping")
+        fit_width = viewport.get("width")
+        fit_height = viewport.get("height")
+        if not isinstance(fit_width, int) or not isinstance(fit_height, int):
+            raise AssertionError("contract fixture Fit reference has invalid viewport dimensions")
+        captures.append(
+            {
+                "id": reference["guide_screenshot_id"],
+                "route": "/modeling?stage=fit&family=metal",
+                "workflow": "contract fixture Fit capture",
+                "fixture": "synthetic current-guide Fit reference",
+                "image": image_ref.removeprefix("docs/user-guide/"),
+                "width": fit_width,
+                "height": fit_height,
             }
         )
 
@@ -389,8 +489,9 @@ def test_service_reference_manifest_accepts_strict_dual_lifecycle(tmp_path: Path
     registered = _verify_service_reference_manifest(tmp_path)
 
     assert len(references) == len(registered) == 72
-    assert all("measurements" in reference for reference in references[:69])
-    assert all("measurements" not in reference for reference in references[69:])
+    assert all("measurements" in reference for reference in references[:65])
+    assert all("measurements" not in reference for reference in references[65:])
+    assert all(reference["lifecycle"] == "current-guide" for reference in references[68:])
 
 
 def test_service_reference_manifest_keeps_legacy_measurements_strict(tmp_path: Path) -> None:
@@ -407,7 +508,7 @@ def test_service_reference_manifest_keeps_legacy_measurements_strict(tmp_path: P
     [
         ("evidence-hash", "hash differs from visual evidence"),
         ("evidence-path-escape", "escapes"),
-        ("fake-measurements", "must use visual evidence, not measurements"),
+        ("fake-measurements", "current guide reference contains forbidden fields"),
     ],
 )
 def test_current_product_reference_rejects_invalid_evidence_lifecycle(
@@ -427,7 +528,7 @@ def test_current_product_reference_rejects_invalid_evidence_lifecycle(
         evidence["viewports"][0]["after_editor"]["path"] = "../outside.png"
         evidence_manifest.write_text(yaml.safe_dump(evidence), encoding="utf-8")
     else:
-        references[69]["measurements"] = (
+        references[68]["measurements"] = (
             "docs/17-evidence/images/issue-167-service-reference/fake.measurements.json"
         )
         content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
@@ -442,9 +543,9 @@ def test_current_product_reference_rejects_invalid_evidence_lifecycle(
     ("mutation", "message"),
     [
         ("lifecycle-split", "current product reference targets drifted"),
-        ("target-identity", "current product reference targets drifted"),
-        ("viewport-set", "viewport contract drifted"),
-        ("evidence-declaration", "evidence declaration drifted"),
+        ("target-identity", "current guide reference targets drifted"),
+        ("viewport-set", "current guide reference viewport contract drifted"),
+        ("evidence-declaration", "current guide reference contains forbidden fields"),
         ("inventory-viewports", "inventory ADM-DB approved viewports drifted"),
     ],
 )
@@ -457,15 +558,15 @@ def test_service_reference_manifest_rejects_dual_lifecycle_contract_drift(
     if mutation == "lifecycle-split":
         references[0]["lifecycle"] = "current-product-evidence"
     elif mutation == "target-identity":
-        references[69]["id"] = "administration-database-normal-1366x768"
+        references[69]["id"] = "unsupported-current-guide-id"
     elif mutation == "viewport-set":
         references[69]["viewport"] = {
-            "width": 1366,
-            "height": 768,
-            "device_scale_factor": 1,
+            "width": 1440,
+            "height": 900,
+            "device_scale_factor": 2,
         }
     elif mutation == "evidence-declaration":
-        references[69]["evidence_manifest"] = (
+        references[68]["evidence_manifest"] = (
             "docs/17-evidence/images/issue-290-unapproved/visual-evidence.yaml"
         )
     else:
@@ -624,7 +725,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     # the retired historical packet; the exact zero-consumer retirement removes
     # the stale duplicate groups while independently-owned evidence remains
     # declared in its manifests.
-    assert report.duplicate_image_group_count == 1439
+    assert report.duplicate_image_group_count == 1434
 
 
 @pytest.mark.parametrize(
@@ -762,7 +863,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     capture_source = manifest["visual_evidence"]["capture_source"]
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
-    fe04e_source = "9c5cbfdc50222197c60b1812027fd28b426457f2+issue259-fe04e-worktree"
+    issue331_source = "working-tree-issue-331-fit-css-ownership"
     issue262_source = (
         "5de648936887422191b08ed227b5680015f16a22"
         "+issue262-owner-correction-worktree"
@@ -779,9 +880,9 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "e55d30f597923509607dd7651d734bda3867b583"
         "+issue371-catalog-single-owner-worktree"
     )
-    assert manifest["version"] == 138
-    assert manifest["scope"] == "issue-342-task1b-json-record-registration"
-    assert manifest_source == issue342_source
+    assert manifest["version"] == 139
+    assert manifest["scope"] == "issue-331-modeling-fit-css-ownership"
+    assert manifest_source == issue331_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -796,7 +897,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "sidecar",
     }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Issue #342 Task 1B" in manifest["capture_command"]
+    assert "Issue #331" in manifest["capture_command"]
     assert "five CSS viewports" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
@@ -807,13 +908,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         issue371_source,
+        issue331_source,
         issue342_source,
         capture_source,
         issue262_source,
         issue262_fe07b_source,
         issue260_source,
         fe04d_source,
-        fe04e_source,
         "ef364087147e51e22cc02534645ba23b628c23d7+issue253-demo-token-refresh-worktree",
         "971ea100b6d7032eb1308b01b455c95cb9773408+issue246-live-data-correction-v4",
         "f8fe6ef85d345837a6252b6ba8b3b706ccbe009f",
@@ -921,16 +1022,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "modeling-data-empty-1440",
         "modeling-data-invalid-1440",
         "modeling-data-invalid-scrolled-1440",
-        "MOD-PROCESS-CURRENT-1366",
-        "MOD-PROCESS-CURRENT-1440",
-        "MOD-PROCESS-CURRENT-1920",
-        "MOD-PROCESS-CURRENT-2560",
-        "MOD-PROCESS-CURRENT-3840",
-        "modeling-fit-1366",
-        "modeling-fit-1440",
-        "modeling-fit-1920",
-        "modeling-fit-2560",
-        "modeling-fit-3840",
         "modeling-export-1366",
         "modeling-export-1440",
         "modeling-export-1920",
@@ -947,7 +1038,17 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
-    new_issue_259_fe04e_captures = {
+    new_issue_331_captures = {
+        "MOD-PROCESS-CURRENT-1366",
+        "MOD-PROCESS-CURRENT-1440",
+        "MOD-PROCESS-CURRENT-1920",
+        "MOD-PROCESS-CURRENT-2560",
+        "MOD-PROCESS-CURRENT-3840",
+        "modeling-fit-1366",
+        "modeling-fit-1440",
+        "modeling-fit-1920",
+        "modeling-fit-2560",
+        "modeling-fit-3840",
         "modeling-fit-candidate-parameters-long-1440",
         "modeling-fit-candidate-evidence-scrolled-1440",
         "modeling-fit-calculation-failed-1920",
@@ -1068,13 +1169,13 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "native Python Playwright 1.62" in issue_309_provenance["command"]
     assert "Data to Process to Data" in issue_309_provenance["command"]
     assert new_issue_309_captures == set(issue_309_provenance["ids"])
-    issue_259_fe04e_provenance = next(
+    issue_331_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == fe04e_source
+        if provenance["source_commit"] == issue331_source
     )
-    assert "--only-modeling-process-fit" in issue_259_fe04e_provenance["command"]
-    assert new_issue_259_fe04e_captures == set(issue_259_fe04e_provenance["ids"])
+    assert "--only-modeling-process-fit" in issue_331_provenance["command"]
+    assert new_issue_331_captures == set(issue_331_provenance["ids"])
     issue_259_fe04d_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -184,6 +185,47 @@ def _css_worktree_fixture(tmp_path: Path, *, evidence: str) -> Path:
     return tmp_path
 
 
+def _css_partial_family_fixture(
+    tmp_path: Path,
+    *,
+    changed_stem: str = "materials-search",
+) -> tuple[Path, str, tuple[str, ...]]:
+    _write(tmp_path / ".gitignore", ".artifacts/\n")
+    _write(tmp_path / "docs/documentation-manifest.yaml", _manifest())
+    _write(tmp_path / "apps/web/src/materials.css", ".materials { display: grid; }\n")
+    guide_paths = tuple(
+        f"images/current/{changed_stem}-{viewport}.png" for viewport in VIEWPORTS
+    )
+    guide = "# Materials\n\n" + "\n".join(f"![{path}]({path})" for path in guide_paths) + "\n"
+    _write(tmp_path / "docs/user-guide/materials.md", guide)
+    manifest = "captures:\n" + "".join(f"  - image: {path}\n" for path in guide_paths)
+    _write(
+        tmp_path / "docs/user-guide/screenshot-manifest.yaml",
+        manifest + "allowed_duplicate_groups: []\n",
+    )
+    target_paths = tuple(
+        f"docs/user-guide/images/current/materials-search-{viewport}.png"
+        for viewport in VIEWPORTS
+    )
+    for index, path in enumerate(target_paths):
+        _write(tmp_path / path, f"base-{index}\n".encode())
+    base_sha = _init_repo(tmp_path)
+
+    _write(tmp_path / "apps/web/src/materials.css", ".materials { display: grid; min-width: 0; }\n")
+    _write(tmp_path / "docs/user-guide/materials.md", guide + "Updated.\n")
+    _write(
+        tmp_path / "docs/user-guide/screenshot-manifest.yaml",
+        manifest + "# Updated family registration\nallowed_duplicate_groups: []\n",
+    )
+    for index, viewport in enumerate(VIEWPORTS[:3]):
+        _write(
+            tmp_path
+            / f"docs/user-guide/images/current/{changed_stem}-{viewport}.png",
+            f"changed-{index}\n".encode(),
+        )
+    return tmp_path, base_sha, target_paths
+
+
 def test_worktree_css_change_accepts_promoted_family_and_ignores_artifacts(
     tmp_path: Path,
 ) -> None:
@@ -271,6 +313,25 @@ def test_missing_same_stem_viewport_is_allowed_only_with_both_changed_doc_refs(
             path
             for path in changed
             if path != "docs/user-guide/images/current/materials-search-1366x768.png"
+        }
+    )
+
+
+def test_worktree_css_change_accepts_unchanged_family_members_with_exact_attestation(
+    tmp_path: Path,
+) -> None:
+    project, base_sha, target_paths = _css_partial_family_fixture(tmp_path)
+
+    report = verify_documentation_impact(project, "worktree")
+
+    assert report.visual_files == ("apps/web/src/materials.css",)
+    assert documentation_impact._has_current_five_viewport_family(
+        set(target_paths[:3]),
+        project=project,
+        merge_base=base_sha,
+        evidence={
+            "docs/user-guide/materials.md",
+            "docs/user-guide/screenshot-manifest.yaml",
         },
     )
 
@@ -311,6 +372,60 @@ def test_unchanged_family_rejects_wrong_stem_and_without_changed_member(
     }
     assert not _can_use_unchanged_current_family(project, base_sha, changed, wrong_stem)
     assert not _can_use_unchanged_current_family(project, base_sha, changed, set())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ("missing", "base-drift", "manifest-omission", "guide-omission", "wrong-stem"),
+)
+def test_worktree_css_change_rejects_unproven_unchanged_family_members(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    project, base_sha, target_paths = _css_partial_family_fixture(
+        tmp_path,
+        changed_stem="other-family" if mutation == "wrong-stem" else "materials-search",
+    )
+    missing_path = project / target_paths[-1]
+    if mutation == "missing":
+        missing_path.unlink()
+    elif mutation == "base-drift":
+        missing_path.write_bytes(b"drifted\n")
+    elif mutation == "manifest-omission":
+        manifest_path = project / "docs/user-guide/screenshot-manifest.yaml"
+        manifest_path.write_text(
+            manifest_path.read_text(encoding="utf-8").replace(
+                f"images/current/materials-search-{VIEWPORTS[-1]}.png\n", ""
+            ),
+            encoding="utf-8",
+        )
+    elif mutation == "guide-omission":
+        guide_path = project / "docs/user-guide/materials.md"
+        guide_path.write_text(
+            guide_path.read_text(encoding="utf-8").replace(
+                f"images/current/materials-search-{VIEWPORTS[-1]}.png", ""
+            ),
+            encoding="utf-8",
+        )
+
+    if mutation == "base-drift":
+        paths = {
+            f"docs/user-guide/images/current/materials-search-{viewport}.png"
+            for viewport in VIEWPORTS[:3]
+        }
+        assert not documentation_impact._has_current_five_viewport_family(
+            paths,
+            project=project,
+            merge_base=base_sha,
+            evidence={
+                "docs/user-guide/materials.md",
+                "docs/user-guide/screenshot-manifest.yaml",
+            },
+        )
+        return
+
+    with pytest.raises(DocumentationImpactError, match="complete current user-guide PNG family"):
+        verify_documentation_impact(project, "worktree")
 
 
 @pytest.mark.parametrize("evidence", ("transient", "historical"))
@@ -459,6 +574,150 @@ def test_issue_351_cleanup_does_not_unlock_an_adjacent_frozen_root(tmp_path: Pat
 
     with pytest.raises(DocumentationImpactError, match="frozen visual evidence is immutable"):
         verify_documentation_impact(tmp_path, "worktree")
+
+
+def _issue_331_fit_cleanup_fixture(
+    tmp_path: Path,
+    *,
+    changed_dependencies: bool = True,
+) -> tuple[Path, str, dict[str, str]]:
+    _write(tmp_path / "docs/documentation-manifest.yaml", _manifest())
+    payloads: dict[str, bytes] = {}
+    for index, path in enumerate(sorted(documentation_impact._ISSUE_331_RETIRED_FIT_FILES)):
+        payload = f"issue-331-fit-{index}\n".encode()
+        payloads[path] = payload
+        _write(tmp_path / path, payload)
+    for dependency in documentation_impact._ISSUE_331_RETIRED_FIT_DEPENDENCIES:
+        _write(tmp_path / dependency, "base\n")
+    base_sha = _init_repo(tmp_path)
+    for path in payloads:
+        (tmp_path / path).unlink()
+    if changed_dependencies:
+        for dependency in documentation_impact._ISSUE_331_RETIRED_FIT_DEPENDENCIES:
+            _write(tmp_path / dependency, "changed\n")
+    # The production exception attests raw merge-base Git blobs, independently of
+    # checkout line-ending normalization on the host running the contract.
+    hashes = {
+        path: hashlib.sha256(
+            documentation_impact._git_blob_bytes(tmp_path, base_sha, path)
+        ).hexdigest()
+        for path in payloads
+    }
+    return tmp_path, base_sha, hashes
+
+
+def test_issue_331_fit_cleanup_requires_exact_eight_and_four_coupling_manifests(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project, _, hashes = _issue_331_fit_cleanup_fixture(tmp_path)
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", hashes)
+
+    report = verify_documentation_impact(project, "worktree")
+
+    assert set(documentation_impact._ISSUE_331_RETIRED_FIT_FILES) <= set(report.changed_files)
+
+
+def test_issue_331_fit_cleanup_rejects_partial_batch_and_missing_merge_base(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project, base_sha, hashes = _issue_331_fit_cleanup_fixture(tmp_path)
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", hashes)
+    remaining = next(iter(documentation_impact._ISSUE_331_RETIRED_FIT_FILES))
+    _write(project / remaining, b"still-present\n")
+
+    with pytest.raises(DocumentationImpactError, match="deletion only"):
+        verify_documentation_impact(project, "worktree")
+
+    partial_entries = {
+        **{
+            path: False
+            for path in sorted(documentation_impact._ISSUE_331_RETIRED_FIT_FILES)[:-1]
+        },
+        **{path: True for path in documentation_impact._ISSUE_331_RETIRED_FIT_DEPENDENCIES},
+    }
+    with pytest.raises(DocumentationImpactError, match="exactly all eight"):
+        evaluate_documentation_impact(
+            partial_entries,
+            project=project,
+            merge_base=base_sha,
+        )
+
+    entries = {
+        **{path: False for path in documentation_impact._ISSUE_331_RETIRED_FIT_FILES},
+        **{path: True for path in documentation_impact._ISSUE_331_RETIRED_FIT_DEPENDENCIES},
+    }
+    with pytest.raises(DocumentationImpactError, match="repository merge base"):
+        evaluate_documentation_impact(entries, project=project, merge_base=None)
+
+
+def test_issue_331_fit_cleanup_rejects_base_hash_and_current_worktree_content(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project, _, hashes = _issue_331_fit_cleanup_fixture(tmp_path)
+    wrong_hashes = dict(hashes)
+    first = next(iter(wrong_hashes))
+    wrong_hashes[first] = "0" * 64
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", wrong_hashes)
+
+    with pytest.raises(DocumentationImpactError, match="base hash mismatch"):
+        verify_documentation_impact(project, "worktree")
+
+    project, _, hashes = _issue_331_fit_cleanup_fixture(tmp_path / "current")
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", hashes)
+    current = next(iter(documentation_impact._ISSUE_331_RETIRED_FIT_FILES))
+    _write(project / current, b"must-be-absent\n")
+
+    with pytest.raises(DocumentationImpactError, match="deletion only"):
+        verify_documentation_impact(project, "worktree")
+
+
+def test_issue_331_fit_cleanup_rejects_missing_coupling_and_adjacent_paths(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project, _, hashes = _issue_331_fit_cleanup_fixture(tmp_path)
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", hashes)
+    missing_dependency = next(iter(documentation_impact._ISSUE_331_RETIRED_FIT_DEPENDENCIES))
+    _write(project / missing_dependency, "base\n")
+
+    with pytest.raises(DocumentationImpactError, match="same diff"):
+        verify_documentation_impact(project, "worktree")
+
+    project, _, hashes = _issue_331_fit_cleanup_fixture(tmp_path / "adjacent")
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", hashes)
+    _write(
+        project / documentation_impact._ISSUE_331_RETIRED_FIT_ROOT / "adjacent.png",
+        b"adjacent\n",
+    )
+
+    with pytest.raises(DocumentationImpactError, match="adjacent"):
+        verify_documentation_impact(project, "worktree")
+
+
+def test_issue_331_fit_cleanup_cannot_reuse_a_merge_base_after_cleanup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project, _, hashes = _issue_331_fit_cleanup_fixture(tmp_path)
+    monkeypatch.setattr(documentation_impact, "_ISSUE_331_RETIRED_FIT_HASHES", hashes)
+    _git(project, "add", ".")
+    _git(project, "commit", "-m", "record issue-331 Fit cleanup")
+    cleanup_sha = _git(project, "rev-parse", "HEAD")
+    _git(project, "update-ref", "refs/remotes/origin/main", cleanup_sha)
+    entries = {
+        **{path: False for path in documentation_impact._ISSUE_331_RETIRED_FIT_FILES},
+        **{path: True for path in documentation_impact._ISSUE_331_RETIRED_FIT_DEPENDENCIES},
+    }
+
+    with pytest.raises(DocumentationImpactError, match="absent from the merge base"):
+        evaluate_documentation_impact(
+            entries,
+            project=project,
+            merge_base=cleanup_sha,
+        )
 
 
 def test_issue_167_exception_requires_both_coupling_manifests() -> None:

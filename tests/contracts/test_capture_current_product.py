@@ -687,6 +687,33 @@ def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states
     assert "> 879" not in measurement_gate
 
 
+def test_modeling_data_capture_requires_the_related_slot_and_preserves_present_heading_geometry() -> None:
+    data_surface = _CAPTURE_SOURCE.split(
+        "def _assert_modeling_data_surface", 1
+    )[1].split("def _assert_import_file_control", 1)[0]
+
+    assert 'related_slot = browser.locator(".modeling-data-related-slot")' in data_surface
+    assert 'related_slot.count() != 1 or not related_slot.is_visible()' in data_surface
+    assert 'related_section = related_slot.locator(".modeling-data-related")' in data_surface
+    assert 'related_count = related_section.count()' in data_surface
+    assert 'if related_count == 1:' in data_surface
+    assert 'related_heading_box = (' in data_surface
+    assert 'abs(browser_heading_box["left"] - related_heading_box["left"]) > 1' in data_surface
+    assert 'abs(related_box["bottom"] - browser_box["bottom"]) > 1' in data_surface
+
+
+def test_modeling_data_capture_rejects_error_or_heading_content_when_related_section_is_absent() -> None:
+    data_surface = _CAPTURE_SOURCE.split(
+        "def _assert_modeling_data_surface", 1
+    )[1].split("def _assert_import_file_control", 1)[0]
+
+    assert 'else:\n        forbidden_related_content = related_slot.locator(' in data_surface
+    assert '.modeling-data-related, .modeling-data-rail-heading, .error-banner, [role=\\"alert\\"]' in data_surface
+    assert 'if forbidden_related_content.count():' in data_surface
+    assert 'related_heading_box = (' in data_surface
+    assert 'if related_count == 1:\n        if related_heading_box is None:' in data_surface
+
+
 def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_create_flow() -> None:
     export_viewports = tuple(
         f"modeling-export-{width}x{height}.png"
@@ -931,6 +958,36 @@ def test_modeling_export_capture_contract_uses_declared_preview_and_atomic_creat
     assert '".mapping-scroll"' in _CAPTURE_SOURCE
 
 
+def test_modeling_export_capture_reads_exact_delivery_ids_and_verifies_materials_readback() -> None:
+    export_capture = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_export_only", 1
+    )[1].split("def _capture_modeling(", 1)[0]
+    readback = _CAPTURE_SOURCE.split(
+        "def _assert_delivered_solver_card_readback", 1
+    )[1].split("def _capture_modeling_export_only", 1)[0]
+
+    assert "UUID_LIKE_PATTERN" in _CAPTURE_SOURCE
+    assert "_read_delivered_solver_card_identity" in export_capture
+    assert 'delivery_details.locator(":scope > summary").click()' in export_capture
+    assert 'for label in ("Solver card", "Card revision")' in _CAPTURE_SOURCE
+    assert "UUID-like immutable ID" in _CAPTURE_SOURCE
+    assert "expected_card_path = f\"/materials/{material['id']}/cards/{solver_card_id}\"" in export_capture
+    assert 're.compile(rf"{re.escape(expected_card_path)}$")' in export_capture
+    assert 'urlsplit(delivered.url).path != expected_card_path' in export_capture
+    assert 'delivered.wait_for_url(re.compile(r"/materials/")' not in export_capture
+    assert "/api/v1/neutral-solver-cards/${encodeURIComponent(solverCardId)}?revision_id=${encodeURIComponent(solverCardRevisionId)}" in readback
+    assert 'payload.get("solver_card_id") != solver_card_id' in readback
+    assert 'current_revision.get("id") != solver_card_revision_id' in readback
+    assert 'target.get("solver") != "abaqus"' in readback
+    assert 'target.get("version") != "2025"' in readback
+    assert 'target.get("unit_system") != "kg_m_s"' in readback
+    assert 'content.get("material_name") != "DP780_C1_REFERENCE"' in readback
+    assert 'page.locator(\'[role="alert"]:visible\').count()' in readback
+    assert 'page.get_by_label("Native solver card preview", exact=True)' in readback
+    assert 'heading_text == "Card preview"' in readback
+    assert 'native_text == "Loading native card preview…"' in readback
+
+
 def test_capture_contract_rejects_positional_wait_for_function_arguments() -> None:
     module = ast.parse(_CAPTURE_SOURCE)
     wait_calls = [
@@ -1000,6 +1057,28 @@ def test_modeling_fit_capture_saves_exact_process_source_and_scrolls_evidence_lo
     assert "after_page_down <= 0" in scroll_fn_source
     assert "wheel_after[\"scrollLeft\"] != wheel_before[\"scrollLeft\"]" in scroll_fn_source
     assert "wheel_after[\"rectLeft\"] != wheel_before[\"rectLeft\"]" in scroll_fn_source
+
+
+def test_modeling_fit_evidence_wheel_restarts_from_local_top_and_preserves_page_and_x_scroll() -> None:
+    scroll_fn_start = _CAPTURE_SOURCE.index("def _scroll_fit_evidence_locally")
+    scroll_fn_end = _CAPTURE_SOURCE.index(
+        "\ndef _assert_modeling_process_preview", scroll_fn_start
+    )
+    scroll_fn_source = _CAPTURE_SOURCE[scroll_fn_start:scroll_fn_end]
+    page_down = scroll_fn_source.index('body.press("PageDown")')
+    page_down_proof = scroll_fn_source.index("body.scrollTop > 0", page_down)
+    reset_before_wheel = scroll_fn_source.index("el.scrollTop = 0;", page_down_proof)
+    wheel = scroll_fn_source.index("page.mouse.wheel(0, 92)", reset_before_wheel)
+    wheel_proof = scroll_fn_source.index("body.scrollTop > 0", wheel)
+    horizontal_proof = scroll_fn_source.index("before_wheel_left", wheel_proof)
+    page_proof = scroll_fn_source.index("before_wheel_page_scroll", wheel_proof)
+
+    assert page_down < page_down_proof < reset_before_wheel < wheel < wheel_proof
+    assert wheel < horizontal_proof
+    assert wheel < page_proof
+    assert "el.scrollLeft = 0;" in scroll_fn_source[reset_before_wheel:wheel]
+    assert 'body.evaluate("el => el.scrollLeft") != before_wheel_left' in scroll_fn_source
+    assert 'page.evaluate("() => window.scrollY") != before_wheel_page_scroll' in scroll_fn_source
 
 
 def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() -> None:
@@ -1187,11 +1266,55 @@ def test_fit_exact_source_blocker_scopes_duplicate_copy_to_plot_overlay() -> Non
     assert 'fit_plot_overlay = fit_blocked.locator(\n        "#modeling-fit .engineering-curve-plot-empty-overlay"\n    )' in blocker_flow
     assert 'fit_plot_overlay.get_by_text(\n        fit_blocker_message,\n        exact=True,\n    )' in blocker_flow
     assert 'fit_source_binding = fit_blocked.locator(".fit-context-source")' in blocker_flow
-    assert "blocked_context_text, blocked_context_title = _read_fit_context_header(fit_blocked)" in blocker_flow
+    assert "fit_source_context = fit_source_binding.inner_text().strip()" in blocker_flow
     assert "_wait_for_fit_context_header(" in blocker_flow
-    assert 'fit_source_binding.inner_text().strip() == "No saved Process Output"' in blocker_flow
+    assert 'fit_source_binding.inner_text().strip() == "No saved Process Output"' not in blocker_flow
+    assert 'fit_source_context = fit_source_binding.inner_text().strip()' in blocker_flow
+    assert 'fit_source_context_title = fit_source_binding.get_attribute("title")' in blocker_flow
+    assert "fit_blocked.wait_for_function(" in blocker_flow
+    assert "source.textContent?.trim() === expectedText" in blocker_flow
+    assert "source.getAttribute('title') === expectedTitle" in blocker_flow
+    assert "[fit_source_context, fit_source_context_title]" in blocker_flow
+    assert 'blocked_source_context != fit_source_context' in blocker_flow
+    assert 'blocked_source_context_title != fit_source_context_title' in blocker_flow
+    assert 'blocked_source_context == "No saved Process Output"' in blocker_flow
+    assert 'blocked_source_context_title == "No saved Process Output"' in blocker_flow
     assert "fit_blocked.get_by_text(" not in blocker_flow
     assert ".first" not in blocker_flow
+
+
+def test_fit_exact_source_blocker_preserves_material_test_data_context_before_session_block() -> None:
+    blocker_flow = _CAPTURE_SOURCE.split(
+        "    fit_blocked = _new_page", 1
+    )[1].split("    exact_read_failed = _new_page", 1)[0]
+
+    prepare = blocker_flow.index(
+        '    _prepare_fit_from_saved_process(fit_blocked, base_url, label="Fit blocked source")'
+    )
+    record = blocker_flow.index("    fit_source_context = fit_source_binding.inner_text().strip()")
+    clear_session = blocker_flow.index("          delete session.processingOutput")
+    reload = blocker_flow.index('    fit_blocked.goto(f"{base_url}/modeling?stage=fit&family=metal")')
+    compare = blocker_flow.index("    blocked_source_context = fit_source_binding.inner_text().strip()")
+
+    assert prepare < record < clear_session < reload < compare
+    assert 'fit_source_binding.wait_for(state="visible", timeout=30_000)' in blocker_flow
+    assert 'fit_source_context_title = fit_source_binding.get_attribute("title")' in blocker_flow
+    assert 'not fit_source_context' in blocker_flow
+    assert 'not fit_source_context_title' in blocker_flow
+    assert 'fit_source_context == "No saved Process Output"' in blocker_flow
+    assert 'fit_source_context_title == "No saved Process Output"' in blocker_flow
+
+
+def test_fit_exact_source_blocker_rejects_stale_missing_process_output_header_literal() -> None:
+    blocker_flow = _CAPTURE_SOURCE.split(
+        "    fit_blocked = _new_page", 1
+    )[1].split("    exact_read_failed = _new_page", 1)[0]
+
+    assert 'fit_source_context == "No saved Process Output"' in blocker_flow
+    assert 'fit_source_context_title == "No saved Process Output"' in blocker_flow
+    assert 'blocked_source_context == "No saved Process Output"' in blocker_flow
+    assert 'blocked_source_context_title == "No saved Process Output"' in blocker_flow
+    assert "material/Test Data source context" in blocker_flow
 
 
 def test_fit_exact_source_recovery_assertion_starts_after_blocked_screenshot() -> None:
@@ -1229,6 +1352,17 @@ def test_fit_exact_source_recovery_assertion_starts_after_blocked_screenshot() -
     assert 'request.startswith("POST ")' in blocker_flow
     assert 'urlsplit(request.split(" ", 1)[1]).path == allowed_preview_path' in blocker_flow
     assert "blocked_requests: list[str] = []\n    fit_blocked.on(\"request\", lambda" not in blocker_flow
+
+
+def test_fit_exact_read_failure_uses_current_explicit_retry_label_without_fallback() -> None:
+    exact_read_flow = _CAPTURE_SOURCE.split(
+        "    exact_read_failed = prepared_fit", 1
+    )[1].split("    restored = prepared_fit", 1)[0]
+
+    assert 'name="Retry saved Fit", exact=True' in _CAPTURE_SOURCE
+    assert 'name=re.compile(r"Retry' not in exact_read_flow
+    assert 'name="Retry exact saved Fit"' not in exact_read_flow
+    assert "retry_saved_fit.count() != 1" in exact_read_flow
 
 
 def test_fit_save_stays_on_fit_and_explicitly_navigates_export_only_at_callers() -> None:
@@ -1334,6 +1468,55 @@ def test_fit_save_allows_only_the_expected_exact_restore_error_after_commit_proo
         "        allow_expected_exact_restore_failure=True,\n"
         "    )"
     ) in exact_read_failed_flow
+
+
+def test_fit_save_failure_wait_is_explicit_and_default_still_requires_saved_current() -> None:
+    module = ast.parse(_CAPTURE_SOURCE)
+    save_node = next(
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "_save_exact_fit_selection"
+    )
+    save_source = ast.get_source_segment(_CAPTURE_SOURCE, save_node)
+    assert save_source is not None
+    assert "if allow_expected_exact_restore_failure:" in save_source
+    assert "saved = state?.textContent?.trim() === 'Saved current'" in save_source
+    assert "startsWith(expectedError)" in save_source
+    assert "arg=wait_argument" in save_source
+    assert "else:" in save_source
+    assert save_source.count('get_by_text(\n        "Saved current", exact=True') == 1
+    wait_branch = save_source.index("if allow_expected_exact_restore_failure:")
+    default_branch = save_source.index("else:", wait_branch)
+    saved_current_wait = save_source.index("saved_current.wait_for(timeout=30_000)")
+    assert wait_branch < default_branch < saved_current_wait
+    assert "not allow_expected_exact_restore_failure or not error_text.startswith(" in save_source
+
+
+def test_restored_fit_capture_waits_for_exact_saved_state_not_conditional_notice() -> None:
+    restored_flow = _CAPTURE_SOURCE.split(
+        "    restored = prepared_fit", 1
+    )[1].split("def _capture_modeling_process_fit", 1)[0]
+    restored_only_flow = _CAPTURE_SOURCE.split(
+        "def _capture_modeling_fit_restored_only", 1
+    )[1]
+
+    for flow in (restored_flow, restored_only_flow):
+        assert "_wait_for_settled(restored)" in flow
+        assert 'get_by_text(\n        "Saved current", exact=True' in flow
+        assert 'source_binding_text = source_binding.inner_text().strip()' in flow
+        assert 'source_binding_title = source_binding.get_attribute("title")' in flow
+        assert "source_binding_text != source_binding_title" in flow
+        assert 'source_binding_text in {"Select Test Data", "No saved Process Output"}' in flow
+        assert 'source_binding_title in {"Select Test Data", "No saved Process Output"}' in flow
+        assert 'len(source_context_parts) != 2' in flow
+        assert "any(not part for part in source_context_parts)" in flow
+        assert "source_label not in source_binding_text" not in flow
+        assert "source_revision}" in flow
+        assert "source_digest not in source_evidence_text" in flow
+        assert "source_label not in source_evidence_text" in flow
+        assert "Saved immutable Fit Output restored with its exact Process source and decision." not in flow
+    assert 'get_by_text(\n        "Saved immutable Fit Output restored with its exact Process source and decision."' not in _CAPTURE_SOURCE
 
 
 def test_restored_fit_counts_only_the_exact_processing_output_content_read() -> None:
@@ -1943,7 +2126,7 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
     assert "optional comparison action drifted from the Modeling action color" in surface_flow
     assert "Modeling Data Browser and Related data headings are not aligned" in surface_flow
     assert 'related_slot = browser.locator(".modeling-data-related-slot")' in surface_flow
-    assert "related_count = related.count()" in surface_flow
+    assert "related_count = related_section.count()" in surface_flow
     assert "if related_count == 1:" in surface_flow
     assert "empty Related slot contains unexpected content" in surface_flow
     assert "const svg = document.querySelector('.modeling-data-plot svg');" in surface_flow

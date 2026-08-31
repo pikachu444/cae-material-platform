@@ -159,10 +159,16 @@ families:
     normal:
       target_base: modeling-fit-normal
       state: normal
+      lifecycle: current-guide
+      approved_viewports:
+        - 1366x768
+        - 1440x900
+        - 1920x1080
       images: 3
     exceptions:
       - id: modeling-fit-candidate-parameters-long-1440x900
         state: candidate-parameters-long
+        lifecycle: current-guide
     evidence_only_states:
       - no-candidate-empty
       - calculating
