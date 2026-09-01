@@ -167,8 +167,6 @@
 
 /* All normal surfaces use the same compact top-action grammar. */
 
-.stage-data > .section-heading { display: none; }
-
 /* The plot consumes its grid cell. Fixed minimums created a blank band at desktop heights. */
 
 .visually-hidden {
@@ -180,11 +178,6 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
-}
-
-.curve-tree-group > details > article.active,
-.configured-step-list > button.active {
-  background: var(--ux-accent-soft);
 }
 
 /* Process curve identities need to remain readable in the compact navigator

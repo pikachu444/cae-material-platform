@@ -200,6 +200,20 @@ describe("EngineeringCurvePlot", () => {
     expect(plotted).toHaveLength(2);
     expect(plotted[0].getAttribute("points")?.split(" ")).toHaveLength(3);
     expect(plotted[1].getAttribute("points")?.split(" ")).toHaveLength(4);
+    const curveClipGroup = container.querySelector("g.curve-series-clip");
+    const curveClipReference = curveClipGroup?.getAttribute("clip-path");
+    const curveClipId = curveClipReference?.match(/^url\(#(.+)\)$/)?.[1];
+    const curveClipPath = Array.from(container.querySelectorAll("clipPath")).find((node) => node.id === curveClipId);
+    const curveClipRect = curveClipPath?.querySelector("rect");
+    expect(curveClipGroup).toBeTruthy();
+    expect(curveClipReference).toMatch(/^url\(#.+\)$/);
+    expect(container.querySelectorAll("clipPath")).toHaveLength(1);
+    expect(curveClipPath?.getAttribute("clipPathUnits")).toBe("userSpaceOnUse");
+    expect(Number(curveClipRect?.getAttribute("x"))).toBe(80);
+    expect(Number(curveClipRect?.getAttribute("y"))).toBe(24);
+    expect(Number(curveClipRect?.getAttribute("width"))).toBe(450);
+    expect(Number(curveClipRect?.getAttribute("height"))).toBe(344);
+    expect(plotted.every((line) => curveClipGroup?.contains(line))).toBe(true);
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
   });
 

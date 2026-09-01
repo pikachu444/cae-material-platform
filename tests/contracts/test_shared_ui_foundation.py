@@ -9,6 +9,16 @@ LAYOUT = (ROOT / "apps/web/src/design/layout.css").read_text(encoding="utf-8")
 PRIMITIVES = (ROOT / "apps/web/src/design/primitives.css").read_text(encoding="utf-8")
 SHELL = (ROOT / "apps/web/src/design/shell.css").read_text(encoding="utf-8")
 LEGACY = (ROOT / "apps/web/src/styles.css").read_text(encoding="utf-8")
+MODELING_CORE = (
+    ROOT / "apps/web/src/features/modeling/ui/modeling-core-workbench.css"
+).read_text(encoding="utf-8")
+MODELING_PLOT = (
+    ROOT / "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css"
+).read_text(encoding="utf-8")
+MODELING_PROCESS = (
+    ROOT
+    / "apps/web/src/features/modeling/ui/stages/process/modeling-process-stage.css"
+).read_text(encoding="utf-8")
 ADMINISTRATION = (
     ROOT / "apps/web/src/features/administration/ui/administration.css"
 ).read_text(encoding="utf-8")
@@ -33,6 +43,21 @@ RETIRED_ADMINISTRATION_SELECTOR_GROUPS = (
     ".database-revision-list button.active",
     ".record-heading-actions .text-button",
     ".database-facet-group button.active",
+)
+
+RETIRED_MODELING_SELECTOR_GROUPS = (
+    ".stage-data > .section-heading",
+    ".curve-tree-group > details > article.active",
+    ".processing-hero .eyebrow",
+    ".stage-chip-rail button.active",
+    ".stage-item.active",
+    ".stage-item.active > span",
+)
+
+MOVED_MODELING_SELECTOR_GROUPS = (
+    ".configured-step-list > button.active",
+    ".processing-curve.interactive.interaction-pan:not(.is-panning)",
+    ".processing-curve.interactive.is-panning",
 )
 
 
@@ -166,3 +191,47 @@ def test_administration_elastic_workgroups_keep_forms_on_shared_semantic_boundar
 
     assert ".administration-record-workbench" in ADMINISTRATION
     assert "max-width: var(--ux-workspace-max-inline-size)" in ADMINISTRATION
+
+
+def test_retired_modeling_css_groups_have_no_production_or_built_consumers() -> None:
+    source_css = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted((ROOT / "apps/web/src").rglob("*.css"))
+    )
+    for selector in RETIRED_MODELING_SELECTOR_GROUPS:
+        assert not _contains_exact_css_rule(source_css, selector), selector
+
+    dist_root = ROOT / "apps/web/dist"
+    if dist_root.exists():
+        dist_css = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(dist_root.rglob("*.css"))
+        )
+        for selector in RETIRED_MODELING_SELECTOR_GROUPS:
+            assert not _contains_exact_css_rule(dist_css, selector), selector
+
+
+def test_modeling_css_moves_keep_one_exact_feature_owner_and_do_not_claim_fragments() -> None:
+    for selector, owner in (
+        (".configured-step-list > button.active", MODELING_CORE),
+        (
+            ".processing-curve.interactive.interaction-pan:not(.is-panning)",
+            MODELING_PLOT,
+        ),
+        (".processing-curve.interactive.is-panning", MODELING_PLOT),
+    ):
+        assert _contains_exact_css_rule(owner, selector), selector
+
+    assert not _contains_exact_css_rule(LAYOUT, ".configured-step-list > button.active")
+    assert not _contains_exact_css_rule(LEGACY, ".configured-step-list > button.active")
+    assert not _contains_exact_css_rule(
+        LEGACY, ".processing-curve.interactive.interaction-pan:not(.is-panning)"
+    )
+    assert not _contains_exact_css_rule(
+        MODELING_PROCESS, ".processing-curve.interactive.is-panning"
+    )
+
+    # The shared plot base/focus rules remain valid contextual peers; only the
+    # exact moved declarations are required to have a single producer.
+    assert ".processing-curve.interactive {" in MODELING_PROCESS
+    assert ".processing-curve.interactive:focus-visible {" in MODELING_PROCESS

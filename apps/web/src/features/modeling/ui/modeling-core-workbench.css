@@ -1571,6 +1571,10 @@
   background: var(--ux-accent-soft);
 }
 
+.configured-step-list > button.active {
+  background: var(--ux-accent-soft);
+}
+
 /* M1E4 frozen ownership move: layout.css#368. */
 .curve-row-label {
   min-width: 0;

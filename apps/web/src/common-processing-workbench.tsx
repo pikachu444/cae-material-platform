@@ -1614,8 +1614,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setError("Choose a saved dataset before previewing processing.");
       return;
     }
-    const shouldSelectLastPreviewStage = workflowTask === "data"
-      || workflowTask === "fit"
+    const shouldSelectLastPreviewStage = workflowTask === "fit"
       || workflowTask === "export";
     if (isProcessTask && !processSourceReady) {
       setError("Restore inputs in Data.");

@@ -905,7 +905,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     capture_source = manifest["visual_evidence"]["capture_source"]
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
-    issue331_source = "working-tree-issue-331-fit-css-ownership"
+    modeling_state_source = "working-tree-issue-331-modeling-state-css"
+    fit_css_source = "working-tree-issue-331-fit-css-ownership"
     administration_source = "working-tree-issue-331-administration-css-retirement"
     issue262_source = (
         "5de648936887422191b08ed227b5680015f16a22"
@@ -923,9 +924,9 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "e55d30f597923509607dd7651d734bda3867b583"
         "+issue371-catalog-single-owner-worktree"
     )
-    assert manifest["version"] == 140
-    assert manifest["scope"] == "issue-331-administration-css-retirement"
-    assert manifest_source == administration_source
+    assert manifest["version"] == 141
+    assert manifest["scope"] == "issue-331-modeling-state-css"
+    assert manifest_source == modeling_state_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -940,8 +941,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "sidecar",
     }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Administration Database and Records" in manifest["capture_command"]
-    assert "fifteen current-guide PNGs" in manifest["capture_command"]
+    assert "Data to Process to Fit" in manifest["capture_command"]
+    assert "after9" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -951,7 +952,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         issue371_source,
-        issue331_source,
+        modeling_state_source,
+        fit_css_source,
         administration_source,
         issue342_source,
         capture_source,
@@ -1084,12 +1086,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
-    new_issue_331_captures = {
+    new_modeling_state_process_captures = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
         "MOD-PROCESS-CURRENT-1920",
         "MOD-PROCESS-CURRENT-2560",
         "MOD-PROCESS-CURRENT-3840",
+    }
+    new_issue_331_fit_captures = {
         "modeling-fit-1366",
         "modeling-fit-1440",
         "modeling-fit-1920",
@@ -1215,13 +1219,20 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "native Python Playwright 1.62" in issue_309_provenance["command"]
     assert "Data to Process to Data" in issue_309_provenance["command"]
     assert new_issue_309_captures == set(issue_309_provenance["ids"])
-    issue_331_provenance = next(
+    modeling_state_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == issue331_source
+        if provenance["source_commit"] == modeling_state_source
     )
-    assert "--only-modeling-process-fit" in issue_331_provenance["command"]
-    assert new_issue_331_captures == set(issue_331_provenance["ids"])
+    assert "Data to Process to Fit" in modeling_state_provenance["command"]
+    assert new_modeling_state_process_captures == set(modeling_state_provenance["ids"])
+    fit_css_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == fit_css_source
+    )
+    assert "--only-modeling-process-fit" in fit_css_provenance["command"]
+    assert new_issue_331_fit_captures == set(fit_css_provenance["ids"])
     administration_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
