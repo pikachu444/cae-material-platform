@@ -518,7 +518,7 @@ describe("ExactRecordDatasheetPage", () => {
     expect(screen.queryByText("Code CMP-CARD-DP780")).toBeNull();
     expect(await screen.findByRole("heading", { name: "Solver Card details" })).toBeTruthy();
     expect(screen.queryByText("Released solver-ready target artifact.")).toBeNull();
-    expect(screen.getByLabelText("Native solver card preview").textContent).toContain("*MATERIAL");
+    expect((await screen.findByLabelText("Native solver card preview")).textContent).toContain("*MATERIAL");
     expect(await screen.findByText("OpenRadioss 2025")).toBeTruthy();
     expect(screen.getByText("Native ASCII .rad")).toBeTruthy();
     expect(screen.getByText("kg · m · s")).toBeTruthy();
