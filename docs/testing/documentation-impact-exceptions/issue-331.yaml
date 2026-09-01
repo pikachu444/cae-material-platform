@@ -1,0 +1,34 @@
+schemaVersion: cmp.documentation-impact-exception.v1
+issue: "#331"
+sourceSha: 541cf0410e6d86e4464155dbcfb9ebd368359bb8
+classification: non-user-visible-css-ownership-relocation
+reason: >-
+  The shared Materials scroll rail CSS family moves byte-identical ownership
+  into its co-located component stylesheet while preserving the rendered
+  cascade and adding only that stylesheet's side-effect import.
+visualFiles:
+  - apps/web/src/design/layout.css
+  - apps/web/src/features/materials/ui/materials.css
+  - apps/web/src/materials-scroll-rail.css
+verification:
+  importOnlyFiles:
+    - apps/web/src/materials-scroll-rail.tsx
+  relocations:
+    - source: apps/web/src/design/layout.css
+      target: apps/web/src/materials-scroll-rail.css
+      selectors:
+        - .materials-scroll-rail-y
+        - .materials-scroll-rail-x
+    - source: apps/web/src/features/materials/ui/materials.css
+      target: apps/web/src/materials-scroll-rail.css
+      selectors:
+        - .materials-scroll-shell
+        - .materials-scroll-shell[data-scroll-y="true"]
+        - .materials-scroll-shell[data-scroll-x="true"]
+        - .materials-scroll-rail
+        - .materials-scroll-thumb
+        - .materials-scroll-rail-y .materials-scroll-thumb
+        - .materials-scroll-rail-x .materials-scroll-thumb
+        - .materials-scroll-rail:hover .materials-scroll-thumb
+        - .materials-scroll-rail:focus-visible
+        - .materials-scroll-corner
