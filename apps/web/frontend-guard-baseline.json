@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "541cf0410e6d86e4464155dbcfb9ebd368359bb8",
+  "sourceSha": "39def8be4988b220ba4789390290bd1b8c2a8f29",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -25,16 +25,6 @@
       ],
       "followUpIssue": "#262",
       "removalCondition": "FE-07 moves Materials and Activity responsibilities to owned feature boundaries."
-    },
-    {
-      "path": "apps/web/src/styles.css",
-      "baselineLines": 128,
-      "responsibilities": [
-        "legacy cross-feature selectors",
-        "legacy responsive composition"
-      ],
-      "followUpIssue": "#261",
-      "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero consumers."
     },
     {
       "path": "apps/web/src/design/layout.css",
@@ -4950,7 +4940,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "5b9cbda53860fcf569b6b41ee2d88c02d79a1cb0d4c60325cd9c88c47730ca97",
+      "fingerprint": "c01e8781ee7e82b62bc729761aa4a167a11d25bb2b2fb0139754b2a54b58a192",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -4959,7 +4949,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "5d8a42bb39ca352f196f77868ff71c7f61d6a20e912fe81c43c0aadcb7f9003e",
+      "fingerprint": "6c15290d46524ba5075cd948b57b44e316d27d7f5e78d0e44330726fd2b04bbc",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -4968,7 +4958,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "798d53af11bfca9e8af5bc7a9bfda5dd8d6c384f3b872e3fcbd4602215b6cb42",
+      "fingerprint": "b9a84c0027af8a8248a63228fda7ef331b617ae9e6dbf3bff9a1a0419e5818e6",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -4977,7 +4967,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "9783c1616b6ffc97709358f32479615304c170c5fe874e32690417904b1f0936",
+      "fingerprint": "732be3d11d6760bfd4ff25a42efd7b830a37b4ce48702026cc787e2a08c4e5b3",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -4986,7 +4976,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "9e6318c0a9c1eab0a5b51a38cfbad24b9dd9492cbaed1faa919a33365e0f4e0b",
+      "fingerprint": "5faea186388e0a7263cbfb82d543cd4c607e0864baef63bd6da6b07bd3b0157e",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -4995,7 +4985,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "b1c3dd3809af274c34c9953a0b71198caeda73e66607f81fcb39d076f6498f59",
+      "fingerprint": "d8d5b3fefc205ba623c55750a931794b64b39d5a1686bcb5b7fef5692e0cb201",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5013,7 +5003,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "bdd2cf140722b778be338394e9f2e0a7b4db26322d3681c92856b1a58c94f3ba",
+      "fingerprint": "9721a59659421b5c2400e0c665b3e43681500df70e8483ee2afc445c7298b988",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5022,7 +5012,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d6d412553a2da94b4f6fb8a60fd14bac53264ee4c7595ecd2ab7101d363dd9f0",
+      "fingerprint": "847f5d63154b040e1e7d64d320b906ec2469927d5dac34280d16b628bc13fbd1",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5031,7 +5021,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "ecf32cc0a1684b323bc4370f83d3f48b220bd1111f7873b9418b6a3237684994",
+      "fingerprint": "a8fdc0cdd17220bbc9e5a034fa6a286a1c15bee1106af362c26fd8695093b5ff",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5058,7 +5048,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "0449b0252cbfc230503fa4aa028f7c4e6df9a4b321a61e624cec047984f789e2",
+      "fingerprint": "75f6094c3c0de65421e61c5ad49d362cd3e518c880931e77d7f94de48c54c16e",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5067,7 +5057,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "094fe2c85a75f256b21947f687137a77a7076a35bad02434262feccf2c3a24cf",
+      "fingerprint": "f8affa4248f9381c338c07f914739fe13e4200b030ce5b18abf359ac75116315",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5085,7 +5075,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "0f4e0e75753a5f95202c7aacd45469ccafcdc992a6af2d7480d82598b8fe0708",
+      "fingerprint": "5989e4d925f51cbf0f2969923af956c3092b66391efa660fba421b4016084009",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5103,7 +5093,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "16894257b62a890479e279bed2a329b3365eda8af380e6f6138cc962b37c9759",
+      "fingerprint": "80737bddff34c80d6258093ac0790831942735434fa4f771a69438c086c14da4",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5112,7 +5102,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "1cdf5f288cee49fb3f9fe92aa4b22b4e1b53b4dde7ac15efdd1efada073dbf2f",
+      "fingerprint": "70b423f250c474144c04a00d3bc78d03795d4d1fb25e73f488ebd26543938880",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5130,7 +5120,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "2490c69be23b829204fb6542404cfc3164ab77d820e750fa1c47a6bdd919b09f",
+      "fingerprint": "2f43a6f38622f80ee01f0702eabb2a0fde436306c2a3e468035353761beefe02",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5139,7 +5129,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "26029cb8367b39417ff98a73614096aa15dbbe8b8d7ab1bd38c765b678ce207c",
+      "fingerprint": "c18cb8e012861260e21be080fc650beb69ef92c1aa3d1bf8a4651129a8f43448",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5148,7 +5138,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "29a8f77c791bc347c6bd856977b1102c818e2f8859f43f737e2275a730b5bdc0",
+      "fingerprint": "afeccdc92bbb76b7ce2627b2d21d745d0f929bae4220e7a25a1b146cd2a48c8f",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5166,7 +5156,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "2abfe0ad329821f4a4dd2438deccf0545c1b60fd928fc2efd65746a69b1da03f",
+      "fingerprint": "14d5df4de1a639c3dbcf7296386f67cf012c5c286c50a8d00a29b4d7da937b41",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5175,7 +5165,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "33b71f36ce63d53c569f65de44f68e796c00ee785abe9a5b21cb38c6cc8f24aa",
+      "fingerprint": "80e6d204b5d031c7e3555d9e825633bec8b3b858c4a5c9f829e5d5c6bdb7e5e4",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5184,7 +5174,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "366f1e792351683f5caf65849c12b4c4baea33fed062f664ab0180a41f8147b9",
+      "fingerprint": "b13211f28ee9afb6bf20a5d96b48b0a3261005ced64219baf2dcb9ddb41e5f37",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5193,7 +5183,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "38232d72dd78ed85a8890d6d47aab80d2315abeb3dd6473c43e19b1040c78cda",
+      "fingerprint": "271a23faf2d4c33e091ab201271e37e570f61eca4a7523d80a2b3cd7b1526dbc",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5202,7 +5192,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "3a06c4daf1c6152a29634849df601c33efb95b3e0fd02550f3680475aa91f20e",
+      "fingerprint": "70d9f7f855c28d1fb5e08b4c8472c2625b89677b0ada052d27211b3c7bb15cb1",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5229,7 +5219,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "3b3fbbcd90801dcb73cbc3b0bf02ee9100456e26b557eef635f979d9fdb355d6",
+      "fingerprint": "9bf6efbaf5f06ee4fe05974dba3906f17c7ec5bce7213ae23b34ff2abdd8803a",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5256,7 +5246,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "3cbfdcc2d830298e74b9aafc7c953acb1b1d14d2054c66af71a806f6ea384cfe",
+      "fingerprint": "b78786be0a6704144d556a0b293b0f6d3afc2cdfac18186d557bc15ca1957052",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5274,7 +5264,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "427212f452578e7e535895c0802a2e7d43ef929fea13c22841a2b5c43ad98e14",
+      "fingerprint": "0483784f4118cbf15c7cc3925213132a421a55fb560dd5987bc56981fb0d48e5",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5283,7 +5273,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "46fc26aff447609c40cdaa2d8435eb80c19af349f5e8ae43e8d9cac7381de0d4",
+      "fingerprint": "c0f9e99754604b9ab0ade126c7f2bcf91d98ceb6e81d514c088beb1ae39cbf5b",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5292,7 +5282,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "4a48e9da1d05e872e5a2d31e3fd9aa9c1274fd5e93926954e6f5ae4f7745d5af",
+      "fingerprint": "31185015a808f7a5117bbe7bb0c07c626c6290108abcd70497d597fb5b0016fb",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5301,7 +5291,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "4e29e07c5bfdff2882c45d9b336c0916de21f386fadb3cc0fc64970258c70b9d",
+      "fingerprint": "5fe0e71c6e6b66449e8fc82a097ac2e7eb0c6b3f7b48ba6e46801f98745c550a",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5310,7 +5300,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "50c9bce95296a45cc666370a2cc05f3e0eca7937a6e94d32897e719b09575f82",
+      "fingerprint": "439bfc67d74159f6ed6da9df37ad37bb21d618ce51fbdd33d8344d2d3a069ae6",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5328,7 +5318,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "558fdafb8d486535bbefe76b037583f8daeb9fed8416d055a0c0579034537058",
+      "fingerprint": "6d340327217a5b85d93b9a8aac2430b4610c8548cd2e0043c98fbbc170cef827",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5337,7 +5327,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "5b7303578203c08fe490b240ab71b0b4e48b55fe49b797d2a509c32d96165792",
+      "fingerprint": "bf7c8bdd28ff3c7e2b970a1ca54beacdcdc4999f1fd1114813f42eaefa8843e4",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5346,7 +5336,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "5c223d06e78709f4769554f3161587f7df5c2c9e4cd13ae4a4ef360fad193d8c",
+      "fingerprint": "9852aedaa209c67863eeceb3c3ed8335d4cb34acba03982bc94bd054f8053703",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5355,7 +5345,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "6309e3c75b37ba04a59a56740bb242d8e9343da07cd8dced6de93d0103e39010",
+      "fingerprint": "8af209492d0161064b0238fdbffabd246f3aea3632925d9106b3fa2dd444e9e2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5364,7 +5354,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "6b5195db12324f8068abb31ddba8d80333255d56728997887a339daebce6da06",
+      "fingerprint": "92252426a97b0241cd3ac0d967b9ebbdd9a60cc51dfeb29787a773687fa5365b",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5373,7 +5363,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "6c8348fc51cea3cef122d6b76f3d7ed90948aeb940d1326ea907d2e8108737e7",
+      "fingerprint": "89a45366a32c363f26cb4feecf9163adede1b9ddcb60006b41fe0eacebded3e3",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5382,7 +5372,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "6d6e75e6e1a333af99ce2c1dc01bddd0766abd168e5a5d886e6ff0aa8e3558aa",
+      "fingerprint": "2ec3b02f103bcaee16d996a0b93802ec8f464a72f1980ed0c605a10ed82e32a2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5391,7 +5381,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "6f55c50155eaf2b7d43780e857610e7d0db8a1bcc23a46896a148550bc5585bd",
+      "fingerprint": "feef71ad0044b1c0973855b470ca66525c3e3f803929faaca0cc9d1154d1248f",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5400,7 +5390,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "6fc91b345bc2ba3023a4a6c8d480f3fa705b4d8be3edc543cf158b04215e02fa",
+      "fingerprint": "aff69b2027b663f979b8d561cc3fcdaad80e62b8f9b4091e5428f718461b0039",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5409,7 +5399,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "704d78c1eaa68ebe006304bf82c88087e8220350600353edd75693012662795b",
+      "fingerprint": "c772997dba4429b6a115f3fc9dbd6cbc2f021fd06a09292f1cc3d330c539c901",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5427,7 +5417,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "77e6d64e8b997e58f63f976a52eff926026cf3fd995796dc6fe6a4a160b102f4",
+      "fingerprint": "135372f03eabc3d65217f78caa2186963ea1c8f5a038cd0c454f8ad703210b42",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5436,7 +5426,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "7868b339b6b16f6c324ed68cd462808823ebdb82fdcc1d59fb0b974d3632a724",
+      "fingerprint": "6108244e5aa845ab651e9e65583d2a9149f6737632524ca830e23d8588dfe6c1",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5445,7 +5435,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "82a6e02070a63d3e1c503935fede807cb9dac2073b54687ce252421890bb686c",
+      "fingerprint": "ef398521db94a0a0bdd1424198909b9290b70c2d303c82dca2d7fc20bae8fdc2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5472,7 +5462,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "880bda2668bd8ac337529203ac311ba83238fb15e218e8ea3dcb6abc0d299504",
+      "fingerprint": "f22c11f5a508df573124194993e6ab21e197d5ce37da74d00df120f262892360",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5490,7 +5480,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "91826c8adf8e0eac4162b6d9038d7d7c93ed5668c1d9d852deb7bffa1d330891",
+      "fingerprint": "f2de61dd9923f31d84fe2a239fdc8230835bee56ca6bb8331cc18ddf6b24e3c8",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5508,7 +5498,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "96dcf8f772f2d8e111a641471a0c40a133de974e26fdd6379dcba8025f9d6183",
+      "fingerprint": "4a09667c37dc7d0fec14145117d63c99fa18618982b553db9fc5e1067202e5ac",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5517,7 +5507,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "976d58ad30994de1b01f86b59bc049f1cc21b84bb1db680af8171b139a600df0",
+      "fingerprint": "3a32568f61a498897294c527100faafa556fcd1ade9609df2bd4d477fa98f646",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5526,7 +5516,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "a35837742b76ec3df7cb3c60c475d264b0108a5c3d2f039ef297da982463b0aa",
+      "fingerprint": "c6b459c1b939e8f772d129b1cbd4c0f4d5ebd081552ee8268fcc12e09d822485",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5535,7 +5525,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "a843133c46a4a1bb18d0a6a8dca3674d2864fd927bfb65f9749822c19d81cc06",
+      "fingerprint": "ee191450db804e2d003e0efaa602ea4a698fe2ffd4d4d432bb5154acdeb10edd",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5544,7 +5534,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "aae908a537d4988b50ab9ffaa48f7b87cf6fd6cb62dff5fb44a8749ac361ae3e",
+      "fingerprint": "4077e4365adabe074a1a0f4d30444141b9b422d893ceba3a7dcf8886cc74518d",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5553,7 +5543,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "ac85f8ca2a0d8fde2fe922339099a20e6cd02b842d70634bbb53a822a1ad9b36",
+      "fingerprint": "21d8f11deee9c2cf8a0c254e10011f1cf8a9462324eea155782b8e71ac7d4a06",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5562,7 +5552,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "b347a37d189071b389eb6c96c1a29d9e41bb5552c7037ab9c1e5c645e9207e7d",
+      "fingerprint": "4767e2cd0e32e63ffd198d7642d968ff64285244fc447ad4c856aef14866aacf",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5571,7 +5561,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "b351ea1f4feacc76de21be91d6becac9486c7097413eebd33a3522194fb9e52b",
+      "fingerprint": "daef67ce252db952552b6e43fa69de6ce42592571c9a37b25d58db7d6363f186",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5580,7 +5570,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "b6bf42b4ddab2e18ee03218444f32d9c348ab1125800162b2bfbb1f729b8296a",
+      "fingerprint": "20fa86573270926e734cdda62ce0743598a30966791738fb010464e99fd7fc8d",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5589,7 +5579,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "b6c31f8ee01fa1ffe6f846d9e9506e595779e71ffdc04d4c818423944b7a5b77",
+      "fingerprint": "8dd5c1850b5966ee22501b93144827098c8b3202930010cc4819861a2fb43d1e",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5607,7 +5597,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "bc6c9feed5f58d7f49af97dc6768d010b9901eee5cead29f4b04280c2e07cd5a",
+      "fingerprint": "afd5b706f338f8e1099e267a2b4038ea153c76bbff1f148e84668df02a0f535b",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5616,7 +5606,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "be2bf9230f29858fc0c9ac00886d5df6837d9c7a72d6fb03e99a68319ffa51aa",
+      "fingerprint": "43ffb45993c4a48f1f5d1254986fbb5208866c9576dcf73477a499efe3fec9bf",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5625,7 +5615,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "c2455e432d178656b83c863152cec49c986886396e2ce4779d9b6ab247980f16",
+      "fingerprint": "5e28a259342ae3d00eb67e26758769d87893d0e3fb518d6125f01778e38925ea",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5634,7 +5624,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "c271cc805eb63e6d3f4b6700438d4509263fb0d8c2de49f966ac6142ccaf516d",
+      "fingerprint": "33d50cb12b1f91ef92a6a916cc412eb7dbeb6acdf16f41738206afeb81978e76",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5643,7 +5633,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "c3d8c3cbb787fed317248d520975fd4530cc7e502be283998f330037ecbb5ebb",
+      "fingerprint": "d5463f59de586afbc1c3caeb5c716638c2641412b3ac548976bdace60ab9146b",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5661,7 +5651,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "c81e0ce8b4eeef78e28434ab23b214dd90d105f6a3da39a7f09ab8bb2370f415",
+      "fingerprint": "24eb6668402f05aae2b8e5ef10539c0407d16dbd4f585d994172bafd53e46f99",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5670,7 +5660,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "c9329c20846fd98f413bf0cd740936603a438466a2d4a8872767fc66788e2f50",
+      "fingerprint": "da127feafc5a0f3050f19ddab6cd79825b6b280ce88e3974785b927e765e5862",
       "maxOccurrences": 1,
       "reason": "FE-06 M4 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5679,7 +5669,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "cb9fd731ca5adfad1fd59dda23c5666dd893117babde8e2e6614eb94aef6bc40",
+      "fingerprint": "1766f6d52cd38da9332109117b4e2297fec4381d354644b0d4fc96bddb312ec5",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5688,7 +5678,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "cf033143dfb205999a13cc086876332d58baa31d3f8f8ba56815cdf997501291",
+      "fingerprint": "5d85ffa13d4d2b8bcbff48ea7e308b4e5e9d6c8a7bf353c721d4329a017c7971",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5697,7 +5687,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d00f21ad8933440d0e028feb0c4e12ee3832ad687dbda652b72046f5895f21f7",
+      "fingerprint": "c94a51d6512e220f3053e90fd07e21e3f66720f02bd27495edc95bcc5e0074f7",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5706,7 +5696,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d0274cda25da091dfdc8a050b32d2bd20fa1c78851eb43192cf99c55defff0a3",
+      "fingerprint": "35dc2a591d243859c71d456edee9a76c88c6edda93b522b8fd910079622d8b18",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5715,7 +5705,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d359cf2b5d2f9cdba82eebf50faf8e79aae46fe1b10d80853ff1831723bf72bd",
+      "fingerprint": "9c737e8e492ed6f679b19fec3cfdd00c56d5ecf72530b73d3728de2864551ee6",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5724,7 +5714,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d3cb26a3da9b87b6efdd40ec3dad982b90ecaed27122679db7e716023a2356f0",
+      "fingerprint": "b7d9d81189cdc0a87972a2e2dae99b5d2713e39520649bb4f1d8bf3e46d66ae1",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5733,7 +5723,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d5e4e49926c05467560e16e3952534e3c60dee9746590a948832f0e23c7f49a6",
+      "fingerprint": "e8b0f30e3d6703ab7f8ab20b62e161daaed9a992f77da361cad32768d587d477",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5742,7 +5732,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "d6e2a5abd42fef0497b78bdffb6c9167174a2cb8f0a8bb2eada96748e870c2a7",
+      "fingerprint": "f45bf7f9f7da3a92421d361cf07b67f1fd20bd553ae7728f3806b00d36524740",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5769,7 +5759,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "ece7e70cd646cc723dc0567de3156bf401537185d3cd90a27f1a2b80a76a11e9",
+      "fingerprint": "adcf5d8b0b3c5bfdbf1d36771b16f10dd4a3b47aea3d91cde371c7aff0c57333",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5778,7 +5768,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "f1edab4eace80173f726de7cb35d1d717f133f2d5cb8d1460b9376864ec66cf6",
+      "fingerprint": "9f9d5c35a0c72c14c8b572b3d7683865e44bffc19e5908060aed88fbc2b76d9a",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5787,7 +5777,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "f25a96ce968f5a5af07892e19a1b194e0d42a78cd779a5fe156a24dc968a7b09",
+      "fingerprint": "fc5757aa63d2bdf7a60ced63251641d39dd194304155760588b2e12f4518bbb4",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5805,7 +5795,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "f6de4ccc7fa02b06b185e3a7256dc899565eb3c3da98b1bd7c415270c883a4ff",
+      "fingerprint": "5b4b10fac0078183b01131a2c76dd4fbef9cf9aa98082b145877905abb19c7bb",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -5814,7 +5804,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
-      "fingerprint": "fa9757b94995e79ae00652a6ee8317eff08a1d7b436d2ef89e4993b7d8fef688",
+      "fingerprint": "afd637de270ad7e867a794cb7cfd8d5f340487bfd1aaa7be7a8db249169cfbcd",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -6118,20 +6108,11 @@
       "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
     },
     {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "764e347616d4013df362d2cbb6d7ac456afed1a11fdb091d016e2b251ed5a1c9",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
       "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "57352ebfa1c2224754bb1ba5f5fd2435edc318d902f5e6a77543514e22dc63d8",
+      "path": "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css",
+      "fingerprint": "1d4c2bc247c9d50ad88835e2446bac853263119d7206acf52a7b954429ee875a",
       "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
+      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful Export feature owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
       "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
     }

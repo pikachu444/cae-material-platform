@@ -1,6 +1,5 @@
 import type { Preview } from "@storybook/react-vite";
 
-import "../src/styles.css";
 import "../src/design/tokens.css";
 import "../src/design/typography.css";
 import "../src/design/primitives.css";

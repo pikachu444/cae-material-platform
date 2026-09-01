@@ -8,7 +8,8 @@ TOKENS = (ROOT / "apps/web/src/design/tokens.css").read_text(encoding="utf-8")
 LAYOUT = (ROOT / "apps/web/src/design/layout.css").read_text(encoding="utf-8")
 PRIMITIVES = (ROOT / "apps/web/src/design/primitives.css").read_text(encoding="utf-8")
 SHELL = (ROOT / "apps/web/src/design/shell.css").read_text(encoding="utf-8")
-LEGACY = (ROOT / "apps/web/src/styles.css").read_text(encoding="utf-8")
+LEGACY_PATH = ROOT / "apps/web/src/styles.css"
+LEGACY = LEGACY_PATH.read_text(encoding="utf-8") if LEGACY_PATH.exists() else ""
 MODELING_CORE = (
     ROOT / "apps/web/src/features/modeling/ui/modeling-core-workbench.css"
 ).read_text(encoding="utf-8")
@@ -18,6 +19,10 @@ MODELING_PLOT = (
 MODELING_PROCESS = (
     ROOT
     / "apps/web/src/features/modeling/ui/stages/process/modeling-process-stage.css"
+).read_text(encoding="utf-8")
+EXPORT_TARGET_PREVIEW = (
+    ROOT
+    / "apps/web/src/features/modeling/ui/stages/export/modeling-target-preview.tsx"
 ).read_text(encoding="utf-8")
 SCROLL_RAIL_CSS = (ROOT / "apps/web/src/materials-scroll-rail.css").read_text(
     encoding="utf-8"
@@ -171,6 +176,33 @@ def test_administration_structure_has_one_active_owner() -> None:
         assert selector in ADMINISTRATION
         assert selector not in LAYOUT
         assert selector not in LEGACY
+
+
+def test_export_legacy_stylesheet_and_dead_layout_rule_have_no_consumers() -> None:
+    assert not LEGACY_PATH.exists()
+    assert 'import "./styles.css";' not in (ROOT / "apps/web/src/main.tsx").read_text(
+        encoding="utf-8"
+    )
+    assert 'import "../src/styles.css";' not in (
+        ROOT / "apps/web/.storybook/preview.ts"
+    ).read_text(encoding="utf-8")
+    assert not _contains_exact_css_rule(
+        LAYOUT, ".selection-delivery-command .ux-button"
+    )
+
+    export_css = (
+        ROOT
+        / "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css"
+    ).read_text(encoding="utf-8")
+    assert _contains_exact_css_rule(export_css, ".export-status-ready-to-create")
+    assert export_css.count(".export-status-ready-to-create {") == 1
+    assert ".export-status-ready-to-create { color: #276b49; }" in export_css
+    assert ".export-status-ready-to-create { color: #276b49; }" not in LEGACY
+    live_producer = (
+        "className={`export-status export-status-"
+        '${currentStatus.toLowerCase().replaceAll(" ", "-")}`}'
+    )
+    assert live_producer in EXPORT_TARGET_PREVIEW
 
 
 def test_retired_administration_css_groups_have_no_production_consumers() -> None:
