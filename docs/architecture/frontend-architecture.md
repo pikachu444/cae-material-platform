@@ -58,7 +58,6 @@ revision과 evidence는 유지한다.
 - `apps/web/src/app.tsx`
 - `apps/web/src/api.ts`
 - `apps/web/src/types.ts`
-- `apps/web/src/styles.css`
 - `apps/web/src/design/layout.css`
 
 버그 수정과 bounded compatibility 변경은 가능하다. 그러나 새 feature 책임을 추가하려면 해당 이슈에
@@ -226,7 +225,8 @@ generic table/plot frame을 소유할 수 있다.
 feature layer는 feature-specific arrangement, stage grid, local state variant와 route responsive
 composition을 소유한다.
 
-- 새 feature selector를 `src/styles.css` 또는 `src/design/layout.css`에 추가하지 않는다.
+- 폐기된 root `src/styles.css`를 다시 만들지 않으며, 새 feature selector는
+  `src/design/layout.css`가 아니라 feature-owned stylesheet에 둔다.
 - legacy selector를 수정할 때 bounded하고 안전하면 owned style로 이동한다.
 - token이 있는데 raw color, arbitrary font weight와 one-off spacing을 추가하지 않는다.
 - route 전용 4K media query를 만들지 않는다.

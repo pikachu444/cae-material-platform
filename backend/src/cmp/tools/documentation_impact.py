@@ -238,6 +238,7 @@ class DocumentationImpactException:
     import_only_files: tuple[str, ...] = ()
     relocations: tuple[_Relocation, ...] = ()
     css_relocations: tuple[_CssRelocation, ...] = ()
+    css_retirements: tuple[_CssRetirement, ...] = ()
     composition_targets: tuple[str, ...] = ()
     characterization_tests: tuple[str, ...] = ()
     navigation_contract: str | None = None
@@ -258,6 +259,12 @@ class _Relocation:
 class _CssRelocation:
     source: str
     target: str
+    selectors: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _CssRetirement:
+    source: str
     selectors: tuple[str, ...]
 
 
@@ -489,6 +496,39 @@ def _path_list(value: object, field: str, *, allow_empty: bool = False) -> tuple
             f"{field} must be {'an empty or non-empty' if allow_empty else 'a non-empty'} list"
         )
     items = tuple(_canonical_repo_path(item, f"{field} entry") for item in value)
+    if len(set(items)) != len(items):
+        raise DocumentationImpactError(f"{field} contains duplicate entries")
+    return tuple(sorted(items))
+
+
+def _css_import_path(value: object, field: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise DocumentationImpactError(f"{field} must be a non-empty canonical path")
+    if value != value.strip() or "\\" in value or any(
+        character in value for character in "*?[]{}"
+    ):
+        raise DocumentationImpactError(f"{field} must use canonical POSIX paths")
+    if value.startswith(("/", "//")) or re.match(r"^[A-Za-z]:", value):
+        raise DocumentationImpactError(f"{field} must be repository-relative")
+    parts = value.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
+        raise DocumentationImpactError(f"{field} contains ambiguous path segments")
+    if PurePosixPath(value).as_posix() != value:
+        raise DocumentationImpactError(f"{field} must be canonical")
+    if not (
+        value.startswith("apps/web/src/")
+        or value.startswith("apps/web/.storybook/")
+    ):
+        raise DocumentationImpactError(
+            f"{field} must be under apps/web/src or apps/web/.storybook"
+        )
+    return value
+
+
+def _css_import_path_list(value: object, field: str) -> tuple[str, ...]:
+    if not isinstance(value, list) or not value:
+        raise DocumentationImpactError(f"{field} must be a non-empty list")
+    items = tuple(_css_import_path(item, f"{field} entry") for item in value)
     if len(set(items)) != len(items):
         raise DocumentationImpactError(f"{field} contains duplicate entries")
     return tuple(sorted(items))
@@ -823,6 +863,7 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
     verification = _mapping(data["verification"], f"{path} verification")
     parsed_relocations: list[_Relocation] = []
     parsed_css_relocations: list[_CssRelocation] = []
+    parsed_css_retirements: list[_CssRetirement] = []
     composition_targets: tuple[str, ...] = ()
     characterization_tests: tuple[str, ...] = ()
     navigation_contract: str | None = None
@@ -919,11 +960,14 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
         preserved_computed_value_files = ()
     elif classification == _NON_USER_VISIBLE_CSS_RELOCATION_CLASSIFICATION:
         verification_keys = {"importOnlyFiles", "relocations"}
-        if set(verification) != verification_keys:
+        if set(verification) not in (
+            verification_keys,
+            verification_keys | {"retirements"},
+        ):
             raise DocumentationImpactError(
                 f"{path} verification keys must be exactly {', '.join(sorted(verification_keys))}"
             )
-        import_only_files = _path_list(
+        import_only_files = _css_import_path_list(
             verification["importOnlyFiles"],
             f"{path} verification.importOnlyFiles",
         )
@@ -958,20 +1002,64 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
             parsed_css_relocations.append(
                 _CssRelocation(source=source, target=target, selectors=selectors)
             )
+        raw_retirements = verification.get("retirements", [])
+        if not isinstance(raw_retirements, list):
+            raise DocumentationImpactError(
+                f"{path} verification.retirements must be a non-empty list"
+            )
+        for index, raw_retirement in enumerate(raw_retirements):
+            retirement = _mapping(
+                raw_retirement,
+                f"{path} verification.retirements[{index}]",
+            )
+            if set(retirement) != {"source", "selectors"}:
+                raise DocumentationImpactError(
+                    f"{path} verification.retirements[{index}] keys must be exactly "
+                    "selectors, source"
+                )
+            source = _canonical_repo_path(
+                retirement["source"],
+                f"{path} verification.retirements[{index}].source",
+            )
+            if not source.endswith(".css"):
+                raise DocumentationImpactError(
+                    f"{path} verification.retirements[{index}].source must be CSS"
+                )
+            selectors = _css_selector_list(
+                retirement["selectors"],
+                f"{path} verification.retirements[{index}].selectors",
+            )
+            parsed_css_retirements.append(
+                _CssRetirement(source=source, selectors=selectors)
+            )
         sources = [item.source for item in parsed_css_relocations]
         targets = [item.target for item in parsed_css_relocations]
         selector_names = [
             selector for item in parsed_css_relocations for selector in item.selectors
         ]
+        retirement_sources = [item.source for item in parsed_css_retirements]
+        selector_names.extend(
+            selector for item in parsed_css_retirements for selector in item.selectors
+        )
         if len(set(sources)) != len(sources):
             raise DocumentationImpactError(
                 f"{path} verification.relocations contains duplicate source"
+            )
+        if len(set(retirement_sources)) != len(retirement_sources):
+            raise DocumentationImpactError(
+                f"{path} verification.retirements contains duplicate source"
+            )
+        if set(sources) & set(retirement_sources):
+            raise DocumentationImpactError(
+                f"{path} verification relocations and retirements overlap"
             )
         if len(set(selector_names)) != len(selector_names):
             raise DocumentationImpactError(
                 f"{path} verification.relocations contains duplicate selectors"
             )
-        if set(sources) & set(import_only_files) or set(targets) & set(import_only_files):
+        if (
+            set(sources) | set(retirement_sources)
+        ) & set(import_only_files) or set(targets) & set(import_only_files):
             raise DocumentationImpactError(f"{path} verification paths overlap")
         unconsumed_modules = ()
         preserved_computed_value_files = ()
@@ -1037,6 +1125,7 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
         import_only_files=import_only_files,
         relocations=tuple(parsed_relocations),
         css_relocations=tuple(parsed_css_relocations),
+        css_retirements=tuple(parsed_css_retirements),
         composition_targets=composition_targets,
         characterization_tests=characterization_tests,
         navigation_contract=navigation_contract,
@@ -1439,6 +1528,15 @@ def _css_selector_branches(selector: str, source: str) -> tuple[str, ...]:
     return tuple(branches)
 
 
+def _css_selector_anchor_classes(selector: str, source: str) -> tuple[str, ...]:
+    anchors: list[str] = []
+    for branch in _css_selector_branches(selector, source):
+        match = re.search(r"(?<![-_a-zA-Z0-9])\.(-?[_a-zA-Z][_a-zA-Z0-9-]*)", branch)
+        if match is not None:
+            anchors.append(match.group(1))
+    return tuple(dict.fromkeys(anchors))
+
+
 def _dynamic_relative_imports(text: str, source: str) -> tuple[str, ...]:
     tokens = _scan_ts(text)
     specifiers: list[str] = []
@@ -1476,6 +1574,8 @@ def _assert_css_owner_reachable(
     project: Path,
     owner: str,
     current_universe: set[str],
+    *,
+    include_css: bool = False,
 ) -> None:
     entry = "apps/web/src/main.tsx"
     if entry not in current_universe:
@@ -1516,6 +1616,16 @@ def _assert_css_owner_reachable(
         )
         for specifier in specifiers:
             if PurePosixPath(specifier).suffix.lower() == ".css":
+                if include_css:
+                    resolved = _resolve_relative_module(
+                        importer,
+                        specifier,
+                        current_universe,
+                        project=project,
+                        allowed_suffixes=(".css",),
+                    )
+                    if resolved == owner:
+                        return
                 continue
             pending.append(
                 _resolve_relative_module(
@@ -2308,6 +2418,80 @@ def _static_imports(text: str) -> tuple[_StaticImport, ...]:
     return tuple(imports)
 
 
+def _base_css_import_owners(
+    project: Path,
+    source_sha: str,
+    base_universe: set[str],
+    deleted_sources: set[str],
+    *,
+    base_files: Mapping[str, str] | None = None,
+) -> set[str]:
+    if base_files is None:
+        importer_paths = _git_blob_paths(
+            project,
+            source_sha,
+            ("apps/web/src", "apps/web/.storybook"),
+        )
+    else:
+        importer_paths = set(base_files)
+    importers = sorted(
+        path
+        for path in importer_paths
+        if PurePosixPath(path).suffix.lower() in {".ts", ".tsx"}
+        and (
+            (
+                path.startswith("apps/web/src/")
+                and not _is_test_path(path)
+            )
+            or path.startswith("apps/web/.storybook/")
+        )
+    )
+    owners: set[str] = set()
+    for importer in importers:
+        text = _read_base(project, source_sha, importer, base_files)
+        for import_item in _static_imports(text):
+            if not import_item.module.startswith(("./", "../")):
+                continue
+            if PurePosixPath(import_item.module).suffix.lower() != ".css":
+                continue
+            candidate = posixpath.normpath(
+                posixpath.join(
+                    PurePosixPath(importer).parent.as_posix(),
+                    import_item.module,
+                )
+            )
+            if not candidate.startswith("apps/web/src/"):
+                continue
+            resolved = _resolve_relative_module(
+                importer,
+                import_item.module,
+                base_universe,
+                allowed_suffixes=(".css",),
+            )
+            if resolved in deleted_sources:
+                owners.add(importer)
+        for specifier in _dynamic_relative_imports(text, importer):
+            if PurePosixPath(specifier).suffix.lower() != ".css":
+                continue
+            candidate = posixpath.normpath(
+                posixpath.join(PurePosixPath(importer).parent.as_posix(), specifier)
+            )
+            if not candidate.startswith("apps/web/src/"):
+                continue
+            resolved = _resolve_relative_module(
+                importer,
+                specifier,
+                base_universe,
+                allowed_suffixes=(".css",),
+            )
+            if resolved in deleted_sources:
+                raise DocumentationImpactError(
+                    f"{importer} dynamically imports deleted CSS relocation source "
+                    f"{resolved}; dynamic CSS import removal is unsupported"
+                )
+    return owners
+
+
 def _remove_spans(text: str, spans: Iterable[tuple[int, int]]) -> str:
     result = text
     for start, end in sorted(spans, reverse=True):
@@ -2327,6 +2511,18 @@ def _remove_spans(text: str, spans: Iterable[tuple[int, int]]) -> str:
 def _nonblank_lines(text: str) -> str:
     """Compare residual source by exact nonblank lines, ignoring extraction gaps."""
     return "\n".join(line for line in text.split("\n") if line.strip())
+
+
+def _css_comments_or_whitespace(text: str, source: str) -> bool:
+    masked = re.sub(
+        r"/\*.*?\*/",
+        " ",
+        text,
+        flags=re.DOTALL,
+    )
+    if "/*" in masked or "*/" in masked:
+        raise DocumentationImpactError(f"cannot prove malformed CSS comments in {source}")
+    return not masked.strip()
 
 
 def _css_rule_prefix_start(text: str, start: int) -> int:
@@ -2357,10 +2553,14 @@ def _identifier_occurrences(
     return tuple(occurrences)
 
 
-def _git_blob_paths(project: Path, source_sha: str) -> set[str]:
+def _git_blob_paths(
+    project: Path,
+    source_sha: str,
+    roots: tuple[str, ...] = ("apps/web/src",),
+) -> set[str]:
     try:
         result = subprocess.run(
-            ["git", "ls-tree", "-r", "-z", source_sha, "--", "apps/web/src"],
+            ["git", "ls-tree", "-r", "-z", source_sha, "--", *roots],
             cwd=project,
             check=True,
             capture_output=True,
@@ -3803,41 +4003,55 @@ def _validate_css_ownership_relocation_exception(
             f"{exception.path} visualFiles must exactly match changed CSS visual sources"
         )
     import_only = set(exception.import_only_files)
-    if len(import_only) != 1:
+    if not import_only:
         raise DocumentationImpactError(
-            f"{exception.path} must bind exactly one owner import file"
+            f"{exception.path} must bind at least one import-only file"
         )
     relocations = exception.css_relocations
     if not relocations:
         raise DocumentationImpactError(
             f"{exception.path} must declare CSS relocations"
         )
+    retirements = exception.css_retirements
     sources = {item.source for item in relocations}
+    retirement_sources = {item.source for item in retirements}
+    all_sources = sources | retirement_sources
     targets = {item.target for item in relocations}
     if len(targets) != 1:
         raise DocumentationImpactError(
             f"{exception.path} must use exactly one CSS relocation target"
         )
-    owner = next(iter(import_only))
-    bound_visuals = sources | targets | import_only
+    bound_visuals = all_sources | targets | {
+        path for path in import_only if _is_visual_source(path)
+    }
     changed_visuals = {path for path in changed_paths if _is_visual_source(path)}
     if changed_visuals != bound_visuals:
         raise DocumentationImpactError(
-            f"{exception.path} visual changes contain an unbound source or owner"
+            f"{exception.path} visual changes contain an unbound source or import-only file"
         )
-    if any(not changed_entries_map.get(path, False) for path in bound_visuals):
+    if any(path not in changed_entries_map for path in all_sources | targets | import_only):
         raise DocumentationImpactError(
             f"{exception.path} bound paths must be current changes"
         )
     if any(
-        PurePosixPath(path).suffix.lower() != ".css" for path in sources | targets
-    ) or PurePosixPath(owner).suffix.lower() != ".tsx":
+        not changed_entries_map.get(path, False)
+        for path in retirement_sources | targets | import_only
+    ):
         raise DocumentationImpactError(
-            f"{exception.path} binds only production CSS sources and one TSX owner"
+            f"{exception.path} non-deleted bound paths must be current changes"
+        )
+    if any(
+        PurePosixPath(path).suffix.lower() != ".css" for path in all_sources | targets
+    ) or any(
+        PurePosixPath(path).suffix.lower() not in {".ts", ".tsx"}
+        for path in import_only
+    ):
+        raise DocumentationImpactError(
+            f"{exception.path} binds only production CSS sources and TypeScript import owners"
         )
     if any(
         _canonical_repo_path(path, exception.path) != path
-        for path in bound_visuals
+        for path in all_sources | targets
     ):
         raise DocumentationImpactError(f"{exception.path} contains non-canonical paths")
 
@@ -3854,17 +4068,32 @@ def _validate_css_ownership_relocation_exception(
             if path.startswith("apps/web/src/")
             and (project / Path(*path.split("/"))).is_file()
         )
-    for path in sources | {owner}:
+    for path in all_sources:
         if path not in base_universe:
             raise DocumentationImpactError(
-                f"{exception.path} source or owner {path} is absent at merge base"
+                f"{exception.path} source {path} is absent at merge base"
             )
+    for path in import_only:
+        try:
+            _read_base(project, exception.source_sha, path, base_files)
+            _read_current(project, path)
+        except DocumentationImpactError as error:
+            raise DocumentationImpactError(
+                f"{exception.path} import-only file {path} is not present in both revisions"
+            ) from error
+    for path in retirement_sources:
         if path not in current_universe:
             raise DocumentationImpactError(
-                f"{exception.path} source or owner {path} is absent in current worktree"
+                f"{exception.path} retirement source {path} is absent in current worktree"
             )
     target = next(iter(targets))
-    if target in base_universe:
+    deleted_relocation_sources = sources - current_universe
+    deletion_mode = bool(deleted_relocation_sources)
+    if deletion_mode and target not in base_universe:
+        raise DocumentationImpactError(
+            f"{exception.path} deleted-source relocations require an existing target at merge base"
+        )
+    if not deletion_mode and target in base_universe:
         raise DocumentationImpactError(
             f"{exception.path} target {target} already exists at merge base"
         )
@@ -3872,17 +4101,58 @@ def _validate_css_ownership_relocation_exception(
         raise DocumentationImpactError(
             f"{exception.path} target {target} is absent in current worktree"
         )
-    _assert_css_owner_reachable(project, owner, current_universe)
+    if deletion_mode:
+        base_import_owners = _base_css_import_owners(
+            project,
+            exception.source_sha,
+            base_universe,
+            deleted_relocation_sources,
+            base_files=base_files,
+        )
+        if base_import_owners != import_only:
+            raise DocumentationImpactError(
+                f"{exception.path} importOnlyFiles must exactly match merge-base CSS "
+                f"import owners (declared {sorted(import_only)}, discovered "
+                f"{sorted(base_import_owners)})"
+            )
+        _assert_css_owner_reachable(
+            project,
+            target,
+            current_universe,
+            include_css=True,
+        )
+    else:
+        if len(import_only) != 1:
+            raise DocumentationImpactError(
+                f"{exception.path} new-target relocation must bind exactly one owner import file"
+            )
+        owner = next(iter(import_only))
+        if PurePosixPath(owner).suffix.lower() != ".tsx":
+            raise DocumentationImpactError(
+                f"{exception.path} new-target relocation owner must be TSX"
+            )
+        if owner not in current_universe:
+            raise DocumentationImpactError(
+                f"{exception.path} new-target owner must be in the production module graph"
+            )
+        _assert_css_owner_reachable(project, owner, current_universe)
 
     expected_by_target: dict[str, list[str]] = {target: []}
     declared_selectors = {
         selector for relocation in relocations for selector in relocation.selectors
     }
+    declared_selectors.update(
+        selector for retirement in retirements for selector in retirement.selectors
+    )
     declared_base_sources: dict[str, str] = {}
     for relocation in relocations:
         expected_by_target[relocation.target].extend(relocation.selectors)
         base_text = _read_base(project, exception.source_sha, relocation.source, base_files)
-        current_text = _read_current(project, relocation.source)
+        current_text = (
+            _read_current(project, relocation.source)
+            if relocation.source in current_universe
+            else ""
+        )
         base_blocks = _css_rule_blocks(base_text, relocation.source)
         for block in base_blocks:
             if block.context == () and block.selector in relocation.selectors:
@@ -3897,10 +4167,14 @@ def _validate_css_ownership_relocation_exception(
             relocation.source,
             set(relocation.selectors),
         )
-        current_map = _css_rule_block_map(
-            _css_rule_blocks(current_text, relocation.source),
-            relocation.source,
-            set(relocation.selectors),
+        current_map = (
+            _css_rule_block_map(
+                _css_rule_blocks(current_text, relocation.source),
+                relocation.source,
+                set(relocation.selectors),
+            )
+            if current_text
+            else {}
         )
         spans: list[tuple[int, int]] = []
         for selector in relocation.selectors:
@@ -3915,25 +4189,108 @@ def _validate_css_ownership_relocation_exception(
                 raise DocumentationImpactError(
                     f"{relocation.source} retains moved CSS selector {selector!r}"
                 )
-            spans.append((_css_rule_prefix_start(base_text, base_block.start), base_block.end))
+            spans.append(
+                (_css_rule_prefix_start(base_text, base_block.start), base_block.end)
+            )
         base_residual = _nonblank_lines(
             _remove_spans(base_text, spans).replace("\r\n", "\n")
         )
+        if relocation.source in deleted_relocation_sources:
+            if not _css_comments_or_whitespace(base_residual, relocation.source):
+                raise DocumentationImpactError(
+                    f"{relocation.source} deleted with non-comment residual CSS"
+                )
+            continue
         current_residual = _nonblank_lines(current_text.replace("\r\n", "\n"))
         if base_residual != current_residual:
             raise DocumentationImpactError(
                 f"{relocation.source} changes residual source bytes"
             )
 
+    for retirement in retirements:
+        base_text = _read_base(project, exception.source_sha, retirement.source, base_files)
+        current_text = _read_current(project, retirement.source)
+        base_blocks = _css_rule_blocks(base_text, retirement.source)
+        current_blocks = _css_rule_blocks(current_text, retirement.source)
+        base_map = _css_rule_block_map(
+            base_blocks,
+            retirement.source,
+            set(retirement.selectors),
+        )
+        current_map = _css_rule_block_map(
+            current_blocks,
+            retirement.source,
+            set(retirement.selectors),
+        )
+        retirement_spans: list[tuple[int, int]] = []
+        for selector in retirement.selectors:
+            key = ((), selector)
+            base_block = base_map.get(key)
+            if base_block is None:
+                raise DocumentationImpactError(
+                    f"{retirement.source} is missing retired CSS selector {selector!r} "
+                    "at the merge base"
+                )
+            if key in current_map:
+                raise DocumentationImpactError(
+                    f"{retirement.source} retains retired CSS selector {selector!r}"
+                )
+            retirement_spans.append(
+                (_css_rule_prefix_start(base_text, base_block.start), base_block.end)
+            )
+        base_residual = _nonblank_lines(
+            _remove_spans(base_text, retirement_spans).replace("\r\n", "\n")
+        )
+        current_residual = _nonblank_lines(current_text.replace("\r\n", "\n"))
+        if base_residual != current_residual:
+            raise DocumentationImpactError(
+                f"{retirement.source} changes residual source bytes"
+            )
+
     target_text = _read_current(project, target)
     target_blocks = _css_rule_blocks(target_text, target)
-    target_map = _css_rule_block_map(target_blocks, target)
-    actual_target_order = [(block.context, block.selector) for block in target_blocks]
+    target_map = _css_rule_block_map(target_blocks, target, declared_selectors)
     expected_target_order = [((), selector) for selector in expected_by_target[target]]
-    if actual_target_order != expected_target_order:
+    moved_target_blocks = [
+        block
+        for block in target_blocks
+        if block.context == () and block.selector in declared_selectors
+    ]
+    actual_moved_order = [(block.context, block.selector) for block in moved_target_blocks]
+    if actual_moved_order != expected_target_order:
         raise DocumentationImpactError(
             f"{target} contains an undeclared CSS rule or has the moved family out of order"
         )
+    if target in base_universe:
+        base_target_text = _read_base(project, exception.source_sha, target, base_files)
+        base_target_blocks = _css_rule_blocks(base_target_text, target)
+        base_target_map = _css_rule_block_map(
+            base_target_blocks,
+            target,
+            declared_selectors,
+        )
+        if any(
+            ((), selector) in base_target_map for selector in declared_selectors
+        ):
+            raise DocumentationImpactError(
+                f"{target} already contains a declared moved selector at the merge base"
+            )
+        moved_spans = [
+            (_css_rule_prefix_start(target_text, block.start), block.end)
+            for block in moved_target_blocks
+        ]
+        if _nonblank_lines(
+            _remove_spans(target_text, moved_spans).replace("\r\n", "\n")
+        ) != _nonblank_lines(base_target_text.replace("\r\n", "\n")):
+            raise DocumentationImpactError(
+                f"{target} changes existing target bytes outside moved CSS rules"
+            )
+    else:
+        actual_target_order = [(block.context, block.selector) for block in target_blocks]
+        if actual_target_order != expected_target_order:
+            raise DocumentationImpactError(
+                f"{target} contains an undeclared CSS rule or has the moved family out of order"
+            )
     for relocation in relocations:
         base_text = _read_base(project, exception.source_sha, relocation.source, base_files)
         base_map = _css_rule_block_map(
@@ -3951,61 +4308,129 @@ def _validate_css_ownership_relocation_exception(
 
     for source_path in _production_source_paths(project):
         relative = source_path.relative_to(project).as_posix()
-        if relative == target or source_path.suffix.lower() != ".css":
+        if relative == target:
             continue
-        for block in _css_rule_blocks(source_path.read_text(encoding="utf-8"), relative):
-            if any(
-                branch in declared_selectors
-                for branch in _css_selector_branches(block.selector, relative)
+        source_text = source_path.read_text(encoding="utf-8")
+        if source_path.suffix.lower() == ".css":
+            for block in _css_rule_blocks(source_text, relative):
+                if any(
+                    branch in declared_selectors
+                    for branch in _css_selector_branches(block.selector, relative)
+                ):
+                    raise DocumentationImpactError(
+                        f"{exception.path} selector {block.selector!r} has a parallel CSS truth "
+                        f"in {relative}"
+                    )
+            continue
+        for retirement in retirements:
+            for selector in retirement.selectors:
+                for class_name in _css_selector_anchor_classes(selector, retirement.source):
+                    if re.search(
+                        rf"(?<![-_a-zA-Z0-9]){re.escape(class_name)}(?![-_a-zA-Z0-9])",
+                        source_text,
+                    ):
+                        raise DocumentationImpactError(
+                            f"{exception.path} retirement class {class_name!r} has a "
+                            f"production producer in {relative}"
+                        )
+
+    if deletion_mode:
+        for owner in sorted(import_only):
+            owner_base = _read_base(project, exception.source_sha, owner, base_files)
+            owner_current = _read_current(project, owner)
+            base_imports = _static_imports(owner_base)
+            current_imports = _static_imports(owner_current)
+            deleted_import_indices: list[int] = []
+            for index, item in enumerate(base_imports):
+                if not item.side_effect or not item.module.startswith(("./", "../")):
+                    continue
+                for deleted_source in deleted_relocation_sources:
+                    expected_specifier = posixpath.relpath(
+                        deleted_source,
+                        PurePosixPath(owner).parent.as_posix(),
+                    )
+                    if not expected_specifier.startswith("."):
+                        expected_specifier = f"./{expected_specifier}"
+                    if item.module != expected_specifier:
+                        continue
+                    resolved = _resolve_relative_module(
+                        owner,
+                        item.module,
+                        base_universe,
+                        allowed_suffixes=(".css",),
+                    )
+                    if resolved == deleted_source:
+                        deleted_import_indices.append(index)
+                    break
+            if len(deleted_import_indices) != 1:
+                raise DocumentationImpactError(
+                    f"{owner} must remove exactly one side-effect import of a deleted "
+                    "relocation source"
+                )
+            removed_index = deleted_import_indices[0]
+            expected_current = [
+                item for index, item in enumerate(base_imports) if index != removed_index
+            ]
+            if len(current_imports) != len(expected_current) or any(
+                current.text != base.text
+                for base, current in zip(expected_current, current_imports, strict=True)
             ):
                 raise DocumentationImpactError(
-                    f"{exception.path} selector {block.selector!r} has a parallel CSS truth "
-                    f"in {relative}"
+                    f"{owner} changes imports beyond the deleted CSS source import"
                 )
-
-    owner_base = _read_base(project, exception.source_sha, owner, base_files)
-    owner_current = _read_current(project, owner)
-    base_imports = _static_imports(owner_base)
-    current_imports = _static_imports(owner_current)
-    target_specifier = posixpath.relpath(target, PurePosixPath(owner).parent.as_posix())
-    if not target_specifier.startswith("."):
-        target_specifier = f"./{target_specifier}"
-    target_indices = [
-        index
-        for index, item in enumerate(current_imports)
-        if item.side_effect
-        and item.module == target_specifier
-        and _resolve_relative_module(
-            owner,
-            item.module,
-            current_universe,
-            project=project,
-            allowed_suffixes=(".css",),
+            base_residual = _nonblank_lines(
+                _remove_spans(owner_base, [(item.start, item.end) for item in base_imports])
+            )
+            current_residual = _nonblank_lines(
+                _remove_spans(owner_current, [(item.start, item.end) for item in current_imports])
+            )
+            if base_residual != current_residual:
+                raise DocumentationImpactError(f"{owner} changes non-import source bytes")
+    else:
+        owner = next(iter(import_only))
+        owner_base = _read_base(project, exception.source_sha, owner, base_files)
+        owner_current = _read_current(project, owner)
+        base_imports = _static_imports(owner_base)
+        current_imports = _static_imports(owner_current)
+        target_specifier = posixpath.relpath(target, PurePosixPath(owner).parent.as_posix())
+        if not target_specifier.startswith("."):
+            target_specifier = f"./{target_specifier}"
+        target_indices = [
+            index
+            for index, item in enumerate(current_imports)
+            if item.side_effect
+            and item.module == target_specifier
+            and _resolve_relative_module(
+                owner,
+                item.module,
+                current_universe,
+                project=project,
+                allowed_suffixes=(".css",),
+            )
+            == target
+        ]
+        if len(target_indices) != 1:
+            raise DocumentationImpactError(
+                f"{owner} must add exactly one side-effect import of {target}"
+            )
+        if any(item.side_effect and item.module == target_specifier for item in base_imports):
+            raise DocumentationImpactError(f"{owner} already imports the new CSS target at base")
+        current_without_target = [
+            item for index, item in enumerate(current_imports) if index != target_indices[0]
+        ]
+        if len(current_without_target) != len(base_imports) or any(
+            current.text != base.text
+            for base, current in zip(base_imports, current_without_target, strict=True)
+        ):
+            raise DocumentationImpactError(f"{owner} changes imports beyond the CSS owner import")
+        base_residual = _nonblank_lines(
+            _remove_spans(owner_base, [(item.start, item.end) for item in base_imports])
         )
-        == target
-    ]
-    if len(target_indices) != 1:
-        raise DocumentationImpactError(
-            f"{owner} must add exactly one side-effect import of {target}"
+        current_residual = _nonblank_lines(
+            _remove_spans(owner_current, [(item.start, item.end) for item in current_imports])
         )
-    if any(item.side_effect and item.module == target_specifier for item in base_imports):
-        raise DocumentationImpactError(f"{owner} already imports the new CSS target at base")
-    current_without_target = [
-        item for index, item in enumerate(current_imports) if index != target_indices[0]
-    ]
-    if len(current_without_target) != len(base_imports) or any(
-        current.text != base.text
-        for base, current in zip(base_imports, current_without_target, strict=True)
-    ):
-        raise DocumentationImpactError(f"{owner} changes imports beyond the CSS owner import")
-    base_residual = _nonblank_lines(
-        _remove_spans(owner_base, [(item.start, item.end) for item in base_imports])
-    )
-    current_residual = _nonblank_lines(
-        _remove_spans(owner_current, [(item.start, item.end) for item in current_imports])
-    )
-    if base_residual != current_residual:
-        raise DocumentationImpactError(f"{owner} changes non-import source bytes")
+        if base_residual != current_residual:
+            raise DocumentationImpactError(f"{owner} changes non-import source bytes")
     return _ValidatedDocumentationImpactException(exception=exception, derived_selectors=())
 
 
@@ -5471,6 +5896,9 @@ def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationIm
         and exception.classification == _NON_USER_VISIBLE_CSS_RELOCATION_CLASSIFICATION
         else set()
     )
+    bound_import_only_visual = {
+        path for path in bound_import_only if _is_visual_source(path)
+    }
     validation_entries = {
         path: current
         for path, current in entries.items()
@@ -5492,7 +5920,7 @@ def verify_documentation_impact(root: Path, mode: ImpactMode) -> DocumentationIm
         visual_evidence=config,
         project=project,
         merge_base=merge_base,
-        ignored_visual_files=import_only_visual,
+        ignored_visual_files=import_only_visual | bound_import_only_visual,
     )
 
 

@@ -71,10 +71,6 @@
   user-select: none;
 }
 
-.selection-delivery-command .ux-button {
-  width: 100%;
-}
-
 .native-preview {
   display: flex;
   min-width: 0;

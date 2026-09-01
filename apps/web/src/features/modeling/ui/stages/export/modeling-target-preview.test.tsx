@@ -204,7 +204,8 @@ describe("ModelingTargetPreview", () => {
     const createButton = screen.getByRole("button", { name: "Create solver card" }) as HTMLButtonElement;
     expect(createButton.disabled).toBe(true);
     fireEvent.click(acknowledgement);
-    expect(await screen.findByText("Ready to create", { exact: true })).toBeTruthy();
+    const readyStatus = await screen.findByText("Ready to create", { exact: true });
+    expect(readyStatus.classList.contains("export-status-ready-to-create")).toBe(true);
     expect(screen.queryAllByText("Review required", { exact: true })).toHaveLength(0);
     expect(createButton.disabled).toBe(false);
     expect(event).toHaveBeenCalledWith({ type: "CHANGE_EXPORT_TARGET" });

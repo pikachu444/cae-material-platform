@@ -73,7 +73,6 @@ exception:
 - `src/app.tsx`;
 - `src/api.ts`;
 - `src/types.ts`;
-- `src/styles.css`;
 - `src/design/layout.css`.
 
 Line count is a review trigger, not a quality score. At roughly 400 component lines, list responsibilities
@@ -96,7 +95,8 @@ rendering requires architecture review before expansion.
 
 - Tokens, density, typography roles, primitives, shell, and generic layout belong to the shared design layer.
 - Feature-specific arrangement and responsive composition belong to the feature.
-- Do not add a new feature selector to `src/styles.css` or `src/design/layout.css`.
+- Do not recreate the retired root `src/styles.css`; keep feature selectors out of
+  `src/design/layout.css` and in their feature-owned stylesheet.
 - Do not add raw colors, arbitrary font weights, route-specific 4K media queries, CSS `zoom`, blanket scale
   transforms, or fabricated filler.
 - A global selector change names every affected route and runs the full applicable visual gate.

@@ -1,34 +1,26 @@
 schemaVersion: cmp.documentation-impact-exception.v1
 issue: "#331"
-sourceSha: 541cf0410e6d86e4464155dbcfb9ebd368359bb8
+sourceSha: 39def8be4988b220ba4789390290bd1b8c2a8f29
 classification: non-user-visible-css-ownership-relocation
 reason: >-
-  The shared Materials scroll rail CSS family moves byte-identical ownership
-  into its co-located component stylesheet while preserving the rendered
-  cascade and adding only that stylesheet's side-effect import.
+  The final #331 CSS retirement moves one exact Export status rule into its
+  existing owner stylesheet and removes one proven dead selector while
+  retaining unchanged rendered behavior and retiring its deleted stylesheet
+  imports.
 visualFiles:
   - apps/web/src/design/layout.css
-  - apps/web/src/features/materials/ui/materials.css
-  - apps/web/src/materials-scroll-rail.css
+  - apps/web/src/styles.css
+  - apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css
 verification:
   importOnlyFiles:
-    - apps/web/src/materials-scroll-rail.tsx
+    - apps/web/src/main.tsx
+    - apps/web/.storybook/preview.ts
   relocations:
+    - source: apps/web/src/styles.css
+      target: apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css
+      selectors:
+        - .export-status-ready-to-create
+  retirements:
     - source: apps/web/src/design/layout.css
-      target: apps/web/src/materials-scroll-rail.css
       selectors:
-        - .materials-scroll-rail-y
-        - .materials-scroll-rail-x
-    - source: apps/web/src/features/materials/ui/materials.css
-      target: apps/web/src/materials-scroll-rail.css
-      selectors:
-        - .materials-scroll-shell
-        - .materials-scroll-shell[data-scroll-y="true"]
-        - .materials-scroll-shell[data-scroll-x="true"]
-        - .materials-scroll-rail
-        - .materials-scroll-thumb
-        - .materials-scroll-rail-y .materials-scroll-thumb
-        - .materials-scroll-rail-x .materials-scroll-thumb
-        - .materials-scroll-rail:hover .materials-scroll-thumb
-        - .materials-scroll-rail:focus-visible
-        - .materials-scroll-corner
+        - .selection-delivery-command .ux-button

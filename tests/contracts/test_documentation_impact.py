@@ -921,6 +921,141 @@ def _css_relocation_fixture(
     return tmp_path, raw, changed, base_sha
 
 
+def _css_retirement_fixture(
+    tmp_path: Path, case: str = "valid"
+) -> tuple[Path, dict[str, object], dict[str, bool], str]:
+    def rule(selector: str, body: str) -> str:
+        return f"{selector} {{\n{body}\n}}\n"
+
+    layout_path = "apps/web/src/design/layout.css"
+    deleted_source_path = "apps/web/src/styles.css"
+    target_path = "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css"
+    main_path = "apps/web/src/main.tsx"
+    preview_path = "apps/web/.storybook/preview.ts"
+    app_path = "apps/web/src/app.tsx"
+    parallel_path = "apps/web/src/parallel.css"
+    retired_selector = ".selection-delivery-command .ux-button"
+    moved_selector = ".export-status-ready-to-create"
+    layout_base = (
+        rule(".retained-layout", "  padding: 1px;")
+        + rule(retired_selector, "  width: 100%;")
+        + rule(".tail-layout", "  margin: 1px;")
+    )
+    styles_base = (
+        "/* Historical Export source comments remain after the moved rule. */\n"
+        + rule(moved_selector, "  color: #276b49;")
+        + "/* The deleted source has no remaining production rules. */\n"
+    )
+    if case == "deleted_source_residual":
+        styles_base += rule(".leftover", "  color: red;")
+    target_base = rule(".existing-target", "  color: green;") + rule(
+        ".tail-target", "  color: blue;"
+    )
+    main_base = 'import "./app";\nimport "./styles.css";\n\nexport const App = true;\n'
+    preview_base = (
+        'import "../src/styles.css";\n\nexport const Preview = true;\n'
+    )
+    app_base = (
+        'import "./features/modeling/ui/stages/export/modeling-export-stage.css";\n'
+        "export const App = true;\n"
+    )
+    parallel_base = ".unrelated { color: green; }\n"
+    base_files = {
+        layout_path: layout_base,
+        deleted_source_path: styles_base,
+        target_path: target_base,
+        main_path: main_base,
+        preview_path: preview_base,
+        app_path: app_base,
+        parallel_path: parallel_base,
+    }
+    current_files = {
+        layout_path: layout_base.replace(rule(retired_selector, "  width: 100%;"), ""),
+        target_path: target_base + rule(moved_selector, "  color: #276b49;"),
+        main_path: main_base.replace('import "./styles.css";\n', ""),
+        preview_path: preview_base.replace('import "../src/styles.css";\n', ""),
+        app_path: app_base,
+        parallel_path: parallel_base,
+    }
+    if case in {"unlisted_importer", "dynamic_importer"}:
+        unlisted_path = "apps/web/src/unlisted-importer.tsx"
+        unlisted_importer = (
+            'import "./styles.css";\nexport const Unlisted = true;\n'
+            if case == "unlisted_importer"
+            else 'const styles = import("./styles.css");\nexport const Unlisted = styles;\n'
+        )
+        base_files[unlisted_path] = unlisted_importer
+        current_files[unlisted_path] = unlisted_importer
+    for path, value in base_files.items():
+        _write_fixture_file(tmp_path, path, value)
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base CSS retirement")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "branch", "-M", "feature")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", base_sha)
+    for path, value in current_files.items():
+        _write_fixture_file(tmp_path, path, value)
+    (tmp_path / Path(*deleted_source_path.split("/"))).unlink()
+
+    if case == "existing_target_drift":
+        current_files[target_path] += rule(".target-drift", "  color: purple;")
+    elif case == "removed_import_drift":
+        current_files[main_path] = current_files[main_path].replace(
+            'import "./app";\n', 'import "./app";\nimport "./app";\n', 1
+        )
+    elif case == "retirement_produced":
+        current_files[app_path] += 'const produced = "selection-delivery-command";\n'
+    elif case == "retirement_parallel":
+        current_files[parallel_path] = rule(retired_selector, "  width: 100%;")
+    elif case not in {
+        "valid",
+        "deleted_source_residual",
+        "unlisted_importer",
+        "dynamic_importer",
+    }:
+        raise AssertionError(f"unknown CSS retirement mutation {case}")
+    for path, value in current_files.items():
+        _write_fixture_file(tmp_path, path, value)
+
+    exception_path = "docs/testing/documentation-impact-exceptions/issue-331.yaml"
+    yaml_text = f"""schemaVersion: cmp.documentation-impact-exception.v1
+issue: "#331"
+sourceSha: {base_sha}
+classification: non-user-visible-css-ownership-relocation
+reason: This exact CSS relocation and retirement preserves the current visual surface.
+visualFiles:
+  - {layout_path}
+  - {deleted_source_path}
+  - {target_path}
+verification:
+  importOnlyFiles:
+    - {main_path}
+    - {preview_path}
+  relocations:
+    - source: {deleted_source_path}
+      target: {target_path}
+      selectors:
+        - {moved_selector}
+  retirements:
+    - source: {layout_path}
+      selectors:
+        - '{retired_selector}'
+"""
+    _write_fixture_file(tmp_path, exception_path, yaml_text)
+    raw = yaml.safe_load((tmp_path / exception_path).read_text(encoding="utf-8"))
+    changed = {
+        layout_path: True,
+        deleted_source_path: False,
+        target_path: True,
+        main_path: True,
+        preview_path: True,
+    }
+    return tmp_path, raw, changed, base_sha
+
+
 @pytest.mark.parametrize(
     ("case", "message"),
     [
@@ -984,6 +1119,73 @@ def test_css_ownership_relocation_rejects_grouped_declared_selector(
     selectors[0] = (
         ".materials-scroll-rail-y, .parallel"
     )
+    with pytest.raises(
+        DocumentationImpactError,
+        match="exactly one top-level selector branch",
+    ):
+        documentation_impact._parse_exception(
+            "docs/testing/documentation-impact-exceptions/issue-331.yaml", raw
+        )
+
+
+def test_css_ownership_relocation_accepts_deleted_source_and_retirement(
+    tmp_path: Path,
+) -> None:
+    project, raw, changed, base_sha = _css_retirement_fixture(tmp_path)
+    exception = documentation_impact._parse_exception(
+        "docs/testing/documentation-impact-exceptions/issue-331.yaml", raw
+    )
+    validated = _validate_exception(
+        project,
+        exception,
+        changed,
+        base_sha,
+        changed=changed,
+    )
+    assert validated.exception.css_retirements[0].selectors == (
+        ".selection-delivery-command .ux-button",
+    )
+
+
+@pytest.mark.parametrize(
+    ("case", "message"),
+    [
+        ("deleted_source_residual", "non-comment residual CSS"),
+        ("existing_target_drift", "existing target bytes"),
+        ("removed_import_drift", "changes imports beyond"),
+        ("retirement_produced", "production producer"),
+        ("retirement_parallel", "parallel CSS truth"),
+        ("unlisted_importer", "import owners"),
+        ("dynamic_importer", "dynamic CSS import"),
+    ],
+)
+def test_css_ownership_relocation_final_shape_is_fail_closed(
+    tmp_path: Path,
+    case: str,
+    message: str,
+) -> None:
+    project, raw, changed, base_sha = _css_retirement_fixture(tmp_path, case)
+    exception = documentation_impact._parse_exception(
+        "docs/testing/documentation-impact-exceptions/issue-331.yaml", raw
+    )
+    with pytest.raises(DocumentationImpactError, match=message):
+        _validate_exception(
+            project,
+            exception,
+            changed,
+            base_sha,
+            changed=changed,
+        )
+
+
+def test_css_ownership_relocation_final_shape_rejects_grouped_selector(
+    tmp_path: Path,
+) -> None:
+    _project, raw, _changed, _base_sha = _css_retirement_fixture(tmp_path)
+    verification = cast(dict[str, object], raw["verification"])
+    retirements = cast(list[dict[str, object]], verification["retirements"])
+    selectors = cast(list[str], retirements[0]["selectors"])
+    selectors[0] = ".selection-delivery-command, .parallel"
     with pytest.raises(
         DocumentationImpactError,
         match="exactly one top-level selector branch",
