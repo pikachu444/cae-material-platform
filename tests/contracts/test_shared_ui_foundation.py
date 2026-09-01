@@ -19,6 +19,15 @@ MODELING_PROCESS = (
     ROOT
     / "apps/web/src/features/modeling/ui/stages/process/modeling-process-stage.css"
 ).read_text(encoding="utf-8")
+SCROLL_RAIL_CSS = (ROOT / "apps/web/src/materials-scroll-rail.css").read_text(
+    encoding="utf-8"
+)
+MATERIALS_CSS = (
+    ROOT / "apps/web/src/features/materials/ui/materials.css"
+).read_text(encoding="utf-8")
+SCROLL_RAIL_TSX = (ROOT / "apps/web/src/materials-scroll-rail.tsx").read_text(
+    encoding="utf-8"
+)
 ADMINISTRATION = (
     ROOT / "apps/web/src/features/administration/ui/administration.css"
 ).read_text(encoding="utf-8")
@@ -235,3 +244,36 @@ def test_modeling_css_moves_keep_one_exact_feature_owner_and_do_not_claim_fragme
     # exact moved declarations are required to have a single producer.
     assert ".processing-curve.interactive {" in MODELING_PROCESS
     assert ".processing-curve.interactive:focus-visible {" in MODELING_PROCESS
+
+
+def test_materials_scroll_rail_has_one_co_located_css_owner() -> None:
+    selectors = (
+        ".materials-scroll-rail-y",
+        ".materials-scroll-rail-x",
+        ".materials-scroll-shell",
+        '.materials-scroll-shell[data-scroll-y="true"]',
+        '.materials-scroll-shell[data-scroll-x="true"]',
+        ".materials-scroll-rail",
+        ".materials-scroll-thumb",
+        ".materials-scroll-rail-y .materials-scroll-thumb",
+        ".materials-scroll-rail-x .materials-scroll-thumb",
+        ".materials-scroll-rail:hover .materials-scroll-thumb",
+        ".materials-scroll-rail:focus-visible",
+        ".materials-scroll-corner",
+    )
+    for selector in selectors:
+        assert _contains_exact_css_rule(SCROLL_RAIL_CSS, selector), selector
+        assert not _contains_exact_css_rule(LAYOUT, selector), selector
+        assert not _contains_exact_css_rule(MATERIALS_CSS, selector), selector
+
+    assert SCROLL_RAIL_CSS.index(".materials-scroll-rail-y {\n") < SCROLL_RAIL_CSS.index(
+        ".materials-scroll-rail {\n"
+    )
+    assert SCROLL_RAIL_CSS.index(".materials-scroll-rail-x {\n") < SCROLL_RAIL_CSS.index(
+        ".materials-scroll-rail {\n"
+    )
+    assert "border-width: 0 0 0 1px;" in SCROLL_RAIL_CSS
+    assert "border-width: 1px 0 0;" in SCROLL_RAIL_CSS
+    assert "border: 1px solid #9bb1bb;" in SCROLL_RAIL_CSS
+
+    assert 'import "./materials-scroll-rail.css";' in SCROLL_RAIL_TSX

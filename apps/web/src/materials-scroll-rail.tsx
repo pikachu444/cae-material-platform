@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import { SCROLL_RAIL_METRICS } from "./design/metrics";
+import "./materials-scroll-rail.css";
 
 type ScrollAxis = "x" | "y";
 

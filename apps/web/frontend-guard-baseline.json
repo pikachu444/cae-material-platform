@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "aa8c6e942420cc67b637edd92d988c9fbf678b27",
+  "sourceSha": "541cf0410e6d86e4464155dbcfb9ebd368359bb8",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -169,81 +169,9 @@
       "removalCondition": "Remove when the remaining Data adapter leaves the registered workbench hotspot."
     },
     {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "0dadea0963b4bfdd1566bbb2ccd42db4e19bba2ae07e3b9d4296312cd7ef55fa",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "05417b3bdba3c267cb08d6fd5785de1bb089f3697ef83c5586527dea5ab66e99",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "1e6958fc208347e90a0089c0e98e5410eec0aa995d38aa96fba53645d68fe9c1",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
       "fingerprint": "2b3e3255442f6118b15e42282fa3467cacf89a014a915891caa3cf59560eb7dd",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "2d1f9a140d3f3f572eb567f666f76919b956c80436c477bbe21fd4079acc5bf5",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "65f1284d10ade9a1ef4e7d3f3edfacaf8f5ce074fafd2daf101a9f2eea834cd0",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "79308d7a2eb8c85d002d118db100829943740e70a2ab749ecb26bf21dc4c145c",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "7d6fccb69d78cbab6158ddf1a7e2fe08ad8b23dde5163b7c60812ac09d3b980d",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "80dda10a14b8250d4a5defcd5c1e21d5d09ce8c66da1fc1a6d46e45aa9f2d857",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -261,43 +189,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "8dd0399407e6f4469d6582c9bfb759a750886fdc5462daa379ff0b1b40e15005",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "8e8809928858237655c1e49300bff1fa04f0fc6672d4622e0f401134029236ca",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "92dee42450d9dd751ac05373e37a61937ec21213edb5f45c42adc4484b1d3d08",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "9454f940f3de91ec2db45cc807ca22394eac005a7335161040c9b4f2888ccc83",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "9a56e6e5fed94238d8ac519050b7283af14f12a254be9ffd09da1c65edc573f3",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -315,65 +207,11 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
-      "fingerprint": "ad028e6a3d93305b3be076b01f0478fe2935c77e99cbc4807c5f6c61fc2647dc",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "c338d0c552b20323963441a1c2585a4f169c1acd018884f26805e3783c399098",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "c39e4e42785a6390f5e6269ba6350735c2356795145bc5055a2e7940f2137657",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "d178263cda3ea7d978c5c465e4e350a9973e408adb95b830f614910b55cac589",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "d54aa82faf370b20ced9a32812f65bb35bc0a29ccc4c495396d8b048dd349d0a",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
       "fingerprint": "dc358fe636bfa73e4fa045e03069f8f7c3f20a2e7f3808b711eb1f988b181bf3",
       "maxOccurrences": 1,
       "reason": "FE-06 B4 combines the three approved ownership moves while preserving the exact declaration/cascade; this finding is relocated or re-fingerprinted debt, not new semantic styling.",
       "ownerIssue": "#261",
       "removalCondition": "Remove only in the bounded semantic-normalization or remaining ownership unit after the exact finding disappears."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "eb043fdc3c31bc2ae8cb4a886891e3e2b8e991f7645c8f8505a2ee251172eb5d",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
     },
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
@@ -388,24 +226,6 @@
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/design/layout.css",
       "fingerprint": "f594da069ee895eefdec172e4dbcfb0313e4450b02ff2018cddcb5333ea60a05",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "d95aa9e7b8b636f00190bd5f5bfb52988de13313fd51a86994f3382d6e718f05",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/layout.css",
-      "fingerprint": "e92f6babc823d008f390ef4d6d2708671428d5919bce0a585d876ac8e683e06b",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -1953,15 +1773,6 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "1271c55c48df1826d01fc95158d0e48f9f54b72f1ecc1abf4c0345aa7bc27036",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
       "fingerprint": "20cbba84463e208e959294afe4995daf9961df21e93d6efdb1c3b4f74481c51d",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -2007,24 +1818,6 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "5d55c60d379acbf5f8be6e263c7f91d34290484e1b226424c425500d94aa2d27",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "66fbc5554ee93c100320c893b8c2e1fa7cb31e8b60e6f456755e2926dce99f0a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
       "fingerprint": "672bf0898f50fd0c61e786b8c3fe9bd24553278d3033f771fc4433ccf4ae9d22",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -2052,25 +1845,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "774c0d46402a9db4b481425630ff0ca948591e985e3e4b2a6a899e897f61d57c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
       "fingerprint": "7ded5695e5d6b40273299b39b410defe2c3ce041a065f02bf2d3af47b31d5f39",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "9a105a1387ad8f1aebad49753fb1556f0b42ccfa733829a21f2960fb969cba47",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -2097,25 +1872,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "b7eda044e604a275b1812f1334cad8c7c016fd589be1d95af70c50c9b64eb605",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
       "fingerprint": "c716a742d9cd01d1a8fc3d94bc7b4d05f0318b0790403fdcbc6fea3bb384a2a6",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "c802c03eb007b285bcf3e086bdb551910d072e10243f2be52486d42216861e01",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -2159,8 +1916,71 @@
     },
     {
       "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/materials/ui/materials.css",
-      "fingerprint": "f8e7ea0de554fbd607efcad9ef5b68c2b062a73ee3e82ed9679bc6e4c16afb4a",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "31b0e9fb800a22b1cc8b46a5b626e3561338f6860a8748776485aa5be831760f",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "7daf65b89266ab4e6c2e296b249b1a0708f12d34a21c73bc8a3d8bb29c25589f",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "7a85e74b6c4f656a26999859d694ccffe19e03a76ad043c391f3cde9ed04fdee",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "30e47fd5991b9e7f9d7f33cf4a35687181ab48043b4e5143eb4d59276197077d",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "936b1106a999f35f8352499f3ee61ccad7f494d42352450797ffe1f0fe7d324e",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "bfd72d742398c2811f88a910aa094870753f8ab2ad55d627fae9ca9149592812",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "d7a868903285571067fcd9392c38885ea8a67354564c7094a022db474535dd8e",
+      "maxOccurrences": 1,
+      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
+      "ownerIssue": "#261",
+      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
+    },
+    {
+      "ruleId": "CMP-FE-RAW-COLOR",
+      "path": "apps/web/src/materials-scroll-rail.css",
+      "fingerprint": "b6a042940449bbd2bab798dfe1502c3f59e16524ae4bfee2284c2045a3152392",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",

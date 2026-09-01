@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TypedDict
 
 import pytest
+import yaml
 from cmp.tools import documentation_impact
 from cmp.tools.documentation_impact import (
     DocumentationImpactError,
@@ -729,6 +730,264 @@ def _mutate_structural_fixture(fixture: _StructuralFixture, case: str) -> None:
         )
     else:
         raise AssertionError(f"unknown structural mutation {case}")
+
+
+def _css_relocation_fixture(
+    tmp_path: Path, case: str = "valid"
+) -> tuple[Path, dict, dict[str, bool], str]:
+    def rule(selector: str, body: str) -> str:
+        return f"{selector} {{\n{body}\n}}\n"
+
+    layout_rules = (
+        (
+            ".materials-scroll-rail-y",
+            "  grid-row: 1;\n  grid-column: 2;\n  border-width: 0 0 0 1px;",
+        ),
+        (
+            ".materials-scroll-rail-x",
+            "  grid-row: 2;\n  grid-column: 1;\n  border-width: 1px 0 0;",
+        ),
+    )
+    materials_rules = (
+        (
+            ".materials-scroll-shell",
+            "  display: grid;\n  min-width: 0;\n  min-height: 0;",
+        ),
+        (
+            '.materials-scroll-shell[data-scroll-y="true"]',
+            "  grid-template-columns: minmax(0, 1fr) var(--ux-scrollbar-track-size);",
+        ),
+        (
+            '.materials-scroll-shell[data-scroll-x="true"]',
+            "  grid-template-rows: minmax(0, 1fr) var(--ux-scrollbar-track-size);",
+        ),
+        (".materials-scroll-rail", "  border: 1px solid #9bb1bb;\n  background: #dce7ec;"),
+        (".materials-scroll-thumb", "  position: absolute;\n  display: block;"),
+        (
+            ".materials-scroll-rail-y .materials-scroll-thumb",
+            "  top: 2px;\n  right: 2px;\n  left: 2px;",
+        ),
+        (
+            ".materials-scroll-rail-x .materials-scroll-thumb",
+            "  top: 2px;\n  bottom: 2px;\n  left: 2px;",
+        ),
+        (".materials-scroll-rail:hover .materials-scroll-thumb", "  background: #315f72;"),
+        (".materials-scroll-rail:focus-visible", "  outline: 2px solid var(--ux-focus);"),
+        (".materials-scroll-corner", "  grid-row: 2;\n  grid-column: 2;"),
+    )
+    layout_path = "apps/web/src/design/layout.css"
+    materials_path = "apps/web/src/features/materials/ui/materials.css"
+    owner_path = "apps/web/src/materials-scroll-rail.tsx"
+    target_path = "apps/web/src/materials-scroll-rail.css"
+    main_path = "apps/web/src/main.tsx"
+    main_import = (
+        'import "./other";\n'
+        if case == "unreachable_owner"
+        else 'import "./materials-scroll-rail";\n'
+    )
+    base_files = {
+        layout_path: rule(".retained-layout", "  padding: 1px;")
+        + "\n"
+        + "\n".join(rule(*item).rstrip("\n") for item in layout_rules)
+        + "\n\n"
+        + rule(".tail-layout", "  margin: 1px;").rstrip("\n")
+        + "\n",
+        materials_path: rule(".retained-material", "  color: red;")
+        + "\n"
+        + "\n".join(rule(*item).rstrip("\n") for item in materials_rules)
+        + "\n\n"
+        + rule(".tail-material", "  color: blue;").rstrip("\n")
+        + "\n",
+        owner_path: 'import { SCROLL_RAIL_METRICS } from "./design/metrics";\n\n'
+        "export function Rail() {\n  return SCROLL_RAIL_METRICS;\n}\n",
+        main_path: main_import,
+    }
+    current_files = {
+        layout_path: rule(".retained-layout", "  padding: 1px;")
+        + "\n"
+        + rule(".tail-layout", "  margin: 1px;"),
+        materials_path: rule(".retained-material", "  color: red;")
+        + "\n"
+        + rule(".tail-material", "  color: blue;"),
+        owner_path: base_files[owner_path].replace(
+            'import { SCROLL_RAIL_METRICS } from "./design/metrics";\n',
+            'import { SCROLL_RAIL_METRICS } from "./design/metrics";\n'
+            'import "./materials-scroll-rail.css";\n',
+        ),
+        target_path: "\n".join(
+            rule(*item).rstrip("\n") for item in (*layout_rules, *materials_rules)
+        )
+        + "\n",
+    }
+    base_files["apps/web/src/other.css"] = ".unrelated { color: green; }\n"
+    if case == "unreachable_owner":
+        base_files["apps/web/src/other.tsx"] = "export const Other = true;\n"
+    for path, value in base_files.items():
+        _write_fixture_file(tmp_path, path, value)
+    _git(tmp_path, "init", "-b", "main")
+    _git(tmp_path, "config", "user.email", "test@example.com")
+    _git(tmp_path, "config", "user.name", "Documentation Impact Tests")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-m", "base CSS ownership")
+    base_sha = _git(tmp_path, "rev-parse", "HEAD")
+    _git(tmp_path, "branch", "-M", "feature")
+    _git(tmp_path, "update-ref", "refs/remotes/origin/main", base_sha)
+    for path, value in current_files.items():
+        _write_fixture_file(tmp_path, path, value)
+
+    if case == "declaration_body":
+        current_files[target_path] = current_files[target_path].replace(
+            "  grid-row: 1;", "  grid-row: 2;", 1
+        )
+    elif case == "stale_source":
+        current_files[layout_path] += rule(*layout_rules[0])
+    elif case == "residual_source":
+        current_files[layout_path] += rule(".residual-change", "  color: black;")
+    elif case == "target_order":
+        first = rule(*layout_rules[0]).rstrip("\n")
+        second = rule(*layout_rules[1]).rstrip("\n")
+        current_files[target_path] = current_files[target_path].replace(
+            f"{first}\n{second}", f"{second}\n{first}", 1
+        )
+    elif case == "target_undeclared":
+        current_files[target_path] += rule(".undeclared", "  color: black;")
+    elif case == "owner_import":
+        current_files[owner_path] = current_files[owner_path].replace(
+            'import "./materials-scroll-rail.css";\n', ""
+        )
+    elif case == "owner_import_wrong":
+        current_files[owner_path] = current_files[owner_path].replace(
+            'import "./materials-scroll-rail.css";', 'import "./other.css";'
+        )
+    elif case == "parallel_selector":
+        base_files["apps/web/src/other.css"] = ".materials-scroll-rail { color: red; }\n"
+        _write_fixture_file(
+            tmp_path, "apps/web/src/other.css", base_files["apps/web/src/other.css"]
+        )
+    elif case == "parallel_selector_group":
+        base_files["apps/web/src/other.css"] = (
+            ".materials-scroll-rail, .other { color: red; }\n"
+        )
+        _write_fixture_file(
+            tmp_path, "apps/web/src/other.css", base_files["apps/web/src/other.css"]
+        )
+    elif case == "source_sha":
+        pass
+    elif case in {"valid", "visual_set", "unreachable_owner", "parallel_selector_group"}:
+        pass
+    else:
+        raise AssertionError(f"unknown CSS relocation mutation {case}")
+    for path, value in current_files.items():
+        _write_fixture_file(tmp_path, path, value)
+
+    exception_path = "docs/testing/documentation-impact-exceptions/issue-331.yaml"
+    yaml_lines = [
+        "schemaVersion: cmp.documentation-impact-exception.v1",
+        'issue: "#331"',
+        f"sourceSha: {base_sha}",
+        "classification: non-user-visible-css-ownership-relocation",
+        "reason: This exact CSS ownership relocation preserves rendered behavior "
+        "and cascade order.",
+        "visualFiles:",
+        f"  - {layout_path}",
+        f"  - {materials_path}",
+        f"  - {target_path}",
+        "verification:",
+        "  importOnlyFiles:",
+        f"    - {owner_path}",
+        "  relocations:",
+    ]
+    for source, selectors in ((layout_path, layout_rules), (materials_path, materials_rules)):
+        yaml_lines.extend(
+            [
+                f"    - source: {source}",
+                f"      target: {target_path}",
+                "      selectors:",
+                *(f"        - '{selector}'" for selector, _body in selectors),
+            ]
+        )
+    _write_fixture_file(tmp_path, exception_path, "\n".join(yaml_lines) + "\n")
+    raw = yaml.safe_load((tmp_path / exception_path).read_text(encoding="utf-8"))
+    changed = {
+        layout_path: True,
+        materials_path: True,
+        target_path: True,
+        owner_path: True,
+    }
+    if case == "source_sha":
+        raw["sourceSha"] = "b" * 40
+    if case == "visual_set":
+        changed["apps/web/src/other.css"] = True
+    return tmp_path, raw, changed, base_sha
+
+
+@pytest.mark.parametrize(
+    ("case", "message"),
+    [
+        ("source_sha", "does not match"),
+        ("declaration_body", "declaration bytes changed"),
+        ("stale_source", "retains moved CSS selector"),
+        ("residual_source", "changes residual source bytes"),
+        ("target_order", "undeclared CSS rule|out of order"),
+        ("target_undeclared", "undeclared CSS rule|out of order"),
+        ("owner_import", "exactly one side-effect import"),
+        ("owner_import_wrong", "exactly one side-effect import"),
+        ("parallel_selector", "parallel CSS truth"),
+        ("unreachable_owner", "not reachable from apps/web/src/main.tsx"),
+        ("parallel_selector_group", "parallel CSS truth"),
+        ("visual_set", "visualFiles must exactly match"),
+    ],
+)
+def test_css_ownership_relocation_is_fail_closed(tmp_path: Path, case: str, message: str) -> None:
+    project, raw, changed, base_sha = _css_relocation_fixture(tmp_path, case)
+    exception = documentation_impact._parse_exception(
+        "docs/testing/documentation-impact-exceptions/issue-331.yaml", raw
+    )
+    if case == "valid":
+        raise AssertionError("the valid case is covered by the positive test")
+    with pytest.raises(DocumentationImpactError, match=message):
+        _validate_exception(
+            project,
+            exception,
+            changed,
+            base_sha,
+            changed=changed,
+        )
+
+
+def test_css_ownership_relocation_accepts_exact_ordered_family(tmp_path: Path) -> None:
+    project, raw, changed, base_sha = _css_relocation_fixture(tmp_path)
+    exception = documentation_impact._parse_exception(
+        "docs/testing/documentation-impact-exceptions/issue-331.yaml", raw
+    )
+    validated = _validate_exception(
+        project,
+        exception,
+        changed,
+        base_sha,
+        changed=changed,
+    )
+    assert validated.exception.classification == "non-user-visible-css-ownership-relocation"
+    assert validated.exception.css_relocations[0].selectors == (
+        ".materials-scroll-rail-y",
+        ".materials-scroll-rail-x",
+    )
+
+
+def test_css_ownership_relocation_rejects_grouped_declared_selector(
+    tmp_path: Path,
+) -> None:
+    _project, raw, _changed, _base_sha = _css_relocation_fixture(tmp_path)
+    raw["verification"]["relocations"][0]["selectors"][0] = (
+        ".materials-scroll-rail-y, .parallel"
+    )
+    with pytest.raises(
+        DocumentationImpactError,
+        match="exactly one top-level selector branch",
+    ):
+        documentation_impact._parse_exception(
+            "docs/testing/documentation-impact-exceptions/issue-331.yaml", raw
+        )
 
 
 def test_structural_extraction_fe04a_worktree_and_staged_round_trip(
