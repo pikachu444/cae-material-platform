@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from datetime import datetime
 from decimal import Decimal
@@ -17,6 +18,9 @@ from cmp.modules.identity_access.domain.authorization import (
     DataClassification,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.modeling.adapters.api.linear_viscoelastic_calibration_evidence import (
+    ResponseResidualEvidenceResponse,
+)
 from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
     LinearViscoelasticModelResponse,
 )
@@ -34,14 +38,27 @@ from cmp.modules.modeling.application.linear_viscoelastic_calibration import (
     PromoteLinearViscoelasticCalibrationSelection,
     QueueLinearViscoelasticCalibrationRun,
 )
+from cmp.modules.modeling.application.linear_viscoelastic_input_resolution import (
+    ProcessedViscoelasticFitInput,
+)
+from cmp.modules.modeling.application.linear_viscoelastic_plan_governance import (
+    PlanApprovalRecord,
+    PlanContextQuery,
+    PlanGovernanceError,
+    PlanUsabilityFact,
+)
 from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
     CalibrationWeights,
     ChannelAvailability,
     DataAvailability,
+    ExactRevisionPin,
     ParameterBound,
     PointDisposition,
     PointPartition,
 )
+from cmp.modules.modeling.domain.linear_viscoelastic_contracts import LinearViscoelasticInputError
+
+LOGGER = logging.getLogger("cmp.modeling.linear_viscoelastic_calibration")
 
 type Dependency = Callable[..., object]
 type Reason = Annotated[str, StringConstraints(min_length=1, max_length=2000)]
@@ -99,13 +116,21 @@ class LinearViscoelasticPlanRequest(BaseModel):
     selected_temperature_k: Decimal
     point_dispositions: tuple[PointDispositionRequest, ...] = Field(min_length=1)
     availability: ChannelAvailabilityRequest
-    term_counts: tuple[int, ...] = Field(min_length=1)
-    parameter_bounds: dict[int, tuple[ParameterBoundRequest, ...]]
-    start_vectors: dict[int, tuple[tuple[float, ...], ...]]
+    candidate_scope_mode: Literal["automatic", "manual"] | None = None
+    term_counts: tuple[int, ...] | None = Field(default=None, min_length=1)
+    parameter_bounds: dict[int, tuple[ParameterBoundRequest, ...]] | None = None
+    start_vectors: dict[int, tuple[tuple[float, ...], ...]] | None = None
     weights: CalibrationWeightsRequest
     optimizer: OptimizerPolicyRequest
     recommendation_policy: Literal["lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"]
     change_reason: Reason
+    setup_name: str | None = Field(default=None, max_length=255)
+    material: ExactRevisionRequest | None = None
+    material_state: ExactRevisionRequest | None = None
+    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"] | None = None
+    based_on_plan_id: UUID | None = None
+    based_on_plan_revision_id: UUID | None = None
+    override_reason: Reason | None = None
 
     def to_command(
         self, idempotency_key: str | None
@@ -116,12 +141,12 @@ class LinearViscoelasticPlanRequest(BaseModel):
             selected_temperature_k=self.selected_temperature_k,
             point_dispositions=tuple(item.to_domain() for item in self.point_dispositions),
             availability=self.availability.to_domain(),
-            term_counts=self.term_counts,
+            term_counts=self.term_counts or (),
             parameter_bounds={
                 key: tuple(item.to_domain() for item in values)
-                for key, values in self.parameter_bounds.items()
+                for key, values in (self.parameter_bounds or {}).items()
             },
-            start_vectors=self.start_vectors,
+            start_vectors=self.start_vectors or {},
             weights=self.weights.to_domain(),
             recommendation_policy=self.recommendation_policy,
             ftol=self.optimizer.ftol,
@@ -130,6 +155,22 @@ class LinearViscoelasticPlanRequest(BaseModel):
             max_nfev=self.optimizer.max_nfev,
             change_reason=self.change_reason,
             idempotency_key=idempotency_key,
+            setup_name=self.setup_name,
+            material=(
+                ExactRevisionPin(self.material.id, self.material.revision_id)
+                if self.material is not None
+                else None
+            ),
+            material_state=(
+                ExactRevisionPin(self.material_state.id, self.material_state.revision_id)
+                if self.material_state is not None
+                else None
+            ),
+            input_mode=self.input_mode,
+            based_on_plan_id=self.based_on_plan_id,
+            based_on_plan_revision_id=self.based_on_plan_revision_id,
+            override_reason=self.override_reason,
+            candidate_scope_mode=self.candidate_scope_mode,
         )
 
 
@@ -137,13 +178,21 @@ class ProcessedLinearViscoelasticPlanRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     processing_output: ExactRevisionRequest
     availability: ChannelAvailabilityRequest
-    term_counts: tuple[int, ...] = Field(min_length=1)
-    parameter_bounds: dict[int, tuple[ParameterBoundRequest, ...]]
-    start_vectors: dict[int, tuple[tuple[float, ...], ...]]
+    candidate_scope_mode: Literal["automatic", "manual"] | None = None
+    term_counts: tuple[int, ...] | None = Field(default=None, min_length=1)
+    parameter_bounds: dict[int, tuple[ParameterBoundRequest, ...]] | None = None
+    start_vectors: dict[int, tuple[tuple[float, ...], ...]] | None = None
     weights: CalibrationWeightsRequest
     optimizer: OptimizerPolicyRequest
     recommendation_policy: Literal["lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"]
     change_reason: Reason
+    setup_name: str | None = Field(default=None, max_length=255)
+    material: ExactRevisionRequest | None = None
+    material_state: ExactRevisionRequest | None = None
+    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"] | None = None
+    based_on_plan_id: UUID | None = None
+    based_on_plan_revision_id: UUID | None = None
+    override_reason: Reason | None = None
 
     def to_command(
         self, idempotency_key: str | None
@@ -152,12 +201,12 @@ class ProcessedLinearViscoelasticPlanRequest(BaseModel):
             processing_output_id=self.processing_output.id,
             processing_output_revision_id=self.processing_output.revision_id,
             availability=self.availability.to_domain(),
-            term_counts=self.term_counts,
+            term_counts=self.term_counts or (),
             parameter_bounds={
                 key: tuple(item.to_domain() for item in values)
-                for key, values in self.parameter_bounds.items()
+                for key, values in (self.parameter_bounds or {}).items()
             },
-            start_vectors=self.start_vectors,
+            start_vectors=self.start_vectors or {},
             weights=self.weights.to_domain(),
             recommendation_policy=self.recommendation_policy,
             ftol=self.optimizer.ftol,
@@ -166,6 +215,82 @@ class ProcessedLinearViscoelasticPlanRequest(BaseModel):
             max_nfev=self.optimizer.max_nfev,
             change_reason=self.change_reason,
             idempotency_key=idempotency_key,
+            setup_name=self.setup_name,
+            material=(
+                ExactRevisionPin(self.material.id, self.material.revision_id)
+                if self.material is not None
+                else None
+            ),
+            material_state=(
+                ExactRevisionPin(self.material_state.id, self.material_state.revision_id)
+                if self.material_state is not None
+                else None
+            ),
+            input_mode=self.input_mode,
+            based_on_plan_id=self.based_on_plan_id,
+            based_on_plan_revision_id=self.based_on_plan_revision_id,
+            override_reason=self.override_reason,
+            candidate_scope_mode=self.candidate_scope_mode,
+        )
+
+
+class ProcessedFitInputChannelResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    channel: Literal["dma_storage", "dma_loss"]
+    quantity: Literal["mechanics.modulus.storage", "mechanics.modulus.loss"]
+    unit: Literal["Pa"]
+
+
+class ProcessedFitInputRowResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    ordinal: Annotated[int, Field(ge=0)]
+    coordinate: float | None
+    # Preserve excluded source rows exactly. Positivity is enforced for active rows by
+    # the governed input resolver; an excluded row may retain a non-physical source
+    # value so the UI can show why it was excluded instead of silently deleting it.
+    storage_modulus_pa: float
+    loss_modulus_pa: float
+    partition: PointPartition
+    exclusion_reason: str | None = Field(max_length=500)
+
+
+class ProcessedFitInputResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    mode: Literal["dma_frequency_master_curve"]
+    coordinate_quantity: Literal["frequency.angular.reduced"]
+    coordinate_unit: Literal["rad/s"]
+    response_channels: tuple[ProcessedFitInputChannelResponse, ...]
+    reference_temperature_k: Annotated[Decimal, Field(gt=0)]
+    rows: Annotated[tuple[ProcessedFitInputRowResponse, ...], Field(max_length=100_000)]
+
+    @classmethod
+    def from_domain(cls, value: ProcessedViscoelasticFitInput) -> ProcessedFitInputResponse:
+        return cls.model_validate(
+            {
+                "mode": value.mode,
+                "coordinate_quantity": value.coordinate_quantity,
+                "coordinate_unit": value.coordinate_unit,
+                "response_channels": [
+                    {
+                        "channel": channel.channel,
+                        "quantity": channel.quantity,
+                        "unit": channel.unit,
+                    }
+                    for channel in value.response_channels
+                ],
+                "reference_temperature_k": value.reference_temperature_k,
+                "rows": [
+                    {
+                        "ordinal": row.ordinal,
+                        "coordinate": row.coordinate,
+                        "storage_modulus_pa": row.storage_modulus_pa,
+                        "loss_modulus_pa": row.loss_modulus_pa,
+                        "partition": row.partition,
+                        "exclusion_reason": row.exclusion_reason,
+                    }
+                    for row in value.rows
+                ],
+            }
         )
 
 
@@ -234,6 +359,176 @@ class PlanResponse(BaseModel):
         )
 
 
+class ExactRevisionPinResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    id: UUID
+    revision_id: UUID
+    sha256: str | None = None
+
+    @classmethod
+    def from_domain(cls, value: ExactRevisionPin) -> ExactRevisionPinResponse:
+        return cls(
+            id=value.aggregate_id,
+            revision_id=value.revision_id,
+            sha256=value.sha256,
+        )
+
+
+class PlanApprovalResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan_id: UUID
+    plan_revision_id: UUID
+    plan_sha256: str
+    setup_name: str
+    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"]
+    material: ExactRevisionPinResponse
+    material_state: ExactRevisionPinResponse
+    test_data: ExactRevisionPinResponse
+    processing_output: ExactRevisionPinResponse | None
+    state: Literal["active", "superseded", "withdrawn"]
+    review_request_id: UUID
+    review_decision_id: UUID
+    evidence_sha256: str
+    approved_at: datetime
+    approved_by: UUID
+    superseded_by_plan_id: UUID | None = None
+    superseded_by_plan_revision_id: UUID | None = None
+
+    @classmethod
+    def from_domain(cls, value: PlanApprovalRecord) -> PlanApprovalResponse:
+        return cls(
+            plan_id=value.plan_id,
+            plan_revision_id=value.plan_revision_id,
+            plan_sha256=value.plan_sha256,
+            setup_name=value.setup_name,
+            input_mode=value.input_mode,
+            material=ExactRevisionPinResponse.from_domain(value.material),
+            material_state=ExactRevisionPinResponse.from_domain(value.material_state),
+            test_data=ExactRevisionPinResponse.from_domain(value.test_data),
+            processing_output=(
+                ExactRevisionPinResponse.from_domain(value.processing_output)
+                if value.processing_output is not None
+                else None
+            ),
+            state=value.state.value,
+            review_request_id=value.review_request_id,
+            review_decision_id=value.review_decision_id,
+            evidence_sha256=value.evidence_sha256,
+            approved_at=value.approved_at,
+            approved_by=value.approved_by,
+            superseded_by_plan_id=value.superseded_by_plan_id,
+            superseded_by_plan_revision_id=value.superseded_by_plan_revision_id,
+        )
+
+
+class PlanContextResolveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    material: ExactRevisionRequest
+    material_state: ExactRevisionRequest
+    test_data: ExactRevisionRequest
+    processing_output: ExactRevisionRequest | None = None
+    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"]
+
+    def to_query(self) -> PlanContextQuery:
+        return PlanContextQuery(
+            material=ExactRevisionPin(self.material.id, self.material.revision_id),
+            material_state=ExactRevisionPin(
+                self.material_state.id, self.material_state.revision_id
+            ),
+            test_data=ExactRevisionPin(self.test_data.id, self.test_data.revision_id),
+            processing_output=(
+                ExactRevisionPin(
+                    self.processing_output.id,
+                    self.processing_output.revision_id,
+                )
+                if self.processing_output is not None
+                else None
+            ),
+            input_mode=self.input_mode,
+        )
+
+
+class PlanContextMatchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan_id: UUID
+    plan_revision_id: UUID
+    plan_sha256: str
+    setup_name: str
+    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"]
+    material: ExactRevisionPinResponse
+    material_state: ExactRevisionPinResponse
+    test_data: ExactRevisionPinResponse
+    processing_output: ExactRevisionPinResponse | None
+    approval: PlanApprovalResponse
+
+    @classmethod
+    def from_domain(cls, value: PlanApprovalRecord) -> PlanContextMatchResponse:
+        return cls(
+            plan_id=value.plan_id,
+            plan_revision_id=value.plan_revision_id,
+            plan_sha256=value.plan_sha256,
+            setup_name=value.setup_name,
+            input_mode=value.input_mode,
+            material=ExactRevisionPinResponse.from_domain(value.material),
+            material_state=ExactRevisionPinResponse.from_domain(value.material_state),
+            test_data=ExactRevisionPinResponse.from_domain(value.test_data),
+            processing_output=(
+                ExactRevisionPinResponse.from_domain(value.processing_output)
+                if value.processing_output is not None
+                else None
+            ),
+            approval=PlanApprovalResponse.from_domain(value),
+        )
+
+
+class PlanContextResolveResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    summary: str
+    selection_required: bool
+    matches: tuple[PlanContextMatchResponse, ...]
+
+
+class PlanUsabilityChangeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan_revision_id: UUID
+    reason: Reason
+
+
+class PlanSupersedeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan_revision_id: UUID
+    successor_plan_id: UUID
+    successor_plan_revision_id: UUID
+    reason: Reason
+
+
+class PlanUsabilityFactResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    fact_id: UUID
+    plan_id: UUID
+    plan_revision_id: UUID
+    state: Literal["active", "superseded", "withdrawn"]
+    actor_id: UUID
+    reason: str
+    occurred_at: datetime
+    successor_plan_id: UUID | None
+    successor_plan_revision_id: UUID | None
+
+    @classmethod
+    def from_domain(cls, value: PlanUsabilityFact) -> PlanUsabilityFactResponse:
+        return cls(
+            fact_id=value.fact_id,
+            plan_id=value.plan_id,
+            plan_revision_id=value.plan_revision_id,
+            state=value.state.value,
+            actor_id=value.actor_id,
+            reason=value.reason,
+            occurred_at=value.occurred_at,
+            successor_plan_id=value.successor_plan_id,
+            successor_plan_revision_id=value.successor_plan_revision_id,
+        )
+
+
 class RunAcceptedResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     run_id: UUID
@@ -271,16 +566,32 @@ class RunResponse(BaseModel):
     failure_detail: str | None
     recovery_hint: str | None
     execution_ledger_sha256: str
+    approval_request_id: UUID | None = None
+    approval_decision_id: UUID | None = None
+    approval_evidence_sha256: str | None = None
+    approval_state: Literal["active", "superseded", "withdrawn"] | None = None
+    approval_approved_at: datetime | None = None
+    approval_approved_by: UUID | None = None
+    execution_context: dict[str, Any] | None = None
 
     @classmethod
     def from_domain(cls, value: CalibrationRunProjection) -> RunResponse:
         result = value.result
+        candidates = []
+        if result:
+            for item in result.candidates:
+                candidate = item.canonical()
+                # Selection requires the server's canonical Candidate digest.  Keep the
+                # numerical payload untouched and transport the already-computed digest
+                # alongside it so clients never have to recreate Python float canonicalisation.
+                candidate["candidate_sha256"] = item.digest
+                candidates.append(candidate)
         return cls(
             run_id=value.id,
             plan_revision_id=value.plan_revision_id,
             status=value.status,
             attempts=tuple(item.canonical() for item in result.attempts) if result else (),
-            candidates=tuple(item.canonical() for item in result.candidates) if result else (),
+            candidates=tuple(candidates),
             recommendation=result.recommendation.canonical()
             if result and result.recommendation
             else None,
@@ -288,6 +599,39 @@ class RunResponse(BaseModel):
             failure_detail=value.failure_detail,
             recovery_hint=value.recovery_hint,
             execution_ledger_sha256=value.execution_ledger_sha256,
+            approval_request_id=value.approval_request_id,
+            approval_decision_id=value.approval_decision_id,
+            approval_evidence_sha256=value.approval_evidence_sha256,
+            approval_state=value.approval_state,
+            approval_approved_at=value.approval_approved_at,
+            approval_approved_by=value.approval_approved_by,
+            execution_context=(
+                {
+                    "material": ExactRevisionPinResponse.from_domain(
+                        value.execution_material
+                    ).model_dump(mode="json")
+                    if value.execution_material is not None
+                    else None,
+                    "material_state": ExactRevisionPinResponse.from_domain(
+                        value.execution_material_state
+                    ).model_dump(mode="json")
+                    if value.execution_material_state is not None
+                    else None,
+                    "test_data": ExactRevisionPinResponse.from_domain(
+                        value.execution_test_data
+                    ).model_dump(mode="json")
+                    if value.execution_test_data is not None
+                    else None,
+                    "processing_output": ExactRevisionPinResponse.from_domain(
+                        value.execution_processing_output
+                    ).model_dump(mode="json")
+                    if value.execution_processing_output is not None
+                    else None,
+                    "input_mode": value.execution_input_mode,
+                }
+                if value.execution_test_data is not None
+                else None
+            ),
         )
 
 
@@ -383,6 +727,30 @@ def _translate(context: SecurityContext, error: Exception) -> LinearViscoelastic
             location="resource",
             recovery_hint="Use an exact visible revision; unavailable resources are never rebound.",
         )
+    if isinstance(error, PlanGovernanceError):
+        unauthorized = error.code in {
+            "PLAN_AUTHOR_UNAUTHORIZED",
+            "PLAN_APPROVER_UNAUTHORIZED",
+            "PLAN_MANAGER_UNAUTHORIZED",
+        }
+        unavailable = error.code == "PLAN_APPROVAL_UNAVAILABLE"
+        return LinearViscoelasticHttpError(
+            context,
+            503 if unavailable else 403 if unauthorized else 409,
+            str(error),
+            code=error.code,
+            location="approval" if error.code.startswith("PLAN_APPROVAL") else "source",
+            recovery_hint=error.recovery_hint,
+        )
+    if isinstance(error, LinearViscoelasticInputError):
+        return LinearViscoelasticHttpError(
+            context,
+            409 if error.code == "INPUT_UPSTREAM_STALE" else 422,
+            str(error),
+            code=error.code,
+            location="source",
+            recovery_hint=error.recovery_hint,
+        )
     if isinstance(error, LinearViscoelasticCalibrationConflict):
         return LinearViscoelasticHttpError(
             context,
@@ -401,6 +769,10 @@ def _translate(context: SecurityContext, error: Exception) -> LinearViscoelastic
             location="body",
             recovery_hint="Correct the typed channel, bound, start, or objective declaration.",
         )
+    LOGGER.error(
+        "unexpected linear-viscoelastic calibration failure",
+        exc_info=(type(error), error, error.__traceback__),
+    )
     return LinearViscoelasticHttpError(
         context,
         503,
@@ -411,6 +783,15 @@ def _translate(context: SecurityContext, error: Exception) -> LinearViscoelastic
     )
 
 
+def _require_governed_request(body: object) -> None:
+    if getattr(body, "setup_name", None) is None:
+        raise PlanGovernanceError(
+            "setup_name is required for a governed calibration Plan",
+            code="PLAN_SETUP_REQUIRED",
+            recovery_hint="Name the setup before submitting it for review.",
+        )
+
+
 def install_linear_viscoelastic_calibration_api(
     application: FastAPI,
     *,
@@ -419,6 +800,7 @@ def install_linear_viscoelastic_calibration_api(
     read_dependency: Dependency,
     write_dependency: Dependency,
     execute_dependency: Dependency,
+    review_decide_dependency: Dependency | None = None,
 ) -> None:
     @application.exception_handler(LinearViscoelasticHttpError)
     async def handle_error(_: Request, error: LinearViscoelasticHttpError) -> JSONResponse:
@@ -454,6 +836,7 @@ def install_linear_viscoelastic_calibration_api(
                 recovery_hint="Retry after the modeling service is available.",
             )
         try:
+            _require_governed_request(body)
             value = service.create_governed_plan(
                 context,
                 decision,
@@ -463,6 +846,41 @@ def install_linear_viscoelastic_calibration_api(
             raise _translate(context, error) from error
         response.headers["Location"] = f"/api/v1/linear-viscoelastic-calibration-plans/{value.id}"
         return PlanResponse.from_domain(value)
+
+    @application.post(
+        "/api/v1/linear-viscoelastic-calibration-plans/resolve",
+        operation_id="resolveLinearViscoelasticCalibrationPlanContext",
+        response_model=PlanContextResolveResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+        summary="Resolve every active approved setup for one exact source context.",
+    )
+    def resolve_plan_context(
+        request: Request,
+        body: PlanContextResolveRequest,
+    ) -> PlanContextResolveResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(
+                context,
+                503,
+                "service is unavailable",
+                code="SERVICE_UNAVAILABLE",
+                location="service",
+                recovery_hint="Retry after the modeling service is available.",
+            )
+        try:
+            result = service.resolve_plan_context(context, decision, body.to_query())
+            return PlanContextResolveResponse(
+                summary=result.summary,
+                selection_required=result.selection_required,
+                matches=tuple(
+                    PlanContextMatchResponse.from_domain(item) for item in result.matches
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
 
     @application.get(
         "/api/v1/linear-viscoelastic-calibration-plans/{plan_id}",
@@ -485,6 +903,150 @@ def install_linear_viscoelastic_calibration_api(
             )
         try:
             return PlanResponse.from_domain(service.get_plan(context, decision, plan_id))
+        except Exception as error:
+            raise _translate(context, error) from error
+
+    @application.get(
+        "/api/v1/linear-viscoelastic-calibration-plans/{plan_id}/approval",
+        operation_id="getLinearViscoelasticCalibrationPlanApproval",
+        response_model=PlanApprovalResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+    )
+    def get_plan_approval(
+        request: Request,
+        plan_id: UUID,
+        plan_revision_id: UUID,
+    ) -> PlanApprovalResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(
+                context,
+                503,
+                "service is unavailable",
+                code="SERVICE_UNAVAILABLE",
+                location="service",
+                recovery_hint="Retry after the modeling service is available.",
+            )
+        try:
+            return PlanApprovalResponse.from_domain(
+                service.get_plan_approval(context, decision, plan_id, plan_revision_id)
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+
+    manager_dependencies = [Depends(security_dependency)]
+    if review_decide_dependency is not None:
+        manager_dependencies.append(Depends(review_decide_dependency))
+
+    @application.post(
+        "/api/v1/linear-viscoelastic-calibration-plans/{plan_id}/supersede",
+        operation_id="supersedeLinearViscoelasticCalibrationPlan",
+        response_model=PlanUsabilityFactResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=manager_dependencies,
+        tags=["modeling"],
+    )
+    def supersede_plan(
+        request: Request,
+        plan_id: UUID,
+        body: PlanSupersedeRequest,
+    ) -> PlanUsabilityFactResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(
+                context,
+                503,
+                "service is unavailable",
+                code="SERVICE_UNAVAILABLE",
+                location="service",
+                recovery_hint="Retry after the modeling service is available.",
+            )
+        try:
+            result = service.supersede_plan(
+                context,
+                decision,
+                plan_id=plan_id,
+                plan_revision_id=body.plan_revision_id,
+                successor_plan_id=body.successor_plan_id,
+                successor_plan_revision_id=body.successor_plan_revision_id,
+                reason=body.reason,
+            )
+            return PlanUsabilityFactResponse.from_domain(result)
+        except Exception as error:
+            raise _translate(context, error) from error
+
+    @application.post(
+        "/api/v1/linear-viscoelastic-calibration-plans/{plan_id}/withdraw",
+        operation_id="withdrawLinearViscoelasticCalibrationPlan",
+        response_model=PlanUsabilityFactResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=manager_dependencies,
+        tags=["modeling"],
+    )
+    def withdraw_plan(
+        request: Request,
+        plan_id: UUID,
+        body: PlanUsabilityChangeRequest,
+    ) -> PlanUsabilityFactResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(
+                context,
+                503,
+                "service is unavailable",
+                code="SERVICE_UNAVAILABLE",
+                location="service",
+                recovery_hint="Retry after the modeling service is available.",
+            )
+        try:
+            result = service.withdraw_plan(
+                context,
+                decision,
+                plan_id=plan_id,
+                plan_revision_id=body.plan_revision_id,
+                reason=body.reason,
+            )
+            return PlanUsabilityFactResponse.from_domain(result)
+        except Exception as error:
+            raise _translate(context, error) from error
+
+    @application.get(
+        "/api/v1/processing-outputs/{processing_output_id}/revisions/{processing_output_revision_id}/linear-viscoelastic-fit-input",
+        operation_id="getProcessedLinearViscoelasticFitInput",
+        response_model=ProcessedFitInputResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+        summary="Read the exact validated DMA master-curve values used by polymer calibration.",
+    )
+    def get_processed_fit_input(
+        request: Request,
+        processing_output_id: UUID,
+        processing_output_revision_id: UUID,
+    ) -> ProcessedFitInputResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(
+                context,
+                503,
+                "service is unavailable",
+                code="SERVICE_UNAVAILABLE",
+                location="service",
+                recovery_hint="Retry after the modeling service is available.",
+            )
+        try:
+            return ProcessedFitInputResponse.from_domain(
+                service.get_processed_fit_input(
+                    context,
+                    decision,
+                    processing_output_id,
+                    processing_output_revision_id,
+                )
+            )
         except Exception as error:
             raise _translate(context, error) from error
 
@@ -514,6 +1076,7 @@ def install_linear_viscoelastic_calibration_api(
                 recovery_hint="Retry after the modeling service is available.",
             )
         try:
+            _require_governed_request(body)
             value = service.create_processed_plan(
                 context,
                 decision,
@@ -588,6 +1151,36 @@ def install_linear_viscoelastic_calibration_api(
             raise _translate(context, error) from error
 
     @application.get(
+        "/api/v1/linear-viscoelastic-calibration-runs/{run_id}/response-residuals",
+        operation_id="getLinearViscoelasticCalibrationResponseResiduals",
+        response_model=ResponseResidualEvidenceResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+        summary=(
+            "Read verified response-residual evidence for one exact succeeded calibration Run."
+        ),
+    )
+    async def get_response_residuals(
+        request: Request, run_id: UUID
+    ) -> ResponseResidualEvidenceResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(
+                context,
+                503,
+                "service is unavailable",
+                code="SERVICE_UNAVAILABLE",
+                location="service",
+                recovery_hint="Retry after the modeling service is available.",
+            )
+        try:
+            value = await service.get_response_residual_evidence(context, decision, run_id)
+            return ResponseResidualEvidenceResponse.from_domain(value)
+        except Exception as error:
+            raise _translate(context, error) from error
+
+    @application.get(
         "/api/v1/linear-viscoelastic-calibration-runs/{run_id}/candidates",
         operation_id="listLinearViscoelasticCalibrationCandidates",
         response_model=tuple[dict[str, Any], ...],
@@ -608,7 +1201,13 @@ def install_linear_viscoelastic_calibration_api(
             )
         try:
             return tuple(
-                item.canonical() for item in service.list_candidates(context, decision, run_id)
+                {
+                    **item.canonical(),
+                    # The digest is computed by the immutable domain Candidate and
+                    # is required by the Selection request.
+                    "candidate_sha256": item.digest,
+                }
+                for item in service.list_candidates(context, decision, run_id)
             )
         except Exception as error:
             raise _translate(context, error) from error

@@ -1,39 +1,57 @@
 # Polymer 완화시험에서 Abaqus 점탄성 카드까지
 
-## Material Modeling에서 시작하기
+## 가장 짧은 사용법
 
-상단 **Modeling**에서 **Polymer · Viscoelastic**을 선택합니다. 시험 자료가
-`time + relaxation modulus`이면 relaxation Recipe가, `frequency + storage/loss modulus`이면 DMA
-Recipe가 선택됩니다. Test Data를 바꾸면 호환 Mapping Profile과 처리 단계도 같이 바뀌므로 서로
-다른 시험 형식을 같은 옵션으로 계산하지 않습니다.
+1. 상단 **Modeling**에서 **Polymer · Viscoelastic**을 선택하고 **Data**에서 시험 자료를 고릅니다.
+2. 다음 단계는 데이터 형태에 따라 자동으로 정해집니다.
+   - 시간-완화탄성률 또는 한 온도의 DMA 주파수 자료: **Fit**으로 바로 이동합니다.
+   - 한 주파수에서 여러 온도를 측정한 DMA 자료: **Process**에서 WLF로 이동한 DMA 응답을 먼저 만듭니다. 이 결과는 온도별 주파수 곡선을 겹쳐 검증한 master curve가 아닙니다.
+3. 온도 이동이 필요한 경우 그래프와 기준 온도를 확인하고 **Create shifted response**를 누릅니다. 보통은 값을
+   바꿀 필요가 없습니다. 필요한 경우에만 **Change settings**에서 기준 온도, WLF 값, 사용할 온도를
+   조정합니다.
+4. **Fit**에서 **Calculate Prony models**를 누릅니다. 새 입력에 검토된 계산 설정이 아직 없으면
+   **Review calculation settings**가 먼저 나타납니다. 일반 사용자는 기본값을 그대로 검토 요청하고,
+   검토가 끝난 뒤 돌아와 계산하면 됩니다. 데이터로 계산 가능한 1항부터 최대 10항까지를 서버가
+   한 번에 비교하므로 사용자가 먼저 3항이나 5항을 정할 필요가 없습니다.
+5. **Response curves**에서 실험값과 후보 곡선을 비교하고, 필요하면 **Point differences**에서 계산에 사용한 점과 별도로 확인한 점의 차이를 봅니다.
+   **Recommended**는 데이터 적합도와 불필요한 복잡도를 함께 고려한 서버 제안입니다.
+6. 사용할 모델을 고르고 짧은 선택 이유를 입력한 뒤 **Save fit & continue**를 누릅니다. 새로고침하거나
+   다시 Fit으로 돌아와도 선택, 이유, 저장된 모델이 복원됩니다.
 
-DMA에서는 **Fit** 단계에서 Prony 항수 후보를 고르고 storage/loss 응답, joint residual, BIC,
-normalized RMSE와 `(g_i, tau_i)` 표를 함께 검토합니다. **Engineer selection**을 사용하면 선택 항수와
-이유가 새 Recipe revision에 저장됩니다. 공개 generalized-Maxwell 주파수 응답식을 사용하며 숨은
-parameter database나 silent smoothing은 없습니다.
+현재 예제 자료에서는 1~10항을 모두 계산한 뒤 5항이 추천되지만, 5항으로 고정된 제품은 아닙니다.
+자료의 점 수나 계산 성공 여부에 따라 후보 범위와 추천 결과가 달라질 수 있습니다. 전문가는
+**Calculation settings**에서 후보 항수와 파라미터 범위를 직접 바꿀 수 있으며, 일반 사용자는 이
+화면을 열지 않아도 됩니다.
 
-## 시험 데이터에서 선택 모델까지의 governed 계산
+입력 자료가 바뀌면 기존 결과를 덮어쓰지 않습니다. 화면에서 저장 당시 입력으로 돌아갈지, 현재
+입력으로 새로 계산할지를 선택합니다. 시험 자료, TTS 결과, 계산 결과와 저장 모델의 정확한 연결은
+시스템이 보존하며 일반 작업 화면에는 내부 ID나 해시를 표시하지 않습니다.
 
-새 calibration API는 shear relaxation과 shear DMA 시험을 같은 입력으로 뭉개지 않고, 선택한
-Test Data의 정확한 revision과 channel·원본 단위·정규화 단위·시험 온도·유효 domain을 Plan에
-고정합니다. 수치 계산에는 시험 날짜가 아니라 이 물리량과 domain이 사용됩니다.
+### 현재 Modeling 화면
 
-Plan에는 후보 항수, bounds, objective와 weighting을 모두 명시해야 하며 서버가 숨은 계산 설정을
-보충하지 않습니다. 실행된 Run은 후보별 계산 결과를 남기고, 서버 recommendation과 엔지니어가
-고른 candidate 및 선택 이유를 별도 revision으로 저장합니다. 선택 결과를 linear-viscoelastic
-model로 승격하면 원본 Test Data revision부터 Plan, Run, Candidate, Selection까지 다시 추적할 수
-있으며, 서비스 재시작 뒤에도 같은 revision으로 조회됩니다. 상위 입력에 새 revision이 생기면 기존
-결과를 덮어쓰지 않고 현재 승격 대상으로 사용할 수 없는 상태로 판정합니다.
-
-현재 이 governed 경로는 backend API와 비동기 worker까지 제공됩니다. Modeling 화면 연결은 별도
-프론트엔드 작업에서 추가될 예정입니다. 저장소의 공개 DaRUS·Zenodo 시험 자료는 원본 archive와
-단위를 보존한 회귀 검증용입니다. 등온 주파수 sweep뿐 아니라, 주파수가 일정한 DMA 온도 sweep도
-reference temperature와 각 온도의 `log10(aT)` 표 또는 명시적으로 확인한 WLF/Arrhenius 계수가 있으면
-주파수 master curve로 변환해 Prony 계산에 사용할 수 있습니다. DaRUS 원본의 1 Hz 온도 지점 25개는
-저자가 공개한 shift factor와 master curve에 맞춰 실제 변환 결과를 검증합니다. 절대 계수가 없는
-`Gt/G0` 완화 자료는 이유와 필요한 복구 입력을 남기고 제외됩니다. 공개 인장 요약에 적힌 값도 그대로
-검증하지만 Poisson 비와 density가 없으므로 Property Set이나 Abaqus 입력으로 임의 변환하지 않습니다.
-기존 `non_production` 표시는 production acceptance가 끝날 때까지 유지됩니다.
+| 상태 | 화면 |
+|---|---|
+| 온도별 DMA 자료의 TTS Process · 1366×768 | ![DMA temperature sweep Process at 1366 by 768](images/current/modeling-process-polymer-dma-tts-1366x768.png) |
+| 온도별 DMA 자료의 TTS Process · 1440×900 | ![DMA temperature sweep Process at 1440 by 900](images/current/modeling-process-polymer-dma-tts-1440x900.png) |
+| 온도별 DMA 자료의 TTS Process · 1920×1080 | ![DMA temperature sweep Process at 1920 by 1080](images/current/modeling-process-polymer-dma-tts-1920x1080.png) |
+| 온도별 DMA 자료의 TTS Process · 2560×1440 | ![DMA temperature sweep Process at 2560 by 1440](images/current/modeling-process-polymer-dma-tts-2560x1440.png) |
+| 온도별 DMA 자료의 TTS Process · 3840×2160 | ![DMA temperature sweep Process at 3840 by 2160](images/current/modeling-process-polymer-dma-tts-3840x2160.png) |
+| 저장한 shifted DMA response · 1366×768 | ![Saved shifted DMA response at 1366 by 768](images/current/modeling-process-polymer-dma-tts-saved-1366x768.png) |
+| 저장한 shifted DMA response · 1440×900 | ![Saved shifted DMA response at 1440 by 900](images/current/modeling-process-polymer-dma-tts-saved-1440x900.png) |
+| 저장한 shifted DMA response · 1920×1080 | ![Saved shifted DMA response at 1920 by 1080](images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png) |
+| 저장한 shifted DMA response · 2560×1440 | ![Saved shifted DMA response at 2560 by 1440](images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png) |
+| 저장한 shifted DMA response · 3840×2160 | ![Saved shifted DMA response at 3840 by 2160](images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png) |
+| 계산에 사용할 점과 확인용 점 구분 | ![Polymer Fit input](images/current/modeling-fit-polymer-input-1920x1080.png) |
+| 필요할 때만 여는 Calculation settings—1~10항 선택과 τ10까지의 파라미터 표 | ![Polymer Fit calculation settings](images/current/modeling-fit-polymer-calculation-settings-1920x1080.png) |
+| 저장된 추천·선택 모델 응답 · 1366×768 | ![Polymer Fit saved at 1366 by 768](images/current/modeling-fit-polymer-saved-1366x768.png) |
+| 저장된 추천·선택 모델 응답 · 1440×900 | ![Polymer Fit saved at 1440 by 900](images/current/modeling-fit-polymer-saved-1440x900.png) |
+| 저장된 추천·선택 모델 응답 · 1920×1080 | ![Polymer Fit saved at 1920 by 1080](images/current/modeling-fit-polymer-saved-1920x1080.png) |
+| 저장된 추천·선택 모델 응답 · 2560×1440 | ![Polymer Fit saved at 2560 by 1440](images/current/modeling-fit-polymer-saved-2560x1440.png) |
+| 저장된 추천·선택 모델 응답 · 3840×2160 | ![Polymer Fit saved at 3840 by 2160](images/current/modeling-fit-polymer-saved-3840x2160.png) |
+| 계산에 사용한 점과 확인용 점의 차이 | ![Polymer Fit point differences](images/current/modeling-fit-polymer-residual-1920x1080.png) |
+| 입력 변경과 복구 | ![Polymer Fit stale](images/current/modeling-fit-polymer-stale-1920x1080.png) |
+| 저장된 입력으로 복원 | ![Polymer Fit restored saved input](images/current/modeling-fit-polymer-stale-restored-saved-input-1920x1080.png) |
+| 현재 입력으로 돌아온 상태 | ![Polymer Fit recovered from stale input](images/current/modeling-fit-polymer-stale-recovered-1920x1080.png) |
 
 
 **Export**에서는 현재 선택한 시험 revision에서 승격된 Neutral JSON을 자동으로 엽니다. Abaqus는

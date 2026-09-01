@@ -12,10 +12,12 @@ import {
 
 interface ModelingWorkspaceLayoutProps {
   navigator?: ReactNode;
+  navigatorLabel?: string;
   ribbon: ReactNode;
   plot: ReactNode;
   dock?: ReactNode;
   dockLabel?: string;
+  dockVariant?: "work" | "evidence" | "decision";
   dataLayoutMode?: "compact" | "content-fit";
   inactive?: boolean;
   ribbonOpen: boolean;
@@ -43,10 +45,12 @@ export function modelingDataRibbonPreferredSize(
 
 export function ModelingWorkspaceLayout({
   navigator,
+  navigatorLabel,
   ribbon,
   plot,
   dock,
   dockLabel = "Delivery",
+  dockVariant,
   dataLayoutMode,
   inactive = false,
   ribbonOpen,
@@ -197,8 +201,11 @@ export function ModelingWorkspaceLayout({
 
   const dataSplit = dataLayoutMode && typeof ResizeObserver !== "undefined" ? (
     <Group
-      key={`modeling-data-split-v2-${viewport}`}
-      id={`modeling-data-split-v2-${viewport}`}
+      // The vertical Data split is pixel-sized from shared density metrics and
+      // does not change with the outer viewport tier. Keeping one stable group
+      // also prevents a resize event from leaving effects with a handle owned
+      // by an already-unmounted viewport-specific group.
+      id="modeling-data-split-v2"
       className="modeling-data-split"
       orientation="vertical"
       onLayoutChanged={onDataLayoutChanged}
@@ -251,6 +258,7 @@ export function ModelingWorkspaceLayout({
       className={`modeling-main-surface${dock ? " has-dock" : ""}${dockLabel === "Candidate parameters" ? " has-fit-evidence-dock" : ""}${dockOverlay ? " has-dock-overlay" : ""}${dataLayoutMode ? " has-data-split" : ""}`}
       data-dock-presentation={dockOverlay ? "overlay" : "allocated"}
       aria-label="Persistent Modeling graph and task controls"
+      data-dock-variant={dockVariant}
     >
       {dataSplit}
       {dock ? <section className="modeling-workspace-dock" aria-label={dockLabel}>{dock}</section> : null}
@@ -280,7 +288,7 @@ export function ModelingWorkspaceLayout({
   if (typeof ResizeObserver === "undefined") {
     return (
       <div className={`modeling-split-workspace viewport-${viewport}`} data-viewport-class={viewport} inert={inactive || undefined} aria-hidden={inactive || undefined}>
-        {navigatorOpen ? <aside className="modeling-workspace-rail">{navigator}</aside> : null}
+        {navigatorOpen ? <aside className="modeling-workspace-rail" aria-label={navigatorLabel}>{navigator}</aside> : null}
         <div className="modeling-pane-divider" role="separator" aria-label="Resize curve and process navigator" onDoubleClick={resetNavigator} title="Double-click to reset curve and process navigator width">
           <button type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} curve and process navigator`} aria-expanded={navigatorOpen} onClick={() => setNavigatorOpen((current) => !current)}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
         </div>
@@ -304,6 +312,7 @@ export function ModelingWorkspaceLayout({
         id="modeling-navigator"
         panelRef={navigatorRef}
         className="modeling-workspace-rail"
+        aria-label={navigatorLabel}
         defaultSize={navigatorMetrics.default}
         minSize={navigatorMetrics.min}
         maxSize={navigatorMetrics.max}

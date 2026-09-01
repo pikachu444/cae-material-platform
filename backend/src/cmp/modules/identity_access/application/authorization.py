@@ -503,6 +503,10 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.CATALOG_READ,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
+            # The calibration application resolves one fixed active package
+            # while creating the immutable Job Spec. This is transaction-local
+            # dependency closure; it does not grant the caller the Plugin API.
+            Permission.PLUGIN_READ,
             Permission.STATISTICS_READ,
             Permission.TESTING_READ,
         }

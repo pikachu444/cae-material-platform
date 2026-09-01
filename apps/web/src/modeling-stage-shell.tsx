@@ -14,9 +14,10 @@ const stages: Array<{ id: ModelingStage; label: string }> = [
 
 type StageStatus = "Complete" | "Blocked" | "Warning" | "Stale";
 
-function stageStatusLabel(stage: ModelingStage, status: StageStatus): string {
+function stageStatusLabel(stage: ModelingStage, status: StageStatus, processOptional: boolean): string {
   if (status === "Stale") return "Needs update";
   if (stage === "data") return status === "Complete" ? "Test data ready" : "Add test data";
+  if (stage === "process" && processOptional) return "Optional for this data";
   if (stage === "process") return status === "Complete" ? "Processed curves ready" : "Prepare test curves";
   if (stage === "fit") return status === "Complete" ? "Model selected" : "Choose a model";
   if (stage === "validate") return "Run validation";
@@ -24,7 +25,7 @@ function stageStatusLabel(stage: ModelingStage, status: StageStatus): string {
   return status === "Complete" ? "Card ready" : "Ready to create card";
 }
 
-function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStage): { status: StageStatus; reason: string } {
+function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStage, processOptional: boolean): { status: StageStatus; reason: string } {
   const invalidation = session?.invalidation;
   const hasStale = (keys: string[]) => keys.some((key) => (
     invalidation?.dispositions[key as keyof typeof invalidation.dispositions] === "stale"
@@ -33,6 +34,9 @@ function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStag
   if (stage === "data") return session?.testData
     ? { status: "Complete", reason: "Test Data selected" }
     : { status: "Blocked", reason: "Choose Test Data" };
+  if (stage === "process" && processOptional && !session?.processingOutput) {
+    return { status: "Complete", reason: "Raw relaxation data can be fitted directly" };
+  }
   if (stage === "process") return hasStale(["processingOutput"])
     ? { status: "Stale", reason: "Upstream context changed; recompute Process" }
     : session?.processingOutput
@@ -40,7 +44,7 @@ function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStag
       : { status: "Blocked", reason: "Select Test Data before processing" };
   if (stage === "fit") return hasStale(["fitCandidate", "selection"])
     ? { status: "Stale", reason: "Fit evidence is no longer current" }
-    : !session?.processingOutput
+    : !processOptional && !session?.processingOutput
       ? { status: "Blocked", reason: "Save current processed curves before fitting" }
     : session?.selection
       ? { status: "Complete", reason: "Model selected" }
@@ -57,34 +61,38 @@ function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStag
     ? { status: "Complete", reason: "Solver card created" }
     : hasStale(["exportArtifact"]) || invalidation?.dispositions.exportArtifact === "regenerate"
     ? { status: "Stale", reason: "Target representation must be regenerated" }
-    : session?.processingOutput && session.material && session.materialState && session.testData && session.mappingProfile
+    : (processOptional || session?.processingOutput)
+      && session?.material && session.materialState && session.testData && session.mappingProfile
       ? { status: "Warning", reason: "Choose a destination and review the solver card" }
-      : { status: "Blocked", reason: "Complete Data, Process, and Fit first" };
+      : { status: "Blocked", reason: processOptional ? "Complete Data and Fit first" : "Complete Data, Process, and Fit first" };
 }
 
 export function ModelingStageShell({
   session,
   activeStage,
+  processOptional = false,
   onStageChange,
 }: {
   session: ModelingSessionSummary | null;
   activeStage: ModelingStage;
+  processOptional?: boolean;
   onStageChange: (stage: ModelingStage) => void;
 }) {
   return <nav className="modeling-stage-shell" aria-label="Modeling workflow stages">
     {stages.map((stage, index) => {
-      const state = stageStatus(session, stage.id);
+      const state = stageStatus(session, stage.id, processOptional);
+      const label = stage.id === "process" && processOptional ? "Process (optional)" : stage.label;
       return <button
         key={stage.id}
         type="button"
         className={activeStage === stage.id ? "active" : ""}
         aria-current={activeStage === stage.id ? "step" : undefined}
-        aria-label={`${stage.label} · ${stageStatusLabel(stage.id, state.status)} · ${state.reason}`}
+        aria-label={`${label} · ${stageStatusLabel(stage.id, state.status, processOptional)} · ${state.reason}`}
         onClick={() => onStageChange(stage.id)}
         title={state.reason}
       >
         <span className="modeling-stage-number">{index + 1}</span>
-        <strong>{stage.label}</strong>
+        <strong>{label}</strong>
       </button>;
     })}
   </nav>;

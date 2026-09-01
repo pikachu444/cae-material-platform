@@ -79,6 +79,19 @@ linear_viscoelastic_calibration_plan_revision_table = _table(
     sa.Column("change_reason", sa.Text(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("setup_name", sa.String(255), nullable=True),
+    sa.Column("material_id", sa.Uuid(), nullable=True),
+    sa.Column("material_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("material_state_id", sa.Uuid(), nullable=True),
+    sa.Column("material_state_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("input_mode", sa.String(64), nullable=True),
+    sa.Column("based_on_plan_id", sa.Uuid(), nullable=True),
+    sa.Column("based_on_plan_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("override_reason", sa.Text(), nullable=True),
+    # ``None`` means no Advanced base and must remain SQL NULL. JSON ``null``
+    # would violate the governed-shape constraint that separates approved setup
+    # creation from an explicit Advanced override.
+    sa.Column("base_diff", sa.JSON(none_as_null=True), nullable=True),
 )
 linear_viscoelastic_calibration_run_table = _table(
     "linear_viscoelastic_calibration_run",
@@ -103,6 +116,23 @@ linear_viscoelastic_calibration_run_table = _table(
     sa.Column("created_by", sa.Uuid(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("approval_request_id", sa.Uuid(), nullable=True),
+    sa.Column("approval_decision_id", sa.Uuid(), nullable=True),
+    sa.Column("approval_evidence_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("approval_state", sa.String(32), nullable=True),
+    sa.Column("approval_approved_at", sa.DateTime(timezone=True), nullable=True),
+    sa.Column("approval_approved_by", sa.Uuid(), nullable=True),
+    sa.Column("execution_material_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_material_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_material_state_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_material_state_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_test_data_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_test_data_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_test_data_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("execution_processing_output_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_processing_output_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("execution_processing_output_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("execution_input_mode", sa.String(64), nullable=True),
 )
 linear_viscoelastic_calibration_execution_attempt_table = _table(
     "linear_viscoelastic_calibration_execution_attempt",

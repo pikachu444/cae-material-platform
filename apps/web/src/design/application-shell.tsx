@@ -225,8 +225,14 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
   const connection = browserOnline ? serviceConnection : "offline";
   const connectionLabel = connection === "online" ? "Online" : connection === "degraded" ? "Service unavailable" : "Offline";
 
+  const shellClassName = [
+    "application-shell",
+    `workspace-${workspace}`,
+    showWorkspaceCommandBar ? "" : "workspace-command-bar-omitted",
+  ].filter(Boolean).join(" ");
+
   return (
-    <div className={showWorkspaceCommandBar ? "application-shell" : "application-shell workspace-command-bar-omitted"}>
+    <div className={shellClassName}>
       <header className="application-menu-bar" data-focus-region="application" ref={menuRef} tabIndex={-1}>
         <button className="application-brand" type="button" onClick={() => navigate("/materials")} aria-label="CAE Material Platform home">
           <span className="application-mark" aria-hidden="true">CMP</span>

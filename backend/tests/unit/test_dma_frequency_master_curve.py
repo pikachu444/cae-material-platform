@@ -51,6 +51,9 @@ wlf_log10_shift = _oracle.wlf_log10_shift
 DMA_TTS_REFERENCE_PATH = (
     ROOT / "fixtures/synthetic/dma-temperature-sweep-linear-viscoelastic-v1.json"
 )
+DMA_TTS_WLF_UI_REFERENCE_PATH = (
+    ROOT / "fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json"
+)
 _read_parquet = cast(Callable[..., pa.Table], pq.read_table)
 
 
@@ -120,6 +123,48 @@ def test_fixture_backed_temperature_sweep_matches_independent_decimal_oracle() -
         )
         assert math.isclose(actual.storage_modulus_pa, float(expected_storage), rel_tol=tolerance)
         assert math.isclose(actual.loss_modulus_pa, float(expected_loss), rel_tol=tolerance)
+
+
+def test_ui_fixture_recommendation_creates_its_declared_wlf_master_curve() -> None:
+    reference = json.loads(DMA_TTS_WLF_UI_REFERENCE_PATH.read_bytes())
+    source = reference["input"]
+    source_rows = source["rows"]
+    frequency_hz = source["frequency"]["value"]
+    rows = tuple(
+        DmaTemperatureSweepRow(
+            int(row["source_ordinal"]),
+            float(row["temperature_k"]),
+            float(frequency_hz),
+            float(row["storage_modulus_pa"]),
+            loss_modulus_pa=float(row["loss_modulus_pa"]),
+        )
+        for row in source_rows
+    )
+    recommendation = recommend_wlf_starting_values(rows, source_evidence={"fixture": "wlf-ui"})
+    result = build_frequency_master_curve(
+        rows,
+        tuple(
+            DmaRowDisposition(int(row["source_ordinal"]), DmaPartition(row["partition"]))
+            for row in source_rows
+        ),
+        WlfShiftLaw(
+            recommendation.reference_temperature_k,
+            recommendation.c1,
+            recommendation.c2_k,
+        ),
+        confirmed=True,
+        confirmation_reason="Use the server recommendation for this synthetic UI reference.",
+    )
+
+    assert recommendation.reference_temperature_k == float(
+        source["shift_law"]["reference_temperature_k"]
+    )
+    tolerance = float(reference["acceptance_tolerances"]["master_curve_relative"])
+    for expected, actual in zip(source_rows, result, strict=True):
+        assert actual.log10_a_t is not None
+        assert math.isclose(actual.log10_a_t, float(expected["log10_a_t"]), rel_tol=tolerance)
+        assert actual.reduced_angular_frequency_rad_per_s is not None
+        assert math.isfinite(actual.reduced_angular_frequency_rad_per_s)
 
 
 def test_loss_modulus_derivation_preserves_signed_tan_delta_and_source_order() -> None:

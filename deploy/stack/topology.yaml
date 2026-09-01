@@ -290,6 +290,9 @@ compose:
       environment:
         CMP_DEMO_API_BASE_URL: http://api:8000/api/v1
         CMP_DEMO_FIXTURE_STAMP: t60-reference
+        # Deterministic non-production-only seed used to produce detached demo
+        # package evidence. Production acceptance always supplies an external key.
+        CMP_CALIBRATION_ACCEPTANCE_ED25519_PRIVATE_KEY_B64: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
       depends_on:
         api:
           condition: service_healthy

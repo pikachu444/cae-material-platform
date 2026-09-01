@@ -27,6 +27,7 @@ from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
     CalibrationWeights,
     CanonicalViscoelasticInput,
     ChannelAvailability,
+    ExactRevisionPin,
     LinearViscoelasticCalibrationPlan,
     LinearViscoelasticSelection,
     ParameterBound,
@@ -41,8 +42,14 @@ if TYPE_CHECKING:
     from cmp.modules.modeling.application.linear_viscoelastic_input_resolution import (
         GovernedLinearViscoelasticInputResolver,
     )
+    from cmp.modules.modeling.application.linear_viscoelastic_plan_governance import (
+        LinearViscoelasticPlanApprovalPort,
+    )
     from cmp.modules.modeling.application.linear_viscoelasticity import (
         LinearViscoelasticModelService,
+    )
+    from cmp.modules.modeling.domain.linear_viscoelastic_response_residuals import (
+        LinearViscoelasticResponseResidualRow,
     )
     from cmp.modules.plugins.application.registry import PluginRegistryService
 
@@ -105,6 +112,18 @@ class CreateGovernedLinearViscoelasticCalibrationPlan:
     max_nfev: int
     change_reason: str
     idempotency_key: str | None = None
+    # Client values are optional expected hints.  The application verifies them against the
+    # exact server-resolved Test Data/Processing Output lineage before persisting a new Plan.
+    setup_name: str | None = None
+    material: ExactRevisionPin | None = None
+    material_state: ExactRevisionPin | None = None
+    input_mode: str | None = None
+    based_on_plan_id: UUID | None = None
+    based_on_plan_revision_id: UUID | None = None
+    override_reason: str | None = None
+    # None preserves the legacy/manual transport.  Automatic scope is resolved only after the
+    # exact source resolver has returned its immutable row partitions.
+    candidate_scope_mode: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,6 +142,14 @@ class CreateProcessedLinearViscoelasticCalibrationPlan:
     max_nfev: int
     change_reason: str
     idempotency_key: str | None = None
+    setup_name: str | None = None
+    material: ExactRevisionPin | None = None
+    material_state: ExactRevisionPin | None = None
+    input_mode: str | None = None
+    based_on_plan_id: UUID | None = None
+    based_on_plan_revision_id: UUID | None = None
+    override_reason: str | None = None
+    candidate_scope_mode: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -216,6 +243,19 @@ class CalibrationRunProjection:
     recovery_hint: str | None = None
     organization_id: UUID | None = None
     project_id: UUID | None = None
+    # Immutable approval evidence captured at queue time.  Legacy #372 reference fixtures
+    # leave these fields null; governed production Plans must populate the complete projection.
+    approval_request_id: UUID | None = None
+    approval_decision_id: UUID | None = None
+    approval_evidence_sha256: str | None = None
+    approval_state: str | None = None
+    approval_approved_at: datetime | None = None
+    approval_approved_by: UUID | None = None
+    execution_material: ExactRevisionPin | None = None
+    execution_material_state: ExactRevisionPin | None = None
+    execution_test_data: ExactRevisionPin | None = None
+    execution_processing_output: ExactRevisionPin | None = None
+    execution_input_mode: str | None = None
 
     @property
     def execution_ledger_sha256(self) -> str:
@@ -240,6 +280,28 @@ class CalibrationRunProjection:
 
 
 @dataclass(frozen=True, slots=True)
+class CalibrationResponseResidualArtifactEvidence:
+    artifact_id: UUID
+    sha256: str
+    artifact_role: str
+    schema_ref: str
+    media_type: str
+    size_bytes: int
+
+
+@dataclass(frozen=True, slots=True)
+class CalibrationResponseResidualProjection:
+    run_id: UUID
+    plan_revision_id: UUID
+    recommendation_id: UUID
+    candidate_id: UUID
+    candidate_sha256: str
+    recommendation_rule_version: str
+    artifact: CalibrationResponseResidualArtifactEvidence
+    rows: tuple[LinearViscoelasticResponseResidualRow, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class CalibrationSelectionSnapshot:
     value: LinearViscoelasticSelection
     classification: DataClassification
@@ -260,6 +322,15 @@ class LinearViscoelasticCalibrationRepository(Protocol):
     def get_plan(
         self,
         plan_id: UUID,
+        *,
+        context: SecurityContext | None = None,
+        decision: AuthorizationDecision | None = None,
+    ) -> CalibrationPlanSnapshot: ...
+
+    def get_plan_revision(
+        self,
+        plan_id: UUID,
+        plan_revision_id: UUID,
         *,
         context: SecurityContext | None = None,
         decision: AuthorizationDecision | None = None,
@@ -321,6 +392,7 @@ class CalibrationApplicationState(Protocol):
     _input_resolver: GovernedLinearViscoelasticInputResolver | None
     _linear_viscoelastic_models: LinearViscoelasticModelService | None
     _allow_reference_execution: bool
+    _plan_governance: LinearViscoelasticPlanApprovalPort | None
 
     def _new_id(self) -> UUID: ...
 

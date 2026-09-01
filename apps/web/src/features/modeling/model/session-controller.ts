@@ -45,6 +45,27 @@ export function modelingSessionRefFromRecord(item: {
   };
 }
 
+export function resolveModelingExactTestDataRef(
+  item: {
+    test_data_document_id: string;
+    document_key: string;
+    current_revision: { id: string; revision_no: number };
+  },
+  requestedRevisionId: string,
+  linkedRefs: ModelingSessionRecordRef[],
+  suppliedRef?: ModelingSessionRecordRef,
+): ModelingSessionRecordRef | undefined {
+  if (suppliedRef?.id === item.test_data_document_id && suppliedRef.revisionId === requestedRevisionId) {
+    return suppliedRef;
+  }
+  const linked = linkedRefs.find((ref) => ref.id === item.test_data_document_id
+    && ref.revisionId === requestedRevisionId);
+  if (linked) return linked;
+  return requestedRevisionId === item.current_revision.id
+    ? modelingSessionRefFromRecord(item)
+    : undefined;
+}
+
 export type ModelingPointerKey =
   | "testData"
   | "mappingProfile"
@@ -123,6 +144,13 @@ export type ModelingSessionEvent =
   | { type: "CHANGE_VALIDATION_TARGET" }
   | { type: "CHANGE_TARGET_PROFILE" }
   | { type: "CHANGE_EXPORT_TARGET" }
+  | {
+      type: "RESTORE_STALE_FIT";
+      testData: ModelingSessionRecordRef;
+      processingOutput?: ModelingSessionRecordRef;
+      selection?: ModelingSessionRecordRef;
+      materialModelIr?: ModelingSessionRecordRef;
+    }
   | { type: "SET_CURRENT"; key: ModelingPointerKey; value?: ModelingSessionRecordRef }
   | { type: "PATCH"; patch: ModelingSessionPatch };
 
@@ -154,6 +182,18 @@ const DOWNSTREAM_OF_MAPPING = ALL_POINTERS.filter(
 );
 const DOWNSTREAM_OF_PROCESS = ["processingOutput", "fitCandidate", "selection", "validationPlan", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
 const DOWNSTREAM_OF_FIT = ["fitCandidate", "selection", "validationPlan", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
+const SAVED_DOWNSTREAM_POINTERS = [
+  "processingOutput", "selection", "materialModelIr", "neutralModel", "exportArtifact",
+] as const;
+
+export function modelingSessionHasSavedDownstream(
+  session?: ModelingSessionSummary | null,
+): boolean {
+  if (!session) return false;
+  return SAVED_DOWNSTREAM_POINTERS.some(
+    (key) => Boolean(session[key] || session.stalePointers?.[key]),
+  );
+}
 
 function now(): string {
   return new Date().toISOString();
@@ -270,16 +310,28 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
           ? [...previousVisible.filter((key) => nextRefs.some((item) => exactRefKey(item) === key)), ...(shouldRemainVisible ? [exactRefKey(nextTestData)] : [])]
             .filter((key, index, keys) => keys.indexOf(key) === index)
           : [];
+        const stalePointers = current.testData && !sameRef(current.testData, nextTestData)
+          ? { ...current.stalePointers, testData: current.testData }
+          : current.stalePointers;
         return withInvalidation({
         ...current,
         testData: event.testData,
+        stalePointers,
         workspace: {
           ...current.workspace,
           selectedTestDataRefs: nextRefs,
           selectedDocumentIds: nextIncluded,
           visibleTestDataKeys: nextVisible,
         },
-        }, "test-data", clearEntries(DOWNSTREAM_OF_DATA));
+        }, "test-data", {
+          ...clearEntries(DOWNSTREAM_OF_DATA),
+          // A saved engineer Selection remains immutable history when the
+          // focused exact Test Data revision changes. It is never reused as
+          // the current Selection for the new input.
+          processingOutput: "stale",
+          selection: "stale",
+          materialModelIr: "stale",
+        });
       }
     case "SET_TEST_DATA_SELECTION": {
       const selectedTestDataRefs = exactRefs(event.selectedTestDataRefs);
@@ -363,6 +415,54 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
       // A target tuple changes only the ephemeral preview/delivery candidate;
       // it never invalidates the exact source IR or Neutral revision.
       return withInvalidation(current, "target-profile", { exportArtifact: "clear" });
+    case "RESTORE_STALE_FIT": {
+      const stale = current.stalePointers;
+      if (!sameRef(stale?.testData, event.testData)) return current;
+      for (const key of ["processingOutput", "selection", "materialModelIr"] as const) {
+        if (event[key] && !sameRef(stale?.[key], event[key])) return current;
+      }
+      const selectedTestDataRefs = [
+        ...(current.workspace.selectedTestDataRefs ?? []).filter(
+          (item) => item.id !== event.testData.id,
+        ),
+        event.testData,
+      ];
+      const selectedDocumentIds = [
+        ...(current.workspace.selectedDocumentIds ?? []).filter(
+          (id) => id !== event.testData.id,
+        ),
+        event.testData.id,
+      ];
+      const visibleTestDataKeys = [
+        ...(current.workspace.visibleTestDataKeys ?? []).filter(
+          (key) => !key.startsWith(`${event.testData.id}:`),
+        ),
+        exactRefKey(event.testData),
+      ];
+      const stalePointers = { ...stale };
+      for (const key of ["testData", "processingOutput", "selection", "materialModelIr"] as const) {
+        delete stalePointers[key];
+      }
+      const next: ModelingSessionSummary = {
+        ...current,
+        testData: event.testData,
+        updatedAt: now(),
+        invalidation: undefined,
+        stalePointers,
+        workspace: {
+          ...current.workspace,
+          selectedTestDataRefs,
+          selectedDocumentIds,
+          visibleTestDataKeys,
+        },
+      };
+      for (const key of ["processingOutput", "selection", "materialModelIr"] as const) {
+        if (event[key]) next[key] = event[key];
+        else delete next[key];
+      }
+      if (!Object.keys(stalePointers).length) delete next.stalePointers;
+      return next;
+    }
     case "SET_CURRENT": {
       const next = { ...current, updatedAt: now(), invalidation: undefined };
       if (event.value) next[event.key] = event.value;

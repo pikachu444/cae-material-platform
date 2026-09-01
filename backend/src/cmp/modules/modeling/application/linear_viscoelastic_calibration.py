@@ -20,6 +20,7 @@ from cmp.modules.modeling.application.linear_viscoelastic_application_contracts 
     CalibrationJobReference,
     CalibrationJobTerminalConflict,
     CalibrationPlanSnapshot,
+    CalibrationResponseResidualProjection,
     CalibrationRunProjection,
     CalibrationSelectionSnapshot,
     CreateGovernedLinearViscoelasticCalibrationPlan,
@@ -33,11 +34,23 @@ from cmp.modules.modeling.application.linear_viscoelastic_application_contracts 
     PromoteLinearViscoelasticCalibrationSelection,
     QueueLinearViscoelasticCalibrationRun,
 )
+from cmp.modules.modeling.application.linear_viscoelastic_evidence_application import (
+    LinearViscoelasticEvidenceApplication,
+)
+from cmp.modules.modeling.application.linear_viscoelastic_fit_input_application import (
+    LinearViscoelasticFitInputApplication,
+)
 from cmp.modules.modeling.application.linear_viscoelastic_memory_repository import (
     InMemoryLinearViscoelasticCalibrationRepository,
 )
 from cmp.modules.modeling.application.linear_viscoelastic_plan_application import (
     LinearViscoelasticPlanApplication,
+)
+from cmp.modules.modeling.application.linear_viscoelastic_plan_governance import (
+    LinearViscoelasticPlanApprovalPort,
+)
+from cmp.modules.modeling.application.linear_viscoelastic_plan_governance_application import (
+    LinearViscoelasticPlanGovernanceApplication,
 )
 from cmp.modules.modeling.application.linear_viscoelastic_run_application import (
     LinearViscoelasticRunApplication,
@@ -66,6 +79,9 @@ class LinearViscoelasticCalibrationService(
     LinearViscoelasticPlanApplication,
     LinearViscoelasticRunApplication,
     LinearViscoelasticSelectionApplication,
+    LinearViscoelasticEvidenceApplication,
+    LinearViscoelasticFitInputApplication,
+    LinearViscoelasticPlanGovernanceApplication,
 ):
     """Compose the bounded plan, run, and selection application components."""
 
@@ -82,6 +98,7 @@ class LinearViscoelasticCalibrationService(
         input_resolver: GovernedLinearViscoelasticInputResolver | None = None,
         linear_viscoelastic_models: LinearViscoelasticModelService | None = None,
         allow_reference_execution: bool = False,
+        plan_governance: LinearViscoelasticPlanApprovalPort | None = None,
     ) -> None:
         self._repository = repository
         self._id_factory = id_factory
@@ -94,6 +111,7 @@ class LinearViscoelasticCalibrationService(
         self._input_resolver = input_resolver
         self._linear_viscoelastic_models = linear_viscoelastic_models
         self._allow_reference_execution = allow_reference_execution
+        self._plan_governance = plan_governance
 
     def _new_id(self) -> UUID:
         value = self._id_factory()
@@ -109,6 +127,7 @@ __all__ = (
     "CalibrationJobReference",
     "CalibrationJobTerminalConflict",
     "CalibrationPlanSnapshot",
+    "CalibrationResponseResidualProjection",
     "CalibrationRunProjection",
     "CalibrationSelectionSnapshot",
     "CreateGovernedLinearViscoelasticCalibrationPlan",
@@ -121,7 +140,11 @@ __all__ = (
     "LinearViscoelasticCalibrationNotFound",
     "LinearViscoelasticCalibrationRepository",
     "LinearViscoelasticCalibrationService",
+    "LinearViscoelasticEvidenceApplication",
+    "LinearViscoelasticFitInputApplication",
     "LinearViscoelasticPlanApplication",
+    "LinearViscoelasticPlanApprovalPort",
+    "LinearViscoelasticPlanGovernanceApplication",
     "LinearViscoelasticRunApplication",
     "LinearViscoelasticSelectionApplication",
     "PromoteLinearViscoelasticCalibrationSelection",

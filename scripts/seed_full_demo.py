@@ -9,6 +9,7 @@ database access and must never be used for production or confidential data.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import io
 import json
@@ -34,6 +35,12 @@ from cmp.modules.datasets.domain.reference_tensile import (
     REFERENCE_TENSILE_PARQUET_SCHEMA_V1,
     REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
     REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA_V1,
+)
+from cmp.tools.linear_viscoelastic_acceptance_http import authenticated_client
+from cmp.tools.linear_viscoelastic_acceptance_setup import register_calibrator
+from cmp.tools.linear_viscoelastic_synthetic_acceptance import (
+    create_governed_dma_temperature_sweep,
+    high_order_relaxation_source_bytes,
 )
 
 _DEMO_MATERIAL_FAMILY_VALUES = (
@@ -77,6 +84,9 @@ _STATISTICS_PLAN_LABEL = "CMP demo DP780 replicate curve statistics"
 _OBSERVED_CURVE_ATTRIBUTE_KEY = "observed_tensile_curve"
 _STATISTICS_CURVE_ATTRIBUTE_KEY = "replicate_statistics_curve"
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_LINEAR_VISCOELASTIC_CALIBRATOR_ROOT = (
+    _PROJECT_ROOT / "plugins" / "production" / "linear_viscoelastic_calibrator"
+)
 _TASK1B_FIXTURE_ROOT = _PROJECT_ROOT / "fixtures" / "schema-record-data" / "source-v2-task1b"
 _SOURCE_V2_FIXTURE_ROOT = _PROJECT_ROOT / "fixtures" / "schema-definition-bundle" / "source-v2"
 _ISSUE342_SCHEMA_APPLY_TIMEOUT_SECONDS = 180.0
@@ -91,6 +101,67 @@ _SOURCE_V2_TABLE_KEYS = frozenset(
     }
 )
 _SOURCE_V2_LEGACY_TABLE_KEY = "demo_material_records"
+
+# This deterministic high-order direct-relaxation source is the repository's
+# bounded synthetic UI-acceptance fixture.  It is kept separate from the
+# Processing Output fixture so seeding this Plan never rewrites an upstream
+# revision used by another demo journey.
+_POLYMER_FIT_DOCUMENT_KEY = "CMP-DEMO-POLYMER-FIT-RELAXATION-CSV"
+_POLYMER_FIT_SPECIMEN_CODE = "CMP-DEMO-POLYMER-FIT-SR-01"
+_POLYMER_FIT_RUN_LABEL = "CMP demo Polymer Fit shear relaxation"
+_POLYMER_FIT_PROFILE_LABEL = "CMP demo Polymer Fit shear relaxation import"
+_POLYMER_FIT_PLAN_SETUP_NAME = "CMP demo Polymer Fit · shear relaxation"
+_POLYMER_FIT_PLAN_IDEMPOTENCY_KEY_PREFIX = "cmp-demo-polymer-fit-relaxation-plan-v3"
+_POLYMER_FIT_IMPORT_IDEMPOTENCY_KEY = "cmp-demo-polymer-fit-relaxation-import-v2"
+_POLYMER_FIT_SOURCE_FILENAME = "cmp-demo-polymer-fit-relaxation-high-order.csv"
+_POLYMER_FIT_TEMPERATURE_K = "296.15"
+_POLYMER_FIT_SOURCE = high_order_relaxation_source_bytes()
+_POLYMER_FIT_ROWS = tuple(
+    tuple(line.split(",", 1))
+    for line in _POLYMER_FIT_SOURCE.decode("utf-8").splitlines()[1:]
+)
+_POLYMER_FIT_TIMES = tuple(row[0] for row in _POLYMER_FIT_ROWS)
+_POLYMER_FIT_MODULI = tuple(row[1] for row in _POLYMER_FIT_ROWS)
+_POLYMER_FIT_TERM_COUNTS = tuple(range(1, 11))
+
+
+def _polymer_fit_plan_idempotency_key(test_data_revision_id: str) -> str:
+    """Keep repeat seeding idempotent for each immutable Test Data revision."""
+
+    return f"{_POLYMER_FIT_PLAN_IDEMPOTENCY_KEY_PREFIX}:{test_data_revision_id}"
+_POLYMER_FIT_EXCLUDED_ORDINALS = frozenset((4, 20, 36))
+_POLYMER_FIT_HOLDOUT_ORDINALS = frozenset(range(38, 43))
+_POLYMER_FIT_IMPORT_PROFILE = {
+    "profile_label": _POLYMER_FIT_PROFILE_LABEL,
+    "data_schema": "shear_relaxation",
+    "file_format": "csv",
+    "sheet_name": None,
+    "header_row": 1,
+    "encoding": "utf-8",
+    "delimiter": ",",
+    "decimal_separator": ".",
+    "channels": [
+        {
+            "ordinal": 0,
+            "source_column": "time_s",
+            "source_quantity": "time",
+            "original_unit": "s",
+            "axis_role": "independent",
+        },
+        {
+            "ordinal": 1,
+            "source_column": "shear_modulus_pa",
+            "source_quantity": "shear_modulus",
+            "original_unit": "Pa",
+            "axis_role": "dependent",
+        },
+    ],
+    "initial_gauge_length_m": None,
+    "initial_cross_section_area_m2": None,
+    "approval_kind": "human_confirmed",
+    "schema_version": "1.1.0",
+    "deformation_mode": None,
+}
 
 
 def _catalog_material_family_allowed_values() -> tuple[str, ...]:
@@ -625,6 +696,59 @@ def _upload_demo_artifact(
     return artifact_id, digest
 
 
+def _upload_demo_test_run_artifact(
+    api: DemoApi,
+    value: bytes,
+    *,
+    filename: str,
+    media_type: str,
+    idempotency_key: str,
+    test_run_revision_id: str,
+) -> tuple[str, str, str]:
+    """Upload one exact raw source while retaining its Test Run lineage."""
+
+    digest = hashlib.sha256(value).hexdigest()
+    created = api.post(
+        "/uploads",
+        {
+            "classification": "internal",
+            "original_filename": filename,
+            "media_type": media_type,
+            "expected_size_bytes": len(value),
+            "expected_sha256": digest,
+            "test_run_revision_id": test_run_revision_id,
+        },
+        headers={"Idempotency-Key": idempotency_key},
+    )
+    upload = created.get("upload")
+    capability = created.get("upload_capability")
+    if not isinstance(upload, Mapping) or not isinstance(capability, str):
+        raise DemoSeedError("demo Test Run upload did not return a session and capability")
+    upload_id = _id(upload, "upload_id")
+    if upload.get("state") == "open":
+        if upload.get("expected_part_count") != 1:
+            raise DemoSeedError("demo Test Run fixture unexpectedly requires multiple upload parts")
+        api.put_bytes(
+            f"/uploads/{upload_id}/parts/1",
+            value,
+            headers={"Content-Type": media_type, "Upload-Capability": capability},
+        )
+    completed = api.post(
+        f"/uploads/{upload_id}:complete", {}, headers={"Upload-Capability": capability}
+    )
+    raw_asset = completed.get("raw_asset")
+    if not isinstance(raw_asset, Mapping):
+        raise DemoSeedError("completed demo Test Run upload did not produce a Raw Asset")
+    artifact_id = completed.get("available_artifact_id")
+    if not isinstance(artifact_id, str) or not artifact_id:
+        raise DemoSeedError("completed demo Test Run upload did not produce an immutable Artifact")
+    return _id(raw_asset, "raw_asset_id"), artifact_id, digest
+
+
+def _polymer_fit_relaxation_csv() -> bytes:
+    return _POLYMER_FIT_SOURCE
+
+
 def _ensure_issue342_schema_bundle(api: DemoApi) -> dict[str, Any]:
     """Install source-v2 through the approved plan/apply APIs and read exact formats."""
 
@@ -852,8 +976,7 @@ def _ensure_issue342_json_records(
             raise DemoSeedError(f"installed {wrapper} format has no exact table id")
 
         existing = {
-            key: _record_for_external_key(api, table_id=table_id, external_key=key)
-            for key in keys
+            key: _record_for_external_key(api, table_id=table_id, external_key=key) for key in keys
         }
         if all(value is not None for value in existing.values()):
             prior_records.update(
@@ -879,8 +1002,7 @@ def _ensure_issue342_json_records(
             components, key=lambda item: (item.filename.encode("utf-8"), item.sha256)
         )
         package_paths = {
-            item.filename: package.paths[index + 2]
-            for index, item in enumerate(ordered_components)
+            item.filename: package.paths[index + 2] for index, item in enumerate(ordered_components)
         }
         reference_pins: list[dict[str, str]] = []
         for component in components:
@@ -1478,9 +1600,7 @@ def _catalog_domain_bindings(
     api: DemoApi, *, record_id: str, record_revision_id: str
 ) -> list[dict[str, Any]]:
     return _items(
-        api.get(
-            f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-bindings"
-        )
+        api.get(f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-bindings")
     )
 
 
@@ -1966,9 +2086,7 @@ def _ensure_catalog_binding(
             {**content, "values": list(values)},
         )
         name_match = name is None or content.get("name") == name
-        description_match = (
-            not update_description or content.get("description") == description
-        )
+        description_match = not update_description or content.get("description") == description
         if already_placed and values_match and name_match and description_match:
             return dict(record_to_place)
         content["folder_id"] = folder_id
@@ -4232,6 +4350,638 @@ def _ensure_shear_method(api: DemoApi) -> None:
         )
 
 
+def _ensure_polymer_fit_governed_source(api: DemoApi, *, material_id: str) -> dict[str, str]:
+    """Create one exact, tabular-backed Polymer Fit relaxation source."""
+
+    detail = api.get(f"/materials/{material_id}")
+    material = detail.get("material")
+    states = detail.get("states")
+    if (
+        not isinstance(material, Mapping)
+        or not isinstance(states, list)
+        or not states
+        or not isinstance(states[0], Mapping)
+    ):
+        raise DemoSeedError("Polymer Fit source requires one exact Material State")
+    state = states[0]
+    state_id = _id(state, "material_state_id")
+    state_revision_id = _revision_id(state)
+
+    specimens = _items(api.get(f"/material-states/{state_id}/specimens"))
+    matching_specimens = [
+        item
+        for item in specimens
+        if _content(item).get("specimen_code") == _POLYMER_FIT_SPECIMEN_CODE
+    ]
+    if len(matching_specimens) > 1:
+        raise DemoSeedError("Polymer Fit source has duplicate exact Specimens")
+    if matching_specimens:
+        specimen = matching_specimens[0]
+        specimen_content = _content(specimen)
+        if (
+            specimen_content.get("material_id") != material_id
+            or specimen_content.get("material_state_id") != state_id
+            or specimen_content.get("material_state_revision_id") != state_revision_id
+        ):
+            raise DemoSeedError("Polymer Fit Specimen does not match the exact State context")
+    else:
+        specimen = api.post(
+            f"/material-states/{state_id}/specimens",
+            {
+                "material_state_revision_id": state_revision_id,
+                "specimen_code": _POLYMER_FIT_SPECIMEN_CODE,
+                "orientation": None,
+                "preparation_note": "Public synthetic shear-relaxation Fit source.",
+                "change_reason": "Register the public synthetic Polymer Fit specimen.",
+            },
+        )
+    specimen_id = _id(specimen, "specimen_id")
+    specimen_revision_id = _revision_id(specimen)
+
+    methods = _items(api.get("/test-methods"))
+    method = _find_by_content(methods, "method_code", "reference_shear_relaxation")
+    if method is None:
+        _ensure_shear_method(api)
+        method = _find_by_content(
+            _items(api.get("/test-methods")), "method_code", "reference_shear_relaxation"
+        )
+    if method is None:
+        raise DemoSeedError("Polymer Fit source has no reference shear-relaxation Test Method")
+    method_id = _id(method, "test_method_id")
+    method_revision_id = _revision_id(method)
+
+    runs = _items(api.get(f"/material-states/{state_id}/test-runs"))
+    matching_runs = [
+        item for item in runs if _content(item).get("run_label") == _POLYMER_FIT_RUN_LABEL
+    ]
+    if len(matching_runs) > 1:
+        raise DemoSeedError("Polymer Fit source has duplicate exact Test Runs")
+    if matching_runs:
+        test_run = matching_runs[0]
+        run_content = _content(test_run)
+        if (
+            run_content.get("specimen_id") != specimen_id
+            or run_content.get("specimen_revision_id") != specimen_revision_id
+            or run_content.get("test_method_id") != method_id
+            or run_content.get("test_method_revision_id") != method_revision_id
+        ):
+            raise DemoSeedError("Polymer Fit Test Run does not match the exact source context")
+    else:
+        test_run = api.post(
+            "/test-runs/reference-shear-relaxation",
+            {
+                "specimen_id": specimen_id,
+                "specimen_revision_id": specimen_revision_id,
+                "test_method_id": method_id,
+                "test_method_revision_id": method_revision_id,
+                "run_label": _POLYMER_FIT_RUN_LABEL,
+                "performed_at": "2026-07-19T09:00:00Z",
+                "test_temperature_k": float(_POLYMER_FIT_TEMPERATURE_K),
+                "change_reason": "Register the public synthetic Polymer Fit Test Run.",
+            },
+        )
+    test_run_id = _id(test_run, "test_run_id")
+    test_run_revision_id = _revision_id(test_run)
+
+    profiles = _items(api.get("/import-profiles"))
+    matching_profiles = [
+        item
+        for item in profiles
+        if _content(item).get("profile_label") == _POLYMER_FIT_PROFILE_LABEL
+    ]
+    if len(matching_profiles) > 1:
+        raise DemoSeedError("Polymer Fit source has duplicate exact Import Profiles")
+    if matching_profiles:
+        profile = matching_profiles[0]
+        profile_content = _content(profile)
+        if any(
+            profile_content.get(key) != _POLYMER_FIT_IMPORT_PROFILE.get(key)
+            for key in (
+                "profile_label",
+                "data_schema",
+                "file_format",
+                "header_row",
+                "encoding",
+                "delimiter",
+                "decimal_separator",
+                "approval_kind",
+            )
+        ):
+            raise DemoSeedError("Polymer Fit Import Profile is not the declared synthetic contract")
+        profile_revision = profile.get("current_revision")
+        if (
+            not isinstance(profile_revision, Mapping)
+            or profile_revision.get("schema_version")
+            != _POLYMER_FIT_IMPORT_PROFILE["schema_version"]
+        ):
+            raise DemoSeedError("Polymer Fit Import Profile schema revision is not exact")
+        current_channels = profile_content.get("channels")
+        expected_channels = _POLYMER_FIT_IMPORT_PROFILE["channels"]
+        if not isinstance(current_channels, list) or any(
+            {
+                key: channel.get(key)
+                for key in (
+                    "ordinal",
+                    "source_column",
+                    "source_quantity",
+                    "original_unit",
+                    "axis_role",
+                )
+            }
+            != expected
+            for channel, expected in zip(current_channels, expected_channels, strict=True)
+            if isinstance(channel, Mapping)
+        ):
+            raise DemoSeedError("Polymer Fit Import Profile channels are not exact")
+    else:
+        profile = api.post(
+            "/import-profiles",
+            {
+                "classification": "internal",
+                "content": _POLYMER_FIT_IMPORT_PROFILE,
+                "change_reason": "Create the governed synthetic Polymer Fit import profile.",
+            },
+        )
+    profile_id = _id(profile, "import_profile_id")
+    profile_revision_id = _revision_id(profile)
+
+    source = _polymer_fit_relaxation_csv()
+    raw_asset_id, raw_artifact_id, source_sha256 = _upload_demo_test_run_artifact(
+        api,
+        source,
+        filename=_POLYMER_FIT_SOURCE_FILENAME,
+        media_type="text/csv",
+        idempotency_key="cmp-demo-polymer-fit-relaxation-raw-v1",
+        test_run_revision_id=test_run_revision_id,
+    )
+    imported = api.post(
+        "/tabular-import-runs",
+        {
+            "test_run_id": test_run_id,
+            "test_run_revision_id": test_run_revision_id,
+            "raw_asset_id": raw_asset_id,
+            "raw_artifact_id": raw_artifact_id,
+            "import_profile_id": profile_id,
+            "import_profile_revision_id": profile_revision_id,
+            "change_reason": "Create the governed synthetic Polymer Fit Dataset.",
+        },
+        headers={"Idempotency-Key": _POLYMER_FIT_IMPORT_IDEMPOTENCY_KEY},
+    )
+    if imported.get("status") != "succeeded":
+        raise DemoSeedError("Polymer Fit governed tabular import did not succeed")
+    normalized_dataset_id = _id(imported, "normalized_dataset_id")
+    normalized_dataset_revision_id = imported.get("normalized_dataset_revision_id")
+    if not isinstance(normalized_dataset_revision_id, str) or not normalized_dataset_revision_id:
+        raise DemoSeedError("Polymer Fit governed import has no normalized Dataset revision")
+
+    converted = api.post(
+        "/test-data:convert-tabular",
+        {
+            "document_id": _POLYMER_FIT_DOCUMENT_KEY,
+            "material": {
+                "maker": "CMP Synthetic Materials",
+                "grade": "Demo Polymer Prony Fit",
+                "lot_batch": "CMP-DEMO-POLYMER-001",
+            },
+            "test": {
+                "date": "2026-07-19",
+                "operator": "CMP Demo Operator",
+                "laboratory": "CMP Demo Laboratory",
+                "method": "synthetic shear relaxation reference",
+                "equipment_maker": "Demo Instruments",
+                "equipment_model": "Relaxometer-01",
+            },
+            "specimen": {
+                "specimen_id": _POLYMER_FIT_SPECIMEN_CODE,
+                "description": "public synthetic Polymer Fit relaxation specimen",
+            },
+            "conditions": [
+                {
+                    "key": "temperature",
+                    "quantity_semantics": "temperature.test",
+                    "original_value": "23",
+                    "original_unit_string": "Cel",
+                    "normalized_value": _POLYMER_FIT_TEMPERATURE_K,
+                    "normalized_unit": "K",
+                }
+            ],
+            "source_file_name": _POLYMER_FIT_SOURCE_FILENAME,
+            "source_base64": base64.b64encode(source).decode("ascii"),
+            "profile": _POLYMER_FIT_IMPORT_PROFILE,
+        },
+    )
+    canonical_document = converted.get("canonical_document")
+    if not isinstance(canonical_document, Mapping):
+        raise DemoSeedError("Polymer Fit tabular conversion did not return canonical Test Data")
+    if canonical_document.get("source", {}).get("sha256") != source_sha256:
+        raise DemoSeedError("Polymer Fit canonical Test Data source digest is inconsistent")
+    governed_source = {
+        "material": {"aggregate_id": material_id, "revision_id": _revision_id(material)},
+        "material_state": {"aggregate_id": state_id, "revision_id": state_revision_id},
+        "test_run": {"aggregate_id": test_run_id, "revision_id": test_run_revision_id},
+        "tabular_import": {
+            "raw_asset_id": raw_asset_id,
+            "raw_artifact_id": raw_artifact_id,
+            "import_run_id": _id(imported, "import_run_id"),
+            "import_profile": {
+                "aggregate_id": profile_id,
+                "revision_id": profile_revision_id,
+            },
+            "normalized_dataset": {
+                "aggregate_id": normalized_dataset_id,
+                "revision_id": normalized_dataset_revision_id,
+            },
+        },
+    }
+    documents = [
+        item
+        for item in _items(api.get("/test-data-documents"))
+        if item.get("document_key") == _POLYMER_FIT_DOCUMENT_KEY
+    ]
+    if len(documents) > 1:
+        raise DemoSeedError("Polymer Fit source has duplicate canonical Test Data documents")
+    if not documents:
+        test_data = api.post(
+            "/test-data-documents",
+            {
+                "classification": "internal",
+                "document": dict(canonical_document),
+                "governed_source": governed_source,
+                "change_reason": "Import the governed synthetic Polymer Fit Test Data.",
+            },
+        )
+    else:
+        test_data = documents[0]
+        if test_data.get("governed_source") != governed_source:
+            current_document = api.get(
+                f"/test-data-documents/{_id(test_data, 'test_data_document_id')}/revisions/"
+                f"{_revision_id(test_data)}/content"
+            )
+            test_data = api.post(
+                f"/test-data-documents/{_id(test_data, 'test_data_document_id')}/revisions",
+                {
+                    "document": current_document
+                    if current_document.get("document_id") == _POLYMER_FIT_DOCUMENT_KEY
+                    else dict(canonical_document),
+                    "governed_source": governed_source,
+                    "change_reason": "Pin the exact governed Polymer Fit Test Data source.",
+                },
+                headers={"If-Match": _revision_etag(test_data)},
+            )
+    if test_data.get("governed_source") != governed_source:
+        raise DemoSeedError("Polymer Fit Test Data read-back lost exact governed source pins")
+    return {
+        "polymer_fit_test_data_document_id": _id(test_data, "test_data_document_id"),
+        "polymer_fit_test_data_revision_id": _revision_id(test_data),
+        "polymer_fit_test_data_sha256": _revision_hash(test_data),
+        "polymer_fit_test_run_id": test_run_id,
+        "polymer_fit_test_run_revision_id": test_run_revision_id,
+        "polymer_fit_import_profile_id": profile_id,
+        "polymer_fit_import_profile_revision_id": profile_revision_id,
+        "polymer_fit_import_run_id": _id(imported, "import_run_id"),
+        "polymer_fit_raw_asset_id": raw_asset_id,
+        "polymer_fit_raw_artifact_id": raw_artifact_id,
+        "polymer_fit_normalized_dataset_id": normalized_dataset_id,
+        "polymer_fit_normalized_dataset_revision_id": normalized_dataset_revision_id,
+        "polymer_fit_material_id": material_id,
+        "polymer_fit_material_revision_id": _revision_id(material),
+        "polymer_fit_material_state_id": state_id,
+        "polymer_fit_material_state_revision_id": state_revision_id,
+    }
+
+
+def _polymer_fit_parameter_bounds(term_count: int) -> list[dict[str, object]]:
+    """Return explicit synthetic bounds for a 1..10-term approved UI setup."""
+
+    approved_tau_exponents = {
+        3: (-4, -2, 0),
+        5: (-4, -3, -2, -1, 0),
+        10: tuple(range(-5, 5)),
+    }
+    tau_exponents = approved_tau_exponents.get(term_count)
+    if tau_exponents is None:
+        lower_exponent, upper_exponent = (-5, 4) if term_count >= 6 else (-4, 0)
+        tau_exponents = (
+            (0.0,)
+            if term_count == 1
+            else tuple(
+                lower_exponent
+                + ((upper_exponent - lower_exponent) * index / (term_count - 1))
+                for index in range(term_count)
+            )
+        )
+    approved_modulus_starts = {
+        3: (2_500_000.0, 3_500_000.0, 1_500_000.0),
+        5: (2_500_000.0, 2_000_000.0, 1_500_000.0, 1_000_000.0, 500_000.0),
+        10: (
+            50_000.0,
+            2_500_000.0,
+            2_000_000.0,
+            1_500_000.0,
+            1_000_000.0,
+            500_000.0,
+            50_000.0,
+            50_000.0,
+            50_000.0,
+            50_000.0,
+        ),
+    }
+    modulus_starts = approved_modulus_starts.get(
+        term_count,
+        tuple(7_500_000.0 / term_count for _ in range(term_count)),
+    )
+
+    def bound(
+        name: str,
+        lower: float,
+        start: float,
+        upper: float,
+        unit: str,
+    ) -> dict[str, object]:
+        return {
+            "name": name,
+            "lower": lower,
+            "start": start,
+            "upper": upper,
+            "unit": unit,
+            "transform": "ln",
+        }
+
+    values = [bound("G_inf_pa", 100_000.0, 4_000_000.0, 20_000_000.0, "Pa")]
+    values.extend(
+        bound(f"G_{ordinal}_pa", 1_000.0, start, 20_000_000.0, "Pa")
+        for ordinal, start in enumerate(modulus_starts, start=1)
+    )
+    for ordinal, exponent in enumerate(tau_exponents, start=1):
+        center = 10.0**exponent
+        values.append(
+            bound(f"tau_{ordinal}_s", center / 3.0, center, center * 3.0, "s")
+        )
+    return values
+
+
+def _ensure_polymer_fit_approved_plan(
+    api: DemoApi,
+    plan_author_api: DemoApi,
+    reviewer_api: DemoApi,
+    *,
+    source: Mapping[str, str],
+) -> dict[str, str]:
+    """Create and approve one exact Polymer Fit Plan through the public API flow.
+
+    The Plan author and approver are distinct local-only domain-reviewer principals. The
+    administrator submits the review request. This exercises the same three-actor separation
+    required by the production governance boundary.
+    """
+
+    # The reviewed automatic setup compares every data-feasible 1..10-term candidate. Parameter
+    # ranges remain explicit reviewed content; automatic scope never invents optimizer policy.
+    parameter_bounds = {
+        str(term_count): _polymer_fit_parameter_bounds(term_count)
+        for term_count in range(1, 11)
+    }
+    start_vectors = {
+        term_count: [[bound["start"] for bound in bounds]]
+        for term_count, bounds in parameter_bounds.items()
+    }
+
+    plan_payload: dict[str, Any] = {
+        "test_data": {
+            "id": source["polymer_fit_test_data_document_id"],
+            "revision_id": source["polymer_fit_test_data_revision_id"],
+        },
+        "selected_temperature_k": _POLYMER_FIT_TEMPERATURE_K,
+        "point_dispositions": [
+            {
+                "ordinal": ordinal,
+                "partition": (
+                    "EXCLUDED"
+                    if ordinal in _POLYMER_FIT_EXCLUDED_ORDINALS
+                    else "HOLDOUT"
+                    if ordinal in _POLYMER_FIT_HOLDOUT_ORDINALS
+                    else "CALIBRATION"
+                ),
+                "exclusion_reason": (
+                    "Reserved synthetic non-production exclusion"
+                    if ordinal in _POLYMER_FIT_EXCLUDED_ORDINALS
+                    else None
+                ),
+            }
+            for ordinal in range(len(_POLYMER_FIT_TIMES))
+        ],
+        "availability": {
+            "ramp": "NOT_PROVIDED",
+            "sweep": "NOT_PROVIDED",
+            "preconditioning": "NOT_PROVIDED",
+            "linear_range": "NOT_PROVIDED",
+        },
+        "candidate_scope_mode": "automatic",
+        "term_counts": list(_POLYMER_FIT_TERM_COUNTS),
+        "parameter_bounds": parameter_bounds,
+        "start_vectors": start_vectors,
+        "weights": {
+            "relaxation_weight": "1",
+            "dma_storage_weight": "0.5",
+            "dma_loss_weight": "0.5",
+            "relaxation_scale_pa": "1000000000",
+            "dma_storage_scale_pa": "1000000000",
+            "dma_loss_scale_pa": "1000000000",
+            "q_rule_version": "equal_per_point@1.0.0",
+        },
+        "optimizer": {
+            "method": "trf",
+            "x_scale": "jac",
+            "transform": "ln",
+            "ftol": 1e-8,
+            "xtol": 1e-8,
+            "gtol": 1e-8,
+            "max_nfev": 5000,
+        },
+        "recommendation_policy": "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0",
+        "change_reason": "Create the public synthetic Polymer Fit relaxation Plan.",
+        "setup_name": _POLYMER_FIT_PLAN_SETUP_NAME,
+        "material": {
+            "id": source["polymer_fit_material_id"],
+            "revision_id": source["polymer_fit_material_revision_id"],
+        },
+        "material_state": {
+            "id": source["polymer_fit_material_state_id"],
+            "revision_id": source["polymer_fit_material_state_revision_id"],
+        },
+        "input_mode": "relaxation",
+    }
+    plan = plan_author_api.post(
+        "/linear-viscoelastic-calibration-plans",
+        plan_payload,
+        headers={
+            "Idempotency-Key": _polymer_fit_plan_idempotency_key(
+                source["polymer_fit_test_data_revision_id"]
+            )
+        },
+    )
+    plan_id = _id(plan, "plan_id")
+    plan_revision_id = _revision_id(plan)
+    plan_sha256 = _revision_hash(plan)
+    revision = plan.get("current_revision")
+    if not isinstance(revision, Mapping):
+        raise DemoSeedError("Polymer Fit Plan has no immutable revision metadata")
+    plan_created_by = revision.get("created_by")
+    if not isinstance(plan_created_by, str) or not plan_created_by:
+        raise DemoSeedError("Polymer Fit Plan has no author identity")
+    plan_content = _content(plan)
+    input_semantics = plan_content.get("input_semantics")
+    if (
+        plan_content.get("setup_name") != _POLYMER_FIT_PLAN_SETUP_NAME
+        or plan_content.get("input_mode") != "relaxation"
+        or plan_content.get("material") != plan_payload["material"]
+        or plan_content.get("material_state") != plan_payload["material_state"]
+        or plan_content.get("candidate_scope_mode") != "automatic"
+        or plan_content.get("term_counts") != list(_POLYMER_FIT_TERM_COUNTS)
+        or set(plan_content.get("parameter_bounds") or {}) != {
+            str(term_count) for term_count in range(1, 11)
+        }
+        or not isinstance(input_semantics, Mapping)
+        or input_semantics.get("point_dispositions") != plan_payload["point_dispositions"]
+    ):
+        raise DemoSeedError("Polymer Fit Plan read-back is not pinned to the exact source")
+
+    def pin_matches(value: object, expected: Mapping[str, str]) -> bool:
+        return (
+            isinstance(value, Mapping)
+            and value.get("id") == expected["id"]
+            and value.get("revision_id") == expected["revision_id"]
+        )
+
+    expected_material = plan_payload["material"]
+    expected_material_state = plan_payload["material_state"]
+    expected_test_data = {
+        "id": source["polymer_fit_test_data_document_id"],
+        "revision_id": source["polymer_fit_test_data_revision_id"],
+    }
+    if not all(
+        isinstance(value, Mapping)
+        for value in (expected_material, expected_material_state, expected_test_data)
+    ):
+        raise DemoSeedError("Polymer Fit expected source pins are incomplete")
+
+    aggregate_type = "modeling.linear_viscoelastic_calibration_plan"
+    requests = _items(
+        reviewer_api.get(
+            "/review-requests?aggregate_type="
+            f"{aggregate_type}&aggregate_id={plan_id}&revision_id={plan_revision_id}&limit=20"
+        )
+    )
+    if len(requests) > 1:
+        raise DemoSeedError("Polymer Fit Plan has duplicate exact review requests")
+    if requests:
+        request = requests[0]
+        if request.get("manifest_sha256") != plan_sha256:
+            raise DemoSeedError("Polymer Fit Plan review request pins a stale manifest")
+    else:
+        request = api.post(
+            "/review-requests",
+            {
+                "classification": "internal",
+                "aggregate_type": aggregate_type,
+                "aggregate_id": plan_id,
+                "revision_id": plan_revision_id,
+                "manifest_sha256": plan_sha256,
+                "reason": "Submit the exact synthetic Polymer Fit Plan for review.",
+            },
+        )
+    request_id = _id(request, "review_request_id")
+    requested_by = request.get("requested_by")
+    if not isinstance(requested_by, str) or not requested_by:
+        raise DemoSeedError("Polymer Fit review request has no requester identity")
+    if requested_by == plan_created_by:
+        raise DemoSeedError("Polymer Fit Plan author cannot also submit its review request")
+    evidence = request.get("evidence")
+    if not isinstance(evidence, Mapping):
+        raise DemoSeedError("Polymer Fit review request has no immutable evidence snapshot")
+
+    decision = request.get("decision")
+    if decision is None:
+        decided = reviewer_api.post(
+            f"/review-requests/{request_id}/decisions",
+            {
+                "expected_manifest_sha256": plan_sha256,
+                "decision": "approved",
+                "reason": "Approve the exact synthetic Polymer Fit relaxation Plan.",
+            },
+        )
+        decision = decided.get("decision")
+    if not isinstance(decision, Mapping) or decision.get("decision") != "approved":
+        raise DemoSeedError("Polymer Fit Plan review was not approved")
+    decision_id = decision.get("review_decision_id")
+    decided_by = decision.get("decided_by")
+    if not isinstance(decision_id, str) or not decision_id:
+        raise DemoSeedError("Polymer Fit Plan approval has no decision identity")
+    if not isinstance(decided_by, str) or not decided_by or decided_by == requested_by:
+        raise DemoSeedError("Polymer Fit Plan review request and decision actors are not separated")
+    if decided_by == plan_created_by:
+        raise DemoSeedError("Polymer Fit Plan author and approver are not separated")
+    if decision.get("manifest_sha256") != plan_sha256:
+        raise DemoSeedError("Polymer Fit Plan decision pins a stale manifest")
+
+    approval = reviewer_api.get(
+        f"/linear-viscoelastic-calibration-plans/{plan_id}/approval"
+        f"?plan_revision_id={plan_revision_id}"
+    )
+    if (
+        approval.get("state") != "active"
+        or approval.get("plan_sha256") != plan_sha256
+        or approval.get("review_request_id") != request_id
+        or approval.get("review_decision_id") != decision_id
+        or approval.get("input_mode") != "relaxation"
+        or approval.get("processing_output") is not None
+        or not pin_matches(approval.get("material"), expected_material)
+        or not pin_matches(approval.get("material_state"), expected_material_state)
+        or not pin_matches(approval.get("test_data"), expected_test_data)
+    ):
+        raise DemoSeedError("Polymer Fit Plan approval read-back is not exact and active")
+    evidence_sha256 = approval.get("evidence_sha256")
+    if not isinstance(evidence_sha256, str) or len(evidence_sha256) != 64:
+        raise DemoSeedError("Polymer Fit Plan approval has no evidence digest")
+
+    resolved = reviewer_api.post(
+        "/linear-viscoelastic-calibration-plans/resolve",
+        {
+            "material": plan_payload["material"],
+            "material_state": plan_payload["material_state"],
+            "test_data": {
+                "id": source["polymer_fit_test_data_document_id"],
+                "revision_id": source["polymer_fit_test_data_revision_id"],
+            },
+            "processing_output": None,
+            "input_mode": "relaxation",
+        },
+    )
+    matches = resolved.get("matches")
+    if resolved.get("selection_required") is not False or not isinstance(matches, list):
+        raise DemoSeedError("Polymer Fit exact resolver did not produce a single selection")
+    exact_matches = [
+        item
+        for item in matches
+        if isinstance(item, Mapping)
+        and item.get("plan_id") == plan_id
+        and item.get("plan_revision_id") == plan_revision_id
+    ]
+    if len(matches) != 1 or len(exact_matches) != 1:
+        raise DemoSeedError("Polymer Fit exact resolver did not return exactly one approved Plan")
+    match_approval = exact_matches[0].get("approval")
+    if not isinstance(match_approval, Mapping) or match_approval.get("state") != "active":
+        raise DemoSeedError("Polymer Fit resolver returned a non-active approval")
+    return {
+        "polymer_fit_plan_id": plan_id,
+        "polymer_fit_plan_revision_id": plan_revision_id,
+        "polymer_fit_plan_sha256": plan_sha256,
+        "polymer_fit_review_request_id": request_id,
+        "polymer_fit_review_decision_id": decision_id,
+        "polymer_fit_approval_evidence_sha256": evidence_sha256,
+        "polymer_fit_approval_state": "active",
+    }
+
+
 def _fixture_complete(
     api: DemoApi,
     *,
@@ -5684,12 +6434,49 @@ def _find_material_model(
     return model
 
 
+def _ensure_linear_viscoelastic_calibrator(base_url: str) -> dict[str, str]:
+    """Admit the exact non-production calibrator required by the demo Fit journey."""
+
+    with authenticated_client(base_url) as client:
+        package = register_calibrator(client, _LINEAR_VISCOELASTIC_CALIBRATOR_ROOT)
+    package_id = package.get("package_id")
+    package_digest = package.get("package_digest")
+    if not isinstance(package_id, str) or not package_id:
+        raise DemoSeedError("Polymer Fit calibrator registration returned no package identity")
+    if not isinstance(package_digest, str) or not package_digest.startswith("sha256:"):
+        raise DemoSeedError("Polymer Fit calibrator registration returned no package digest")
+    return {
+        "polymer_fit_calibrator_package_id": package_id,
+        "polymer_fit_calibrator_package_digest": package_digest,
+    }
+
+
+def _ensure_polymer_dma_temperature_sweep(base_url: str) -> dict[str, str]:
+    """Seed the governed fixed-frequency DMA source used by the TTS Process UI."""
+
+    fixture_path = _PROJECT_ROOT / "fixtures" / "synthetic" / "dma-temperature-sweep-wlf-ui-v1.json"
+    with authenticated_client(base_url) as client:
+        test_data, catalog = create_governed_dma_temperature_sweep(client, fixture_path)
+    material = catalog["material"]
+    state = catalog["state"]
+    profile = catalog["profile"]
+    return {
+        "polymer_dma_temperature_sweep_document_id": _id(test_data, "test_data_document_id"),
+        "polymer_dma_temperature_sweep_revision_id": _revision_id(test_data),
+        "polymer_dma_temperature_sweep_material_id": _id(material, "material_id"),
+        "polymer_dma_temperature_sweep_material_revision_id": _revision_id(material),
+        "polymer_dma_temperature_sweep_state_id": _id(state, "material_state_id"),
+        "polymer_dma_temperature_sweep_state_revision_id": _revision_id(state),
+        "polymer_dma_temperature_sweep_profile_id": _id(profile, "import_profile_id"),
+        "polymer_dma_temperature_sweep_profile_revision_id": _revision_id(profile),
+    }
+
+
 def seed_full_demo(base_url: str) -> dict[str, str]:
     api = DemoApi(base_url)
     api.wait_until_healthy()
     api.authenticate()
-    reviewer_api = DemoApi(base_url)
-    reviewer_api.authenticate("reviewer")
+    polymer_fit_calibrator = _ensure_linear_viscoelastic_calibrator(base_url)
     metal = _find_by_content(
         _items(api.get("/materials?q=CMP-DEMO-DP780&limit=20")),
         "material_code",
@@ -5700,6 +6487,18 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     metal_id = _id(metal, "material_id")
     polymer_id = _ensure_polymer_baseline(api)
     polymer_processing = _ensure_polymer_processing_card(api, material_id=polymer_id)
+    polymer_fit_source = _ensure_polymer_fit_governed_source(api, material_id=polymer_id)
+    polymer_dma_temperature_sweep = _ensure_polymer_dma_temperature_sweep(base_url)
+    plan_author_api = DemoApi(base_url)
+    plan_author_api.authenticate("plan_author")
+    reviewer_api = DemoApi(base_url)
+    reviewer_api.authenticate("reviewer")
+    polymer_fit_plan = _ensure_polymer_fit_approved_plan(
+        api,
+        plan_author_api,
+        reviewer_api,
+        source=polymer_fit_source,
+    )
     elastomer_id = _ensure_elastomer_baseline(api)
 
     stamp = os.getenv("CMP_DEMO_FIXTURE_STAMP") or "t60-reference"
@@ -5822,6 +6621,10 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         **bulk,
         **polymer_bulk,
         **polymer_processing,
+        **polymer_fit_source,
+        **polymer_dma_temperature_sweep,
+        **polymer_fit_plan,
+        **polymer_fit_calibrator,
         **elastomer_neutral,
         **review_requests,
     }

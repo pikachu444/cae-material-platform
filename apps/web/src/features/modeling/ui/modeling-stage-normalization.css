@@ -231,17 +231,17 @@
   max-height: min(240px, 32vh);
 }
 
-/* The graph grows while comparison remains useful, then stops before axes and
-   curves become an ultra-wide strip. Extra room stays balanced around it. */
+/* Process and Fit own the available engineering canvas. Graphs may grow while
+   forms and prose remain bounded by their local component tokens. */
 .modeling-workspace-stage-process .modeling-main-surface > .persistent-modeling-plot,
 .modeling-workspace-stage-fit .modeling-main-surface > .persistent-modeling-plot {
   box-sizing: border-box;
-  width: min(100%, 2400px);
-  max-width: 2400px;
-  height: min(100%, 1280px);
-  max-height: 1280px;
-  justify-self: center;
-  align-self: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  justify-self: stretch;
+  align-self: stretch;
   border: 0;
   background: var(--ux-surface);
 }

@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import math
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, cast
@@ -40,6 +41,23 @@ def relaxation_source_bytes() -> bytes:
     )
 
 
+def high_order_relaxation_source_bytes() -> bytes:
+    """Return a deterministic 43-point five-term relaxation fixture."""
+
+    g_inf = 4_000_000.0
+    moduli = (2_500_000.0, 2_000_000.0, 1_500_000.0, 1_000_000.0, 500_000.0)
+    taus = (0.0001, 0.001, 0.01, 0.1, 1.0)
+    lines = ["time_s,shear_modulus_pa"]
+    for index in range(43):
+        time_s = 10.0 ** (-6.0 + index * 12.0 / 42.0)
+        modulus_pa = g_inf + sum(
+            modulus * math.exp(-time_s / tau)
+            for modulus, tau in zip(moduli, taus, strict=True)
+        )
+        lines.append(f"{time_s:.12g},{modulus_pa:.12g}")
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
 def _synthetic_material_catalog(
     client: httpx.Client,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
@@ -71,6 +89,8 @@ def _synthetic_material_catalog(
 
 def create_governed_relaxation_test_data(
     client: httpx.Client,
+    *,
+    high_order: bool = False,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Create exact governed synthetic Test Data and return its supporting catalog."""
 
@@ -90,7 +110,11 @@ def create_governed_relaxation_test_data(
     if method is None:
         raise LinearViscoelasticAcceptanceError("shear-relaxation Test Method is not seeded")
     state_id = required_string(state.get("material_state_id"), "material_state_id")
-    specimen_code = "LVE-ACCEPTANCE-RELAXATION-01"
+    specimen_code = (
+        "LVE-ACCEPTANCE-RELAXATION-HIGH-ORDER-01"
+        if high_order
+        else "LVE-ACCEPTANCE-RELAXATION-01"
+    )
     specimens = response_items(response_json(client.get(f"/material-states/{state_id}/specimens")))
     specimen = next(
         (
@@ -108,12 +132,24 @@ def create_governed_relaxation_test_data(
                     "material_state_revision_id": revision_id(state),
                     "specimen_code": specimen_code,
                     "orientation": None,
-                    "preparation_note": "Synthetic backend acceptance evidence",
-                    "change_reason": "Create governed calibration acceptance specimen",
+                    "preparation_note": (
+                        "Synthetic high-order UI acceptance evidence"
+                        if high_order
+                        else "Synthetic backend acceptance evidence"
+                    ),
+                    "change_reason": (
+                        "Create governed high-order calibration acceptance specimen"
+                        if high_order
+                        else "Create governed calibration acceptance specimen"
+                    ),
                 },
             )
         )
-    run_label = "Governed 296.15 K shear relaxation acceptance"
+    run_label = (
+        "Governed 296.15 K high-order shear relaxation acceptance"
+        if high_order
+        else "Governed 296.15 K shear relaxation acceptance"
+    )
     runs = response_items(response_json(client.get(f"/material-states/{state_id}/test-runs")))
     test_run = next(
         (item for item in runs if current_revision_content(item).get("run_label") == run_label),
@@ -131,18 +167,33 @@ def create_governed_relaxation_test_data(
                     "run_label": run_label,
                     "performed_at": "2026-08-28T09:00:00Z",
                     "test_temperature_k": 296.15,
-                    "change_reason": "Register exact synthetic shear-relaxation execution",
+                    "change_reason": (
+                        "Register exact synthetic high-order shear-relaxation execution"
+                        if high_order
+                        else "Register exact synthetic shear-relaxation execution"
+                    ),
                 },
             )
         )
-    source = relaxation_source_bytes()
+    source = high_order_relaxation_source_bytes() if high_order else relaxation_source_bytes()
     point_count = len(source.splitlines()) - 1
+    source_sha256 = hashlib.sha256(source).hexdigest()
+    source_filename = (
+        "lve-acceptance-relaxation-high-order.csv"
+        if high_order
+        else "lve-acceptance-relaxation.csv"
+    )
+    document_key = (
+        "CMP-LVE-ACCEPTANCE-RELAXATION-HIGH-ORDER"
+        if high_order
+        else "CMP-LVE-ACCEPTANCE-RELAXATION"
+    )
     uploaded = upload_artifact(
         client,
         value=source,
-        filename="lve-acceptance-relaxation.csv",
+        filename=source_filename,
         media_type="text/csv",
-        idempotency_key=f"lve-acceptance-source:{hashlib.sha256(source).hexdigest()}",
+        idempotency_key=f"lve-acceptance-source:{source_sha256}",
         test_run_revision_id=revision_id(test_run),
     )
     profile_content = {
@@ -211,7 +262,13 @@ def create_governed_relaxation_test_data(
                 "import_profile_revision_id": revision_id(profile),
                 "change_reason": "Create exact normalized relaxation Dataset",
             },
-            headers={"Idempotency-Key": "lve-acceptance-governed-import"},
+            headers={
+                "Idempotency-Key": (
+                    f"lve-acceptance-high-order-governed-import:{source_sha256}"
+                    if high_order
+                    else "lve-acceptance-governed-import"
+                )
+            },
         )
     )
     if import_run.get("status") != "succeeded":
@@ -220,23 +277,31 @@ def create_governed_relaxation_test_data(
         client.post(
             "/test-data:convert-tabular",
             json={
-                "document_id": "CMP-LVE-ACCEPTANCE-RELAXATION",
+                "document_id": document_key,
                 "material": {
                     "maker": "CMP Synthetic Materials",
                     "grade": "Demo Polymer Prony",
                     "lot_batch": "CMP-DEMO-POLYMER-001",
                 },
                 "test": {
-                    "date": "2026-08-28",
+                    "date": "2026-08-31" if high_order else "2026-08-28",
                     "operator": "Acceptance Operator",
                     "laboratory": "CMP Disposable Demo",
-                    "method": "governed synthetic shear relaxation",
+                    "method": (
+                        "governed synthetic high-order shear relaxation"
+                        if high_order
+                        else "governed synthetic shear relaxation"
+                    ),
                     "equipment_maker": "CMP Synthetic Instruments",
                     "equipment_model": "Relaxometer-A",
                 },
                 "specimen": {
-                    "specimen_id": "LVE-ACCEPTANCE-RELAXATION-01",
-                    "description": "Synthetic backend acceptance specimen",
+                    "specimen_id": specimen_code,
+                    "description": (
+                        "Synthetic high-order UI acceptance specimen"
+                        if high_order
+                        else "Synthetic backend acceptance specimen"
+                    ),
                 },
                 "conditions": [
                     {
@@ -248,7 +313,7 @@ def create_governed_relaxation_test_data(
                         "normalized_unit": "K",
                     }
                 ],
-                "source_file_name": "lve-acceptance-relaxation.csv",
+                "source_file_name": source_filename,
                 "source_base64": base64.b64encode(source).decode("ascii"),
                 "profile": profile_content,
             },
@@ -293,7 +358,7 @@ def create_governed_relaxation_test_data(
         (
             item
             for item in documents
-            if item.get("document_key") == "CMP-LVE-ACCEPTANCE-RELAXATION"
+            if item.get("document_key") == document_key
         ),
         None,
     )
@@ -304,7 +369,11 @@ def create_governed_relaxation_test_data(
                 json={
                     "classification": "internal",
                     "document": converted["canonical_document"],
-                    "change_reason": "Save governed relaxation calibration input",
+                    "change_reason": (
+                        "Save governed high-order relaxation calibration input"
+                        if high_order
+                        else "Save governed relaxation calibration input"
+                    ),
                     "governed_source": governed_source,
                 },
             )

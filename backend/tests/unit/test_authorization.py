@@ -359,7 +359,8 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
                         Permission.CALIBRATION_EXECUTE,
                     Permission.DATASET_READ,
                     Permission.EXPORT_READ,
-                    Permission.MODELING_READ,
+                        Permission.MODELING_READ,
+                        Permission.PLUGIN_READ,
                         Permission.PROCESSING_READ,
                         Permission.STATISTICS_READ,
                         Permission.TESTING_READ,
@@ -389,6 +390,19 @@ def test_catalog_write_carries_internal_curve_artifact_materialization_capabilit
         Permission.UNITS_READ.value,
         "events.publish",
     }.issubset(decision.database_permissions)
+
+
+def test_calibration_execute_carries_plugin_read_only_as_an_internal_dependency() -> None:
+    database_permissions = set(database_permissions_for(Permission.CALIBRATION_EXECUTE))
+
+    assert Permission.PLUGIN_READ.value in database_permissions
+    assert Permission.PLUGIN_READ not in ROLE_PERMISSIONS[Role.MATERIAL_MODELER]
+
+    service = _service(_binding(Role.MATERIAL_MODELER))
+    decision = service.authorize(_context(), Permission.CALIBRATION_EXECUTE)
+    assert Permission.PLUGIN_READ.value in decision.database_permissions
+    with pytest.raises(AuthorizationDenied):
+        service.authorize(_context(), Permission.PLUGIN_READ)
 
 
 def test_no_binding_or_wrong_tenant_project_subject_and_group_issuer_are_denied() -> None:

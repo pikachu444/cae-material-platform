@@ -5,7 +5,6 @@ import {
   loadApiConfig,
 } from "./shared/api";
 import { bootstrapDisplayDensity } from "./design/display-density";
-import "./styles.css";
 import "./design/tokens.css";
 import "./design/typography.css";
 import "./design/primitives.css";

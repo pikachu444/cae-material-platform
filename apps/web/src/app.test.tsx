@@ -588,8 +588,8 @@ describe("Material Catalog workbench", () => {
 
     expect(await screen.findByRole("heading", { name: "Activity", level: 1 })).toBeTruthy();
     await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/review-requests?"))).toBe(true));
-    expect(screen.getByRole("heading", { name: "Needs attention" })).toBeTruthy();
     expect(await screen.findByText("Selected model review")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Needs attention" })).toBeTruthy();
     expect(screen.getByText(/Review the synthetic material data/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Review" })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/Aggregate type|Aggregate ID|Revision ID|Manifest SHA-256|Record decision/);

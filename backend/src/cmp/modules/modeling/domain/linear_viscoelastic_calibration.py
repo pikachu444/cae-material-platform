@@ -23,6 +23,10 @@ __all__ = (
     "NORMALIZED_ARRAY_EVIDENCE_RULE_VERSION",
     "SELECTED_ARRAY_DIGEST_RULE_VERSION",
     "ArtifactPin",
+    "CandidateScopeMode",
+    "automatic_candidate_term_counts",
+    "calibration_observation_count",
+    "maximum_supported_prony_term_count",
     "CalibrationCandidate",
     "CalibrationPartition",
     "CalibrationRecommendation",
@@ -93,6 +97,7 @@ from cmp.modules.modeling.domain.linear_viscoelastic_contracts import (
     NORMALIZED_ARRAY_EVIDENCE_RULE_VERSION,
     SELECTED_ARRAY_DIGEST_RULE_VERSION,
     CalibrationPartition,
+    CandidateScopeMode,
     DataAvailability,
     ExecutionFailureCode,
     LinearViscoelasticCalibrationError,
@@ -133,6 +138,9 @@ from cmp.modules.modeling.domain.linear_viscoelastic_policy import (
     CalibrationWeights,
     LinearViscoelasticCalibrationPlan,
     ParameterBound,
+    automatic_candidate_term_counts,
+    calibration_observation_count,
+    maximum_supported_prony_term_count,
 )
 from cmp.modules.modeling.domain.linear_viscoelastic_results import (
     CalibrationCandidate,

@@ -1,0 +1,121 @@
+.polymer-fit-results-layout {
+  display: grid;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--ux-surface);
+}
+
+.polymer-results-heading {
+  display: flex;
+  min-width: 0;
+  min-height: var(--ux-control-min-block-size);
+  align-items: center;
+  gap: var(--ux-space-4);
+  padding: var(--ux-space-1) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.polymer-results-heading h2 {
+  margin: 0;
+  font-size: var(--ux-engineering-control-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.polymer-selected-model {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: var(--ux-space-2);
+}
+
+.polymer-selected-model strong {
+  font-size: var(--ux-engineering-control-font-size);
+}
+
+.polymer-selected-model span {
+  color: var(--ux-accent);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.polymer-selection-empty {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.polymer-measured-range {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ux-space-2);
+  margin-left: auto;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.polymer-measured-range > span { font-weight: var(--ux-font-weight-label); }
+.polymer-measured-range strong { color: var(--ux-text); font-variant-numeric: tabular-nums; }
+
+.polymer-model-coefficients table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ux-metadata-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.polymer-model-coefficients caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.polymer-model-coefficients :is(th, td) {
+  height: var(--ux-navigator-row-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.polymer-model-coefficients thead th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-table-heading-font-size);
+}
+
+.polymer-selection-section {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+}
+
+.polymer-selection-reason { display: grid; min-width: 0; gap: var(--ux-space-1); font-size: var(--ux-metadata-font-size); }
+.polymer-selection-reason textarea { min-height: 52px; resize: vertical; }
+
+.polymer-warning-list { display: grid; gap: var(--ux-space-1); min-width: 0; margin: 0; padding: 0; border: 0; }
+.polymer-warning-list legend { padding: 0; font-size: var(--ux-metadata-font-size); }
+.polymer-warning-list label { display: flex; align-items: flex-start; gap: var(--ux-space-1); font-size: var(--ux-metadata-font-size); }
+.polymer-warning-list input { width: 13px; min-width: 13px; height: 13px; min-height: 13px; margin: 1px 0 0; }
+
+.polymer-selection-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--ux-space-2); }
+
+.polymer-model-coefficients { grid-column: 1 / -1; }
+.polymer-model-coefficients summary { width: max-content; padding-block: var(--ux-space-1); color: var(--ux-accent); cursor: pointer; }
+.polymer-model-coefficients > div { max-height: 160px; overflow: auto; border-top: 1px solid var(--ux-border); }
+.polymer-model-coefficients td:nth-child(2) { text-align: right; }
+
+@container (max-width: 1000px) {
+  .polymer-results-heading { align-items: flex-start; flex-direction: column; gap: var(--ux-space-1); }
+  .polymer-measured-range { margin-left: 0; flex-wrap: wrap; }
+  .polymer-selection-section { grid-template-columns: minmax(0, 1fr); }
+  .polymer-selection-actions { justify-content: flex-start; }
+}

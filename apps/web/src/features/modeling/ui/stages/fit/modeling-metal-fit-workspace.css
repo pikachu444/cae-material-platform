@@ -1,0 +1,135 @@
+.metal-fit-command-ribbon {
+  display: flex;
+  min-width: 0;
+  min-height: var(--ux-interactive-min-block-size);
+  align-items: center;
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.metal-fit-input-summary {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: var(--ux-space-2);
+}
+
+.metal-fit-input-summary span {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.metal-fit-input-summary strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--ux-data-font-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metal-fit-command-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ux-space-2);
+  margin-left: auto;
+}
+
+.metal-fit-start {
+  display: flex;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ux-space-3);
+  padding: var(--ux-pane-padding);
+  color: var(--ux-text);
+}
+
+.modeling-workspace-shell.has-fit-settings {
+  position: relative;
+  isolation: isolate;
+}
+
+#metal-fit-settings {
+  position: absolute;
+  z-index: 9;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.metal-fit-settings-sheet {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: var(--ux-command-bar-height) minmax(0, 1fr);
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-canvas);
+}
+
+.metal-fit-settings-sheet > header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.metal-fit-settings-sheet h2 {
+  margin: 0;
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.metal-fit-settings-sheet > div {
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ux-pane-padding);
+  overflow: auto;
+}
+
+.metal-fit-settings-sheet .guided-step-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  align-items: start;
+  gap: var(--ux-space-3);
+}
+
+.metal-fit-settings-sheet .fit-control-group {
+  min-width: 0;
+  margin: 0;
+  padding: var(--ux-space-3);
+  border: 0;
+  border-right: 1px solid var(--ux-border);
+}
+
+.metal-fit-settings-sheet .fit-control-group:last-child {
+  border-right: 0;
+}
+
+.metal-fit-calculation-record {
+  margin-top: var(--ux-space-4);
+  border-top: 1px solid var(--ux-border-strong);
+}
+
+.metal-fit-calculation-record > summary {
+  width: max-content;
+  padding-block: var(--ux-space-2);
+  color: var(--ux-accent);
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .metal-fit-command-ribbon {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .metal-fit-command-actions {
+    margin-left: 0;
+  }
+}

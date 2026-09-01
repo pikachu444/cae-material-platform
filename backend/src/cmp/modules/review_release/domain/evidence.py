@@ -22,6 +22,7 @@ REGISTERED_REVIEW_SUBJECT_TYPES = (
     "catalog.configurable_record",
     "datasets.test_data_document",
     "modeling.material_model",
+    "modeling.linear_viscoelastic_calibration_plan",
     "exporting.solver_card",
     "exporting.neutral_solver_card",
 )

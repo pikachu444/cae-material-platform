@@ -157,6 +157,30 @@ def _plan(*, term_counts: tuple[int, ...] = (1,)) -> LinearViscoelasticCalibrati
     )
 
 
+def test_candidate_scope_mode_preserves_legacy_bytes_and_persists_automatic_scope() -> None:
+    legacy = _plan()
+    explicit_manual = replace(legacy, candidate_scope_mode="manual")
+    automatic = replace(legacy, candidate_scope_mode="automatic")
+
+    assert explicit_manual.canonical() == legacy.canonical()
+    assert explicit_manual.digest == legacy.digest
+    assert "candidate_scope_mode" not in explicit_manual.canonical()
+    assert automatic.canonical()["candidate_scope_mode"] == "automatic"
+    assert plan_from_payload(automatic.canonical()).canonical() == automatic.canonical()
+
+
+def test_automatic_scope_rejects_a_silent_term_subset() -> None:
+    dense_semantics = replace(
+        INPUT_SEMANTICS,
+        point_dispositions=tuple(
+            PointDisposition(index, PointPartition.CALIBRATION) for index in range(5)
+        ),
+    )
+
+    with pytest.raises(ValueError, match="every feasible term count"):
+        replace(_plan(), input_semantics=dense_semantics, candidate_scope_mode="automatic")
+
+
 def _relaxation_input(*, holdout_modulus: float = 4.1) -> CanonicalViscoelasticInput:
     points = (
         RelaxationObservation(0, 0.0, 6.0, PointPartition.EXCLUDED, "INSTANTANEOUS_LIMIT"),
@@ -251,6 +275,7 @@ def test_governed_plan_resolves_server_pins_and_replays_idempotently() -> None:
         max_nfev=source.max_nfev,
         change_reason="Create governed plan",
         idempotency_key="governed-plan-replay",
+        candidate_scope_mode="automatic",
     )
 
     first = service.create_governed_plan(
@@ -269,6 +294,8 @@ def test_governed_plan_resolves_server_pins_and_replays_idempotently() -> None:
     assert first.current.import_profile == PROFILE
     assert first.current.input_semantics == INPUT_SEMANTICS
     assert first.current.recommendation_policy == LINEAR_VISCOELASTIC_RECOMMENDATION_POLICY
+    assert first.current.term_counts == (1,)
+    assert first.current.canonical()["candidate_scope_mode"] == "automatic"
     assert (
         first.current.canonical()["recommendation_policy"]
         == LINEAR_VISCOELASTIC_RECOMMENDATION_POLICY
@@ -336,6 +363,20 @@ def test_processed_plan_persists_exact_tts_output_pins() -> None:
             )
 
     source = _plan()
+    automatic_bounds = {
+        **source.parameter_bounds,
+        2: (
+            ParameterBound("G_inf_pa", 1, 4, 20, "Pa"),
+            ParameterBound("G_1_pa", 1, 2, 10, "Pa"),
+            ParameterBound("G_2_pa", 1, 2, 10, "Pa"),
+            ParameterBound("tau_1_s", 0.001, 0.01, 0.1, "s"),
+            ParameterBound("tau_2_s", 1, 10, 100, "s"),
+        ),
+    }
+    automatic_starts = {
+        1: ((4.0, 2.0, 0.1),),
+        2: ((4.0, 2.0, 2.0, 0.01, 10.0),),
+    }
     repository = InMemoryLinearViscoelasticCalibrationRepository()
     service = LinearViscoelasticCalibrationService(
         repository=repository,
@@ -349,12 +390,9 @@ def test_processed_plan_persists_exact_tts_output_pins() -> None:
             processing_output_id=PROCESSING_OUTPUT.aggregate_id,
             processing_output_revision_id=PROCESSING_OUTPUT.revision_id,
             availability=ChannelAvailability(sweep=DataAvailability.PROVIDED),
-            term_counts=source.term_counts,
-            parameter_bounds=source.parameter_bounds,
-            start_vectors={
-                term: tuple(tuple(float(item) for item in vector) for vector in vectors)
-                for term, vectors in source.start_vectors.items()
-            },
+            term_counts=(1, 2),
+            parameter_bounds=automatic_bounds,
+            start_vectors=automatic_starts,
             weights=source.weights,
             recommendation_policy=source.recommendation_policy,
             ftol=source.ftol,
@@ -363,6 +401,7 @@ def test_processed_plan_persists_exact_tts_output_pins() -> None:
             max_nfev=source.max_nfev,
             change_reason="Create Plan from confirmed DMA TTS output",
             idempotency_key="processed-plan",
+            candidate_scope_mode="automatic",
         ),
     )
     reloaded = service.get_plan(_context(), _decision(Permission.MODELING_READ), created.id)
@@ -371,6 +410,8 @@ def test_processed_plan_persists_exact_tts_output_pins() -> None:
     assert reloaded.current.processing_metadata_artifact == PROCESSING_METADATA
     assert reloaded.current.processing_result_artifact == PROCESSING_RESULT
     assert reloaded.current.input_semantics == semantics
+    assert reloaded.current.term_counts == (1, 2)
+    assert reloaded.current.canonical()["candidate_scope_mode"] == "automatic"
     assert reloaded.current.canonical()["processing_output"] == {
         "id": str(PROCESSING_OUTPUT.aggregate_id),
         "revision_id": str(PROCESSING_OUTPUT.revision_id),
@@ -542,7 +583,13 @@ def test_application_journey_persists_run_ledger_selection_and_rejects_terminal_
 
 def test_durable_queue_submits_the_real_plugin_job_and_replays_by_calibration_key() -> None:
     context = _context()
-    execute = _decision(Permission.CALIBRATION_EXECUTE)
+    execute = replace(
+        _decision(Permission.CALIBRATION_EXECUTE),
+        database_permissions=tuple(sorted((
+            Permission.CALIBRATION_EXECUTE.value,
+            Permission.PLUGIN_READ.value,
+        ))),
+    )
     plan = _plan()
     submitted: list[Any] = []
 
@@ -570,10 +617,12 @@ def test_durable_queue_submits_the_real_plugin_job_and_replays_by_calibration_ke
 
     class Authorization:
         def authorize(self, _context: object, permission: Permission) -> AuthorizationDecision:
+            assert permission is not Permission.PLUGIN_READ
             return _decision(permission)
 
     class Plugins:
         def get_active_for_plugin(self, *_args: object, **_kwargs: object) -> object:
+            assert _args[1].permission is Permission.PLUGIN_READ
             return SimpleNamespace(
                 active=True,
                 classification=DataClassification.INTERNAL,
@@ -621,9 +670,18 @@ def test_durable_queue_submits_the_real_plugin_job_and_replays_by_calibration_ke
             snapshot.id, plan.plan_revision_id, "queue", "run-key"
         ),
     )
+    repeated = service.queue_run(
+        context,
+        execute,
+        QueueLinearViscoelasticCalibrationRun(
+            snapshot.id, plan.plan_revision_id, "queue", "second-run-key"
+        ),
+    )
     assert queued.job_id == UUID(submitted[0].job_spec["job_id"])
     assert replay == queued
-    assert len(submitted) == 1
+    assert repeated.run_id != queued.run_id
+    assert repeated.job_id != queued.job_id
+    assert len(submitted) == 2
     command = submitted[0]
     assert command.job_type == "plugin.run"
     assert command.resource_policy.cpu_millis == 2_000

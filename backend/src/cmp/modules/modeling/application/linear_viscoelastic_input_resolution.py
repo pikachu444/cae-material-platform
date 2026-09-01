@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from decimal import Decimal
 from itertools import pairwise
@@ -81,6 +82,39 @@ class ResolveProcessedViscoelasticInput:
 
 
 @dataclass(frozen=True, slots=True)
+class ReadProcessedViscoelasticFitInput:
+    processing_output_id: UUID
+    processing_output_revision_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessedViscoelasticFitInputChannel:
+    channel: str
+    quantity: str
+    unit: str
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessedViscoelasticFitInputRow:
+    ordinal: int
+    coordinate: float | None
+    storage_modulus_pa: float
+    loss_modulus_pa: float
+    partition: PointPartition
+    exclusion_reason: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessedViscoelasticFitInput:
+    mode: str
+    coordinate_quantity: str
+    coordinate_unit: str
+    response_channels: tuple[ProcessedViscoelasticFitInputChannel, ...]
+    reference_temperature_k: Decimal
+    rows: tuple[ProcessedViscoelasticFitInputRow, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ResolvedGovernedViscoelasticInput:
     classification: DataClassification
     test_data: ExactRevisionPin
@@ -93,6 +127,9 @@ class ResolvedGovernedViscoelasticInput:
     processing_output: ExactRevisionPin | None = None
     processing_metadata_artifact: ArtifactPin | None = None
     processing_result_artifact: ArtifactPin | None = None
+    # These pins are derived from the governed source lineage, never from client request fields.
+    material: ExactRevisionPin | None = None
+    material_state: ExactRevisionPin | None = None
 
 
 def _active_channels(
@@ -239,6 +276,8 @@ class GovernedLinearViscoelasticInputResolver:
         test_data: ExactRevisionPin,
         import_profile: ExactRevisionPin,
         processing_output: ExactRevisionPin | None = None,
+        material: ExactRevisionPin | None = None,
+        material_state: ExactRevisionPin | None = None,
     ) -> None:
         """Reject promotion after a pinned upstream aggregate acquires a new head.
 
@@ -281,6 +320,31 @@ class GovernedLinearViscoelasticInputResolver:
                 f"{test_data.aggregate_id} pinned={test_data.revision_id} "
                 f"current={current_test_data.current.revision_id}"
             )
+        if (
+            test_data.sha256 is not None
+            and current_test_data.current.content_hash != test_data.sha256
+        ):
+            changes.append(
+                "Test Data digest "
+                f"pinned={test_data.sha256} current={current_test_data.current.content_hash}"
+            )
+        source = current_test_data.content.governed_source
+        if material is not None or material_state is not None:
+            if source is None:
+                changes.append("governed Material/Material State source lineage is missing")
+            else:
+                if material is None or (
+                    source.material.aggregate_id != material.aggregate_id
+                    or source.material.revision_id != material.revision_id
+                ):
+                    changes.append("Material source pin differs from the exact Test Data lineage")
+                if material_state is None or (
+                    source.material_state.aggregate_id != material_state.aggregate_id
+                    or source.material_state.revision_id != material_state.revision_id
+                ):
+                    changes.append(
+                        "Material State source pin differs from the exact Test Data lineage"
+                    )
         if current_profile.current.record.revision_id != import_profile.revision_id:
             changes.append(
                 "Import Profile "
@@ -312,6 +376,15 @@ class GovernedLinearViscoelasticInputResolver:
                     "Processing Output "
                     f"{processing_output.aggregate_id} pinned={processing_output.revision_id} "
                     f"current={current_output.current.revision_id}"
+                )
+            if (
+                processing_output.sha256 is not None
+                and current_output.current.content_hash != processing_output.sha256
+            ):
+                changes.append(
+                    "Processing Output digest "
+                    f"pinned={processing_output.sha256} "
+                    f"current={current_output.current.content_hash}"
                 )
         if changes:
             raise LinearViscoelasticInputError(
@@ -377,12 +450,53 @@ class GovernedLinearViscoelasticInputResolver:
             raise LinearViscoelasticInputError(
                 "calibration authorization does not match the processed input request"
             )
+        resolved, _ = await self._resolve_processing_output_core(
+            context,
+            command.processing_output_id,
+            command.processing_output_revision_id,
+            availability=command.availability,
+        )
+        return resolved
+
+    async def read_processing_output_fit_input(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ReadProcessedViscoelasticFitInput,
+    ) -> ProcessedViscoelasticFitInput:
+        """Read the exact validated DMA master-curve values used by calibration."""
+
+        if (
+            decision.permission is not Permission.MODELING_READ
+            or decision.principal_id != context.principal.id
+            or decision.organization_id != context.organization_id
+            or decision.project_id != context.project_id
+        ):
+            raise LinearViscoelasticInputError(
+                "modeling authorization does not match the processed Fit-input request"
+            )
+        _, projection = await self._resolve_processing_output_core(
+            context,
+            command.processing_output_id,
+            command.processing_output_revision_id,
+            availability=None,
+        )
+        return projection
+
+    async def _resolve_processing_output_core(
+        self,
+        context: SecurityContext,
+        processing_output_id: UUID,
+        processing_output_revision_id: UUID,
+        *,
+        availability: ChannelAvailability | None,
+    ) -> tuple[ResolvedGovernedViscoelasticInput, ProcessedViscoelasticFitInput]:
         if self._processing_outputs is None:
             raise LinearViscoelasticInputError(
                 "Processing Output input resolution is unavailable",
                 code="INPUT_PROCESSING_OUTPUT_UNAVAILABLE",
             )
-        if command.availability.sweep.value != "PROVIDED":
+        if availability is not None and availability.sweep.value != "PROVIDED":
             raise LinearViscoelasticInputError(
                 "DMA master curve requires sweep availability=PROVIDED",
                 code="INPUT_SWEEP_STATUS_REQUIRED",
@@ -391,8 +505,8 @@ class GovernedLinearViscoelasticInputResolver:
         output, result_bytes = await self._processing_outputs.export_exact_result(
             context,
             processing_read,
-            command.processing_output_id,
-            command.processing_output_revision_id,
+            processing_output_id,
+            processing_output_revision_id,
         )
         content = output.content
         if (
@@ -417,6 +531,11 @@ class GovernedLinearViscoelasticInputResolver:
                 ),
             )
         rows = frequency_master_curve_from_parquet(result_bytes)
+        if len(rows) > 100_000:
+            raise LinearViscoelasticInputError(
+                "Processing Output Fit input exceeds the 100000-row read limit",
+                code="INPUT_PROCESSING_OUTPUT_ROW_LIMIT",
+            )
         if len(rows) != content.final_point_count:
             raise LinearViscoelasticInputError(
                 "Processing Output row count differs from its immutable metadata",
@@ -436,9 +555,28 @@ class GovernedLinearViscoelasticInputResolver:
             )
         active_frequencies = tuple(row.reduced_angular_frequency_rad_per_s for row in active)
         if (
-            any(value is None or value <= 0 for value in active_frequencies)
+            any(
+                value is None or not math.isfinite(value) or value <= 0
+                for value in active_frequencies
+            )
             or len(set(active_frequencies)) != len(active_frequencies)
-            or any(row.storage_modulus_pa <= 0 or row.loss_modulus_pa < 0 for row in active)
+            or any(
+                not math.isfinite(row.storage_modulus_pa)
+                or not math.isfinite(row.loss_modulus_pa)
+                or row.storage_modulus_pa <= 0
+                or row.loss_modulus_pa < 0
+                for row in active
+            )
+            or any(
+                row.reduced_angular_frequency_rad_per_s is not None
+                and not math.isfinite(row.reduced_angular_frequency_rad_per_s)
+                for row in rows
+            )
+            or any(
+                not math.isfinite(row.storage_modulus_pa)
+                or not math.isfinite(row.loss_modulus_pa)
+                for row in rows
+            )
         ):
             raise LinearViscoelasticInputError(
                 "DMA master-curve active rows have invalid or duplicate response coordinates",
@@ -488,6 +626,15 @@ class GovernedLinearViscoelasticInputResolver:
             raise LinearViscoelasticInputError(
                 "DMA master curve has no governed source lineage",
                 code="INPUT_GOVERNED_SOURCE_REQUIRED",
+            )
+        if content.export_provenance is not None and (
+            content.export_provenance.material != source.material
+            or content.export_provenance.material_state != source.material_state
+            or content.export_provenance.test_run != source.test_run
+        ):
+            raise LinearViscoelasticInputError(
+                "DMA master curve export provenance does not match the exact Test Data lineage",
+                code="INPUT_SOURCE_DIGEST_MISMATCH",
             )
         profile = self._governed_imports.get_profile_revision_for_calibration(
             context,
@@ -561,7 +708,7 @@ class GovernedLinearViscoelasticInputResolver:
                 f"@{DMA_FREQUENCY_MASTER_CURVE_METHOD_VERSION}"
             ),
         )
-        return ResolvedGovernedViscoelasticInput(
+        resolved = ResolvedGovernedViscoelasticInput(
             classification=classification,
             test_data=ExactRevisionPin(
                 snapshot.id,
@@ -601,7 +748,41 @@ class GovernedLinearViscoelasticInputResolver:
                 content.result_sha256,
                 content.result_media_type,
             ),
+            material=ExactRevisionPin(
+                source.material.aggregate_id,
+                source.material.revision_id,
+            ),
+            material_state=ExactRevisionPin(
+                source.material_state.aggregate_id,
+                source.material_state.revision_id,
+            ),
         )
+        projection = ProcessedViscoelasticFitInput(
+            mode="dma_frequency_master_curve",
+            coordinate_quantity="frequency.angular.reduced",
+            coordinate_unit="rad/s",
+            response_channels=(
+                ProcessedViscoelasticFitInputChannel(
+                    "dma_storage", "mechanics.modulus.storage", "Pa"
+                ),
+                ProcessedViscoelasticFitInputChannel(
+                    "dma_loss", "mechanics.modulus.loss", "Pa"
+                ),
+            ),
+            reference_temperature_k=reference_temperature_k,
+            rows=tuple(
+                ProcessedViscoelasticFitInputRow(
+                    ordinal=row.source_ordinal,
+                    coordinate=row.reduced_angular_frequency_rad_per_s,
+                    storage_modulus_pa=row.storage_modulus_pa,
+                    loss_modulus_pa=row.loss_modulus_pa,
+                    partition=PointPartition(row.partition.value),
+                    exclusion_reason=row.exclusion_reason,
+                )
+                for row in rows
+            ),
+        )
+        return resolved, projection
 
     def _resolve_snapshot(
         self,
@@ -708,4 +889,12 @@ class GovernedLinearViscoelasticInputResolver:
             ),
             profile_sha256=profile.revision.record.content_hash,
             semantics=semantics,
+            material=ExactRevisionPin(
+                source.material.aggregate_id,
+                source.material.revision_id,
+            ),
+            material_state=ExactRevisionPin(
+                source.material_state.aggregate_id,
+                source.material_state.revision_id,
+            ),
         )

@@ -22,6 +22,50 @@ current_materials_operational_disposition:
   - materials-card-preview-normal-1920x1080
   - materials-card-approximation-blocked-1440x900
   - materials-card-unsupported-blocked-1440x900
+current_modeling_polymer_operational_disposition:
+  status: accepted
+  date: '2026-09-02'
+  scope: issue-377-live-behavior-and-main-agent-original-review
+  visual_quality: pending-owner-disposition
+  supersedes: MOD-FIT-white-application-bar-for-polymer-only
+  targets:
+  - modeling-process-polymer-dma-tts-1366x768
+  - modeling-process-polymer-dma-tts-1440x900
+  - modeling-process-polymer-dma-tts-1920x1080
+  - modeling-process-polymer-dma-tts-2560x1440
+  - modeling-process-polymer-dma-tts-3840x2160
+  - modeling-process-polymer-dma-tts-saved-1366x768
+  - modeling-process-polymer-dma-tts-saved-1440x900
+  - modeling-process-polymer-dma-tts-saved-1920x1080
+  - modeling-process-polymer-dma-tts-saved-2560x1440
+  - modeling-process-polymer-dma-tts-saved-3840x2160
+  - modeling-fit-polymer-input-1920x1080
+  - modeling-fit-polymer-saved-1366x768
+  - modeling-fit-polymer-saved-1440x900
+  - modeling-fit-polymer-saved-1920x1080
+  - modeling-fit-polymer-saved-2560x1440
+  - modeling-fit-polymer-saved-3840x2160
+  - modeling-fit-polymer-residual-1920x1080
+  - modeling-fit-polymer-calculation-settings-1920x1080
+  - modeling-fit-polymer-stale-1920x1080
+  - modeling-fit-polymer-stale-restored-saved-input-1920x1080
+  - modeling-fit-polymer-stale-recovered-1920x1080
+  - modeling-fit-polymer-source-blocked-1366x768
+  - modeling-fit-polymer-source-blocked-1440x900
+  - modeling-fit-polymer-source-blocked-1920x1080
+  - modeling-fit-polymer-source-blocked-2560x1440
+  - modeling-fit-polymer-source-blocked-3840x2160
+current_modeling_metal_fit_operational_disposition:
+  status: accepted
+  date: '2026-09-02'
+  scope: issue-377-shared-fit-regression-and-main-agent-original-review
+  visual_quality: pending-owner-disposition
+  targets:
+  - modeling-fit-normal-1366x768
+  - modeling-fit-normal-1440x900
+  - modeling-fit-normal-1920x1080
+  - modeling-fit-normal-2560x1440
+  - modeling-fit-normal-3840x2160
 status_vocabulary:
   reference:
   - pending
@@ -275,70 +319,312 @@ references:
   screen: modeling-fit
   state: normal
   lifecycle: current-guide
-  viewport:
-    width: 1366
-    height: 768
-    device_scale_factor: 1
+  viewport: {width: 1366, height: 768, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-1366
   image: docs/user-guide/images/current/modeling-fit-1366x768.png
-  image_sha256: 8724f2ae47aaf9f21c155beb8b9a2964ae13ea491a91780e61cfe5b426e6bc89
-  date: 2026-08-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-08-30
+  image_sha256: 0fe7a29dc9437ff4f7b6bb33a850d258e48f193a0bd36a59702928537b507909
+  status: operational-evidence-accepted
 - id: modeling-fit-normal-1440x900
   screen: modeling-fit
   state: normal
   lifecycle: current-guide
-  viewport:
-    width: 1440
-    height: 900
-    device_scale_factor: 1
+  viewport: {width: 1440, height: 900, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-1440
   image: docs/user-guide/images/current/modeling-fit-1440x900.png
-  image_sha256: d139950c634bac704ffe49630857e582fff047735cdbd9eac136915961d6129c
-  date: 2026-08-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-08-30
+  image_sha256: 4be0d735e65516cc21653684a3c76bc79e579b497454231538c9897bdb31954f
+  status: operational-evidence-accepted
 - id: modeling-fit-normal-1920x1080
   screen: modeling-fit
   state: normal
   lifecycle: current-guide
-  viewport:
-    width: 1920
-    height: 1080
-    device_scale_factor: 1
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-1920
   image: docs/user-guide/images/current/modeling-fit-1920x1080.png
-  image_sha256: 74006a8abcfa242fd6f6d28a45a16813f463eef07c9da7ec144bb1ab94e90e8b
-  date: 2026-08-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-08-30
-- id: modeling-fit-candidate-parameters-long-1440x900
+  image_sha256: 93fbf1da23ec1549a327a7220dada9d404581fedac49ca6ee339bb1acda07db6
+  status: operational-evidence-accepted
+- id: modeling-fit-normal-2560x1440
   screen: modeling-fit
-  state: candidate-parameters-long
+  state: normal-wide
   lifecycle: current-guide
-  viewport:
-    width: 1440
-    height: 900
-    device_scale_factor: 1
+  viewport: {width: 2560, height: 1440, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
-  guide_screenshot_id: modeling-fit-candidate-parameters-long-1440
-  image: docs/user-guide/images/current/modeling-fit-candidate-parameters-long-1440x900.png
-  image_sha256: f2faa356076e32c0a0e56648b618e538671dca7afeddf69a0607ac3123e4de4e
-  date: 2026-08-30
-  status: approved
-  product_owner_approval:
-    status: approved
-    date: 2026-08-30
+  guide_screenshot_id: modeling-fit-2560
+  image: docs/user-guide/images/current/modeling-fit-2560x1440.png
+  image_sha256: 5e7329efda5228b3b94e54a9632a094de5ec0d4980d6c836c82b1110e0cfc339
+  status: operational-evidence-accepted
+- id: modeling-fit-normal-3840x2160
+  screen: modeling-fit
+  state: normal-wide
+  lifecycle: current-guide
+  viewport: {width: 3840, height: 2160, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-3840
+  image: docs/user-guide/images/current/modeling-fit-3840x2160.png
+  image_sha256: 19d1e232f4056caa7deb5c10e3cfb76223f6e4fbc076bfc823250d3508781499
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-1366x768
+  screen: modeling-process
+  state: polymer-dma-tts-ready
+  lifecycle: current-guide
+  viewport: {width: 1366, height: 768, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-1366
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1366x768.png
+  image_sha256: 9d08c4bebbf7b7ba0219483c4f3afd76266e1ffda571ba97e3953f0f0d5410cb
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-1440x900
+  screen: modeling-process
+  state: polymer-dma-tts-ready
+  lifecycle: current-guide
+  viewport: {width: 1440, height: 900, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-1440
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1440x900.png
+  image_sha256: b13c53824b4c0fcf9b4d9ee842f1e89190fa342e9bbbeca16c6dac0316581da2
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-1920x1080
+  screen: modeling-process
+  state: polymer-dma-tts-ready
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-1920
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1920x1080.png
+  image_sha256: 0ece4ffd81300ec203ed1ceb13fa606f8e0045a0fdb13aa66ed82f433503a9cf
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-2560x1440
+  screen: modeling-process
+  state: polymer-dma-tts-ready-wide
+  lifecycle: current-guide
+  viewport: {width: 2560, height: 1440, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-2560
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-2560x1440.png
+  image_sha256: c808539f312751a3b54235bc0f226371b15d0bdd03253bcd6af51c3322ad8095
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-3840x2160
+  screen: modeling-process
+  state: polymer-dma-tts-ready-wide
+  lifecycle: current-guide
+  viewport: {width: 3840, height: 2160, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-3840
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-3840x2160.png
+  image_sha256: 0726397d75cbffd0b4d7c70ea8eeae5eb61a10be65f0229c564d256d664330e5
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-saved-1366x768
+  screen: modeling-process
+  state: polymer-dma-tts-saved
+  lifecycle: current-guide
+  viewport: {width: 1366, height: 768, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1366
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1366x768.png
+  image_sha256: af8129cb6291e80a033a1bf946147889e44dd8d8e34217dc90134530ebf77ab8
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-saved-1440x900
+  screen: modeling-process
+  state: polymer-dma-tts-saved
+  lifecycle: current-guide
+  viewport: {width: 1440, height: 900, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1440
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1440x900.png
+  image_sha256: 7b8d483d8ebcbd8bdbbed5b9e5280f2af4f8c01bd4014e44c0502f5026d5a5ae
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-saved-1920x1080
+  screen: modeling-process
+  state: polymer-dma-tts-saved
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1920
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png
+  image_sha256: 96b497955e5ac4c91735d213d0f6e235d39822ee90c584ff69127ef7a4441079
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-saved-2560x1440
+  screen: modeling-process
+  state: polymer-dma-tts-saved-wide
+  lifecycle: current-guide
+  viewport: {width: 2560, height: 1440, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-saved-2560
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png
+  image_sha256: 9ff71ae0cd391010cccc1a9e6e4902e16c43cc7ac454ae15bee6d05a3c1f315a
+  status: operational-evidence-accepted
+- id: modeling-process-polymer-dma-tts-saved-3840x2160
+  screen: modeling-process
+  state: polymer-dma-tts-saved-wide
+  lifecycle: current-guide
+  viewport: {width: 3840, height: 2160, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-process-polymer-dma-tts-saved-3840
+  image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png
+  image_sha256: 3e877f985d5def3368ee94914134ab706f290d6db9e94d9b1b9f2ce08677cdc0
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-input-1920x1080
+  screen: modeling-fit
+  state: polymer-input-ready
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-input-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-input-1920x1080.png
+  image_sha256: 524132303d3fa1b97400ec796d39599ca18165a52f9efb58d6e00b1cc8c47033
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-saved-1366x768
+  screen: modeling-fit
+  state: polymer-saved
+  lifecycle: current-guide
+  viewport: {width: 1366, height: 768, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-saved-1366
+  image: docs/user-guide/images/current/modeling-fit-polymer-saved-1366x768.png
+  image_sha256: 9aece38b8cb1afe9708b3910147012d784a7b6b08eb345ff78d50a785f8a8d0a
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-saved-1440x900
+  screen: modeling-fit
+  state: polymer-saved
+  lifecycle: current-guide
+  viewport: {width: 1440, height: 900, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-saved-1440
+  image: docs/user-guide/images/current/modeling-fit-polymer-saved-1440x900.png
+  image_sha256: 4481296241d74597b3a4def73ce33baa2e2be566426b517ab2bda5e53aa0b467
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-saved-1920x1080
+  screen: modeling-fit
+  state: polymer-saved
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-saved-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-saved-1920x1080.png
+  image_sha256: 7497d51348b77877d8e8cd1a22762d7d834eec1e1004eb27c0502348e4aab038
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-saved-2560x1440
+  screen: modeling-fit
+  state: polymer-saved-wide
+  lifecycle: current-guide
+  viewport: {width: 2560, height: 1440, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-saved-2560
+  image: docs/user-guide/images/current/modeling-fit-polymer-saved-2560x1440.png
+  image_sha256: 2b25c97628921eff0934bdd5d12001ad45c7ee2fea57df8a482b8a9a7a83c28f
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-saved-3840x2160
+  screen: modeling-fit
+  state: polymer-saved-wide
+  lifecycle: current-guide
+  viewport: {width: 3840, height: 2160, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-saved-3840
+  image: docs/user-guide/images/current/modeling-fit-polymer-saved-3840x2160.png
+  image_sha256: de03664b1e130328485a5dcb339e7ee7a9816c28695054392fd62b54376779ca
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-residual-1920x1080
+  screen: modeling-fit
+  state: polymer-residuals
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-residual-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-residual-1920x1080.png
+  image_sha256: 06c11cef9294ec57eefbac10f6c1e0519f82d02a10921adb458387a6672fe96a
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-calculation-settings-1920x1080
+  screen: modeling-fit
+  state: polymer-calculation-settings-10-term
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-calculation-settings-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-calculation-settings-1920x1080.png
+  image_sha256: ad6dfbc87492ab4237f7f1108dc13b5c879d9c2499137f9da426ee59474bc5a7
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-stale-1920x1080
+  screen: modeling-fit
+  state: polymer-stale
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-stale-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-stale-1920x1080.png
+  image_sha256: 474fe4bcbf9bb55e3f2437d56fb0a1175c0757447211c5aac9413306f32fdf40
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-stale-restored-saved-input-1920x1080
+  screen: modeling-fit
+  state: polymer-stale-restored
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-stale-restored-saved-input-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-stale-restored-saved-input-1920x1080.png
+  image_sha256: 76106d5ec5f2d1bb6a3d7e40c278b39da9be4a5f923a73317b6d29d35012dde7
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-stale-recovered-1920x1080
+  screen: modeling-fit
+  state: polymer-stale-current
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-stale-recovered-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-stale-recovered-1920x1080.png
+  image_sha256: c88bba8478629f6ddca43ad1183f13c82068ea9da474bd6958d196b4c836ffae
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-source-blocked-1366x768
+  screen: modeling-fit
+  state: polymer-source-blocked
+  lifecycle: current-guide
+  viewport: {width: 1366, height: 768, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-source-blocked-1366
+  image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-1366x768.png
+  image_sha256: fcab7d193cbad4d0a05949c2c7201165ab9633f23c08240ca1c4c105ea9fc76f
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-source-blocked-1440x900
+  screen: modeling-fit
+  state: polymer-source-blocked
+  lifecycle: current-guide
+  viewport: {width: 1440, height: 900, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-source-blocked-1440
+  image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-1440x900.png
+  image_sha256: 820098f254dc1f255c46e81d6913352712f2d455da1c831c9185ad7a39ea54a7
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-source-blocked-1920x1080
+  screen: modeling-fit
+  state: polymer-source-blocked
+  lifecycle: current-guide
+  viewport: {width: 1920, height: 1080, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-source-blocked-1920
+  image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-1920x1080.png
+  image_sha256: fc53eb09e91789b095defd2cdcc1788887d8c0a9318c3039ee7705e7948ef37f
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-source-blocked-2560x1440
+  screen: modeling-fit
+  state: polymer-source-blocked-wide
+  lifecycle: current-guide
+  viewport: {width: 2560, height: 1440, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-source-blocked-2560
+  image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-2560x1440.png
+  image_sha256: 805aec1992e67ad8db44871652ddcdc7ef79374fe631d288bf0971db6353488b
+  status: operational-evidence-accepted
+- id: modeling-fit-polymer-source-blocked-3840x2160
+  screen: modeling-fit
+  state: polymer-source-blocked-wide
+  lifecycle: current-guide
+  viewport: {width: 3840, height: 2160, device_scale_factor: 1}
+  guide_manifest: docs/user-guide/screenshot-manifest.yaml
+  guide_screenshot_id: modeling-fit-polymer-source-blocked-3840
+  image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-3840x2160.png
+  image_sha256: 5c42b476f237ab5775a5c51483f7d1b166b573ef145a18c89af6461abe3dfd00
+  status: operational-evidence-accepted
 - id: materials-card-preview-normal-1440x900
   screen: materials-card
   state: normal

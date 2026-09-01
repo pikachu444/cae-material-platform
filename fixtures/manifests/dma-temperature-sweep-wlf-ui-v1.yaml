@@ -1,0 +1,39 @@
+schema_version: "1.0"
+fixture:
+  id: dma-temperature-sweep-wlf-ui-v1
+  path: fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json
+  classification: synthetic_non_confidential_non_production
+  non_production: true
+  sha256: e9bf1f24f8b4bee2353874e08ec0ce1dcb2ffbc397d1bfb59e5463a02aadd9fa
+
+generation:
+  source: repository-maintained synthetic numerical reference
+  production_functions_called: []
+  procedure: >-
+    Evaluate the declared WLF shift equation at twenty-one temperatures in 2 K
+    increments and then evaluate the declared one-term generalized-Maxwell storage
+    and loss equations at each reduced angular frequency. Four values distributed
+    across the range are held back for an independent Fit check. The independent
+    Decimal oracle checks the same shift equation in backend tests; no optimizer,
+    interpolation, smoothing, or resampling is used to generate the values.
+  public_experiment_values_used: []
+  interpolation: none
+  smoothing: none
+  resampling: none
+
+sources:
+  - title: Time Domain Viscoelasticity
+    publisher: Dassault Systemes
+    version: "2024"
+    url: https://docs.software.vt.edu/abaqusv2024/English/SIMACAEMATRefMap/simamat-c-timevisco.htm
+    role: WLF and normalized Prony equation semantics
+  - title: Temperature dependence of relaxation mechanisms in amorphous polymers and other glass-forming liquids
+    publisher: Journal of the American Chemical Society
+    version: "1955"
+    url: https://doi.org/10.1021/ja01619a008
+    role: WLF equation provenance only
+
+boundaries:
+  production_material_claim: forbidden
+  universal_wlf_default_claim: forbidden
+  finite_element_solver_execution: not_part_of_this_fixture

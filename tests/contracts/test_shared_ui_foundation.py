@@ -8,7 +8,31 @@ TOKENS = (ROOT / "apps/web/src/design/tokens.css").read_text(encoding="utf-8")
 LAYOUT = (ROOT / "apps/web/src/design/layout.css").read_text(encoding="utf-8")
 PRIMITIVES = (ROOT / "apps/web/src/design/primitives.css").read_text(encoding="utf-8")
 SHELL = (ROOT / "apps/web/src/design/shell.css").read_text(encoding="utf-8")
-LEGACY = (ROOT / "apps/web/src/styles.css").read_text(encoding="utf-8")
+LEGACY_PATH = ROOT / "apps/web/src/styles.css"
+LEGACY = LEGACY_PATH.read_text(encoding="utf-8") if LEGACY_PATH.exists() else ""
+MODELING_CORE = (
+    ROOT / "apps/web/src/features/modeling/ui/modeling-core-workbench.css"
+).read_text(encoding="utf-8")
+MODELING_PLOT = (
+    ROOT / "apps/web/src/features/modeling/ui/modeling-engineering-curve-plot.css"
+).read_text(encoding="utf-8")
+MODELING_PROCESS = (
+    ROOT
+    / "apps/web/src/features/modeling/ui/stages/process/modeling-process-stage.css"
+).read_text(encoding="utf-8")
+EXPORT_TARGET_PREVIEW = (
+    ROOT
+    / "apps/web/src/features/modeling/ui/stages/export/modeling-target-preview.tsx"
+).read_text(encoding="utf-8")
+SCROLL_RAIL_CSS = (ROOT / "apps/web/src/materials-scroll-rail.css").read_text(
+    encoding="utf-8"
+)
+MATERIALS_CSS = (
+    ROOT / "apps/web/src/features/materials/ui/materials.css"
+).read_text(encoding="utf-8")
+SCROLL_RAIL_TSX = (ROOT / "apps/web/src/materials-scroll-rail.tsx").read_text(
+    encoding="utf-8"
+)
 ADMINISTRATION = (
     ROOT / "apps/web/src/features/administration/ui/administration.css"
 ).read_text(encoding="utf-8")
@@ -33,6 +57,21 @@ RETIRED_ADMINISTRATION_SELECTOR_GROUPS = (
     ".database-revision-list button.active",
     ".record-heading-actions .text-button",
     ".database-facet-group button.active",
+)
+
+RETIRED_MODELING_SELECTOR_GROUPS = (
+    ".stage-data > .section-heading",
+    ".curve-tree-group > details > article.active",
+    ".processing-hero .eyebrow",
+    ".stage-chip-rail button.active",
+    ".stage-item.active",
+    ".stage-item.active > span",
+)
+
+MOVED_MODELING_SELECTOR_GROUPS = (
+    ".configured-step-list > button.active",
+    ".processing-curve.interactive.interaction-pan:not(.is-panning)",
+    ".processing-curve.interactive.is-panning",
 )
 
 
@@ -139,6 +178,33 @@ def test_administration_structure_has_one_active_owner() -> None:
         assert selector not in LEGACY
 
 
+def test_export_legacy_stylesheet_and_dead_layout_rule_have_no_consumers() -> None:
+    assert not LEGACY_PATH.exists()
+    assert 'import "./styles.css";' not in (ROOT / "apps/web/src/main.tsx").read_text(
+        encoding="utf-8"
+    )
+    assert 'import "../src/styles.css";' not in (
+        ROOT / "apps/web/.storybook/preview.ts"
+    ).read_text(encoding="utf-8")
+    assert not _contains_exact_css_rule(
+        LAYOUT, ".selection-delivery-command .ux-button"
+    )
+
+    export_css = (
+        ROOT
+        / "apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css"
+    ).read_text(encoding="utf-8")
+    assert _contains_exact_css_rule(export_css, ".export-status-ready-to-create")
+    assert export_css.count(".export-status-ready-to-create {") == 1
+    assert ".export-status-ready-to-create { color: #276b49; }" in export_css
+    assert ".export-status-ready-to-create { color: #276b49; }" not in LEGACY
+    live_producer = (
+        "className={`export-status export-status-"
+        '${currentStatus.toLowerCase().replaceAll(" ", "-")}`}'
+    )
+    assert live_producer in EXPORT_TARGET_PREVIEW
+
+
 def test_retired_administration_css_groups_have_no_production_consumers() -> None:
     source_css = "\n".join(
         path.read_text(encoding="utf-8")
@@ -166,3 +232,80 @@ def test_administration_elastic_workgroups_keep_forms_on_shared_semantic_boundar
 
     assert ".administration-record-workbench" in ADMINISTRATION
     assert "max-width: var(--ux-workspace-max-inline-size)" in ADMINISTRATION
+
+
+def test_retired_modeling_css_groups_have_no_production_or_built_consumers() -> None:
+    source_css = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted((ROOT / "apps/web/src").rglob("*.css"))
+    )
+    for selector in RETIRED_MODELING_SELECTOR_GROUPS:
+        assert not _contains_exact_css_rule(source_css, selector), selector
+
+    dist_root = ROOT / "apps/web/dist"
+    if dist_root.exists():
+        dist_css = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(dist_root.rglob("*.css"))
+        )
+        for selector in RETIRED_MODELING_SELECTOR_GROUPS:
+            assert not _contains_exact_css_rule(dist_css, selector), selector
+
+
+def test_modeling_css_moves_keep_one_exact_feature_owner_and_do_not_claim_fragments() -> None:
+    for selector, owner in (
+        (".configured-step-list > button.active", MODELING_CORE),
+        (
+            ".processing-curve.interactive.interaction-pan:not(.is-panning)",
+            MODELING_PLOT,
+        ),
+        (".processing-curve.interactive.is-panning", MODELING_PLOT),
+    ):
+        assert _contains_exact_css_rule(owner, selector), selector
+
+    assert not _contains_exact_css_rule(LAYOUT, ".configured-step-list > button.active")
+    assert not _contains_exact_css_rule(LEGACY, ".configured-step-list > button.active")
+    assert not _contains_exact_css_rule(
+        LEGACY, ".processing-curve.interactive.interaction-pan:not(.is-panning)"
+    )
+    assert not _contains_exact_css_rule(
+        MODELING_PROCESS, ".processing-curve.interactive.is-panning"
+    )
+
+    # The shared plot base/focus rules remain valid contextual peers; only the
+    # exact moved declarations are required to have a single producer.
+    assert ".processing-curve.interactive {" in MODELING_PROCESS
+    assert ".processing-curve.interactive:focus-visible {" in MODELING_PROCESS
+
+
+def test_materials_scroll_rail_has_one_co_located_css_owner() -> None:
+    selectors = (
+        ".materials-scroll-rail-y",
+        ".materials-scroll-rail-x",
+        ".materials-scroll-shell",
+        '.materials-scroll-shell[data-scroll-y="true"]',
+        '.materials-scroll-shell[data-scroll-x="true"]',
+        ".materials-scroll-rail",
+        ".materials-scroll-thumb",
+        ".materials-scroll-rail-y .materials-scroll-thumb",
+        ".materials-scroll-rail-x .materials-scroll-thumb",
+        ".materials-scroll-rail:hover .materials-scroll-thumb",
+        ".materials-scroll-rail:focus-visible",
+        ".materials-scroll-corner",
+    )
+    for selector in selectors:
+        assert _contains_exact_css_rule(SCROLL_RAIL_CSS, selector), selector
+        assert not _contains_exact_css_rule(LAYOUT, selector), selector
+        assert not _contains_exact_css_rule(MATERIALS_CSS, selector), selector
+
+    assert SCROLL_RAIL_CSS.index(".materials-scroll-rail-y {\n") < SCROLL_RAIL_CSS.index(
+        ".materials-scroll-rail {\n"
+    )
+    assert SCROLL_RAIL_CSS.index(".materials-scroll-rail-x {\n") < SCROLL_RAIL_CSS.index(
+        ".materials-scroll-rail {\n"
+    )
+    assert "border-width: 0 0 0 1px;" in SCROLL_RAIL_CSS
+    assert "border-width: 1px 0 0;" in SCROLL_RAIL_CSS
+    assert "border: 1px solid #9bb1bb;" in SCROLL_RAIL_CSS
+
+    assert 'import "./materials-scroll-rail.css";' in SCROLL_RAIL_TSX

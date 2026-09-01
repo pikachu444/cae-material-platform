@@ -129,6 +129,16 @@ def test_demo_density_fixture_is_supported_si_and_non_production() -> None:
     assert _SEED_FULL_DEMO._METAL_CATALOG_DESCRIPTION is None
 
 
+def test_polymer_fit_plan_idempotency_is_scoped_to_exact_test_data_revision() -> None:
+    first = _SEED_FULL_DEMO._polymer_fit_plan_idempotency_key("test-data-revision-1")
+    repeated = _SEED_FULL_DEMO._polymer_fit_plan_idempotency_key("test-data-revision-1")
+    changed = _SEED_FULL_DEMO._polymer_fit_plan_idempotency_key("test-data-revision-2")
+
+    assert first == repeated
+    assert first != changed
+    assert first.endswith(":test-data-revision-1")
+
+
 def test_issue342_seed_schema_upload_keeps_the_source_v2_files_unchanged() -> None:
     archive = _SEED_FULL_DEMO._fixture_schema_source_zip()
 

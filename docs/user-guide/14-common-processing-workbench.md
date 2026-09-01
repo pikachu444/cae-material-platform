@@ -5,20 +5,24 @@
 서버가 반환한 각 처리 단계의 수치와 진단을 비교합니다.
 
 일반 사용자는 전역 **Modeling**(`/modeling`)에서 이 엔진을 사용합니다. 이 화면은
-`Data | Process | Fit | Export`, compact curve/process tree, 얕은 current-step settings ribbon과
-Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같은 통합 Modeling 화면으로
+`Data | Process | Fit | Export`와 Metal/Polymer/Elastomer track을 제공합니다. Data와 여러 처리
+단계가 있는 Process는 compact curve/process tree를 사용합니다. 한 단계뿐인 DMA TTS Process와
+Fit은 그 폭을 그래프와 결과 확인에 돌려줍니다.
+`/datasets/processing`은 같은 통합 Modeling 화면으로
 연결되는 기술 호환 route입니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
 
 
-화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
-결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
-오른쪽 열은 없습니다. 1366 px에서도 설정은 한두 줄의 얕은 band 안에 있고 graph 축·눈금·범례가 첫 화면에
+Data와 여러 단계 Process의 왼쪽에는 현재 재료군과 호환되는 시험 curve 및 Process 단계가 있고,
+나머지 폭은 실제 서버 계산 결과를 표시하는 engineering graph입니다. 한 단계 DMA TTS Process와
+Fit은 왼쪽 rail 없이 전체 폭의 graph와
+아래 후보 비교·엔지니어 선택 영역을 사용합니다. 선택 단계 설정은 graph 위의 얕은 band에 있고
+영구적인 오른쪽 열은 없습니다. 1366 px에서도 graph 축·눈금·범례가 첫 화면에
 모두 보입니다. Process 범례는 x축 값과 제목을 가리지 않는 아래쪽 여백 위에 작게 놓입니다. 일반 작업에서는 내부 주소,
 토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
-왼쪽 Navigator의 divider를 끌어 폭을 바꾸고 **Collapse navigator**로 접을 수 있습니다. divider를
+Data와 여러 단계 Process 왼쪽 Navigator의 divider를 끌어 폭을 바꾸고 **Collapse navigator**로 접을 수 있습니다. divider를
 두 번 누르거나 **Reset navigator**를 실행하면 현재 표시 밀도의 공통 기본 폭으로 돌아갑니다. 이
 배치는 같은 브라우저에서 route 이동과 reload 뒤에도 유지되며 표시 밀도 reset과는 별개입니다.
 Data/Process/Fit graph는 Navigator, ribbon, candidate evidence pane 또는 표시 밀도가 바뀔 때 실제
@@ -92,8 +96,8 @@ Slope E, R²와 사용한 point 수가 Result에 나타나고, graph에는 mappe
 평가 직선이 함께 표시됩니다. R²가 0.995보다 작거나 offset 절댓값이 선택 구간 폭보다 크면 품질
 경고를 검토해 acknowledgement를 선택하고 다시 Preview해야 저장할 수 있습니다. 구간을 바꾸면
 acknowledgement가 해제되고 마지막 정상 graph는 남지만 저장은 새 Preview까지 차단됩니다. 저장한
-Processing Output은 exact revision으로 Fit에 전달되며 **Candidate parameters → Source evidence**에서
-`OLS zero intercept · v1.0.0 · exact saved Process step`을 확인할 수 있습니다. Equipment compliance는
+Processing Output은 exact revision으로 Fit에 전달되며 기술 정보는 **Calculation settings** 또는
+**Evidence**에서 확인할 수 있습니다. Equipment compliance는
 추정하지 않고 `Not provided`로 기록합니다.
 
 Material Database의 Material 상세에서 State 아래 **Open in Material Modeling**을 누르면 해당
@@ -126,23 +130,33 @@ Ghosh는 `k_pa`, `epsilon_0`, `delta_p_minus_n`만 저장하며 `plastic strain 
 acknowledgement가 모두 필요합니다. exact source/digest 또는 계산·저장이 실패해도 마지막 정상
 graph와 입력을 유지하며 명시적인 Retry action만 재시도합니다.
 
-Fit 상단 상태는 `Calculating`(previewBusy), `Saved current`(정확한 Fit Output 복원과 사용 가능한
+Polymer는 선택한 데이터가 TTS를 요구하는지 먼저 판별합니다. 완화시험과 한 온도의 DMA 주파수
+자료는 **Fit**으로 바로 가고, 한 주파수에서 여러 온도를 측정한 DMA 자료만 **Process**에서 master
+curve를 만든 뒤 **Fit**으로 갑니다. Fit의 정상 흐름은 **입력 확인 → Calculate Prony models →
+후보 비교와 엔지니어 선택 → Save fit & continue**입니다. 서버가 데이터로 가능한 1~10항 후보를
+자동 계산하므로 사용자가 3항이나 5항을 먼저 정하지 않습니다. Response curves/Point differences와
+Fit difference·Check difference,
+적용 범위, Recommendation을 비교하고 엔지니어가 모델과 이유를 선택합니다. 내부 식별자, digest,
+원시 최적화 점수와 반복 설명은 정상 화면에 표시하지 않습니다. 후보와 파라미터 범위를 직접 바꾸는
+작업은 전문가용 **Calculation settings**에만 둡니다.
+
+Metal Fit 상단 상태는 `Calculating`(계산 중), `Saved current`(정확한 Fit Output 복원과 사용 가능한
 preview가 모두 검증됨), `Preview not saved`(현재 preview만 사용 가능), `Saved result stale`(Fit
 history는 있으나 현재 preview/pointer가 검증되지 않음), `Not calculated`(그 밖의 상태)로 고정됩니다.
 복원 read 실패는 `Saved current`가 될 수 없고, 저장 실패는 현재 preview를 유지하되 `Preview not saved`로
 남습니다. 정확한 saved Fit을 복원한 직후 자동 preview 조건이 다시 평가되더라도 복원된
 `Saved current` graph와 pointer를 새 계산으로 덮어쓰지 않습니다. 사용자가 입력을 바꾸고
-**Preview changes**를 실행한 경우에만 새 preview가 시작됩니다.
+**Recalculate**를 실행한 경우에만 새 계산이 시작됩니다.
 
-Data/Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤 시험 방법 그룹과
+Data와 여러 단계 Process의 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤 시험 방법 그룹과
 specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `Tensile tests` 아래에 놓입니다.
 온도·변형률 속도 조건은 서버가 정확한 조건 메타데이터를 제공할 때만 하위 그룹으로 보이며 화면이
 추정하지 않습니다. 시편 행은 들여쓰기로 계층을 표현하며 `└`/`ㄴ` 문자를 제목 앞에 붙이지 않습니다.
 시험 방법 그룹은 실제로 접고 펼칠 수 있는 native disclosure이며 키보드로도 작동합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
 바꿉니다. 제목 오른쪽의 짧은 가로 색상 표본은 해당 curve의 plot 색상만 나타내며 제목 앞에 기호처럼 붙지 않습니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
 짧게 표시합니다. Data는 specimen과 exact revision을 두 줄로, Process는 `Specimen 0N · rN` 한 줄로
-표시하므로 hover 없이도 현재 선택 identity를 확인할 수 있습니다. Fit은 기존 document label과
-specimen/revision 보조 줄을 유지합니다. 긴 curve 이름은 이름 줄만 말줄임표로 정리하고 exact revision과
+표시하므로 hover 없이도 현재 선택 identity를 확인할 수 있습니다. Fit의 입력 이름은 graph 위의
+얕은 band에 한 번만 표시합니다. 긴 curve 이름은 이름 줄만 말줄임표로 정리하고 exact revision과
 선택·키보드 focus 상태는 유지하므로, graph를 오가거나 화면을 다시 열어도 현재 입력을 구분할 수 있습니다.
 이 rail은 Validate, Review와
 Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
@@ -151,10 +165,9 @@ pointwise mean과 서버 metadata에 기록된 confidence band를 함께 표시�
 고정 문구 대신 method, confidence level, pointwise/simultaneous 여부와 source count를 읽습니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
 
-Candidate parameters처럼 사용자가 명시적으로 펼친 보조 pane은 실제 graph 배정 폭이 1px 미만이
-될 때만 bounded overlay로 전환됩니다. 화면 크기나 DPR을 보고 미리 overlay로 바꾸지 않습니다.
-Overlay는 닫기 버튼과 `Escape`를 지원하고 닫은 뒤 원래 control로 focus를 돌려줍니다. Materials의
-같은 공통 disclosure도 **Open datasheet**를 overlay 안에서 직접 실행할 수 있습니다.
+Fit의 **Calculation settings**는 필요할 때만 bounded drawer로 열립니다. 긴 파라미터 표는 drawer
+안에서 독립적으로 스크롤하고 model과 column heading을 유지합니다. Drawer는 닫기 버튼과 `Escape`를
+지원하고 닫은 뒤 원래 control로 focus를 돌려줍니다.
 
 
 ## 처리 미리보기
@@ -263,26 +276,26 @@ evidence 배열과 polyline은 그대로이며, 선택 preview/blend는 Ghosh를
 **Hardening response**에서 observed plastic workup, single-law candidate와 현재 선택을 비교합니다.
 **Residual**은
 선택 fit domain에서 `predicted - observed`를, **Tangent modulus**는 후보별 수치 미분을 보여줍니다.
-황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 후보 비교 표와
-파라미터는 **Candidate parameters**를 열어 확인합니다. 추천 표시는 계산 결과일 뿐
-선택이 아닙니다. 반드시 candidate 행의 **Select candidate**를 누른 뒤 **Selection reason**을
-작성하고, 해당 행에 경고가 있을 때만 acknowledgement를 선택합니다.
-**Preview changes**가 새 계산에 성공하면 이전 행 선택과 reason은 자동으로 해제됩니다. 이미 저장한
+황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 후보는 graph 아래
+**Calculated models**에서 한 행씩 비교하며, 파라미터 범위는 **Calculation settings**에서 확인합니다.
+**Recommended**는 계산 결과일 뿐 선택이 아닙니다. 사용할 행을 고른 뒤 **Why this model was selected**를
+작성하고, 선택한 행에 경고가 있을 때만 acknowledgement가 나타납니다.
+**Recalculate**가 새 계산에 성공하면 이전 행 선택과 이유는 자동으로 해제됩니다. 이미 저장한
 Fit Output을 current로 가리키던 pointer도 새 행을 고르는 순간 해제되므로, 다시 선택·저장하기 전에는
 이전 output이 Export fallback으로 사용되지 않습니다.
-금속 blend는 candidate table의 **Calculated preview blend** 행에서만 명시적으로 선택합니다. preview 설정에서
-두 law 또는 ratio를 바꿨다면 먼저 **Preview changes**로 다시 계산해야 하며, 선택 이후에는 두 law 이름,
+금속 blend는 candidate table의 계산된 blend 행에서만 명시적으로 선택합니다. 설정에서
+두 law 또는 ratio를 바꿨다면 먼저 **Recalculate**로 다시 계산해야 하며, 선택 이후에는 두 law 이름,
 ratio, 두 parameter set을 하나의 decision identity로 보존합니다. single-law 행을 선택하면 graph도 그 law를
 `Selected`로 표시하며 계산된 blend를 선택으로 가장하지 않습니다.
 폴리머는 요청한 term policy가 아니라 server가 실제 산출한 term-count 행만 선택할 수 있습니다.
-**Save fit & continue**는 상단 action row에 한 번만 나타나며 이 decision을 immutable Processing
-Output에 저장합니다. 저장 전에는
+**Save fit & continue**는 graph 아래 엔지니어 선택 영역에 한 번만 나타나며 이 선택을 새 Processing
+Output으로 저장합니다. 저장 전에는
 Material Model IR이나 Neutral Material로 승격할 수 없습니다.
 
-Fit rail의 Curves는 Process에서 선택한 Test Data ref의 이름과 revision을 그대로 이어받습니다.
-현재 head나 `latest`를 대신 바인딩하지 않으며, 상단에는 사람이 읽는 exact Process Output
-label/revision과 Fit surface state가 표시됩니다. 전체 source digest, method key/version, run과
-저장된 Fit Output revision은 **Candidate parameters → Source evidence**에서 확인합니다. Process Output이 없거나 stale이면 graph 중앙에
+Fit 입력은 Process에서 선택한 Test Data 또는 저장된 Processing Output의 정확한 revision을 그대로
+이어받고 현재 head나 `latest`를 대신 바인딩하지 않습니다. 정상 화면에는 사람이 읽는 입력 이름과
+현재 저장 상태만 표시하며, 전체 source digest, method key/version, run과 저장된 Fit Output revision은
+**Calculation settings**, **Advanced** 또는 **Evidence**에서 확인합니다. Process Output이 없거나 stale이면 graph 중앙에
 **Fit is blocked**와 **Back to Process**가 나타나고, 이 복구는 ref/history/pointer를 바꾸지 않는
 탐색만 수행합니다. Fit 계산/저장 실패에서는 이전 유효 graph와 decision reason, warning acknowledgement를
 유지하고, 저장된 Fit을 다시 읽지 못하면 **Saved Fit result unavailable**과 **Retry saved Fit**만
@@ -290,16 +303,11 @@ label/revision과 Fit surface state가 표시됩니다. 전체 source digest, me
 Output을 fallback으로 사용하지 않습니다. 저장 후에도 현재 task는 Fit에 남고 Export는 별도 task로
 시작하지 않습니다.
 
-현재 Fit capture topology는 5개 viewport(1366×768, 1440×900, 1920×1080, 2560×1440,
-3840×2160)와 Candidate parameters 두 개 1440×900 evidence state, 다섯 개 1920×1080
-recovery/state입니다. `parameters-long`은 Candidate
-parameters disclosure를, `evidence-scrolled`는 keyboard/PageDown·wheel·native scrollbar와
-collapsed text selection을, `calculation-failed`/`save-failed`/`exact-source-blocked`/
-`exact-read-failed`/`restored`는 각각 실패·차단·정확한 복구를 기록합니다. 2026-08-16
-FE-04E current-source capture는 임시 디렉터리에서 17개 Process/Fit 상태를 검증한 뒤 Fit
-12개만 현재 가이드에 반영했습니다. 다섯 viewport와 상태 원본을 모두 원본 해상도로 열고,
-1920/2560/3840의 header·navigator·controls·graph 1:1 crop을 전후 비교해 UI가 그대로임을
-확인했습니다.
+현재 Fit capture topology는 Metal과 Polymer의 5개 viewport(1366×768, 1440×900, 1920×1080,
+2560×1440, 3840×2160), Polymer Calculation settings, Point differences, 입력 없음, 저장 결과와
+stale/recovery 상태를 포함합니다. Calculation settings는 1~10항 수동 선택과 10항의 21개
+파라미터 행을 실제 독립 스크롤로 검증합니다. 모든 정상 상태는 document overflow, pane 겹침,
+graph/legend/axis 충돌과 keyboard focus 복귀를 함께 확인합니다.
 
 | Fit evidence | 화면 |
 | --- | --- |
@@ -308,11 +316,18 @@ FE-04E current-source capture는 임시 디렉터리에서 17개 Process/Fit 상
 | 1920×1080 | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
 | Wide 2560×1440 | ![Fit 2560](images/current/modeling-fit-2560x1440.png) |
 | Wide 3840×2160 | ![Fit 3840](images/current/modeling-fit-3840x2160.png) |
-| Candidate parameters (long) | ![Fit candidate parameters](images/current/modeling-fit-candidate-parameters-long-1440x900.png) |
-| Candidate evidence scrolled | ![Fit candidate evidence scrolled](images/current/modeling-fit-candidate-evidence-scrolled-1440x900.png) |
+| Polymer Calculation settings · 10-term | ![Polymer calculation settings](images/current/modeling-fit-polymer-calculation-settings-1920x1080.png) |
 | Calculation failed | ![Fit calculation failed](images/current/modeling-fit-calculation-failed-1920x1080.png) |
 | Save failed | ![Fit save failed](images/current/modeling-fit-save-failed-1920x1080.png) |
 | Exact Process source blocked | ![Fit exact source blocked](images/current/modeling-fit-exact-source-blocked-1920x1080.png) |
+| Polymer 입력 미선택—Data로 이동 · 1366×768 | ![Polymer Fit input selection 1366](images/current/modeling-fit-polymer-source-blocked-1366x768.png) |
+| Polymer 입력 미선택—Data로 이동 · 1440×900 | ![Polymer Fit input selection 1440](images/current/modeling-fit-polymer-source-blocked-1440x900.png) |
+| Polymer 입력 미선택—Data로 이동 · 1920×1080 | ![Polymer Fit input selection 1920](images/current/modeling-fit-polymer-source-blocked-1920x1080.png) |
+| Polymer 입력 미선택—Data로 이동 · 2560×1440 | ![Polymer Fit input selection 2560](images/current/modeling-fit-polymer-source-blocked-2560x1440.png) |
+| Polymer 입력 미선택—Data로 이동 · 3840×2160 | ![Polymer Fit input selection 3840](images/current/modeling-fit-polymer-source-blocked-3840x2160.png) |
+| Polymer saved Selection · 1920×1080 | ![Polymer saved Selection](images/current/modeling-fit-polymer-saved-1920x1080.png) |
+| Polymer used/check point differences · 1920×1080 | ![Polymer point differences](images/current/modeling-fit-polymer-residual-1920x1080.png) |
+| Polymer input changed · 1920×1080 | ![Polymer input changed](images/current/modeling-fit-polymer-stale-1920x1080.png) |
 | Exact saved Fit read failed | ![Fit exact read failed](images/current/modeling-fit-exact-read-failed-1920x1080.png) |
 | Restored saved Fit | ![Fit restored](images/current/modeling-fit-restored-1920x1080.png) |
 
@@ -374,8 +389,8 @@ Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한
 DMA/FLD governed import는 이 proof에 Raw Asset/Artifact, Import Run, Import Profile과 normalized
 Dataset exact revision까지 추가합니다. canonical row 값을 다시 직렬화한 normalized Parquet digest도
 저장된 Dataset digest와 일치해야 하므로, Test Data 값이나 source pin 하나가 달라지면 read-back
-검증이 실패합니다. DMA frequency-temperature와 FLD는 Data/Review 전용이며, 현재 Fit이나
-DMA→Prony/IR 후보로 자동 노출되지 않습니다.
+검증이 실패합니다. 고정 주파수 DMA 온도 sweep은 저장한 shifted DMA response를 거쳐 Polymer Fit으로
+연결됩니다. FLD는 Data/Review 전용이며 다른 재료군의 Fit 후보로 자동 노출되지 않습니다.
 
 직접 등록한 Test Data JSON과 과거 revision은 이 proof가 없으므로 `Server provenance proof · missing`입니다.
 현재 session의 이름이나 ID가 우연히 같아도 추론하거나 backfill하지 않습니다. Canonical Test Data JSON

@@ -1,0 +1,100 @@
+.polymer-residual-workspace,
+.polymer-response-workspace {
+  container-type: inline-size;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  gap: var(--ux-space-2);
+  padding: var(--ux-pane-padding);
+  background: var(--ux-surface);
+}
+
+.polymer-response-workspace {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.polymer-residual-workspace {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.polymer-residual-workspace-heading,
+.polymer-response-heading {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+  padding-block-end: var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.polymer-residual-workspace-heading h2,
+.polymer-response-heading h2,
+.polymer-residual-panel-heading h3 {
+  margin: 0;
+  color: var(--ux-text);
+}
+
+.polymer-residual-workspace-heading h2,
+.polymer-response-heading h2 {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.polymer-residual-panel-heading span,
+.polymer-residual-panel-empty p {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.polymer-residual-metrics {
+  margin: 0;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+}
+
+.polymer-residual-metrics div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ux-space-1);
+}
+
+.polymer-residual-metrics dt {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.polymer-residual-metrics dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.polymer-residual-empty,
+.polymer-residual-panel-empty,
+.polymer-response-empty {
+  display: grid;
+  min-height: 0;
+  place-content: center;
+  gap: var(--ux-space-2);
+  color: var(--ux-text-muted);
+  text-align: center;
+}
+
+.polymer-residual-empty strong,
+.polymer-response-empty strong {
+  color: var(--ux-text);
+  font-size: var(--ux-emphasis-font-size);
+}
+
+@container (max-width: 720px) {
+  .polymer-residual-workspace-heading,
+  .polymer-response-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

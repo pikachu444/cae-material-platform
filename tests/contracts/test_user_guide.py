@@ -109,13 +109,8 @@ def _write_dual_lifecycle_service_reference_fixture(
         ("modeling-fit-1366", "normal", 1366, 768, "modeling-fit-1366x768.png"),
         ("modeling-fit-1440", "normal", 1440, 900, "modeling-fit-1440x900.png"),
         ("modeling-fit-1920", "normal", 1920, 1080, "modeling-fit-1920x1080.png"),
-        (
-            "modeling-fit-candidate-parameters-long-1440",
-            "candidate-parameters-long",
-            1440,
-            900,
-            "modeling-fit-candidate-parameters-long-1440x900.png",
-        ),
+        ("modeling-fit-2560", "normal-wide", 2560, 1440, "modeling-fit-2560x1440.png"),
+        ("modeling-fit-3840", "normal-wide", 3840, 2160, "modeling-fit-3840x2160.png"),
     )
     for guide_id, state, width, height, filename in guide_targets:
         image = guide_images / filename
@@ -134,11 +129,7 @@ def _write_dual_lifecycle_service_reference_fixture(
         )
         references.append(
             {
-                "id": (
-                    f"modeling-fit-candidate-parameters-long-{width}x{height}"
-                    if state == "candidate-parameters-long"
-                    else f"modeling-fit-normal-{width}x{height}"
-                ),
+                "id": f"modeling-fit-normal-{width}x{height}",
                 "screen": "modeling-fit",
                 "state": state,
                 "lifecycle": "current-guide",
@@ -185,17 +176,17 @@ def _write_dual_lifecycle_service_reference_fixture(
                             "target_base": "modeling-fit-normal",
                             "state": "normal",
                             "lifecycle": "current-guide",
-                            "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
-                            "images": 3,
+                            "approved_viewports": [
+                                "1366x768",
+                                "1440x900",
+                                "1920x1080",
+                                "2560x1440",
+                                "3840x2160",
+                            ],
+                            "images": 5,
                         },
-                        "exceptions": [
-                            {
-                                "id": "modeling-fit-candidate-parameters-long-1440x900",
-                                "state": "candidate-parameters-long",
-                                "lifecycle": "current-guide",
-                            }
-                        ],
-                        "image_count": 4,
+                        "exceptions": [],
+                        "image_count": 5,
                     },
                 ],
             },
@@ -398,7 +389,7 @@ def test_service_reference_manifest_accepts_phase_a_fifteen_pending_materials(
     registered = _verify_service_reference_manifest(tmp_path)
 
     assert len(references) == 15
-    assert len(registered) == 72
+    assert len(registered) == 73
     assert sum(reference["status"] == "approved" for reference in references) == 0
     assert sum(reference["status"] == "pending-owner-disposition" for reference in references) == 15
 
@@ -424,7 +415,7 @@ def test_service_reference_manifest_accepts_complete_administration_pending_set(
 
     registered = _verify_service_reference_manifest(tmp_path)
 
-    assert len(registered) == 72
+    assert len(registered) == 73
     assert {
         reference["id"]
         for reference in content["references"]
@@ -455,18 +446,20 @@ def test_service_reference_manifest_rejects_partial_administration_pending_set(
         _verify_service_reference_manifest(tmp_path)
 
 
-def test_service_reference_manifest_accepts_final_seventy_two_approved_targets(
+def test_service_reference_manifest_accepts_final_seventy_three_approved_targets(
     tmp_path: Path,
 ) -> None:
     manifest, _ = _write_material_current_lifecycle_fixture(tmp_path, approved=True)
 
     registered = _verify_service_reference_manifest(tmp_path, final_publication=True)
 
-    assert len(registered) == 72
+    assert len(registered) == 73
     content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
     references = content["references"]
-    assert sum(reference["status"] == "approved" for reference in references) == 72
-    assert sum(reference.get("status") == "pending-owner-disposition" for reference in references) == 0
+    assert sum(reference["status"] == "approved" for reference in references) == 73
+    assert (
+        sum(reference.get("status") == "pending-owner-disposition" for reference in references) == 0
+    )
 
 
 def test_service_reference_manifest_accepts_operational_materials_at_final_publication(
@@ -476,11 +469,12 @@ def test_service_reference_manifest_accepts_operational_materials_at_final_publi
 
     registered = _verify_service_reference_manifest(tmp_path, final_publication=True)
 
-    assert len(registered) == 72
+    assert len(registered) == 73
     content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
-    assert sum(
-        reference["status"] == "operational-evidence-accepted" for reference in references
-    ) == 15
+    assert (
+        sum(reference["status"] == "operational-evidence-accepted" for reference in references)
+        == 15
+    )
     assert content["current_materials_operational_disposition"]["visual_quality"] == (
         "pending-owner-disposition"
     )
@@ -537,7 +531,7 @@ def test_service_reference_manifest_accepts_strict_dual_lifecycle(tmp_path: Path
 
     registered = _verify_service_reference_manifest(tmp_path)
 
-    assert len(references) == len(registered) == 72
+    assert len(references) == len(registered) == 73
     assert all("measurements" in reference for reference in references[:65])
     assert all("measurements" not in reference for reference in references[65:])
     assert all(reference["lifecycle"] == "current-guide" for reference in references[68:])
@@ -763,7 +757,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 134
+    assert report.capture_count == 158
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
@@ -907,25 +901,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     issue331_source = "working-tree-issue-331-fit-css-ownership"
     administration_source = "working-tree-issue-331-administration-css-retirement"
-    issue262_source = (
-        "5de648936887422191b08ed227b5680015f16a22"
-        "+issue262-owner-correction-worktree"
-    )
-    issue262_fe07b_source = (
-        "1333c64553c884fcc9187f39d862cd2146880dc5"
-        "+issue262-fe07b-worktree"
-    )
-    issue342_source = (
-        "713bafc75a9b0974281126f30b50c78eb1a9dd2a"
-        "+issue342-task1b-worktree"
-    )
+    issue262_source = "5de648936887422191b08ed227b5680015f16a22+issue262-owner-correction-worktree"
+    issue262_fe07b_source = "1333c64553c884fcc9187f39d862cd2146880dc5+issue262-fe07b-worktree"
+    issue342_source = "713bafc75a9b0974281126f30b50c78eb1a9dd2a+issue342-task1b-worktree"
     issue371_source = (
-        "e55d30f597923509607dd7651d734bda3867b583"
-        "+issue371-catalog-single-owner-worktree"
+        "e55d30f597923509607dd7651d734bda3867b583+issue371-catalog-single-owner-worktree"
     )
-    assert manifest["version"] == 140
-    assert manifest["scope"] == "issue-331-administration-css-retirement"
-    assert manifest_source == administration_source
+    issue377_source = "aa8c6e942420cc67b637edd92d988c9fbf678b27+issue377-worktree"
+    assert manifest["version"] == 142
+    assert manifest["scope"] == "issue-377-polymer-linear-viscoelastic-fit-ui"
+    assert manifest_source == issue377_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -940,8 +925,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "sidecar",
     }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Administration Database and Records" in manifest["capture_command"]
-    assert "fifteen current-guide PNGs" in manifest["capture_command"]
+    assert "Preserved-volume cmp-377-ui-dense Compose" in manifest["capture_command"]
+    assert "Thirty-one reviewed originals" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -950,6 +935,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        issue377_source,
         issue371_source,
         issue331_source,
         administration_source,
@@ -1090,13 +1076,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-1920",
         "MOD-PROCESS-CURRENT-2560",
         "MOD-PROCESS-CURRENT-3840",
-        "modeling-fit-1366",
-        "modeling-fit-1440",
-        "modeling-fit-1920",
-        "modeling-fit-2560",
-        "modeling-fit-3840",
-        "modeling-fit-candidate-parameters-long-1440",
-        "modeling-fit-candidate-evidence-scrolled-1440",
         "modeling-fit-calculation-failed-1920",
         "modeling-fit-save-failed-1920",
         "modeling-fit-exact-source-blocked-1920",
@@ -1116,6 +1095,18 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "solver-card-approximation-blocked-1440",
         "solver-card-unsupported-blocked-1440",
     }
+    new_issue_377_captures = {
+        capture_id
+        for capture_id in captures
+        if capture_id.startswith(("modeling-fit-polymer-", "modeling-process-polymer-dma-tts"))
+        or capture_id in {
+            "modeling-fit-1366",
+            "modeling-fit-1440",
+            "modeling-fit-1920",
+            "modeling-fit-2560",
+            "modeling-fit-3840",
+        }
+    }
     assert set(previous_provenance_ids) == (
         set(captures)
         - new_issue_184_captures
@@ -1130,6 +1121,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - {"administration-format-definitions-1440"}
         - new_issue_342_captures
         - new_issue_371_captures
+        - new_issue_377_captures
     )
     assert {
         prior_source,
@@ -1172,10 +1164,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "fresh-Docker PostgreSQL/API/browser run" in issue_342_provenance["command"]
     assert (
         "captured the valid-preview state at 1366x768, 1440x900, 1920x1080, "
-        "2560x1440 and 3840x2160 at browser zoom 100% and DPR 1"
-        in issue_342_provenance["command"]
+        "2560x1440 and 3840x2160 at browser zoom 100% and DPR 1" in issue_342_provenance["command"]
     )
     assert new_issue_342_captures == set(issue_342_provenance["ids"])
+    issue_377_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == issue377_source
+    )
+    assert "browser zoom 100%, DPR 1" in issue_377_provenance["command"]
+    assert new_issue_377_captures == set(issue_377_provenance["ids"])
     issue_210_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
@@ -1298,13 +1296,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-1920",
         "MOD-PROCESS-CURRENT-2560",
         "MOD-PROCESS-CURRENT-3840",
-        "modeling-fit-1366",
-        "modeling-fit-1440",
-        "modeling-fit-1920",
-        "modeling-fit-2560",
-        "modeling-fit-3840",
-        "modeling-fit-candidate-parameters-long-1440",
-        "modeling-fit-candidate-evidence-scrolled-1440",
         "modeling-fit-calculation-failed-1920",
         "modeling-fit-save-failed-1920",
         "modeling-fit-exact-source-blocked-1920",
@@ -1326,12 +1317,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-access-3840",
     ):
         capture = captures[capture_id]
-        assert capture["workflow"] == (
-            "inspect-active-access-and-grant-remove-exact-assignment"
+        assert capture["workflow"] == ("inspect-active-access-and-grant-remove-exact-assignment")
+        assert (
+            "Member, Role, server-derived Permissions and row-level Remove access"
+            in capture["fixture"]
         )
-        assert "Member, Role, server-derived Permissions and row-level Remove access" in capture[
-            "fixture"
-        ]
     for capture_id in (
         "modeling-export-1366",
         "modeling-export-1440",
@@ -1367,10 +1357,10 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 134
+    assert len(manifest["captures"]) == 158
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 134
+    assert len(list(current_images.glob("*.png"))) == 160
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

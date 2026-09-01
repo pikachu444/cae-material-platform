@@ -127,22 +127,15 @@ export const ENGINEERING_PLOT_MARGIN = {
   bottom: 52,
 } as const;
 
-/**
- * Keep the lower-right legend in one density-derived plot reservation instead
- * of route-specific CSS offsets.  The right margin deliberately combines the
- * approved navigator minimum and pane padding tokens used by every P2 tier.
- */
 export function engineeringPlotMarginsForDensity(density: DisplayDensity): {
   left: number;
   right: number;
   top: number;
   bottom: number;
 } {
+  void density;
   return {
     ...ENGINEERING_PLOT_MARGIN,
-    right:
-      DISPLAY_DENSITY_PANE_METRICS[density].navigator.min
-      + DISPLAY_DENSITY_CONTROL_METRICS[density].pane,
   };
 }
 

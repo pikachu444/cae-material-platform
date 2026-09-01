@@ -1,0 +1,82 @@
+/* MaterialsScrollRegion owns the complete scroll shell, rails, thumb geometry, and corner. */
+
+/* Axis rules intentionally precede the base border shorthand to preserve the existing cascade. */
+.materials-scroll-rail-y {
+  grid-row: 1;
+  grid-column: 2;
+  border-width: 0 0 0 1px;
+}
+
+.materials-scroll-rail-x {
+  grid-row: 2;
+  grid-column: 1;
+  border-width: 1px 0 0;
+}
+
+.materials-scroll-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--ux-surface);
+}
+
+.materials-scroll-shell[data-scroll-y="true"] {
+  grid-template-columns: minmax(0, 1fr) var(--ux-scrollbar-track-size);
+}
+
+.materials-scroll-shell[data-scroll-x="true"] {
+  grid-template-rows: minmax(0, 1fr) var(--ux-scrollbar-track-size);
+}
+
+.materials-scroll-rail {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #9bb1bb;
+  background: #dce7ec;
+  touch-action: none;
+  user-select: none;
+}
+
+.materials-scroll-thumb {
+  position: absolute;
+  display: block;
+  border: 1px solid #345b6d;
+  border-radius: 2px;
+  background: #4e8195;
+}
+
+.materials-scroll-rail-y .materials-scroll-thumb {
+  top: 2px;
+  right: 2px;
+  left: 2px;
+  min-height: var(--ux-scrollbar-thumb-min-size);
+}
+
+.materials-scroll-rail-x .materials-scroll-thumb {
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  min-width: var(--ux-scrollbar-thumb-min-size);
+}
+
+.materials-scroll-rail:hover .materials-scroll-thumb {
+  background: #315f72;
+}
+
+.materials-scroll-rail:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.materials-scroll-corner {
+  grid-row: 2;
+  grid-column: 2;
+  border-top: 1px solid #9bb1bb;
+  border-left: 1px solid #9bb1bb;
+  background: #dce7ec;
+}

@@ -152,6 +152,7 @@ class ReviewApprovalProjector(Protocol):
         session: Session,
         context: SecurityContext,
         review_request_id: UUID,
+        review_decision_id: UUID | None = None,
         evidence: ReviewSubjectEvidence,
         published_by: UUID,
         occurred_at: datetime,
@@ -161,16 +162,33 @@ class ReviewApprovalProjector(Protocol):
 class SqlAlchemyReviewApprovalProjector:
     """Project only an approved, exact evidence snapshot in the decision transaction."""
 
+    def __init__(self, *, plan_projector: Any | None = None) -> None:
+        self._plan_projector = plan_projector
+
     def project(
         self,
         *,
         session: Session,
         context: SecurityContext,
         review_request_id: UUID,
+        review_decision_id: UUID | None = None,
         evidence: ReviewSubjectEvidence,
         published_by: UUID,
         occurred_at: datetime,
     ) -> None:
+        if evidence.subject_type == "modeling.linear_viscoelastic_calibration_plan":
+            if self._plan_projector is None:
+                raise ReviewConflict("linear-viscoelastic Plan approval projector is unavailable")
+            self._plan_projector.project(
+                session=session,
+                context=context,
+                review_request_id=review_request_id,
+                review_decision_id=review_decision_id,
+                evidence=evidence,
+                approved_by=published_by,
+                occurred_at=occurred_at,
+            )
+            return
         subject_identity = _subject_identity_tables.get(evidence.subject_type)
         if subject_identity is None:
             raise ReviewConflict("review subject identity is not registered")

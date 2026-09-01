@@ -26,6 +26,9 @@ from cmp.modules.modeling.adapters.persistence.candidate_selection_repository im
 from cmp.modules.modeling.adapters.persistence.linear_viscoelastic_calibration_repository import (
     SqlAlchemyLinearViscoelasticCalibrationRepository,
 )
+from cmp.modules.modeling.adapters.persistence.linear_viscoelastic_plan_governance import (
+    SqlAlchemyLinearViscoelasticPlanApproval,
+)
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
 )
@@ -181,10 +184,15 @@ def build_linear_viscoelastic_calibration_service(
     ):
         return None
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    plan_governance = SqlAlchemyLinearViscoelasticPlanApproval(
+        session_factory=sessions,
+        rls_context=identity.rls_context,
+    )
     return LinearViscoelasticCalibrationService(
         repository=SqlAlchemyLinearViscoelasticCalibrationRepository(
             session_factory=sessions,
             rls_context=identity.rls_context,
+            revision_hooks=(SqlInitialLifecycleHook(),),
         ),
         job_service=jobs,
         artifact_service=artifacts,
@@ -201,6 +209,7 @@ def build_linear_viscoelastic_calibration_service(
             else None
         ),
         linear_viscoelastic_models=linear_viscoelastic_models,
+        plan_governance=plan_governance,
     )
 
 

@@ -1184,13 +1184,25 @@ export interface LinearViscoelasticProcessingEvidence {
   } | null;
 }
 
+export interface LinearViscoelasticCalibrationPromotionEvidence {
+  plan: { id: string; revision_id: string; sha256: string };
+  run: { id: string; sha256: string };
+  candidate: { id: string; sha256: string };
+  selection: { id: string; revision_id: string; sha256: string };
+  recommendation: { id: string; sha256: string };
+  canonical_test_data: { id: string; revision_id: string; sha256: string };
+  canonical_artifact: { id: string; sha256: string };
+  normalized_artifact: { id: string; sha256: string };
+  import_profile: { id: string; revision_id: string; sha256: string };
+}
+
 export interface LinearViscoelasticModelResponse {
   material_model_id: string;
   material_state_id: string;
   current_revision: RevisionMetadata & {
     content: {
       model_family_id: string;
-      model_schema_version: "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0";
+      model_schema_version: "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0" | "1.4.0";
       model_schema_digest: string;
       material_id: string;
       material_revision_id: string;
@@ -1208,6 +1220,7 @@ export interface LinearViscoelasticModelResponse {
       non_production: true;
       prony_promotion_evidence?: Record<string, unknown> | null;
       processing_promotion_evidence?: LinearViscoelasticProcessingEvidence | null;
+      calibration_promotion_evidence?: LinearViscoelasticCalibrationPromotionEvidence | null;
     };
     ir: Record<string, unknown>;
   };

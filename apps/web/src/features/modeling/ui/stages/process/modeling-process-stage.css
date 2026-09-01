@@ -329,10 +329,6 @@
   user-select: none;
 }
 
-.processing-curve.interactive.is-panning {
-  cursor: grabbing;
-}
-
 .curve-line.processed {
   stroke: #e56734;
 }

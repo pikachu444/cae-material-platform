@@ -34,10 +34,11 @@ The service-reference register permits `current-guide` beside `static-bundle` an
 `current-product-evidence` for screens represented by the current user guide. Each such entry names
 one exact screenshot-manifest capture, route, state, viewport, tracked current PNG and SHA-256; the
 resolved image and dimensions must agree across both manifests. Current-guide entries do not carry
-static-bundle source, measurement or evidence-record fields. The Modeling Fit current-guide set is
-the metal Fit route at 1366×768, 1440×900 and 1920×1080 plus the long candidate-parameters state at
-1440×900, and is reviewed against Q-04's Carbon hierarchy, COMSOL task flow and SAP wide-screen
-composition without implying a redesign.
+static-bundle source, measurement or evidence-record fields. The Modeling Fit current-guide set covers
+the shared Metal and Polymer Fit topology at all five required viewports plus bounded input,
+point-difference, calculation-settings, stale and recovery states. It is reviewed against Q-04's Carbon
+hierarchy, COMSOL task flow and SAP wide-screen composition without treating automated geometry as
+product-owner visual approval.
 
 ## Locked product-owner feedback trace
 
@@ -110,14 +111,14 @@ and the product owner makes the final visual approval.
 | 긴 탐색 트리의 독립 스크롤 (Q-01) | Long navigator trees expose a visible, independent local scrollbar. |
 | 긴 결과 목록의 독립 스크롤 (Q-02) | Long result lists expose a visible, independent local scrollbar; empty results show no fake result scrollbar. |
 | Materials 탐색 행의 밀도·정렬 (Q-03) | At the compact tier, Materials navigation uses 24–26 px rows, economical indentation/type glyphs, reachable complete identities and no scrollbar/text collision. An approved high-DPI tier changes row and glyph size only through shared tokens. Disclosure, type glyph and label share one grid row and vertical center; implicit auto-placement onto a second line fails. |
-| Fit 리본과 그래프 공간 보존 (Q-04) | Fit controls and status do not squeeze the graph: at the compact tier the six groups remain visible within the 104 px (31 px heading + 72 px controls) ribbon and shared top actions stay 28 px. An approved high-DPI tier may increase ribbon and action tokens while preserving all six groups, baseline alignment, graph dominance, reachable Remove step/Candidate parameters, and local evidence-drawer scrolling. |
+| Fit 제어와 그래프 공간 보존 (Q-04) | Fit keeps a shallow input/view control band above a dominant full-width graph and a bounded comparison/selection dock below it. Calculation settings open in one bounded drawer whose long parameter table scrolls locally with its model and column headings visible. Controls, status, or technical evidence must not form a permanent third column or squeeze the graph. |
 | 공학 그래프 축의 충돌 없는 배치 (Q-05) | Engineering axes use compact, consistent typography; values, titles and frame do not collide, the x title is not detached, units appear in titles and unused whitespace is materially minimized. |
 | 곡선 범례와 결정 상태의 분리 (Q-06) | Multiple curve identities do not form a wide footer or compete with decision status; the curve legend remains compact and semantically separate. |
 | 반응형 그래프 glyph·stroke 비율 (Q-07) | Responsive plots preserve real glyph/stroke proportions; measured plot geometry is recomputed without non-uniform SVG stretching. |
 | 항복 응답의 양의 시작점·정확한 표기 (Q-08) | True-yield-stress versus true-plastic-strain response starts at a positive initial yield stress at zero plastic strain and is not mislabeled as total stress–strain. |
 | 오버플로 표시의 발견성·조작성 (Q-09) | Overflow affordances are perceptually discoverable in captured pixels with distinct reserved tracks, proportional thumbs and pointer/wheel/keyboard consequences; tree rows remain concise stored identities. |
 | Fit 범례의 곡선 충돌 회피 (Q-10) | Fit legend occupies a demonstrably curve-free plot quadrant and recovers graph width, with geometry-aware alternate placement or compact docked fallback on collision. |
-| Fit 탐색 레일의 Materials 일관성 (Q-11) | Fit rail shares the Materials navigator's flat pane rhythm, sentence-case sections, regular identity weight, aligned hierarchy, secondary revision text and restrained selection, while preserving curve-specific controls and its own topology. |
+| Modeling 탐색 레일의 Materials 일관성 (Q-11) | Data and multi-input or multi-step Process rails share the Materials navigator's flat pane rhythm, sentence-case sections, regular identity weight, aligned hierarchy and restrained selection. Fit and the single-step DMA TTS Process do not keep an empty or non-interactive rail merely for visual symmetry; their input identity stays in the shallow context band and the recovered width belongs to graph comparison. |
 | 정확한 Export selected model 분기·unit system 선택 (Q-12) | Export setup identifies the exact branch by its selected model, while the shared experiment/method/condition remains page context. Output unit system remains a capability-backed selector even with one supported value; unsupported alternatives never become a selectable invalid state. Physical properties appear once in Mapping details when they affect output; ambiguous `r1` shorthand, duplicate Source/Output labels, `Saved`, `Pinned`, internal lineage and receipt vocabulary stay out of the normal surface. |
 | Export 행 문법·보조 문구 (Q-13) | Export setup and result columns use a consistent compact row grammar. Secondary copy is one short consequence or recovery instruction, not a paragraph squeezed beneath every field or mapping row; technical counts and classifications stay in Advanced. |
 | Export 준비 상태의 단일 표현 (Q-14) | Export readiness is expressed once as `Ready to create`, `Review required`, or `Cannot create`, followed by the exact blocker/review/action. The same state is not restated with competing colors or repeated in setup, preview and Mapping details. |
@@ -238,29 +239,52 @@ Additional checks:
 Required topology:
 
 ```text
-184–210 px curve/process tree | Persistent dominant plot with shallow graph-adjacent band
+Data / multi-step Process: 184–210 px curve/process tree | Persistent dominant plot + shallow task band
+Single-step DMA TTS Process / Fit: full-width dominant plot
+     locally scrollable candidate comparison | bounded engineer selection
 ```
 
 Additional checks:
 
 - plot remains mounted through task changes;
 - actual plot width is at least 72% of workspace at 1440 px;
-- curve rows separate inclusion checkbox from icon-only plot visibility;
-- compact-tier curve tree is 184–210 px and controls do not create a permanent third column;
+- Modeling uses the same dark application menu bar, navigation color tokens and flat pane/divider grammar
+  as Materials, Activity and the current Administration implementation. For Polymer Fit this
+  owner-directed product-shell rule supersedes the older registered MOD-FIT white application-bar
+  override; Administration's object-editor interactions and three-pane topology are not copied into
+  Modeling;
+- Data/Process curve rows separate inclusion checkbox from icon-only plot visibility;
+- the compact-tier Data and multi-step Process tree is 184–210 px; single-step DMA TTS Process and Fit
+  reclaim that width for graph comparison and no stage creates a permanent third column;
 - the Modeling rail and Materials navigator read as one desktop product: flat headings, sentence-case
   section labels, regular 12–13 px identities, aligned hierarchy indentation and the same restrained
   leading-accent selection grammar; stage-specific curve controls remain distinct rather than being
   copied into catalog rows;
-- at the minimum rail width, every visible specimen identity/revision is unclipped, the narrow
+- at the minimum Data/Process rail width, every visible specimen identity/revision is unclipped, the narrow
   plot-color sample does not resemble a badge or branch, and long rail content scrolls locally
   without changing graph width;
 - task controls are property rows, not cards;
-- Fit uses the exact `Hardening response` heading and only the one-line `Ghosh exceeds chart scale` helper when that display condition applies; response/residual/extrapolation state is visible in the plot;
-- Fit's normal title row exposes only the human source label/revision and concise surface state; full digest/method/run evidence is reachable through Candidate parameters;
-- the curve legend overlays a measured data-free plot quadrant and does not consume a permanent
-  right column; deterministic geometry evidence proves it misses curves, boundaries, axes, labels
-  and state overlays at every required viewport, with a docked fallback only when no safe quadrant
-  exists;
+- Polymer routing follows the data: relaxation and single-temperature DMA go directly to Fit, while
+  fixed-frequency DMA temperature sweeps expose one full-width TTS Process step without a non-interactive
+  navigator, one Create WLF master curve action
+  and one saved-output Continue to Fit action; no duplicate confirmation checkbox or hidden Process
+  output choice is allowed;
+- Metal Fit uses the exact `Hardening response` heading and only the one-line `Ghosh exceeds chart scale` helper when that display condition applies; polymer linear-viscoelastic Fit uses the measured response name (`Relaxation response` or `DMA frequency response`) and exposes response/residual/applicability state in its governed Fit surface;
+- Metal and Polymer Fit repeat only the human source labels needed to distinguish the active work.
+  Exact revision pins, digest, method and run evidence remain in Calculation settings, Advanced or
+  Evidence and are not repeated as normal-surface helper text;
+- the Metal curve legend overlays a measured data-free plot quadrant and does not consume a permanent
+  right column; Polymer response keeps its measured/calculated/validation/not-used legend in a shallow
+  graph footer so no legend or status text can cover the response curve. This owner-directed Polymer
+  exception supersedes an overlay reference that would reproduce the reported overlap; neither form
+  creates a permanent right column;
+- Polymer Prony inputs use one locally scrollable parameter table with compact aligned Initial value,
+  Minimum, Maximum and Unit columns; 10-term editing keeps the current model and column headings visible;
+- Polymer comparison separates percentage Fit difference, percentage Check difference, application range,
+  warnings and Recommendation. Normal input and results contain no persistent helper
+  paragraph or raw negative BIC; row labels do not repeat point or parameter counts, and Recommendation
+  remains distinct from engineer Selection. When they differ, the response graph and exact-value table
+  compare both calculated responses instead of showing one candidate while residuals show another;
 - cursor/selection state appears in status bar.
 
 ### Modeling Export
