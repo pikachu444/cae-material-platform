@@ -1241,6 +1241,9 @@ describe("Common Processing Workbench", () => {
     };
     seededFitOutput.source_processing_output_sha256 = seededProcessOutput.output_sha256;
     let failNextPreview = false;
+    let holdDataPreview = true;
+    let dataPreviewRequestStarted = false;
+    let releaseDataPreview: (() => void) | undefined;
     let invalidArtifactId: string | null = null;
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
@@ -1483,6 +1486,13 @@ describe("Common Processing Workbench", () => {
             },
           ],
         };
+        if (url.endsWith("/processing:preview") && holdDataPreview) {
+          holdDataPreview = false;
+          dataPreviewRequestStarted = true;
+          return new Promise<Response>((resolve) => {
+            releaseDataPreview = () => resolve(jsonResponse(fitPreview));
+          });
+        }
         if (url.endsWith("/metal-fit-runs")) {
           return jsonResponse({
             id: "53000000-0000-4000-8000-000000000099",
@@ -1640,6 +1650,25 @@ describe("Common Processing Workbench", () => {
       { name: "Selected Test Data curves" },
       { timeout: 5000 },
     )).toBeTruthy();
+    await waitFor(() => expect(dataPreviewRequestStarted).toBe(true), { timeout: 5000 });
+    expect(fetchMock.mock.calls.some(([input, init]) =>
+      String(input).endsWith("/processing:preview") && init?.method === "POST",
+    )).toBe(true);
+    expect(releaseDataPreview).toBeTypeOf("function");
+    releaseDataPreview?.();
+    await waitFor(() => {
+      const axisLabels = Array.from(
+        document.querySelectorAll(".modeling-workspace-stage-data .chart-axis-label"),
+        (node) => node.textContent,
+      );
+      expect(axisLabels).toEqual(["strain engineering [1]", "stress engineering [MPa]"]);
+      expect(axisLabels).not.toContain("True plastic strain [1]");
+      expect(axisLabels).not.toContain("Hardening stress [MPa]");
+      const workspaceUpdates = onSessionChange.mock.calls
+        .map(([patch]) => (patch as { workspace?: { selectedStageOrdinal?: unknown } }).workspace)
+        .filter((workspace): workspace is { selectedStageOrdinal?: unknown } => Boolean(workspace));
+      expect(workspaceUpdates.at(-1)?.selectedStageOrdinal).toBe(0);
+    }, { timeout: 5000 });
     expect(screen.queryByText("Test data")).toBeNull();
     const settingsControl = screen.getByRole("button", { name: /current-stage settings/ });
     expect(settingsControl).toBeTruthy();

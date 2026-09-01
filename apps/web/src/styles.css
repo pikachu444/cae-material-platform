@@ -14,29 +14,6 @@
    the native viewport scrollable for wheel/keyboard semantics while removing
    only the browser scrollbar so it cannot create a second rail. */
 
-.processing-hero .eyebrow {
-  color: #fff;
-}
-
-.stage-chip-rail button.active {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
-
-.stage-item.active {
-  border-color: #257a76;
-  background: #eef8f7;
-  box-shadow: 0 0 0 2px rgba(37, 122, 118, 0.12);
-}
-.stage-item.active > span {
-  background: #257a76;
-  color: white;
-}
-
-.processing-curve.interactive.interaction-pan:not(.is-panning) {
-  cursor: grab;
-}
-
 /* Product-facing shell: authentication and infrastructure stay behind the workspace boundary. */
 
 /* T-80 keeps material-family modeling inside the common evidence-to-card workspace. */

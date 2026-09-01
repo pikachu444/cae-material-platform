@@ -501,9 +501,14 @@ Data selection 같은 일반 upstream draft 변경은 기존 invalidation 규칙
 (2560×1440, 3840×2160), manual local-scroll(1366×768), exact prerequisite blocked(1440×900), exact-read failed(1440×900), saved-result siblings(1440×900)
 상태를 각각 확인합니다. 캡처가 `Loading Process controls…` fallback에서 settled panel로 전환되지
 않았거나 graph/axis가 잘리면 기존 capture directory를 교체하지 않습니다.
+현재 5개 Process 화면은 계산 곡선을 plot 영역 안에서만 그려 범례 공간을 침범하지 않는 상태를
+확인한 결과입니다. Test Data, Mapping Profile, 저장 결과와 복구 동작은 그대로 유지됩니다.
 
 | Process evidence | 화면 |
 | --- | --- |
+| Standard 1366×768 | ![Process 1366](images/current/modeling-process-1366x768.png) |
+| Standard 1440×900 | ![Process 1440](images/current/modeling-process-1440x900.png) |
+| Standard 1920×1080 | ![Process 1920](images/current/modeling-process-1920x1080.png) |
 | Linear regression 1366×768 | ![Process Linear regression](images/current/modeling-process-linear-regression-1366x768.png) |
 | Wide 2560×1440 | ![Process 2560](images/current/modeling-process-2560x1440.png) |
 | Wide 3840×2160 | ![Process 3840](images/current/modeling-process-3840x2160.png) |

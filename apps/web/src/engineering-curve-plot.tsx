@@ -970,7 +970,7 @@ export function EngineeringCurvePlot({
   const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const inspectionLiveId = useId();
-  const hardeningClipId = `hardening-series-clip-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
+  const curveClipId = `curve-series-clip-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
   const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
   const hideInteractionControls = isHardening || reviewOnly;
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
@@ -1377,7 +1377,7 @@ export function EngineeringCurvePlot({
         onWheel={onWheel}
       >
         <defs>
-          {isHardening ? <clipPath id={hardeningClipId} clipPathUnits="userSpaceOnUse"><rect x={plotMargin.left} y={plotMargin.top} width={plotWidth} height={height - plotMargin.top - plotMargin.bottom} /></clipPath> : null}
+          <clipPath id={curveClipId} clipPathUnits="userSpaceOnUse"><rect x={plotMargin.left} y={plotMargin.top} width={plotWidth} height={height - plotMargin.top - plotMargin.bottom} /></clipPath>
         </defs>
         {xTicks.map((tick) => {
           const px = plotMargin.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - plotMargin.left - plotMargin.right);
@@ -1391,7 +1391,7 @@ export function EngineeringCurvePlot({
         <line x1={plotMargin.left} y1={effectiveHeight - plotMargin.bottom} x2={effectiveWidth - plotMargin.right} y2={effectiveHeight - plotMargin.bottom} className="chart-axis" />
         <line x1={plotMargin.left} y1={plotMargin.top} x2={plotMargin.left} y2={effectiveHeight - plotMargin.bottom} className="chart-axis" />
         {plottedBand && plottedBand.xValues.length >= 2 ? <polygon points={bandPolygon(plottedBand, effectiveWidth, effectiveHeight, bounds, plotMargin)} className="ensemble-confidence-band" /> : null}
-        {isHardening ? <g className="hardening-series-clip" clipPath={`url(#${hardeningClipId})`}>{plottedCurveLines}</g> : plottedCurveLines}
+        <g className={`curve-series-clip${isHardening ? " hardening-series-clip" : ""}`} clipPath={`url(#${curveClipId})`}>{plottedCurveLines}</g>
         {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax && extrapolationLabelX !== undefined ? <g className="extrapolation-annotation-layer" aria-label="Extrapolated unobserved domain"><text className="extrapolation-label" x={extrapolationLabelX} y={plotMargin.top - 8} textAnchor="start" textLength={plotWidth <= EXTRAPOLATION_LABEL_WIDTH ? extrapolationLabelWidth : undefined} lengthAdjust={plotWidth <= EXTRAPOLATION_LABEL_WIDTH ? "spacingAndGlyphs" : undefined} style={{ fill: "#9a5f16", fontSize: "12px", fontWeight: 800, letterSpacing: "0.08em" }}>{EXTRAPOLATION_LABEL}</text></g> : null}
         {marker ? <g className="engineering-result-marker"><line x1={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y1={plotMargin.top} x2={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y2={height - plotMargin.bottom}/><circle cx={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} cy={height - plotMargin.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom)} r="5"/><text x={plotMargin.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right) + 8} y={Math.max(plotMargin.top + 12, height - plotMargin.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - plotMargin.top - plotMargin.bottom) - 8)}>{marker.label}</text></g> : null}
         {selection?.kind === "range" ? <rect className="graph-range-selection" x={plotMargin.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right)} y={plotMargin.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - plotMargin.left - plotMargin.right))} height={height - plotMargin.top - plotMargin.bottom} /> : null}

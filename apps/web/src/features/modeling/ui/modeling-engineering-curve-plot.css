@@ -11,6 +11,14 @@
   display: block;
 }
 
+.processing-curve.interactive.interaction-pan:not(.is-panning) {
+  cursor: grab;
+}
+
+.processing-curve.interactive.is-panning {
+  cursor: grabbing;
+}
+
 /* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#208; peers CSS-0208. */
 .persistent-modeling-plot > .section-heading {
   display: flex; align-items: center; min-width: 0;
