@@ -960,12 +960,14 @@ def _parse_exception(path: str, raw: object) -> DocumentationImpactException:
             )
         sources = [item.source for item in parsed_css_relocations]
         targets = [item.target for item in parsed_css_relocations]
-        selectors = [selector for item in parsed_css_relocations for selector in item.selectors]
+        selector_names = [
+            selector for item in parsed_css_relocations for selector in item.selectors
+        ]
         if len(set(sources)) != len(sources):
             raise DocumentationImpactError(
                 f"{path} verification.relocations contains duplicate source"
             )
-        if len(set(selectors)) != len(selectors):
+        if len(set(selector_names)) != len(selector_names):
             raise DocumentationImpactError(
                 f"{path} verification.relocations contains duplicate selectors"
             )

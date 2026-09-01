@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import subprocess
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, cast
 
 import pytest
 import yaml
@@ -734,7 +734,7 @@ def _mutate_structural_fixture(fixture: _StructuralFixture, case: str) -> None:
 
 def _css_relocation_fixture(
     tmp_path: Path, case: str = "valid"
-) -> tuple[Path, dict, dict[str, bool], str]:
+) -> tuple[Path, dict[str, object], dict[str, bool], str]:
     def rule(selector: str, body: str) -> str:
         return f"{selector} {{\n{body}\n}}\n"
 
@@ -978,7 +978,10 @@ def test_css_ownership_relocation_rejects_grouped_declared_selector(
     tmp_path: Path,
 ) -> None:
     _project, raw, _changed, _base_sha = _css_relocation_fixture(tmp_path)
-    raw["verification"]["relocations"][0]["selectors"][0] = (
+    verification = cast(dict[str, object], raw["verification"])
+    relocations = cast(list[dict[str, object]], verification["relocations"])
+    selectors = cast(list[str], relocations[0]["selectors"])
+    selectors[0] = (
         ".materials-scroll-rail-y, .parallel"
     )
     with pytest.raises(
