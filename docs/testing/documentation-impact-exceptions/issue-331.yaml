@@ -1,0 +1,26 @@
+schemaVersion: cmp.documentation-impact-exception.v1
+issue: "#331"
+sourceSha: 39def8be4988b220ba4789390290bd1b8c2a8f29
+classification: non-user-visible-css-ownership-relocation
+reason: >-
+  The final #331 CSS retirement moves one exact Export status rule into its
+  existing owner stylesheet and removes one proven dead selector while
+  retaining unchanged rendered behavior and retiring its deleted stylesheet
+  imports.
+visualFiles:
+  - apps/web/src/design/layout.css
+  - apps/web/src/styles.css
+  - apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css
+verification:
+  importOnlyFiles:
+    - apps/web/src/main.tsx
+    - apps/web/.storybook/preview.ts
+  relocations:
+    - source: apps/web/src/styles.css
+      target: apps/web/src/features/modeling/ui/stages/export/modeling-export-stage.css
+      selectors:
+        - .export-status-ready-to-create
+  retirements:
+    - source: apps/web/src/design/layout.css
+      selectors:
+        - .selection-delivery-command .ux-button

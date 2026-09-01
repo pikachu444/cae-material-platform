@@ -899,7 +899,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     capture_source = manifest["visual_evidence"]["capture_source"]
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
-    issue331_source = "working-tree-issue-331-fit-css-ownership"
+    modeling_state_source = "working-tree-issue-331-modeling-state-css"
+    fit_css_source = "working-tree-issue-331-fit-css-ownership"
     administration_source = "working-tree-issue-331-administration-css-retirement"
     issue262_source = "5de648936887422191b08ed227b5680015f16a22+issue262-owner-correction-worktree"
     issue262_fe07b_source = "1333c64553c884fcc9187f39d862cd2146880dc5+issue262-fe07b-worktree"
@@ -937,7 +938,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         issue377_source,
         issue371_source,
-        issue331_source,
+        modeling_state_source,
+        fit_css_source,
         administration_source,
         issue342_source,
         capture_source,
@@ -1070,12 +1072,16 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "MOD-PROCESS-CURRENT-EXACT-READ-FAILED-1440",
         "MOD-PROCESS-CURRENT-SIBLINGS-1440",
     }
-    new_issue_331_captures = {
+    new_modeling_state_process_captures = {
         "MOD-PROCESS-CURRENT-1366",
         "MOD-PROCESS-CURRENT-1440",
         "MOD-PROCESS-CURRENT-1920",
         "MOD-PROCESS-CURRENT-2560",
         "MOD-PROCESS-CURRENT-3840",
+    }
+    new_issue_331_fit_captures = {
+        "modeling-fit-candidate-parameters-long-1440",
+        "modeling-fit-candidate-evidence-scrolled-1440",
         "modeling-fit-calculation-failed-1920",
         "modeling-fit-save-failed-1920",
         "modeling-fit-exact-source-blocked-1920",
@@ -1213,13 +1219,20 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert "native Python Playwright 1.62" in issue_309_provenance["command"]
     assert "Data to Process to Data" in issue_309_provenance["command"]
     assert new_issue_309_captures == set(issue_309_provenance["ids"])
-    issue_331_provenance = next(
+    modeling_state_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == issue331_source
+        if provenance["source_commit"] == modeling_state_source
     )
-    assert "--only-modeling-process-fit" in issue_331_provenance["command"]
-    assert new_issue_331_captures == set(issue_331_provenance["ids"])
+    assert "Data to Process to Fit" in modeling_state_provenance["command"]
+    assert new_modeling_state_process_captures == set(modeling_state_provenance["ids"])
+    fit_css_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == fit_css_source
+    )
+    assert "--only-modeling-process-fit" in fit_css_provenance["command"]
+    assert new_issue_331_fit_captures == set(fit_css_provenance["ids"])
     administration_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

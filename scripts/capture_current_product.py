@@ -3541,21 +3541,62 @@ def _prepare_modeling(
     technical = page.locator("details.modeling-data-technical-details")
     if not technical.get_attribute("open"):
         technical.locator(":scope > summary").click()
-    profile = technical.get_by_role("combobox", name="Saved Mapping Profile")
-    profile.wait_for(timeout=30_000)
+    profile = technical.get_by_role("combobox", name="Saved Mapping Profile", exact=True)
+    profile.wait_for(state="visible", timeout=30_000)
     page.wait_for_function(
         """() => (document.querySelector(
           'details.modeling-data-technical-details select[aria-label="Saved Mapping Profile"]'
         )?.options.length ?? 0) >= 2""",
         timeout=30_000,
     )
-    profile.select_option(index=1)
+    mapping_profile_label = "CMP demo tensile JSON mapping · Revision 1"
+    profile_options = profile.locator("option")
+    matching_profile_options = [
+        option
+        for option in profile_options.all()
+        if option.inner_text().strip() == mapping_profile_label
+    ]
+    if len(matching_profile_options) != 1:
+        raise RuntimeError(
+            "Saved Mapping Profile must expose exactly one visible exact-label option: "
+            f"{mapping_profile_label!r}"
+        )
+    profile_value = matching_profile_options[0].get_attribute("value")
+    if not profile_value or not profile_value.strip():
+        raise RuntimeError(
+            f"Saved Mapping Profile option has no nonempty value: {mapping_profile_label!r}"
+        )
+    profile.select_option(value=profile_value)
     page.wait_for_function(
-        """() => Boolean(document.querySelector(
-          'details.modeling-data-technical-details select[aria-label="Saved Mapping Profile"]'
-        )?.value)""",
+        """({value, label}) => {
+          const select = document.querySelector(
+            'details.modeling-data-technical-details select[aria-label="Saved Mapping Profile"]'
+          );
+          const selected = select?.selectedOptions;
+          return select?.value === value
+            && selected?.length === 1
+            && selected[0]?.textContent?.trim() === label;
+        }""",
+        arg={"value": profile_value, "label": mapping_profile_label},
         timeout=30_000,
     )
+    selected_profile_options = profile.locator("option:checked")
+    selected_profile_value = profile.input_value()
+    selected_profile_text = (
+        selected_profile_options.inner_text().strip()
+        if selected_profile_options.count() == 1
+        else ""
+    )
+    if (
+        selected_profile_options.count() != 1
+        or selected_profile_value != profile_value
+        or selected_profile_text != mapping_profile_label
+    ):
+        raise RuntimeError(
+            "Saved Mapping Profile selection did not read back the exact option: "
+            f"expected=({profile_value!r}, {mapping_profile_label!r}), "
+            f"actual=({selected_profile_value!r}, {selected_profile_text!r})"
+        )
     technical.locator(":scope > summary").click()
 
     _wait_for_settled(page)
@@ -6012,11 +6053,34 @@ def _measure_process_fit(
             const point = new DOMPoint(x, y).matrixTransform(matrix);
             return { x: point.x, y: point.y };
           };
+          const transformedRect = (element, ownerSvg) => {
+            if (!element || !ownerSvg) return null;
+            const x = Number(element.getAttribute('x'));
+            const y = Number(element.getAttribute('y'));
+            const width = Number(element.getAttribute('width'));
+            const height = Number(element.getAttribute('height'));
+            const matrix = ownerSvg.getScreenCTM?.();
+            if (!matrix || ![x, y, width, height].every(Number.isFinite)) return null;
+            const points = [
+              new DOMPoint(x, y),
+              new DOMPoint(x + width, y),
+              new DOMPoint(x, y + height),
+              new DOMPoint(x + width, y + height),
+            ].map(point => point.matrixTransform(matrix));
+            if (!points.every(point => Number.isFinite(point.x) && Number.isFinite(point.y))) return null;
+            const left = Math.min(...points.map(point => point.x));
+            const right = Math.max(...points.map(point => point.x));
+            const top = Math.min(...points.map(point => point.y));
+            const bottom = Math.max(...points.map(point => point.y));
+            return { left, right, top, bottom, width: right - left, height: bottom - top };
+          };
           const svg = document.querySelector('.persistent-modeling-plot svg[role=img]');
-          const axis = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
-            .find(
-              line => line.getAttribute('x1') !== line.getAttribute('x2')
-            )?.getBoundingClientRect();
+          const horizontalAxisNode = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
+            .find(line => line.getAttribute('y1') === line.getAttribute('y2'));
+          const verticalAxisNode = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
+            .find(line => line.getAttribute('x1') === line.getAttribute('x2'));
+          const axis = rect(horizontalAxisNode);
+          const verticalAxis = rect(verticalAxisNode);
           const workspace = box('.modeling-split-workspace');
           const processCluster = box('.modeling-workspace-stage-process');
           const fitCluster = box('.modeling-workspace-stage-fit');
@@ -6024,7 +6088,8 @@ def _measure_process_fit(
           const ribbon = box('.modeling-task-ribbon');
           const plot = box('.persistent-modeling-plot');
           const plotFrame = box('.persistent-modeling-plot .engineering-plot-frame');
-          const legend = rect(document.querySelector('.persistent-modeling-plot .engineering-plot-frame > .curve-legend'));
+          const legendNode = document.querySelector('.persistent-modeling-plot .engineering-plot-frame > .curve-legend');
+          const legend = rect(legendNode);
           const svgBox = svg?.getBoundingClientRect();
           const ticks = [...(svg?.querySelectorAll('.chart-tick') ?? [])].map(rect).filter(Boolean);
           const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])].map(rect).filter(Boolean);
@@ -6054,6 +6119,61 @@ def _measure_process_fit(
               const points = values.map(pair => screenPoint(polyline, pair[0], pair[1])).filter(Boolean);
               return points.slice(1).map((point, index) => ({ first: points[index], second: point }));
             });
+          const curveClipGroupCount = svg?.querySelectorAll('.curve-series-clip').length ?? 0;
+          const curveClipGroup = curveClipGroupCount === 1 ? svg?.querySelector('.curve-series-clip') : null;
+          const curveClipUrl = curveClipGroup?.getAttribute('clip-path') || '';
+          const curveClipMatch = curveClipUrl.match(/^url\\(\\s*["']?#([^"')]+)["']?\\s*\\)$/);
+          const curveClipId = curveClipMatch?.[1] || '';
+          const curveClipPath = curveClipId ? svg?.ownerDocument?.getElementById(curveClipId) : null;
+          const curveClipRectNodes = curveClipPath?.querySelectorAll('rect') ?? [];
+          const curveClipRectNode = curveClipRectNodes.length === 1 ? curveClipRectNodes[0] : null;
+          const curveClipRect = transformedRect(curveClipRectNode, svg);
+          const curveClipUnits = curveClipPath?.getAttribute('clipPathUnits') || '';
+          const curveLines = [...(svg?.querySelectorAll('polyline.curve-line') ?? [])];
+          const curveLinesContained = Boolean(curveClipGroup)
+            && curveLines.length > 0
+            && curveLines.every(line => curveClipGroup.contains(line));
+          const curveClipGeometryPositive = Boolean(
+            curveClipRect
+              && [curveClipRect.left, curveClipRect.right, curveClipRect.top, curveClipRect.bottom,
+                curveClipRect.width, curveClipRect.height].every(Number.isFinite)
+              && curveClipRect.width > 0
+              && curveClipRect.height > 0,
+          );
+          const curveClipAxesAligned = Boolean(
+            curveClipGeometryPositive
+              && axis
+              && verticalAxis
+              && Math.abs(curveClipRect.left - axis.left) <= 1
+              && Math.abs(curveClipRect.right - axis.right) <= 1
+              && Math.abs(curveClipRect.left - verticalAxis.left) <= 1
+              && Math.abs(curveClipRect.top - verticalAxis.top) <= 1
+              && Math.abs(curveClipRect.bottom - axis.bottom) <= 1
+              && Math.abs(curveClipRect.bottom - verticalAxis.bottom) <= 1,
+          );
+          const legendFullyExcludedByClip = Boolean(
+            legendNode
+              && legend
+              && curveClipGroup
+              && curveClipRect
+              && !curveClipGroup.contains(legendNode)
+              && !overlaps(legend, curveClipRect),
+          );
+          const curveClipPrerequisitesValid = curveClipGroupCount === 1
+            && Boolean(curveClipGroup)
+            && Boolean(curveClipPath)
+            && curveClipPath?.ownerSVGElement === svg
+            && Boolean(curveClipId)
+            && curveClipUnits === 'userSpaceOnUse'
+            && curveClipRectNodes.length === 1
+            && curveClipGeometryPositive
+            && curveClipAxesAligned
+            && curveLines.length > 0
+            && curveLinesContained
+            && legendFullyExcludedByClip;
+          const legendRawCurveSegmentOverlap = curveSegments.some(
+            segment => segmentIntersectsRect(segment.first, segment.second, legend),
+          );
           const extrapolationBoundary = rect(svg?.querySelector('.extrapolation-region line'));
           const extrapolationLabel = rect(svg?.querySelector('.extrapolation-annotation-layer text'));
           const stateOverlays = [...(svg?.querySelectorAll(
@@ -6215,6 +6335,7 @@ def _measure_process_fit(
             svgBox: svgBox ? { left: svgBox.left, right: svgBox.right, top: svgBox.top, bottom: svgBox.bottom, width: svgBox.width, height: svgBox.height } : null,
             legendBox: legend,
             horizontalAxisBox: axis ? { left: axis.left, right: axis.right, top: axis.top, bottom: axis.bottom, width: axis.width, height: axis.height } : null,
+            verticalAxisBox: verticalAxis ? { left: verticalAxis.left, right: verticalAxis.right, top: verticalAxis.top, bottom: verticalAxis.bottom, width: verticalAxis.width, height: verticalAxis.height } : null,
             drawableRatio: plot && axis ? axis.width / plot.width : 0,
             processClusterWidth: processCluster?.width ?? 0,
             processClusterHeight: processCluster?.height ?? 0,
@@ -6246,7 +6367,26 @@ def _measure_process_fit(
             legendTickOverlap: ticks.some(tick => overlaps(legend, tick)),
             legendAxisLabelOverlap: axisLabels.some(label => overlaps(legend, label)),
             legendAxisOverlap: axes.some(axisLine => overlaps(legend, axisLine)),
-            legendCurveSegmentOverlap: curveSegments.some(segment => segmentIntersectsRect(segment.first, segment.second, legend)),
+            legendRawCurveSegmentOverlap,
+            legendCurveSegmentOverlap: curveClipPrerequisitesValid
+              ? false
+              : legendRawCurveSegmentOverlap,
+            curveClip: {
+              groupCount: curveClipGroupCount,
+              groupPresent: Boolean(curveClipGroup),
+              clipPathResolved: Boolean(curveClipPath) && curveClipPath?.ownerSVGElement === svg,
+              clipPathUrl: curveClipUrl,
+              clipPathId: curveClipId,
+              clipPathUnits: curveClipUnits,
+              rectCount: curveClipRectNodes.length,
+              rect: curveClipRect,
+              curveLineCount: curveLines.length,
+              curveLinesContained,
+              positiveTransformedGeometry: curveClipGeometryPositive,
+              alignedWithAxes: curveClipAxesAligned,
+              legendFullyExcludedByClip,
+              prerequisitesValid: curveClipPrerequisitesValid,
+            },
             legendExtrapolationBoundaryOverlap: overlaps(legend, extrapolationBoundary),
             legendExtrapolationLabelOverlap: overlaps(legend, extrapolationLabel),
             legendStateOverlayOverlap: stateOverlays.some(overlay => overlaps(legend, overlay)),
@@ -6326,6 +6466,72 @@ def _measure_process_fit(
         raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
     legend_box = measurement.get("legendBox")
     svg_box = measurement.get("svgBox")
+    curve_clip = measurement.get("curveClip")
+    curve_clip_rect = curve_clip.get("rect") if isinstance(curve_clip, dict) else None
+    vertical_axis = measurement.get("verticalAxisBox")
+    curve_clip_geometry_positive = (
+        isinstance(curve_clip_rect, dict)
+        and all(
+            _as_float(curve_clip_rect.get(key)) == _as_float(curve_clip_rect.get(key))
+            for key in ("left", "right", "top", "bottom", "width", "height")
+        )
+        and _as_float(curve_clip_rect.get("width")) > 0
+        and _as_float(curve_clip_rect.get("height")) > 0
+    )
+    curve_clip_axes_aligned = (
+        curve_clip_geometry_positive
+        and isinstance(horizontal_axis, dict)
+        and isinstance(vertical_axis, dict)
+        and all(
+            abs(_as_float(curve_clip_rect.get(clip_key)) - _as_float(axis_box.get(axis_key))) <= 1
+            for clip_key, axis_box, axis_key in (
+                ("left", horizontal_axis, "left"),
+                ("right", horizontal_axis, "right"),
+                ("left", vertical_axis, "left"),
+                ("top", vertical_axis, "top"),
+                ("bottom", horizontal_axis, "bottom"),
+                ("bottom", vertical_axis, "bottom"),
+            )
+        )
+    )
+    legend_fully_excluded_by_clip = (
+        isinstance(legend_box, dict)
+        and curve_clip_geometry_positive
+        and (
+            _as_float(legend_box.get("right")) <= _as_float(curve_clip_rect.get("left")) + 1
+            or _as_float(legend_box.get("left")) >= _as_float(curve_clip_rect.get("right")) - 1
+            or _as_float(legend_box.get("bottom")) <= _as_float(curve_clip_rect.get("top")) + 1
+            or _as_float(legend_box.get("top")) >= _as_float(curve_clip_rect.get("bottom")) - 1
+        )
+    )
+    curve_clip_prerequisites_valid = (
+        isinstance(curve_clip, dict)
+        and curve_clip.get("groupCount") == 1
+        and curve_clip.get("groupPresent") is True
+        and curve_clip.get("clipPathResolved") is True
+        and isinstance(curve_clip.get("clipPathUrl"), str)
+        and bool(curve_clip.get("clipPathUrl"))
+        and isinstance(curve_clip.get("clipPathId"), str)
+        and bool(curve_clip.get("clipPathId"))
+        and curve_clip.get("clipPathUnits") == "userSpaceOnUse"
+        and curve_clip.get("rectCount") == 1
+        and curve_clip_geometry_positive
+        and curve_clip_axes_aligned
+        and _as_float(curve_clip.get("curveLineCount")) > 0
+        and curve_clip.get("curveLinesContained") is True
+        and curve_clip.get("positiveTransformedGeometry") is True
+        and curve_clip.get("alignedWithAxes") is True
+        and curve_clip.get("legendFullyExcludedByClip") is True
+        and legend_fully_excluded_by_clip
+        and curve_clip.get("prerequisitesValid") is True
+        and isinstance(measurement.get("legendRawCurveSegmentOverlap"), bool)
+        and isinstance(measurement.get("legendCurveSegmentOverlap"), bool)
+    )
+    if not curve_clip_prerequisites_valid:
+        raise RuntimeError(
+            f"{stage} curve clip prerequisites failed before legend collision evaluation "
+            f"at {width}x{height}: {measurement}"
+        )
     if stage == "data":
         data_legend_invalid = (
             not measurement.get("legendInPlot")
@@ -8148,10 +8354,17 @@ def _assert_modeling_process_exact_read_failed(page: Page, content_gets: int | N
     page.locator(".error-banner").wait_for(state="visible", timeout=30_000)
     source = page.locator(".process-band-source")
     source.wait_for(state="visible", timeout=30_000)
-    if not re.fullmatch(r"Exact source unavailable · r[1-9]\d*", source.inner_text().strip()):
-        raise RuntimeError(f"Exact-read failure lost the selected revision identity: {source.inner_text()!r}")
-    if page.get_by_role("button", name="Retry exact source", exact=True).count() != 1:
-        raise RuntimeError("Exact-read failure is missing its explicit Retry exact source action")
+    expected_failure_text = f"Selected Test Data unavailable · {PROCESS_SOURCE_VISIBLE_IDENTITY}"
+    if source.inner_text().strip() != expected_failure_text:
+        raise RuntimeError(
+            "Exact-read failure did not show the selected Test Data recovery message: "
+            f"{source.inner_text()!r}"
+        )
+    retry = page.get_by_role("button", name="Retry selected Test Data", exact=True)
+    if retry.count() != 1 or not retry.is_visible() or retry.is_disabled():
+        raise RuntimeError(
+            "Exact-read failure is missing one visible enabled Retry selected Test Data action"
+        )
     if not page.get_by_role("button", name="Back to Data", exact=True).is_visible():
         raise RuntimeError("Exact-read failure is missing the Back to Data recovery")
     preview = page.get_by_role("button", name="Preview changes", exact=True)
@@ -9058,6 +9271,8 @@ def _capture_modeling_process_only(
 
     failed = _new_page(browser, base_url, 1440, 900)
     _prepare_modeling_process(failed, base_url, verify_data_reload=False)
+    failed_source_pin, failed_profile_pin = _process_session_pins(failed)
+    failed_pins_before = {"source": failed_source_pin, "profile": failed_profile_pin}
     failed_content_gets = 0
 
     def fail_exact_source(route: Route) -> None:
@@ -9075,8 +9290,17 @@ def _capture_modeling_process_only(
     failed.locator(".modeling-work-title h1").get_by_text(
         STAGE_HEADINGS["process"], exact=True
     ).wait_for(timeout=30_000)
-    failed.get_by_role("button", name="Retry exact source", exact=True).wait_for(timeout=30_000)
+    failed.get_by_role("button", name="Retry selected Test Data", exact=True).wait_for(
+        timeout=30_000
+    )
     _assert_modeling_process_exact_read_failed(failed, failed_content_gets)
+    failed_source_pin, failed_profile_pin = _process_session_pins(failed)
+    failed_pins_at_failure = {"source": failed_source_pin, "profile": failed_profile_pin}
+    if failed_pins_at_failure != failed_pins_before:
+        raise RuntimeError(
+            "Process exact-read failure changed the selected source/profile pins: "
+            f"before={failed_pins_before!r} at_failure={failed_pins_at_failure!r}"
+        )
     _capture(
         failed,
         output / "modeling-process-exact-read-failed-1440x900.png",

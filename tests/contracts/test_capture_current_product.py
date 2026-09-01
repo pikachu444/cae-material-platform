@@ -1363,6 +1363,52 @@ def test_modeling_fit_capture_resolves_hardening_clip_path_and_curve_containment
     assert "shade_geometry.get(\"top\")" in _CAPTURE_SOURCE
     assert "label_geometry.get(\"bottom\")" in _CAPTURE_SOURCE
     assert "hardening curves are not contained by a resolved clipPath" in _CAPTURE_SOURCE
+    measurement_gate = _CAPTURE_SOURCE.split(
+        "def _measure_process_fit", 1
+    )[1].split("def _assert_modeling_process_saved_rows", 1)[0]
+    for fragment in (
+        "const curveClipGroupCount = svg?.querySelectorAll('.curve-series-clip').length ?? 0;",
+        "const curveClipGroup = curveClipGroupCount === 1 ? svg?.querySelector('.curve-series-clip') : null;",
+        "const curveClipUrl = curveClipGroup?.getAttribute('clip-path') || '';",
+        "const curveClipMatch = curveClipUrl.match",
+        "const curveClipId = curveClipMatch?.[1] || '';",
+        "const curveClipPath = curveClipId ? svg?.ownerDocument?.getElementById(curveClipId) : null;",
+        "const curveClipRectNodes = curveClipPath?.querySelectorAll('rect') ?? [];",
+        "const curveClipRect = transformedRect(curveClipRectNode, svg);",
+        "const curveClipUnits = curveClipPath?.getAttribute('clipPathUnits') || '';",
+        "const curveLines = [...(svg?.querySelectorAll('polyline.curve-line') ?? [])];",
+        "curveLines.length > 0",
+        "curveLines.every(line => curveClipGroup.contains(line))",
+        "const curveClipGeometryPositive = Boolean(",
+        "const curveClipAxesAligned = Boolean(",
+        "Math.abs(curveClipRect.left - axis.left) <= 1",
+        "Math.abs(curveClipRect.top - verticalAxis.top) <= 1",
+        "const legendFullyExcludedByClip = Boolean(",
+        "!curveClipGroup.contains(legendNode)",
+        "!overlaps(legend, curveClipRect)",
+        "const curveClipPrerequisitesValid =",
+        "curveClipUnits === 'userSpaceOnUse'",
+        "positiveTransformedGeometry: curveClipGeometryPositive",
+        "alignedWithAxes: curveClipAxesAligned",
+        "legendFullyExcludedByClip,",
+        "prerequisitesValid: curveClipPrerequisitesValid,",
+        "legendRawCurveSegmentOverlap,",
+        "legendCurveSegmentOverlap: curveClipPrerequisitesValid",
+        "curve_clip_prerequisites_valid = (",
+        'curve_clip.get("clipPathUnits") == "userSpaceOnUse"',
+        "curve_clip_geometry_positive = (",
+        "curve_clip_axes_aligned = (",
+        "legend_fully_excluded_by_clip = (",
+        "if not curve_clip_prerequisites_valid:",
+        "before legend collision evaluation",
+        'or measurement.get("legendCurveSegmentOverlap")',
+    ):
+        assert fragment in measurement_gate
+    assert "legendCurveSegmentOverlap: curveSegments.some" not in measurement_gate
+    assert "legendCurveSegmentOverlap: legendRawCurveSegmentOverlap" not in measurement_gate
+    assert measurement_gate.index("if not curve_clip_prerequisites_valid:") < measurement_gate.index(
+        'or measurement.get("legendCurveSegmentOverlap")'
+    )
 
 
 def test_modeling_export_readback_is_exact_and_does_not_use_a_broad_material_route() -> None:
@@ -2128,7 +2174,8 @@ def test_process_capture_keeps_stage_round_trip_and_failure_preservation_paths()
     assert 'output / "modeling-process-exact-read-failed-1440x900.png"' in process_only
     assert 'output / "modeling-process-siblings-1440x900.png"' in process_only
     assert "_assert_modeling_process_exact_read_failed" in process_only
-    assert "Retry exact source" in process_only
+    assert 'get_by_role("button", name="Retry selected Test Data", exact=True)' in process_only
+    assert "Retry exact source" not in process_only
     assert "exactly three outputs" in process_only
     assert "roundtrip = _new_page" not in process_only
     assert "Elastic window 0.0005-0.0025" in process_only
@@ -2325,6 +2372,35 @@ def test_exact_document_success_wait_replaces_removed_notice_for_data_and_proces
     )[1].split("    siblings = _new_page", 1)[0]
     assert "_wait_for_exact_document_load_settled(failed)" not in failed_flow
     assert "failed.reload()" in failed_flow
+
+
+def test_modeling_saved_mapping_profile_uses_one_exact_label_and_readback() -> None:
+    generic_flow = _CAPTURE_SOURCE.split(
+        "def _prepare_modeling(", 1
+    )[1].split("def _prepare_modeling_process", 1)[0]
+
+    assert 'mapping_profile_label = "CMP demo tensile JSON mapping · Revision 1"' in generic_flow
+    assert 'profile_options = profile.locator("option")' in generic_flow
+    assert "profile_options.all()" in generic_flow
+    assert 'profile.wait_for(state="visible", timeout=30_000)' in generic_flow
+    assert "option.is_visible()" not in generic_flow
+    assert "option.inner_text().strip() == mapping_profile_label" in generic_flow
+    assert "if len(matching_profile_options) != 1" in generic_flow
+    assert 'get_attribute("value")' in generic_flow
+    assert "if not profile_value or not profile_value.strip()" in generic_flow
+    assert "profile.select_option(value=profile_value)" in generic_flow
+    assert "page.wait_for_function(" in generic_flow
+    assert "selectedOptions" in generic_flow
+    assert "select?.value === value" in generic_flow
+    assert "selected[0]?.textContent?.trim() === label" in generic_flow
+    assert 'selected_profile_options = profile.locator("option:checked")' in generic_flow
+    assert "selected_profile_value = profile.input_value()" in generic_flow
+    assert "selected_profile_text" in generic_flow
+    assert "selected_profile_options.count() != 1" in generic_flow
+    assert "selected_profile_text != mapping_profile_label" in generic_flow
+    assert "select_option(index=1)" not in generic_flow
+    assert "profile_options.nth" not in generic_flow
+    assert "profile_options.first" not in generic_flow
 
 
 def test_export_preflight_preserves_candidate_specific_warning_state() -> None:
@@ -2721,7 +2797,8 @@ def test_exact_read_failure_capture_asserts_settled_retry_and_no_fallback() -> N
         "def _assert_modeling_process_exact_read_failed", 1
     )[1].split("def _assert_modeling_process_capture_ready", 1)[0]
     for fragment in (
-        "Retry exact source",
+        'expected_failure_text = f"Selected Test Data unavailable · {PROCESS_SOURCE_VISIBLE_IDENTITY}"',
+        "Retry selected Test Data",
         "Back to Data",
         "Preview changes",
         "Save Process result",
@@ -2731,14 +2808,23 @@ def test_exact_read_failure_capture_asserts_settled_retry_and_no_fallback() -> N
         "data-plot-state=\"blocked\"",
     ):
         assert fragment in failure_assertion
+    assert "Exact source unavailable" not in failure_assertion
+    assert "re.fullmatch" not in failure_assertion
+    assert "Retry exact source" not in failure_assertion
+    assert "retry.count() != 1" in failure_assertion
+    assert "not retry.is_visible()" in failure_assertion
+    assert "retry.is_disabled()" in failure_assertion
     failed_flow = _CAPTURE_SOURCE.split(
         "    failed = _new_page", 1
     )[1].split("    siblings = _new_page", 1)[0]
     assert "failed.route(" in failed_flow
+    assert "failed_source_pin, failed_profile_pin = _process_session_pins(failed)" in failed_flow
+    assert 'failed_pins_before = {"source": failed_source_pin, "profile": failed_profile_pin}' in failed_flow
+    assert "failed_pins_at_failure = {\"source\": failed_source_pin, \"profile\": failed_profile_pin}" in failed_flow
+    assert "failed_pins_at_failure != failed_pins_before" in failed_flow
     assert "failed_content_gets" in failed_flow
     assert "failed_content_gets)" in failed_flow
     assert "modeling-process-exact-read-failed-1440x900.png" in failed_flow
-
 
 def test_blocked_process_fixture_seeds_the_destination_document_before_navigation() -> None:
     blocked_flow = _CAPTURE_SOURCE.split(
