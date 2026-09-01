@@ -210,10 +210,6 @@
 /* Candidate tables use the body's native axes; the inner table wrapper must
    not become a second scrollport or a decorative rail. */
 
-.material-database-toolbar .eyebrow {
-  color: var(--ux-text);
-}
-
 /* Task 1 Data identity and library grammar.  The curve rail keeps the
    specimen and exact revision as two normal-surface lines; only the curve
    display name may ellipsize.  Process/Fit retain the established one-line

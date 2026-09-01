@@ -38,8 +38,9 @@ publication transition이 없어 별도 validation/publication control을 노출
 수 있다. 녹색은 저장 성공 같은 상태 표시에만 사용한다.
 
 Database shell과 정의 목록은 viewport를 활용하고, scope navigator와 속성 form은 읽기 좋은
-폭을 유지한다. 미리보기를 열면 오른쪽 편집기를 실제 datasheet 결과로 바꾸고 작업 영역의 지배적인 폭을
-할당하며 **Back to layout**으로 편집기로 돌아간다. 선택한 Database/Configuration/Record type과 정의의 내부 stable ID·exact revision ID는 주소에
+폭을 유지한다. 현재 Database 화면은 정확한 **Technical Data Table Revision 1**과 그 **default Layout Revision 1**을
+선택하고 DP780 technical-data Record 미리보기를 여는 흐름을 보여 준다. 미리보기를 열면 오른쪽 편집기를 실제
+datasheet 결과로 바꾸고 작업 영역의 지배적인 폭을 할당하며 **Back to layout**으로 편집기로 돌아간다. 선택한 Database/Configuration/Record type과 정의의 내부 stable ID·exact revision ID는 주소에
 고정되며, Record 미리보기에는 exact Record revision도 함께 고정된다. 주소를 새로고침해도 같은
 정의와 Record를 다시 읽고, 식별자가 없거나 맞지 않으면 다른 항목을 대신 열지 않고 오류를 표시한다.
 같은 화면을
@@ -48,12 +49,12 @@ Database shell과 정의 목록은 viewport를 활용하고, scope navigator와 
 
 ![선택한 Layout을 실제 Record로 확인하는 Database preview](images/current/administration-database-preview-1920x1080.png)
 
-실제 Record 미리보기는
+실제 DP780 technical-data Record 미리보기는
 [1366×768](images/current/administration-database-preview-1366x768.png),
 [1440×900](images/current/administration-database-preview-1440x900.png),
 [2560×1440](images/current/administration-database-preview-2560x1440.png),
-[3840×2160](images/current/administration-database-preview-3840x2160.png)에서도 같은 exact Table·Layout·Attribute
-revision을 유지한다.
+[3840×2160](images/current/administration-database-preview-3840x2160.png)에서도 같은 Technical Data Table r1·default
+Layout r1·Attribute exact revision을 유지한다.
 
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
 Record나 과거 revision을 바꾸지 않는다.
@@ -162,13 +163,14 @@ viewport를 사용하고 검색 결과가 남는 영역을 차지한다. Record 
 다른 session의 Record로 대체하지 않는다. **Import records**를 열면 원본 파일과 행 검사 명령이 같은
 작업 영역에 나타난다.
 
-아래 화면은 실제 Docker API와 PostgreSQL에 저장한 DP600 및 AA6061-T6 Record를 조회한 결과다.
+아래 화면은 실제 Docker API와 PostgreSQL에 저장한 DP780 technical-data Record Revision 1을 조회한 결과다.
 왼쪽 facet은 재료군별 건수를 집계하고, 가운데 검색 결과는 각 Record의 current revision을 표시하며,
-오른쪽 datasheet는 Layout에 고정된 typed Attribute를 편집한다.
+오른쪽 datasheet는 Layout에 고정된 typed Attribute를 편집한다. Records 화면의 현재 캡처는 이 exact DP780
+editor를 기준으로 하며, 저장된 revision과 reload read-back을 다른 Record나 임의의 첫 항목으로 대체하지 않는다.
 
 
-DP600의 Young's modulus를 210 GPa에서 205 GPa로 바꾸면 기존 값을 덮어쓰지 않고 revision 2를
-생성한다. 아래 비교는 원본 단위 문자열과 정규화된 Pa 값을 함께 보존한 결과다.
+DP780의 Young's modulus는 Technical Data Record Revision 1에 고정된 값으로 표시되며, 아래 비교는
+원본 단위 문자열과 정규화된 Pa 값을 함께 보존한 결과다.
 
 
 file/curve 값과 다른 레코드 연결의 상세 식별자는 **Source & history** 또는 **Advanced**에서 확인한다.

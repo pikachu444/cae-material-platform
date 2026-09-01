@@ -490,7 +490,7 @@ def test_current_capture_contract_contains_product_routes_only() -> None:
 
 def test_current_capture_installs_the_scoped_density_preference_before_first_paint() -> None:
     new_page = _CAPTURE_SOURCE.split("def _new_page", 1)[1].split(
-        "def _bounding_box_edges", 1
+        "def _source_v2_object", 1
     )[0]
 
     assert DISPLAY_DENSITIES == ("compact", "standard", "large")
@@ -541,7 +541,7 @@ def test_invalid_mapping_plot_reset_uses_the_density_aware_initial_allocation() 
 
 def test_activity_capture_contract_is_role_correct_for_requesters_and_reviewers() -> None:
     new_page = _CAPTURE_SOURCE.split("def _new_page", 1)[1].split(
-        "def _bounding_box_edges", 1
+        "def _source_v2_object", 1
     )[0]
     solver_flow = _CAPTURE_SOURCE.split("def _capture_solver_delivery", 1)[1].split(
         "def _capture_activity", 1
@@ -622,17 +622,188 @@ def test_administration_capture_checks_bounded_balanced_workgroups() -> None:
         "def _assert_semantic_three_pane_geometry", 1
     )[1].split("def _capture", 1)[0]
 
-    assert "--ux-navigator-default-inline-size" in geometry_source
+    assert "--ux-navigator-min-inline-size" in geometry_source
+    assert "--ux-navigator-max-inline-size" in geometry_source
     assert "--ux-readable-form-max-inline-size" in geometry_source
     assert 'geometry["viewportWidth"] >= 2560 and group["width"] <= 1920' in geometry_source
     assert 'group["width"] < container["width"] * 0.9' in geometry_source
-    assert 'geometry["navigator"]["width"] > geometry["navigatorDefault"] + 1' in geometry_source
+    assert 'geometry["navigator"]["width"] < geometry["navigatorMinimum"] - 1' in geometry_source
+    assert 'geometry["navigator"]["width"] > geometry["navigatorMaximum"] + 1' in geometry_source
+    assert "navigatorDefault" not in geometry_source
+    assert "exceeded its shared readable bound" not in geometry_source
     assert 'abs(left_margin - right_margin) > 2' in geometry_source
     assert 'form["width"] > geometry["readableFormMaximum"] + 1' in geometry_source
+    assert "def _assert_administration_record_editor_geometry" in geometry_source
+    assert "viewportWidth: innerWidth" in geometry_source
+    assert "facetsBox = box(facets)" in geometry_source
+    assert "listBox = box(list)" in geometry_source
+    assert "datasheetBox = box(datasheet)" in geometry_source
+    assert "visible: element.getClientRects().length > 0" in geometry_source
+    assert 'geometry["viewportWidth"] < 1600' in geometry_source
+    assert 'geometry["viewportWidth"] >= 1600' in geometry_source
+    assert 'geometry["leftAllocation"] < 288' in geometry_source
+    assert "list and datasheet are not vertical and non-overlapping" in geometry_source
+    assert "datasheet is not to the right of the left work area" in geometry_source
+    assert "panes overlap" in geometry_source
     assert 'group_selector=".schema-editor-grid"' in _CAPTURE_SOURCE
     assert 'form_selector=".schema-property-editor .property-sheet"' in _CAPTURE_SOURCE
     assert 'group_selector=".catalog-record-grid"' in _CAPTURE_SOURCE
     assert 'form_selector=".catalog-datasheet > form"' in _CAPTURE_SOURCE
+
+
+def test_administration_database_capture_uses_exact_tasks_navigation_contract() -> None:
+    database_source = _CAPTURE_SOURCE.split(
+        "def _capture_administration_database", 1
+    )[1].split("def _capture_administration_records", 1)[0]
+    exact_navigation_wait = (
+        'page.get_by_role("navigation", name="Administration tasks", exact=True)'
+        ".wait_for(timeout=30_000)"
+    )
+
+    assert database_source.count(exact_navigation_wait) == 1
+    assert 'Administration areas' not in database_source
+    navigation_lines = [
+        line for line in database_source.splitlines() if 'get_by_role("navigation"' in line
+    ]
+    assert navigation_lines[0] == f"        {exact_navigation_wait}"
+    assert all("re.compile" not in line for line in navigation_lines[:1])
+    assert all(".or_" not in line for line in navigation_lines[:1])
+    assert 'get_by_text("Administration tasks"' not in database_source
+    assert 'locator("nav"' not in database_source
+    assert "try:" not in database_source
+    assert "except" not in database_source
+
+
+def test_administration_records_capture_uses_exact_tasks_navigation_contract() -> None:
+    records_source = _CAPTURE_SOURCE.split(
+        "def _capture_administration_records", 1
+    )[1].split("def _capture_product_access", 1)[0]
+    exact_navigation_wait = (
+        'page.get_by_role("navigation", name="Administration tasks", exact=True)'
+        ".wait_for(timeout=30_000)"
+    )
+
+    assert records_source.count(exact_navigation_wait) == 1
+    assert 'Administration areas' not in records_source
+    navigation_lines = [
+        line for line in records_source.splitlines() if 'get_by_role("navigation"' in line
+    ]
+    assert navigation_lines[0] == f"        {exact_navigation_wait}"
+    assert all("re.compile" not in line for line in navigation_lines[:1])
+    assert all(".or_" not in line for line in navigation_lines[:1])
+    assert 'get_by_text("Administration tasks"' not in records_source
+    assert 'locator("nav"' not in records_source
+    assert "try:" not in records_source
+    assert "except" not in records_source
+
+
+def test_administration_source_v2_resolver_is_read_only_and_fail_closed() -> None:
+    resolver_source = _CAPTURE_SOURCE.split(
+        "def _resolve_administration_source_v2", 1
+    )[1].split("def _administration_database_url", 1)[0]
+
+    assert resolver_source.count("page.context.request.get(") == 2
+    assert resolver_source.count("page.context.request.post(") == 1
+    assert 'f"{base_url}/api/v1/catalog/tables"' in resolver_source
+    assert 'f"{base_url}/api/v1/catalog/tables/{table_id}/layouts"' in resolver_source
+    assert 'f"{base_url}/api/v1/catalog/records:search"' in resolver_source
+    assert '"technical_data"' in resolver_source
+    assert '"Technical Data"' in resolver_source
+    assert '"Technical Data default layout"' in resolver_source
+    assert '"CMP-246-TECH-DP780"' in resolver_source
+    assert '"DP780 technical data"' in resolver_source
+    assert '"published"' in resolver_source
+    assert '"draft"' in resolver_source
+    assert "len(table_matches) != 1" in resolver_source
+    assert "len(layout_matches) != 1" in resolver_source
+    assert "len(record_matches) != 1" in resolver_source
+    assert "_source_v2_uuid" in resolver_source
+    uuid_source = _CAPTURE_SOURCE.split("def _source_v2_uuid", 1)[1].split(
+        "def _source_v2_revision", 1
+    )[0]
+    assert "UUID_LIKE_PATTERN.fullmatch" in uuid_source
+    assert "page.context.request.put" not in resolver_source
+    assert "page.context.request.delete" not in resolver_source
+    assert "demo_material_records" not in resolver_source
+    assert "latest" not in resolver_source
+
+
+def test_administration_source_v2_routes_and_reload_contracts_are_exact() -> None:
+    layout_source = _CAPTURE_SOURCE.split(
+        "def _wait_for_administration_record_type", 1
+    )[1].split("def _wait_for_administration_preview", 1)[0]
+    preview_source = _CAPTURE_SOURCE.split(
+        "def _wait_for_administration_preview", 1
+    )[1].split("def _wait_for_administration_record", 1)[0]
+    record_source = _CAPTURE_SOURCE.split(
+        "def _wait_for_administration_record", 1
+    )[1].split("def _bounding_box_edges", 1)[0]
+    database_capture_source = _CAPTURE_SOURCE.split(
+        "def _capture_administration_database", 1
+    )[1].split("def _capture_administration_records", 1)[0]
+    records_capture_source = _CAPTURE_SOURCE.split(
+        "def _capture_administration_records", 1
+    )[1].split("def _capture_product_access", 1)[0]
+
+    assert 'name="Database design", exact=True' in layout_source
+    assert 'name="Database objects", exact=True' in layout_source
+    assert 'name="Record type", exact=True' in layout_source
+    assert 'name="Technical Data default layout", exact=True' in layout_source
+    assert 'name="Datasheet preview", exact=True' in preview_source
+    assert 'name="Preview fields", exact=True' in preview_source
+    assert 'name="Preview with", exact=True' in preview_source
+    assert 'name="Edit DP780 technical data", exact=True' in record_source
+    assert 'name="DP780 technical data", exact=True' in record_source
+    assert '"Draft · Revision 1"' in record_source
+    assert "_assert_administration_url(page, expected_url)" in layout_source
+    assert "_assert_administration_url(page, expected_url)" in preview_source
+    assert "_assert_administration_url(page, expected_url)" in record_source
+    assert database_capture_source.count("page.reload()") == 2
+    assert records_capture_source.count("page.reload()") == 1
+    assert "layout_url = _administration_database_url(base_url, pins)" in database_capture_source
+    assert "preview_url = _administration_database_url(base_url, pins, include_record=True)" in database_capture_source
+    assert "records_url = _administration_records_url(base_url, pins)" in records_capture_source
+    assert "exact_record_url = _administration_records_url(base_url, pins, include_record=True)" in records_capture_source
+
+    forbidden = (
+        "Administration areas",
+        "Current table",
+        "Preview datasheet",
+        "Adjacent datasheet preview",
+        "schema-preview-identity",
+        "Single entry",
+        "Multiple rows",
+        "Create Record",
+        "Edit revision",
+        "Request review",
+        "Import records",
+        "Import",
+        "import",
+        "Upload",
+        "upload",
+        "Source file",
+        "Read columns",
+        ".nth(0)",
+        ".first",
+        "latest",
+        "try:",
+        "except",
+        ".or_(",
+        "Save",
+        "Publish",
+        'get_by_role("navigation", name=re.compile',
+        'get_by_text("Administration tasks"',
+        'locator("nav"',
+    )
+    for source in (
+        layout_source,
+        preview_source,
+        record_source,
+        database_capture_source,
+        records_capture_source,
+    ):
+        for item in forbidden:
+            assert item not in source
 
 
 def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states() -> None:

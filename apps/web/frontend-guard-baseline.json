@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "00f760f5396eec8280c3955562daa3eb1c0dcadf",
+  "sourceSha": "f387003494456edb25c83740efebce0bdb0e186d",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -59,7 +59,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 65,
+      "count": 50,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -67,7 +67,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "scope": "apps/web/src",
-      "count": 738,
+      "count": 716,
       "reason": "Legacy styles predate complete semantic color-token ownership.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 completes owned style migration and all non-token styles consume semantic color tokens."
@@ -75,7 +75,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "scope": "apps/web/src",
-      "count": 185,
+      "count": 184,
       "reason": "Legacy styles contain literal weights before shared typography roles are fully adopted.",
       "followUpIssue": "#257",
       "removalCondition": "FE-02 defines the required roles and later route units replace the remaining literal weights."
@@ -91,7 +91,7 @@
     {
       "ruleId": "CMP-FE-EYEBROW",
       "scope": "apps/web/src",
-      "count": 110,
+      "count": 109,
       "reason": "Existing routes use eyebrow labels with inconsistent semantic roles.",
       "followUpIssue": "#264",
       "removalCondition": "The route normalization units remove or replace the remaining eyebrow labels before FE-09 closes."
@@ -7119,7 +7119,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "01e704b4e5b219e23da040ee5d13974e49af00ce1a0b3b1c6fe2f1f04eaba94f",
+      "fingerprint": "336f12ecada4fcc820a1e65a5881dca1a1cfe59527291849f30519a41a65109b",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7128,7 +7128,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "2370a2f788c8146855afe3b45841a3427c626276598edeb669961c8a3fc744af",
+      "fingerprint": "764e347616d4013df362d2cbb6d7ac456afed1a11fdb091d016e2b251ed5a1c9",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7137,7 +7137,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "42192c70ae86cb025b425675fce5e0bdb5e02c38caff5f83fa70310ac54f29a6",
+      "fingerprint": "c9d59aeb3a40e809363ce3a0f669d1c97847ac260200486f73401ebe5e19b9cb",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7146,7 +7146,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "72489cd05df456790f7f8831fd0a950d255bef484b5c3fbdd05fd3aedd8e4875",
+      "fingerprint": "44ed30e9d574f5bfc8c47733dc52c6aef00c31165f0d0ec91e3b37ffb19578bd",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7155,7 +7155,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "7df221cbe68b47ad932cc2ff31bf7b4a763cefd9442d1beb5e14b89d0f0e6a56",
+      "fingerprint": "bf4ac977d17f5f157b10ea2c9d02f6bba6c2c14a3fdfacad1beeb48b3707409c",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7164,43 +7164,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "a986804ad82d7f9e24c31552fffd2c0285a860b5187a31cd8e71e20379cd1e6f",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "bec1904133ff07e23859d529c8ebf67feedf426cc6a2de644c49ca8be0f3a513",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "e4c6bbef22862506c80b835f0756b4b8457a794d06a87b48a78b7f59a40ca3c7",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "e4f2e1d6d491a532345dfb4b6bec5d945281e20ab1c01f9458195d0e1fd6a768",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "fd8b15aced7c69fe6d687d6ad3f721f4edcee248b335eda89903552eac88dacf",
+      "fingerprint": "00f6d2b2f6a286e63b59f5d8ccc4776427b7004c33620b067e86484f96b7712a",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7209,7 +7173,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "03bbf2f716f120acb6096d10a7edaf2f10d39a4f2c99f635483be534a6db415b",
+      "fingerprint": "f9cf208b48e07d882a24d38bc74521091220796155a0ec5ded55a8988b309aaf",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7218,7 +7182,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "11211bd8d5e1eace98ba5c16468e887bfa6d0a87db4bdc74ad714460c3066fe2",
+      "fingerprint": "0bdbee7894818237d4b18f8826f4b063d8f010b7dba48272ea3824c9a18aabf0",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7227,7 +7191,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "1b20fbb7105505f356359c8888eaa79941dc5d774b1ba3f938d92bc42941ede4",
+      "fingerprint": "57352ebfa1c2224754bb1ba5f5fd2435edc318d902f5e6a77543514e22dc63d8",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7236,7 +7200,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "2c9e9d60bbfe0c6822c39cc5ee09678ba20d1a67f38d8e3b30c03cb40db0f2c9",
+      "fingerprint": "218ebfe05716edb4458e77a00cf8f69501dbd2fb68b7331b1ea6e3080969dac8",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7245,7 +7209,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "3c600c0dbe92b1c73f02e7b796999d22f90edc2fefde66322066377b8171ec4b",
+      "fingerprint": "e2c9b3cff052a46e9afb5fac6d9303cb0a28b9dba5303a2c499474fefefb1df8",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7254,7 +7218,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "85f0ae86bae8280a0001001d169cd1c3c4fc0f34d7b469ef43ae2a568ea540ff",
+      "fingerprint": "668cd008ed0fc5614358cb3baf1be5929ffa7abf0e3ceca95639b4bde9786eaf",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -7263,34 +7227,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/styles.css",
-      "fingerprint": "92c3e21737adf6dcb224ec65639c75413729924c43c421ad591f5aa93699ef06",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "c43daadf8d1e5c3555167fa82c3ee0c69ec200bd13f6a4e685e49bcb86346ad0",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "d8118f5344d0b591acf47e617eeba80220067562c5c4a86eff3e01642c9d767f",
-      "maxOccurrences": 1,
-      "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove only after the row-specific M6 HOLD condition resolves every static, production-bundle, and live-DOM signal to zero."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/styles.css",
-      "fingerprint": "fedfa45f5664677ca05b8274bb89d5074e99bf2407bebcf13a333b14ed1e206d",
+      "fingerprint": "386979859a2dfd85dfddbff9c64c4956489842c44d542e1fbcca4deb38548cf8",
       "maxOccurrences": 1,
       "reason": "M6 preserves this exact audited HOLD declaration or selector in its truthful legacy owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",

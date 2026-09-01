@@ -406,6 +406,55 @@ def test_service_reference_manifest_accepts_phase_a_fifteen_pending_materials(
         _verify_service_reference_manifest(tmp_path, final_publication=True)
 
 
+def test_service_reference_manifest_accepts_complete_administration_pending_set(
+    tmp_path: Path,
+) -> None:
+    manifest, _ = _write_material_current_lifecycle_fixture(tmp_path, approved=True)
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    administration_ids = {
+        "administration-database-normal-1920x1080",
+        "administration-database-normal-2560x1440",
+        "administration-database-normal-3840x2160",
+    }
+    for reference in content["references"]:
+        if reference["id"] in administration_ids:
+            reference["status"] = "pending-owner-disposition"
+            reference.pop("product_owner_approval", None)
+    manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    registered = _verify_service_reference_manifest(tmp_path)
+
+    assert len(registered) == 72
+    assert {
+        reference["id"]
+        for reference in content["references"]
+        if reference["status"] == "pending-owner-disposition"
+    } == administration_ids
+    with pytest.raises(UserGuideContractError, match="final publication requires zero pending"):
+        _verify_service_reference_manifest(tmp_path, final_publication=True)
+
+
+def test_service_reference_manifest_rejects_partial_administration_pending_set(
+    tmp_path: Path,
+) -> None:
+    manifest, _ = _write_material_current_lifecycle_fixture(tmp_path, approved=True)
+    content = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    target = next(
+        reference
+        for reference in content["references"]
+        if reference["id"] == "administration-database-normal-1920x1080"
+    )
+    target["status"] = "pending-owner-disposition"
+    target.pop("product_owner_approval", None)
+    manifest.write_text(yaml.safe_dump(content, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(
+        UserGuideContractError,
+        match="complete three-reference Administration Database",
+    ):
+        _verify_service_reference_manifest(tmp_path)
+
+
 def test_service_reference_manifest_accepts_final_seventy_two_approved_targets(
     tmp_path: Path,
 ) -> None:
@@ -725,7 +774,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     # the retired historical packet; the exact zero-consumer retirement removes
     # the stale duplicate groups while independently-owned evidence remains
     # declared in its manifests.
-    assert report.duplicate_image_group_count == 1434
+    assert report.duplicate_image_group_count == 1419
 
 
 @pytest.mark.parametrize(
@@ -857,6 +906,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     issue260_source = "4f753deaeb4dae9dc48ea2c63fd313c6fe5e7b01+issue260-fe05-worktree"
     fe04d_source = "c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree"
     issue331_source = "working-tree-issue-331-fit-css-ownership"
+    administration_source = "working-tree-issue-331-administration-css-retirement"
     issue262_source = (
         "5de648936887422191b08ed227b5680015f16a22"
         "+issue262-owner-correction-worktree"
@@ -873,9 +923,9 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "e55d30f597923509607dd7651d734bda3867b583"
         "+issue371-catalog-single-owner-worktree"
     )
-    assert manifest["version"] == 139
-    assert manifest["scope"] == "issue-331-modeling-fit-css-ownership"
-    assert manifest_source == issue331_source
+    assert manifest["version"] == 140
+    assert manifest["scope"] == "issue-331-administration-css-retirement"
+    assert manifest_source == administration_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -890,8 +940,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "sidecar",
     }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Issue #331" in manifest["capture_command"]
-    assert "five CSS viewports" in manifest["capture_command"]
+    assert "Administration Database and Records" in manifest["capture_command"]
+    assert "fifteen current-guide PNGs" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -902,6 +952,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         issue371_source,
         issue331_source,
+        administration_source,
         issue342_source,
         capture_source,
         issue262_source,
@@ -959,7 +1010,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "material-curves-3840",
     }
     new_issue_262_fe07b_captures = {
-            "administration-format-definitions-1440",
+        "administration-format-definitions-1440",
+        "administration-access-1366",
+        "administration-access-1440",
+        "administration-access-1920",
+        "administration-access-2560",
+        "administration-access-3840",
+    }
+    new_administration_captures = {
         "administration-database-1366",
         "administration-database-1440",
         "administration-database-1920",
@@ -975,11 +1033,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "administration-records-1920",
         "administration-records-2560",
         "administration-records-3840",
-        "administration-access-1366",
-        "administration-access-1440",
-        "administration-access-1920",
-        "administration-access-2560",
-        "administration-access-3840",
     }
     new_issue_342_captures = {
         "administration-records-import-json-1366",
@@ -1073,6 +1126,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - new_issue_253_captures
         - new_issue_209_captures
         - historically_new_issue_289_preview_captures
+        - new_administration_captures
         - {"administration-format-definitions-1440"}
         - new_issue_342_captures
         - new_issue_371_captures
@@ -1080,7 +1134,6 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert {
         prior_source,
         correction_source,
-        "25bd0d4",
         "960d476",
         "55cfa62",
         "3bfc0d7",
@@ -1169,6 +1222,20 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "--only-modeling-process-fit" in issue_331_provenance["command"]
     assert new_issue_331_captures == set(issue_331_provenance["ids"])
+    administration_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == administration_source
+    )
+    assert "--only-administration-database" in administration_provenance["command"]
+    assert "--only-administration-records" in administration_provenance["command"]
+    assert new_administration_captures == set(administration_provenance["ids"])
+    for capture_id in new_administration_captures:
+        if capture_id.startswith("administration-records-"):
+            fixture = captures[capture_id]["fixture"]
+            assert "Record Revision 1" in fixture
+            assert "Revision 2" not in fixture
+            assert "create/revise" not in fixture
     issue_259_fe04d_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

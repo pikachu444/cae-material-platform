@@ -1,18 +1,4 @@
 
-
-.connection-dot.online {
-  background: #59cf9b;
-}
-
-.material-context-tabs button.active {
-  color: #fff;
-  background: #176f70;
-}
-
-.material-list.compact {
-  margin-top: 0.9rem;
-}
-
 /* Dedicated Export workspace: flat setup/result panes with a dominant native
    preview. The outer task is elastic while each evidence surface owns its
    own overflow and the setup/context columns retain readable bounds. */
@@ -27,10 +13,6 @@
 /* MaterialsScrollRegion owns the visible rail for these two viewports. Keep
    the native viewport scrollable for wheel/keyboard semantics while removing
    only the browser scrollbar so it cannot create a second rail. */
-
-.connection-panel > .muted {
-  margin: 0.2rem 0 1.2rem;
-}
 
 .processing-hero .eyebrow {
   color: #fff;
@@ -56,62 +38,5 @@
 }
 
 /* Product-facing shell: authentication and infrastructure stay behind the workspace boundary. */
-
-/* T-76 product Material Database: persistent GRANTA-style contents and linked-record workspace. */
-
-.material-database-toolbar .eyebrow {
-  color: #8bd5bc;
-  margin-bottom: 0.15rem;
-}
-
-.database-projection-switch button.active {
-  background: #fff;
-  border-color: #bdcec8;
-  box-shadow: 0 2px 7px rgb(31 63 52 / 8%);
-  color: #1f604b;
-}
-
-.database-tree-node.selected {
-  background: #d8eae3;
-  border-color: #96c1b1;
-  color: #174d3c;
-}
-
-.database-tree-node.record {
-  padding-left: 0.45rem;
-}
-
-.record-view-tabs button.active {
-  border-color: #2d7962;
-  color: #1d5d49;
-  font-weight: 800;
-}
-
-.material-workflow-node.current {
-  border-color: #4c9a80;
-  box-shadow: inset 3px 0 #317c63;
-}
-
-.database-context-tabs button.active {
-  border-color: #317c63;
-  color: #205d49;
-}
-
-.database-revision-list button.active {
-  background: #e5f1ec;
-  border-color: #80b5a2;
-}
-
-/* T-77 Layout datasheets, facets and material comparison inside the persistent database shell. */
-
-.record-heading-actions .text-button {
-  padding-block: 0.45rem;
-}
-
-.database-facet-group button.active {
-  background: #dcece6;
-  border-color: #75a995;
-  color: #205843;
-}
 
 /* T-80 keeps material-family modeling inside the common evidence-to-card workspace. */

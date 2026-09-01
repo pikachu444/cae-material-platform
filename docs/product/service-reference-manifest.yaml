@@ -779,15 +779,15 @@ references:
     width: 1920
     height: 1080
     device_scale_factor: 1
-  evidence_manifest: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
-  evidence_key: after_editor
-  image: docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-1920x1080.png
-  image_sha256: 912ad26c9429c9c488f9cc667d73370e8ca72aa07d96427bf037054f9b9eecea
-  date: 2026-08-20
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: administration-database-1920
+  image: docs/user-guide/images/current/administration-database-1920x1080.png
+  image_sha256: d2a51146679cc768b8cfed7c5b5ccba28b553e2824e40a04fd31e7ca075f04b5
+  date: 2026-09-01
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-08-20
+    date: 2026-09-01
 - id: administration-database-normal-2560x1440
   screen: administration-database
   state: normal
@@ -796,15 +796,15 @@ references:
     width: 2560
     height: 1440
     device_scale_factor: 1
-  evidence_manifest: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
-  evidence_key: after_editor
-  image: docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-2560x1440.png
-  image_sha256: dcf280d2ba01b4437bacec2d0bb7756add186507287c71230485b62053bd858a
-  date: 2026-08-20
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: administration-database-2560
+  image: docs/user-guide/images/current/administration-database-2560x1440.png
+  image_sha256: 04b6b5fbb835462a45b580c43ad2b7caa4465fb306546e4e22d12b35cb126fd4
+  date: 2026-09-01
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-08-20
+    date: 2026-09-01
 - id: administration-database-normal-3840x2160
   screen: administration-database
   state: normal
@@ -813,15 +813,15 @@ references:
     width: 3840
     height: 2160
     device_scale_factor: 1
-  evidence_manifest: docs/17-evidence/images/issue-289-administration-database-workflow/visual-evidence.yaml
-  evidence_key: after_editor
-  image: docs/17-evidence/images/issue-289-administration-database-workflow/after/originals/administration-database-3840x2160.png
-  image_sha256: f96848755c86214669766bbf5c52e14fb37f6051df6dba3aa503f4b6a733672a
-  date: 2026-08-20
+  evidence_manifest: docs/user-guide/screenshot-manifest.yaml
+  evidence_key: administration-database-3840
+  image: docs/user-guide/images/current/administration-database-3840x2160.png
+  image_sha256: 18a3cfb31b807897b6897c45b6feed1cdc3f41459acb3981f5a576089b697089
+  date: 2026-09-01
   status: approved
   product_owner_approval:
     status: approved
-    date: 2026-08-20
+    date: 2026-09-01
 - id: administration-table-edit-draft-1366x768
   screen: administration-table-edit
   state: draft
