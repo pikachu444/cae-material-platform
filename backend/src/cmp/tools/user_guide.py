@@ -1500,7 +1500,9 @@ def _verify_service_reference_inventory(project: Path) -> None:
                 )
     modeling_process = [family for family in families if family.get("id") == "MOD-PROCESS"]
     if len(modeling_process) > 1:
-        raise UserGuideContractError("service reference inventory must contain one MOD-PROCESS family")
+        raise UserGuideContractError(
+            "service reference inventory must contain one MOD-PROCESS family"
+        )
     if modeling_process:
         process_family = modeling_process[0]
         process_exception_ids = {

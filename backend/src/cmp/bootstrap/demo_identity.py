@@ -72,6 +72,7 @@ class DemoIdentity:
         and approved without violating separation of duties.
         """
 
+        groups: tuple[str, ...]
         if persona == "plan_author":
             subject = DEMO_PLAN_AUTHOR_SUBJECT
             display_name = "CMP local demo Plan author"

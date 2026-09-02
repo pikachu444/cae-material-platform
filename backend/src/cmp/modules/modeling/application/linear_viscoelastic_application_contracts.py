@@ -403,6 +403,17 @@ class CalibrationApplicationState(Protocol):
         command: CreateLinearViscoelasticCalibrationPlan,
     ) -> CalibrationPlanSnapshot: ...
 
+    def _attach_server_derived_diff(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan: LinearViscoelasticCalibrationPlan,
+        *,
+        based_on_plan_id: object,
+        based_on_plan_revision_id: object,
+        override_reason: object,
+    ) -> LinearViscoelasticCalibrationPlan: ...
+
     def get_run(
         self,
         context: SecurityContext,

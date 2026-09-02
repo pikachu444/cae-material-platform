@@ -6,7 +6,7 @@ import logging
 from collections.abc import Callable
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Header, Request, Response, status
@@ -57,6 +57,9 @@ from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
     PointPartition,
 )
 from cmp.modules.modeling.domain.linear_viscoelastic_contracts import LinearViscoelasticInputError
+
+InputModeValue = Literal["relaxation", "dma", "dma_frequency_master_curve"]
+PlanApprovalStateValue = Literal["active", "superseded", "withdrawn"]
 
 LOGGER = logging.getLogger("cmp.modeling.linear_viscoelastic_calibration")
 
@@ -380,7 +383,7 @@ class PlanApprovalResponse(BaseModel):
     plan_revision_id: UUID
     plan_sha256: str
     setup_name: str
-    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"]
+    input_mode: InputModeValue
     material: ExactRevisionPinResponse
     material_state: ExactRevisionPinResponse
     test_data: ExactRevisionPinResponse
@@ -401,7 +404,7 @@ class PlanApprovalResponse(BaseModel):
             plan_revision_id=value.plan_revision_id,
             plan_sha256=value.plan_sha256,
             setup_name=value.setup_name,
-            input_mode=value.input_mode,
+            input_mode=cast(InputModeValue, value.input_mode),
             material=ExactRevisionPinResponse.from_domain(value.material),
             material_state=ExactRevisionPinResponse.from_domain(value.material_state),
             test_data=ExactRevisionPinResponse.from_domain(value.test_data),
@@ -427,7 +430,7 @@ class PlanContextResolveRequest(BaseModel):
     material_state: ExactRevisionRequest
     test_data: ExactRevisionRequest
     processing_output: ExactRevisionRequest | None = None
-    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"]
+    input_mode: InputModeValue
 
     def to_query(self) -> PlanContextQuery:
         return PlanContextQuery(
@@ -454,7 +457,7 @@ class PlanContextMatchResponse(BaseModel):
     plan_revision_id: UUID
     plan_sha256: str
     setup_name: str
-    input_mode: Literal["relaxation", "dma", "dma_frequency_master_curve"]
+    input_mode: InputModeValue
     material: ExactRevisionPinResponse
     material_state: ExactRevisionPinResponse
     test_data: ExactRevisionPinResponse
@@ -468,7 +471,7 @@ class PlanContextMatchResponse(BaseModel):
             plan_revision_id=value.plan_revision_id,
             plan_sha256=value.plan_sha256,
             setup_name=value.setup_name,
-            input_mode=value.input_mode,
+            input_mode=cast(InputModeValue, value.input_mode),
             material=ExactRevisionPinResponse.from_domain(value.material),
             material_state=ExactRevisionPinResponse.from_domain(value.material_state),
             test_data=ExactRevisionPinResponse.from_domain(value.test_data),
@@ -569,7 +572,7 @@ class RunResponse(BaseModel):
     approval_request_id: UUID | None = None
     approval_decision_id: UUID | None = None
     approval_evidence_sha256: str | None = None
-    approval_state: Literal["active", "superseded", "withdrawn"] | None = None
+    approval_state: PlanApprovalStateValue | None = None
     approval_approved_at: datetime | None = None
     approval_approved_by: UUID | None = None
     execution_context: dict[str, Any] | None = None
@@ -602,7 +605,7 @@ class RunResponse(BaseModel):
             approval_request_id=value.approval_request_id,
             approval_decision_id=value.approval_decision_id,
             approval_evidence_sha256=value.approval_evidence_sha256,
-            approval_state=value.approval_state,
+            approval_state=cast(PlanApprovalStateValue | None, value.approval_state),
             approval_approved_at=value.approval_approved_at,
             approval_approved_by=value.approval_approved_by,
             execution_context=(

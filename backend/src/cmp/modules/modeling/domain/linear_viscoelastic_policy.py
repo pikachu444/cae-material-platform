@@ -15,7 +15,6 @@ from typing import Any, Self
 from uuid import UUID, uuid4
 
 from cmp.modules.modeling.domain.linear_viscoelastic_contracts import (
-    CandidateScopeMode,
     EQUAL_PER_POINT_RULE_VERSION,
     FLOAT64_EPSILON,
     LINEAR_VISCOELASTIC_CALIBRATION_PLAN_SCHEMA_ID,
@@ -23,6 +22,7 @@ from cmp.modules.modeling.domain.linear_viscoelastic_contracts import (
     LINEAR_VISCOELASTIC_MAX_TERM_COUNT,
     LINEAR_VISCOELASTIC_RECOMMENDATION_POLICY,
     LINEAR_VISCOELASTIC_SEED_STATUS,
+    CandidateScopeMode,
     LinearViscoelasticPlanError,
     PointPartition,
     _decimal,

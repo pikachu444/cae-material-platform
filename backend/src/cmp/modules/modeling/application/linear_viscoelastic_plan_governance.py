@@ -324,13 +324,26 @@ class LinearViscoelasticPlanApprovalPort(Protocol):
 
 
 class LinearViscoelasticPlanSnapshotLike(Protocol):
-    id: UUID
-    organization_id: UUID | None
-    project_id: UUID | None
-    created_by: UUID
-    classification: DataClassification
-    current: LinearViscoelasticCalibrationPlan
-    content_hash: str
+    @property
+    def id(self) -> UUID: ...
+
+    @property
+    def organization_id(self) -> UUID | None: ...
+
+    @property
+    def project_id(self) -> UUID | None: ...
+
+    @property
+    def created_by(self) -> UUID: ...
+
+    @property
+    def classification(self) -> DataClassification: ...
+
+    @property
+    def current(self) -> LinearViscoelasticCalibrationPlan: ...
+
+    @property
+    def content_hash(self) -> str: ...
 
 
 def _assert_manager(
@@ -409,6 +422,18 @@ class InMemoryLinearViscoelasticPlanApproval:
                 code="PLAN_APPROVAL_REQUIRED",
                 recovery_hint="Create a governed Plan with exact source context.",
             )
+        current = plan.current
+        if (
+            current.material is None
+            or current.material_state is None
+            or current.test_data is None
+            or current.input_semantics is None
+        ):
+            raise PlanGovernanceError(
+                "governed Plan approval requires complete exact source context",
+                code="PLAN_SOURCE_INCOMPATIBLE",
+                recovery_hint="Create a governed Plan with complete exact source pins.",
+            )
         principal = approved_by or (
             context.principal.id if context is not None else plan.created_by
         )
@@ -424,12 +449,12 @@ class InMemoryLinearViscoelasticPlanApproval:
             approved_at=approved_at or datetime.now(UTC),
             approved_by=principal,
             state=PlanApprovalState.ACTIVE,
-            setup_name=plan.current.setup_name or "approved setup",
-            material=plan.current.material,
-            material_state=plan.current.material_state,
-            test_data=plan.current.test_data,
-            processing_output=plan.current.processing_output,
-            input_mode=plan.current.input_mode or plan.current.input_semantics.mode,
+            setup_name=current.setup_name or "approved setup",
+            material=current.material,
+            material_state=current.material_state,
+            test_data=current.test_data,
+            processing_output=current.processing_output,
+            input_mode=current.input_mode or current.input_semantics.mode,
             organization_id=(
                 context.organization_id if context is not None else plan.organization_id
             ),

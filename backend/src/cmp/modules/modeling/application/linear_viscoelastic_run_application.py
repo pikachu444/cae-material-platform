@@ -410,11 +410,21 @@ class LinearViscoelasticRunApplication:
                 )
             try:
                 if self._input_resolver is not None:
+                    test_data = plan.current.test_data
+                    import_profile = plan.current.import_profile
+                    if test_data is None or import_profile is None:
+                        raise PlanGovernanceError(
+                            "governed Plan is missing exact source revisions",
+                            code="PLAN_SOURCE_INCOMPATIBLE",
+                            recovery_hint=(
+                                "Create a new governed Plan from exact current Test Data."
+                            ),
+                        )
                     self._input_resolver.assert_current_revisions(
                         context,
                         decision,
-                        test_data=plan.current.test_data,
-                        import_profile=plan.current.import_profile,
+                        test_data=test_data,
+                        import_profile=import_profile,
                         processing_output=plan.current.processing_output,
                         material=plan.current.material,
                         material_state=plan.current.material_state,
@@ -445,23 +455,6 @@ class LinearViscoelasticRunApplication:
                     recovery_hint="Resolve the exact context and select an active approved setup.",
                 )
 
-        approval_fields = (
-            {
-                "approval_request_id": approval.review_request_id,
-                "approval_decision_id": approval.review_decision_id,
-                "approval_evidence_sha256": approval.evidence_sha256,
-                "approval_state": approval.state.value,
-                "approval_approved_at": approval.approved_at,
-                "approval_approved_by": approval.approved_by,
-                "execution_material": plan.current.material,
-                "execution_material_state": plan.current.material_state,
-                "execution_test_data": plan.current.test_data,
-                "execution_processing_output": plan.current.processing_output,
-                "execution_input_mode": plan.current.input_mode,
-            }
-            if approval is not None
-            else {}
-        )
         if self._job_service is None:
             # The in-memory repository remains a small unit-test fixture. A service with a
             # configured durable dependency must never silently manufacture a Job reference.
@@ -494,7 +487,17 @@ class LinearViscoelasticRunApplication:
                 created_by=context.principal.id,
                 organization_id=context.organization_id,
                 project_id=context.project_id,
-                **approval_fields,
+                approval_request_id=approval.review_request_id if approval else None,
+                approval_decision_id=approval.review_decision_id if approval else None,
+                approval_evidence_sha256=approval.evidence_sha256 if approval else None,
+                approval_state=approval.state.value if approval else None,
+                approval_approved_at=approval.approved_at if approval else None,
+                approval_approved_by=approval.approved_by if approval else None,
+                execution_material=plan.current.material if approval else None,
+                execution_material_state=plan.current.material_state if approval else None,
+                execution_test_data=plan.current.test_data if approval else None,
+                execution_processing_output=plan.current.processing_output if approval else None,
+                execution_input_mode=plan.current.input_mode if approval else None,
             )
             self._repository.save_run(value, context=context, decision=decision)
             return CalibrationJobReference(
@@ -693,7 +696,17 @@ class LinearViscoelasticRunApplication:
             created_by=context.principal.id,
             organization_id=context.organization_id,
             project_id=context.project_id,
-            **approval_fields,
+            approval_request_id=approval.review_request_id if approval else None,
+            approval_decision_id=approval.review_decision_id if approval else None,
+            approval_evidence_sha256=approval.evidence_sha256 if approval else None,
+            approval_state=approval.state.value if approval else None,
+            approval_approved_at=approval.approved_at if approval else None,
+            approval_approved_by=approval.approved_by if approval else None,
+            execution_material=plan.current.material if approval else None,
+            execution_material_state=plan.current.material_state if approval else None,
+            execution_test_data=plan.current.test_data if approval else None,
+            execution_processing_output=plan.current.processing_output if approval else None,
+            execution_input_mode=plan.current.input_mode if approval else None,
         )
         self._repository.save_run(value, context=context, decision=decision)
         return CalibrationJobReference(

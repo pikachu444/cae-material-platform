@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 import numpy as np
@@ -622,7 +622,7 @@ def test_durable_queue_submits_the_real_plugin_job_and_replays_by_calibration_ke
 
     class Plugins:
         def get_active_for_plugin(self, *_args: object, **_kwargs: object) -> object:
-            assert _args[1].permission is Permission.PLUGIN_READ
+            assert cast(AuthorizationDecision, _args[1]).permission is Permission.PLUGIN_READ
             return SimpleNamespace(
                 active=True,
                 classification=DataClassification.INTERNAL,

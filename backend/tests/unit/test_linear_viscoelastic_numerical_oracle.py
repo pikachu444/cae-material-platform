@@ -81,21 +81,27 @@ def _recommendation_candidate(identity: int, *, bic: float, terms: int, attempt:
 def test_recommendation_uses_bic_then_fewer_terms_then_earlier_attempt() -> None:
     lower_bic = _recommendation_candidate(1, bic=-20, terms=5, attempt=3)
     higher_bic = _recommendation_candidate(2, bic=-10, terms=1, attempt=1)
-    assert recommend_candidate(
+    recommendation = recommend_candidate(
         [higher_bic, lower_bic], recommendation_policy=RECOMMENDATION_POLICY
-    ).candidate_id == lower_bic.candidate_id
+    )
+    assert recommendation is not None
+    assert recommendation.candidate_id == lower_bic.candidate_id
 
     fewer_terms = _recommendation_candidate(3, bic=-20, terms=3, attempt=4)
     more_terms = _recommendation_candidate(4, bic=-20, terms=5, attempt=1)
-    assert recommend_candidate(
+    recommendation = recommend_candidate(
         [more_terms, fewer_terms], recommendation_policy=RECOMMENDATION_POLICY
-    ).candidate_id == fewer_terms.candidate_id
+    )
+    assert recommendation is not None
+    assert recommendation.candidate_id == fewer_terms.candidate_id
 
     earlier_attempt = _recommendation_candidate(5, bic=-20, terms=3, attempt=1)
     later_attempt = _recommendation_candidate(6, bic=-20, terms=3, attempt=2)
-    assert recommend_candidate(
+    recommendation = recommend_candidate(
         [later_attempt, earlier_attempt], recommendation_policy=RECOMMENDATION_POLICY
-    ).candidate_id == earlier_attempt.candidate_id
+    )
+    assert recommendation is not None
+    assert recommendation.candidate_id == earlier_attempt.candidate_id
 
 
 def _oracle_plan(mode: str, row_count: int) -> dict[str, Any]:
@@ -275,6 +281,9 @@ def _run_plugin(
     if term_count is not None and mode != "relaxation":
         raise ValueError("high-order regression fixture is relaxation-only")
     g_inf = Decimal("4")
+    moduli: tuple[Decimal, ...]
+    taus: tuple[Decimal, ...]
+    columns: dict[str, list[float]]
     if term_count is None:
         moduli = (Decimal("2"),)
         taus = (Decimal("0.1"),)
@@ -304,7 +313,7 @@ def _run_plugin(
             {"time": value, "relaxation": relaxation(g_inf, moduli, taus, value)}
             for value in domains
         ]
-        columns: dict[str, list[float]] = {
+        columns = {
             "time": [float(item["time"]) for item in observations],
             "relaxation": [float(item["relaxation"]) for item in observations],
         }
@@ -489,7 +498,7 @@ def test_actual_plugin_preserves_supported_high_order_parameter_vectors(
         assert candidate[key] == attempt[key]
     assert all(
         math.isfinite(float(value)) and float(value) > 0
-        for value in cast(list[object], candidate["physical_parameters"])
+        for value in cast(list[float], candidate["physical_parameters"])
     )
 
     parsed = parse_calibration_run_result(result)

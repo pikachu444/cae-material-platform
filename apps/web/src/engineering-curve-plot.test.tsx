@@ -219,7 +219,7 @@ describe("EngineeringCurvePlot", () => {
     expect(curveClipPath?.getAttribute("clipPathUnits")).toBe("userSpaceOnUse");
     expect(Number(curveClipRect?.getAttribute("x"))).toBe(80);
     expect(Number(curveClipRect?.getAttribute("y"))).toBe(24);
-    expect(Number(curveClipRect?.getAttribute("width"))).toBe(450);
+    expect(Number(curveClipRect?.getAttribute("width"))).toBe(656);
     expect(Number(curveClipRect?.getAttribute("height"))).toBe(344);
     expect(plotted.every((line) => curveClipGroup?.contains(line))).toBe(true);
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();

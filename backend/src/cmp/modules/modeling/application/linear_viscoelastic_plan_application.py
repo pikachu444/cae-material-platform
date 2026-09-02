@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import replace
 from decimal import Decimal
+from typing import TypedDict
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from cmp.modules.identity_access.domain.authorization import (
@@ -25,6 +26,7 @@ from cmp.modules.modeling.application.linear_viscoelastic_application_contracts 
     _run_awaitable,
 )
 from cmp.modules.modeling.application.linear_viscoelastic_input_resolution import (
+    ResolvedGovernedViscoelasticInput,
     ResolveGovernedViscoelasticInput,
     ResolveProcessedViscoelasticInput,
 )
@@ -39,6 +41,16 @@ from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
     ParameterBound,
     automatic_candidate_term_counts,
 )
+
+
+class _GovernanceFields(TypedDict, total=False):
+    setup_name: str | None
+    material: ExactRevisionPin | None
+    material_state: ExactRevisionPin | None
+    input_mode: str | None
+    based_on_plan_id: UUID | None
+    based_on_plan_revision_id: UUID | None
+    override_reason: str | None
 
 
 def _governance_requested(command: object) -> bool:
@@ -91,8 +103,8 @@ def _assert_hint(
 
 def _governance_fields(
     command: object,
-    resolved: object,
-) -> dict[str, object]:
+    resolved: ResolvedGovernedViscoelasticInput,
+) -> _GovernanceFields:
     requested = _governance_requested(command)
     if not requested:
         return {}
@@ -151,8 +163,11 @@ def _governance_fields(
 
 
 def _candidate_scope(
-    command: object,
-    resolved: object,
+    command: (
+        CreateGovernedLinearViscoelasticCalibrationPlan
+        | CreateProcessedLinearViscoelasticCalibrationPlan
+    ),
+    resolved: ResolvedGovernedViscoelasticInput,
 ) -> tuple[
     str | None,
     tuple[int, ...],
@@ -165,9 +180,9 @@ def _candidate_scope(
     if mode in (None, "manual"):
         return (
             None,
-            tuple(getattr(command, "term_counts")),
-            dict(getattr(command, "parameter_bounds")),
-            dict(getattr(command, "start_vectors")),
+            tuple(command.term_counts),
+            dict(command.parameter_bounds),
+            dict(command.start_vectors),
         )
     if mode != "automatic":
         raise PlanGovernanceError(
@@ -175,9 +190,9 @@ def _candidate_scope(
             code="PLAN_CANDIDATE_SCOPE_INVALID",
             recovery_hint="Choose automatic or provide an exact feasible manual term subset.",
         )
-    term_counts = tuple(getattr(command, "term_counts"))
-    parameter_bounds = dict(getattr(command, "parameter_bounds"))
-    start_vectors = dict(getattr(command, "start_vectors"))
+    term_counts = tuple(command.term_counts)
+    parameter_bounds = dict(command.parameter_bounds)
+    start_vectors = dict(command.start_vectors)
     expected_terms = automatic_candidate_term_counts(resolved.semantics)
     if term_counts != expected_terms:
         raise PlanGovernanceError(
@@ -235,11 +250,6 @@ class LinearViscoelasticPlanApplication:
                 f"urn:cmp:modeling:linear-viscoelastic-calibration-plan-revision:{identity_scope}",
             )
         governance = _governance_fields(command, resolved)
-        candidate_governance = {
-            key: value
-            for key, value in governance.items()
-            if key not in {"based_on_plan_id", "based_on_plan_revision_id", "override_reason"}
-        }
         candidate_scope_mode, term_counts, parameter_bounds, start_vectors = _candidate_scope(
             command, resolved
         )
@@ -264,7 +274,10 @@ class LinearViscoelasticPlanApplication:
             max_nfev=command.max_nfev,
             statuses=command.availability,
             candidate_scope_mode=candidate_scope_mode,
-            **candidate_governance,
+            setup_name=governance.get("setup_name"),
+            material=governance.get("material"),
+            material_state=governance.get("material_state"),
+            input_mode=governance.get("input_mode"),
         )
         plan = self._attach_server_derived_diff(
             context,
@@ -327,11 +340,6 @@ class LinearViscoelasticPlanApplication:
                 f"urn:cmp:modeling:linear-viscoelastic-calibration-plan-revision:{identity_scope}",
             )
         governance = _governance_fields(command, resolved)
-        candidate_governance = {
-            key: value
-            for key, value in governance.items()
-            if key not in {"based_on_plan_id", "based_on_plan_revision_id", "override_reason"}
-        }
         candidate_scope_mode, term_counts, parameter_bounds, start_vectors = _candidate_scope(
             command, resolved
         )
@@ -359,7 +367,10 @@ class LinearViscoelasticPlanApplication:
             max_nfev=command.max_nfev,
             statuses=command.availability,
             candidate_scope_mode=candidate_scope_mode,
-            **candidate_governance,
+            setup_name=governance.get("setup_name"),
+            material=governance.get("material"),
+            material_state=governance.get("material_state"),
+            input_mode=governance.get("input_mode"),
         )
         plan = self._attach_server_derived_diff(
             context,
