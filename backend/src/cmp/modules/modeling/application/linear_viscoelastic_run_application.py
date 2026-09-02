@@ -32,10 +32,16 @@ from cmp.modules.modeling.application.linear_viscoelastic_application_contracts 
     _require,
     _run_awaitable,
 )
+from cmp.modules.modeling.application.linear_viscoelastic_plan_governance import (
+    PlanApprovalRecord,
+    PlanApprovalState,
+    PlanGovernanceError,
+)
 from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
     CalibrationCandidate,
     CalibrationRecommendation,
     CalibrationRunResult,
+    LinearViscoelasticInputError,
     RunStatus,
 )
 from cmp.shared.domain.revisions import canonical_json_bytes
@@ -44,6 +50,19 @@ _DURABLE_JOB_TYPE = "plugin.run"
 _PLAN_ARTIFACT_ROLE = "calibration.plan"
 _PLAN_ARTIFACT_IDEMPOTENCY_PREFIX = "linear-viscoelastic-calibration:plan"
 _JOB_IDEMPOTENCY_PREFIX = "linear-viscoelastic-calibration:job"
+
+
+def _dependency_decision(
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> AuthorizationDecision:
+    """Use a command's bounded transaction capability for one internal dependency."""
+
+    if permission.value not in decision.database_permissions:
+        raise LinearViscoelasticCalibrationConflict(
+            f"{permission.value} capability is unavailable for calibration execution"
+        )
+    return replace(decision, permission=permission)
 
 
 def _append_execution_entry(
@@ -336,6 +355,12 @@ class LinearViscoelasticRunApplication:
         reason = _reason(command.change_reason)
         plan = self._repository.get_plan(command.plan_id, context=context, decision=decision)
         if plan.current.plan_revision_id != command.plan_revision_id:
+            if plan.current.is_governed:
+                raise PlanGovernanceError(
+                    "the requested governed Plan revision is not current",
+                    code="PLAN_SOURCE_STALE",
+                    recovery_hint="Read the exact current Plan revision before queueing a run.",
+                )
             raise LinearViscoelasticCalibrationConflict("stale Plan revision")
         request_sha = (
             command.request_sha256
@@ -364,6 +389,72 @@ class LinearViscoelasticRunApplication:
                 f"/api/v1/jobs/{existing.job_id}",
                 existing.status,
             )
+        approval: PlanApprovalRecord | None = None
+        if plan.current.is_governed:
+            if self._plan_governance is None:
+                raise PlanGovernanceError(
+                    "Plan approval persistence is unavailable",
+                    code="PLAN_APPROVAL_UNAVAILABLE",
+                    recovery_hint=(
+                        "Configure the durable Plan approval projection before execution."
+                    ),
+                )
+            if self._job_service is not None and self._input_resolver is None:
+                raise PlanGovernanceError(
+                    "the exact governed source resolver is unavailable",
+                    code="PLAN_SOURCE_INCOMPATIBLE",
+                    recovery_hint=(
+                        "Configure the exact Test Data and Processing Output resolver "
+                        "before executing a governed Plan."
+                    ),
+                )
+            try:
+                if self._input_resolver is not None:
+                    test_data = plan.current.test_data
+                    import_profile = plan.current.import_profile
+                    if test_data is None or import_profile is None:
+                        raise PlanGovernanceError(
+                            "governed Plan is missing exact source revisions",
+                            code="PLAN_SOURCE_INCOMPATIBLE",
+                            recovery_hint=(
+                                "Create a new governed Plan from exact current Test Data."
+                            ),
+                        )
+                    self._input_resolver.assert_current_revisions(
+                        context,
+                        decision,
+                        test_data=test_data,
+                        import_profile=import_profile,
+                        processing_output=plan.current.processing_output,
+                        material=plan.current.material,
+                        material_state=plan.current.material_state,
+                    )
+            except LinearViscoelasticInputError as error:
+                code = (
+                    "PLAN_SOURCE_STALE"
+                    if error.code == "INPUT_UPSTREAM_STALE"
+                    else "PLAN_SOURCE_TAMPERED"
+                )
+                raise PlanGovernanceError(
+                    str(error),
+                    code=code,
+                    recovery_hint=error.recovery_hint
+                    or "Read the exact current source revisions and create a new Plan.",
+                ) from error
+            assert plan.classification is not None
+            approval = self._plan_governance.assert_executable(
+                context=context,
+                decision=decision,
+                plan=plan.current,
+                classification=plan.classification,
+            )
+            if approval.state is not PlanApprovalState.ACTIVE:
+                raise PlanGovernanceError(
+                    "only an active approved Plan can be queued",
+                    code=f"PLAN_APPROVAL_{approval.state.value.upper()}",
+                    recovery_hint="Resolve the exact context and select an active approved setup.",
+                )
+
         if self._job_service is None:
             # The in-memory repository remains a small unit-test fixture. A service with a
             # configured durable dependency must never silently manufacture a Job reference.
@@ -396,6 +487,17 @@ class LinearViscoelasticRunApplication:
                 created_by=context.principal.id,
                 organization_id=context.organization_id,
                 project_id=context.project_id,
+                approval_request_id=approval.review_request_id if approval else None,
+                approval_decision_id=approval.review_decision_id if approval else None,
+                approval_evidence_sha256=approval.evidence_sha256 if approval else None,
+                approval_state=approval.state.value if approval else None,
+                approval_approved_at=approval.approved_at if approval else None,
+                approval_approved_by=approval.approved_by if approval else None,
+                execution_material=plan.current.material if approval else None,
+                execution_material_state=plan.current.material_state if approval else None,
+                execution_test_data=plan.current.test_data if approval else None,
+                execution_processing_output=plan.current.processing_output if approval else None,
+                execution_input_mode=plan.current.input_mode if approval else None,
             )
             self._repository.save_run(value, context=context, decision=decision)
             return CalibrationJobReference(
@@ -413,11 +515,12 @@ class LinearViscoelasticRunApplication:
                 "durable calibration dependencies are unavailable"
             )
 
-        # Stable IDs make the generic Job idempotency record converge even when two API
-        # workers receive the same calibration idempotency key concurrently.
+        # Stable IDs make one calibration idempotency key converge across API workers,
+        # while a different key creates the new immutable Run required for a terminal
+        # retry or an explicit repeated calculation of the same approved Plan.
         identity_seed = (
             f"{context.organization_id}:{context.project_id}:{command.plan_id}:"
-            f"{command.plan_revision_id}:{request_sha}"
+            f"{command.plan_revision_id}:{request_sha}:{command.idempotency_key}"
         )
         run_id = uuid5(NAMESPACE_URL, f"cmp:lve:run:{identity_seed}")
         job_id = uuid5(NAMESPACE_URL, f"cmp:lve:job:{identity_seed}")
@@ -511,7 +614,7 @@ class LinearViscoelasticRunApplication:
                 raise LinearViscoelasticCalibrationConflict(
                     f"exact {name} Artifact does not match the immutable Plan pin"
                 )
-        plugin_read = self._authorization.authorize(context, Permission.PLUGIN_READ)
+        plugin_read = _dependency_decision(decision, Permission.PLUGIN_READ)
         package = self._plugin_registry.get_active_for_plugin(
             context,
             plugin_read,
@@ -570,7 +673,7 @@ class LinearViscoelasticRunApplication:
                 job_spec=spec.document(),
                 resource_policy=resource_policy,
                 priority=0,
-                idempotency_key=f"{_JOB_IDEMPOTENCY_PREFIX}:{request_sha}",
+                idempotency_key=f"{_JOB_IDEMPOTENCY_PREFIX}:{run_id}",
             ),
         )
         if submitted.details.job.id != job_id:
@@ -593,6 +696,17 @@ class LinearViscoelasticRunApplication:
             created_by=context.principal.id,
             organization_id=context.organization_id,
             project_id=context.project_id,
+            approval_request_id=approval.review_request_id if approval else None,
+            approval_decision_id=approval.review_decision_id if approval else None,
+            approval_evidence_sha256=approval.evidence_sha256 if approval else None,
+            approval_state=approval.state.value if approval else None,
+            approval_approved_at=approval.approved_at if approval else None,
+            approval_approved_by=approval.approved_by if approval else None,
+            execution_material=plan.current.material if approval else None,
+            execution_material_state=plan.current.material_state if approval else None,
+            execution_test_data=plan.current.test_data if approval else None,
+            execution_processing_output=plan.current.processing_output if approval else None,
+            execution_input_mode=plan.current.input_mode if approval else None,
         )
         self._repository.save_run(value, context=context, decision=decision)
         return CalibrationJobReference(

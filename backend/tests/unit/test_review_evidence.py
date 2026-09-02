@@ -63,6 +63,7 @@ def test_current_subject_registry_is_closed_and_evidence_round_trips() -> None:
         "catalog.configurable_record",
         "datasets.test_data_document",
         "modeling.material_model",
+        "modeling.linear_viscoelastic_calibration_plan",
         "exporting.solver_card",
         "exporting.neutral_solver_card",
     )

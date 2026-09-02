@@ -11,20 +11,26 @@ import sys
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, cast
 from uuid import UUID
 
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pytest
 from cmp.modules.jobs.application.linear_viscoelastic_calibration import (
     build_linear_viscoelastic_job_spec,
+)
+from cmp.modules.modeling.application.linear_viscoelastic_result_import import (
+    parse_calibration_run_result,
 )
 from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
     calculate_bic,
     evaluate_dma_moduli,
     evaluate_relaxation_modulus,
     rank_diagnostic,
+    recommend_candidate,
     selected_arrays_digest,
 )
 from cmp_plugin_sdk import RunContext, RunnerJobSpec
@@ -60,6 +66,42 @@ def _load_plugin() -> Any:
 
 def _oracle() -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(MANIFEST.read_text(encoding="utf-8")))
+
+
+def _recommendation_candidate(identity: int, *, bic: float, terms: int, attempt: int) -> Any:
+    return SimpleNamespace(
+        candidate_id=UUID(int=identity),
+        digest=f"{identity:064x}",
+        bic=bic,
+        term_count=terms,
+        attempt_ordinal=attempt,
+    )
+
+
+def test_recommendation_uses_bic_then_fewer_terms_then_earlier_attempt() -> None:
+    lower_bic = _recommendation_candidate(1, bic=-20, terms=5, attempt=3)
+    higher_bic = _recommendation_candidate(2, bic=-10, terms=1, attempt=1)
+    recommendation = recommend_candidate(
+        [higher_bic, lower_bic], recommendation_policy=RECOMMENDATION_POLICY
+    )
+    assert recommendation is not None
+    assert recommendation.candidate_id == lower_bic.candidate_id
+
+    fewer_terms = _recommendation_candidate(3, bic=-20, terms=3, attempt=4)
+    more_terms = _recommendation_candidate(4, bic=-20, terms=5, attempt=1)
+    recommendation = recommend_candidate(
+        [more_terms, fewer_terms], recommendation_policy=RECOMMENDATION_POLICY
+    )
+    assert recommendation is not None
+    assert recommendation.candidate_id == fewer_terms.candidate_id
+
+    earlier_attempt = _recommendation_candidate(5, bic=-20, terms=3, attempt=1)
+    later_attempt = _recommendation_candidate(6, bic=-20, terms=3, attempt=2)
+    recommendation = recommend_candidate(
+        [later_attempt, earlier_attempt], recommendation_policy=RECOMMENDATION_POLICY
+    )
+    assert recommendation is not None
+    assert recommendation.candidate_id == earlier_attempt.candidate_id
 
 
 def _oracle_plan(mode: str, row_count: int) -> dict[str, Any]:
@@ -232,20 +274,46 @@ def _oracle_plan(mode: str, row_count: int) -> dict[str, Any]:
 
 
 def _run_plugin(
-    mode: str, temporary_root: Path
+    mode: str, temporary_root: Path, *, term_count: int | None = None
 ) -> tuple[dict[str, Any], list[dict[str, Decimal]], dict[str, Any]]:
     """Run the checked-in package entrypoint against Decimal-generated observations."""
 
+    if term_count is not None and mode != "relaxation":
+        raise ValueError("high-order regression fixture is relaxation-only")
     g_inf = Decimal("4")
-    moduli = (Decimal("2"),)
-    taus = (Decimal("0.1"),)
-    if mode == "relaxation":
+    moduli: tuple[Decimal, ...]
+    taus: tuple[Decimal, ...]
+    columns: dict[str, list[float]]
+    if term_count is None:
+        moduli = (Decimal("2"),)
+        taus = (Decimal("0.1"),)
+    else:
+        moduli = tuple(
+            Decimal(term_count + 1 - index) / Decimal(2)
+            for index in range(1, term_count + 1)
+        )
+        taus = tuple(Decimal(10) ** Decimal(index - 5) for index in range(term_count))
+    if mode == "relaxation" and term_count is not None:
+        domains = [
+            Decimal(coefficient) * (Decimal(10) ** Decimal(exponent))
+            for exponent in range(-6, 6)
+            for coefficient in (1, 3)
+        ] + [Decimal("1e6")]
+        observations = [
+            {"time": value, "relaxation": relaxation(g_inf, moduli, taus, value)}
+            for value in domains
+        ]
+        columns = {
+            "time": [float(item["time"]) for item in observations],
+            "relaxation": [float(item["relaxation"]) for item in observations],
+        }
+    elif mode == "relaxation":
         domains = [Decimal("0.01"), Decimal("0.1"), Decimal("1"), Decimal("2")]
         observations = [
             {"time": value, "relaxation": relaxation(g_inf, moduli, taus, value)}
             for value in domains
         ]
-        columns: dict[str, list[float]] = {
+        columns = {
             "time": [float(item["time"]) for item in observations],
             "relaxation": [float(item["relaxation"]) for item in observations],
         }
@@ -268,6 +336,33 @@ def _run_plugin(
         }
     row_count = len(observations)
     plan = _oracle_plan(mode, row_count)
+    if term_count is not None:
+        physical = (g_inf, *moduli, *taus)
+        names = (
+            "G_inf_pa",
+            *(f"G_{index}_pa" for index in range(1, term_count + 1)),
+            *(f"tau_{index}_s" for index in range(1, term_count + 1)),
+        )
+        units = ("Pa", *("Pa" for _ in moduli), *("s" for _ in taus))
+        bounds: list[dict[str, str]] = []
+        starts: list[str] = []
+        for name, unit, truth in zip(names, units, physical, strict=True):
+            factor = Decimal(3) if unit == "s" else Decimal(2)
+            start = truth * Decimal("1.02")
+            bounds.append(
+                {
+                    "name": name,
+                    "lower": str(truth / factor),
+                    "start": str(start),
+                    "upper": str(truth * factor),
+                    "unit": unit,
+                    "transform": "ln",
+                }
+            )
+            starts.append(str(start))
+        plan["term_counts"] = [term_count]
+        plan["parameter_bounds"] = {str(term_count): bounds}
+        plan["start_vectors"] = {str(term_count): [starts]}
     plan["plan_revision_id"] = str(UUID(int=301 if mode == "relaxation" else 302))
     plan["run_id"] = str(UUID(int=303 if mode == "relaxation" else 304))
     plan_bytes = json.dumps(plan, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -367,6 +462,48 @@ def _run_plugin(
     result_output = next(item for item in context.outputs if item.role == "calibration.run-result")
     result = cast(dict[str, Any], json.loads(result_output.path.read_bytes()))
     return result, observations, plan
+
+
+@pytest.mark.parametrize("term_count", (3, 5, 10))
+def test_actual_plugin_preserves_supported_high_order_parameter_vectors(
+    tmp_path: Path,
+    term_count: int,
+) -> None:
+    result, observations, plan = _run_plugin(
+        "relaxation",
+        tmp_path / f"relaxation-{term_count}-term",
+        term_count=term_count,
+    )
+    parameter_count = 1 + 2 * term_count
+    attempts = cast(list[dict[str, Any]], result["attempts"])
+    candidates = cast(list[dict[str, Any]], result["candidates"])
+
+    assert len(observations) == 25
+    assert plan["term_counts"] == [term_count]
+    assert len(attempts) == len(candidates) == 1
+    attempt = attempts[0]
+    candidate = candidates[0]
+    assert int(attempt["term_count"]) == int(candidate["term_count"]) == term_count
+    assert int(attempt["nfev"]) > 0
+    for key in (
+        "start_vector",
+        "transformed_start_vector",
+        "active_mask",
+        "physical_parameters",
+        "transformed_parameters",
+    ):
+        assert len(cast(list[object], attempt[key])) == parameter_count
+    for key in ("physical_parameters", "transformed_parameters"):
+        assert len(cast(list[object], candidate[key])) == parameter_count
+        assert candidate[key] == attempt[key]
+    assert all(
+        math.isfinite(float(value)) and float(value) > 0
+        for value in cast(list[float], candidate["physical_parameters"])
+    )
+
+    parsed = parse_calibration_run_result(result)
+    assert parsed.status.value == "succeeded"
+    assert len(parsed.candidates[0].physical_parameters) == parameter_count
 
 
 def test_decimal_oracle_is_independent_deterministic_and_unit_explicit(tmp_path: Path) -> None:

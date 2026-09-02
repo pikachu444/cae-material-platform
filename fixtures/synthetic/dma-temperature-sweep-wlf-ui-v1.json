@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0",
+  "classification": "synthetic_non_confidential_non_production",
+  "non_production": true,
+  "purpose": "Fixed-frequency DMA UI reference whose declared WLF law reproduces one generalized-Maxwell term",
+  "input": {
+    "frequency": {
+      "value": "1",
+      "unit": "Hz"
+    },
+    "temperature_unit": "K",
+    "modulus_unit": "Pa",
+    "shift_law": {
+      "kind": "wlf",
+      "reference_temperature_k": "313.15",
+      "c1": "17.44",
+      "c2_k": "51.6",
+      "value_origin": "synthetic_closed_form_reference"
+    },
+    "rows": [
+      {
+        "source_ordinal": 0,
+        "temperature_k": "293.15",
+        "storage_modulus_pa": "3000000",
+        "loss_modulus_pa": "0.00001832547802377347",
+        "log10_a_t": "11.037974683544304",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 1,
+        "temperature_k": "295.15",
+        "storage_modulus_pa": "3000000",
+        "loss_modulus_pa": "0.0009081819221944951",
+        "log10_a_t": "9.342857142857143",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 2,
+        "temperature_k": "297.15",
+        "storage_modulus_pa": "2999999.9999999995",
+        "loss_modulus_pa": "0.02902871078354982",
+        "log10_a_t": "7.838202247191012",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 3,
+        "temperature_k": "299.15",
+        "storage_modulus_pa": "2999999.999999794",
+        "loss_modulus_pa": "0.6418195983211034",
+        "log10_a_t": "6.493617021276596",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 4,
+        "temperature_k": "301.15",
+        "storage_modulus_pa": "2999999.999946132",
+        "loss_modulus_pa": "10.379621352968732",
+        "log10_a_t": "5.284848484848485",
+        "partition": "HOLDOUT"
+      },
+      {
+        "source_ordinal": 5,
+        "temperature_k": "303.15",
+        "storage_modulus_pa": "2999999.991750747",
+        "loss_modulus_pa": "128.44650791479327",
+        "log10_a_t": "4.1923076923076925",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 6,
+        "temperature_k": "305.15",
+        "storage_modulus_pa": "2999999.203785976",
+        "loss_modulus_pa": "1261.9141865833001",
+        "log10_a_t": "3.2",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 7,
+        "temperature_k": "307.15",
+        "storage_modulus_pa": "2999948.531070559",
+        "loss_modulus_pa": "10145.699080453112",
+        "log10_a_t": "2.294736842105263",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 8,
+        "temperature_k": "309.15",
+        "storage_modulus_pa": "2997658.851904211",
+        "loss_modulus_pa": "68387.24455021686",
+        "log10_a_t": "1.465546218487395",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 9,
+        "temperature_k": "311.15",
+        "storage_modulus_pa": "2924513.4900268903",
+        "loss_modulus_pa": "381149.323439382",
+        "log10_a_t": "0.7032258064516129",
+        "partition": "HOLDOUT"
+      },
+      {
+        "source_ordinal": 10,
+        "temperature_k": "313.15",
+        "storage_modulus_pa": "2000000",
+        "loss_modulus_pa": "1000000",
+        "log10_a_t": "0",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 11,
+        "temperature_k": "315.15",
+        "storage_modulus_pa": "1095141.5393640206",
+        "loss_modulus_pa": "425712.53941537335",
+        "log10_a_t": "-0.6507462686567164",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 12,
+        "temperature_k": "317.15",
+        "storage_modulus_pa": "1006170.7144895538",
+        "loss_modulus_pa": "110920.4726901036",
+        "log10_a_t": "-1.2546762589928058",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 13,
+        "temperature_k": "319.15",
+        "storage_modulus_pa": "1000465.1528046981",
+        "loss_modulus_pa": "30497.364513420143",
+        "log10_a_t": "-1.8166666666666667",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 14,
+        "temperature_k": "321.15",
+        "storage_modulus_pa": "1000041.604639822",
+        "loss_modulus_pa": "9121.817181793822",
+        "log10_a_t": "-2.3409395973154363",
+        "partition": "HOLDOUT"
+      },
+      {
+        "source_ordinal": 15,
+        "temperature_k": "323.15",
+        "storage_modulus_pa": "1000004.3520250682",
+        "loss_modulus_pa": "2950.2595134054523",
+        "log10_a_t": "-2.831168831168831",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 16,
+        "temperature_k": "325.15",
+        "storage_modulus_pa": "1000000.5246839825",
+        "loss_modulus_pa": "1024.3864942496384",
+        "log10_a_t": "-3.2905660377358492",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 17,
+        "temperature_k": "327.15",
+        "storage_modulus_pa": "1000000.0719660292",
+        "loss_modulus_pa": "379.3837810499874",
+        "log10_a_t": "-3.7219512195121953",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 18,
+        "temperature_k": "329.15",
+        "storage_modulus_pa": "1000000.0111021909",
+        "loss_modulus_pa": "149.01134761527803",
+        "log10_a_t": "-4.127810650887574",
+        "partition": "CALIBRATION"
+      },
+      {
+        "source_ordinal": 19,
+        "temperature_k": "331.15",
+        "storage_modulus_pa": "1000000.0019069546",
+        "loss_modulus_pa": "61.75685449455101",
+        "log10_a_t": "-4.510344827586207",
+        "partition": "HOLDOUT"
+      },
+      {
+        "source_ordinal": 20,
+        "temperature_k": "333.15",
+        "storage_modulus_pa": "1000000.0003614209",
+        "loss_modulus_pa": "26.885716552751212",
+        "log10_a_t": "-4.871508379888269",
+        "partition": "CALIBRATION"
+      }
+    ]
+  },
+  "closed_form_truth": {
+    "model": "one_term_generalized_maxwell_shear",
+    "g_inf_pa": "1000000",
+    "terms": [
+      {
+        "g_i_pa": "2000000",
+        "tau_i_s": "0.15915494309189535"
+      }
+    ],
+    "equations": {
+      "storage": "G_inf+sum(G_i*(omega*tau_i)^2/(1+(omega*tau_i)^2))",
+      "loss": "sum(G_i*omega*tau_i/(1+(omega*tau_i)^2))",
+      "wlf": "log10(aT)=-C1*(T-Tref)/(C2+T-Tref)",
+      "reduced_angular_frequency": "2*pi*frequency_hz*10^log10_a_t"
+    }
+  },
+  "static_properties": {
+    "density_kg_per_m3": "1200",
+    "youngs_modulus_pa": "8100000",
+    "poisson_ratio": "0.35",
+    "bulk_relaxation_status": "not_characterized"
+  },
+  "expected_prony": {
+    "instantaneous_shear_modulus_pa": "3000000",
+    "terms": [
+      {
+        "shear_ratio": "0.6666666666666666",
+        "bulk_ratio": "0",
+        "relaxation_time_s": "0.15915494309189535"
+      }
+    ]
+  },
+  "acceptance_tolerances": {
+    "master_curve_relative": "5e-14"
+  }
+}

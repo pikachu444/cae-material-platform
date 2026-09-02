@@ -21,7 +21,9 @@
 
 /* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#208; peers CSS-0208. */
 .persistent-modeling-plot > .section-heading {
-  display: flex; align-items: center; min-width: 0;
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 /* FE-06 residual owner-boundary consolidation: apps/web/src/design/layout.css#209; peers CSS-0209. */
@@ -82,7 +84,9 @@
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#187. */
 .persistent-modeling-plot .engineering-plot-frame > .processing-curve,
-.persistent-modeling-plot .engineering-plot-frame > .engineering-curve-plot-empty-svg {
+.persistent-modeling-plot
+  .engineering-plot-frame
+  > .engineering-curve-plot-empty-svg {
   box-sizing: border-box;
   display: block;
   width: 100%;
@@ -130,7 +134,10 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#270. */
-.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button {
+.persistent-modeling-plot
+  .engineering-plot-frame
+  > .curve-legend.interactive
+  button {
   min-height: 16px;
   justify-content: start;
   padding: 1px 3px;
@@ -148,32 +155,57 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#404. */
-.application-shell main.processing-workbench-page .persistent-modeling-plot {
-  grid-template-columns: minmax(0, 1fr) auto auto; grid-template-rows: 31px minmax(0, 1fr); padding: 6px 9px 8px;
+.application-shell
+  main.processing-workbench-page
+  .persistent-modeling-plot.modeling-engineering-plot-with-heading {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-rows: 31px minmax(0, 1fr);
+  padding: 6px 9px 8px;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#405. */
-.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading {
-  min-height: 31px; border-bottom: 1px solid var(--ux-border);
+.application-shell
+  main.processing-workbench-page
+  .persistent-modeling-plot
+  > .section-heading {
+  min-height: 31px;
+  border-bottom: 1px solid var(--ux-border);
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#406. */
-.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption {
-  font-size: 14px; font-weight: 600;
+.application-shell
+  main.processing-workbench-page
+  .persistent-modeling-plot
+  > .section-heading
+  .workspace-caption {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#407. */
-.application-shell main.processing-workbench-page .persistent-modeling-plot .hardening-analysis-tabs {
+.application-shell
+  main.processing-workbench-page
+  .persistent-modeling-plot
+  .hardening-analysis-tabs {
   align-self: center;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#408. */
-.application-shell main.processing-workbench-page .persistent-modeling-plot .hardening-analysis-tabs button {
-  min-height: 25px; font-size: 11px;
+.application-shell
+  main.processing-workbench-page
+  .persistent-modeling-plot
+  .hardening-analysis-tabs
+  button {
+  min-height: 25px;
+  font-size: 11px;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#491. */
-.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption {
+.application-shell
+  main.processing-workbench-page
+  .persistent-modeling-plot
+  > .section-heading
+  .workspace-caption {
   font-size: var(--ux-emphasis-font-size);
 }
 
@@ -185,12 +217,35 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#534. */
-.persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button,
-.modeling-workspace-stage-process .persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button,
-.modeling-workspace-stage-fit .persistent-modeling-plot .engineering-plot-frame > .curve-legend.interactive button {
+.persistent-modeling-plot
+  .engineering-plot-frame
+  > .curve-legend.interactive
+  button,
+.modeling-workspace-stage-process
+  .persistent-modeling-plot
+  .engineering-plot-frame
+  > .curve-legend.interactive
+  button,
+.modeling-workspace-stage-fit
+  .persistent-modeling-plot
+  .engineering-plot-frame
+  > .curve-legend.interactive
+  button {
   min-height: var(--ux-interactive-min-block-size);
   padding: var(--ux-space-1) var(--ux-space-2);
   font-size: var(--ux-metadata-font-size);
+}
+
+/* Fit can compare several laws at compact heights. Keep its overlay legend
+   dense enough to stay clear of the x-axis labels without reserving a third
+   graph column. */
+.modeling-workspace-stage-fit
+  .persistent-modeling-plot
+  .engineering-plot-frame
+  > .curve-legend.interactive
+  button {
+  min-height: 20px;
+  padding-block: 1px;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#537. */
@@ -521,11 +576,27 @@
   }
 }
 
-.persistent-modeling-plot > .hardening-analysis-tabs { grid-column: 2; justify-self: end; }
-.persistent-modeling-plot > .modeling-plot-toolbar { grid-column: 3; }
-.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child { display: flex; align-items: center; }
-.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child button[aria-label="Zoom out"],
-.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child button[aria-label="Zoom in"] { display: none; }
+.persistent-modeling-plot > .hardening-analysis-tabs {
+  grid-column: 2;
+  justify-self: end;
+}
+.persistent-modeling-plot > .modeling-plot-toolbar {
+  grid-column: 3;
+}
+.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child {
+  display: flex;
+  align-items: center;
+}
+.persistent-modeling-plot
+  > .modeling-plot-toolbar
+  > div:first-child
+  button[aria-label="Zoom out"],
+.persistent-modeling-plot
+  > .modeling-plot-toolbar
+  > div:first-child
+  button[aria-label="Zoom in"] {
+  display: none;
+}
 
 .persistent-modeling-plot .modeling-plot-toolbar button,
 .persistent-modeling-plot .hardening-analysis-tabs button {
@@ -561,20 +632,19 @@
   font-size: var(--ux-metadata-font-size);
 }
 
-
 .selected-candidate-parameters {
-margin-top: var(--ux-space-2);
+  margin-top: var(--ux-space-2);
   border-top: 1px solid var(--ux-border);
 }
 
 .selected-parameter-inspector {
-margin: var(--ux-space-2) 0;
+  margin: var(--ux-space-2) 0;
   border-top: 1px solid var(--ux-border);
   border-bottom: 1px solid var(--ux-border);
 }
 
 .selected-parameter-inspector > summary {
-padding: var(--ux-space-2) 0;
+  padding: var(--ux-space-2) 0;
   color: var(--ux-text-muted);
   cursor: pointer;
   font-size: 11px;
@@ -582,24 +652,23 @@ padding: var(--ux-space-2) 0;
 }
 
 .selected-parameter-inspector > summary {
-font-size: var(--ux-table-heading-font-size);
+  font-size: var(--ux-table-heading-font-size);
 }
 
 .modeling-context-actions .modeling-analysis-trigger {
-min-height: var(--ux-interactive-min-block-size);
+  min-height: var(--ux-interactive-min-block-size);
   padding-inline: var(--ux-space-2);
   font-size: var(--ux-data-font-size);
   font-weight: 650;
 }
 
 .modeling-workspace-shell.has-distribution-analysis {
-position: relative;
+  position: relative;
   isolation: isolate;
 }
 
-
 .distribution-analysis-sheet {
-position: absolute;
+  position: absolute;
   z-index: 9;
   inset: 0;
   min-width: 0;
@@ -610,11 +679,11 @@ position: absolute;
 }
 
 .distribution-plot-legend .normal i {
-border-color: #245ea8;
+  border-color: #245ea8;
 }
 
 .curve-panel {
-display: grid;
+  display: grid;
   gap: 0.55rem;
   padding: 0.85rem;
   border: 1px solid #d7e2d7;
@@ -623,14 +692,14 @@ display: grid;
 }
 
 .curve-summary {
-margin: 0;
+  margin: 0;
   color: #5e7476;
   font-size: 0.72rem;
   line-height: 1.45;
 }
 
 .curve-plot {
-width: 100%;
+  width: 100%;
   min-height: 180px;
   overflow: visible;
   border: 1px solid #dce9e3;
@@ -639,78 +708,75 @@ width: 100%;
 }
 
 .curve-plot line {
-stroke: #8caeaa;
+  stroke: #8caeaa;
   stroke-width: 1;
 }
 
-
 .curve-plot polyline {
-fill: none;
+  fill: none;
   stroke: #d0713d;
   stroke-width: 2.5;
   vector-effect: non-scaling-stroke;
 }
 
 .curve-plot text {
-fill: #60797a;
+  fill: #60797a;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 10px;
 }
 
 .hardening-metric-strip article.best {
-background: #edf8f5;
+  background: #edf8f5;
   border-color: #86bbb4;
 }
 
 .curve-line.proof-offset {
-stroke-dasharray: 4 4;
+  stroke-dasharray: 4 4;
   stroke-width: 2;
 }
 
 .curve-line.hardening-candidate {
-stroke-width: 1.7;
+  stroke-width: 1.7;
   opacity: 0.8;
 }
 
 .curve-line.hardening-selected {
-stroke: #111827;
+  stroke: #111827;
   stroke-width: 3.4;
 }
 
-
 .curve-line.hardening-selected.extrapolated-domain {
-stroke-dasharray: 8 5;
+  stroke-dasharray: 8 5;
 }
 
 .curve-line.hardening-observed {
-stroke-width: 3;
+  stroke-width: 3;
 }
 
 .curve-legend i.hardening-selected {
-background: #111827;
+  background: #111827;
 }
 
 .hardening-candidate-evidence {
-border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border);
   margin-top: 1rem;
   padding-top: 0.85rem;
 }
 
 .candidate-evidence-heading {
-align-items: center;
+  align-items: center;
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.55rem;
 }
 
 .candidate-evidence-heading h4 {
-font-size: 0.88rem;
+  font-size: 0.88rem;
   margin: 0.1rem 0 0;
 }
 
-
 .candidate-evidence-heading > span {
-background: #edf3f2;
+  background: #edf3f2;
   border-radius: 999px;
   color: #526a6f;
   font-size: 0.66rem;
@@ -719,34 +785,33 @@ background: #edf3f2;
 }
 
 .curve-line.ensemble-member {
-stroke: #6d979b;
+  stroke: #6d979b;
   stroke-width: 1.5;
   opacity: 0.65;
 }
 
 .curve-line.ensemble-mean {
-stroke: #e56734;
+  stroke: #e56734;
   stroke-width: 3;
 }
 
 .curve-legend i.ensemble-member {
-background: #6d979b;
+  background: #6d979b;
 }
 
 .curve-legend i.ensemble-mean {
-background: #e56734;
+  background: #e56734;
 }
 
 .statistics-grid {
-display: grid;
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: 0.6rem;
   margin-top: 0.8rem;
 }
 
-
 .statistics-grid article {
-display: grid;
+  display: grid;
   gap: 0.15rem;
   padding: 0.7rem;
   border-radius: 10px;
@@ -755,7 +820,7 @@ display: grid;
 
 .statistics-grid span,
 .statistics-grid small {
-color: var(--muted);
+  color: var(--muted);
   font-size: 0.75rem;
 }
 

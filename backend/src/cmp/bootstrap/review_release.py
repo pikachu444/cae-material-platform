@@ -5,6 +5,9 @@ from __future__ import annotations
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.security import IdentityServices
+from cmp.modules.modeling.adapters.persistence.linear_viscoelastic_plan_governance import (
+    SqlAlchemyLinearViscoelasticPlanApproval,
+)
 from cmp.modules.review_release.adapters.persistence.evidence import (
     SqlAlchemyReviewSubjectResolver,
 )
@@ -23,6 +26,10 @@ def build_review_service(identity: IdentityServices) -> ReviewService | None:
     if identity.engine is None or identity.rls_context is None:
         return None
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    plan_approval = SqlAlchemyLinearViscoelasticPlanApproval(
+        session_factory=sessions,
+        rls_context=identity.rls_context,
+    )
     registry = ReviewSubjectEvidenceRegistry((LegacyReviewSubjectResolver(),))
     for subject_type in (
         "catalog.material",
@@ -39,11 +46,12 @@ def build_review_service(identity: IdentityServices) -> ReviewService | None:
                 rls_context=identity.rls_context,
             )
         )
+    registry.register(plan_approval)
     return ReviewService(
         repository=SqlAlchemyReviewRepository(
             session_factory=sessions,
             rls_context=identity.rls_context,
-            approval_projector=SqlAlchemyReviewApprovalProjector(),
+            approval_projector=SqlAlchemyReviewApprovalProjector(plan_projector=plan_approval),
         ),
         evidence_registry=registry,
     )

@@ -65,6 +65,7 @@ from cmp.modules.identity_access.domain.security import (
 )
 from cmp.modules.modeling.application.linear_viscoelastic_input_resolution import (
     GovernedLinearViscoelasticInputResolver,
+    ReadProcessedViscoelasticFitInput,
     ResolveGovernedViscoelasticInput,
     ResolveProcessedViscoelasticInput,
 )
@@ -718,6 +719,25 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
     assert resolved.semantics.selected_temperature_k == Decimal("313.15")
     assert resolved.semantics.source_kind == "processing_output"
     assert resolved.semantics.point_dispositions[-1].partition is PointPartition.HOLDOUT
+    fit_input = asyncio.run(
+        resolver.read_processing_output_fit_input(
+            _context(),
+            _decision(Permission.MODELING_READ),
+            ReadProcessedViscoelasticFitInput(OUTPUT_ID, OUTPUT_REVISION_ID),
+        )
+    )
+    assert fit_input.mode == "dma_frequency_master_curve"
+    assert fit_input.coordinate_quantity == "frequency.angular.reduced"
+    assert fit_input.coordinate_unit == "rad/s"
+    assert fit_input.reference_temperature_k == Decimal("313.15")
+    assert [channel.channel for channel in fit_input.response_channels] == [
+        "dma_storage",
+        "dma_loss",
+    ]
+    assert fit_input.rows[0].coordinate == result_rows[0].reduced_angular_frequency_rad_per_s
+    assert fit_input.rows[0].storage_modulus_pa == result_rows[0].storage_modulus_pa
+    assert fit_input.rows[0].loss_modulus_pa == result_rows[0].loss_modulus_pa
+    assert fit_input.rows[-1].partition is PointPartition.HOLDOUT
     resolver.assert_current_revisions(
         _context(),
         _decision(Permission.CALIBRATION_EXECUTE),

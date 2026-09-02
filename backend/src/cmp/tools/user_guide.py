@@ -80,6 +80,7 @@ _STRUCTURED_IMAGE_YAML_MANIFESTS: tuple[str, ...] = (
     "docs/17-evidence/images/issue-212-explicit-toe-compensation/visual-evidence.yaml",
     "docs/17-evidence/images/issue-246-source-v2-categories/visual-evidence.yaml",
     "docs/17-evidence/images/issue-262-fe07b-administration-architecture-ui/visual-evidence.yaml",
+    "docs/17-evidence/issue-377-polymer-linear-viscoelastic-fit-ui/manifest.yaml",
 )
 _IMAGE_PATH_MANIFESTS: tuple[str, ...] = ()
 _CURRENT_PRODUCT_EVIDENCE_MANIFEST = (
@@ -87,9 +88,7 @@ _CURRENT_PRODUCT_EVIDENCE_MANIFEST = (
 )
 _CURRENT_PRODUCT_EVIDENCE_KEY = "after_editor"
 _CURRENT_PRODUCT_SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
-_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS: dict[
-    str, tuple[str, str, int, int, str, str]
-] = {
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str]] = {
     "materials-search-normal-1366x768": (
         "materials-search",
         "normal",
@@ -312,9 +311,7 @@ _CURRENT_PRODUCT_REFERENCE_TARGETS.update(
         for reference_id, target in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS.items()
     }
 )
-_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS = frozenset(
-    _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS
-)
+_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS = frozenset(_CURRENT_PRODUCT_SCREENSHOT_REFERENCE_TARGETS)
 _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, str]] = {
     "modeling-fit-normal-1366x768": (
         "modeling-fit",
@@ -343,16 +340,274 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
         "images/current/modeling-fit-1920x1080.png",
         "/modeling?stage=fit&family=metal",
     ),
-    "modeling-fit-candidate-parameters-long-1440x900": (
+    "modeling-fit-normal-2560x1440": (
         "modeling-fit",
-        "candidate-parameters-long",
+        "normal-wide",
+        2560,
         1440,
-        900,
-        "modeling-fit-candidate-parameters-long-1440",
-        "images/current/modeling-fit-candidate-parameters-long-1440x900.png",
+        "modeling-fit-2560",
+        "images/current/modeling-fit-2560x1440.png",
         "/modeling?stage=fit&family=metal",
     ),
+    "modeling-fit-normal-3840x2160": (
+        "modeling-fit",
+        "normal-wide",
+        3840,
+        2160,
+        "modeling-fit-3840",
+        "images/current/modeling-fit-3840x2160.png",
+        "/modeling?stage=fit&family=metal",
+    ),
+    "modeling-process-polymer-dma-tts-1366x768": (
+        "modeling-process",
+        "polymer-dma-tts-ready",
+        1366,
+        768,
+        "modeling-process-polymer-dma-tts-1366",
+        "images/current/modeling-process-polymer-dma-tts-1366x768.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-1440x900": (
+        "modeling-process",
+        "polymer-dma-tts-ready",
+        1440,
+        900,
+        "modeling-process-polymer-dma-tts-1440",
+        "images/current/modeling-process-polymer-dma-tts-1440x900.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-1920x1080": (
+        "modeling-process",
+        "polymer-dma-tts-ready",
+        1920,
+        1080,
+        "modeling-process-polymer-dma-tts-1920",
+        "images/current/modeling-process-polymer-dma-tts-1920x1080.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-2560x1440": (
+        "modeling-process",
+        "polymer-dma-tts-ready-wide",
+        2560,
+        1440,
+        "modeling-process-polymer-dma-tts-2560",
+        "images/current/modeling-process-polymer-dma-tts-2560x1440.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-3840x2160": (
+        "modeling-process",
+        "polymer-dma-tts-ready-wide",
+        3840,
+        2160,
+        "modeling-process-polymer-dma-tts-3840",
+        "images/current/modeling-process-polymer-dma-tts-3840x2160.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-saved-1366x768": (
+        "modeling-process",
+        "polymer-dma-tts-saved",
+        1366,
+        768,
+        "modeling-process-polymer-dma-tts-saved-1366",
+        "images/current/modeling-process-polymer-dma-tts-saved-1366x768.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-saved-1440x900": (
+        "modeling-process",
+        "polymer-dma-tts-saved",
+        1440,
+        900,
+        "modeling-process-polymer-dma-tts-saved-1440",
+        "images/current/modeling-process-polymer-dma-tts-saved-1440x900.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-saved-1920x1080": (
+        "modeling-process",
+        "polymer-dma-tts-saved",
+        1920,
+        1080,
+        "modeling-process-polymer-dma-tts-saved-1920",
+        "images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-saved-2560x1440": (
+        "modeling-process",
+        "polymer-dma-tts-saved-wide",
+        2560,
+        1440,
+        "modeling-process-polymer-dma-tts-saved-2560",
+        "images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-process-polymer-dma-tts-saved-3840x2160": (
+        "modeling-process",
+        "polymer-dma-tts-saved-wide",
+        3840,
+        2160,
+        "modeling-process-polymer-dma-tts-saved-3840",
+        "images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png",
+        "/modeling?stage=process&family=polymer",
+    ),
+    "modeling-fit-polymer-input-1920x1080": (
+        "modeling-fit",
+        "polymer-input-ready",
+        1920,
+        1080,
+        "modeling-fit-polymer-input-1920",
+        "images/current/modeling-fit-polymer-input-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-saved-1366x768": (
+        "modeling-fit",
+        "polymer-saved",
+        1366,
+        768,
+        "modeling-fit-polymer-saved-1366",
+        "images/current/modeling-fit-polymer-saved-1366x768.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-saved-1440x900": (
+        "modeling-fit",
+        "polymer-saved",
+        1440,
+        900,
+        "modeling-fit-polymer-saved-1440",
+        "images/current/modeling-fit-polymer-saved-1440x900.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-saved-1920x1080": (
+        "modeling-fit",
+        "polymer-saved",
+        1920,
+        1080,
+        "modeling-fit-polymer-saved-1920",
+        "images/current/modeling-fit-polymer-saved-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-saved-2560x1440": (
+        "modeling-fit",
+        "polymer-saved-wide",
+        2560,
+        1440,
+        "modeling-fit-polymer-saved-2560",
+        "images/current/modeling-fit-polymer-saved-2560x1440.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-saved-3840x2160": (
+        "modeling-fit",
+        "polymer-saved-wide",
+        3840,
+        2160,
+        "modeling-fit-polymer-saved-3840",
+        "images/current/modeling-fit-polymer-saved-3840x2160.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-residual-1920x1080": (
+        "modeling-fit",
+        "polymer-residuals",
+        1920,
+        1080,
+        "modeling-fit-polymer-residual-1920",
+        "images/current/modeling-fit-polymer-residual-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-calculation-settings-1920x1080": (
+        "modeling-fit",
+        "polymer-calculation-settings-10-term",
+        1920,
+        1080,
+        "modeling-fit-polymer-calculation-settings-1920",
+        "images/current/modeling-fit-polymer-calculation-settings-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-stale-1920x1080": (
+        "modeling-fit",
+        "polymer-stale",
+        1920,
+        1080,
+        "modeling-fit-polymer-stale-1920",
+        "images/current/modeling-fit-polymer-stale-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-stale-restored-saved-input-1920x1080": (
+        "modeling-fit",
+        "polymer-stale-restored",
+        1920,
+        1080,
+        "modeling-fit-polymer-stale-restored-saved-input-1920",
+        "images/current/modeling-fit-polymer-stale-restored-saved-input-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-stale-recovered-1920x1080": (
+        "modeling-fit",
+        "polymer-stale-current",
+        1920,
+        1080,
+        "modeling-fit-polymer-stale-recovered-1920",
+        "images/current/modeling-fit-polymer-stale-recovered-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-source-blocked-1366x768": (
+        "modeling-fit",
+        "polymer-source-blocked",
+        1366,
+        768,
+        "modeling-fit-polymer-source-blocked-1366",
+        "images/current/modeling-fit-polymer-source-blocked-1366x768.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-source-blocked-1440x900": (
+        "modeling-fit",
+        "polymer-source-blocked",
+        1440,
+        900,
+        "modeling-fit-polymer-source-blocked-1440",
+        "images/current/modeling-fit-polymer-source-blocked-1440x900.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-source-blocked-1920x1080": (
+        "modeling-fit",
+        "polymer-source-blocked",
+        1920,
+        1080,
+        "modeling-fit-polymer-source-blocked-1920",
+        "images/current/modeling-fit-polymer-source-blocked-1920x1080.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-source-blocked-2560x1440": (
+        "modeling-fit",
+        "polymer-source-blocked-wide",
+        2560,
+        1440,
+        "modeling-fit-polymer-source-blocked-2560",
+        "images/current/modeling-fit-polymer-source-blocked-2560x1440.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
+    "modeling-fit-polymer-source-blocked-3840x2160": (
+        "modeling-fit",
+        "polymer-source-blocked-wide",
+        3840,
+        2160,
+        "modeling-fit-polymer-source-blocked-3840",
+        "images/current/modeling-fit-polymer-source-blocked-3840x2160.png",
+        "/modeling?stage=fit&family=polymer",
+    ),
 }
+_CURRENT_MODELING_POLYMER_FIT_GUIDE_REFERENCE_IDS = frozenset(
+    reference_id
+    for reference_id in _CURRENT_GUIDE_REFERENCE_TARGETS
+    if reference_id.startswith("modeling-fit-polymer-")
+)
+_CURRENT_MODELING_POLYMER_GUIDE_REFERENCE_IDS = frozenset(
+    reference_id
+    for reference_id in _CURRENT_GUIDE_REFERENCE_TARGETS
+    if reference_id.startswith(("modeling-fit-polymer-", "modeling-process-polymer-dma-tts"))
+)
+_CURRENT_MODELING_METAL_FIT_GUIDE_REFERENCE_IDS = frozenset(
+    reference_id
+    for reference_id in _CURRENT_GUIDE_REFERENCE_TARGETS
+    if reference_id.startswith("modeling-fit-normal-")
+)
 _GUIDE_SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
 _RETIRED_CURRENT_GUIDE_LEGACY_IMAGES = frozenset(
     {
@@ -936,9 +1191,7 @@ def _verify_current_product_reference_evidence(
             | _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_ROUTES
         )[reference_id]
         if capture.get("route") != expected_route:
-            raise UserGuideContractError(
-                f"current product reference route drifted: {reference_id}"
-            )
+            raise UserGuideContractError(f"current product reference route drifted: {reference_id}")
         evidence_image_ref = _text(
             capture.get("image"),
             f"service reference {reference_id} screenshot image",
@@ -1077,9 +1330,7 @@ def _verify_current_guide_reference(
             f"current guide screenshot image declaration drifted: {reference_id}"
         )
     if (capture.get("width"), capture.get("height")) != (width, height):
-        raise UserGuideContractError(
-            f"current guide screenshot viewport drifted: {reference_id}"
-        )
+        raise UserGuideContractError(f"current guide screenshot viewport drifted: {reference_id}")
     guide_image = _inside(
         project / "docs" / "user-guide" / expected_image_ref,
         project / "docs" / "user-guide" / "images" / "current",
@@ -1110,15 +1361,11 @@ def _read_current_guide_captures(project: Path) -> dict[str, dict[str, Any]]:
         yaml.safe_load(manifest_path.read_text(encoding="utf-8")),
         "current guide screenshot manifest",
     )
-    captures = _sequence(
-        manifest.get("captures"), "current guide screenshot manifest captures"
-    )
+    captures = _sequence(manifest.get("captures"), "current guide screenshot manifest captures")
     by_id: dict[str, dict[str, Any]] = {}
     for ordinal, raw_capture in enumerate(captures, start=1):
         capture = _mapping(raw_capture, f"current guide screenshot capture {ordinal}")
-        capture_id = _text(
-            capture.get("id"), f"current guide screenshot capture {ordinal} id"
-        )
+        capture_id = _text(capture.get("id"), f"current guide screenshot capture {ordinal} id")
         if capture_id in by_id:
             raise UserGuideContractError(f"duplicate current guide screenshot id: {capture_id}")
         by_id[capture_id] = capture
@@ -1176,9 +1423,7 @@ def _verify_service_reference_inventory(project: Path) -> None:
     # lifecycle.  Keep the small legacy fixture accepted by contract tests,
     # while enforcing the complete production family when it is registered.
     material_families = {
-        str(item.get("id")): item
-        for item in families
-        if isinstance(item.get("id"), str)
+        str(item.get("id")): item for item in families if isinstance(item.get("id"), str)
     }
     expected_material_families = {
         "MAT-EXP": (
@@ -1202,8 +1447,7 @@ def _verify_service_reference_inventory(project: Path) -> None:
     }
     if any(
         isinstance(material_families.get(identifier, {}).get("normal"), dict)
-        and material_families[identifier]["normal"].get("lifecycle")
-        == "current-product-evidence"
+        and material_families[identifier]["normal"].get("lifecycle") == "current-product-evidence"
         for identifier in expected_material_families
     ):
         for identifier, (target_base, exception_ids) in expected_material_families.items():
@@ -1244,14 +1488,59 @@ def _verify_service_reference_inventory(project: Path) -> None:
                 f"service reference inventory {identifier} exceptions",
             )
             actual_exception_ids = tuple(
-                _text(_mapping(item, "service reference inventory exception").get("id"),
-                      "service reference inventory exception id")
+                _text(
+                    _mapping(item, "service reference inventory exception").get("id"),
+                    "service reference inventory exception id",
+                )
                 for item in exceptions
             )
             if actual_exception_ids != exception_ids or material.get("image_count") != 5:
                 raise UserGuideContractError(
                     f"service reference inventory {identifier} exception contract drifted"
                 )
+    modeling_process = [family for family in families if family.get("id") == "MOD-PROCESS"]
+    if len(modeling_process) > 1:
+        raise UserGuideContractError(
+            "service reference inventory must contain one MOD-PROCESS family"
+        )
+    if modeling_process:
+        process_family = modeling_process[0]
+        process_exception_ids = {
+            _text(
+                _mapping(item, "service reference inventory MOD-PROCESS exception").get("id"),
+                "service reference inventory MOD-PROCESS exception id",
+            )
+            for item in _sequence(
+                process_family.get("exceptions"),
+                "service reference inventory MOD-PROCESS exceptions",
+            )
+        }
+        legacy_process_exception_ids = {"modeling-process-prerequisite-blocked-1440x900"}
+        expected_process_exception_ids = {
+            "modeling-process-prerequisite-blocked-1440x900",
+            "modeling-process-polymer-dma-tts-1366x768",
+            "modeling-process-polymer-dma-tts-1440x900",
+            "modeling-process-polymer-dma-tts-1920x1080",
+            "modeling-process-polymer-dma-tts-2560x1440",
+            "modeling-process-polymer-dma-tts-3840x2160",
+            "modeling-process-polymer-dma-tts-saved-1366x768",
+            "modeling-process-polymer-dma-tts-saved-1440x900",
+            "modeling-process-polymer-dma-tts-saved-1920x1080",
+            "modeling-process-polymer-dma-tts-saved-2560x1440",
+            "modeling-process-polymer-dma-tts-saved-3840x2160",
+        }
+        process_inventory_valid = (
+            process_exception_ids == expected_process_exception_ids
+            and process_family.get("image_count") == 14
+        ) or (
+            process_exception_ids == legacy_process_exception_ids
+            and process_family.get("image_count") == 4
+        )
+        if not process_inventory_valid:
+            raise UserGuideContractError(
+                "service reference inventory MOD-PROCESS target contract drifted"
+            )
+
     modeling_fit = [family for family in families if family.get("id") == "MOD-FIT"]
     if len(modeling_fit) != 1:
         raise UserGuideContractError("service reference inventory must contain one MOD-FIT family")
@@ -1261,8 +1550,14 @@ def _verify_service_reference_inventory(project: Path) -> None:
         "target_base": "modeling-fit-normal",
         "state": "normal",
         "lifecycle": "current-guide",
-        "images": 3,
-        "approved_viewports": ["1366x768", "1440x900", "1920x1080"],
+        "images": 5,
+        "approved_viewports": [
+            "1366x768",
+            "1440x900",
+            "1920x1080",
+            "2560x1440",
+            "3840x2160",
+        ],
     }
     if any(fit_normal.get(key) != value for key, value in expected_fit_normal.items()):
         raise UserGuideContractError("service reference inventory MOD-FIT normal lifecycle drifted")
@@ -1272,16 +1567,19 @@ def _verify_service_reference_inventory(project: Path) -> None:
             fit_family.get("exceptions"), "service reference inventory MOD-FIT exceptions"
         )
     ]
-    candidate_exception = [
-        item
+    fit_exception_ids = {
+        _text(item.get("id"), "service reference inventory MOD-FIT exception id")
         for item in fit_exceptions
-        if item.get("id") == "modeling-fit-candidate-parameters-long-1440x900"
-    ]
-    if len(candidate_exception) != 1 or candidate_exception[0].get("lifecycle") != "current-guide":
-        raise UserGuideContractError(
-            "service reference inventory MOD-FIT candidate lifecycle drifted"
-        )
-    if fit_family.get("image_count") != len(_CURRENT_GUIDE_REFERENCE_TARGETS):
+    }
+    expected_polymer_ids = _CURRENT_MODELING_POLYMER_FIT_GUIDE_REFERENCE_IDS
+    if fit_exception_ids & expected_polymer_ids:
+        if fit_exception_ids != expected_polymer_ids or fit_family.get("image_count") != 5 + len(
+            expected_polymer_ids
+        ):
+            raise UserGuideContractError(
+                "service reference inventory MOD-FIT Polymer target contract drifted"
+            )
+    elif fit_exception_ids or fit_family.get("image_count") != 5:
         raise UserGuideContractError("service reference inventory MOD-FIT image count drifted")
 
 
@@ -1306,8 +1604,11 @@ def _verify_service_reference_manifest(
             _sequence(manifest.get("references"), "service references"), start=1
         )
     ]
-    if len(references) != 72:
-        raise UserGuideContractError("service reference manifest must contain 72 approved targets")
+    if len(references) not in {73, 89, 91, 99}:
+        raise UserGuideContractError(
+            "service reference manifest must contain 73 legacy-fixture, 89 legacy-production, "
+            "91 pre-#377 production, or 99 production targets"
+        )
 
     reference_ids = [
         _text(reference.get("id"), f"service reference {ordinal} id")
@@ -1362,7 +1663,20 @@ def _verify_service_reference_manifest(
         for reference_id, lifecycle in lifecycle_by_id.items()
         if lifecycle == "current-guide"
     }
-    expected_current_guide_ids = set(_CURRENT_GUIDE_REFERENCE_TARGETS)
+    legacy_current_guide_ids = set(_CURRENT_GUIDE_REFERENCE_TARGETS) - set(
+        _CURRENT_MODELING_POLYMER_GUIDE_REFERENCE_IDS
+    )
+    tts_reference_ids = (
+        _CURRENT_MODELING_POLYMER_GUIDE_REFERENCE_IDS
+        - _CURRENT_MODELING_POLYMER_FIT_GUIDE_REFERENCE_IDS
+    )
+    if current_guide_ids & tts_reference_ids:
+        active_polymer_reference_ids = _CURRENT_MODELING_POLYMER_GUIDE_REFERENCE_IDS
+    elif current_guide_ids & _CURRENT_MODELING_POLYMER_FIT_GUIDE_REFERENCE_IDS:
+        active_polymer_reference_ids = _CURRENT_MODELING_POLYMER_FIT_GUIDE_REFERENCE_IDS
+    else:
+        active_polymer_reference_ids = frozenset()
+    expected_current_guide_ids = legacy_current_guide_ids | set(active_polymer_reference_ids)
     if current_guide_ids != expected_current_guide_ids:
         raise UserGuideContractError(
             "current guide reference targets drifted: "
@@ -1388,8 +1702,23 @@ def _verify_service_reference_manifest(
     }
     if not legacy_fixture:
         expected_operational_ids = _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+        materials_operational_ids = operational_ids & expected_operational_ids
+        polymer_operational_ids = operational_ids & active_polymer_reference_ids
+        metal_fit_operational_ids = (
+            operational_ids & _CURRENT_MODELING_METAL_FIT_GUIDE_REFERENCE_IDS
+        )
+        unexpected_operational_ids = operational_ids - (
+            expected_operational_ids
+            | active_polymer_reference_ids
+            | _CURRENT_MODELING_METAL_FIT_GUIDE_REFERENCE_IDS
+        )
+        if unexpected_operational_ids:
+            raise UserGuideContractError(
+                "operational evidence disposition is unsupported for: "
+                f"{sorted(unexpected_operational_ids)}"
+            )
         operational_disposition = manifest.get("current_materials_operational_disposition")
-        if operational_ids:
+        if materials_operational_ids:
             disposition = _mapping(
                 operational_disposition,
                 "current Materials operational evidence disposition",
@@ -1411,9 +1740,7 @@ def _verify_service_reference_manifest(
                     "current Materials operational evidence disposition is not accepted"
                 )
             if disposition.get("scope") != "behavioral-operation-evidence-only":
-                raise UserGuideContractError(
-                    "current Materials operational evidence scope drifted"
-                )
+                raise UserGuideContractError("current Materials operational evidence scope drifted")
             if disposition.get("visual_quality") != "pending-owner-disposition":
                 raise UserGuideContractError(
                     "current Materials visual-quality disposition must remain pending"
@@ -1425,6 +1752,97 @@ def _verify_service_reference_manifest(
         elif operational_disposition not in (None, {}):
             raise UserGuideContractError(
                 "operational evidence disposition exists without operational references"
+            )
+        polymer_disposition = manifest.get("current_modeling_polymer_operational_disposition")
+        if polymer_operational_ids:
+            if polymer_operational_ids != active_polymer_reference_ids:
+                raise UserGuideContractError(
+                    "all current Polymer Fit guide references must share operational evidence "
+                    "disposition"
+                )
+            disposition = _mapping(
+                polymer_disposition,
+                "current Polymer Fit operational evidence disposition",
+            )
+            targets = {
+                _text(target, "Polymer Fit operational evidence target")
+                for target in _sequence(
+                    disposition.get("targets"),
+                    "current Polymer Fit operational evidence targets",
+                )
+            }
+            if targets != active_polymer_reference_ids:
+                raise UserGuideContractError(
+                    "Polymer Fit operational evidence disposition must identify exactly its "
+                    "current guide targets"
+                )
+            if disposition.get("status") != "accepted":
+                raise UserGuideContractError(
+                    "current Polymer Fit operational evidence disposition is not accepted"
+                )
+            if disposition.get("scope") != "issue-377-live-behavior-and-main-agent-original-review":
+                raise UserGuideContractError(
+                    "current Polymer Fit operational evidence scope drifted"
+                )
+            if disposition.get("visual_quality") != "pending-owner-disposition":
+                raise UserGuideContractError(
+                    "current Polymer Fit visual-quality disposition must remain pending"
+                )
+            if not isinstance(disposition.get("date"), str) or not disposition["date"].strip():
+                raise UserGuideContractError(
+                    "current Polymer Fit operational evidence disposition lacks a date"
+                )
+        elif polymer_disposition not in (None, {}):
+            raise UserGuideContractError(
+                "Polymer Fit operational evidence disposition exists without operational references"
+            )
+        metal_fit_disposition = manifest.get(
+            "current_modeling_metal_fit_operational_disposition"
+        )
+        if metal_fit_operational_ids:
+            if metal_fit_operational_ids != _CURRENT_MODELING_METAL_FIT_GUIDE_REFERENCE_IDS:
+                raise UserGuideContractError(
+                    "all current Metal Fit guide references must share operational evidence "
+                    "disposition"
+                )
+            disposition = _mapping(
+                metal_fit_disposition,
+                "current Metal Fit operational evidence disposition",
+            )
+            targets = {
+                _text(target, "Metal Fit operational evidence target")
+                for target in _sequence(
+                    disposition.get("targets"),
+                    "current Metal Fit operational evidence targets",
+                )
+            }
+            if targets != _CURRENT_MODELING_METAL_FIT_GUIDE_REFERENCE_IDS:
+                raise UserGuideContractError(
+                    "Metal Fit operational evidence disposition must identify exactly its "
+                    "current guide targets"
+                )
+            if disposition.get("status") != "accepted":
+                raise UserGuideContractError(
+                    "current Metal Fit operational evidence disposition is not accepted"
+                )
+            if (
+                disposition.get("scope")
+                != "issue-377-shared-fit-regression-and-main-agent-original-review"
+            ):
+                raise UserGuideContractError(
+                    "current Metal Fit operational evidence scope drifted"
+                )
+            if disposition.get("visual_quality") != "pending-owner-disposition":
+                raise UserGuideContractError(
+                    "current Metal Fit visual-quality disposition must remain pending"
+                )
+            if not isinstance(disposition.get("date"), str) or not disposition["date"].strip():
+                raise UserGuideContractError(
+                    "current Metal Fit operational evidence disposition lacks a date"
+                )
+        elif metal_fit_disposition not in (None, {}):
+            raise UserGuideContractError(
+                "Metal Fit operational evidence disposition exists without operational references"
             )
         pending_ids = {
             reference_id
@@ -1442,8 +1860,7 @@ def _verify_service_reference_manifest(
             or pending_ids & _CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS
             not in (_CURRENT_ADMINISTRATION_SCREENSHOT_REFERENCE_IDS, set())
             or (
-                pending_ids & expected_operational_ids
-                not in (expected_operational_ids, set())
+                pending_ids & expected_operational_ids not in (expected_operational_ids, set())
                 and operational_ids != expected_operational_ids
             )
         ):
@@ -1488,9 +1905,14 @@ def _verify_service_reference_manifest(
                     f"final publication has pending service reference: {reference_id}"
                 )
         elif operational:
-            if reference_id not in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+            if reference_id not in (
+                _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                | active_polymer_reference_ids
+                | _CURRENT_MODELING_METAL_FIT_GUIDE_REFERENCE_IDS
+            ):
                 raise UserGuideContractError(
-                    "only current Materials references may use operational evidence "
+                    "only current Materials, Polymer, or shared Metal Fit guide references may use "
+                    "operational evidence "
                     f"disposition: {reference_id}"
                 )
             if reference.get("product_owner_approval") not in (None, {}):
@@ -1498,9 +1920,22 @@ def _verify_service_reference_manifest(
                     "operational service reference must not claim visual owner "
                     f"approval: {reference_id}"
                 )
-            if operational_ids != _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS:
+            if (
+                reference_id in _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                and operational_ids & _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+                != _CURRENT_PRODUCT_SCREENSHOT_REFERENCE_IDS
+            ):
                 raise UserGuideContractError(
                     "all current Materials references must share operational evidence disposition"
+                )
+            if (
+                reference_id in active_polymer_reference_ids
+                and operational_ids & active_polymer_reference_ids
+                != active_polymer_reference_ids
+            ):
+                raise UserGuideContractError(
+                    "all current Polymer Fit guide references must share operational evidence "
+                    "disposition"
                 )
         else:
             if status != "approved":

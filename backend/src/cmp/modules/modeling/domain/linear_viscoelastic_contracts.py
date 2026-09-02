@@ -84,6 +84,13 @@ SourceOrdinalDisposition = PointPartition
 CalibrationPartition = PointPartition
 
 
+class CandidateScopeMode(StrEnum):
+    """How the immutable Plan chooses the feasible Prony term scope."""
+
+    AUTOMATIC = "automatic"
+    MANUAL = "manual"
+
+
 class DataAvailability(StrEnum):
     PROVIDED = "PROVIDED"
     NOT_PROVIDED = "NOT_PROVIDED"

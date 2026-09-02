@@ -1,0 +1,66 @@
+.hardening-fit-selection {
+  display: grid;
+  min-width: 0;
+  min-height: 100%;
+  align-content: start;
+  gap: var(--ux-space-2);
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+}
+
+.hardening-fit-selection > header {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+}
+
+.hardening-fit-selection h2 {
+  margin: 0;
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.hardening-fit-selection header span,
+.hardening-fit-selection > p {
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.hardening-fit-selected-model {
+  font-size: var(--ux-emphasis-font-size);
+}
+
+.hardening-fit-selection > label {
+  display: grid;
+  min-width: 0;
+  gap: var(--ux-space-1);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.hardening-fit-selection textarea {
+  min-height: 52px;
+  resize: vertical;
+}
+
+.hardening-fit-selection > label.hardening-fit-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ux-space-1);
+  color: var(--ux-warning);
+}
+
+.hardening-fit-warning input {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  min-height: 15px;
+  margin: 0;
+}
+
+.hardening-fit-selection footer {
+  display: flex;
+  justify-content: flex-end;
+}

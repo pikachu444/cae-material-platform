@@ -49,8 +49,6 @@ MODELING_EXPORT_OUTPUTS = (
 )
 MODELING_EXPORT_PRE_DELIVERED_OUTPUTS = MODELING_EXPORT_OUTPUTS[:-1]
 MODELING_FIT_STATE_OUTPUTS = (
-    "modeling-fit-candidate-parameters-long-1440x900.png",
-    "modeling-fit-candidate-evidence-scrolled-1440x900.png",
     "modeling-fit-calculation-failed-1920x1080.png",
     "modeling-fit-save-failed-1920x1080.png",
     "modeling-fit-exact-source-blocked-1920x1080.png",
@@ -255,18 +253,42 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-process-blocked-1440x900.png",
     "modeling-process-exact-read-failed-1440x900.png",
     "modeling-process-siblings-1440x900.png",
+    "modeling-process-polymer-dma-tts-1366x768.png",
+    "modeling-process-polymer-dma-tts-1440x900.png",
+    "modeling-process-polymer-dma-tts-1920x1080.png",
+    "modeling-process-polymer-dma-tts-2560x1440.png",
+    "modeling-process-polymer-dma-tts-3840x2160.png",
+    "modeling-process-polymer-dma-tts-saved-1366x768.png",
+    "modeling-process-polymer-dma-tts-saved-1440x900.png",
+    "modeling-process-polymer-dma-tts-saved-1920x1080.png",
+    "modeling-process-polymer-dma-tts-saved-2560x1440.png",
+    "modeling-process-polymer-dma-tts-saved-3840x2160.png",
     "modeling-fit-1366x768.png",
     "modeling-fit-1440x900.png",
     "modeling-fit-1920x1080.png",
     "modeling-fit-2560x1440.png",
     "modeling-fit-3840x2160.png",
-    "modeling-fit-candidate-parameters-long-1440x900.png",
-    "modeling-fit-candidate-evidence-scrolled-1440x900.png",
     "modeling-fit-calculation-failed-1920x1080.png",
     "modeling-fit-save-failed-1920x1080.png",
     "modeling-fit-exact-source-blocked-1920x1080.png",
     "modeling-fit-exact-read-failed-1920x1080.png",
     "modeling-fit-restored-1920x1080.png",
+    "modeling-fit-polymer-source-blocked-1366x768.png",
+    "modeling-fit-polymer-source-blocked-1440x900.png",
+    "modeling-fit-polymer-source-blocked-1920x1080.png",
+    "modeling-fit-polymer-source-blocked-2560x1440.png",
+    "modeling-fit-polymer-source-blocked-3840x2160.png",
+    "modeling-fit-polymer-saved-1366x768.png",
+    "modeling-fit-polymer-saved-1440x900.png",
+    "modeling-fit-polymer-saved-1920x1080.png",
+    "modeling-fit-polymer-saved-2560x1440.png",
+    "modeling-fit-polymer-saved-3840x2160.png",
+    "modeling-fit-polymer-input-1920x1080.png",
+    "modeling-fit-polymer-residual-1920x1080.png",
+    "modeling-fit-polymer-calculation-settings-1920x1080.png",
+    "modeling-fit-polymer-stale-1920x1080.png",
+    "modeling-fit-polymer-stale-restored-saved-input-1920x1080.png",
+    "modeling-fit-polymer-stale-recovered-1920x1080.png",
     "modeling-distribution-1366x768.png",
     "modeling-distribution-1440x900.png",
     "modeling-distribution-1920x1080.png",
@@ -8469,7 +8491,7 @@ def _capture_modeling_fit_states(
     *,
     include_restored: bool = True,
 ) -> None:
-    """Capture the Fit drawer, failure, exact-source, and restored states."""
+    """Capture the Fit failure, exact-source, and restored states."""
 
     def prepared_fit(label: str, width: int = 1440, height: int = 900) -> Page:
         page = _new_page(browser, base_url, width, height)
@@ -8477,57 +8499,6 @@ def _capture_modeling_fit_states(
         _click_modeling_fit_preview_and_wait(page)
         _assert_fit_title_state(page, "Preview not saved")
         return page
-
-    long_drawer = prepared_fit("Fit candidate drawer source")
-    _long_trigger, _long_body, table = _open_fit_evidence(long_drawer)
-    _assert_fit_candidate_surface(long_drawer, table)
-    _assert_fit_display_scale(long_drawer, "candidate-parameters-long")
-    if table.locator("tbody tr").count() < 5:
-        raise RuntimeError("Fit candidate parameters drawer did not expose calculated evidence")
-    _capture(
-        long_drawer,
-        output / "modeling-fit-candidate-parameters-long-1440x900.png",
-        1440,
-        900,
-        focus_selector=".fit-evidence-drawer",
-    )
-    long_drawer.context.close()
-
-    scrolled = prepared_fit("Fit candidate evidence source")
-    _scrolled_trigger, scrolled_body, scrolled_table = _open_fit_evidence(scrolled)
-    _assert_fit_candidate_surface(scrolled, scrolled_table)
-    _select_warned_fit_candidate(scrolled_table)
-    scrolled.get_by_role("textbox", name="Candidate selection reason", exact=True).fill(
-        "Capture the full numerical evidence before the explicit engineering decision."
-    )
-    acknowledgement = scrolled.get_by_role(
-        "checkbox", name="Acknowledge selected candidate warning", exact=True
-    )
-    if acknowledgement.count():
-        acknowledgement.check()
-    else:
-        raise RuntimeError("Selected warned Fit candidate is missing its acknowledgement")
-    _assert_fit_selected_evidence(scrolled)
-    _scroll_fit_evidence_locally(scrolled, scrolled_body)
-    _scrolled_trigger, scrolled_body, _scrolled_table = _open_fit_evidence(scrolled)
-
-    def prepare_scrolled_capture() -> None:
-        _scroll_fit_evidence_locally(scrolled, scrolled_body, close_escape=False)
-        _position_fit_evidence_decision_surface(scrolled, scrolled_body)
-        # Clear browser text selection only after the real keyboard/wheel/native
-        # scrollbar interactions have been proven, so the screenshot records
-        # the collapsed text-selection state rather than a synthetic highlight.
-        scrolled.evaluate("() => window.getSelection()?.removeAllRanges()")
-
-    _capture(
-        scrolled,
-        output / "modeling-fit-candidate-evidence-scrolled-1440x900.png",
-        1440,
-        900,
-        focus_selector=".fit-evidence-drawer",
-        before_screenshot=prepare_scrolled_capture,
-    )
-    scrolled.context.close()
 
     calculation_failed = prepared_fit("Fit calculation failure source", 1920, 1080)
     calculation_failed.route(
@@ -9188,6 +9159,28 @@ def _capture_modeling_process_fit(
     if include_fit_states:
         _capture_modeling_fit_states(browser, base_url, output)
     return measurements
+
+
+def _capture_modeling_polymer_fit_source_blocked(
+    browser: Browser,
+    base_url: str,
+    output: Path,
+) -> None:
+    """Capture the deterministic Polymer Fit recovery surface without a fixture fallback."""
+    for width, height in (*VIEWPORTS, *WIDE_VIEWPORTS):
+        page = _new_page(browser, base_url, width, height)
+        page.goto(f"{base_url}/modeling?stage=fit&family=polymer")
+        page.locator(".polymer-calibration-fit").wait_for(timeout=30_000)
+        page.get_by_role("heading", name="Select Test Data", exact=True).wait_for(
+            timeout=30_000
+        )
+        _capture(
+            page,
+            output / f"modeling-fit-polymer-source-blocked-{width}x{height}.png",
+            width,
+            height,
+        )
+        page.context.close()
 
 
 def _capture_modeling_process_only(
@@ -10514,6 +10507,27 @@ def _preserve_issue_owned_contract_captures(output: Path) -> None:
         "material-database-linked-test-1440x900.png",
         "administration-format-definitions-1440x900.png",
         "demo-session-recovery-1440x900.png",
+        "modeling-process-polymer-dma-tts-1366x768.png",
+        "modeling-process-polymer-dma-tts-1440x900.png",
+        "modeling-process-polymer-dma-tts-1920x1080.png",
+        "modeling-process-polymer-dma-tts-2560x1440.png",
+        "modeling-process-polymer-dma-tts-3840x2160.png",
+        "modeling-process-polymer-dma-tts-saved-1366x768.png",
+        "modeling-process-polymer-dma-tts-saved-1440x900.png",
+        "modeling-process-polymer-dma-tts-saved-1920x1080.png",
+        "modeling-process-polymer-dma-tts-saved-2560x1440.png",
+        "modeling-process-polymer-dma-tts-saved-3840x2160.png",
+        "modeling-fit-polymer-saved-1366x768.png",
+        "modeling-fit-polymer-saved-1440x900.png",
+        "modeling-fit-polymer-saved-1920x1080.png",
+        "modeling-fit-polymer-saved-2560x1440.png",
+        "modeling-fit-polymer-saved-3840x2160.png",
+        "modeling-fit-polymer-input-1920x1080.png",
+        "modeling-fit-polymer-residual-1920x1080.png",
+        "modeling-fit-polymer-calculation-settings-1920x1080.png",
+        "modeling-fit-polymer-stale-1920x1080.png",
+        "modeling-fit-polymer-stale-restored-saved-input-1920x1080.png",
+        "modeling-fit-polymer-stale-recovered-1920x1080.png",
         *ADMINISTRATION_RECORDS_IMPORT_JSON_OUTPUTS,
     ):
         source = current / name
@@ -10774,6 +10788,9 @@ def main() -> int:
                 _capture_modeling_process_only(browser, args.base_url, output)
                 _capture_modeling_distribution(browser, args.base_url, output)
                 _capture_modeling_fit_states(browser, args.base_url, output)
+                _capture_modeling_polymer_fit_source_blocked(
+                    browser, args.base_url, output
+                )
                 _capture_modeling_data_viewports(
                     browser, args.base_url, output, WIDE_VIEWPORTS
                 )

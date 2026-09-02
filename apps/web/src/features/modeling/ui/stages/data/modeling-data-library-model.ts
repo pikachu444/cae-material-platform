@@ -82,7 +82,9 @@ export function modelingTestRunDisplayLabel(run: TestRunResponse): string {
   const raw = run.current_revision.content.run_label?.trim() ?? "";
   if (!looksTechnical(raw)) return raw || "Test record";
   const sequence = raw.match(/(?:^|[-_ ]|replicate\s+)(\d+)$/iu)?.[1]
-    ?? run.current_revision.content.specimen_id?.match(/(?:specimen|sample|s)?[-_ ]*(\d+)$/iu)?.[1];
+    ?? (looksTechnical(run.current_revision.content.specimen_id ?? "")
+      ? undefined
+      : run.current_revision.content.specimen_id?.match(/(?:specimen|sample|s)?[-_ ]*(\d+)$/iu)?.[1]);
   const testType = /^(?:specimen|sample|s)[-_ ]*\d+$/iu.test(raw)
     ? "Test Data"
     : modelingTestTypeLabel(raw);
@@ -98,7 +100,12 @@ export function modelingDataRecordLabel(
   const runLabel = run?.current_revision.content.run_label?.trim() ?? "";
   if (run && runLabel) {
     const runDisplayLabel = modelingTestRunDisplayLabel(run);
-    if (!runDisplayLabel.startsWith("Test record")) return runDisplayLabel;
+    const runLabelHasReadableSequence = Boolean(
+      runLabel.match(/(?:^|[-_ ]|replicate\s+)(\d+)$/iu),
+    );
+    if (!looksTechnical(runLabel) || runLabelHasReadableSequence) {
+      if (!runDisplayLabel.startsWith("Test record")) return runDisplayLabel;
+    }
   }
 
   const sequence = document.specimen_id.match(/(?:specimen|sample|s)?[-_ ]*(\d+)$/i)?.[1]

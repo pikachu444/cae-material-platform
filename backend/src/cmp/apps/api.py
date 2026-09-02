@@ -896,6 +896,9 @@ def create_app(
         execute_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CALIBRATION_EXECUTE
         ),
+        review_decide_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.REVIEW_DECIDE
+        ),
     )
     resolved_ogden_prony = ogden_prony_model_service or build_ogden_prony_model_service(
         services, resolved_material_models

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, cast
@@ -26,8 +26,16 @@ from cmp.modules.modeling.application.linear_viscoelastic_application_contracts 
     LinearViscoelasticCalibrationConflict,
     LinearViscoelasticCalibrationNotFound,
 )
-from cmp.modules.modeling.domain.linear_viscoelastic_calibration import CalibrationRunResult
-from cmp.shared.domain.revisions import canonical_json_bytes
+from cmp.modules.modeling.domain.linear_viscoelastic_calibration import (
+    CalibrationRunResult,
+    ExactRevisionPin,
+)
+from cmp.shared.domain.revisions import (
+    RevisionCreated,
+    RevisionRecord,
+    TenantScope,
+    canonical_json_bytes,
+)
 
 from .linear_viscoelastic_calibration_serialization import (
     _as_uuid,
@@ -48,6 +56,20 @@ from .linear_viscoelastic_calibration_tables import (
 )
 
 
+def _exact_pin(
+    aggregate_id: object,
+    revision_id: object,
+    sha256: object | None = None,
+) -> ExactRevisionPin:
+    if aggregate_id is None or revision_id is None:
+        raise LinearViscoelasticCalibrationConflict("persisted exact pin is incomplete")
+    return ExactRevisionPin(
+        _as_uuid(aggregate_id),
+        _as_uuid(revision_id),
+        str(sha256) if sha256 is not None else None,
+    )
+
+
 class SqlAlchemyLinearViscoelasticCalibrationRepository:
     """Durable tenant-scoped SQL repository for the calibration aggregate.
 
@@ -61,11 +83,13 @@ class SqlAlchemyLinearViscoelasticCalibrationRepository:
         *,
         session_factory: sessionmaker[Session],
         rls_context: Any | None = None,
+        revision_hooks: tuple[Callable[[Session, RevisionCreated], None], ...] = (),
     ) -> None:
         if session_factory is None:
             raise TypeError("session_factory is required for durable calibration persistence")
         self._sessions = session_factory
         self._rls = rls_context
+        self._revision_hooks = revision_hooks
 
     @contextmanager
     def _session(
@@ -318,8 +342,46 @@ class SqlAlchemyLinearViscoelasticCalibrationRepository:
                     change_reason=value.change_reason,
                     request_id=context.request_id if context else UUID(int=1),
                     trace_id=context.trace_id if context else "sql-calibration",
+                    setup_name=plan.setup_name,
+                    material_id=plan.material.aggregate_id if plan.material else None,
+                    material_revision_id=plan.material.revision_id if plan.material else None,
+                    material_state_id=(
+                        plan.material_state.aggregate_id if plan.material_state else None
+                    ),
+                    material_state_revision_id=(
+                        plan.material_state.revision_id if plan.material_state else None
+                    ),
+                    input_mode=plan.input_mode,
+                    based_on_plan_id=plan.based_on_plan_id,
+                    based_on_plan_revision_id=plan.based_on_plan_revision_id,
+                    override_reason=plan.override_reason,
+                    base_diff=dict(plan.base_diff) if plan.base_diff is not None else None,
                 )
             )
+            if self._revision_hooks:
+                revision_record = RevisionRecord(
+                    revision_id=plan.plan_revision_id,
+                    aggregate_type="modeling.linear_viscoelastic_calibration_plan",
+                    aggregate_id=plan.plan_id,
+                    scope=TenantScope(
+                        organization_id=organization_id,
+                        project_id=project_id,
+                        classification=value.classification.value,
+                    ),
+                    revision_no=1,
+                    based_on_revision_id=None,
+                    schema_id=plan.schema_id,
+                    schema_version=plan.schema_version,
+                    content_hash=value.content_hash,
+                    created_at=value.created_at,
+                    created_by=value.created_by,
+                    change_reason=value.change_reason,
+                    request_id=context.request_id if context else UUID(int=1),
+                    trace_id=context.trace_id if context else "sql-calibration",
+                )
+                event = RevisionCreated(revision_record, "draft")
+                for hook in self._revision_hooks:
+                    hook(session, event)
             return value
 
     @staticmethod
@@ -351,6 +413,49 @@ class SqlAlchemyLinearViscoelasticCalibrationRepository:
             if row is None:
                 raise LinearViscoelasticCalibrationNotFound("Plan is not visible")
             return self._plan_snapshot(row)
+
+    def get_plan_revision(
+        self,
+        plan_id: UUID,
+        plan_revision_id: UUID,
+        *,
+        context: SecurityContext | None = None,
+        decision: AuthorizationDecision | None = None,
+    ) -> CalibrationPlanSnapshot:
+        """Read one exact immutable Plan revision; never follows a moving alias."""
+
+        organization_id, project_id = self._context_scope(context)
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(linear_viscoelastic_calibration_plan_revision_table).where(
+                        linear_viscoelastic_calibration_plan_revision_table.c.aggregate_id
+                        == plan_id,
+                        linear_viscoelastic_calibration_plan_revision_table.c.id
+                        == plan_revision_id,
+                        linear_viscoelastic_calibration_plan_revision_table.c.organization_id
+                        == organization_id,
+                        linear_viscoelastic_calibration_plan_revision_table.c.project_id
+                        == project_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise LinearViscoelasticCalibrationNotFound("Plan revision is not visible")
+            payload = cast(Mapping[str, object], row["plan_payload"])
+            return CalibrationPlanSnapshot(
+                id=_as_uuid(row["aggregate_id"]),
+                current=_plan_from_payload(payload),
+                content_hash=str(row["content_hash"]),
+                classification=DataClassification(str(row["classification"])),
+                created_at=cast(datetime, row["created_at"]),
+                created_by=_as_uuid(row["created_by"]),
+                change_reason=str(row["change_reason"]),
+                organization_id=organization_id,
+                project_id=project_id,
+            )
 
     def find_run_by_idempotency(
         self,
@@ -467,6 +572,63 @@ class SqlAlchemyLinearViscoelasticCalibrationRepository:
                                 created_by=value.created_by,
                                 request_id=context.request_id if context else UUID(int=1),
                                 trace_id=context.trace_id if context else "sql-calibration",
+                                approval_request_id=value.approval_request_id,
+                                approval_decision_id=value.approval_decision_id,
+                                approval_evidence_sha256=value.approval_evidence_sha256,
+                                approval_state=value.approval_state,
+                                approval_approved_at=value.approval_approved_at,
+                                approval_approved_by=value.approval_approved_by,
+                                execution_material_id=(
+                                    value.execution_material.aggregate_id
+                                    if value.execution_material
+                                    else None
+                                ),
+                                execution_material_revision_id=(
+                                    value.execution_material.revision_id
+                                    if value.execution_material
+                                    else None
+                                ),
+                                execution_material_state_id=(
+                                    value.execution_material_state.aggregate_id
+                                    if value.execution_material_state
+                                    else None
+                                ),
+                                execution_material_state_revision_id=(
+                                    value.execution_material_state.revision_id
+                                    if value.execution_material_state
+                                    else None
+                                ),
+                                execution_test_data_id=(
+                                    value.execution_test_data.aggregate_id
+                                    if value.execution_test_data
+                                    else None
+                                ),
+                                execution_test_data_revision_id=(
+                                    value.execution_test_data.revision_id
+                                    if value.execution_test_data
+                                    else None
+                                ),
+                                execution_test_data_sha256=(
+                                    value.execution_test_data.sha256
+                                    if value.execution_test_data
+                                    else None
+                                ),
+                                execution_processing_output_id=(
+                                    value.execution_processing_output.aggregate_id
+                                    if value.execution_processing_output
+                                    else None
+                                ),
+                                execution_processing_output_revision_id=(
+                                    value.execution_processing_output.revision_id
+                                    if value.execution_processing_output
+                                    else None
+                                ),
+                                execution_processing_output_sha256=(
+                                    value.execution_processing_output.sha256
+                                    if value.execution_processing_output
+                                    else None
+                                ),
+                                execution_input_mode=value.execution_input_mode,
                             )
                         )
                 except IntegrityError as error:
@@ -842,6 +1004,69 @@ class SqlAlchemyLinearViscoelasticCalibrationRepository:
             recovery_hint=str(row["recovery_hint"]) if row["recovery_hint"] else None,
             organization_id=organization_id,
             project_id=project_id,
+            approval_request_id=(
+                _as_uuid(row["approval_request_id"])
+                if row.get("approval_request_id") is not None
+                else None
+            ),
+            approval_decision_id=(
+                _as_uuid(row["approval_decision_id"])
+                if row.get("approval_decision_id") is not None
+                else None
+            ),
+            approval_evidence_sha256=(
+                str(row["approval_evidence_sha256"])
+                if row.get("approval_evidence_sha256") is not None
+                else None
+            ),
+            approval_state=(str(row["approval_state"]) if row.get("approval_state") else None),
+            approval_approved_at=(
+                cast(datetime, row["approval_approved_at"])
+                if row.get("approval_approved_at") is not None
+                else None
+            ),
+            approval_approved_by=(
+                _as_uuid(row["approval_approved_by"])
+                if row.get("approval_approved_by") is not None
+                else None
+            ),
+            execution_material=(
+                _exact_pin(
+                    row.get("execution_material_id"),
+                    row.get("execution_material_revision_id"),
+                )
+                if row.get("execution_material_id") is not None
+                else None
+            ),
+            execution_material_state=(
+                _exact_pin(
+                    row.get("execution_material_state_id"),
+                    row.get("execution_material_state_revision_id"),
+                )
+                if row.get("execution_material_state_id") is not None
+                else None
+            ),
+            execution_test_data=(
+                _exact_pin(
+                    row.get("execution_test_data_id"),
+                    row.get("execution_test_data_revision_id"),
+                    row.get("execution_test_data_sha256"),
+                )
+                if row.get("execution_test_data_id") is not None
+                else None
+            ),
+            execution_processing_output=(
+                _exact_pin(
+                    row.get("execution_processing_output_id"),
+                    row.get("execution_processing_output_revision_id"),
+                    row.get("execution_processing_output_sha256"),
+                )
+                if row.get("execution_processing_output_id") is not None
+                else None
+            ),
+            execution_input_mode=(
+                str(row["execution_input_mode"]) if row.get("execution_input_mode") else None
+            ),
         )
 
     def get_run(

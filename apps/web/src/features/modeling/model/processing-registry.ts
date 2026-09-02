@@ -449,7 +449,10 @@ export function documentMatchesTrack(
     const dma = hasQuantity("frequency.cyclic")
       && hasQuantity("modulus.shear.storage")
       && hasQuantity("modulus.shear.loss");
-    return relaxation || dma;
+    const dmaTemperatureSweep = quantities.includes("physics.temperature")
+      && quantities.includes("mechanics.modulus.storage")
+      && quantities.includes("mechanics.modulus.loss");
+    return relaxation || dma || dmaTemperatureSweep;
   }
   const hasStressStrain = hasQuantity("strain.engineering") && hasQuantity("stress.engineering");
   if (!hasStressStrain) return false;
@@ -499,6 +502,16 @@ export function documentIsPolymerDma(item: CanonicalTestDataDocumentResponse | u
   return quantities.has("frequency.cyclic")
     && quantities.has("modulus.shear.storage")
     && quantities.has("modulus.shear.loss");
+}
+
+export function documentIsPolymerDmaTemperatureSweep(
+  item: CanonicalTestDataDocumentResponse | undefined,
+): boolean {
+  if (!item) return false;
+  const quantities = new Set(item.channels.map((channel) => channel.quantity_semantics.toLowerCase()));
+  return quantities.has("physics.temperature")
+    && quantities.has("mechanics.modulus.storage")
+    && quantities.has("mechanics.modulus.loss");
 }
 
 export function isFitMethod(methodId: string): boolean {

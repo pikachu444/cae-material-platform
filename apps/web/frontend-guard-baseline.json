@@ -1,6 +1,6 @@
 {
   "schemaVersion": "cmp.frontend-guard-baseline.v1",
-  "sourceSha": "39def8be4988b220ba4789390290bd1b8c2a8f29",
+  "sourceSha": "d7c86d211272537aecd14c84c14a59cfc7b2763b",
   "ownerIssue": "#256",
   "hotspots": [
     {
@@ -49,7 +49,7 @@
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
       "scope": "apps/web/src",
-      "count": 50,
+      "count": 22,
       "reason": "Existing feature and responsive selectors remain in the two registered legacy global stylesheets.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 moves feature selectors to owned styles and proves zero legacy consumers."
@@ -57,7 +57,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "scope": "apps/web/src",
-      "count": 716,
+      "count": 705,
       "reason": "Legacy styles predate complete semantic color-token ownership.",
       "followUpIssue": "#261",
       "removalCondition": "FE-06 completes owned style migration and all non-token styles consume semantic color tokens."
@@ -65,7 +65,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "scope": "apps/web/src",
-      "count": 184,
+      "count": 171,
       "reason": "Legacy styles contain literal weights before shared typography roles are fully adopted.",
       "followUpIssue": "#257",
       "removalCondition": "FE-02 defines the required roles and later route units replace the remaining literal weights."
@@ -81,7 +81,7 @@
     {
       "ruleId": "CMP-FE-EYEBROW",
       "scope": "apps/web/src",
-      "count": 109,
+      "count": 91,
       "reason": "Existing routes use eyebrow labels with inconsistent semantic roles.",
       "followUpIssue": "#264",
       "removalCondition": "The route normalization units remove or replace the remaining eyebrow labels before FE-09 closes."
@@ -89,7 +89,7 @@
     {
       "ruleId": "CMP-FE-STATUS-CHIP",
       "scope": "apps/web/src",
-      "count": 12,
+      "count": 9,
       "reason": "Existing chips require route-by-route proof that they represent actual status.",
       "followUpIssue": "#264",
       "removalCondition": "The route normalization units retain only actual status roles before FE-09 closes."
@@ -148,15 +148,6 @@
       "reason": "FE-08A moves this exact legacy label from app.tsx into its app-owned session boundary without copy, DOM, CSS, or semantic change.",
       "ownerIssue": "#263",
       "removalCondition": "Remove in #331 when live route evidence authorizes migration of this legacy visual grammar."
-    },
-    {
-      "ruleId": "CMP-FE-HOTSPOT-GROWTH",
-      "path": "apps/web/src/common-processing-workbench.tsx",
-      "fingerprint": "06b554986a8c9ff58b79dae6e20c6b7a2b9497fd6cdc260bddbe8dc97aeaaae1",
-      "maxOccurrences": 1,
-      "reason": "FE-05 adds the bounded Data workspace adapter and defers Saved outputs until Export so the preserved workflow remains usable.",
-      "ownerIssue": "#260",
-      "removalCondition": "Remove when the remaining Data adapter leaves the registered workbench hotspot."
     },
     {
       "ruleId": "CMP-FE-GLOBAL-CSS-SELECTOR",
@@ -1043,97 +1034,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/design/shell.css",
-      "fingerprint": "1ca42170a25f529c69bac09731da6afa2be1d405bbaadb08f5936479d46c9dae",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "2fb3e4fc1ddfeef0beec48cec402681c7963746345cb3a5faa1283be46fc6bac",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "4036542bc937daa0e6eee6d0faefb0023cb885a62177e007e1e93ecd3422d951",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "4ceb8ebba50bd9237940f8ecf7d08f80b5c2980ee26ee743eec614e0741c7515",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "539877cd89843b0fe0f6391588940f769ea724f254bca0a0a52ca976250f61f2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
       "fingerprint": "72d7cde3dddecf1f0108de940220fb1e283866763bbc00856eeddb677b534609",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "7b333968a1f6d7f887f5fe6f754310a84b9df94566c19095e5dacd1974d0b161",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "868d853ac9acb040e189d9d1762935967fc95ff4861fc62dbe18271db044ca39",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "9f99a144b311c68cb7f9560d1d0bb00f61f9a9970efd556827ae02c832e2d4ee",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "c0b964ca5e020f17c6afb52188141bd4b6c7908c7412f0be1500646f454ab7fc",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "09969cda416f65188c47d5d3a8a334a49098dd0d6d52345b8d299ec01cf72dc2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -1151,15 +1052,6 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/shell.css",
-      "fingerprint": "229026edd892d1da324e8a324a06f287315783e37fee83ecb69d70505303aa8a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
       "fingerprint": "310c4d0ad1469531c0a19296bd99deb6d7b60aaeff2acc0c0539e7abba5e14f3",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -1169,97 +1061,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/shell.css",
-      "fingerprint": "356e0e875bbceff26051848cc9ca93ae80c9855291d3b623a706cc49c22ecc83",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
       "fingerprint": "3f294c4c489229cf189e582a8e5bccaa7ac2ec4ccf4b989c9bef4c2c1ffd8c9b",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "4206fc6153871db3b24cc6d847febf8cf975454d8234b79bd10dc3e123618cc3",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "4761fe04d90f4bb161d4b01fc04f6df5c59336e33234146b8b059c33a2aa815f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "551a4357dfbfe48bd8eed094c3cdb4c8848a3b2a82dd22f709668da4da586acb",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "5b37ce2514d9d3f856829a1f03cf54199351cfde566579c686aab657fe4577d5",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "5e9320d2370d07b0a383b815b569085e45268dac0a9a698ca475885e245ecdaa",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "66d2fcfecd2bf44adcde0f264e7d348ae8b5a6a6192db9443ba7d5537d5b79fe",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "6ae5a4e8b9783233564429b7327da391bde06d7254a40680d263ff7f75aa1ccd",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "788bd7e708728a336afae2003892330dfcdd5ea49774cf82064fed9b35202caa",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "7fce15e4a929ef0d0a1defdb76e4f9d0d99e3211127b9f11445f720ef0a35ca7",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -1278,42 +1080,6 @@
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/design/shell.css",
       "fingerprint": "ae1f035cd730a1681b5616bffc471c0e8ad75fa989a0e1d6604c8690bb5d4c6c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "b69fbb6ef7e32c038a375fc0a60921fb974e4cc50a57809fd4a969ce49e6a638",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "be4123aa15435e177d4680e2bc3f3495df5651a42b5b15d5cd893fdd03c091b7",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "c180bf7fa50da3be6093465500366e8f3c4ec2be1cafd85b2dc3499bd3bc7b45",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/design/shell.css",
-      "fingerprint": "cac61dd7029ff00f286f20b02561d6868d9cfec6c4a6bb20403f74763b1f84d4",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -2852,15 +2618,6 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "1202383617df8e67a8b9d843499ed6cfb6814cef1e94a46453b506e95dffec52",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "12c624077f4cdafcf8ba873f3d183194ad67f84c028544ab284b83b85193c468",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -2879,34 +2636,7 @@
     {
       "ruleId": "CMP-FE-FONT-WEIGHT",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "2a690dbbfaf5052eed486185b827a05728d5579b9ba7b947ac279b29db6a371a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "430b9138e9bf84a1d608db6ad3aacaab1972daf7cbf72234df63368983165ead",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "57ce43b95929daff9a49d27153548a256279f06953c1b7fb374d6f4b3d1e8f7a",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "7b8457583f603bb8e5dbe720c328385c4cbe28ed2355a1585699e6f2d8c770e6",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -2922,72 +2652,9 @@
       "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
     },
     {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "7f37e7af931c40412453154a500aa8c78dbeaa7eecd4a8cfa9d011a050ce7d49",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "9d56bd3b3d4816b7c459f41984afabaae88ad063ac889fe10119c63932e5526d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "a860dc73a06ba8e30cf34ede589405da6b25134075765e899b1ebe48637cf968",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "aab2d506589a592d00f3da307383af8841c4f5f83c7ddc2758f7f7610e7df71d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "c00d2f45ba8e1f2e51673c8fcc2b6e1281fa861bf63271d29641bd98bf8b2869",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-FONT-WEIGHT",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "e46b956d26d601abd7eb5a749e9061a48ef3b764ad4695d8e92cf0195c9c665c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "04b649ba67fae546aa8da5e635dfb27760ba254337254ce9fc584472d6e71c2d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "06892d1e6581725268c124abb2c2a258cb3f8c65ad2c91a6a5c377de0249d19c",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3014,70 +2681,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "11f2198965f275e6f0808177e01e66154aa5b810b6c76596f480d4cc7e5014f1",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "1396e9d17f9dfef65dbb52b595c62dbf114b4762dfcbe09382142eda299cccb1",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "1f406dceca38c7df90103e59ccc73162fbac78db460483cccdf1b5d4369a19cb",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "20a754294d8ac2f75fdb65060d8ee223b533fa6561e620cca418d650743b14c5",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "24ced599694a72c3886bd4d06a698f07d05cf813f037573217b82d49489c0a14",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "2ca19c7efbae0f7987dc4ab479d693132f074bb94ea0ac491589c5d9954c7af4",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "2e7073ddde20458b5a644295fbe1f1e95a0bf209ebbad17cceaf92a4bd5e406f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "301ec85fa7c1cf1758ecb87abeb90646d8daaf91686178baab28d35db75ba2e7",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3095,34 +2699,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "3a2abd66bae19bd937d2367dd842d69ae3f2e4c1ac181cb6dc0d81d8f3e0a232",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "3bdd91496faed9bae4ed7fa1fdcf21d50cc5c92a2b164482f2b5a7710241746c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "3e0106d25d23ac015f77aed75d2313785b60deb1bf89f6a28566a03fdfd0bc4d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "4260ef6a0561e916426b4920b504edbb9336a987f808707101ab7afe634e87eb",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3140,33 +2717,6 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "495e0f3ef682c5f6b30e5874e06818108d2c94f4f4a906cc460f69f888abc720",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "4d8e77e44f2116a99a6aa846de17a0c55837b3527ab7b1d75b78711a7de40bfe",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "528b230c096a7f0a2f37151b814b485f52a31d6ba9dc0ddbf4a36722dc77480d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "545ce54f40d6e81a049fb7b0b9b015121a6169dfd593e5b63d7f5cf39887b020",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
@@ -3176,34 +2726,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "54fa611032771871ac4cab5be0a9aa103fb228dc91733c93e03c9ee557abc621",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "5600c419ec440438f6d7cd0807425d45a18f3039a800e0159c2a564fb95c20b6",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "569e214dfebbf2e373fcb461229c5ca2c1ef3d9e4d37030cdc2af387ed88783c",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "56c8fab33032469d786b2742a52828b8456da4ebde63cfa14dd763dea9386e90",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3222,69 +2745,6 @@
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "5f908c9921c774421c566507dec5d389bde77a5d16ef6998dfc17201a1ecdec0",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "66f16927b7c06af38c3a112829fe7e5dfcc386f1c057901445bc7c4d8ff3e718",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "692696f2ddbb6bd5cc7772239cb95b6f63d7b8c21f4691017af6b01380cde93d",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "70cba21eb18fc133e37fb3fff9e4cdd16cd9ee36a03974cc4a9dcf3f8fcf4c82",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "7382a31b4d5ea7f832e4cc84f85e16c975b81a6c3b5793cc280073d9f1580155",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "73bfefd0d7734f81fb256f2b1853d43836b1151fda917b7352fb945159949e9b",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "747e21f80b50559ccf25c2f83cb7c30baf9c8f94a8bcc775a3cfb63546891769",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "76c3007010eabd0892f5d61750b8190ac108a46df3a5d2c05c3b17cc16dbfc44",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3320,97 +2780,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "9afb8fa8db851d676716c5c06d917b404bd9905f18f849349816e7f72340ffbd",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "a0c8e404252a2f0a01409f72dcc6f682b6c7c76ca7af593531ba0838df25f2a4",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "a63e73db741f989b4d9856917c5c005e912a28e6c82faec3ec24a7a8b257047f",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "b17694714b607f3b3b2349023b28159f77294f6b11cfaa91901bb3c59241f4fe",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "b5544599779f1ab8cc5fd772a6b1086641e3822eedde20c5fdb7101f281b28ef",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "b732c317dafbbbeca4d3840cecdc74abcf427bfe685bcbb208fb49fe33826ff8",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "b8db809f175f460f386b74a12705789f5fb325e0ab7620fdc2cbf31fd0b95c36",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "bc0043aa47a3ba7a97b1965d46a36a5cbc7f4ad5eebcb9d9aac0f89ed2e328f2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "c4a7abc971e0869e40eee16bbc553abf36619aeda23468a85c517cdf1dd33a00",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "d432d78f8696c13fc030bd8fdac02b2c8363d69b3508675489ee8786d9096d9b",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "d48b243387f829c64fd839a4e347d0b3cc81a852554b8d99cddbfd7bc9efc2a7",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",
@@ -3473,34 +2843,7 @@
     {
       "ruleId": "CMP-FE-RAW-COLOR",
       "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "eaef6955c9817770c1c66d612146d161065685c7f4c0b165d6117ee7774d0a33",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "ed4fb7a1433f1e5d28d2e82cbc054e196f1620d99f78417b24fb9f964dfd3bde",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
       "fingerprint": "f25a0fa17a02bf38700687ab89138b6651d536dbdcbdd792493bdab31ff4b7a2",
-      "maxOccurrences": 1,
-      "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
-      "ownerIssue": "#261",
-      "removalCondition": "Remove when a separately approved semantic-token or legacy-selector retirement unit eliminates this preserved finding."
-    },
-    {
-      "ruleId": "CMP-FE-RAW-COLOR",
-      "path": "apps/web/src/features/modeling/ui/modeling-core-workbench.css",
-      "fingerprint": "f41d4d4b64bb08896c1e68261c7e070862bc4d3c5775deb45f322ae1e4357cb2",
       "maxOccurrences": 1,
       "reason": "FE-06 moves this exact declaration or selector into its truthful owner without semantic, visual, or responsive normalization.",
       "ownerIssue": "#261",

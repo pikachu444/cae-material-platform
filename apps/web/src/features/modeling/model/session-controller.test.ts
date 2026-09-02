@@ -4,7 +4,9 @@ import {
   clearModelingSession,
   dispatchModelingSession,
   loadModelingSession,
+  modelingSessionHasSavedDownstream,
   reduceModelingSession,
+  resolveModelingExactTestDataRef,
   saveModelingSession,
   type ModelingSessionRecordRef,
 } from "./session-controller";
@@ -88,6 +90,58 @@ describe("Modeling session v4 reducer", () => {
 
     expect(next.invalidation?.dispositions.reviewRelease).toBe("clear");
     expect(next.stalePointers?.reviewRelease).toBeUndefined();
+  });
+
+  it("preserves an invalidated engineer Selection as history when exact Test Data changes", () => {
+    const next = reduceModelingSession(populatedSession(), {
+      type: "PIN_TEST_DATA",
+      testData: ref("next-test-data"),
+    });
+
+    expect(next.selection).toBeUndefined();
+    expect(next.invalidation?.dispositions.selection).toBe("stale");
+    expect(next.stalePointers?.selection).toMatchObject({ id: "selection" });
+  });
+
+  it("treats current and stale saved outputs as downstream evidence during UI hydration", () => {
+    const empty = reduceModelingSession(null, { type: "NEW_SESSION" });
+    expect(modelingSessionHasSavedDownstream(empty)).toBe(false);
+    expect(modelingSessionHasSavedDownstream({
+      ...empty,
+      selection: ref("selection"),
+    })).toBe(true);
+    expect(modelingSessionHasSavedDownstream({
+      ...empty,
+      stalePointers: { materialModelIr: ref("ir") },
+    })).toBe(true);
+  });
+
+  it("restores one exact stale Fit chain atomically without making the newer input stale", () => {
+    const revisedTestData = {
+      ...ref("test-data"),
+      revisionId: "test-data-r2",
+      revisionNo: 2,
+    };
+    const changed = reduceModelingSession(populatedSession(), {
+      type: "PIN_TEST_DATA",
+      testData: revisedTestData,
+    });
+    const restored = reduceModelingSession(changed, {
+      type: "RESTORE_STALE_FIT",
+      testData: ref("test-data"),
+      processingOutput: ref("processed"),
+      selection: ref("selection"),
+      materialModelIr: ref("ir"),
+    });
+
+    expect(restored.testData).toMatchObject({ id: "test-data" });
+    expect(restored.processingOutput).toMatchObject({ id: "processed" });
+    expect(restored.selection).toMatchObject({ id: "selection" });
+    expect(restored.materialModelIr).toMatchObject({ id: "ir" });
+    expect(restored.stalePointers?.testData).toBeUndefined();
+    expect(restored.stalePointers?.selection).toBeUndefined();
+    expect(restored.workspace.selectedTestDataRefs).toContainEqual(ref("test-data"));
+    expect(restored.workspace.selectedTestDataRefs).not.toContainEqual(revisedTestData);
   });
 
   it("keeps upstream pins while process, fit, selection, validation, and target invalidation only affect their matrix scope", () => {
@@ -208,9 +262,37 @@ describe("Modeling session v4 reducer", () => {
     const first = ref("curve-1");
     const second = { ...first, revisionId: "curve-1-r2", revisionNo: 2 };
     const selected = reduceModelingSession(null, { type: "SET_TEST_DATA_SELECTION", selectedTestDataRefs: [first] });
-    const relinked = reduceModelingSession(selected, { type: "PIN_TEST_DATA", testData: second });
+    const linkedResult = {
+      ...selected,
+      processingOutput: ref("processed"),
+      selection: ref("selection"),
+      materialModelIr: ref("model"),
+    };
+    const relinked = reduceModelingSession(linkedResult, { type: "PIN_TEST_DATA", testData: second });
     expect(relinked.workspace.selectedTestDataRefs).toEqual([second]);
     expect(relinked.testData).toEqual(second);
+    expect(relinked.stalePointers?.testData).toEqual(first);
+    expect(relinked.stalePointers?.processingOutput).toEqual(linkedResult.processingOutput);
+    expect(relinked.stalePointers?.selection).toEqual(linkedResult.selection);
+    expect(relinked.stalePointers?.materialModelIr).toEqual(linkedResult.materialModelIr);
+  });
+
+  it("never resolves an absent historical revision to the current library head", () => {
+    const current = {
+      test_data_document_id: "curve-1",
+      document_key: "Curve 1",
+      current_revision: { id: "curve-1-r2", revision_no: 2 },
+    };
+    const historical = { id: "curve-1", revisionId: "curve-1-r1", label: "Curve 1", revisionNo: 1 };
+
+    expect(resolveModelingExactTestDataRef(current, historical.revisionId, [])).toBeUndefined();
+    expect(resolveModelingExactTestDataRef(current, historical.revisionId, [], historical)).toEqual(historical);
+    expect(resolveModelingExactTestDataRef(current, current.current_revision.id, [])).toEqual({
+      id: current.test_data_document_id,
+      revisionId: current.current_revision.id,
+      label: current.document_key,
+      revisionNo: 2,
+    });
   });
 
   it("keeps every linked exact ref while Include and Show remain independent decisions", () => {

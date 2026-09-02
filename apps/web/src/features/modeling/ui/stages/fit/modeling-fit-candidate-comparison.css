@@ -1,0 +1,192 @@
+.modeling-main-surface[data-dock-variant="decision"] {
+  grid-template-rows: minmax(0, auto) minmax(300px, 1fr) min(25vh, 240px);
+}
+
+.modeling-main-surface[data-dock-variant="decision"] > .persistent-modeling-plot {
+  min-height: 300px;
+}
+
+.modeling-main-surface[data-dock-variant="decision"] > .modeling-workspace-dock {
+  height: min(25vh, 240px);
+  max-height: min(25vh, 240px);
+  overflow: hidden;
+}
+
+.modeling-fit-decision-dock {
+  display: grid;
+  container-type: inline-size;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(560px, 1.55fr) minmax(340px, 1fr);
+  background: var(--ux-surface);
+}
+
+.modeling-fit-candidate-comparison,
+.modeling-fit-selection-pane {
+  min-width: 0;
+  min-height: 0;
+}
+
+.modeling-fit-candidate-comparison {
+  display: grid;
+  grid-template-rows: var(--ux-interactive-min-block-size) minmax(0, 1fr);
+}
+
+.modeling-fit-candidate-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ux-space-3);
+  padding-inline: var(--ux-pane-padding);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.modeling-fit-candidate-heading h2 {
+  margin: 0;
+  font-size: var(--ux-data-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.modeling-fit-candidate-heading span,
+.modeling-fit-candidate-heading strong {
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+  font-weight: var(--ux-font-weight-body);
+}
+
+.modeling-fit-candidate-heading strong {
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-fit-candidate-table-wrap {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.modeling-fit-candidate-table-wrap:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
+.modeling-fit-candidate-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--ux-text);
+  font-size: var(--ux-data-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.modeling-fit-candidate-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.modeling-fit-candidate-table :is(th, td) {
+  height: var(--ux-navigator-row-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.modeling-fit-candidate-table :is(th, td):first-child,
+.modeling-fit-candidate-table :is(th, td):last-child {
+  text-align: left;
+}
+
+.modeling-fit-candidate-table thead th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text-muted);
+  font-size: var(--ux-table-heading-font-size);
+  font-weight: var(--ux-font-weight-label);
+}
+
+.modeling-fit-candidate-table tbody tr.selected {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 var(--ux-accent);
+}
+
+.modeling-fit-candidate-table label {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ux-space-2);
+  cursor: pointer;
+}
+
+.modeling-fit-candidate-table input[type="radio"] {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  min-height: 15px;
+  margin: 0;
+  accent-color: var(--ux-accent);
+}
+
+.modeling-fit-candidate-table label > span,
+.modeling-fit-candidate-table td:last-child {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: var(--ux-space-2);
+}
+
+.modeling-fit-candidate-table em {
+  color: var(--ux-accent);
+  font-size: var(--ux-metadata-font-size);
+  font-style: normal;
+  font-weight: var(--ux-font-weight-label);
+}
+
+.modeling-fit-candidate-table td:last-child small {
+  color: var(--ux-warning);
+  font-size: var(--ux-metadata-font-size);
+  white-space: normal;
+}
+
+.modeling-fit-selection-pane {
+  overflow: auto;
+  border-left: 1px solid var(--ux-border-strong);
+  scrollbar-gutter: stable;
+}
+
+@container (max-width: 900px) {
+  .modeling-fit-decision-dock {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(150px, 1fr) auto;
+    overflow: auto;
+  }
+
+  .modeling-fit-selection-pane {
+    border-top: 1px solid var(--ux-border-strong);
+    border-left: 0;
+  }
+}
+
+@media (max-height: 800px) {
+  .modeling-main-surface[data-dock-variant="decision"] {
+    grid-template-rows: minmax(0, auto) minmax(260px, 1fr) 180px;
+  }
+
+  .modeling-main-surface[data-dock-variant="decision"] > .modeling-workspace-dock {
+    height: 180px;
+    max-height: 180px;
+  }
+}

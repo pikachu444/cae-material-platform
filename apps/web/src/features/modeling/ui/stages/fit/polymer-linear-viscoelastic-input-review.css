@@ -1,0 +1,49 @@
+.polymer-input-review {
+  display: flex;
+  min-width: 0;
+  min-height: calc(var(--ux-engineering-control-block-size) + var(--ux-space-4));
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+  padding: var(--ux-space-2) var(--ux-pane-padding);
+  background: var(--ux-surface);
+}
+
+.polymer-input-review-values { min-width: 0; flex: 1 1 auto; }
+.polymer-input-review-values summary { width: max-content; min-height: var(--ux-engineering-control-block-size); align-content: center; color: var(--ux-accent); font-size: var(--ux-engineering-control-font-size); cursor: pointer; }
+
+.polymer-input-review-values dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  margin: var(--ux-space-2) 0 0;
+  border-top: 1px solid var(--ux-border);
+}
+
+.polymer-input-review-values dl > div {
+  display: grid;
+  min-width: 0;
+  min-height: var(--ux-navigator-row-block-size);
+  align-content: center;
+  gap: 2px;
+  padding: var(--ux-space-1);
+  border-bottom: 1px solid var(--ux-border);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.polymer-input-review-values dt { color: var(--ux-text-muted); }
+.polymer-input-review-values dd { min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.polymer-input-review-calculation { display: flex; min-width: 0; align-items: center; gap: var(--ux-space-2); }
+.polymer-setup-choice { display: flex; min-width: 260px; align-items: center; gap: var(--ux-space-2); font-size: var(--ux-metadata-font-size); }
+.polymer-setup-choice select { min-width: 180px; }
+.polymer-setup-status { color: var(--ux-text-muted); font-size: var(--ux-metadata-font-size); }
+.polymer-setup-status.missing,
+.polymer-setup-status.inactive,
+.polymer-setup-status.review,
+.polymer-setup-status.error { color: var(--ux-warning); }
+@container (max-width: 900px) {
+  .polymer-input-review { flex-direction: column; }
+  .polymer-input-review-values { width: 100%; }
+  .polymer-input-review-values dl { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+  .polymer-input-review-calculation { width: 100%; flex-wrap: wrap; justify-content: flex-end; }
+}

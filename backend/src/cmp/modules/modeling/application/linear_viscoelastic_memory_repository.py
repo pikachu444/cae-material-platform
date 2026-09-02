@@ -75,6 +75,20 @@ class InMemoryLinearViscoelasticCalibrationRepository:
         except KeyError as error:
             raise LinearViscoelasticCalibrationNotFound("Plan is not visible") from error
 
+    def get_plan_revision(
+        self,
+        plan_id: UUID,
+        plan_revision_id: UUID,
+        *,
+        context: SecurityContext | None = None,
+        decision: AuthorizationDecision | None = None,
+    ) -> CalibrationPlanSnapshot:
+        del context, decision
+        value = self.get_plan(plan_id)
+        if value.current.plan_revision_id != plan_revision_id:
+            raise LinearViscoelasticCalibrationNotFound("Plan revision is not visible")
+        return value
+
     def save_run(
         self,
         value: CalibrationRunProjection,

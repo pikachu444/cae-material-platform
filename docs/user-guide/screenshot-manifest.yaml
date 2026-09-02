@@ -1,13 +1,14 @@
-version: 141
-verified_at: 2026-09-01
-scope: issue-331-modeling-state-css
-source_commit: working-tree-issue-331-modeling-state-css
+version: 142
+verified_at: 2026-09-02
+scope: issue-377-polymer-linear-viscoelastic-fit-ui
+source_commit: aa8c6e942420cc67b637edd92d988c9fbf678b27+issue377-worktree
 capture_script: ../../scripts/capture_current_product.py
-capture_command: 'Retained isolated Compose capture at five CSS viewports, browser zoom 100% and DPR 1; the exact DP780 Data to Process to Fit journey completed with save, reload and exact-source recovery. The existing five current Process paths were refreshed from the successful after9 run; this records the corrected plot clipping and no broader design approval.'
+capture_command: 'Preserved-volume cmp-377-ui-dense Compose migration, repeatable full demo seed, API, worker and production web build; serial Playwright Polymer input-blocked, DMA TTS Process input/save, FHD automatic 1-10 calculation, compare/select/save/reload, manual 10-term parameter-table scroll, five-viewport saved result, stale restore/use-current, and Metal Data-to-Export regression journeys at browser zoom 100% and DPR 1. Thirty-one reviewed originals were promoted to the current guide; physical Windows 4K readability remains governed by #223.'
 notes:
   - "Issue #331 refreshes the existing five current Process originals after moving the remaining Modeling-state CSS to its feature owners. The exact DP780 Data to Process to Fit journey completed at all five viewports; the calculation curves remain inside the plot and no longer enter the legend reservation. Data selection, Mapping Profile, saved Processing Output, Fit attempts, reload and exact-source retry were read back without a latest or first-item fallback. The product owner waived retroactive before-image regeneration and approved proceeding from the successful after run; this is not approval of the existing design quality or physical Windows 4K readability."
   - "The current Administration set uses the exact Technical Data Table revision r1, default Layout revision r1 and DP780 technical-data Record context; the Records set shows the exact DP780 technical-data editor. A single retained disposable Compose project captured Database, Record preview and Records at all five viewports after the zero-consumer CSS retirement; decoded before/after RGBA comparisons are pixel-identical. On 2026-09-01 the product owner approved the presented 1920/2560/3840 originals as no-regression evidence, not as approval of the existing design quality."
-  - "Issue #331 records the current-guide Modeling Fit set after the behavior-preserving CSS ownership transaction. The disposable web image was rebuilt with the preserved database and named volumes, and the unchanged five-viewport Process/Fit journey produced twelve promoted Fit PNGs plus five non-promoted Process captures. The exact route, state, dimensions and hashes are read back by the current-guide service-reference entries; this evidence records zero intended visual redesign and does not claim product-owner visual acceptance."
+  - "Issue #331's behavior-preserving CSS-ownership evidence remains historical. Issue #377 replaces the affected current-guide Modeling Fit images with the shared full-width graph, bottom candidate/engineer decision dock and bounded Calculation settings drawer, and promotes the five-viewport DMA TTS Process evidence. Product-owner visual disposition remains pending."
+  - "Issue #377 adds Polymer linear-viscoelastic Fit to the existing Modeling shell. Relaxation and single-temperature DMA go directly from Data to Fit; fixed-frequency DMA temperature sweeps create one shifted response in Process before Fit. The normal Fit flow calculates every data-supported candidate from 1 through 10 without manual parameter entry, compares average differences on points used for calculation and points held back for checking, marks the recommendation inline, and shows a failure or warning only on the affected model. The engineer Selection and reason persist through reload and changed-input recovery. Raw BIC, internal identifiers and repeated helper text stay off the normal surface. FHD shift input/saved originals, five saved-Fit viewports and FHD input/point-differences/10-term settings/stale recovery are current-guide evidence; fifteen direct 100%-pixel header, graph and comparison/selection-control crops are registered in the Issue #377 evidence manifest. A live Metal Data→Process→Fit→Export run verifies that the shared shell did not regress."
   - "Issue #342 Task 1B adds the current Administration Records JSON valid-preview captures at all five required viewports. The single Import records workspace infers JSON versus existing CSV/TSV/XLSX from selected files, keeps exact format revision/provenance out of the normal surface, and presents Files, Preview, Reason for change and local Save with Save draft as the result step. The complete nine-state matrix, direct crops and measurements are under docs/17-evidence/issue-342-ui-acceptance/live. Five valid-preview originals use fresh-Docker PostgreSQL/API/browser evidence; the other 40 state/viewport originals use the deterministic mocked API boundary. Main visual and fresh-Docker acceptance pass, and the product owner approved the presented 1920/2560/3840 originals on 2026-08-28."
   - "Issue #262 FE-07A owner correction preserves the published architecture work while making Search identity explicit through separate Material and Code columns; bounding Key properties and condition rows; grouping Related data under the four peer engineering categories; exposing truthful exact Test Data, Simulation subtype and Solver Card contract fields; and removing redundant normal-surface helper copy. The partial owner-review packet under docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/ contains 40 before/after originals, 140 direct 100%-pixel crops and two query-error/recovery originals across Search, Browse, Detail and Curves. Main opened every asset at original resolution; five-viewport geometry and all supported exact hops pass. Product Owner visual/geometry approval remains pending, and physical Windows 4K readability remains deferred to #223."
   - "Issue #261 M6 audits the exact PR #318 556-row/495-group zero-consumer handoff as one batch. Static producer/reference, production bundle and 13-topology live DOM evidence authorize removal of 511 rows touching 462 groups; 45 false-positive rows in 43 groups remain explicit HOLD with truthful current owners and removal conditions. The five-viewport audit restored `.materials-scroll-rail-x` after proving its narrow Export producer. The packet under docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/manifest.json registers 610 PNGs and 305 before/after pairs with Main visual/runtime acceptance. The current guide's 1920x1080 Export PNG reuses the accepted M6 after original; physical Windows 4K readability remains deferred to #223."
@@ -109,10 +110,10 @@ notes:
   - "전체 화면 폭·고해상도 전 제품 구성 (Q-20): geometry passes for every captured route/state: the shell spans all five CSS viewports; Materials/Data/Process/Fit/Export use elastic central work areas; Administration Database design and Records use the common semantic three-pane allocation; Activity retains a bounded readable history table; page horizontal overflow is zero in all 20 numeric Standard measurements. The ten unavailable fixture-dependent recaptures keep the overall evidence disposition incomplete rather than pass."
   - "Activity Recent outcomes uses 10 immutable server decisions, 20 browser-local solver-card activities, and 20 bounded browser-local successful recovery outcomes. The capture gate requires genuine local overflow at every registered history viewport, including 3840x2160."
   - "The active Windows displays are 2560x1440@59Hz and 2560x1600@165Hz at 96 DPI and 100% scale. No actual 3840x2160 monitor was available. Automated 3840x2160 CSS viewport and browser-zoom-200 evidence do not claim physical 4K readability; that disposition is DEFERRED_TO_223. Product Owner review of the originals is pending, so #184 remains open and its PR stays draft."
-  - "UXC-04E preserves the approved flat Fit topology: compact title/stage rows, bounded curve/process navigator, six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and decision-relevant legend. Issue #184 replaces historical fixed-size wording with the shared Compact/Standard/Large header, row, navigator, ribbon and graph tokens; the retired command/status bars do not consume Modeling graph space."
+  - "Issue #377 supersedes UXC-04E's Fit-only bounded navigator and six-group ribbon for the affected current product. Data/Process retain the compact shared navigator; Fit uses a shallow input/view band, full-width dominant graph and bottom candidate/engineer decision dock. Calculation settings and technical evidence remain bounded disclosures. Shared Compact/Standard/Large tokens continue to govern density."
   - "Issue #160 Task 2 remains the source of Activity's shared compact semantic baseline and balanced 2656px comparison pane. The #161 recapture preserves that topology and adds a truthful 50-item long-history fixture so the local rail remains visible at 3840."
   - "The Task 2 Activity comparison and approval history remain recorded in https://github.com/pikachu444/cae-material-platform/issues/160. Issue #184 revalidates request, long-history, decision/error and recovery states across P2 and removes the prior 4px Large/1366 local overflow through bounded identity/status/action columns and a flexible evidence column."
-  - "Fit capture asserts the grouped metal rail, one-line Step 4 Fit heading, density-token-sized six-group ribbon and actions, concise source/state header, Candidate parameters source evidence, explicit selection before save, persistent graph identity, and the allocation-triggered bounded evidence overlay with close/focus return."
+  - "Fit capture asserts a concise human-readable input/state band, full-width persistent graph, compact non-overlapping legend, locally scrolling candidate comparison, explicit engineer selection/reason before save, and a bounded Calculation settings drawer with Escape/close focus return. Internal IDs, digests and repeated revision text remain off the normal surface."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation and exact related-data read-back. In the delivered FE-04F scenario, the capture fixture projects the one fresh Neutral used for delivery through the exact current Material record and rejects an absent or mismatched binding instead of falling back to an older published Neutral. Preview-only scenarios stop before Catalog projection."
@@ -150,22 +151,10 @@ allowed_duplicate_groups:
     images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-2560x1440.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-2560x1440.png]
   - rationale: "Issue #262 has two independently approved Materials correction packets: owner-correction and simulation-output-correction. Their retained Curves after originals are exact byte-identical records of each packet's distinct evidence set, so both consumers remain meaningful."
     images: [docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/after/originals/material-curves-3840x2160.png, docs/17-evidence/images/issue-262-fe07a-materials-architecture-ui/owner-correction/simulation-output-correction/after/originals/material-curves-3840x2160.png]
-  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1366x768."
-    images: [docs/user-guide/images/current/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1366x768.png]
-  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1440x900."
-    images: [docs/user-guide/images/current/modeling-fit-1440x900.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1440x900.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1440x900.png]
-  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 1920x1080."
-    images: [docs/user-guide/images/current/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1920x1080.png]
-  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 2560x1440."
-    images: [docs/user-guide/images/current/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-2560x1440.png]
-  - rationale: "Issue #261 M1E3 reuses the unchanged registered Modeling Fit current image as exact byte-identical CSS-migration proof at 3840x2160."
-    images: [docs/user-guide/images/current/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-3840x2160.png]
-  - rationale: "Current Fit guide capture at 1366x768 retains the exact accepted live-evidence duplicate set."
-    images: [docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1366x768/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-fit/1366x768/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-fit/1366x768/original.png, docs/user-guide/images/current/modeling-fit-1366x768.png]
-  - rationale: "Current Fit guide capture at 1440x900 retains the exact accepted live-evidence duplicate set."
-    images: [docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1440x900/original.png, docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-fit/1440x900/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-fit/1440x900/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-fit/1440x900/original.png, docs/user-guide/images/current/modeling-fit-1440x900.png]
-  - rationale: "Current Fit guide capture at 1920x1080 retains the exact accepted live-evidence duplicate set."
-    images: [docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/1920x1080/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-fit/1920x1080/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-fit/1920x1080/original.png, docs/user-guide/images/current/modeling-fit-1920x1080.png]
+  - rationale: "The pre-#377 2560x1440 Fit originals remain one historical exact-hash group after the current guide moved to the shared full-width Fit topology."
+    images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/2560x1440/original.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-fit/2560x1440/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-fit/2560x1440/original.png]
+  - rationale: "The pre-#377 3840x2160 Fit originals remain one historical exact-hash group after the current guide moved to the shared full-width Fit topology."
+    images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-fit/3840x2160/original.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-fit/3840x2160/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-fit/3840x2160/original.png]
   - rationale: "The accepted historical Fit 1366x768 originals are one exact duplicate group retained for evidence comparison."
     images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-b1-modeling-stage-css-ownership/after/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-b4-css-ownership-integration/after/originals/modeling/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e-modeling-ownership-integration/after/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/after/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e3-documentation-impact/before/originals/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/after/current-product/modeling-fit-1366x768.png, docs/17-evidence/images/issue-261-m1e4-modeling-core-stage-ownership/live/before/current-product/modeling-fit-1366x768.png]
   - rationale: "The accepted historical Fit 1440x900 originals are one exact duplicate group retained for evidence comparison."
@@ -202,16 +191,6 @@ allowed_duplicate_groups:
     images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-2560x1440.png, docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/2560x1440/original.png, docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/2560x1440/original.png, docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/2560x1440/original.png, docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/2560x1440/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-process/2560x1440/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-process/2560x1440/original.png]
   - rationale: "Issue #331 refreshed the current 3840 Process image; these surviving evidence files remain the complete prior exact-hash group."
     images: [docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-process-3840x2160.png, docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/after/modeling-process/3840x2160/original.png, docs/17-evidence/images/issue-261-fe06-residual-owner-boundary-consolidation/live/before/modeling-process/3840x2160/original.png, docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/after/modeling-process/3840x2160/original.png, docs/17-evidence/images/issue-261-m4-shared-css-ownership-consolidation/before/modeling-process/3840x2160/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/after/modeling-process/3840x2160/original.png, docs/17-evidence/images/issue-261-m6-zero-consumer-audit-and-removal/live/before/modeling-process/3840x2160/original.png]
-  - rationale: "Issue #260 keeps the registered current Fit 1366x768 original and its issue-owned candidate original byte-identical."
-    images: [docs/user-guide/images/current/modeling-fit-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1366x768.png]
-  - rationale: "Issue #260 keeps the registered current Fit 1440x900 original and its issue-owned candidate original byte-identical."
-    images: [docs/user-guide/images/current/modeling-fit-1440x900.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1440x900.png]
-  - rationale: "Issue #260 keeps the registered current Fit 1920x1080 original and its issue-owned candidate original byte-identical."
-    images: [docs/user-guide/images/current/modeling-fit-1920x1080.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-1920x1080.png]
-  - rationale: "Issue #260 keeps the registered current Fit 2560x1440 original and its issue-owned candidate original byte-identical."
-    images: [docs/user-guide/images/current/modeling-fit-2560x1440.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-2560x1440.png]
-  - rationale: "Issue #260 keeps the registered current Fit 3840x2160 original and its issue-owned candidate original byte-identical."
-    images: [docs/user-guide/images/current/modeling-fit-3840x2160.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-fit-3840x2160.png]
   - rationale: "Issue #260 keeps the registered current Export 1366x768 original and its issue-owned candidate original byte-identical."
     images: [docs/user-guide/images/current/modeling-export-1366x768.png, docs/17-evidence/images/issue-260-fe05-modeling-data/after/originals/modeling-export-1366x768.png]
   - rationale: "Issue #261 M1E refreshes the registered current Export 1440x900 original from the ownership-integration live run; the evidence and current-guide copies remain byte-identical without representing a new design."
@@ -533,6 +512,10 @@ allowed_duplicate_groups:
   - rationale: "Issue #261 M3 preserves this byte-identical before/after original while keeping both evidence paths independently addressable."
     images: [docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/after/originals/administration-records-3840x2160.png, docs/17-evidence/images/issue-261-fe06-m3-governance-css-ownership/before/originals/administration-records-3840x2160.png]
 visual_evidence:
+  issue_377_evidence_manifest: docs/17-evidence/issue-377-polymer-linear-viscoelastic-fit-ui/manifest.yaml
+  issue_377_direct_crop_count: 15
+  issue_377_direct_crop_ids: [fit-saved-header-1366, fit-saved-header-1440, fit-saved-header-1920, fit-saved-header-2560, fit-saved-header-3840, fit-saved-graph-1366, fit-saved-graph-1440, fit-saved-graph-1920, fit-saved-graph-2560, fit-saved-graph-3840, fit-saved-controls-1366, fit-saved-controls-1440, fit-saved-controls-1920, fit-saved-controls-2560, fit-saved-controls-3840]
+  issue_377_fit_navigator: not-applicable-fit-uses-shallow-stage-and-view-bands-without-a-side-navigator
   issue_261_m1e3_artifacts_are_not_current_captures: true
   issue_261_m1e3_product_records: 43
   issue_261_m1e3_storybook_records: 5
@@ -675,7 +658,7 @@ capture_provenance:
   - source_commit: working-tree-issue-331-fit-css-ownership
     captured_at: '2026-08-30'
     command: 'Disposable Compose project cmp-demo-test-issue331 with the preserved PostgreSQL/object volumes and only the web image rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5174 --output .artifacts/issue-331-modeling-fit-css-ownership/after/current --density standard --only-modeling-process-fit at browser zoom 100% and DPR 1. The exact unchanged Data→Process→Fit journey produced five Process and twelve Fit captures across 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160; only the twelve named Fit PNGs were promoted into the current guide after capture read-back. This records CSS ownership migration with zero intended visual redesign and does not claim product-owner visual acceptance.'
-    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920]
+    ids: [modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920]
   - source_commit: 713bafc75a9b0974281126f30b50c78eb1a9dd2a+issue342-task1b-worktree
     captured_at: '2026-08-28'
     command: 'Issue #342 fresh-Docker PostgreSQL/API/browser run captured the valid-preview state at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160 at browser zoom 100% and DPR 1; the remaining normal, empty, loading, error, upload-error, invalid-preview, save-error and saved originals use the production React shell with the repository-standard mocked API boundary for deterministic state coverage.'
@@ -700,6 +683,10 @@ capture_provenance:
     captured_at: '2026-08-19T02:50:30+09:00 through 2026-08-19T07:00:20+09:00'
     command: 'Canonical current-source Compose with the existing database, object data and named volumes preserved and only web rebuilt/recreated; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard with --only-modeling-data-session, --only-modeling-process-fit-viewports, --only-modeling-export and --only-modeling-consistency at browser zoom 100% and DPR 1. The final Data/session rerun additionally proves the optional comparison action uses the Modeling action color and Browser/Related data peer headers align while each list retains local scrolling. The exact consistency evidence proves one focused Data curve in the normal state, deliberate optional graph comparison that returns to one curve when closed, one saved Process input to Fit, exact Fit-to-Export preparation, stage round trips and no first-item/latest fallback.'
     ids: [modeling-data-1440, modeling-data-1920, modeling-data-2560, modeling-data-3840, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-data-empty-1440, modeling-data-invalid-1440, modeling-data-invalid-scrolled-1440, modeling-export-1366, modeling-export-1440, modeling-export-1920, modeling-export-2560, modeling-export-3840, modeling-export-source-blocked, modeling-export-approximation-blocked, modeling-export-delivered]
+  - source_commit: aa8c6e942420cc67b637edd92d988c9fbf678b27+issue377-worktree
+    captured_at: '2026-09-02'
+    command: 'Preserved-volume cmp-377-ui-dense Compose flow with repeatable exact-revision seed and the production calibration plugin. Captured at browser zoom 100%, DPR 1. FHD covers shift input and the saved shifted response, automatic 1–10-term calculation, used/check point differences, the editable 10-term Calculation settings table and local scroll, engineer Selection save/reload, changed-input stale state, exact saved-input restoration, explicit use-current recovery and a separate Metal Data→Process→Fit→Export regression. Five Process-ready, Process-saved, Polymer-Fit-saved, Polymer-input-blocked and Metal-Fit viewports reject document overflow, pane overlap, graph escape and legend/tick collision.'
+    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-process-polymer-dma-tts-1366, modeling-process-polymer-dma-tts-1440, modeling-process-polymer-dma-tts-1920, modeling-process-polymer-dma-tts-2560, modeling-process-polymer-dma-tts-3840, modeling-process-polymer-dma-tts-saved-1366, modeling-process-polymer-dma-tts-saved-1440, modeling-process-polymer-dma-tts-saved-1920, modeling-process-polymer-dma-tts-saved-2560, modeling-process-polymer-dma-tts-saved-3840, modeling-fit-polymer-source-blocked-1366, modeling-fit-polymer-source-blocked-1440, modeling-fit-polymer-source-blocked-1920, modeling-fit-polymer-source-blocked-2560, modeling-fit-polymer-source-blocked-3840, modeling-fit-polymer-saved-1366, modeling-fit-polymer-saved-1440, modeling-fit-polymer-saved-1920, modeling-fit-polymer-saved-2560, modeling-fit-polymer-saved-3840, modeling-fit-polymer-input-1920, modeling-fit-polymer-residual-1920, modeling-fit-polymer-calculation-settings-1920, modeling-fit-polymer-stale-1920, modeling-fit-polymer-stale-restored-saved-input-1920, modeling-fit-polymer-stale-recovered-1920]
   - source_commit: c1e64be9c05c5a2039ae99aa5867a5f8b11f6621+issue259-fe04d-worktree
     captured_at: '2026-08-16T13:48:42+09:00 through 2026-08-16T13:53:29+09:00'
     command: 'Canonical current-source Compose with preserved volumes; uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output docs/user-guide/images/current --density standard --only-modeling-process at browser zoom 100% and DPR 1. The flow verifies the three exact DP780 refs with two included, previews the selected Process steps, reuses and reads back three matching immutable outputs without a duplicate save POST, preserves the exact current pointer through stage round-trip, exercises Linear regression, Manual slope, missing-source and exact-read-failure states, and captures five normal viewports plus five bounded state images.'
@@ -764,7 +751,7 @@ previous_capture_provenance:
   - source_commit: 7394070+fit-ui-correction-worktree
     captured_at: '2026-08-06T18:34:17+09:00 through 2026-08-06T18:42:58+09:00'
     command: '`uv run --with playwright==1.62.0 python scripts/capture_current_product.py --base-url http://127.0.0.1:5173 --output <temporary staging directory> --only-modeling-process-fit` completed 17 Process/Fit captures from 2026-08-06T18:34:17+09:00 through 2026-08-06T18:42:58+09:00 in temporary staging under `C:\Users\pikac\AppData\Local\Temp\cmp-fit-ui-clip-final-20260806-1834`; the tracked files were copied only after all automation passed, and the root orchestrator opened all 17 originals and accepted the qualitative visual checks'
-    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-fit-2560, modeling-fit-3840, modeling-fit-candidate-parameters-long-1440, modeling-fit-candidate-evidence-scrolled-1440, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920]
+    ids: [MOD-PROCESS-CURRENT-1366, MOD-PROCESS-CURRENT-1440, MOD-PROCESS-CURRENT-1920, MOD-PROCESS-CURRENT-2560, MOD-PROCESS-CURRENT-3840, modeling-fit-calculation-failed-1920, modeling-fit-save-failed-1920, modeling-fit-exact-source-blocked-1920, modeling-fit-exact-read-failed-1920, modeling-fit-restored-1920]
   - source_commit: 3bfc0d7
     captured_at: 2026-07-26T23:10:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
@@ -1268,53 +1255,221 @@ captures:
     height: 900
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: one exact saved Process input, four ordered Fit steps, compact candidate controls, graph response and explicit decision save
-    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; alternatives remain distinct from input data
+    workflow: one exact saved Process input, shallow calculation controls, full-width hardening response, bottom candidate comparison and explicit engineer selection
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; recommendation remains distinct from selection
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: one exact saved Process input, four ordered Fit steps, compact candidate controls, graph response and explicit decision save
-    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; alternatives remain distinct from input data
+    workflow: one exact saved Process input, shallow calculation controls, full-width hardening response, bottom candidate comparison and explicit engineer selection
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; recommendation remains distinct from selection
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: one exact saved Process input, four ordered Fit steps, compact candidate controls, graph response and explicit decision save
-    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; alternatives remain distinct from input data
+    workflow: one exact saved Process input, shallow calculation controls, full-width hardening response, bottom candidate comparison and explicit engineer selection
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; recommendation remains distinct from selection
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-fit-2560
     route: /modeling?stage=fit&family=metal
-    workflow: wide one-input Fit flow; exact Process source binding and decision controls remain bounded while the candidate graph uses useful space
-    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; square compact controls preserve the engineering order
+    workflow: wide one-input Fit flow; exact Process source binding and bottom decision controls remain bounded while the candidate graph uses useful space
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; shared flat controls preserve the engineering order
     image: images/current/modeling-fit-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-fit-3840
     route: /modeling?stage=fit&family=metal
-    workflow: wide one-input Fit flow; exact Process source binding and decision controls remain bounded while the candidate graph uses useful space
-    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; square compact controls preserve the engineering order
+    workflow: wide one-input Fit flow; exact Process source binding and bottom decision controls remain bounded while the candidate graph uses useful space
+    fixture: one saved DP780 Process result with four candidate laws and an exact calculated blend; shared flat controls preserve the engineering order
     image: images/current/modeling-fit-3840x2160.png
     width: 3840
     height: 2160
-  - id: modeling-fit-candidate-parameters-long-1440
-    route: /modeling?stage=fit&family=metal
-    workflow: Fit candidate parameters evidence drawer with full calculated columns
-    fixture: synthetic saved Process Output with five candidate rows and exact response/residual/tangent evidence; root live visual acceptance complete
-    image: images/current/modeling-fit-candidate-parameters-long-1440x900.png
+  - id: modeling-process-polymer-dma-tts-1366
+    route: /modeling?stage=process&family=polymer
+    workflow: fixed-frequency DMA temperature sweep routes through Process; the recommended WLF shift is visible and one Create shifted response action remains
+    fixture: bounded non-production twenty-one-temperature shear DMA sweep at 1 Hz with declared WLF response; all 21 measured temperatures contribute to the TTS input
+    image: images/current/modeling-process-polymer-dma-tts-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-process-polymer-dma-tts-1440
+    route: /modeling?stage=process&family=polymer
+    workflow: fixed-frequency DMA temperature sweep routes through Process; the recommended WLF shift is visible and one Create shifted response action remains
+    fixture: bounded non-production twenty-one-temperature shear DMA sweep at 1 Hz with declared WLF response; all 21 measured temperatures contribute to the TTS input
+    image: images/current/modeling-process-polymer-dma-tts-1440x900.png
     width: 1440
     height: 900
-  - id: modeling-fit-candidate-evidence-scrolled-1440
-    route: /modeling?stage=fit&family=metal
-    workflow: Fit candidate evidence local scroll with explicit selection reason and warning acknowledgement
-    fixture: synthetic saved Process Output with selected candidate evidence; root live visual acceptance complete
-    image: images/current/modeling-fit-candidate-evidence-scrolled-1440x900.png
+  - id: modeling-process-polymer-dma-tts-1920
+    route: /modeling?stage=process&family=polymer
+    workflow: fixed-frequency DMA temperature sweep routes through Process; the recommended WLF shift is visible and one Create shifted response action remains
+    fixture: bounded non-production twenty-one-temperature shear DMA sweep at 1 Hz with declared WLF response; all 21 measured temperatures contribute to the TTS input
+    image: images/current/modeling-process-polymer-dma-tts-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-process-polymer-dma-tts-2560
+    route: /modeling?stage=process&family=polymer
+    workflow: wide single-step Process omits a non-interactive navigator and gives the recovered width to the engineering graph while keeping one shifted-response action
+    fixture: bounded non-production twenty-one-temperature shear DMA sweep at 1 Hz with declared WLF response; all 21 measured temperatures contribute to the TTS input
+    image: images/current/modeling-process-polymer-dma-tts-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-process-polymer-dma-tts-3840
+    route: /modeling?stage=process&family=polymer
+    workflow: wide single-step Process omits a non-interactive navigator and gives the recovered width to the engineering graph while keeping one shifted-response action
+    fixture: bounded non-production twenty-one-temperature shear DMA sweep at 1 Hz with declared WLF response; all 21 measured temperatures contribute to the TTS input
+    image: images/current/modeling-process-polymer-dma-tts-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-process-polymer-dma-tts-saved-1366
+    route: /modeling?stage=process&family=polymer
+    workflow: saved Processing Output is read back as one shifted DMA response and exposes one Continue to Fit action
+    fixture: exact saved twenty-one-value shifted DMA response at 313.15 K from the bounded WLF UI reference
+    image: images/current/modeling-process-polymer-dma-tts-saved-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-process-polymer-dma-tts-saved-1440
+    route: /modeling?stage=process&family=polymer
+    workflow: saved Processing Output is read back as one shifted DMA response and exposes one Continue to Fit action
+    fixture: exact saved twenty-one-value shifted DMA response at 313.15 K from the bounded WLF UI reference
+    image: images/current/modeling-process-polymer-dma-tts-saved-1440x900.png
     width: 1440
     height: 900
+  - id: modeling-process-polymer-dma-tts-saved-1920
+    route: /modeling?stage=process&family=polymer
+    workflow: saved Processing Output is read back as one shifted DMA response and exposes one Continue to Fit action
+    fixture: exact saved twenty-one-value shifted DMA response at 313.15 K from the bounded WLF UI reference
+    image: images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-process-polymer-dma-tts-saved-2560
+    route: /modeling?stage=process&family=polymer
+    workflow: saved shifted response remains a bounded one-result decision while the graph uses the wide workspace
+    fixture: exact saved twenty-one-value shifted DMA response at 313.15 K from the bounded WLF UI reference
+    image: images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-process-polymer-dma-tts-saved-3840
+    route: /modeling?stage=process&family=polymer
+    workflow: saved shifted response remains a bounded one-result decision while the graph uses the wide workspace
+    fixture: exact saved twenty-one-value shifted DMA response at 313.15 K from the bounded WLF UI reference
+    image: images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-fit-polymer-source-blocked-1366
+    route: /modeling?stage=fit&family=polymer
+    workflow: Polymer Fit without an input exposes one Choose Test Data action that returns to the existing Data workspace
+    fixture: no active polymer input; calculation controls and graph are absent without a latest or first-item fallback
+    image: images/current/modeling-fit-polymer-source-blocked-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-fit-polymer-source-blocked-1440
+    route: /modeling?stage=fit&family=polymer
+    workflow: Polymer Fit without an input exposes one Choose Test Data action that returns to the existing Data workspace
+    fixture: no active polymer input; calculation controls and graph are absent without a latest or first-item fallback
+    image: images/current/modeling-fit-polymer-source-blocked-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-polymer-source-blocked-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: Polymer Fit without an input exposes one Choose Test Data action that returns to the existing Data workspace
+    fixture: no active polymer input; calculation controls and graph are absent without a latest or first-item fallback
+    image: images/current/modeling-fit-polymer-source-blocked-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-source-blocked-2560
+    route: /modeling?stage=fit&family=polymer
+    workflow: Polymer Fit without an input exposes one Choose Test Data action that returns to the existing Data workspace
+    fixture: no active polymer input; calculation controls and graph are absent without a latest or first-item fallback
+    image: images/current/modeling-fit-polymer-source-blocked-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-fit-polymer-source-blocked-3840
+    route: /modeling?stage=fit&family=polymer
+    workflow: Polymer Fit without an input exposes one Choose Test Data action that returns to the existing Data workspace
+    fixture: no active polymer input; calculation controls and graph are absent without a latest or first-item fallback
+    image: images/current/modeling-fit-polymer-source-blocked-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-fit-polymer-saved-1366
+    route: /modeling?stage=fit&family=polymer
+    workflow: exact relaxation input through server calculation, recommended model, engineer selection and immutable-model save/reload
+    fixture: exact governed 43-point shear relaxation revision; 35 used points, five check points and three unused values; automatic 1–10-term calculation; 5-term recommendation and 4-term engineer selection
+    image: images/current/modeling-fit-polymer-saved-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-fit-polymer-saved-1440
+    route: /modeling?stage=fit&family=polymer
+    workflow: exact relaxation input through server calculation, recommended model, engineer selection and immutable-model save/reload
+    fixture: exact governed 43-point shear relaxation revision; 35 used points, five check points and three unused values; automatic 1–10-term calculation; 5-term recommendation and 4-term engineer selection
+    image: images/current/modeling-fit-polymer-saved-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-polymer-saved-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: exact relaxation input through server calculation, recommended model, engineer selection and immutable-model save/reload
+    fixture: exact governed 43-point shear relaxation revision; 35 used points, five check points and three unused values; automatic 1–10-term calculation; 5-term recommendation and 4-term engineer selection
+    image: images/current/modeling-fit-polymer-saved-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-saved-2560
+    route: /modeling?stage=fit&family=polymer
+    workflow: exact relaxation input through server calculation, recommended model, engineer selection and immutable-model save/reload
+    fixture: exact governed 43-point shear relaxation revision; 35 used points, five check points and three unused values; automatic 1–10-term calculation; 5-term recommendation and 4-term engineer selection
+    image: images/current/modeling-fit-polymer-saved-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: modeling-fit-polymer-saved-3840
+    route: /modeling?stage=fit&family=polymer
+    workflow: exact relaxation input through server calculation, recommended model, engineer selection and immutable-model save/reload
+    fixture: exact governed 43-point shear relaxation revision; 35 used points, five check points and three unused values; automatic 1–10-term calculation; 5-term recommendation and 4-term engineer selection
+    image: images/current/modeling-fit-polymer-saved-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: modeling-fit-polymer-input-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: exact measured relaxation values shown as used, check or unused points before one-action calculation
+    fixture: exact governed 43-point shear relaxation revision with 35 used points, five check points and three unused points; details stay collapsed on the normal FHD surface
+    image: images/current/modeling-fit-polymer-input-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-residual-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: separate point-difference graphs for data used in calculation and data held back for checking the selected model
+    fixture: automatic 1–10-term calculation with a 4-term engineer selection; differences on 35 used points and five check points join to the exact 43-point input by ordinal and response channel
+    image: images/current/modeling-fit-polymer-residual-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-calculation-settings-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: optional Calculation settings switches from automatic to manual, keeps all 1-10 candidate choices visible and locally scrolls the 10-term parameter table through relaxation time tau10
+    fixture: exact governed 43-point shear relaxation revision with 35 values used for calculation; automatic 1-10 candidates and optional manual editing of all 21 ten-term parameters
+    image: images/current/modeling-fit-polymer-calculation-settings-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-stale-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: changed exact Test Data invalidates the current selected model while preserving the saved input, Selection and model revisions for recovery
+    fixture: saved 4-term selected model followed by a new exact revision of the selected Test Data; no current-pointer fallback
+    image: images/current/modeling-fit-polymer-stale-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-stale-restored-saved-input-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: Restore saved input rebinds the exact prior Test Data, engineer Selection and immutable model revision
+    fixture: saved 4-term selected model restored after the selected Test Data gained a new revision; no latest or first-item fallback
+    image: images/current/modeling-fit-polymer-stale-restored-saved-input-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-polymer-stale-recovered-1920
+    route: /modeling?stage=fit&family=polymer
+    workflow: Use current input clears the stale prompt and returns to current-input review without reusing the prior Selection or model
+    fixture: the new exact revision of the same relaxation Test Data after explicit Use current input recovery; the prior Selection and model are not reused
+    image: images/current/modeling-fit-polymer-stale-recovered-1920x1080.png
+    width: 1920
+    height: 1080
   - id: modeling-fit-calculation-failed-1920
     route: /modeling?stage=fit&family=metal
     workflow: Fit calculation failure preserves the last valid graph and exposes an explicit retry/update action

@@ -4,14 +4,17 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   CommonProcessingWorkbench,
-  fitSurfaceState,
-  fitRailIdentity,
 } from "./common-processing-workbench";
 import {
   documentIsPolymerDma,
+  documentIsPolymerDmaTemperatureSweep,
   documentMatchesDataTrack,
+  documentMatchesTrack,
+  fitSurfaceState,
+  fitRailIdentity,
   manualModulusDisplayValue,
   manualModulusPascals,
+  modelingDataNextTask,
 } from "./features/modeling";
 
 describe("Governed DMA/FLD Data boundaries", () => {
@@ -20,7 +23,7 @@ describe("Governed DMA/FLD Data boundaries", () => {
     method: "bounded governed import",
   }) as never;
 
-  it("shows source-v2 DMA semantics in Data without enabling the Prony Fit adapter", () => {
+  it("routes fixed-frequency DMA temperature sweeps through the polymer Process track", () => {
     const dma = document([
       "physics.temperature",
       "frequency.cyclic",
@@ -28,7 +31,23 @@ describe("Governed DMA/FLD Data boundaries", () => {
       "mechanics.modulus.loss",
     ]);
     expect(documentMatchesDataTrack(dma, "polymer")).toBe(true);
+    expect(documentMatchesTrack(dma, "polymer")).toBe(true);
     expect(documentIsPolymerDma(dma)).toBe(false);
+    expect(documentIsPolymerDmaTemperatureSweep(dma)).toBe(true);
+    expect(modelingDataNextTask("polymer", dma)).toBe("process");
+  });
+
+  it("skips Process for direct relaxation and isothermal DMA Fit inputs", () => {
+    expect(modelingDataNextTask("polymer", document([
+      "time.elapsed",
+      "modulus.shear.relaxation",
+    ]))).toBe("fit");
+    expect(modelingDataNextTask("polymer", document([
+      "physics.temperature",
+      "frequency.cyclic",
+      "modulus.shear.storage",
+      "modulus.shear.loss",
+    ]))).toBe("fit");
   });
 
   it("keeps governed FLD as first-class Metal Data without treating it as tensile Fit input", () => {
@@ -950,8 +969,8 @@ describe("Common Processing Workbench", () => {
     expect(previewBodies.at(-1)?.steps[1].options.warning_acknowledged).toBe(true);
 
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
-    const fitEvidence = await screen.findByRole("button", { name: "Candidate parameters" });
-    fireEvent.click(fitEvidence);
+    fireEvent.click(await screen.findByRole("button", { name: "Calculation settings" }));
+    fireEvent.click(screen.getByText("Calculation record"));
     expect(screen.getAllByText("DP600 / Tensile test 0001", { exact: true }).length).toBeGreaterThan(0);
     expect(screen.queryByTitle(/Toe-corrected Process/)).toBeNull();
     expect(screen.getByText("OLS zero intercept · v1.0.0", { selector: ".fit-source-evidence strong" }).closest("dd")?.textContent).toBe(
@@ -1630,6 +1649,7 @@ describe("Common Processing Workbench", () => {
         material={materialA as never}
         materialState={stateA as never}
         familyWorkbench={<div>Exact Neutral and solver delivery fixture</div>}
+        locationSearch="?stage=data&family=metal&material_id=material-a&material_revision_id=material-a-r1&material_state_id=state-a&material_state_revision_id=state-a-r1"
       />,
     );
 
@@ -1644,7 +1664,11 @@ describe("Common Processing Workbench", () => {
     await waitFor(() => expect(hiddenSupportDrawer.open).toBe(false));
     expect(screen.queryByRole("navigation", { name: "Material Modeling steps" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Card" })).toBeNull();
-    expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
+    fireEvent.click(screen.getByText("Change model family"));
+    expect(screen.getByRole("menu", { name: "Modeling options" })).toBeTruthy();
+    expect(screen.getByRole("menuitemradio", { name: "Metal · elastoplastic" }).getAttribute("aria-checked")).toBe("true");
+    expect(screen.getByRole("menuitemradio", { name: "Polymer · viscoelastic" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "Validation & review" })).toBeTruthy();
     expect(await screen.findByRole(
       "img",
       { name: "Selected Test Data curves" },
@@ -1673,6 +1697,9 @@ describe("Common Processing Workbench", () => {
     const settingsControl = screen.getByRole("button", { name: /current-stage settings/ });
     expect(settingsControl).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
+    expect(onNavigate).toHaveBeenLastCalledWith(
+      "/modeling?stage=data&family=metal&material_id=material-a&material_revision_id=material-a-r1&material_state_id=state-a&material_state_revision_id=state-a-r1",
+    );
     expect(await screen.findByRole("tablist", { name: "Test data source" })).toBeTruthy();
     await waitFor(() => expect(screen.queryByText("Preview ready.", { exact: true })).toBeNull());
     expect(screen.getByRole("tab", { name: "Library" })).toBeTruthy();
@@ -1697,7 +1724,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("button", { name: "Submit · Not configured" }).hasAttribute("disabled")).toBe(true);
     expect(screen.getByRole("button", { name: "Release · Not configured" }).hasAttribute("disabled")).toBe(true);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
-    fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
+    fireEvent.click(screen.getByRole("menuitemradio", { name: /Polymer/ }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',
     );
@@ -1706,7 +1733,8 @@ describe("Common Processing Workbench", () => {
       '"method_id": "polymer.prony_fit_compare"',
     );
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
-    fireEvent.click(screen.getByRole("tab", { name: /Metal/ }));
+    fireEvent.click(screen.getByText("Change model family"));
+    fireEvent.click(screen.getByRole("menuitemradio", { name: /Metal/ }));
     fireEvent.click(await within(dataResults).findByRole("button", { name: "Tensile test 0001" }));
     await waitFor(() => expect(within(dataResults).getByRole("button", { name: "Tensile test 0001" }).getAttribute("aria-current")).toBe("true"));
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
@@ -1718,30 +1746,19 @@ describe("Common Processing Workbench", () => {
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "metal.hardening_fit_extrapolate"',
     );
-    expect(document.querySelector(".modeling-context-actions > .modeling-advanced-menu > summary")?.className)
+    expect(document.querySelector(".modeling-context-actions > .modeling-track-menu > summary")?.className)
       .toContain("button secondary");
     if (settingsControl.getAttribute("aria-expanded") === "false") fireEvent.click(settingsControl);
-    fireEvent.click(screen.getByText("Advanced · Recipe and Batch"));
-    fireEvent.click(screen.getByRole("button", { name: /Recipe/ }));
-    expect(screen.getByLabelText("Saved Processing Recipe")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /Batch/ }));
-    expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
-    expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
-    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Recalculate" }));
     expect(await screen.findByRole(
       "img",
       { name: "Hardening candidate and selected extrapolation curves" },
       { timeout: 5000 },
     )).toBeTruthy();
-    expect(await screen.findByText("Preview Swift/Voce blend")).toBeTruthy();
-    const fitRail = document.querySelector(".configured-step-list");
-    expect(fitRail?.querySelector(".rail-title")?.textContent).toBe("Fit steps");
-    expect(fitRail?.querySelectorAll("button")).toHaveLength(4);
-    expect(screen.getByRole("button", { name: /Sort duplicate x/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /True\/plastic conversion/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Necking boundary/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Hardening fit/ })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /Step 4 · Hardening fit/ })).toBeTruthy();
+    expect(screen.queryByRole("navigation", { name: "Fit steps" })).toBeNull();
+    expect(document.querySelector(".modeling-workspace-stage-fit .modeling-workspace-rail")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Calculation settings" }));
+    expect(screen.getByRole("heading", { name: "Calculation settings" })).toBeTruthy();
     expect(screen.getByText("Candidate models")).toBeTruthy();
     expect(screen.getByText("Fit range")).toBeTruthy();
     expect(screen.getByText("Preview blend")).toBeTruthy();
@@ -1751,25 +1768,28 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
     expect(screen.getByLabelText("Output points").closest("fieldset")).toBeTruthy();
     expect(screen.getByLabelText("Secondary hardening law").closest("fieldset")?.className).toContain("selected-blend-group");
-    const fitPlotHeading = screen.getByRole("heading", { name: "Hardening response", level: 2 });
-    expect(fitPlotHeading).toBeTruthy();
+    const fitPlotHeading = document.querySelector<HTMLHeadingElement>("h2.fit-plot-heading");
+    expect(fitPlotHeading?.textContent).toBe("Hardening response");
     expect(screen.queryAllByText("Hardening response", { exact: true })
       .filter((node) => node.tagName.toLowerCase() !== "h2")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: "Select fit range" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Select range" }));
     expect(screen.getByRole("button", { name: "Select range" }).getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByText("Candidate parameters")).toBeTruthy();
-    fireEvent.click(screen.getByText("Candidate parameters"));
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.getByRole("heading", { name: "Hardening response", level: 2 })).toBeTruthy();
+    expect(await screen.findByRole("columnheader", { name: "Fit difference" })).toBeTruthy();
+    expect(screen.queryByText("Source digest")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Calculation settings" }));
+    fireEvent.click(screen.getByText("Calculation record"));
     const sourceEvidence = screen.getByLabelText("Source evidence");
     expect(within(sourceEvidence).getByText("Source digest")).toBeTruthy();
     expect(within(sourceEvidence).getByText("Fit method")).toBeTruthy();
-    expect(screen.getByText("voce relative rmse")).toBeTruthy();
-    expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: "Save fit & continue" })).toHaveLength(1);
-    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByRole("button", { name: "Save fit & continue" })).toBeNull();
+    expect(screen.getByText("No model selected")).toBeTruthy();
     expect(screen.queryByText("Reference hardening projection")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
-    expect(screen.getAllByText("Selected · swift").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("radio", { name: "Select swift" }));
+    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });
@@ -1785,7 +1805,6 @@ describe("Common Processing Workbench", () => {
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     await screen.findByRole("heading", { name: "Fit Material Model" });
     expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(screen.getByText("Candidate parameters"));
     expect((screen.getByLabelText("Candidate selection reason") as HTMLInputElement).value).toContain("Select Swift");
     fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
     expect(await screen.findByRole("heading", { name: "Fit Material Model" })).toBeTruthy();
@@ -2822,7 +2841,7 @@ describe("Common Processing Workbench", () => {
       await new Promise((resolve) => setTimeout(resolve, 400));
       expect(fetchState.contentGets()).toBe(1);
       expect(fetchState.fitRunPosts()).toBe(0);
-      expect(screen.getByText("Saved current", { exact: true })).toBeTruthy();
+      expect(screen.getAllByText("Saved current", { exact: true }).length).toBeGreaterThan(0);
     } finally {
       view?.unmount();
       vi.doUnmock("./modeling-fit-output");
@@ -2910,9 +2929,7 @@ describe("Common Processing Workbench", () => {
       view = render(renderWorkbench(initialSession));
       await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Preview not saved"), { timeout: 5000 });
       expect(document.querySelector(".modeling-workspace-stage-fit")).toBeTruthy();
-      fireEvent.click(screen.getByText("Candidate parameters"));
-      await screen.findByText("Fit evidence");
-      fireEvent.click(await screen.findByRole("button", { name: /Select swift candidate/i }));
+      fireEvent.click(await screen.findByRole("radio", { name: "Select swift" }));
       fireEvent.change(screen.getByLabelText("Candidate selection reason"), { target: { value: "Select Swift for the deterministic save/restore regression." } });
       fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
       await waitFor(() => expect(document.querySelector(".fit-surface-state")?.textContent).toBe("Saved current"));

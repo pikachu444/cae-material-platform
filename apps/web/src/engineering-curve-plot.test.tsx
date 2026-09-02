@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { dataObservedPlotBounds, derivativeValues, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, readableAxisTicks, residualValues, responsiveYAxisTicks } from "./engineering-curve-plot";
+import { dataObservedPlotBounds, derivativeValues, engineeringCurveXAxisScale, EngineeringCurvePlot, EngineeringCurvePlotEmpty, isGhoshTailDisplayTrim, linearInterpolate, paddedPlotBounds, plotPoints, readableAxisTicks, residualValues, responsiveYAxisTicks } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./features/modeling";
 
 const tensileDefinition = {
@@ -95,6 +95,14 @@ const preview: CommonProcessingPreview = {
 };
 
 describe("EngineeringCurvePlot", () => {
+  it("uses a log axis for wide positive time or frequency inputs only", () => {
+    expect(engineeringCurveXAxisScale("time", [1e-6, 1, 1e6])).toBe("log10");
+    expect(engineeringCurveXAxisScale("frequency", [0.01, 1, 100])).toBe("log10");
+    expect(engineeringCurveXAxisScale("time", [1, 2, 10])).toBe("linear");
+    expect(engineeringCurveXAxisScale("strain.engineering", [1e-6, 1])).toBe("linear");
+    expect(engineeringCurveXAxisScale("time", [0, 1, 100])).toBe("linear");
+  });
+
   it("reduces y-axis tick density when a bounded dock leaves a short graph", () => {
     expect(responsiveYAxisTicks(0, 10, 154)).toEqual([0, 5, 10]);
     expect(responsiveYAxisTicks(0, 10, 207)).toHaveLength(6);
@@ -211,7 +219,7 @@ describe("EngineeringCurvePlot", () => {
     expect(curveClipPath?.getAttribute("clipPathUnits")).toBe("userSpaceOnUse");
     expect(Number(curveClipRect?.getAttribute("x"))).toBe(80);
     expect(Number(curveClipRect?.getAttribute("y"))).toBe(24);
-    expect(Number(curveClipRect?.getAttribute("width"))).toBe(450);
+    expect(Number(curveClipRect?.getAttribute("width"))).toBe(656);
     expect(Number(curveClipRect?.getAttribute("height"))).toBe(344);
     expect(plotted.every((line) => curveClipGroup?.contains(line))).toBe(true);
     expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
@@ -297,14 +305,14 @@ describe("EngineeringCurvePlot", () => {
     const legendCountBefore = container.querySelectorAll(".curve-legend button").length;
     const horizontalAxis = container.querySelector(".chart-axis");
     expect(plot?.getAttribute("viewBox")).toBe("0 0 760 420");
-    expect(horizontalAxis?.getAttribute("x2")).toBe("530");
-    expect(container.querySelector(".chart-axis-label")?.getAttribute("x")).toBe("305");
+    expect(horizontalAxis?.getAttribute("x2")).toBe("736");
+    expect(container.querySelector(".chart-axis-label")?.getAttribute("x")).toBe("408");
     act(() => {
       callback?.([{ contentRect: { width: 920, height: 310 } } as ResizeObserverEntry], {} as ResizeObserver);
     });
     expect(plot?.getAttribute("viewBox")).toBe("0 0 920 310");
-    expect(horizontalAxis?.getAttribute("x2")).toBe("690");
-    expect(container.querySelector(".chart-axis-label")?.getAttribute("x")).toBe("385");
+    expect(horizontalAxis?.getAttribute("x2")).toBe("896");
+    expect(container.querySelector(".chart-axis-label")?.getAttribute("x")).toBe("488");
     expect([...container.querySelectorAll(".chart-axis-label")].map((label) => label.textContent)).toEqual(axisLabelsBefore);
     expect(container.querySelectorAll(".curve-legend button")).toHaveLength(legendCountBefore);
     expect(plot?.getAttribute("role")).toBe("img");
@@ -630,7 +638,7 @@ describe("EngineeringCurvePlot", () => {
     expect(hardeningClipRect).toBeTruthy();
     expect(Number(hardeningClipRect?.getAttribute("x"))).toBe(80);
     expect(Number(hardeningClipRect?.getAttribute("y"))).toBe(Number(shade?.getAttribute("y")));
-    expect(Number(hardeningClipRect?.getAttribute("width"))).toBe(450);
+    expect(Number(hardeningClipRect?.getAttribute("width"))).toBe(656);
     expect(Number(hardeningClipRect?.getAttribute("height"))).toBe(344);
     expect(Array.from(candidateLines).every((line) => hardeningClipGroup?.contains(line))).toBe(true);
     expect(annotationLayer?.querySelector("rect")).toBeNull();
@@ -861,7 +869,7 @@ describe("EngineeringCurvePlot", () => {
     expect(hardeningClipGroup).toBeTruthy();
     expect(hardeningClipRect).toBeTruthy();
     expect(Number(hardeningClipRect?.getAttribute("y"))).toBe(Number(shade?.getAttribute("y")));
-    expect(Number(hardeningClipRect?.getAttribute("width"))).toBe(450);
+    expect(Number(hardeningClipRect?.getAttribute("width"))).toBe(656);
     expect(Number(hardeningClipRect?.getAttribute("height"))).toBe(344);
     expect(Array.from(container.querySelectorAll("polyline.curve-line")).every((line) => hardeningClipGroup?.contains(line))).toBe(true);
     expect(hardeningClipGroup?.compareDocumentPosition(annotationLayer!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);

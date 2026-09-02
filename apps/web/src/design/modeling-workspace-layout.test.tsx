@@ -324,6 +324,34 @@ describe("ModelingWorkspaceLayout", () => {
     expect(screen.getByRole("separator", { name: "Resize Test Data controls and curve plot" })).toBeTruthy();
   });
 
+  it("keeps the Data split mounted when the viewport tier changes", () => {
+    class ResizeObserverMock {
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1366 });
+
+    const { container } = render(
+      <ModelingWorkspaceLayout
+        navigator={<span>Curve navigator</span>}
+        ribbon={<span>Mapping decision</span>}
+        plot={<span>Persistent plot</span>}
+        dataLayoutMode="compact"
+        ribbonOpen
+        onRibbonOpenChange={vi.fn()}
+      />,
+    );
+    const splitBefore = container.querySelector("#modeling-data-split-v2");
+
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1920 });
+    fireEvent(window, new Event("resize"));
+
+    expect(container.querySelector("#modeling-data-split-v2")).toBe(splitBefore);
+    expect(screen.getByText("Mapping decision")).toBeTruthy();
+    expect(screen.getByText("Persistent plot")).toBeTruthy();
+  });
+
   it("waits for a late Data panel handle before applying mode sizes and preserves user resizing", () => {
     class ResizeObserverMock {
       observe(): void {}

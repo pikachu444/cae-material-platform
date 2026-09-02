@@ -20,6 +20,9 @@ COPY plugins ./plugins
 # repository's unrelated fixture archives.
 COPY fixtures/schema-definition-bundle/source-v2 ./fixtures/schema-definition-bundle/source-v2
 COPY fixtures/schema-record-data/source-v2-task1b ./fixtures/schema-record-data/source-v2-task1b
+# The polymer Fit demo seed reads this bounded synthetic DMA reference to
+# create the governed temperature-sweep input used by the TTS Process journey.
+COPY fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json ./fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json
 
 RUN uv sync --frozen --no-dev
 

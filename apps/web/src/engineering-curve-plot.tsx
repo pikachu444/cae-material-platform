@@ -21,7 +21,7 @@ import type {
   CommonProcessingPreview,
   CommonProcessingStep,
   GraphSelectionCommand,
-} from "./features/modeling";
+} from "./features/modeling/model/common-processing-contracts";
 import {
   channelAxisLabel,
   channelForQuantity,
@@ -84,6 +84,22 @@ interface PlotModel {
   band?: PlotBand;
   extrapolationStart?: number;
   xScale?: "linear" | "log10";
+}
+
+export function engineeringCurveXAxisScale(
+  quantity: string,
+  values: readonly number[],
+): "linear" | "log10" {
+  const normalized = quantity.trim().toLowerCase();
+  const logarithmicQuantity = /(^|[._-])(time|frequency)($|[._-])/.test(
+    normalized,
+  );
+  if (!logarithmicQuantity || values.length < 2 || values.some((value) => value <= 0)) {
+    return "linear";
+  }
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  return maximum / minimum >= 100 ? "log10" : "linear";
 }
 
 export type HardeningPlotMode = "response" | "residual" | "derivative";
@@ -346,6 +362,8 @@ function seriesForStage(
   const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
   const prony = activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare";
+  const dmaTts = activeStage.method_id === "polymer.dma_temperature_sweep"
+    || activeStage.method_id === "polymer.dma_frequency_master_curve";
   const xQuantity = activeStage.series.some((item) => item.quantity === preview.independent_quantity)
     ? preview.independent_quantity
     : activeStage.series.find((item) => item.quantity.includes("strain"))?.quantity
@@ -353,6 +371,22 @@ function seriesForStage(
   const activeX = activeStage.series.find((item) => item.quantity === xQuantity);
   const baseX = baseStage.series.find((item) => item.quantity === xQuantity);
   const activeDependent = activeStage.series.find((item) => item.quantity !== xQuantity);
+
+  if (dmaTts) {
+    const storage = activeStage.series.find((item) => item.quantity === "mechanics.modulus.storage");
+    const loss = activeStage.series.find((item) => item.quantity === "mechanics.modulus.loss");
+    return {
+      xQuantity,
+      xUnit: activeX?.unit ?? (activeStage.method_id === "polymer.dma_frequency_master_curve" ? "rad/s" : "K"),
+      yQuantity: "mechanics.modulus.dynamic",
+      yUnit: storage?.unit ?? loss?.unit ?? "Pa",
+      series: [
+        ...(storage ? [{ id: "dma-tts-storage", label: "Storage modulus", xValues: activeX?.values ?? [], yValues: storage.values, color: "#e56734", className: "dma-tts-storage" }] : []),
+        ...(loss ? [{ id: "dma-tts-loss", label: "Loss modulus", xValues: activeX?.values ?? [], yValues: loss.values, color: "#2f7f78", className: "dma-tts-loss" }] : []),
+      ],
+      xScale: activeStage.method_id === "polymer.dma_frequency_master_curve" ? "log10" : "linear",
+    };
+  }
 
   if (hardening) {
     const candidates = activeStage.series.filter(
@@ -685,6 +719,7 @@ function seriesForStage(
       });
     }
   }
+  const genericXValues = activeX?.values ?? baseX?.values ?? [];
   return {
     xQuantity,
     xUnit: activeX?.unit ?? baseX?.unit ?? "1",
@@ -709,6 +744,7 @@ function seriesForStage(
       },
       ...engineeringOverlays,
     ],
+    xScale: engineeringCurveXAxisScale(xQuantity, genericXValues),
   };
 }
 
@@ -972,7 +1008,9 @@ export function EngineeringCurvePlot({
   const inspectionLiveId = useId();
   const curveClipId = `curve-series-clip-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
   const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
-  const hideInteractionControls = isHardening || reviewOnly;
+  const isDmaTts = activeStage.method_id === "polymer.dma_temperature_sweep"
+    || activeStage.method_id === "polymer.dma_frequency_master_curve";
+  const hideInteractionControls = isHardening || isDmaTts || reviewOnly;
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
@@ -1073,7 +1111,7 @@ export function EngineeringCurvePlot({
     && Boolean(observedCurves?.length)
     && model.xQuantity === "strain.engineering"
     && model.yQuantity === "stress.engineering";
-  const dataBounds = isDmaProny && pronyMode === "response"
+  const dataBounds = (isDmaProny && pronyMode === "response") || isDmaTts
     ? { ...paddedDataBounds, yMin: Math.max(0, paddedDataBounds.yMin) }
     : reviewOnly && isDataObservedEngineering
       ? dataObservedPlotBounds(observedEngineeringX, observedEngineeringY, model.xQuantity, model.yQuantity)
@@ -1096,14 +1134,18 @@ export function EngineeringCurvePlot({
       : value / yScale.divisor;
   const xDisplayUnit = model.xChannel?.display_unit ?? model.xUnit;
   const yDisplayUnit = dataReviewEngineering ? yScale.label : model.yChannel?.display_unit ?? yScale.label;
-  const xAxisLabel = model.xChannel
-    ? channelAxisLabel(model.xChannel)
-    : `${quantityLabel(model.xQuantity)} [${model.xUnit}]`;
-  const yAxisLabel = dataReviewEngineering
-    ? `${model.yChannel?.label ?? quantityLabel(model.yQuantity)} [${yScale.label}]`
-    : model.yChannel
-      ? channelAxisLabel(model.yChannel)
-      : `${quantityLabel(model.yQuantity)} [${yScale.label}]`;
+  const xAxisLabel = isDmaTts
+    ? `${activeStage.method_id === "polymer.dma_frequency_master_curve" ? "Angular frequency" : "Temperature"} [${model.xUnit}]`
+    : model.xChannel
+      ? channelAxisLabel(model.xChannel)
+      : `${quantityLabel(model.xQuantity)} [${model.xUnit}]`;
+  const yAxisLabel = isDmaTts
+    ? `Modulus [${yScale.label}]`
+    : dataReviewEngineering
+      ? `${model.yChannel?.label ?? quantityLabel(model.yQuantity)} [${yScale.label}]`
+      : model.yChannel
+        ? channelAxisLabel(model.yChannel)
+        : `${quantityLabel(model.yQuantity)} [${yScale.label}]`;
   const inspectedBandIndex = inspectedX !== null && model.band?.xValues.length
     ? model.band.xValues.reduce((bestIndex, value, index, values) => (
       Math.abs(value - inspectedX) < Math.abs(values[bestIndex] - inspectedX) ? index : bestIndex
@@ -1347,7 +1389,7 @@ export function EngineeringCurvePlot({
         ref={svgRef}
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
-        aria-label={reviewOnly ? "Selected Test Data curves" : selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with declared pointwise statistics" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-label={reviewOnly ? "Selected Test Data curves" : selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with declared pointwise statistics" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : isDmaTts ? "DMA storage and loss modulus curves" : "Mapped and selected processing stage curve overlay"}
         aria-describedby={inspectionLiveId}
         tabIndex={0}
         viewBox={`0 0 ${effectiveWidth} ${effectiveHeight}`}
@@ -1410,7 +1452,7 @@ export function EngineeringCurvePlot({
       </div>
       {!selectedModelOnly && (ensemblePreview?.diagnostics ?? activeStage.diagnostics).length ? <details className="stage-diagnostics"><summary>{ensemblePreview ? "Alignment and statistics notes" : "Calculation notes"} <span>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length}</span></summary>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).map((item) => <p key={item}>{item}</p>)}</details> : null}
       {!selectedModelOnly && !ensemblePreview && (activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}
-      <p className="digest-line diagnostics-only"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
+      {preview.mapping_profile_sha256 ? <p className="digest-line diagnostics-only"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p> : null}
     </>
   );
 }

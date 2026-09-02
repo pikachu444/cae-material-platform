@@ -159,6 +159,7 @@ services:
     environment:
       CMP_DEMO_API_BASE_URL: http://api:8000/api/v1
       CMP_DEMO_FIXTURE_STAMP: t60-reference
+      CMP_CALIBRATION_ACCEPTANCE_ED25519_PRIVATE_KEY_B64: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
     depends_on:
       api:
         condition: service_healthy

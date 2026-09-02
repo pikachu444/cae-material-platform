@@ -62,6 +62,7 @@ interface ModelingDataWorkspaceProps {
   onImported: (document: CanonicalTestDataDocumentResponse) => void;
   onObservedCurves: (curves: ObservedCurveInput[]) => void;
   onContinue: () => void;
+  continueLabel?: "Continue to Process" | "Continue to Fit";
 }
 
 function clampPage(page: number, rowCount: number): number {
@@ -108,6 +109,7 @@ export function ModelingDataWorkspace({
   onImported,
   onObservedCurves,
   onContinue,
+  continueLabel = "Continue to Process",
 }: ModelingDataWorkspaceProps) {
   const stableConfig = useMemo<ApiConfig>(() => ({
     baseUrl: config.baseUrl,
@@ -404,7 +406,7 @@ export function ModelingDataWorkspace({
       ) : null}
       {plot}
       <footer className="modeling-data-plot-actions">
-        {hasCurrentInput ? <button type="button" className="button primary" onClick={onContinue}>Continue to Process</button> : null}
+        {hasCurrentInput ? <button type="button" className="button primary" onClick={onContinue}>{continueLabel}</button> : null}
       </footer>
     </article>
   );

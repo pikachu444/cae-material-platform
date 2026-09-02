@@ -452,10 +452,17 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
 
 
 def test_current_capture_contract_contains_product_routes_only() -> None:
-    assert len(CURRENT_CAPTURE_OUTPUTS) == 134
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 158
     assert "administration-format-definitions-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-categories-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
     assert "material-database-linked-test-1440x900.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-fit-polymer-saved-1920x1080.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-fit-polymer-calculation-settings-1920x1080.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-fit-polymer-stale-recovered-1920x1080.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-process-polymer-dma-tts-1366x768.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-process-polymer-dma-tts-1920x1080.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-process-polymer-dma-tts-3840x2160.png" in CURRENT_CAPTURE_OUTPUTS
+    assert "modeling-process-polymer-dma-tts-saved-1920x1080.png" in CURRENT_CAPTURE_OUTPUTS
     assert PRODUCT_ACCESS_OUTPUTS == (
         "administration-access-1366x768.png",
         "administration-access-1440x900.png",
@@ -812,8 +819,6 @@ def test_modeling_fit_capture_contract_covers_five_viewports_and_recovery_states
         for width, height in ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
     )
     assert MODELING_FIT_STATE_OUTPUTS == (
-        "modeling-fit-candidate-parameters-long-1440x900.png",
-        "modeling-fit-candidate-evidence-scrolled-1440x900.png",
         "modeling-fit-calculation-failed-1920x1080.png",
         "modeling-fit-save-failed-1920x1080.png",
         "modeling-fit-exact-source-blocked-1920x1080.png",
@@ -1252,7 +1257,7 @@ def test_modeling_fit_evidence_wheel_restarts_from_local_top_and_preserves_page_
     assert 'page.evaluate("() => window.scrollY") != before_wheel_page_scroll' in scroll_fn_source
 
 
-def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() -> None:
+def test_modeling_fit_legacy_decision_surface_geometry_remains_bounded() -> None:
     assert "def _position_fit_evidence_decision_surface" in _CAPTURE_SOURCE
     position_start = _CAPTURE_SOURCE.index("def _position_fit_evidence_decision_surface")
     position_end = _CAPTURE_SOURCE.index(
@@ -1297,14 +1302,6 @@ def test_modeling_fit_scrolled_capture_positions_the_local_decision_surface() ->
     assert position_source.index('metrics["targetScrollTop"] is None') < position_source.index(
         'metrics["scrollTop"] <= 0'
     )
-    callback_start = _CAPTURE_SOURCE.index("def prepare_scrolled_capture")
-    callback_end = _CAPTURE_SOURCE.index("\n\n    _capture(", callback_start)
-    callback_source = _CAPTURE_SOURCE[callback_start:callback_end]
-    assert callback_source.index("_scroll_fit_evidence_locally") < callback_source.index(
-        "_position_fit_evidence_decision_surface"
-    )
-
-
 def test_modeling_fit_capture_enforces_elastic_shell_rows_scale_and_collision_geometry() -> None:
     assert "_assert_fit_display_scale" in _CAPTURE_SOURCE
     assert ".modeling-workspace-stage-fit" in _CAPTURE_SOURCE

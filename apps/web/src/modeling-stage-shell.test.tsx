@@ -51,6 +51,15 @@ describe("ModelingStageShell", () => {
     expect(screen.getByRole("button", { name: /Fit.*Choose a model.*Select a model/i })).toBeTruthy();
   });
 
+  it("marks Process optional and permits Fit for direct relaxation input", () => {
+    const directSession = { ...session, materialFamily: "polymer" as const, processingOutput: undefined };
+    render(<ModelingStageShell session={directSession} activeStage="fit" processOptional onStageChange={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: /Process \(optional\).*Optional for this data.*fitted directly/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Fit.*Choose a model.*Select a model/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Export.*Ready to create card.*Choose a destination/i })).toBeTruthy();
+  });
+
   it("warns for a pinned exact Export source and completes only for a delivered artifact", () => {
     const change = vi.fn();
     const { rerender } = render(<ModelingStageShell session={session} activeStage="export" onStageChange={change} />);

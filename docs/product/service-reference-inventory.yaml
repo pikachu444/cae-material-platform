@@ -145,11 +145,41 @@ families:
     exceptions:
       - id: modeling-process-prerequisite-blocked-1440x900
         state: prerequisite-blocked
+      - id: modeling-process-polymer-dma-tts-1366x768
+        state: polymer-dma-tts-ready
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-1440x900
+        state: polymer-dma-tts-ready
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-1920x1080
+        state: polymer-dma-tts-ready
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-2560x1440
+        state: polymer-dma-tts-ready-wide
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-3840x2160
+        state: polymer-dma-tts-ready-wide
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-saved-1366x768
+        state: polymer-dma-tts-saved
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-saved-1440x900
+        state: polymer-dma-tts-saved
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-saved-1920x1080
+        state: polymer-dma-tts-saved
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-saved-2560x1440
+        state: polymer-dma-tts-saved-wide
+        lifecycle: current-guide
+      - id: modeling-process-polymer-dma-tts-saved-3840x2160
+        state: polymer-dma-tts-saved-wide
+        lifecycle: current-guide
     evidence_only_states:
       - long-curve-rail-and-operation-list
       - preview-or-commit-loading
       - preview-or-commit-error-with-graph-preserved
-    image_count: 4
+    image_count: 14
   - id: MOD-FIT
     domain: Modeling
     label: Fit candidates, graph comparison and engineer selection
@@ -164,17 +194,64 @@ families:
         - 1366x768
         - 1440x900
         - 1920x1080
-      images: 3
+        - 2560x1440
+        - 3840x2160
+      images: 5
     exceptions:
-      - id: modeling-fit-candidate-parameters-long-1440x900
-        state: candidate-parameters-long
+      - id: modeling-fit-polymer-input-1920x1080
+        state: polymer-input-ready
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-saved-1366x768
+        state: polymer-saved
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-saved-1440x900
+        state: polymer-saved
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-saved-1920x1080
+        state: polymer-saved
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-saved-2560x1440
+        state: polymer-saved-wide
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-saved-3840x2160
+        state: polymer-saved-wide
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-residual-1920x1080
+        state: polymer-residuals
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-calculation-settings-1920x1080
+        state: polymer-calculation-settings-10-term
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-stale-1920x1080
+        state: polymer-stale
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-stale-restored-saved-input-1920x1080
+        state: polymer-stale-restored
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-stale-recovered-1920x1080
+        state: polymer-stale-current
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-source-blocked-1366x768
+        state: polymer-source-blocked
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-source-blocked-1440x900
+        state: polymer-source-blocked
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-source-blocked-1920x1080
+        state: polymer-source-blocked
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-source-blocked-2560x1440
+        state: polymer-source-blocked-wide
+        lifecycle: current-guide
+      - id: modeling-fit-polymer-source-blocked-3840x2160
+        state: polymer-source-blocked-wide
         lifecycle: current-guide
     evidence_only_states:
       - no-candidate-empty
       - calculating
       - stale-or-no-selection-blocked
-      - fit-error-with-rail-ribbon-and-graph-preserved
-    image_count: 4
+      - fit-error-with-graph-and-decision-preserved
+    image_count: 21
   - id: MOD-EXPORT
     domain: Modeling
     label: Export preflight, native preview and delivery
@@ -426,7 +503,7 @@ bundles:
   - id: MOD-FIT
     family_ids: [MOD-FIT]
     depends_on: [MOD-PROCESS]
-    image_count: 4
+    image_count: 21
   - id: MOD-EXPORT
     family_ids: [MOD-EXPORT]
     depends_on: [MOD-FIT]

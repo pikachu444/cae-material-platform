@@ -27,12 +27,13 @@ DEMO_USER_GROUP: Final = "cmp-demo-user-team"
 DEMO_USER_SUBJECT: Final = "cmp-demo-user"
 DEMO_REVIEWER_GROUP: Final = "cmp-demo-reviewer-team"
 DEMO_REVIEWER_SUBJECT: Final = "cmp-demo-reviewer"
+DEMO_PLAN_AUTHOR_SUBJECT: Final = "cmp-demo-plan-author"
 DEMO_WORKER_CLIENT_ID: Final = "cmp-demo-worker"
 # The local worker is an operator-provisioned runner, not an arbitrary caller.  Keep
 # its durable identity separate from the service-principal identity so restarts reuse
 # the same runner row and lease/fencing history.
 DEMO_WORKER_RUNNER_ID: Final = UUID("d0000000-0000-4000-8000-000000000005")
-DemoPersona = Literal["administrator", "user", "reviewer"]
+DemoPersona = Literal["administrator", "user", "reviewer", "plan_author"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,13 +64,23 @@ class DemoIdentity:
     def issue_access_token(self, persona: DemoPersona = "administrator") -> str:
         """Issue a deliberately short-lived browser token for one demo persona.
 
-        The two personas are intentionally local-only fixtures.  The default remains
+        These personas are intentionally local-only fixtures.  The default remains
         the historical Administrator token so existing seed scripts keep their
         deterministic behavior; ``user`` and ``reviewer`` are explicit additional
-        personas used by the review/publication browser journey.
+        personas used by the review/publication browser journey. ``plan_author`` has
+        the reviewer grant but a distinct principal so a governed Plan can be authored
+        and approved without violating separation of duties.
         """
 
-        if persona == "reviewer":
+        groups: tuple[str, ...]
+        if persona == "plan_author":
+            subject = DEMO_PLAN_AUTHOR_SUBJECT
+            display_name = "CMP local demo Plan author"
+            # Governed Plan authoring requires both calibration execution and the
+            # domain-reviewer role. Reuse the two explicit demo groups instead of
+            # manufacturing a production authorization shortcut.
+            groups = (DEMO_GROUP, DEMO_REVIEWER_GROUP)
+        elif persona == "reviewer":
             subject = DEMO_REVIEWER_SUBJECT
             display_name = "CMP local demo reviewer"
             groups = (DEMO_REVIEWER_GROUP,)
@@ -139,12 +150,13 @@ def install_demo_identity_api(application: FastAPI, identity: DemoIdentity | Non
     def issue_local_demo_access_token(
         response: Response,
         persona: DemoPersona = "administrator",
-        ) -> DemoAccessTokenResponse:
+    ) -> DemoAccessTokenResponse:
         response.headers["Cache-Control"] = "no-store"
         group = {
             "administrator": DEMO_GROUP,
             "user": DEMO_USER_GROUP,
             "reviewer": DEMO_REVIEWER_GROUP,
+            "plan_author": DEMO_REVIEWER_GROUP,
         }[persona]
         return DemoAccessTokenResponse(
             access_token=identity.issue_access_token(persona),

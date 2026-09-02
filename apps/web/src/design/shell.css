@@ -55,7 +55,7 @@
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#7. */
 .application-workspace:has(.ux-page),
-.application-workspace:has(.processing-workbench-page),
+.application-shell.workspace-modeling .application-workspace,
 .application-workspace:has(.material-database-page),
 .application-workspace:has(.test-json-page),
 .application-workspace:has(.administration-workspace) {
@@ -98,15 +98,10 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#17. */
-.application-workspace:has(.processing-workbench-page),
+.application-shell.workspace-modeling .application-workspace,
 .application-workspace:has(.material-database-page),
 .application-workspace:has(.test-json-page) {
   padding-inline: 8px;
-}
-
-/* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#125. */
-.application-shell:has(.processing-workbench-page) {
-  background: var(--ux-canvas);
 }
 
 .application-shell {
@@ -185,76 +180,20 @@
 
 .application-brand-copy small { display: none; }
 
-.application-shell:has(.processing-workbench-page) {
+.application-shell.workspace-modeling {
   grid-template-rows: var(--ux-application-bar-height) minmax(0, 1fr);
 }
 
-.application-shell:has(.processing-workbench-page) .application-menu-bar {
+.application-shell.workspace-modeling .application-menu-bar {
   grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
-  height: var(--ux-application-bar-height);
   padding: 0 20px;
-  border-bottom-color: var(--ux-border);
-  background: var(--ux-surface);
-  color: var(--ux-text);
 }
 
-.application-shell:has(.processing-workbench-page) .application-brand {
-  gap: 9px;
-  padding: 0;
-}
-
-.application-shell:has(.processing-workbench-page) .application-mark {
-  width: 28px;
-  height: 28px;
-  border-color: var(--ux-accent);
-  border-radius: 0;
-  color: var(--ux-accent);
-  font-size: 10px;
-}
-
-.application-shell:has(.processing-workbench-page) .application-brand-copy strong {
-  color: var(--ux-text);
-  font-size: var(--ux-metadata-font-size);
-  font-weight: 650;
-}
-
-.application-shell:has(.processing-workbench-page) .application-brand-copy small {
-  display: block;
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-}
-
-.application-shell:has(.processing-workbench-page) .application-menu-bar > nav {
-  gap: 28px;
+.application-shell.workspace-modeling .application-menu-bar > nav {
   justify-self: center;
 }
 
-.application-shell:has(.processing-workbench-page) .application-nav {
-  min-width: 0;
-  padding: 0;
-  border-bottom-width: 3px;
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-  font-weight: 600;
-}
-
-.application-shell:has(.processing-workbench-page) .application-nav:hover,
-.application-shell:has(.processing-workbench-page) .application-nav.active {
-  border-bottom-color: var(--ux-accent);
-  background: transparent;
-  color: var(--ux-accent);
-}
-
-.application-shell:has(.processing-workbench-page) .application-session {
-  color: var(--ux-text-muted);
-}
-
-.application-shell:has(.processing-workbench-page) .application-user-menu > summary {
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-}
-
-.application-shell:has(.processing-workbench-page) > :is(.workspace-command-bar, .application-status-bar) {
+.application-shell.workspace-modeling > :is(.workspace-command-bar, .application-status-bar) {
   display: none;
 }
 

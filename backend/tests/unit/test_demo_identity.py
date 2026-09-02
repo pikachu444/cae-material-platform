@@ -8,6 +8,7 @@ import pytest
 from cmp.bootstrap.demo_identity import (
     DEMO_GROUP,
     DEMO_ORGANIZATION_ID,
+    DEMO_PLAN_AUTHOR_SUBJECT,
     DEMO_PROJECT_ID,
     DEMO_REVIEWER_GROUP,
     DEMO_USER_GROUP,
@@ -107,6 +108,19 @@ def test_explicit_demo_identity_issues_distinct_user_and_reviewer_personas() -> 
     assert body["group"] == DEMO_REVIEWER_GROUP
     assert claims["sub"] == "cmp-demo-reviewer"
     assert claims["groups"] == [DEMO_REVIEWER_GROUP]
+
+    author_response = _get(application, "/api/v1/demo-identity/token?persona=plan_author")
+    assert author_response.status_code == 200
+    author_body = author_response.json()
+    author_claims = jwt.decode(
+        author_body["access_token"],
+        options={"verify_signature": False, "verify_aud": False},
+    )
+    assert author_body["persona"] == "plan_author"
+    assert author_body["group"] == DEMO_REVIEWER_GROUP
+    assert author_claims["sub"] == DEMO_PLAN_AUTHOR_SUBJECT
+    assert author_claims["sub"] != claims["sub"]
+    assert author_claims["groups"] == [DEMO_GROUP, DEMO_REVIEWER_GROUP]
 
 
 def test_demo_worker_token_is_a_distinct_service_principal() -> None:

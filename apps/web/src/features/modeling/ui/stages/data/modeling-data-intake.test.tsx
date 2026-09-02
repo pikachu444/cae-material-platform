@@ -11,7 +11,7 @@ import {
   profileMatchesPreview,
   unmatchedMappingNotice,
 } from "./modeling-data-intake";
-import { curveRailIdentity } from "../../../../../common-processing-workbench";
+import { curveRailIdentity } from "../../../model/test-data-presentation";
 import type {
   GovernedImportPreview,
   GovernedImportProfileResponse,

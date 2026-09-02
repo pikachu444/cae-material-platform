@@ -1,0 +1,69 @@
+.polymer-calibration-fit {
+  min-width: 0;
+  color: var(--ux-text);
+}
+
+.polymer-fit-tab-panel {
+  min-width: 0;
+}
+
+.polymer-calibration-fit label,
+.polymer-calibration-fit fieldset {
+  min-width: 0;
+  color: var(--ux-text-muted);
+  font-size: var(--ux-metadata-font-size);
+}
+
+.polymer-calibration-fit label {
+  display: grid;
+  gap: var(--ux-space-1);
+}
+
+.polymer-calibration-fit input,
+.polymer-calibration-fit select,
+.polymer-calibration-fit textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ux-engineering-control-block-size);
+  padding: var(--ux-space-1) var(--ux-space-2);
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 0;
+  color: var(--ux-text);
+  background: var(--ux-surface);
+  font: inherit;
+  font-size: var(--ux-engineering-control-font-size);
+}
+
+/* Modeling Fit uses the same compact engineering-control density as the
+   established metal Fit and Administration panes.  The page-wide 40px form
+   minimum is intended for general forms and would inflate every numeric row. */
+.polymer-calibration-fit :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select
+) {
+  height: var(--ux-engineering-control-block-size);
+  min-height: var(--ux-engineering-control-block-size);
+}
+
+.polymer-calibration-fit textarea {
+  resize: vertical;
+}
+
+.polymer-calibration-fit :is(input[type="checkbox"], input[type="radio"]) {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  min-height: 15px;
+  padding: 0;
+  border: 0;
+  accent-color: var(--ux-accent);
+}
+
+.polymer-calibration-fit input:focus-visible,
+.polymer-calibration-fit select:focus-visible,
+.polymer-calibration-fit textarea:focus-visible,
+.polymer-calibration-fit button:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: 1px;
+}

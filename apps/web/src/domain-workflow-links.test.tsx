@@ -91,7 +91,9 @@ describe("DomainWorkflowLinks", () => {
     );
 
     await waitFor(() => expect(mocks.resolve).toHaveBeenCalled());
-    expect(screen.getByRole("link", { name: "Open Workflow Explorer" }).getAttribute("href")).toBe(
+    expect(
+      (await screen.findByRole("link", { name: "Open Workflow Explorer" })).getAttribute("href"),
+    ).toBe(
       `/catalog/explorer/records/${binding.record_id}/revisions/${binding.record_revision_id}`,
     );
     expect(screen.getByRole("link", { name: /DP780 Abaqus card/ }).getAttribute("href")).toBe(

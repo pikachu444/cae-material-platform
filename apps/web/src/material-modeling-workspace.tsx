@@ -13,7 +13,6 @@ import {
   listMaterials,
 } from "./features/materials";
 import { dispatchModelingSession, loadModelingSession, saveModelingSession, type ModelingMaterialFamily, type ModelingSessionSummary, type ModelingTrack } from "./features/modeling";
-import { PolymerTemperatureShiftInspector } from "./polymer-temperature-shift-inspector";
 import type {
   MaterialDetail,
   MaterialResponse,
@@ -392,10 +391,6 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.processingOutput?.id, session?.testData?.id, track, updateSession]);
   const selectedState = detail?.states.find((item) => item.material_state_id === selectedStateId);
   const selectedMaterial = materials.find((item) => item.material_id === selectedMaterialId);
-  const familyInspector = useMemo(() => track === "polymer" && selectedState ? (
-    <PolymerTemperatureShiftInspector config={config} state={selectedState} />
-  ) : null, [config, selectedState, track]);
-
   return (
     <Suspense fallback={<p className="loading-state">Loading Modeling workspace…</p>}>
       <CommonProcessingWorkbench
@@ -408,7 +403,6 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onSessionEvent={applySessionEvent}
       onNewSession={startNewSession}
       familyWorkbench={familyWorkbench}
-      familyInspector={familyInspector}
       material={selectedMaterial}
       materialState={selectedState}
       propertySet={detail?.property_sets.find((item) => item.material_state_id === selectedStateId)}

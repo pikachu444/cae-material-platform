@@ -135,6 +135,28 @@ describe("Modeling Data library model", () => {
       .toBe("Tensile test 0001");
   });
 
+  it("never turns an internal Specimen UUID suffix into a user-facing test number", () => {
+    const document = documentFixture({
+      document_key: "CMP-DEMO-POLYMER-FIT-RELAXATION-CSV",
+      specimen_id: "CMP-DEMO-POLYMER-FIT-SR-01",
+      method: "synthetic shear relaxation reference",
+    });
+    const run = runFixture(
+      "run-revision-1",
+      "CMP demo Polymer Fit shear relaxation",
+    );
+    run.current_revision.content.specimen_id = "511499c2-6a4c-4235-ba9c-ffdb34caf6dc";
+
+    const rows = buildModelingDataLibraryRows(
+      [document] as never,
+      [],
+      [run] as never,
+    );
+
+    expect(rows[0].recordLabel).toBe("Relaxation test 0001");
+    expect(rows[0].recordLabel).not.toContain("0085");
+  });
+
   it("filters the same rows used by the Browser and derives truthful graph titles", () => {
     const tensile = buildModelingDataLibraryRows([documentFixture()] as never, [], [runFixture()] as never)[0];
     const dma = buildModelingDataLibraryRows([

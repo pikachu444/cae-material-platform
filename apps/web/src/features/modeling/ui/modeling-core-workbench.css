@@ -32,7 +32,7 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#136. */
-.application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-advanced-menu > summary) {
+.application-shell main.processing-workbench-page .modeling-context-actions :is(.button, .modeling-track-menu > summary) {
   box-sizing: border-box;
   height: 28px;
   min-height: 28px;
@@ -42,20 +42,20 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#139. */
-.application-shell:has(.processing-workbench-page) .modeling-context-strip {
+.application-shell.workspace-modeling .modeling-context-strip {
   min-height: 50px;
   flex-basis: 50px;
   padding-inline: 10px;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#140. */
-.application-shell:has(.processing-workbench-page) .modeling-stage-shell {
+.application-shell.workspace-modeling .modeling-stage-shell {
   min-height: 34px;
   flex-basis: 34px;
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#141. */
-.application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
+.application-shell.workspace-modeling .modeling-stage-shell button {
   min-height: 34px;
 }
 
@@ -179,18 +179,18 @@
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#497. */
-.application-shell:has(.processing-workbench-page) .modeling-stage-shell,
-.application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
+.application-shell.workspace-modeling .modeling-stage-shell,
+.application-shell.workspace-modeling .modeling-stage-shell button {
   min-height: var(--ux-interactive-min-block-size);
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#499. */
-.application-shell:has(.processing-workbench-page) .modeling-stage-shell {
+.application-shell.workspace-modeling .modeling-stage-shell {
   flex-basis: var(--ux-interactive-min-block-size);
 }
 
 /* M4-shared-css-ownership-consolidation frozen ownership move: apps/web/src/design/layout.css#506. */
-.application-shell main.processing-workbench-page .modeling-context-actions > .modeling-advanced-menu {
+.application-shell main.processing-workbench-page .modeling-context-actions > .modeling-track-menu {
   display: flex;
   align-self: center;
   align-items: center;
@@ -440,22 +440,26 @@
 
 .modeling-context-actions { display: flex; align-items: center; gap: 5px; margin-left: auto; }
 
-.modeling-advanced-menu {
+.modeling-track-menu {
   position: relative;
   box-sizing: border-box;
   height: 28px;
   min-height: 28px;
 }
 
-.modeling-advanced-menu > summary { cursor: pointer; list-style: none; }
+.modeling-track-menu > summary { cursor: pointer; list-style: none; }
 
-.modeling-advanced-menu > summary::-webkit-details-marker { display: none; }
+.modeling-track-menu > summary::-webkit-details-marker { display: none; }
 
-.modeling-advanced-menu > div { position: absolute; z-index: 20; right: 0; top: calc(100% + 2px); display: grid; min-width: 208px; padding: 4px; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); box-shadow: var(--ux-shadow-float); }
+.modeling-track-menu > div { position: absolute; z-index: 20; right: 0; top: calc(100% + 2px); display: grid; min-width: 208px; padding: 4px; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); box-shadow: var(--ux-shadow-float); }
 
-.modeling-advanced-menu button { padding: 6px 8px; border: 0; background: transparent; color: var(--ux-text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.modeling-track-menu button { padding: 6px 8px; border: 0; background: transparent; color: var(--ux-text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
 
-.modeling-advanced-menu button:hover, .modeling-advanced-menu button[aria-selected="true"] { background: var(--ux-accent-soft); }
+.modeling-track-menu button:hover, .modeling-track-menu button[aria-checked="true"] { background: var(--ux-accent-soft); }
+
+.modeling-track-menu [role="group"] { display: grid; }
+
+.modeling-track-menu .modeling-track-review-action { border-top: 1px solid var(--ux-border); }
 
 .modeling-stage-shell { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
@@ -781,12 +785,12 @@
   gap: var(--ux-space-2);
 }
 
-.modeling-advanced-menu > div {
+.modeling-track-menu > div {
   min-width: var(--ux-navigator-min-inline-size);
   padding: var(--ux-space-1);
 }
 
-.modeling-advanced-menu button {
+.modeling-track-menu button {
   min-height: var(--ux-interactive-min-block-size);
   padding: var(--ux-space-1) var(--ux-space-2);
   font-size: var(--ux-metadata-font-size);

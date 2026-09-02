@@ -68,6 +68,9 @@ def plan_from_payload(payload: Mapping[str, object]) -> LinearViscoelasticCalibr
     semantics = cast(Mapping[str, object], payload.get("input_semantics") or {})
     bounds_payload = cast(Mapping[str, object], payload.get("parameter_bounds") or {})
     starts_payload = cast(Mapping[str, object], payload.get("start_vectors") or {})
+    base_diff = payload.get("base_diff")
+    if base_diff is not None and not isinstance(base_diff, Mapping):
+        raise ValueError("base_diff must be an object")
 
     def revision_pin(value: object) -> ExactRevisionPin | None:
         if value is None:
@@ -203,6 +206,29 @@ def plan_from_payload(payload: Mapping[str, object]) -> LinearViscoelasticCalibr
         ),
         schema_id=str(payload.get("schema_id", "")),
         schema_version=str(payload.get("schema_version", "")),
+        setup_name=(str(payload["setup_name"]) if payload.get("setup_name") is not None else None),
+        material=revision_pin(payload.get("material")),
+        material_state=revision_pin(payload.get("material_state")),
+        input_mode=(str(payload["input_mode"]) if payload.get("input_mode") is not None else None),
+        based_on_plan_id=(
+            _as_uuid(payload["based_on_plan_id"])
+            if payload.get("based_on_plan_id") is not None
+            else None
+        ),
+        based_on_plan_revision_id=(
+            _as_uuid(payload["based_on_plan_revision_id"])
+            if payload.get("based_on_plan_revision_id") is not None
+            else None
+        ),
+        override_reason=(
+            str(payload["override_reason"]) if payload.get("override_reason") is not None else None
+        ),
+        base_diff=(dict(cast(Mapping[str, object], base_diff)) if base_diff is not None else None),
+        candidate_scope_mode=(
+            str(payload["candidate_scope_mode"])
+            if payload.get("candidate_scope_mode") is not None
+            else None
+        ),
     )
 
 

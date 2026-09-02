@@ -22,7 +22,9 @@ from cmp.modules.modeling.domain.linear_viscoelastic_contracts import (
     LINEAR_VISCOELASTIC_MAX_TERM_COUNT,
     LINEAR_VISCOELASTIC_RECOMMENDATION_POLICY,
     LINEAR_VISCOELASTIC_SEED_STATUS,
+    CandidateScopeMode,
     LinearViscoelasticPlanError,
+    PointPartition,
     _decimal,
     _positive,
     _sha256,
@@ -154,6 +156,20 @@ class LinearViscoelasticCalibrationPlan:
     statuses: ChannelAvailability = field(default_factory=ChannelAvailability)
     schema_id: str = LINEAR_VISCOELASTIC_CALIBRATION_PLAN_SCHEMA_ID
     schema_version: str = LINEAR_VISCOELASTIC_CALIBRATION_PLAN_SCHEMA_VERSION
+    # Governance metadata is deliberately appended after the existing numerical fields.  Legacy
+    # #372 Plans therefore retain their exact canonical meaning and digest; new governed Plans
+    # carry the exact source context required by review and production execution.
+    setup_name: str | None = None
+    material: ExactRevisionPin | None = None
+    material_state: ExactRevisionPin | None = None
+    input_mode: str | None = None
+    based_on_plan_id: UUID | None = None
+    based_on_plan_revision_id: UUID | None = None
+    override_reason: str | None = None
+    base_diff: Mapping[str, object] | None = None
+    # None is the legacy/manual representation.  Keeping the field after all existing fields
+    # means old positional construction and old canonical bytes remain unchanged.
+    candidate_scope_mode: CandidateScopeMode | str | None = None
 
     def __post_init__(self) -> None:
         _uuid(self.plan_id, "plan_id")
@@ -210,6 +226,92 @@ class LinearViscoelasticCalibrationPlan:
         if self.input_semantics is None:
             raise LinearViscoelasticPlanError(
                 "server-resolved governed input semantics are required (INPUT_SEMANTICS_REQUIRED)"
+            )
+        if self.candidate_scope_mode is not None:
+            try:
+                scope_mode = CandidateScopeMode(str(self.candidate_scope_mode))
+            except ValueError as error:
+                raise LinearViscoelasticPlanError(
+                    "candidate_scope_mode must be automatic or manual"
+                ) from error
+            object.__setattr__(self, "candidate_scope_mode", scope_mode)
+        if self.candidate_scope_mode is CandidateScopeMode.AUTOMATIC:
+            expected_terms = automatic_candidate_term_counts(self.input_semantics)
+            if self.term_counts != expected_terms:
+                raise LinearViscoelasticPlanError(
+                    "automatic candidate scope must contain every feasible term count in order"
+                )
+        governance_values = (
+            self.setup_name,
+            self.material,
+            self.material_state,
+            self.input_mode,
+            self.based_on_plan_id,
+            self.based_on_plan_revision_id,
+            self.override_reason,
+            self.base_diff,
+        )
+        governed = any(value is not None for value in governance_values)
+        if governed:
+            if (
+                self.setup_name is None
+                or not self.setup_name.strip()
+                or self.setup_name != self.setup_name.strip()
+                or len(self.setup_name) > 255
+                or "\x00" in self.setup_name
+            ):
+                raise LinearViscoelasticPlanError(
+                    "governed calibration Plans require a trimmed setup_name"
+                )
+            if self.material is None or self.material_state is None:
+                raise LinearViscoelasticPlanError(
+                    "governed calibration Plans require exact Material and Material State pins"
+                )
+            if self.input_mode not in {
+                "relaxation",
+                "dma",
+                "dma_frequency_master_curve",
+            }:
+                raise LinearViscoelasticPlanError(
+                    "governed calibration Plans require a supported exact input_mode"
+                )
+            if self.input_semantics.mode != self.input_mode:
+                raise LinearViscoelasticPlanError(
+                    "input_mode must match the server-resolved input semantics mode"
+                )
+            if (self.based_on_plan_id is None) != (self.based_on_plan_revision_id is None):
+                raise LinearViscoelasticPlanError(
+                    "based_on_plan_id and based_on_plan_revision_id must be paired"
+                )
+            if self.based_on_plan_id is not None:
+                _uuid(self.based_on_plan_id, "based_on_plan_id")
+                assert self.based_on_plan_revision_id is not None
+                _uuid(self.based_on_plan_revision_id, "based_on_plan_revision_id")
+                if (
+                    self.override_reason is None
+                    or not self.override_reason.strip()
+                    or self.override_reason != self.override_reason.strip()
+                    or len(self.override_reason) > 2000
+                    or "\x00" in self.override_reason
+                ):
+                    raise LinearViscoelasticPlanError(
+                        "an Advanced clone requires a trimmed override_reason"
+                    )
+                if self.base_diff is None:
+                    raise LinearViscoelasticPlanError(
+                        "an Advanced clone requires a server-derived base_diff"
+                    )
+            elif self.override_reason is not None or self.base_diff is not None:
+                raise LinearViscoelasticPlanError(
+                    "override_reason and base_diff require an exact approved base Plan"
+                )
+            if self.base_diff is not None:
+                # Validate the diff's JSON domain without allowing UUID/Decimal objects to leak
+                # into a persisted immutable payload.
+                canonical_json_bytes(self.base_diff)
+        elif any(value is not None for value in (self.override_reason, self.base_diff)):
+            raise LinearViscoelasticPlanError(
+                "governance diff metadata cannot be attached to a legacy Plan"
             )
         processing_evidence = (
             self.processing_output,
@@ -274,6 +376,8 @@ class LinearViscoelasticCalibrationPlan:
                         )
         object.__setattr__(self, "parameter_bounds", bounds)
         object.__setattr__(self, "start_vectors", starts)
+        if self.base_diff is not None:
+            object.__setattr__(self, "base_diff", dict(self.base_diff))
 
     @classmethod
     def for_terms(
@@ -298,8 +402,14 @@ class LinearViscoelasticCalibrationPlan:
     def digest(self) -> str:
         return hashlib.sha256(canonical_json_bytes(self.canonical())).hexdigest()
 
+    @property
+    def is_governed(self) -> bool:
+        """Whether this revision carries the Issue #377 approval context."""
+
+        return self.setup_name is not None
+
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "schema_id": self.schema_id,
             "schema_version": self.schema_version,
             "plan_id": str(self.plan_id),
@@ -354,6 +464,64 @@ class LinearViscoelasticCalibrationPlan:
             "seed_status": self.seed_status,
             "statuses": self.statuses.canonical(),
         }
+        # Explicit manual is intentionally omitted: absent and manual are the same legacy
+        # canonical representation and therefore retain their historical digest.
+        if self.candidate_scope_mode is CandidateScopeMode.AUTOMATIC:
+            result["candidate_scope_mode"] = CandidateScopeMode.AUTOMATIC.value
+        if self.is_governed:
+            result.update(
+                {
+                    "setup_name": self.setup_name,
+                    "material": self.material.canonical() if self.material else None,
+                    "material_state": (
+                        self.material_state.canonical() if self.material_state else None
+                    ),
+                    "input_mode": self.input_mode,
+                    "based_on_plan_id": (
+                        str(self.based_on_plan_id) if self.based_on_plan_id else None
+                    ),
+                    "based_on_plan_revision_id": (
+                        str(self.based_on_plan_revision_id)
+                        if self.based_on_plan_revision_id
+                        else None
+                    ),
+                    "override_reason": self.override_reason,
+                    "base_diff": dict(self.base_diff) if self.base_diff is not None else None,
+                }
+            )
+        return result
+
+
+def maximum_supported_prony_term_count(observation_count: int) -> int:
+    """Return the complete data-feasible Prony range cap for one resolved input."""
+
+    return max(0, min(LINEAR_VISCOELASTIC_MAX_TERM_COUNT, (observation_count - 1) // 2))
+
+
+def calibration_observation_count(semantics: GovernedViscoelasticInputSemantics) -> int:
+    """Count solver observations from the exact resolved calibration row partitions."""
+
+    calibration_rows = sum(
+        item.partition is PointPartition.CALIBRATION for item in semantics.point_dispositions
+    )
+    return calibration_rows * (2 if semantics.mode in {"dma", "dma_frequency_master_curve"} else 1)
+
+
+def automatic_candidate_term_counts(
+    semantics: GovernedViscoelasticInputSemantics,
+) -> tuple[int, ...]:
+    """Return every feasible term count without inventing an optimizer policy.
+
+    Bounds and start values remain explicit reviewed Plan content. Automatic mode only owns
+    the candidate *scope*; it must not fabricate production parameter ranges from row counts.
+    """
+    observation_count = calibration_observation_count(semantics)
+    maximum = maximum_supported_prony_term_count(observation_count)
+    if maximum < 1:
+        raise LinearViscoelasticPlanError(
+            "automatic candidate scope requires at least one feasible Prony term"
+        )
+    return tuple(range(1, maximum + 1))
 
 
 def _parameter_names(term_count: int) -> tuple[str, ...]:

@@ -76,8 +76,8 @@ describe("shared desktop metrics", () => {
     });
     expect(MODELING_PANE_METRICS.dataRibbon).toEqual({ compact: 178, contentFit: 384 });
     expect(ENGINEERING_PLOT_MARGIN).toEqual({ left: 80, right: 24, top: 24, bottom: 52 });
-    expect(engineeringPlotMarginsForDensity("compact")).toEqual({ left: 80, right: 212, top: 24, bottom: 52 });
-    expect(engineeringPlotMarginsForDensity("standard")).toEqual({ left: 80, right: 230, top: 24, bottom: 52 });
-    expect(engineeringPlotMarginsForDensity("large")).toEqual({ left: 80, right: 248, top: 24, bottom: 52 });
+    expect(engineeringPlotMarginsForDensity("compact")).toEqual(ENGINEERING_PLOT_MARGIN);
+    expect(engineeringPlotMarginsForDensity("standard")).toEqual(ENGINEERING_PLOT_MARGIN);
+    expect(engineeringPlotMarginsForDensity("large")).toEqual(ENGINEERING_PLOT_MARGIN);
   });
 });
