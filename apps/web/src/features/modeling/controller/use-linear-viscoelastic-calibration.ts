@@ -260,7 +260,7 @@ export function useLinearViscoelasticCalibration({
           dispatch({
             type: "ERROR",
             error: `Saved calibration could not be reloaded. ${linearViscoelasticErrorMessage(cause)}`,
-            recoveryHint: "Reload the matching Test Data or TTS Process result, then retry.",
+            recoveryHint: "Reload the matching Test Data or shifted DMA response, then retry.",
           });
         }
       }

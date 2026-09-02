@@ -121,7 +121,7 @@ describe("DMA TTS Process workspace", () => {
     expect((createButton as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(createButton);
 
-    await screen.findByRole("heading", { name: "DMA response saved" });
+    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
     expect(onSaved).toHaveBeenCalledWith(created);
     const createRequest = requests.find((item) => item.url.endsWith("/dma-frequency-master-curves"));
     expect(createRequest?.body).toMatchObject({
@@ -168,7 +168,7 @@ describe("DMA TTS Process workspace", () => {
     await screen.findByText("Fit handoff failed.");
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
 
-    await screen.findByRole("heading", { name: "DMA response saved" });
+    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
     expect(createCount).toBe(1);
     expect(onSaved).toHaveBeenCalledTimes(2);
   });

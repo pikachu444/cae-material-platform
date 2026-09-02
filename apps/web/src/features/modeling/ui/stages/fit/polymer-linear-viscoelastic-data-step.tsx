@@ -82,7 +82,7 @@ export function PolymerLinearViscoelasticDataStep({
               className={sourceChoice === "processing-output" ? "active" : undefined}
               disabled={!processedAvailable}
               onClick={() => actions.chooseSource("processing-output")}
-            >DMA / TTS result</button>
+            >Shifted DMA response</button>
           </div>
 
           {sourceChoice === "test-data" ? testData && testDataRef ? (
@@ -124,7 +124,7 @@ export function PolymerLinearViscoelasticDataStep({
               {processedInputError ?? "The exact saved result could not be read."}
             </WorkbenchMessage>
           ) : (
-            <WorkbenchMessage kind="blocked" title="DMA / TTS result is not ready">
+            <WorkbenchMessage kind="blocked" title="Shifted DMA response is not ready">
               Save the shifted DMA response in Process before choosing it here.
             </WorkbenchMessage>
           )}

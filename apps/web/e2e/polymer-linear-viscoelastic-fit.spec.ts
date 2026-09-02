@@ -2,7 +2,10 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { approveSyntheticDmaFitSetup } from "./polymer-linear-viscoelastic-fit-governance";
+import {
+  approveSyntheticDmaFitSetup,
+  ensureSyntheticRelaxationFitSetup,
+} from "./polymer-linear-viscoelastic-fit-governance";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const evidenceDir =
@@ -100,6 +103,20 @@ async function selectRelaxationInputAndOpenFit(page: Page): Promise<void> {
   await sourceButton.focus();
   await page.keyboard.press("Enter");
   await expect(row).toHaveClass(/active/, { timeout: 30_000 });
+  const session = await page.evaluate(() => JSON.parse(
+    window.sessionStorage.getItem("cmp.modeling.recent-session.v4") ?? "null",
+  )) as {
+    material: ExactRevision;
+    materialState: ExactRevision;
+    testData: ExactRevision;
+  };
+  await ensureSyntheticRelaxationFitSetup({
+    request: page.request,
+    webUrl,
+    material: session.material,
+    materialState: session.materialState,
+    testData: session.testData,
+  });
   const fitStage = page.locator(".modeling-stage-shell button").filter({
     has: page.locator("strong", { hasText: /^Fit$/ }),
   });
@@ -116,6 +133,11 @@ interface FitDecision {
   recommendedTerm: number;
   selectedTerm: number;
   reason: string;
+}
+
+interface ExactRevision {
+  id: string;
+  revisionId: string;
 }
 
 async function calculateAndSelectAlternateModel(
@@ -443,6 +465,8 @@ test("Polymer Fit without an exact source offers one direct return to Data", asy
   });
   await expect.poll(() => pageErrors, { message: pageErrors.join("\n") }).toEqual([]);
   await expect(page.getByRole("region", { name: "Fit input required" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Test Data required" })).toBeVisible();
+  await expect(page.getByText("Select relaxation or DMA Test Data before calculating models.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Choose Test Data", exact: true })).toHaveCount(1);
   await expect(page.locator(".polymer-calibration-fit")).toBeVisible();
   await expect(page.locator(".polymer-fit-graph-region")).toHaveCount(0);
@@ -535,7 +559,7 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   const created = (await createdResponse.json()) as {
     master_curve_output: { output_id: string; revision_id: string };
   };
-  await expect(page.getByRole("heading", { name: "DMA response saved" })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Shifted DMA response saved" })).toBeVisible({
     timeout: 30_000,
   });
   const continueToFit = page.getByRole("button", { name: "Continue to Fit" });
@@ -551,7 +575,7 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   await page.setViewportSize({ width: 1920, height: 1080 });
   await continueToFit.click();
   await expect(page).toHaveURL(/stage=fit/);
-  await expect(page.getByRole("heading", { name: "DMA response" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("button", { name: "Review calculation settings" })).toBeVisible({ timeout: 30_000 });
   const dmaSession = await page.evaluate(() => JSON.parse(
     window.sessionStorage.getItem("cmp.modeling.recent-session.v4") ?? "null",
@@ -570,7 +594,7 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
     },
   });
   await page.reload();
-  await expect(page.getByRole("heading", { name: "DMA response" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
   const decision = await calculateAndSelectAlternateModel(
     page,
     "Selected the adjacent model after comparing the DMA response and point differences.",
@@ -590,7 +614,7 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   await capture(page, "modeling-fit-polymer-dma-saved-1920x1080.png");
   await page.reload();
   await expect(page).toHaveURL(/stage=fit/);
-  await expect(page.getByRole("heading", { name: "DMA response" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
   await expectDistinctFitDecision(page, decision);
 });
 

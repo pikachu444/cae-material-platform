@@ -110,15 +110,42 @@
 
 .polymer-source-blocked {
   display: flex;
-  min-height: var(--ux-engineering-control-block-size);
+  width: min(100%, 48rem);
+  min-height: 7rem;
+  align-self: start;
   align-items: center;
   gap: var(--ux-space-3);
-  padding: var(--ux-space-3) var(--ux-pane-padding);
-  justify-content: center;
+  margin: clamp(var(--ux-space-4), 8vh, var(--ux-space-7)) auto 0;
+  padding: var(--ux-space-4) var(--ux-pane-padding);
+  border-block: 1px solid var(--ux-border);
+  justify-content: space-between;
+}
+
+.polymer-source-blocked > div {
+  display: grid;
+  min-width: 0;
+  gap: var(--ux-space-1);
+}
+
+.polymer-source-blocked h2,
+.polymer-source-blocked p {
+  margin: 0;
+}
+
+.polymer-source-blocked p {
+  color: var(--ux-text-muted);
 }
 
 .polymer-source-blocked .button {
+  flex: 0 0 auto;
   margin-left: 0;
+}
+
+@media (max-width: 42rem) {
+  .polymer-source-blocked {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 .polymer-stale-body {

@@ -108,7 +108,7 @@ export function DmaTtsProcessWorkspace({
             <button type="button" className="button primary" disabled={!process.canSave || process.status === "saving"} onClick={() => void process.save()}>{process.status === "saving" ? "Creating…" : "Create shifted response"}</button>
           </div>
         </> : null}
-        {process.fitInput ? <div className="dma-tts-saved-row"><div><h2>DMA response saved</h2><p>{process.fitInput.rows.filter((row) => row.partition !== "EXCLUDED").length} shifted values at {compact(Number(process.fitInput.reference_temperature_k))} K</p></div></div> : null}
+        {process.fitInput ? <div className="dma-tts-saved-row"><div><h2>Shifted DMA response saved</h2><p>{process.fitInput.rows.filter((row) => row.partition !== "EXCLUDED").length} shifted values at {compact(Number(process.fitInput.reference_temperature_k))} K</p></div></div> : null}
         {process.status === "loading" && !process.error ? <p className="dma-tts-loading" role="status">Preparing WLF shift…</p> : null}
       </section>
     </div>}

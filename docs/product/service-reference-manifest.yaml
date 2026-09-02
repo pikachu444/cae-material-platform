@@ -423,7 +423,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1366
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1366x768.png
-  image_sha256: 551380590187bcf0e9ee2b73e7d0d380e3334ae662425a889aefc60f812ccfed
+  image_sha256: 4090b41c23b296e83d7ab7e6da023642a2c0eb112c1663baa2e31fccaa7c6ff8
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1440x900
   screen: modeling-process
@@ -433,7 +433,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1440
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1440x900.png
-  image_sha256: f606a563b69f04d1200229feb48a056b67e0d2e343f63e398833fb119d016eda
+  image_sha256: b669bdf7c1bda4ae6fda9d9d0a3234125618581447c72a885885937333a39bef
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1920x1080
   screen: modeling-process
@@ -443,7 +443,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1920
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png
-  image_sha256: bc6300389c44f979ee494496f34053b7533f4c963a6b81986edba53808822187
+  image_sha256: 19636726c7cabb5b743d366d342b28ea7913ea1d480293f7e4bcbb52ad431af7
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-2560x1440
   screen: modeling-process
@@ -453,7 +453,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-2560
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png
-  image_sha256: 1b0b9a03a4fc51804b3879b485db94f40819231bfe7e9fd59c73b0a9f71a0453
+  image_sha256: d0c7a10f844c3e281cf57686770354c0a5bce79f41cea6a1293d81b7174ecb67
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-3840x2160
   screen: modeling-process
@@ -463,7 +463,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-3840
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png
-  image_sha256: fd5d6465e081d93ae660d6835827b73784ccda7e47b4ca740033482132e83043
+  image_sha256: 5ceb20ae78338259c4b2c1e8159e3f24b006ce6a71f2377b57abe872e3aa5bc3
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-input-1920x1080
   screen: modeling-fit
@@ -583,7 +583,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-polymer-source-blocked-1366
   image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-1366x768.png
-  image_sha256: fcab7d193cbad4d0a05949c2c7201165ab9633f23c08240ca1c4c105ea9fc76f
+  image_sha256: 24b850218b5a2b48277238e9b020dab679db052d8e6270d2d3158230679df5a9
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-source-blocked-1440x900
   screen: modeling-fit
@@ -593,7 +593,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-polymer-source-blocked-1440
   image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-1440x900.png
-  image_sha256: 820098f254dc1f255c46e81d6913352712f2d455da1c831c9185ad7a39ea54a7
+  image_sha256: 0edbe5f03edbbbdced6d3e1fdaa510e289210dee45555e1635a0f32c98bf72a2
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-source-blocked-1920x1080
   screen: modeling-fit
@@ -603,7 +603,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-polymer-source-blocked-1920
   image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-1920x1080.png
-  image_sha256: fc53eb09e91789b095defd2cdcc1788887d8c0a9318c3039ee7705e7948ef37f
+  image_sha256: 7f49dca0de5390dadf7642bd24737153c8d4b88e03c1416c15ea14f717a5ba9e
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-source-blocked-2560x1440
   screen: modeling-fit
@@ -613,7 +613,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-polymer-source-blocked-2560
   image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-2560x1440.png
-  image_sha256: 805aec1992e67ad8db44871652ddcdc7ef79374fe631d288bf0971db6353488b
+  image_sha256: da8a2d9b38b3bab0d43a43c5932212805e99c89960c7813d07fd0cf232b20fff
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-source-blocked-3840x2160
   screen: modeling-fit
@@ -623,7 +623,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-fit-polymer-source-blocked-3840
   image: docs/user-guide/images/current/modeling-fit-polymer-source-blocked-3840x2160.png
-  image_sha256: 5c42b476f237ab5775a5c51483f7d1b166b573ef145a18c89af6461abe3dfd00
+  image_sha256: dc6486312618947b6258e3acd7fc4cb62d573733e2cbb41e45fd884529bc75c6
   status: operational-evidence-accepted
 - id: materials-card-preview-normal-1440x900
   screen: materials-card

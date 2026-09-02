@@ -47,7 +47,7 @@ export function useDmaTtsProcess({
   const [createdOutput, setCreatedOutput] = useState<CreateDmaTtsResponse | null>(null);
   const [fitInput, setFitInput] = useState<ProcessedLinearViscoelasticFitInput | null>(null);
   const [retryVersion, setRetryVersion] = useState(0);
-  const label = `${sourceLabel} shifted DMA response`;
+  const label = `${sourceLabel} · Shifted DMA response`;
   const sourceKey = `${testData.test_data_document_id}:${testData.current_revision.id}`;
 
   useEffect(() => {

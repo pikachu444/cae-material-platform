@@ -138,7 +138,7 @@ describe("polymer linear-viscoelastic Fit", () => {
     expect(openProcess).toHaveBeenCalledOnce();
   });
 
-  it("keeps the required recorded-condition inputs available for a saved DMA / TTS result", async () => {
+  it("keeps the required recorded-condition inputs available for a shifted DMA response", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({
       mode: "dma_frequency_master_curve",
       coordinate_quantity: "frequency.angular.reduced",
@@ -165,8 +165,8 @@ describe("polymer linear-viscoelastic Fit", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Calculation settings" }));
-    await waitFor(() => expect((screen.getByRole("tab", { name: "DMA / TTS result" }) as HTMLButtonElement).disabled).toBe(false));
-    fireEvent.click(screen.getByRole("tab", { name: "DMA / TTS result" }));
+    await waitFor(() => expect((screen.getByRole("tab", { name: "Shifted DMA response" }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole("tab", { name: "Shifted DMA response" }));
 
     expect(screen.getAllByText("Shifted DMA response 01").length).toBeGreaterThanOrEqual(1);
     for (const label of ["Loading ramp", "Frequency sweep", "Preconditioning", "Linear viscoelastic range"]) {

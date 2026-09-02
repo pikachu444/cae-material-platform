@@ -13,6 +13,14 @@ interface SyntheticDmaSetupInput {
   processingOutput: ExactRevision;
 }
 
+interface SyntheticRelaxationSetupInput {
+  request: APIRequestContext;
+  webUrl: string;
+  material: ExactRevision;
+  materialState: ExactRevision;
+  testData: ExactRevision;
+}
+
 interface PlanResponse {
   plan_id: string;
   current_revision: { id: string; content_hash: string };
@@ -80,6 +88,132 @@ function parameterBounds(termCount: number) {
 }
 
 /**
+ * Restore the exact reviewed setup for whichever immutable revision the repeated
+ * stale-input browser journey left current. This keeps the acceptance flow
+ * repeatable without weakening the production exact-revision resolver.
+ */
+export async function ensureSyntheticRelaxationFitSetup({
+  request,
+  webUrl,
+  material,
+  materialState,
+  testData,
+}: SyntheticRelaxationSetupInput): Promise<void> {
+  const [administratorToken, authorToken, reviewerToken] = await Promise.all([
+    demoToken(request, webUrl, "administrator"),
+    demoToken(request, webUrl, "plan_author"),
+    demoToken(request, webUrl, "reviewer"),
+  ]);
+  const exactContext = {
+    material: { id: material.id, revision_id: material.revisionId },
+    material_state: { id: materialState.id, revision_id: materialState.revisionId },
+    test_data: { id: testData.id, revision_id: testData.revisionId },
+    processing_output: null,
+    input_mode: "relaxation",
+  };
+  const resolvedResponse = await request.post(
+    `${webUrl}/api/v1/linear-viscoelastic-calibration-plans/resolve`,
+    { headers: authorization(administratorToken), data: exactContext },
+  );
+  expect(resolvedResponse.ok(), await resolvedResponse.text()).toBeTruthy();
+  const resolved = (await resolvedResponse.json()) as {
+    matches: Array<{ approval: { state: string } }>;
+  };
+  if (resolved.matches.some((match) => match.approval.state === "active")) return;
+
+  const termCounts = Array.from({ length: 10 }, (_, index) => index + 1);
+  const bounds = Object.fromEntries(termCounts.map((term) => [String(term), parameterBounds(term)]));
+  const excluded = new Set([4, 20, 36]);
+  const holdout = new Set(Array.from({ length: 5 }, (_, index) => index + 38));
+  const planResponse = await request.post(
+    `${webUrl}/api/v1/linear-viscoelastic-calibration-plans`,
+    {
+      headers: {
+        ...authorization(authorToken),
+        "Idempotency-Key": `polymer-relaxation-ui-${testData.revisionId}`,
+      },
+      data: {
+        setup_name: "Reviewed synthetic relaxation comparison",
+        ...exactContext,
+        processing_output: undefined,
+        selected_temperature_k: 296.15,
+        candidate_scope_mode: "automatic",
+        point_dispositions: Array.from({ length: 43 }, (_, ordinal) => ({
+          ordinal,
+          partition: excluded.has(ordinal)
+            ? "EXCLUDED"
+            : holdout.has(ordinal) ? "HOLDOUT" : "CALIBRATION",
+          exclusion_reason: excluded.has(ordinal)
+            ? "Reserved synthetic non-production exclusion"
+            : null,
+        })),
+        availability: {
+          ramp: "NOT_PROVIDED",
+          sweep: "NOT_PROVIDED",
+          preconditioning: "NOT_PROVIDED",
+          linear_range: "NOT_PROVIDED",
+        },
+        term_counts: termCounts,
+        parameter_bounds: bounds,
+        start_vectors: Object.fromEntries(termCounts.map((term) => [
+          String(term),
+          [bounds[String(term)].map((item) => item.start)],
+        ])),
+        weights: {
+          relaxation_weight: "1",
+          dma_storage_weight: "0.5",
+          dma_loss_weight: "0.5",
+          relaxation_scale_pa: "1000000000",
+          dma_storage_scale_pa: "1000000000",
+          dma_loss_scale_pa: "1000000000",
+          q_rule_version: "equal_per_point@1.0.0",
+        },
+        optimizer: {
+          method: "trf",
+          x_scale: "jac",
+          transform: "ln",
+          ftol: 1e-8,
+          xtol: 1e-8,
+          gtol: 1e-8,
+          max_nfev: 5000,
+        },
+        recommendation_policy: "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0",
+        change_reason: "Review the exact synthetic relaxation input for browser acceptance.",
+      },
+    },
+  );
+  expect(planResponse.ok(), await planResponse.text()).toBeTruthy();
+  const plan = (await planResponse.json()) as PlanResponse;
+
+  const reviewResponse = await request.post(`${webUrl}/api/v1/review-requests`, {
+    headers: authorization(administratorToken),
+    data: {
+      classification: "internal",
+      aggregate_type: "modeling.linear_viscoelastic_calibration_plan",
+      aggregate_id: plan.plan_id,
+      revision_id: plan.current_revision.id,
+      manifest_sha256: plan.current_revision.content_hash,
+      reason: "Submit the exact synthetic relaxation setup for browser acceptance.",
+    },
+  });
+  expect(reviewResponse.ok(), await reviewResponse.text()).toBeTruthy();
+  const review = (await reviewResponse.json()) as ReviewRequestResponse;
+
+  const decisionResponse = await request.post(
+    `${webUrl}/api/v1/review-requests/${review.review_request_id}/decisions`,
+    {
+      headers: authorization(reviewerToken),
+      data: {
+        expected_manifest_sha256: plan.current_revision.content_hash,
+        decision: "approved",
+        reason: "Approve the fixture-declared synthetic relaxation setup.",
+      },
+    },
+  );
+  expect(decisionResponse.ok(), await decisionResponse.text()).toBeTruthy();
+}
+
+/**
  * Establish the external governance precondition for the synthetic DMA browser journey.
  * This is deliberately test-only: production users never receive an automatic approval,
  * and the application still resolves one exact reviewed Processing Output revision.
@@ -143,7 +277,7 @@ export async function approveSyntheticDmaFitSetup({
           max_nfev: 5000,
         },
         recommendation_policy: "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0",
-        change_reason: "Review the exact synthetic DMA master curve for browser acceptance.",
+        change_reason: "Review the exact synthetic shifted DMA response for browser acceptance.",
       },
     },
   );

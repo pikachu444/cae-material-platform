@@ -70,7 +70,7 @@ def upgrade() -> None:
     op.create_check_constraint(
         "ck_mdl_lve_plan_governance_shape",
         _PLAN,
-        "(" 
+        "("
         "setup_name IS NULL AND material_id IS NULL AND material_revision_id IS NULL "
         "AND material_state_id IS NULL AND material_state_revision_id IS NULL "
         "AND input_mode IS NULL AND based_on_plan_id IS NULL "
@@ -171,7 +171,7 @@ def upgrade() -> None:
     op.create_check_constraint(
         "ck_mdl_lve_run_approval_evidence_shape",
         _RUN,
-        "(" 
+        "("
         "approval_request_id IS NULL AND approval_decision_id IS NULL "
         "AND approval_evidence_sha256 IS NULL AND approval_state IS NULL "
         "AND approval_approved_at IS NULL AND approval_approved_by IS NULL "

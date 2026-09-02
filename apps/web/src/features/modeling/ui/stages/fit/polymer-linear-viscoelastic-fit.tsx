@@ -184,7 +184,7 @@ export function PolymerLinearViscoelasticFit({
   );
 
   const sourceLabel = sourceChoice === "processing-output"
-    ? processingOutput?.label ?? "DMA / TTS result not loaded"
+    ? processingOutput?.label ?? "Shifted DMA response not loaded"
     : sourceDisplayLabel ?? testDataRef?.label ?? (testData ? "Test Data" : "Test Data not loaded");
   const savedInputLabel = `${staleTestDataDisplayLabel ?? "Saved Test Data"}${
     staleTestData?.revisionNo ? ` · version ${staleTestData.revisionNo}` : ""
@@ -193,7 +193,7 @@ export function PolymerLinearViscoelasticFit({
     testDataRef?.revisionNo ? ` · version ${testDataRef.revisionNo}` : ""
   }`;
   const modeLabel = sourceChoice === "processing-output"
-    ? "DMA / TTS result"
+    ? "Shifted DMA response"
     : snapshot.mode === "dma" ? "DMA frequency sweep" : "Relaxation response";
   const usedValueCount = sourceChoice === "processing-output"
     ? processedInput.data?.rows.length ?? 0
@@ -289,6 +289,7 @@ export function PolymerLinearViscoelasticFit({
   ) : (
     <PolymerLinearViscoelasticResponsePlot
       mode={sourceChoice === "processing-output" ? "dma" : snapshot.mode}
+      shifted={sourceChoice === "processing-output"}
       observedSeries={observedSeries}
       recommendation={recommendedCandidate}
       selection={selectedCandidate}
@@ -356,7 +357,7 @@ export function PolymerLinearViscoelasticFit({
           {sourceBlocked ? (
             <div className="polymer-fit-input-summary">
               <span>Fit input</span>
-              <strong>{dmaNeedsProcess ? "DMA / TTS result required" : "Test Data required"}</strong>
+              <strong>{dmaNeedsProcess ? "Shifted DMA response required" : "Test Data required"}</strong>
             </div>
           ) : <>
             <div className="polymer-fit-input-summary">
@@ -380,6 +381,12 @@ export function PolymerLinearViscoelasticFit({
         <div className={`persistent-modeling-plot polymer-fit-surface polymer-calibration-fit${sourceBlocked ? " source-blocked" : ""}`}>
           {sourceBlocked ? (
             <section className="polymer-source-blocked" aria-label="Fit input required">
+              <div>
+                <h2>{dmaNeedsProcess ? "Shifted DMA response required" : "Test Data required"}</h2>
+                <p>{dmaNeedsProcess
+                  ? "Create the shifted DMA response in Process before calculating models."
+                  : "Select relaxation or DMA Test Data before calculating models."}</p>
+              </div>
               <button type="button" className="button primary" onClick={dmaNeedsProcess ? onOpenProcess : onOpenData}>
                 {dmaNeedsProcess ? "Go to Process" : "Choose Test Data"}
               </button>

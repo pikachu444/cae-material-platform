@@ -14,6 +14,7 @@ from cmp.tools.user_guide import (
     _documentation_classes,
     _duplicate_allowances,
     _verify_document_links,
+    _image_dimensions,
     _verify_image_inventory,
     _verify_repository_guidance,
     _verify_service_reference_manifest,
@@ -875,6 +876,27 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     manifest = yaml.safe_load(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
+    issue377_manifest_path = root / manifest["visual_evidence"]["issue_377_evidence_manifest"]
+    issue377_manifest = yaml.safe_load(issue377_manifest_path.read_text(encoding="utf-8"))
+    issue377_crops = issue377_manifest["crops"]
+    assert issue377_manifest["crop_policy"] == "direct-1-to-1-source-pixels"
+    assert issue377_manifest["navigator"].startswith("not-applicable")
+    assert len(issue377_crops) == manifest["visual_evidence"]["issue_377_direct_crop_count"] == 15
+    assert {crop["id"] for crop in issue377_crops} == set(
+        manifest["visual_evidence"]["issue_377_direct_crop_ids"]
+    )
+    assert {crop["role"] for crop in issue377_crops} == {
+        "header",
+        "graph",
+        "comparison-and-selection-controls",
+    }
+    for crop in issue377_crops:
+        image = root / crop["image"]
+        source_image = root / crop["source_image"]
+        assert image.is_file()
+        assert source_image.is_file()
+        assert _image_dimensions(image) == (crop["width"], crop["height"])
+        assert hashlib.sha256(image.read_bytes()).hexdigest() == crop["sha256"]
     captures = {capture["id"]: capture for capture in manifest["captures"]}
     provenance_ids = [
         capture_id

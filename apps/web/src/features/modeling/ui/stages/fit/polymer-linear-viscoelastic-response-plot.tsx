@@ -25,6 +25,7 @@ import "./polymer-linear-viscoelastic-response-plot.css";
 
 interface PolymerLinearViscoelasticResponsePlotProps {
   mode: PolymerSourceCurveMode;
+  shifted?: boolean;
   observedSeries: PolymerObservedSeries[];
   recommendation?: LinearViscoelasticCandidate;
   selection?: LinearViscoelasticCandidate;
@@ -78,6 +79,7 @@ function modulusAxisDisplay(
 
 export function PolymerLinearViscoelasticResponsePlot({
   mode,
+  shifted = false,
   observedSeries,
   recommendation,
   selection,
@@ -180,7 +182,7 @@ export function PolymerLinearViscoelasticResponsePlot({
       aria-label="Measured polymer response and calculated model response"
     >
       <header className="polymer-response-heading">
-        <h2>{mode === "dma" ? "DMA response" : "Relaxation response"}</h2>
+        <h2>{mode === "dma" ? (shifted ? "Shifted DMA response" : "DMA response") : "Relaxation response"}</h2>
       </header>
       {domain && primarySeries ? (
         <>
@@ -192,7 +194,7 @@ export function PolymerLinearViscoelasticResponsePlot({
             >
               <title id={`${id}-title`}>
                 {mode === "dma"
-                  ? "Measured DMA data with recommended and selected model responses"
+                  ? `${shifted ? "Shifted" : "Measured"} DMA data with recommended and selected model responses`
                   : "Measured relaxation data with recommended and selected model responses"}
               </title>
               <desc id={`${id}-description`}>
