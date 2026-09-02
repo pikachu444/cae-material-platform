@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import math
 from dataclasses import dataclass
 from decimal import Decimal
 from itertools import pairwise
@@ -47,7 +46,11 @@ from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_METHOD_VERSION,
     DMA_FREQUENCY_MASTER_CURVE_PARQUET_SCHEMA_ID,
     DmaPartition,
+    DmaProcessingError,
     frequency_master_curve_from_parquet,
+)
+from cmp.modules.processing.domain.dma_frequency_master_curve_result import (
+    validate_options_against_rows,
 )
 
 _CANONICAL_MEDIA_TYPE = "application/vnd.cmp.test-data+json"
@@ -102,6 +105,8 @@ class ProcessedViscoelasticFitInputRow:
     loss_modulus_pa: float
     partition: PointPartition
     exclusion_reason: str | None
+    source_sweep_ordinal: int | None = None
+    source_ordinal: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,6 +117,7 @@ class ProcessedViscoelasticFitInput:
     response_channels: tuple[ProcessedViscoelasticFitInputChannel, ...]
     reference_temperature_k: Decimal
     rows: tuple[ProcessedViscoelasticFitInputRow, ...]
+    dma_domain_policy: str = "nondecreasing_observations"
 
 
 @dataclass(frozen=True, slots=True)
@@ -530,7 +536,15 @@ class GovernedLinearViscoelasticInputResolver:
                     "its exact revision."
                 ),
             )
-        rows = frequency_master_curve_from_parquet(result_bytes)
+        try:
+            rows = frequency_master_curve_from_parquet(result_bytes)
+            validate_options_against_rows(content.steps[0].options, rows)
+        except DmaProcessingError as error:
+            raise LinearViscoelasticInputError(
+                "Processing Output does not satisfy the exact current DMA result contract",
+                code="INPUT_PROCESSING_OUTPUT_RELOAD_INTEGRITY",
+                recovery_hint="Reload the exact immutable current DMA result Artifact and options.",
+            ) from error
         if len(rows) > 100_000:
             raise LinearViscoelasticInputError(
                 "Processing Output Fit input exceeds the 100000-row read limit",
@@ -541,58 +555,68 @@ class GovernedLinearViscoelasticInputResolver:
                 "Processing Output row count differs from its immutable metadata",
                 code="INPUT_PROCESSING_OUTPUT_ROW_COUNT_MISMATCH",
             )
-        if tuple(row.source_ordinal for row in rows) != tuple(range(len(rows))):
-            raise LinearViscoelasticInputError(
-                "DMA master-curve rows must preserve every source ordinal exactly once",
-                code="INPUT_POINT_PARTITION_INCOMPLETE",
-            )
-        active = tuple(row for row in rows if row.partition is not DmaPartition.EXCLUDED)
         calibration = tuple(row for row in rows if row.partition is DmaPartition.CALIBRATION)
-        if len(calibration) < 3:
+        options = content.steps[0].options
+        input_mode = options.get("input_mode")
+        if input_mode not in {
+            "fixed_frequency_temperature_sweep",
+            "multi_frequency_isotherms",
+        }:
+            raise LinearViscoelasticInputError(
+                "DMA master curve input_mode is unsupported",
+                code="INPUT_PROCESSING_OUTPUT_SCHEMA_UNSUPPORTED",
+            )
+        calibration_observations: list[
+            tuple[float, float, int | None, int, float, float, float]
+        ] = []
+        for row in calibration:
+            reduced = row.reduced_angular_frequency_rad_per_s
+            if reduced is None:
+                raise LinearViscoelasticInputError(
+                    "calibration result row has no reduced frequency values",
+                    code="INPUT_PROCESSING_OUTPUT_RELOAD_INTEGRITY",
+                )
+            for source_ordinal, measured_temperature, coordinate, storage, loss in zip(
+                row.source_ordinals,
+                row.measured_temperature_k,
+                reduced,
+                row.storage_modulus_pa,
+                row.loss_modulus_pa,
+                strict=True,
+            ):
+                calibration_observations.append(
+                    (
+                        float(coordinate),
+                        row.representative_temperature_k,
+                        row.source_sweep_ordinal,
+                        int(source_ordinal),
+                        float(storage),
+                        float(loss),
+                        float(measured_temperature),
+                    )
+                )
+        # This is an observation sequence, not a unique interpolation domain.  Keep
+        # equal reduced frequencies and sort only by the governed stable identity.
+        calibration_observations.sort(
+            key=lambda item: (
+                item[0],
+                item[1],
+                -1 if item[2] is None else item[2],
+                item[3],
+            )
+        )
+        if len(calibration_observations) < 3:
             raise LinearViscoelasticInputError(
                 "DMA master curve requires at least three calibration rows",
                 code="INPUT_CALIBRATION_POINT_COUNT",
             )
-        active_frequencies = tuple(row.reduced_angular_frequency_rad_per_s for row in active)
-        if (
-            any(
-                value is None or not math.isfinite(value) or value <= 0
-                for value in active_frequencies
-            )
-            or len(set(active_frequencies)) != len(active_frequencies)
-            or any(
-                not math.isfinite(row.storage_modulus_pa)
-                or not math.isfinite(row.loss_modulus_pa)
-                or row.storage_modulus_pa <= 0
-                or row.loss_modulus_pa < 0
-                for row in active
-            )
-            or any(
-                row.reduced_angular_frequency_rad_per_s is not None
-                and not math.isfinite(row.reduced_angular_frequency_rad_per_s)
-                for row in rows
-            )
-            or any(
-                not math.isfinite(row.storage_modulus_pa)
-                or not math.isfinite(row.loss_modulus_pa)
-                for row in rows
-            )
-        ):
+        reference = options.get("reference")
+        if not isinstance(reference, dict):
             raise LinearViscoelasticInputError(
-                "DMA master-curve active rows have invalid or duplicate response coordinates",
-                code="INPUT_DOMAIN_INVALID",
-                recovery_hint=(
-                    "Correct or explicitly exclude the affected temperature rows and "
-                    "create a new output."
-                ),
+                "DMA master curve does not serialize its reference evidence",
+                code="INPUT_PROCESSING_OUTPUT_RELOAD_INTEGRITY",
             )
-        shift_law = content.steps[0].options.get("shift_law")
-        if not isinstance(shift_law, dict):
-            raise LinearViscoelasticInputError(
-                "DMA master curve does not serialize its shift law",
-                code="INPUT_SHIFT_POLICY_MISSING",
-            )
-        reference_temperature = shift_law.get("reference_temperature_k")
+        reference_temperature = reference.get("representative_temperature_k")
         try:
             reference_temperature_k = Decimal(str(reference_temperature))
         except Exception as error:
@@ -621,6 +645,13 @@ class GovernedLinearViscoelasticInputResolver:
                 "DMA master curve source Test Data pin is inconsistent",
                 code="INPUT_SOURCE_DIGEST_MISMATCH",
             )
+        if str(snapshot.content.normalized_artifact_id) != str(
+            options.get("source_normalized_artifact_id")
+        ) or snapshot.content.normalized_sha256 != options.get("source_normalized_artifact_sha256"):
+            raise LinearViscoelasticInputError(
+                "DMA master curve normalized source pin is inconsistent",
+                code="INPUT_SOURCE_DIGEST_MISMATCH",
+            )
         source = snapshot.content.governed_source
         if source is None or source.tabular_import is None:
             raise LinearViscoelasticInputError(
@@ -644,7 +675,13 @@ class GovernedLinearViscoelasticInputResolver:
         )
         if (
             profile.revision.record.content_hash != content.governed_import_profile_sha256
-            or profile.revision.content.data_schema is not TabularDataSchema.DMA_TEMPERATURE_SWEEP
+            or profile.revision.content.data_schema
+            != (
+                TabularDataSchema.DMA_TEMPERATURE_SWEEP
+                if input_mode == "fixed_frequency_temperature_sweep"
+                else TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP
+            )
+            or profile.revision.content.schema_version != "1.3.0"
             or profile.revision.content.deformation_mode != "shear"
             or source.tabular_import.import_profile.aggregate_id != profile.profile_id
             or source.tabular_import.import_profile.revision_id
@@ -661,12 +698,8 @@ class GovernedLinearViscoelasticInputResolver:
                 code="INPUT_CLASSIFICATION_MISMATCH",
             )
         dispositions = tuple(
-            PointDisposition(
-                row.source_ordinal,
-                PointPartition(row.partition.value),
-                row.exclusion_reason,
-            )
-            for row in rows
+            PointDisposition(index, PointPartition.CALIBRATION)
+            for index, _ in enumerate(calibration_observations)
         )
         semantics = GovernedViscoelasticInputSemantics(
             mode="dma_frequency_master_curve",
@@ -707,6 +740,7 @@ class GovernedLinearViscoelasticInputResolver:
                 f"{DMA_FREQUENCY_MASTER_CURVE_METHOD_ID}"
                 f"@{DMA_FREQUENCY_MASTER_CURVE_METHOD_VERSION}"
             ),
+            dma_domain_policy="nondecreasing_observations",
         )
         resolved = ResolvedGovernedViscoelasticInput(
             classification=classification,
@@ -765,22 +799,31 @@ class GovernedLinearViscoelasticInputResolver:
                 ProcessedViscoelasticFitInputChannel(
                     "dma_storage", "mechanics.modulus.storage", "Pa"
                 ),
-                ProcessedViscoelasticFitInputChannel(
-                    "dma_loss", "mechanics.modulus.loss", "Pa"
-                ),
+                ProcessedViscoelasticFitInputChannel("dma_loss", "mechanics.modulus.loss", "Pa"),
             ),
             reference_temperature_k=reference_temperature_k,
             rows=tuple(
                 ProcessedViscoelasticFitInputRow(
-                    ordinal=row.source_ordinal,
-                    coordinate=row.reduced_angular_frequency_rad_per_s,
-                    storage_modulus_pa=row.storage_modulus_pa,
-                    loss_modulus_pa=row.loss_modulus_pa,
-                    partition=PointPartition(row.partition.value),
-                    exclusion_reason=row.exclusion_reason,
+                    ordinal=index,
+                    coordinate=coordinate,
+                    storage_modulus_pa=storage,
+                    loss_modulus_pa=loss,
+                    partition=PointPartition.CALIBRATION,
+                    exclusion_reason=None,
+                    source_sweep_ordinal=sweep_ordinal,
+                    source_ordinal=source_ordinal,
                 )
-                for row in rows
+                for index, (
+                    coordinate,
+                    _representative_temperature,
+                    sweep_ordinal,
+                    source_ordinal,
+                    storage,
+                    loss,
+                    _measured_temperature,
+                ) in enumerate(calibration_observations)
             ),
+            dma_domain_policy="nondecreasing_observations",
         )
         return resolved, projection
 
@@ -810,7 +853,10 @@ class GovernedLinearViscoelasticInputResolver:
         if profile_content.data_schema is TabularDataSchema.SHEAR_RELAXATION:
             mode = "relaxation"
             expected = _RELAXATION_SEMANTICS
-        elif profile_content.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP:
+        elif profile_content.data_schema in {
+            TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP,
+            TabularDataSchema.DMA_TEMPERATURE_SWEEP,
+        }:
             if profile_content.deformation_mode != "shear":
                 raise LinearViscoelasticInputError(
                     "governed DMA Import Profile must declare deformation_mode=shear",
@@ -862,6 +908,7 @@ class GovernedLinearViscoelasticInputResolver:
             angular_frequency_conversion=(
                 "omega_rad_per_s=2*pi*frequency_hz" if mode == "dma" else "not_applicable"
             ),
+            dma_domain_policy="strict_unique" if mode == "dma" else None,
         )
         classification = DataClassification(snapshot.current.scope.classification)
         return ResolvedGovernedViscoelasticInput(

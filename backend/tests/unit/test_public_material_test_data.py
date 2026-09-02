@@ -118,8 +118,7 @@ def test_darus_one_hertz_temperature_slice_matches_published_master_curve() -> N
             for ordinal, (row, _, _) in enumerate(selected)
         ),
         tuple(
-            DmaRowDisposition(ordinal, DmaPartition.CALIBRATION)
-            for ordinal in range(len(selected))
+            DmaRowDisposition(ordinal, DmaPartition.CALIBRATION) for ordinal in range(len(selected))
         ),
         TabulatedShiftLaw(
             reference_temperature_k,
@@ -138,13 +137,13 @@ def test_darus_one_hertz_temperature_slice_matches_published_master_curve() -> N
     for actual, (source, shift_factor, published_reduced_omega) in zip(
         result, selected, strict=True
     ):
-        assert actual.source_frequency_hz == 1.0
-        assert actual.storage_modulus_pa == float(source["Storage Modulus"]) * 1_000_000.0
-        assert actual.loss_modulus_pa == float(source["Loss Modulus"]) * 1_000_000.0
+        assert actual.source_frequency_hz[0] == 1.0
+        assert actual.storage_modulus_pa[0] == float(source["Storage Modulus"]) * 1_000_000.0
+        assert actual.loss_modulus_pa[0] == float(source["Loss Modulus"]) * 1_000_000.0
         assert math.isclose(actual.shift_factor or 0.0, float(shift_factor), rel_tol=5e-14)
         # The publication rounds reduced angular frequency to about five significant digits.
         assert math.isclose(
-            actual.reduced_angular_frequency_rad_per_s or 0.0,
+            (actual.reduced_angular_frequency_rad_per_s or (0.0,))[0],
             float(published_reduced_omega),
             rel_tol=5e-5,
         )

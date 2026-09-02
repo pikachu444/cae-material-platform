@@ -866,6 +866,9 @@ def create_app(
         application,
         service=resolved_dma_frequency_master_curve,
         security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
         execute_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),

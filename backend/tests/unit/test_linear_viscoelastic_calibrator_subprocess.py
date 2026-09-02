@@ -259,6 +259,7 @@ def _plan_document(
         "strain_amplitude_unit": "1",
         "frequency_kind": "cyclic_hz",
         "angular_frequency_conversion": "omega_rad_per_s=2*pi*frequency_hz",
+        "dma_domain_policy": "strict_unique",
     }
     term_counts = (1, 2)
     return {

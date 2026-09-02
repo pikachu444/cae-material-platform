@@ -166,6 +166,11 @@ def plan_from_payload(payload: Mapping[str, object]) -> LinearViscoelasticCalibr
             if semantics.get("processing_method") is not None
             else None
         ),
+        dma_domain_policy=(
+            str(semantics["dma_domain_policy"])
+            if semantics.get("dma_domain_policy") is not None
+            else None
+        ),
     )
     return LinearViscoelasticCalibrationPlan(
         plan_id=_as_uuid(payload["plan_id"]),

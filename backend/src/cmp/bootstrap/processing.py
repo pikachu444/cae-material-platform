@@ -21,6 +21,9 @@ from cmp.modules.processing.adapters.persistence.common_outputs import (
 from cmp.modules.processing.adapters.persistence.common_recipes import (
     SqlAlchemyCommonRecipeRepository,
 )
+from cmp.modules.processing.adapters.persistence.dma_provenance import (
+    SqlAlchemyDmaProvenanceWriter,
+)
 from cmp.modules.processing.adapters.persistence.mapping_profiles import (
     SqlAlchemyMappingProfileRepository,
 )
@@ -121,6 +124,10 @@ def build_dma_frequency_master_curve_service(
     ):
         return None
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    dma_provenance = SqlAlchemyDmaProvenanceWriter(
+        session_factory=sessions,
+        rls_context=identity.rls_context,
+    )
     return DmaFrequencyMasterCurveService(
         test_data=test_data,
         governed_imports=governed_imports,
@@ -135,6 +142,7 @@ def build_dma_frequency_master_curve_service(
         ),
         artifacts=artifacts,
         authorization=identity.authorization,
+        dma_provenance_writer=dma_provenance,
     )
 
 

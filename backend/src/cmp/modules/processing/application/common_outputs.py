@@ -756,6 +756,8 @@ class ProcessingOutputRepository(Protocol):
         content: ProcessingOutputContent,
         change_reason: str,
         artifact_created_at: datetime,
+        revision_id: UUID | None = None,
+        post_commit_hook: Callable[[object, ProcessingOutputSnapshot], None] | None = None,
     ) -> ProcessingOutputSnapshot: ...
 
 

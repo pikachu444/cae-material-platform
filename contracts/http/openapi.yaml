@@ -9866,7 +9866,7 @@ paths:
     post:
       operationId: recommendDmaFrequencyMasterCurve
       tags: [processing]
-      summary: Inspect an exact fixed-frequency DMA temperature sweep and return a non-material-specific WLF starting suggestion.
+      summary: Inspect an exact fixed-frequency DMA temperature sweep and return the optional starting-value recommendation.
       security: [{BearerAuth: []}]
       requestBody:
         required: true
@@ -9875,13 +9875,15 @@ paths:
             schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/RecommendationRequest"}
       responses:
         "200": {description: Read-only starting suggestion that still requires engineer confirmation., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/RecommendationResponse"}}}}
+        "403": {description: Processing execution is not authorized.}
         "409": {description: An exact source or profile revision is stale.}
         "422": {description: The sweep has no unique positive interior loss-factor peak.}
+        "503": {description: The source, artifact, or processing service is temporarily unavailable.}
   /api/v1/processing/dma-frequency-master-curves:
     post:
       operationId: createDmaFrequencyMasterCurve
       tags: [processing]
-      summary: Create immutable loss-modulus and horizontal TTS Processing Outputs from governed fixed-frequency DMA.
+      summary: Create one immutable horizontal DMA TTS Processing Output from one current governed DMA input mode.
       security: [{BearerAuth: []}]
       requestBody:
         required: true
@@ -9890,8 +9892,27 @@ paths:
             schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/CreateRequest"}
       responses:
         "201": {description: Exact immutable Processing Output and result Artifact pins., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/CreateResponse"}}}}
+        "403": {description: Processing execution is not authorized.}
         "409": {description: An exact source or profile revision is stale.}
         "422": {description: Quantity, unit, shift law, confirmation, or row decision is invalid.}
+        "503": {description: The artifact, provenance, or processing service is temporarily unavailable.}
+  /api/v1/processing/dma-frequency-master-curves/{output_id}/revisions/{revision_id}:
+    get:
+      operationId: getDmaFrequencyMasterCurveRevision
+      tags: [processing]
+      summary: Reload one exact current DMA TTS Processing Output revision and its ragged result rows.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: output_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: content_sha256, in: query, required: true, schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
+      responses:
+        "200": {description: Exact current DMA TTS Processing Output, options, ragged isotherms, and lineage pins., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/ReadResponse"}}}}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: The named Processing Output is not visible in the tenant.}
+        "409": {description: The revision or content digest is not the exact current immutable revision, or the result Artifact fails reload integrity.}
+        "422": {description: The immutable output is not the current DMA method/schema/media contract.}
+        "503": {description: The DMA read service or immutable Artifact is temporarily unavailable.}
   /api/v1/linear-viscoelastic-calibration-plans:
     post:
       operationId: createLinearViscoelasticCalibrationPlan

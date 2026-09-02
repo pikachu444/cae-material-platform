@@ -1,9 +1,9 @@
-"""Governed fixed-frequency DMA temperature-sweep reduction.
+"""Governed DMA frequency-master-curve domain contracts.
 
-The kernel is deliberately limited to loss-modulus derivation and horizontal
-time-temperature superposition.  It does not interpolate, smooth, resample,
-or fit Prony terms; the existing linear-viscoelastic calibration boundary owns
-the latter operation.
+The fixed-frequency reduction and the canonical result vocabulary live here.  The
+multi-frequency TTS numerical kernel is deliberately kept in
+``dma_multi_frequency_tts`` so that this processing method remains an orchestration
+boundary rather than a fitting monolith.
 """
 
 from __future__ import annotations
@@ -12,12 +12,22 @@ import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from cmp.modules.processing.domain.temperature_shift import (
+    UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K,
+    TemperatureShiftError,
+    arrhenius_log10_shift,
+    validate_manual_shift_table,
+    wlf_log10_shift,
+)
 from cmp.shared.domain.revisions import content_sha256
+
+if TYPE_CHECKING:
+    pass
 
 _write_parquet = cast(Callable[..., None], pq.write_table)
 _read_parquet = cast(Callable[..., pa.Table], pq.read_table)
@@ -34,7 +44,15 @@ DMA_FREQUENCY_MASTER_CURVE_PARQUET_SCHEMA_ID = (
     "urn:cmp:processing:dma-frequency-master-curve-parquet:1.0.0"
 )
 PARQUET_MEDIA_TYPE = "application/vnd.apache.parquet"
-UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K = 8.31446261815324
+
+DMA_TTS_SCORER_ID = "cmp.dma_tts.common_log_frequency_grid_log_modulus_mse@1.0.0"
+DMA_TTS_ADJACENT_OPTIMIZER_ID = "cmp.dma_tts.adjacent_overlap_log_mse.scipy_bounded@1.0.0"
+DMA_TTS_LAW_OPTIMIZER_ID = "cmp.dma_tts.shift_law_log10_least_squares.scipy_trf@1.0.0"
+DMA_TTS_WARNINGS = (
+    "DMA_TTS_LVR_EVIDENCE_MISSING",
+    "DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING",
+    "DMA_TTS_PRECONDITIONING_EVIDENCE_MISSING",
+)
 
 DMA_LOSS_MODULUS_COLUMNS = (
     "source_ordinal",
@@ -44,18 +62,48 @@ DMA_LOSS_MODULUS_COLUMNS = (
     "tan_delta",
     "loss_modulus_pa",
 )
+
+# This is the only DMA frequency-master-curve result shape.  It is intentionally
+# ragged: one result row represents one fixed point or one complete source sweep.
 DMA_FREQUENCY_MASTER_CURVE_COLUMNS = (
-    "source_ordinal",
-    "temperature_k",
+    "input_mode",
+    "source_sweep_ordinal",
+    "representative_temperature_k",
+    "partition",
+    "is_reference",
+    "exclusion_reason",
+    "holdout_evaluation_status",
+    "source_ordinals",
+    "measured_temperature_k",
     "source_frequency_hz",
     "angular_frequency_rad_per_s",
-    "log10_a_t",
-    "shift_factor",
-    "reduced_angular_frequency_rad_per_s",
     "storage_modulus_pa",
     "loss_modulus_pa",
-    "partition",
-    "exclusion_reason",
+    "source_tan_delta",
+    "loss_modulus_origin",
+    "reduced_angular_frequency_rad_per_s",
+    "raw_angular_frequency_min_rad_per_s",
+    "raw_angular_frequency_max_rad_per_s",
+    "shifted_angular_frequency_min_rad_per_s",
+    "shifted_angular_frequency_max_rad_per_s",
+    "comparison_sweep_ordinal",
+    "observed_log10_a_t",
+    "applied_log10_a_t",
+    "shift_factor",
+    "shift_residual_log10_a_t",
+    "overlap_log10_reduced_angular_frequency_min",
+    "overlap_log10_reduced_angular_frequency_max",
+    "scoring_point_count",
+    "storage_mse",
+    "loss_mse",
+    "storage_rmse",
+    "loss_rmse",
+    "weighted_mse",
+    "adjacent_success",
+    "adjacent_status",
+    "adjacent_iterations",
+    "adjacent_evaluations",
+    "adjacent_objective",
 )
 
 
@@ -71,6 +119,11 @@ class DmaProcessingError(ValueError):
 
 def _fail(number: int, cause: str, recovery: str) -> DmaProcessingError:
     return DmaProcessingError(f"CMP-PROCESSING-{number}", cause, recovery)
+
+
+class DmaInputMode(StrEnum):
+    FIXED_FREQUENCY_TEMPERATURE_SWEEP = "fixed_frequency_temperature_sweep"
+    MULTI_FREQUENCY_ISOTHERMS = "multi_frequency_isotherms"
 
 
 class DmaPartition(StrEnum):
@@ -89,7 +142,11 @@ class DmaTemperatureSweepRow:
     tan_delta: float | None = None
 
     def __post_init__(self) -> None:
-        if self.source_ordinal < 0:
+        if (
+            isinstance(self.source_ordinal, bool)
+            or self.source_ordinal < 0
+            or self.source_ordinal > 9_223_372_036_854_775_807
+        ):
             raise _fail(
                 4304, "source ordinal is negative", "Preserve a nonnegative source row ordinal."
             )
@@ -146,7 +203,7 @@ class DmaRowDisposition:
     exclusion_reason: str | None = None
 
     def __post_init__(self) -> None:
-        if self.source_ordinal < 0:
+        if isinstance(self.source_ordinal, bool) or self.source_ordinal < 0:
             raise _fail(
                 4304,
                 "disposition source ordinal is negative",
@@ -172,44 +229,21 @@ class TabulatedShiftLaw:
     kind: str = "tabulated"
 
     def __post_init__(self) -> None:
-        if not math.isfinite(self.reference_temperature_k) or self.reference_temperature_k <= 0:
+        try:
+            validate_manual_shift_table(
+                self.log10_a_t_by_temperature_k,
+                reference_temperature_k=self.reference_temperature_k,
+                required_temperatures=tuple(item[0] for item in self.log10_a_t_by_temperature_k),
+            )
+        except TemperatureShiftError as error:
             raise _fail(
                 4305,
-                "tabulated shift reference temperature is invalid",
-                "Provide the positive reference temperature used by the shift-factor table.",
-            )
-        if not self.log10_a_t_by_temperature_k:
-            raise _fail(
-                4305,
-                "tabulated shift factors are empty",
-                "Provide one log10(aT) value for every included temperature.",
-            )
-        temperatures = [item[0] for item in self.log10_a_t_by_temperature_k]
-        if len(set(temperatures)) != len(temperatures):
-            raise _fail(
-                4305,
-                "tabulated shift temperatures are duplicated",
-                "Provide exactly one factor per included temperature.",
-            )
-        if any(
-            not math.isfinite(t) or t <= 0 or not math.isfinite(a)
-            for t, a in self.log10_a_t_by_temperature_k
-        ):
-            raise _fail(
-                4305,
-                "tabulated shift factors are invalid",
-                "Correct the temperature or log10(aT) values.",
-            )
-        by_temperature = dict(self.log10_a_t_by_temperature_k)
-        if (
-            self.reference_temperature_k not in by_temperature
-            or by_temperature[self.reference_temperature_k] != 0.0
-        ):
-            raise _fail(
-                4305,
-                "tabulated shift factors do not define log10(aT)=0 at the reference temperature",
-                "Include the reference temperature with an exact zero log10 shift factor.",
-            )
+                f"tabulated shift factors are invalid: {error}",
+                (
+                    "Provide finite unique temperatures and an exact zero at the "
+                    "reference temperature."
+                ),
+            ) from error
 
 
 @dataclass(frozen=True, slots=True)
@@ -220,19 +254,16 @@ class WlfShiftLaw:
     kind: str = "wlf"
 
     def __post_init__(self) -> None:
-        if (
-            not math.isfinite(self.reference_temperature_k)
-            or self.reference_temperature_k <= 0
-            or not math.isfinite(self.c1)
-            or self.c1 <= 0
-            or not math.isfinite(self.c2_k)
-            or self.c2_k <= 0
-        ):
+        try:
+            wlf_log10_shift(
+                self.reference_temperature_k, self.reference_temperature_k, self.c1, self.c2_k
+            )
+        except TemperatureShiftError as error:
             raise _fail(
                 4306,
-                "WLF settings are invalid",
+                f"WLF settings are invalid: {error}",
                 "Provide positive finite Tref, C1, and C2 in Kelvin.",
-            )
+            ) from error
 
 
 @dataclass(frozen=True, slots=True)
@@ -243,19 +274,22 @@ class ArrheniusShiftLaw:
     kind: str = "arrhenius"
 
     def __post_init__(self) -> None:
-        if (
-            not math.isfinite(self.reference_temperature_k)
-            or self.reference_temperature_k <= 0
-            or not math.isfinite(self.activation_energy_j_per_mol)
-            or self.activation_energy_j_per_mol <= 0
-            or self.gas_constant_j_per_mol_k != UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K
-        ):
+        try:
+            arrhenius_log10_shift(
+                self.reference_temperature_k,
+                self.reference_temperature_k,
+                self.activation_energy_j_per_mol,
+                self.gas_constant_j_per_mol_k,
+            )
+        except TemperatureShiftError as error:
             raise _fail(
                 4308,
-                "Arrhenius settings are missing or invalid",
-                "Provide positive finite Tref and activation energy with the declared "
-                "gas constant.",
-            )
+                f"Arrhenius settings are invalid: {error}",
+                (
+                    "Provide positive finite Tref and activation energy with the "
+                    "declared gas constant."
+                ),
+            ) from error
 
 
 DmaShiftLaw = TabulatedShiftLaw | WlfShiftLaw | ArrheniusShiftLaw
@@ -302,20 +336,475 @@ class DmaLossModulusRow:
 
 @dataclass(frozen=True, slots=True)
 class DmaFrequencyMasterCurveRow:
-    source_ordinal: int
-    temperature_k: float
-    source_frequency_hz: float
-    angular_frequency_rad_per_s: float
-    log10_a_t: float | None
-    shift_factor: float | None
-    reduced_angular_frequency_rad_per_s: float | None
-    storage_modulus_pa: float
-    loss_modulus_pa: float
+    """One row of the sole canonical ragged DMA result."""
+
+    input_mode: str
+    source_sweep_ordinal: int | None
+    representative_temperature_k: float
     partition: DmaPartition
+    is_reference: bool
     exclusion_reason: str | None
+    holdout_evaluation_status: str | None
+    source_ordinals: tuple[int, ...]
+    measured_temperature_k: tuple[float, ...]
+    source_frequency_hz: tuple[float, ...]
+    angular_frequency_rad_per_s: tuple[float, ...]
+    storage_modulus_pa: tuple[float, ...]
+    loss_modulus_pa: tuple[float, ...]
+    reduced_angular_frequency_rad_per_s: tuple[float, ...] | None
+    raw_angular_frequency_min_rad_per_s: float
+    raw_angular_frequency_max_rad_per_s: float
+    shifted_angular_frequency_min_rad_per_s: float | None
+    shifted_angular_frequency_max_rad_per_s: float | None
+    comparison_sweep_ordinal: int | None
+    observed_log10_a_t: float | None
+    applied_log10_a_t: float | None
+    shift_factor: float | None
+    shift_residual_log10_a_t: float | None
+    overlap_log10_reduced_angular_frequency_min: float | None
+    overlap_log10_reduced_angular_frequency_max: float | None
+    scoring_point_count: int | None
+    storage_mse: float | None
+    loss_mse: float | None
+    storage_rmse: float | None
+    loss_rmse: float | None
+    weighted_mse: float | None
+    adjacent_success: bool | None
+    adjacent_status: int | None
+    adjacent_iterations: int | None
+    adjacent_evaluations: int | None
+    adjacent_objective: float | None
+    source_tan_delta: tuple[float | None, ...]
+    loss_modulus_origin: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if self.input_mode not in {item.value for item in DmaInputMode}:
+            raise _fail(
+                4317,
+                "result input_mode is unsupported",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            not math.isfinite(self.representative_temperature_k)
+            or self.representative_temperature_k <= 0
+        ):
+            raise _fail(
+                4317,
+                "result representative temperature is invalid",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if self.input_mode == DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value:
+            if (
+                self.source_sweep_ordinal is None
+                or isinstance(self.source_sweep_ordinal, bool)
+                or not 1 <= self.source_sweep_ordinal <= 9_223_372_036_854_775_807
+            ):
+                raise _fail(
+                    4317,
+                    "result source sweep ordinal is invalid",
+                    "Reload the exact current DMA result Artifact.",
+                )
+        elif self.source_sweep_ordinal is not None:
+            raise _fail(
+                4317,
+                "fixed result row carries a source sweep identity",
+                "Reload the exact current DMA result Artifact.",
+            )
+        lengths = {
+            len(self.source_ordinals),
+            len(self.measured_temperature_k),
+            len(self.source_frequency_hz),
+            len(self.angular_frequency_rad_per_s),
+            len(self.storage_modulus_pa),
+            len(self.loss_modulus_pa),
+        }
+        if len(lengths) != 1 or not next(iter(lengths), 0):
+            raise _fail(
+                4317,
+                "result raw lists are empty or have unequal lengths",
+                "Reload the exact current DMA result Artifact.",
+            )
+        point_count = len(self.source_ordinals)
+        tan_delta = self.source_tan_delta
+        loss_origin = self.loss_modulus_origin
+        if len(tan_delta) != point_count or len(loss_origin) != point_count:
+            raise _fail(
+                4317,
+                "result loss evidence arrays have unequal lengths",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if any(origin not in {"measured", "derived_from_tan_delta"} for origin in loss_origin):
+            raise _fail(
+                4317,
+                "result loss-modulus origin is unsupported",
+                "Reload the exact current DMA result Artifact.",
+            )
+        for storage, loss, tan, origin in zip(
+            self.storage_modulus_pa, self.loss_modulus_pa, tan_delta, loss_origin, strict=True
+        ):
+            if origin == "measured" and tan is not None:
+                raise _fail(
+                    4317,
+                    "measured loss rows must not persist tan delta",
+                    "Reload the exact DMA result Artifact.",
+                )
+            if origin == "derived_from_tan_delta" and (
+                tan is None
+                or not math.isfinite(tan)
+                or not math.isclose(loss, storage * tan, rel_tol=1e-12, abs_tol=1e-12)
+            ):
+                raise _fail(
+                    4317,
+                    "derived loss evidence does not match storage modulus and tan delta",
+                    "Reload the exact DMA result Artifact.",
+                )
+        if (
+            self.input_mode == DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value
+            and len(self.source_ordinals) != 1
+        ):
+            raise _fail(
+                4317,
+                "fixed result row is not a one-point ragged row",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            any(
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or value < 0
+                or value > 9_223_372_036_854_775_807
+                for value in self.source_ordinals
+            )
+            or tuple(sorted(self.source_ordinals)) != self.source_ordinals
+            or len(set(self.source_ordinals)) != len(self.source_ordinals)
+        ):
+            raise _fail(
+                4317,
+                "result source ordinals are not canonical",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if any(
+            not math.isfinite(value) or value <= 0
+            for value in self.measured_temperature_k
+            + self.source_frequency_hz
+            + self.angular_frequency_rad_per_s
+            + self.storage_modulus_pa
+        ):
+            raise _fail(
+                4317,
+                "result raw values are not finite and positive",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if any(not math.isfinite(value) for value in self.loss_modulus_pa):
+            raise _fail(
+                4317,
+                "result loss-modulus values are not finite",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if self.input_mode == DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value and any(
+            value <= 0 for value in self.loss_modulus_pa
+        ):
+            raise _fail(
+                4317,
+                "multi-frequency loss-modulus values are not positive",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if self.input_mode == DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value and any(
+            origin != "measured" or tan is not None
+            for origin, tan in zip(loss_origin, tan_delta, strict=True)
+        ):
+            raise _fail(
+                4317,
+                "multi-frequency loss evidence is not measured-only",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            self.input_mode == DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value
+            and self.partition is not DmaPartition.EXCLUDED
+            and any(value <= 0 for value in self.loss_modulus_pa)
+        ):
+            raise _fail(
+                4317,
+                "included fixed loss-modulus values are not positive",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            self.input_mode == DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value
+            and self.representative_temperature_k != self.measured_temperature_k[0]
+        ):
+            raise _fail(
+                4317,
+                "fixed representative and measured temperatures differ",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            not math.isfinite(self.raw_angular_frequency_min_rad_per_s)
+            or not math.isfinite(self.raw_angular_frequency_max_rad_per_s)
+            or self.raw_angular_frequency_min_rad_per_s <= 0
+            or self.raw_angular_frequency_max_rad_per_s < self.raw_angular_frequency_min_rad_per_s
+            or self.raw_angular_frequency_min_rad_per_s != min(self.angular_frequency_rad_per_s)
+            or self.raw_angular_frequency_max_rad_per_s != max(self.angular_frequency_rad_per_s)
+        ):
+            raise _fail(
+                4317,
+                "result raw frequency bounds are inconsistent",
+                "Reload the exact current DMA result Artifact.",
+            )
+        derived = (
+            self.reduced_angular_frequency_rad_per_s,
+            self.shifted_angular_frequency_min_rad_per_s,
+            self.shifted_angular_frequency_max_rad_per_s,
+            self.comparison_sweep_ordinal,
+            self.observed_log10_a_t,
+            self.applied_log10_a_t,
+            self.shift_factor,
+            self.shift_residual_log10_a_t,
+            self.overlap_log10_reduced_angular_frequency_min,
+            self.overlap_log10_reduced_angular_frequency_max,
+            self.scoring_point_count,
+            self.storage_mse,
+            self.loss_mse,
+            self.storage_rmse,
+            self.loss_rmse,
+            self.weighted_mse,
+            self.adjacent_success,
+            self.adjacent_status,
+            self.adjacent_iterations,
+            self.adjacent_evaluations,
+            self.adjacent_objective,
+        )
+        if self.partition is DmaPartition.EXCLUDED:
+            if (
+                self.exclusion_reason is None
+                or not self.exclusion_reason.strip()
+                or self.is_reference
+                or any(value is not None for value in (self.holdout_evaluation_status, *derived))
+            ):
+                raise _fail(
+                    4317,
+                    "excluded result row contains derived evidence",
+                    "Reload the exact current DMA result Artifact.",
+                )
+            return
+        if self.exclusion_reason is not None or self.reduced_angular_frequency_rad_per_s is None:
+            raise _fail(
+                4317,
+                "included result row has an invalid null pattern",
+                "Reload the exact current DMA result Artifact.",
+            )
+        reduced = self.reduced_angular_frequency_rad_per_s
+        if len(reduced) != len(self.source_ordinals) or any(
+            not math.isfinite(value) or value <= 0 for value in reduced
+        ):
+            raise _fail(
+                4317,
+                "result reduced-frequency list is invalid",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            self.applied_log10_a_t is None
+            or self.shift_factor is None
+            or not math.isfinite(self.applied_log10_a_t)
+            or not math.isfinite(self.shift_factor)
+            or self.shift_factor <= 0
+        ):
+            raise _fail(
+                4317,
+                "included result shift is invalid",
+                "Reload the exact current DMA result Artifact.",
+            )
+        try:
+            expected_factor = 10.0**self.applied_log10_a_t
+        except OverflowError as error:
+            raise _fail(
+                4317,
+                "result shift factor overflows",
+                "Reload the exact current DMA result Artifact.",
+            ) from error
+        if not math.isclose(
+            self.shift_factor, expected_factor, rel_tol=1e-12, abs_tol=1e-12
+        ) or any(
+            not math.isclose(value, omega * self.shift_factor, rel_tol=1e-12, abs_tol=1e-12)
+            for value, omega in zip(reduced, self.angular_frequency_rad_per_s, strict=True)
+        ):
+            raise _fail(
+                4317,
+                "result reduced frequencies do not match horizontal shifting",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if (
+            self.shifted_angular_frequency_min_rad_per_s is None
+            or self.shifted_angular_frequency_max_rad_per_s is None
+            or self.shifted_angular_frequency_min_rad_per_s != min(reduced)
+            or self.shifted_angular_frequency_max_rad_per_s != max(reduced)
+        ):
+            raise _fail(
+                4317,
+                "result shifted frequency bounds are inconsistent",
+                "Reload the exact current DMA result Artifact.",
+            )
+        if self.is_reference:
+            if (
+                self.partition is not DmaPartition.CALIBRATION
+                or self.observed_log10_a_t != 0.0
+                or self.applied_log10_a_t != 0.0
+                or self.shift_factor != 1.0
+                or self.shift_residual_log10_a_t != 0.0
+                or any(
+                    value is not None
+                    for value in (
+                        self.comparison_sweep_ordinal,
+                        self.overlap_log10_reduced_angular_frequency_min,
+                        self.overlap_log10_reduced_angular_frequency_max,
+                        self.scoring_point_count,
+                        self.storage_mse,
+                        self.loss_mse,
+                        self.storage_rmse,
+                        self.loss_rmse,
+                        self.weighted_mse,
+                        self.adjacent_success,
+                        self.adjacent_status,
+                        self.adjacent_iterations,
+                        self.adjacent_evaluations,
+                        self.adjacent_objective,
+                    )
+                )
+            ):
+                raise _fail(
+                    4317,
+                    "reference result row is inconsistent",
+                    "Reload the exact current DMA result Artifact.",
+                )
+            return
+        if self.input_mode == DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value:
+            if self.holdout_evaluation_status != (
+                "not_applicable_no_curve_overlap"
+                if self.partition is DmaPartition.HOLDOUT
+                else None
+            ) or any(
+                value is not None
+                for value in (
+                    self.comparison_sweep_ordinal,
+                    self.observed_log10_a_t,
+                    self.shift_residual_log10_a_t,
+                    self.overlap_log10_reduced_angular_frequency_min,
+                    self.overlap_log10_reduced_angular_frequency_max,
+                    self.scoring_point_count,
+                    self.storage_mse,
+                    self.loss_mse,
+                    self.storage_rmse,
+                    self.loss_rmse,
+                    self.weighted_mse,
+                    self.adjacent_success,
+                    self.adjacent_status,
+                    self.adjacent_iterations,
+                    self.adjacent_evaluations,
+                    self.adjacent_objective,
+                )
+            ):
+                raise _fail(
+                    4317,
+                    "fixed result row contains multi-frequency evidence",
+                    "Reload the exact current DMA result Artifact.",
+                )
+            return
+        if self.partition is DmaPartition.CALIBRATION:
+            required = (
+                self.comparison_sweep_ordinal,
+                self.observed_log10_a_t,
+                self.shift_residual_log10_a_t,
+                self.overlap_log10_reduced_angular_frequency_min,
+                self.overlap_log10_reduced_angular_frequency_max,
+                self.scoring_point_count,
+                self.storage_mse,
+                self.loss_mse,
+                self.storage_rmse,
+                self.loss_rmse,
+                self.weighted_mse,
+                self.adjacent_success,
+                self.adjacent_status,
+                self.adjacent_iterations,
+                self.adjacent_evaluations,
+                self.adjacent_objective,
+            )
+            if (
+                any(value is None for value in required)
+                or self.holdout_evaluation_status is not None
+            ):
+                raise _fail(
+                    4317,
+                    "calibration result row has an incomplete evidence pattern",
+                    "Reload the exact current DMA result Artifact.",
+                )
+        elif self.partition is DmaPartition.HOLDOUT:
+            required = (
+                self.holdout_evaluation_status,
+                self.comparison_sweep_ordinal,
+                self.overlap_log10_reduced_angular_frequency_min,
+                self.overlap_log10_reduced_angular_frequency_max,
+                self.scoring_point_count,
+                self.storage_mse,
+                self.loss_mse,
+                self.storage_rmse,
+                self.loss_rmse,
+                self.weighted_mse,
+            )
+            if (
+                any(value is None for value in required)
+                or self.holdout_evaluation_status != "evaluated"
+                or any(
+                    value is not None
+                    for value in (
+                        self.observed_log10_a_t,
+                        self.shift_residual_log10_a_t,
+                        self.adjacent_success,
+                        self.adjacent_status,
+                        self.adjacent_iterations,
+                        self.adjacent_evaluations,
+                        self.adjacent_objective,
+                    )
+                )
+            ):
+                raise _fail(
+                    4317,
+                    "holdout result row has an incomplete evidence pattern",
+                    "Reload the exact current DMA result Artifact.",
+                )
+        else:
+            raise _fail(
+                4317,
+                "included result row has an unsupported partition",
+                "Reload the exact current DMA result Artifact.",
+            )
 
 
-def _validate_rows(rows: Sequence[DmaTemperatureSweepRow]) -> tuple[DmaTemperatureSweepRow, ...]:
+@dataclass(frozen=True, slots=True)
+class DmaFrequencyMasterCurveBuildResult:
+    rows: tuple[DmaFrequencyMasterCurveRow, ...]
+    input_mode: str
+    reference_sweep_ordinal: int | None
+    reference_temperature_k: float
+    shift_law: dict[str, object]
+    scoring: dict[str, object] | None
+    adjacent_optimizer: dict[str, object] | None
+    law_optimizer: dict[str, object] | None
+    residual_summary: dict[str, object] | None
+    application_intervals: tuple[dict[str, object], ...]
+    application_range: dict[str, object] | None = None
+
+    def __iter__(self):
+        return iter(self.rows)
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+    def __getitem__(self, index: int) -> DmaFrequencyMasterCurveRow:
+        return self.rows[index]
+
+
+def _validate_fixed_rows(
+    rows: Sequence[DmaTemperatureSweepRow],
+) -> tuple[DmaTemperatureSweepRow, ...]:
     frozen = tuple(rows)
     if len(frozen) < 2:
         raise _fail(
@@ -323,22 +812,70 @@ def _validate_rows(rows: Sequence[DmaTemperatureSweepRow]) -> tuple[DmaTemperatu
             "DMA temperature sweep has fewer than two rows",
             "Import at least two temperature observations.",
         )
-    if len({row.source_ordinal for row in frozen}) != len(frozen):
+    if tuple(row.source_ordinal for row in frozen) != tuple(range(len(frozen))):
         raise _fail(
-            4304, "source ordinals are duplicated", "Preserve each source row exactly once."
+            4304,
+            "source row ordinals are not canonical zero-based ordinals",
+            "Preserve source row order and assign ordinals from zero.",
         )
-    frequencies = {row.frequency_hz for row in frozen}
-    if len(frequencies) != 1:
+    if len({row.frequency_hz for row in frozen}) != 1:
         raise _fail(
             4304,
             "cyclic frequency is not constant",
-            "Split the data by exact cyclic frequency before TTS.",
+            "Split the data by exact cyclic frequency before fixed-frequency TTS.",
         )
     return frozen
 
 
+def _validate_fixed_loss_evidence(
+    rows: Sequence[DmaTemperatureSweepRow],
+) -> bool:
+    """Validate the one complete fixed-frequency loss evidence mode.
+
+    Returns whether the result is measured-loss authoritative.  A complete
+    measured loss channel wins over a complete, agreeing tan-delta channel;
+    partial channels and disagreement are source-contract failures.
+    """
+
+    frozen = tuple(rows)
+    loss_present = tuple(row.loss_modulus_pa is not None for row in frozen)
+    tan_present = tuple(row.tan_delta is not None for row in frozen)
+    if len(set(loss_present)) != 1 or len(set(tan_present)) != 1:
+        raise _fail(
+            4312,
+            "fixed DMA loss evidence is incomplete or mixed",
+            "Provide one complete measured loss channel or one complete tan-delta channel.",
+        )
+    if not loss_present[0] and not tan_present[0]:
+        raise _fail(
+            4312,
+            "fixed DMA has no complete loss evidence channel",
+            "Provide measured loss modulus or tan delta for every source row.",
+        )
+    if loss_present[0] and tan_present[0]:
+        assert all(row.loss_modulus_pa is not None and row.tan_delta is not None for row in frozen)
+        if any(
+            not math.isclose(
+                row.loss_modulus_pa,
+                row.storage_modulus_pa * row.tan_delta,
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            )
+            for row in frozen
+        ):
+            raise _fail(
+                4312,
+                "fixed measured loss modulus conflicts with tan delta",
+                (
+                    "Correct the loss/tan-delta source channels or create a corrected "
+                    "immutable Test Data revision."
+                ),
+            )
+    return loss_present[0]
+
+
 def derive_loss_modulus(rows: Sequence[DmaTemperatureSweepRow]) -> tuple[DmaLossModulusRow, ...]:
-    frozen = _validate_rows(rows)
+    frozen = _validate_fixed_rows(rows)
     output: list[DmaLossModulusRow] = []
     for row in frozen:
         if row.tan_delta is None:
@@ -349,24 +886,24 @@ def derive_loss_modulus(rows: Sequence[DmaTemperatureSweepRow]) -> tuple[DmaLoss
             )
         output.append(
             DmaLossModulusRow(
-                source_ordinal=row.source_ordinal,
-                temperature_k=row.temperature_k,
-                frequency_hz=row.frequency_hz,
-                storage_modulus_pa=row.storage_modulus_pa,
-                tan_delta=row.tan_delta,
-                loss_modulus_pa=row.storage_modulus_pa * row.tan_delta,
+                row.source_ordinal,
+                row.temperature_k,
+                row.frequency_hz,
+                row.storage_modulus_pa,
+                row.tan_delta,
+                row.storage_modulus_pa * row.tan_delta,
             )
         )
     return tuple(output)
 
 
 def recommend_wlf_starting_values(
-    rows: Sequence[DmaTemperatureSweepRow],
-    *,
-    source_evidence: Mapping[str, object],
+    rows: Sequence[DmaTemperatureSweepRow], *, source_evidence: Mapping[str, object]
 ) -> DmaWlfStartingSuggestion:
     frozen = tuple(
-        sorted(_validate_rows(rows), key=lambda item: (item.temperature_k, item.source_ordinal))
+        sorted(
+            _validate_fixed_rows(rows), key=lambda item: (item.temperature_k, item.source_ordinal)
+        )
     )
     positive = tuple(
         (row.loss_factor, index, row) for index, row in enumerate(frozen) if row.loss_factor > 0
@@ -405,31 +942,31 @@ def recommend_wlf_starting_values(
         "rule_version": DMA_WLF_STARTING_SUGGESTION_RULE_VERSION,
     }
     return DmaWlfStartingSuggestion(
-        source_evidence=dict(source_evidence),
-        reference_temperature_k=row.temperature_k,
-        source_ordinal=row.source_ordinal,
-        c1=17.44,
-        c2_k=51.6,
-        value_origin="generic_wlf_at_tg_starting_suggestion",
-        material_specific=False,
-        requires_confirmation=True,
-        rule_id=DMA_WLF_STARTING_SUGGESTION_RULE_ID,
-        rule_version=DMA_WLF_STARTING_SUGGESTION_RULE_VERSION,
-        recommendation_sha256=content_sha256(canonical),
+        dict(source_evidence),
+        row.temperature_k,
+        row.source_ordinal,
+        17.44,
+        51.6,
+        "generic_wlf_at_tg_starting_suggestion",
+        False,
+        True,
+        DMA_WLF_STARTING_SUGGESTION_RULE_ID,
+        DMA_WLF_STARTING_SUGGESTION_RULE_VERSION,
+        content_sha256(canonical),
     )
 
 
-def _dispositions_by_ordinal(
-    rows: tuple[DmaTemperatureSweepRow, ...],
-    dispositions: Sequence[DmaRowDisposition],
+def _fixed_dispositions(
+    rows: tuple[DmaTemperatureSweepRow, ...], dispositions: Sequence[DmaRowDisposition]
 ) -> dict[int, DmaRowDisposition]:
     by_ordinal = {item.source_ordinal: item for item in dispositions}
-    expected = {row.source_ordinal for row in rows}
-    if len(by_ordinal) != len(dispositions) or set(by_ordinal) != expected:
+    if len(by_ordinal) != len(dispositions) or set(by_ordinal) != {
+        row.source_ordinal for row in rows
+    }:
         raise _fail(
             4304,
             "row dispositions do not cover source rows exactly once",
-            "Provide one CALIBRATION, HOLDOUT, or EXCLUDED decision for every source ordinal.",
+            "Provide one decision for every canonical zero-based source ordinal.",
         )
     if not any(item.partition is DmaPartition.CALIBRATION for item in by_ordinal.values()):
         raise _fail(
@@ -438,25 +975,64 @@ def _dispositions_by_ordinal(
     return by_ordinal
 
 
-def _log10_shift(law: DmaShiftLaw, temperature_k: float) -> float:
+def _fixed_shift(law: DmaShiftLaw, temperature_k: float) -> float:
     if isinstance(law, TabulatedShiftLaw):
-        return dict(law.log10_a_t_by_temperature_k)[temperature_k]
+        try:
+            return dict(law.log10_a_t_by_temperature_k)[temperature_k]
+        except KeyError as error:
+            raise _fail(
+                4305,
+                "tabulated shift is missing a required temperature",
+                "Provide one exact shift for every nonexcluded temperature.",
+            ) from error
     if temperature_k == law.reference_temperature_k:
         return 0.0
+    try:
+        if isinstance(law, WlfShiftLaw):
+            return wlf_log10_shift(temperature_k, law.reference_temperature_k, law.c1, law.c2_k)
+        return arrhenius_log10_shift(
+            temperature_k,
+            law.reference_temperature_k,
+            law.activation_energy_j_per_mol,
+            law.gas_constant_j_per_mol_k,
+        )
+    except TemperatureShiftError as error:
+        raise _fail(
+            4307,
+            f"temperature shift is outside the governed domain: {error}",
+            (
+                "Exclude the row or use shift settings whose domain is safe for "
+                "every included temperature."
+            ),
+        ) from error
+
+
+def _fixed_canonical_law(law: DmaShiftLaw) -> dict[str, object]:
+    if isinstance(law, TabulatedShiftLaw):
+        return {
+            "kind": "manual_tabulated",
+            "reference_temperature_k": law.reference_temperature_k,
+            "parameter_source": "supplied",
+            "manual_table": [
+                {"temperature_k": temperature, "log10_a_t": shift}
+                for temperature, shift in law.log10_a_t_by_temperature_k
+            ],
+        }
     if isinstance(law, WlfShiftLaw):
-        denominator = law.c2_k + temperature_k - law.reference_temperature_k
-        if temperature_k <= law.reference_temperature_k - law.c2_k or denominator <= 0:
-            raise _fail(
-                4307,
-                "a WLF row is on or below the singular-domain boundary",
-                "Exclude the row or use settings whose domain satisfies T > Tref - C2.",
-            )
-        return -law.c1 * (temperature_k - law.reference_temperature_k) / denominator
-    return (
-        law.activation_energy_j_per_mol
-        / (math.log(10.0) * law.gas_constant_j_per_mol_k)
-        * (1.0 / temperature_k - 1.0 / law.reference_temperature_k)
-    )
+        return {
+            "kind": "wlf",
+            "reference_temperature_k": law.reference_temperature_k,
+            "parameter_source": "supplied",
+            "c1": law.c1,
+            "c2_k": law.c2_k,
+        }
+    return {
+        "kind": "arrhenius",
+        "reference_temperature_k": law.reference_temperature_k,
+        "parameter_source": "supplied",
+        "activation_energy_j_per_mol": law.activation_energy_j_per_mol,
+        "gas_constant_j_per_mol_k": law.gas_constant_j_per_mol_k,
+    }
 
 
 def build_frequency_master_curve(
@@ -467,57 +1043,103 @@ def build_frequency_master_curve(
     confirmed: bool,
     confirmation_reason: str,
 ) -> tuple[DmaFrequencyMasterCurveRow, ...]:
-    frozen = _validate_rows(rows)
+    frozen = _validate_fixed_rows(rows)
+    measured_loss = _validate_fixed_loss_evidence(frozen)
     if not confirmed or not confirmation_reason.strip():
         raise _fail(
             4306,
             "temperature-shift settings are not explicitly confirmed",
             "Confirm the settings and record the engineering reason before creating a TTS output.",
         )
-    by_ordinal = _dispositions_by_ordinal(frozen, dispositions)
-    included_temperatures = {
-        row.temperature_k
+    by_ordinal = _fixed_dispositions(frozen, dispositions)
+    included = tuple(
+        row
         for row in frozen
         if by_ordinal[row.source_ordinal].partition is not DmaPartition.EXCLUDED
-    }
-    if isinstance(shift_law, TabulatedShiftLaw):
-        provided = {item[0] for item in shift_law.log10_a_t_by_temperature_k}
-        if provided != included_temperatures:
-            raise _fail(
-                4305,
-                "tabulated shift factors do not cover included temperatures exactly",
-                "Provide one log10(aT) for every included unique temperature and no extras.",
-            )
-
+    )
+    reference_matches = tuple(
+        row
+        for row in included
+        if row.temperature_k == shift_law.reference_temperature_k
+        and by_ordinal[row.source_ordinal].partition is DmaPartition.CALIBRATION
+    )
+    duplicate_reference = tuple(
+        row for row in included if row.temperature_k == shift_law.reference_temperature_k
+    )
+    if len(reference_matches) != 1 or len(duplicate_reference) != 1:
+        raise _fail(
+            4316,
+            "reference temperature does not identify exactly one nonexcluded calibration row",
+            (
+                "Use the exact temperature of one calibration row and remove "
+                "duplicate included reference temperatures."
+            ),
+        )
+    if isinstance(shift_law, TabulatedShiftLaw) and {
+        item[0] for item in shift_law.log10_a_t_by_temperature_k
+    } != {row.temperature_k for row in included}:
+        raise _fail(
+            4305,
+            "tabulated shift factors do not cover included temperatures exactly",
+            "Provide one log10(aT) for every included unique temperature and no extras.",
+        )
     output: list[DmaFrequencyMasterCurveRow] = []
-    for row in frozen:
+    for row in sorted(frozen, key=lambda item: (item.temperature_k, item.source_ordinal)):
         disposition = by_ordinal[row.source_ordinal]
         loss_modulus = row.usable_loss_modulus_pa
         omega = 2.0 * math.pi * row.frequency_hz
+        common = {
+            "input_mode": DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value,
+            "source_sweep_ordinal": None,
+            "representative_temperature_k": row.temperature_k,
+            "partition": disposition.partition,
+            "is_reference": False,
+            "exclusion_reason": disposition.exclusion_reason,
+            "holdout_evaluation_status": None,
+            "source_ordinals": (row.source_ordinal,),
+            "measured_temperature_k": (row.temperature_k,),
+            "source_frequency_hz": (row.frequency_hz,),
+            "angular_frequency_rad_per_s": (omega,),
+            "storage_modulus_pa": (row.storage_modulus_pa,),
+            "loss_modulus_pa": (loss_modulus,),
+            "source_tan_delta": ((None,) if measured_loss else (row.tan_delta,)),
+            "loss_modulus_origin": (
+                ("measured",) if measured_loss else ("derived_from_tan_delta",)
+            ),
+            "reduced_angular_frequency_rad_per_s": None,
+            "raw_angular_frequency_min_rad_per_s": omega,
+            "raw_angular_frequency_max_rad_per_s": omega,
+            "shifted_angular_frequency_min_rad_per_s": None,
+            "shifted_angular_frequency_max_rad_per_s": None,
+            "comparison_sweep_ordinal": None,
+            "observed_log10_a_t": None,
+            "applied_log10_a_t": None,
+            "shift_factor": None,
+            "shift_residual_log10_a_t": None,
+            "overlap_log10_reduced_angular_frequency_min": None,
+            "overlap_log10_reduced_angular_frequency_max": None,
+            "scoring_point_count": None,
+            "storage_mse": None,
+            "loss_mse": None,
+            "storage_rmse": None,
+            "loss_rmse": None,
+            "weighted_mse": None,
+            "adjacent_success": None,
+            "adjacent_status": None,
+            "adjacent_iterations": None,
+            "adjacent_evaluations": None,
+            "adjacent_objective": None,
+        }
         if disposition.partition is DmaPartition.EXCLUDED:
-            output.append(
-                DmaFrequencyMasterCurveRow(
-                    source_ordinal=row.source_ordinal,
-                    temperature_k=row.temperature_k,
-                    source_frequency_hz=row.frequency_hz,
-                    angular_frequency_rad_per_s=omega,
-                    log10_a_t=None,
-                    shift_factor=None,
-                    reduced_angular_frequency_rad_per_s=None,
-                    storage_modulus_pa=row.storage_modulus_pa,
-                    loss_modulus_pa=loss_modulus,
-                    partition=disposition.partition,
-                    exclusion_reason=disposition.exclusion_reason,
-                )
-            )
+            output.append(DmaFrequencyMasterCurveRow(**common))
             continue
-        if loss_modulus < 0:
+        if loss_modulus <= 0:
             raise _fail(
-                4304,
-                "an included row has negative usable loss modulus",
+                4312,
+                "an included row has negative usable loss modulus or another nonpositive value",
                 "Mark the row EXCLUDED with a reason, or correct the source quantity mapping.",
             )
-        log10_a_t = _log10_shift(shift_law, row.temperature_k)
+        log10_a_t = _fixed_shift(shift_law, row.temperature_k)
         try:
             shift_factor = 10.0**log10_a_t
         except OverflowError as error:
@@ -533,21 +1155,24 @@ def build_frequency_master_curve(
                 "temperature shift overflows the usable numerical domain",
                 "Review the shift parameters or exclude the affected temperature.",
             )
-        output.append(
-            DmaFrequencyMasterCurveRow(
-                source_ordinal=row.source_ordinal,
-                temperature_k=row.temperature_k,
-                source_frequency_hz=row.frequency_hz,
-                angular_frequency_rad_per_s=omega,
-                log10_a_t=log10_a_t,
-                shift_factor=shift_factor,
-                reduced_angular_frequency_rad_per_s=reduced_omega,
-                storage_modulus_pa=row.storage_modulus_pa,
-                loss_modulus_pa=loss_modulus,
-                partition=disposition.partition,
-                exclusion_reason=None,
-            )
+        is_reference = row.source_ordinal == reference_matches[0].source_ordinal
+        common.update(
+            is_reference=is_reference,
+            exclusion_reason=None,
+            holdout_evaluation_status=(
+                "not_applicable_no_curve_overlap"
+                if disposition.partition is DmaPartition.HOLDOUT
+                else None
+            ),
+            reduced_angular_frequency_rad_per_s=(reduced_omega,),
+            shifted_angular_frequency_min_rad_per_s=reduced_omega,
+            shifted_angular_frequency_max_rad_per_s=reduced_omega,
+            observed_log10_a_t=0.0 if is_reference else None,
+            applied_log10_a_t=log10_a_t,
+            shift_factor=shift_factor,
+            shift_residual_log10_a_t=0.0 if is_reference else None,
         )
+        output.append(DmaFrequencyMasterCurveRow(**common))
     return tuple(output)
 
 
@@ -589,47 +1214,6 @@ def loss_modulus_parquet_bytes(rows: Sequence[DmaLossModulusRow]) -> bytes:
     )
 
 
-def frequency_master_curve_parquet_bytes(
-    rows: Sequence[DmaFrequencyMasterCurveRow],
-) -> bytes:
-    frozen = tuple(rows)
-    if not frozen:
-        raise _fail(
-            4304,
-            "frequency master-curve result has no rows",
-            "Provide confirmed DMA temperature-sweep rows.",
-        )
-    return _parquet_bytes(
-        pa.table(
-            {
-                "source_ordinal": pa.array((row.source_ordinal for row in frozen), type=pa.int64()),
-                "temperature_k": pa.array((row.temperature_k for row in frozen), type=pa.float64()),
-                "source_frequency_hz": pa.array(
-                    (row.source_frequency_hz for row in frozen), type=pa.float64()
-                ),
-                "angular_frequency_rad_per_s": pa.array(
-                    (row.angular_frequency_rad_per_s for row in frozen), type=pa.float64()
-                ),
-                "log10_a_t": pa.array((row.log10_a_t for row in frozen), type=pa.float64()),
-                "shift_factor": pa.array((row.shift_factor for row in frozen), type=pa.float64()),
-                "reduced_angular_frequency_rad_per_s": pa.array(
-                    (row.reduced_angular_frequency_rad_per_s for row in frozen), type=pa.float64()
-                ),
-                "storage_modulus_pa": pa.array(
-                    (row.storage_modulus_pa for row in frozen), type=pa.float64()
-                ),
-                "loss_modulus_pa": pa.array(
-                    (row.loss_modulus_pa for row in frozen), type=pa.float64()
-                ),
-                "partition": pa.array((row.partition.value for row in frozen), type=pa.string()),
-                "exclusion_reason": pa.array(
-                    (row.exclusion_reason for row in frozen), type=pa.string()
-                ),
-            }
-        )
-    )
-
-
 def _read_exact_table(value: bytes, columns: tuple[str, ...]) -> pa.Table:
     try:
         table = _read_parquet(pa.BufferReader(value))
@@ -650,42 +1234,44 @@ def loss_modulus_from_parquet(value: bytes) -> tuple[DmaLossModulusRow, ...]:
     table = _read_exact_table(value, DMA_LOSS_MODULUS_COLUMNS)
     return tuple(
         DmaLossModulusRow(
-            source_ordinal=int(row["source_ordinal"]),
-            temperature_k=float(row["temperature_k"]),
-            frequency_hz=float(row["frequency_hz"]),
-            storage_modulus_pa=float(row["storage_modulus_pa"]),
-            tan_delta=float(row["tan_delta"]),
-            loss_modulus_pa=float(row["loss_modulus_pa"]),
+            int(row["source_ordinal"]),
+            float(row["temperature_k"]),
+            float(row["frequency_hz"]),
+            float(row["storage_modulus_pa"]),
+            float(row["tan_delta"]),
+            float(row["loss_modulus_pa"]),
         )
         for row in table.to_pylist()
     )
 
 
-def frequency_master_curve_from_parquet(
-    value: bytes,
-) -> tuple[DmaFrequencyMasterCurveRow, ...]:
-    table = _read_exact_table(value, DMA_FREQUENCY_MASTER_CURVE_COLUMNS)
-    output: list[DmaFrequencyMasterCurveRow] = []
-    for row in table.to_pylist():
-        output.append(
-            DmaFrequencyMasterCurveRow(
-                source_ordinal=int(row["source_ordinal"]),
-                temperature_k=float(row["temperature_k"]),
-                source_frequency_hz=float(row["source_frequency_hz"]),
-                angular_frequency_rad_per_s=float(row["angular_frequency_rad_per_s"]),
-                log10_a_t=None if row["log10_a_t"] is None else float(row["log10_a_t"]),
-                shift_factor=None if row["shift_factor"] is None else float(row["shift_factor"]),
-                reduced_angular_frequency_rad_per_s=(
-                    None
-                    if row["reduced_angular_frequency_rad_per_s"] is None
-                    else float(row["reduced_angular_frequency_rad_per_s"])
-                ),
-                storage_modulus_pa=float(row["storage_modulus_pa"]),
-                loss_modulus_pa=float(row["loss_modulus_pa"]),
-                partition=DmaPartition(str(row["partition"])),
-                exclusion_reason=(
-                    None if row["exclusion_reason"] is None else str(row["exclusion_reason"])
-                ),
-            )
-        )
-    return tuple(output)
+def frequency_master_curve_parquet_bytes(rows: Sequence[DmaFrequencyMasterCurveRow]) -> bytes:
+    from cmp.modules.processing.domain.dma_frequency_master_curve_result import parquet_bytes
+
+    return parquet_bytes(rows)
+
+
+def frequency_master_curve_from_parquet(value: bytes) -> tuple[DmaFrequencyMasterCurveRow, ...]:
+    from cmp.modules.processing.domain.dma_frequency_master_curve_result import from_parquet
+
+    return from_parquet(value)
+
+
+def __getattr__(name: str):
+    """Lazily expose the separated TTS kernel without creating an import cycle."""
+
+    names = {
+        "DmaFrequencySweep",
+        "DmaFrequencySweepDisposition",
+        "DmaMultiFrequencyBuildResult",
+        "DmaShiftLawRequest",
+        "DmaTtsAdjacentOptimizerControls",
+        "DmaTtsLawOptimizerControls",
+        "DmaTtsScoringControls",
+        "build_multi_frequency_master_curve",
+    }
+    if name in names:
+        from cmp.modules.processing.domain import dma_multi_frequency_tts
+
+        return getattr(dma_multi_frequency_tts, name)
+    raise AttributeError(name)

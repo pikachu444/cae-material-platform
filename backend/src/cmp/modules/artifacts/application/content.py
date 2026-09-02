@@ -16,6 +16,7 @@ from uuid import UUID, uuid4
 from cmp.modules.artifacts.domain.content import (
     Artifact,
     ArtifactAccessDenied,
+    ArtifactConflict,
     ArtifactIntegrityError,
     ArtifactKind,
     ArtifactRecord,
@@ -43,6 +44,8 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.domain.revisions import canonical_json_bytes, content_sha256
 
 _IDEMPOTENCY_KEY = re.compile(r"^[\x21-\x7e]{1,255}$")
+
+
 @dataclass(frozen=True, slots=True)
 class ArtifactPolicy:
     transfer_ttl: timedelta = timedelta(minutes=5)
@@ -71,6 +74,7 @@ class PrepareArtifact:
     idempotency_key: str
     encryption_profile: str = "deployment-default"
     source_raw_asset_id: UUID | None = None
+    reserved_artifact_id: UUID | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,6 +89,7 @@ class FinalizedArtifact:
 # treats the transaction object as opaque; SQL adapters provide the concrete
 # session type.
 ArtifactCommitHook = Callable[[Any, FinalizedArtifact], None]
+ArtifactBatchCommitHook = Callable[[Any, tuple[FinalizedArtifact, ...]], None]
 
 
 @dataclass(frozen=True, slots=True)
@@ -202,6 +207,15 @@ class ArtifactRepository(Protocol):
         commit_hook: ArtifactCommitHook | None = None,
     ) -> FinalizedArtifact: ...
 
+    def commit_available_batch(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        entries: tuple[tuple[UUID, StoredObject, UUID, datetime], ...],
+        commit_hook: ArtifactBatchCommitHook | None = None,
+    ) -> tuple[FinalizedArtifact, ...]: ...
+
     def get_artifact(
         self,
         *,
@@ -313,12 +327,8 @@ class ArtifactTransferCodec:
             document = json.loads(payload)
         except (ValueError, UnicodeError, json.JSONDecodeError) as error:
             raise ArtifactAccessDenied("Artifact transfer capability is invalid") from error
-        expected_signature = hmac.new(
-            self._secret, payload, hashlib.sha256
-        ).digest()
-        if not hmac.compare_digest(signature, expected_signature) or not isinstance(
-            document, dict
-        ):
+        expected_signature = hmac.new(self._secret, payload, hashlib.sha256).digest()
+        if not hmac.compare_digest(signature, expected_signature) or not isinstance(document, dict):
             raise ArtifactAccessDenied("Artifact transfer capability is invalid")
         artifact = record.artifact
         claims = cast(dict[str, Any], document)
@@ -450,6 +460,17 @@ class ArtifactService:
             f"{classification.value}/{digest}"
         )
 
+    @classmethod
+    def derived_staging_key(
+        cls,
+        context: SecurityContext,
+        classification: DataClassification,
+        idempotency_key: str,
+    ) -> str:
+        """Expose the deterministic non-authoritative key for bounded batch callers."""
+
+        return cls._derived_staging_key(context, classification, idempotency_key)
+
     async def finalize_derived_bytes(
         self,
         context: SecurityContext,
@@ -508,6 +529,213 @@ class ArtifactService:
             except ObjectStoreError:
                 pass
         return result.record
+
+    async def finalize_derived_batch(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        entries: tuple[tuple[PrepareArtifact, bytes], ...],
+        commit_hook: ArtifactBatchCommitHook | None = None,
+    ) -> tuple[FinalizedArtifact, ...]:
+        """Finalize the bounded two-artifact DMA output batch atomically.
+
+        The object store promotions happen before the one repository transaction.  The
+        repository is responsible for inserting both authoritative Artifact rows and
+        invoking the output/provenance callback on that same transaction.  Staged and
+        promoted objects remain recoverable orphans if that transaction rolls back.
+        """
+
+        _require_database_capability(context, decision, Permission.ARTIFACT_WRITE)
+        if len(entries) != 2:
+            raise InvalidArtifact("DMA derived Artifact finalization requires exactly two entries")
+        prepared: list[tuple[PendingArtifact, bool, StoredObject]] = []
+        for command, value in entries:
+            if not value:
+                raise InvalidArtifact("derived Artifact bytes must not be empty")
+            if _IDEMPOTENCY_KEY.fullmatch(command.idempotency_key) is None:
+                raise InvalidArtifact("Artifact idempotency key must contain visible ASCII")
+            if not decision.allows(
+                context.organization_id, context.project_id, command.classification
+            ):
+                raise ArtifactAccessDenied(
+                    "Artifact classification exceeds the authorized clearance"
+                )
+            expected_sha256 = hashlib.sha256(value).hexdigest()
+            if command.expected_sha256 != expected_sha256 or command.expected_size_bytes != len(
+                value
+            ):
+                raise ArtifactIntegrityError(
+                    "derived batch bytes differ from the supplied Artifact manifest"
+                )
+            stored = await self._store.stage_bytes(
+                object_key=command.staging_object_key,
+                value=value,
+                media_type=command.media_type,
+            )
+            if not _matches(stored, expected_sha256, len(value)):
+                raise ArtifactIntegrityError(
+                    "derived batch staging object differs from supplied bytes"
+                )
+            now = self._clock()
+            final_key = content_object_key(
+                context.organization_id,
+                context.project_id,
+                command.classification,
+                command.expected_sha256,
+            )
+            submission_digest = content_sha256(
+                {
+                    "classification": command.classification.value,
+                    "artifact_kind": command.artifact_kind.value,
+                    "artifact_role": command.artifact_role,
+                    "schema_ref": command.schema_ref,
+                    "media_type": command.media_type,
+                    "expected_size_bytes": command.expected_size_bytes,
+                    "expected_sha256": command.expected_sha256,
+                    "staging_object_key": command.staging_object_key,
+                    "final_object_key": final_key,
+                    "encryption_profile": command.encryption_profile,
+                    "source_raw_asset_id": (
+                        str(command.source_raw_asset_id)
+                        if command.source_raw_asset_id is not None
+                        else None
+                    ),
+                    "reserved_artifact_id": (
+                        str(command.reserved_artifact_id)
+                        if command.reserved_artifact_id is not None
+                        else None
+                    ),
+                }
+            )
+            try:
+                pending = PendingArtifact(
+                    id=self._id(),
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=command.classification,
+                    state=PendingArtifactState.PENDING,
+                    artifact_kind=command.artifact_kind,
+                    artifact_role=command.artifact_role,
+                    schema_ref=command.schema_ref,
+                    media_type=command.media_type,
+                    expected_size_bytes=command.expected_size_bytes,
+                    expected_sha256=command.expected_sha256,
+                    staging_object_key=command.staging_object_key,
+                    final_object_key=final_key,
+                    encryption_profile=command.encryption_profile,
+                    source_raw_asset_id=command.source_raw_asset_id,
+                    idempotency_key=command.idempotency_key,
+                    submission_digest=submission_digest,
+                    reserved_artifact_id=(command.reserved_artifact_id or self._id()),
+                    available_artifact_id=None,
+                    attempt_count=0,
+                    failure_code=None,
+                    created_at=now,
+                    created_by=context.principal.id,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                    updated_at=now,
+                    terminal_at=None,
+                )
+            except ValueError as error:
+                raise InvalidArtifact("Artifact manifest is invalid") from error
+            persisted, replayed = self._repository.prepare(
+                context=context,
+                decision=decision,
+                pending=pending,
+            )
+            prepared.append((persisted, replayed, stored))
+
+        if any(item[0].state is PendingArtifactState.REJECTED for item in prepared):
+            raise ArtifactStateError("rejected Artifact finalization cannot be replayed")
+        if any(item[0].state is PendingArtifactState.AVAILABLE for item in prepared):
+            if not all(item[0].state is PendingArtifactState.AVAILABLE for item in prepared):
+                raise ArtifactConflict(
+                    "DMA Artifact batch replay is only valid when both entries are available"
+                )
+            return tuple(
+                FinalizedArtifact(
+                    pending,
+                    self._repository.get_artifact(
+                        context=context,
+                        decision=decision,
+                        artifact_id=pending.available_artifact_id,
+                    ),
+                    True,
+                )
+                for pending, _, _ in prepared
+            )
+
+        promoting: list[tuple[PendingArtifact, bool, StoredObject]] = []
+        try:
+            for pending, replayed, _stored in prepared:
+                current = self._repository.begin_promotion(
+                    context=context,
+                    decision=decision,
+                    pending_id=pending.id,
+                    now=self._clock(),
+                )
+                if current.state is PendingArtifactState.AVAILABLE:
+                    raise ArtifactConflict("DMA Artifact batch changed state during promotion")
+                if current.state is not PendingArtifactState.PROMOTING:
+                    raise ArtifactStateError("pending Artifact did not enter promotion")
+                promoted = await self._store.promote(
+                    source_key=current.staging_object_key,
+                    target_key=current.final_object_key,
+                    expected_sha256=current.expected_sha256,
+                    expected_size_bytes=current.expected_size_bytes,
+                )
+                if promoted.object_key != current.final_object_key or not _matches(
+                    promoted, current.expected_sha256, current.expected_size_bytes
+                ):
+                    raise ArtifactIntegrityError("promoted batch object differs from its manifest")
+                promoting.append((current, replayed, promoted))
+            batch_commit = getattr(self._repository, "commit_available_batch", None)
+            if not callable(batch_commit):
+                raise InvalidArtifact("atomic DMA Artifact batch finalization is unavailable")
+            committed = batch_commit(
+                context=context,
+                decision=decision,
+                entries=tuple(
+                    (pending.id, promoted, self._id(), self._clock())
+                    for pending, _, promoted in promoting
+                ),
+                commit_hook=commit_hook,
+            )
+        except (ArtifactIntegrityError, ObjectStoreError):
+            for pending, _, _ in promoting:
+                try:
+                    self._repository.mark_retryable(
+                        context=context,
+                        decision=decision,
+                        pending_id=pending.id,
+                        failure_code="object_store_unavailable",
+                        now=self._clock(),
+                    )
+                except Exception:
+                    pass
+            raise
+        except Exception:
+            for pending, _, _ in promoting:
+                try:
+                    self._repository.mark_retryable(
+                        context=context,
+                        decision=decision,
+                        pending_id=pending.id,
+                        failure_code="batch_commit_failed",
+                        now=self._clock(),
+                    )
+                except Exception:
+                    pass
+            raise
+        for pending, _, _ in promoting:
+            try:
+                if pending.staging_object_key != pending.final_object_key:
+                    await self._store.discard(pending.staging_object_key)
+            except ObjectStoreError:
+                pass
+        return tuple(committed)
 
     async def finalize_derived_stream(
         self,
@@ -669,12 +897,8 @@ class ArtifactService:
         commit_hook: ArtifactCommitHook | None = None,
     ) -> FinalizedArtifact:
         _require_database_capability(context, decision, Permission.ARTIFACT_WRITE)
-        if not decision.allows(
-            context.organization_id, context.project_id, command.classification
-        ):
-            raise ArtifactAccessDenied(
-                "Artifact classification exceeds the authorized clearance"
-            )
+        if not decision.allows(context.organization_id, context.project_id, command.classification):
+            raise ArtifactAccessDenied("Artifact classification exceeds the authorized clearance")
         if _IDEMPOTENCY_KEY.fullmatch(command.idempotency_key) is None:
             raise InvalidArtifact("Artifact idempotency key must contain visible ASCII")
         now = self._clock()
@@ -701,6 +925,11 @@ class ArtifactService:
                     if command.source_raw_asset_id is not None
                     else None
                 ),
+                "reserved_artifact_id": (
+                    str(command.reserved_artifact_id)
+                    if command.reserved_artifact_id is not None
+                    else None
+                ),
             }
         )
         try:
@@ -722,7 +951,7 @@ class ArtifactService:
                 source_raw_asset_id=command.source_raw_asset_id,
                 idempotency_key=command.idempotency_key,
                 submission_digest=submission_digest,
-                reserved_artifact_id=self._id(),
+                reserved_artifact_id=(command.reserved_artifact_id or self._id()),
                 available_artifact_id=None,
                 attempt_count=0,
                 failure_code=None,
@@ -926,9 +1155,7 @@ class ArtifactService:
         selected_ttl = ttl or self._policy.transfer_ttl
         if not timedelta(seconds=1) <= selected_ttl <= self._policy.max_transfer_ttl:
             raise InvalidArtifact("Artifact transfer TTL exceeds platform policy")
-        expires_at = datetime.fromtimestamp(
-            int((self._clock() + selected_ttl).timestamp()), tz=UTC
-        )
+        expires_at = datetime.fromtimestamp(int((self._clock() + selected_ttl).timestamp()), tz=UTC)
         return ArtifactDownloadGrant(
             artifact_id=artifact_id,
             token=self._transfers.issue(record, context, expires_at),
@@ -1010,9 +1237,7 @@ class ArtifactService:
             pending_artifact_id=pending.id if pending is not None else None,
             object_key=object_key,
             expected_sha256=pending.expected_sha256 if pending is not None else None,
-            expected_size_bytes=(
-                pending.expected_size_bytes if pending is not None else None
-            ),
+            expected_size_bytes=(pending.expected_size_bytes if pending is not None else None),
             observed_sha256=stored.sha256 if stored is not None else None,
             observed_size_bytes=stored.size_bytes if stored is not None else None,
             detected_at=self._clock(),
@@ -1020,9 +1245,7 @@ class ArtifactService:
             request_id=context.request_id,
             trace_id=context.trace_id,
         )
-        return self._repository.record_issue(
-            context=context, decision=decision, issue=issue
-        )
+        return self._repository.record_issue(context=context, decision=decision, issue=issue)
 
     async def reconcile(
         self,
@@ -1066,12 +1289,8 @@ class ArtifactService:
         for pending in pending_records:
             final = await self._store.inspect(pending.final_object_key)
             if final is not None:
-                if _matches(
-                    final, pending.expected_sha256, pending.expected_size_bytes
-                ):
-                    await self._finalize_pending(
-                        context, decision, pending, replayed=True
-                    )
+                if _matches(final, pending.expected_sha256, pending.expected_size_bytes):
+                    await self._finalize_pending(context, decision, pending, replayed=True)
                     recovered += 1
                 else:
                     self._repository.reject(
@@ -1103,9 +1322,7 @@ class ArtifactService:
                     pending=pending,
                 )
                 issues += 1
-            elif not _matches(
-                staged, pending.expected_sha256, pending.expected_size_bytes
-            ):
+            elif not _matches(staged, pending.expected_sha256, pending.expected_size_bytes):
                 self._repository.reject(
                     context=context,
                     decision=decision,
@@ -1127,26 +1344,22 @@ class ArtifactService:
                 await self._finalize_pending(context, decision, pending, replayed=True)
                 recovered += 1
 
-        known = self._repository.known_final_keys(
-            context=context, decision=decision
-        )
+        known = self._repository.known_final_keys(context=context, decision=decision)
         prefix = f"final/{context.organization_id}/{context.project_id}/"
         orphans = 0
         for stored in await self._store.list_objects(prefix):
             if stored.object_key in known:
                 continue
             try:
-                organization_id, project_id, classification, _ = (
-                    parse_content_object_key(stored.object_key)
+                organization_id, project_id, classification, _ = parse_content_object_key(
+                    stored.object_key
                 )
             except InvalidArtifact:
                 continue
             if (
                 organization_id != context.organization_id
                 or project_id != context.project_id
-                or not decision.allows(
-                    organization_id, project_id, classification
-                )
+                or not decision.allows(organization_id, project_id, classification)
             ):
                 continue
             self._issue(

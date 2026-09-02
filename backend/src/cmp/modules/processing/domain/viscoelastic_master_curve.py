@@ -18,6 +18,14 @@ from numpy.typing import NDArray
 from scipy.optimize import least_squares, minimize_scalar  # type: ignore[import-untyped]
 
 from cmp.modules.datasets.domain.reference_shear_relaxation import ShearRelaxationPoint
+from cmp.modules.processing.domain.temperature_shift import (
+    UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K,
+    ManualShiftFactor,
+    TemperatureShiftError,
+    arrhenius_log10_shift,
+    validate_manual_shift_table,
+    wlf_log10_shift,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 VISCOELASTIC_MASTER_PLAN_SCHEMA_ID = "urn:cmp:processing:viscoelastic-master-plan:1.0.0"
@@ -45,21 +53,6 @@ class ShiftMethod(StrEnum):
     MANUAL = "manual"
     WLF_FIT = "wlf_fit"
     ARRHENIUS_FIT = "arrhenius_fit"
-
-
-@dataclass(frozen=True, slots=True)
-class ManualShiftFactor:
-    temperature_k: float
-    log10_a_t: float
-
-    def __post_init__(self) -> None:
-        if (
-            not math.isfinite(self.temperature_k)
-            or self.temperature_k <= 0
-            or not math.isfinite(self.log10_a_t)
-            or abs(self.log10_a_t) > 20
-        ):
-            raise InvalidViscoelasticMasterPlan("manual shift factor must be finite and bounded")
 
 
 @dataclass(frozen=True, slots=True)
@@ -337,7 +330,13 @@ def _fit_wlf(
 
     def residual(parameters: NDArray[np.float64]) -> NDArray[np.float64]:
         c1, c2 = float(parameters[0]), float(parameters[1])
-        predicted = -c1 * deltas / (c2 + deltas)
+        predicted = np.asarray(
+            tuple(
+                wlf_log10_shift(float(temperature), reference_temperature_k, c1, c2)
+                for temperature in temperatures
+            ),
+            dtype=np.float64,
+        )
         return np.asarray(predicted - targets, dtype=np.float64)
 
     initial_c2 = max(51.6, lower_c2 + 1.0)
@@ -395,13 +394,24 @@ def _fit_arrhenius(
     if denominator <= np.finfo(float).tiny:
         raise InvalidViscoelasticMasterPlan("Arrhenius temperatures do not span a usable range")
     slope = float(np.dot(inverse_temperature_delta, targets) / denominator)
-    gas_constant_j_per_mol_k = 8.31446261815324
+    gas_constant_j_per_mol_k = UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K
     activation_energy = slope * math.log(10.0) * gas_constant_j_per_mol_k
     if not math.isfinite(activation_energy) or activation_energy <= 0:
         raise InvalidViscoelasticMasterPlan(
             "Arrhenius fit produced a non-positive activation energy"
         )
-    predicted = slope * inverse_temperature_delta
+    predicted = np.asarray(
+        tuple(
+            arrhenius_log10_shift(
+                float(temperature),
+                reference_temperature_k,
+                activation_energy,
+                gas_constant_j_per_mol_k,
+            )
+            for temperature in temperatures
+        ),
+        dtype=np.float64,
+    )
     evidence = tuple(
         ShiftFactorEvidence(
             temperature_k=float(temperature),
@@ -419,13 +429,15 @@ def _fit_arrhenius(
 def _manual_evidence(
     plan: ViscoelasticMasterPlanContent, temperatures: tuple[float, ...]
 ) -> tuple[ShiftFactorEvidence, ...]:
-    factors = {item.temperature_k: item.log10_a_t for item in plan.manual_shift_factors}
-    if set(factors) != set(temperatures):
-        raise InvalidViscoelasticMasterPlan(
-            "manual shift factors must cover every selected temperature exactly once"
+    try:
+        validated = validate_manual_shift_table(
+            plan.manual_shift_factors,
+            reference_temperature_k=plan.reference_temperature_k,
+            required_temperatures=temperatures,
         )
-    if not math.isclose(factors[plan.reference_temperature_k], 0.0, abs_tol=1e-12):
-        raise InvalidViscoelasticMasterPlan("reference-temperature manual shift must be zero")
+    except TemperatureShiftError as error:
+        raise InvalidViscoelasticMasterPlan(str(error)) from error
+    factors = {item.temperature_k: item.log10_a_t for item in validated}
     return tuple(
         ShiftFactorEvidence(
             temperature_k=temperature,
@@ -463,7 +475,7 @@ def _master_curve(
             continue
         output.append(
             MasterCurvePoint(
-                reduced_time_s=10.0**float(x_value),
+                reduced_time_s=10.0 ** float(x_value),
                 contributing_curve_count=len(values),
                 mean_shear_modulus_pa=sum(values) / len(values),
                 sample_standard_deviation_pa=_sample_standard_deviation(values),
@@ -513,9 +525,7 @@ def compute_viscoelastic_master_curve(
     elif plan.shift_method is ShiftMethod.WLF_FIT:
         factors, c1, c2 = _fit_wlf(statistics, plan.reference_temperature_k)
     else:
-        factors, activation_energy = _fit_arrhenius(
-            statistics, plan.reference_temperature_k
-        )
+        factors, activation_energy = _fit_arrhenius(statistics, plan.reference_temperature_k)
         c1 = c2 = None
     return ViscoelasticMasterResult(
         aligned_curves=aligned,

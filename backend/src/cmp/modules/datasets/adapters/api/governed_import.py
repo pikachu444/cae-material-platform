@@ -130,7 +130,7 @@ class ImportProfileContentInput(BaseModel):
     encoding: str
     delimiter: str | None
     decimal_separator: str
-    channels: Annotated[tuple[ChannelMappingInput, ...], Field(min_length=2, max_length=5)]
+    channels: Annotated[tuple[ChannelMappingInput, ...], Field(min_length=2, max_length=6)]
     initial_gauge_length_m: float | None = None
     initial_cross_section_area_m2: float | None = None
     approval_kind: str = "human_confirmed"

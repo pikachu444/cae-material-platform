@@ -111,11 +111,13 @@ class QuantityKind(StrEnum):
     TAN_DELTA = "tan_delta"
     MINOR_STRAIN = "minor_strain"
     MAJOR_STRAIN = "major_strain"
+    SOURCE_SWEEP_ORDINAL = "source_sweep_ordinal"
 
 
 class AxisRole(StrEnum):
     INDEPENDENT = "independent"
     DEPENDENT = "dependent"
+    AUXILIARY = "auxiliary"
 
 
 class GovernedDatasetRepresentation(StrEnum):
@@ -169,6 +171,7 @@ _NORMALIZED_UNITS: dict[QuantityKind, str] = {
     QuantityKind.TAN_DELTA: "1",
     QuantityKind.MINOR_STRAIN: "1",
     QuantityKind.MAJOR_STRAIN: "1",
+    QuantityKind.SOURCE_SWEEP_ORDINAL: "1",
 }
 
 _QUANTITY_CONTRACT: dict[QuantityKind, tuple[DimensionId, str]] = {
@@ -208,9 +211,13 @@ _QUANTITY_CONTRACT: dict[QuantityKind, tuple[DimensionId, str]] = {
 
 
 def _conversion_parameters(quantity: QuantityKind, original_unit: str) -> tuple[float, float]:
+    if quantity is QuantityKind.SOURCE_SWEEP_ORDINAL:
+        if original_unit != "1":
+            raise InvalidGovernedImport("source_sweep_ordinal requires the unit 1")
+        return 1.0, 0.0
     if quantity is QuantityKind.FREQUENCY:
         if original_unit != "Hz":
-            raise InvalidGovernedImport("frequency requires the bounded explicit-legacy Hz unit")
+            raise InvalidGovernedImport("frequency requires the cyclic Hz unit")
         return 1.0, 0.0
     dimension, semantics = _QUANTITY_CONTRACT[quantity]
     try:
@@ -253,9 +260,13 @@ class GovernedChannelMapping:
     axis_role: AxisRole
 
     def __post_init__(self) -> None:
-        if not 0 <= self.ordinal <= 4:
-            raise InvalidGovernedImport("channel ordinal must be within 0..4")
+        if not 0 <= self.ordinal <= 5:
+            raise InvalidGovernedImport("channel ordinal must be within 0..5")
         _text("source_column", self.source_column, 255)
+        if self.source_quantity is QuantityKind.SOURCE_SWEEP_ORDINAL:
+            if self.original_unit != "1":
+                raise InvalidGovernedImport("source_sweep_ordinal requires unit 1")
+            return
         if self.source_quantity is QuantityKind.FREQUENCY:
             _conversion_parameters(self.source_quantity, self.original_unit)
             return
@@ -343,8 +354,18 @@ class GovernedImportProfileContent:
                 raise InvalidGovernedImport("CSV delimiter must be comma or semicolon")
             if self.delimiter == self.decimal_separator:
                 raise InvalidGovernedImport("delimiter and decimal_separator must differ")
-        if not 2 <= len(self.channels) <= 5:
-            raise InvalidGovernedImport("a governed curve profile requires two to five channels")
+        maximum_channels = (
+            6
+            if (
+                self.schema_version == GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3
+                and self.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP
+            )
+            else 5
+        )
+        if not 2 <= len(self.channels) <= maximum_channels:
+            raise InvalidGovernedImport(
+                f"a governed curve profile requires two to {maximum_channels} channels"
+            )
         channels = tuple(sorted(self.channels, key=lambda item: item.ordinal))
         if tuple(channel.ordinal for channel in channels) != tuple(range(len(channels))):
             raise InvalidGovernedImport("channel ordinals must be contiguous")
@@ -405,26 +426,52 @@ class GovernedImportProfileContent:
                 raise InvalidGovernedImport("shear relaxation requires time/shear_modulus")
             geometry_required = False
         elif self.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP:
-            required = (
-                QuantityKind.TEMPERATURE,
-                QuantityKind.FREQUENCY,
-                QuantityKind.STORAGE_MODULUS,
-                QuantityKind.LOSS_MODULUS,
-            )
-            if kinds not in (required, (*required, QuantityKind.TAN_DELTA)):
-                raise InvalidGovernedImport(
-                    "DMA frequency-temperature sweep requires temperature/frequency/"
-                    "storage_modulus/loss_modulus and optional tan_delta"
+            if self.schema_version == GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3:
+                required = (
+                    QuantityKind.SOURCE_SWEEP_ORDINAL,
+                    QuantityKind.TEMPERATURE,
+                    QuantityKind.FREQUENCY,
+                    QuantityKind.STORAGE_MODULUS,
+                    QuantityKind.LOSS_MODULUS,
                 )
-            expected_roles = (
-                AxisRole.INDEPENDENT,
-                AxisRole.INDEPENDENT,
-                *(AxisRole.DEPENDENT for _ in kinds[2:]),
-            )
-            if roles != expected_roles:
-                raise InvalidGovernedImport(
-                    "DMA temperature/frequency must be independent and response channels dependent"
+                if kinds not in (required, (*required, QuantityKind.TAN_DELTA)):
+                    raise InvalidGovernedImport(
+                        "DMA frequency-temperature sweep schema 1.3.0 requires "
+                        "source_sweep_ordinal/temperature/frequency/storage_modulus/"
+                        "loss_modulus and optional tan_delta"
+                    )
+                expected_roles = (
+                    AxisRole.AUXILIARY,
+                    AxisRole.INDEPENDENT,
+                    AxisRole.INDEPENDENT,
+                    *(AxisRole.DEPENDENT for _ in kinds[3:]),
                 )
+                if roles != expected_roles:
+                    raise InvalidGovernedImport(
+                        "DMA source sweep ordinal must be auxiliary; temperature/frequency "
+                        "must be independent and response channels dependent"
+                    )
+                if self.deformation_mode != "shear":
+                    raise InvalidGovernedImport(
+                        "DMA frequency-temperature sweep requires deformation_mode=shear"
+                    )
+            else:
+                historical = (
+                    QuantityKind.TEMPERATURE,
+                    QuantityKind.FREQUENCY,
+                    QuantityKind.STORAGE_MODULUS,
+                    QuantityKind.LOSS_MODULUS,
+                )
+                if kinds != historical or roles != (
+                    AxisRole.INDEPENDENT,
+                    AxisRole.INDEPENDENT,
+                    AxisRole.DEPENDENT,
+                    AxisRole.DEPENDENT,
+                ):
+                    raise InvalidGovernedImport(
+                        "historical DMA frequency-temperature sweep profiles require "
+                        "temperature/frequency/storage_modulus/loss_modulus"
+                    )
             geometry_required = False
         elif self.data_schema is TabularDataSchema.DMA_TEMPERATURE_SWEEP:
             if self.schema_version != GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3:
@@ -545,13 +592,13 @@ class TabularPreview:
 @dataclass(frozen=True, slots=True)
 class NormalizedTabularData:
     columns: tuple[QuantityKind, ...]
-    rows: tuple[tuple[float, ...], ...]
+    rows: tuple[tuple[int | float, ...], ...]
 
     def __post_init__(self) -> None:
         if not 2 <= len(self.rows) <= MAX_ROWS:
             raise InvalidGovernedImport("normalized curve requires 2..100000 rows")
-        if not 2 <= len(self.columns) <= 5:
-            raise InvalidGovernedImport("normalized curve requires two to five columns")
+        if not 2 <= len(self.columns) <= 6:
+            raise InvalidGovernedImport("normalized curve requires two to six columns")
         if any(len(row) != len(self.columns) for row in self.rows):
             raise InvalidGovernedImport("normalized rows must match the declared columns")
 
@@ -560,7 +607,7 @@ class NormalizedTabularData:
 class GovernedTabularEvidence:
     """Original mapped values plus their explicit normalized calculation values."""
 
-    original_rows: tuple[tuple[float, ...], ...]
+    original_rows: tuple[tuple[int | float, ...], ...]
     normalized: NormalizedTabularData
     normalization_scales: tuple[float, ...]
     normalization_offsets: tuple[float, ...]
@@ -985,6 +1032,30 @@ def _number(value: str, *, row: int, column: str, decimal_separator: str) -> flo
     return result
 
 
+def _integral_token(value: str, *, row: int, column: str, decimal_separator: str) -> int:
+    """Parse the sweep identity without passing through binary floating point."""
+
+    stripped = value.strip()
+    if not stripped:
+        raise InvalidGovernedImport(f"row {row}: {column} is missing")
+    # An ordinal is a base-10 integer token, never a decimal/scientific token.  Keep the
+    # locale diagnostic consistent with _number for a comma decimal separator while still
+    # rejecting every non-integral spelling.
+    if decimal_separator == "," and "," in stripped:
+        raise InvalidGovernedImport(f"row {row}: {column} uses an unexpected decimal comma")
+    if decimal_separator == "." and "." in stripped:
+        raise InvalidGovernedImport(f"row {row}: {column} uses an unexpected decimal point")
+    if re.fullmatch(r"[0-9]+", stripped) is None:
+        raise InvalidGovernedImport(f"row {row}: {column} is not a base-10 integer")
+    try:
+        result = int(stripped, 10)
+    except ValueError as error:
+        raise InvalidGovernedImport(f"row {row}: {column} is not a base-10 integer") from error
+    if not 1 <= result <= 9_223_372_036_854_775_807:
+        raise InvalidGovernedImport(f"row {row}: {column} must be within 1..9223372036854775807")
+    return result
+
+
 def parse_governed_source(
     value: bytes, profile: GovernedImportProfileContent
 ) -> NormalizedTabularData:
@@ -1045,8 +1116,8 @@ def parse_governed_source_evidence(
             f"first: {diagnostics[0].error_detail}",
             tuple(diagnostics),
         )
-    original: list[tuple[float, ...]] = []
-    normalized: list[tuple[float, ...]] = []
+    original: list[tuple[int | float, ...]] = []
+    normalized: list[tuple[int | float, ...]] = []
     parameters = [
         _conversion_parameters(channel.source_quantity, channel.original_unit)
         for channel in profile.channels
@@ -1056,17 +1127,25 @@ def parse_governed_source_evidence(
     if profile.channels[0].source_quantity is QuantityKind.DISPLACEMENT:
         scales[0] /= profile.initial_gauge_length_m or 0.0
         scales[1] /= profile.initial_cross_section_area_m2 or 0.0
-    seen_coordinates: set[tuple[float, ...]] = set()
+    seen_coordinates: set[tuple[object, ...]] = set()
     for row_number, row in enumerate(rows[profile.header_row :], start=profile.header_row + 1):
         if not any(item.strip() for item in row):
             continue
-        raw_row: list[float] = []
+        raw_row: list[int | float] = []
         row_invalid = False
         for index, channel in zip(indexes, profile.channels, strict=True):
             try:
+                token = row[index] if index < len(row) else ""
                 raw_row.append(
-                    _number(
-                        row[index] if index < len(row) else "",
+                    _integral_token(
+                        token,
+                        row=row_number,
+                        column=channel.source_column,
+                        decimal_separator=profile.decimal_separator,
+                    )
+                    if channel.source_quantity is QuantityKind.SOURCE_SWEEP_ORDINAL
+                    else _number(
+                        token,
                         row=row_number,
                         column=channel.source_column,
                         decimal_separator=profile.decimal_separator,
@@ -1081,6 +1160,10 @@ def parse_governed_source_evidence(
                     if "unexpected decimal" in detail
                     else "non_finite_value"
                     if detail.endswith(" must be finite")
+                    else "invalid_integral_token"
+                    if "base-10 integer" in detail
+                    else "ordinal_out_of_range"
+                    if "must be within 1..9223372036854775807" in detail
                     else "non_numeric_value"
                 )
                 add_diagnostic(
@@ -1098,8 +1181,12 @@ def parse_governed_source_evidence(
             continue
         raw_values = tuple(raw_row)
         point = tuple(
-            raw * scale + offset
-            for raw, scale, offset in zip(raw_values, scales, offsets, strict=True)
+            int(raw)
+            if channel.source_quantity is QuantityKind.SOURCE_SWEEP_ORDINAL
+            else raw * scale + offset
+            for raw, scale, offset, channel in zip(
+                raw_values, scales, offsets, profile.channels, strict=True
+            )
         )
         if profile.data_schema in (
             TabularDataSchema.MONOTONIC_TENSION,
@@ -1153,48 +1240,82 @@ def parse_governed_source_evidence(
                 recovery_hint="Correct the relaxation response or choose the matching test schema.",
             )
             continue
-        coordinate: tuple[float, ...]
+        coordinate: tuple[object, ...]
         if profile.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP:
-            if point[0] < 0:
+            current_schema = profile.schema_version == GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3
+            if current_schema:
+                if point[0] < 1:
+                    add_diagnostic(
+                        row_number=row_number,
+                        column_name=profile.channels[0].source_column,
+                        channel_key=QuantityKind.SOURCE_SWEEP_ORDINAL.value,
+                        error_code="sweep_ordinal_out_of_range",
+                        error_detail=(
+                            f"row {row_number}: source sweep ordinal must be within "
+                            "1..9223372036854775807"
+                        ),
+                        recovery_hint=(
+                            "Provide the positive source sweep identity from the source file."
+                        ),
+                    )
+                    continue
+                temperature_index = 1
+                frequency_index = 2
+                response_indices = (3, 4)
+            else:
+                temperature_index = 0
+                frequency_index = 1
+                response_indices = (2, 3)
+            if point[temperature_index] <= 0:
                 add_diagnostic(
                     row_number=row_number,
-                    column_name=profile.channels[0].source_column,
+                    column_name=profile.channels[temperature_index].source_column,
                     channel_key=QuantityKind.TEMPERATURE.value,
                     error_code="temperature_below_absolute_zero",
-                    error_detail=f"row {row_number}: normalized temperature must be at least 0 K",
+                    error_detail=(
+                        f"row {row_number}: normalized temperature must be greater than 0 K"
+                    ),
                     recovery_hint="Correct the temperature value or its declared degC/K unit.",
                 )
                 continue
-            if point[1] <= 0:
+            if point[frequency_index] <= 0:
                 add_diagnostic(
                     row_number=row_number,
-                    column_name=profile.channels[1].source_column,
+                    column_name=profile.channels[frequency_index].source_column,
                     channel_key=QuantityKind.FREQUENCY.value,
                     error_code="frequency_not_positive",
-                    error_detail=f"row {row_number}: frequency must be greater than 0 Hz",
+                    error_detail=(f"row {row_number}: frequency must be greater than 0 Hz"),
                     recovery_hint=(
                         "Provide the positive oscillation frequency recorded by the test."
                     ),
                 )
                 continue
-            negative_response = next(
-                (index for index, response in enumerate(point[2:], start=2) if response < 0),
+            nonpositive_response = next(
+                (index for index in response_indices if point[index] <= 0),
                 None,
             )
-            if negative_response is not None:
-                channel = profile.channels[negative_response]
+            if nonpositive_response is not None:
+                channel = profile.channels[nonpositive_response]
                 add_diagnostic(
                     row_number=row_number,
                     column_name=channel.source_column,
                     channel_key=channel.source_quantity.value,
                     error_code="negative_dma_response",
                     error_detail=(
-                        f"row {row_number}: {channel.source_quantity.value} must be non-negative"
+                        f"row {row_number}: multi-isotherm DMA storage and loss "
+                        "moduli must be strictly positive"
                     ),
-                    recovery_hint="Correct the DMA response value or its declared unit.",
+                    recovery_hint=(
+                        "Correct the measured DMA response and create a new immutable "
+                        "Test Data revision."
+                    ),
                 )
                 continue
-            coordinate = (point[0], point[1])
+            coordinate = (
+                (int(point[0]), float(point[frequency_index]))
+                if current_schema
+                else (float(point[temperature_index]), float(point[frequency_index]))
+            )
         elif profile.data_schema is TabularDataSchema.DMA_TEMPERATURE_SWEEP:
             if point[0] <= 0:
                 add_diagnostic(
@@ -1208,29 +1329,6 @@ def parse_governed_source_evidence(
                     recovery_hint="Correct the temperature value or its declared degC/K unit.",
                 )
                 continue
-            negative_response = next(
-                (
-                    index
-                    for index, channel in enumerate(profile.channels[1:], start=1)
-                    if channel.source_quantity
-                    in {QuantityKind.STORAGE_MODULUS, QuantityKind.LOSS_MODULUS}
-                    and point[index] < 0
-                ),
-                None,
-            )
-            if negative_response is not None:
-                channel = profile.channels[negative_response]
-                add_diagnostic(
-                    row_number=row_number,
-                    column_name=channel.source_column,
-                    channel_key=channel.source_quantity.value,
-                    error_code="negative_dma_modulus",
-                    error_detail=(
-                        f"row {row_number}: {channel.source_quantity.value} must be non-negative"
-                    ),
-                    recovery_hint="Correct the modulus value or its declared unit.",
-                )
-                continue
             coordinate = (point[0],)
         elif profile.data_schema is TabularDataSchema.FORMING_LIMIT:
             coordinate = (point[0],)
@@ -1242,8 +1340,11 @@ def parse_governed_source_evidence(
                     row_number=row_number,
                     column_name=None,
                     channel_key=(
-                        "temperature_frequency"
-                        if len(coordinate) == 2
+                        "sweep_frequency"
+                        if profile.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP
+                        and profile.schema_version == GOVERNED_IMPORT_PROFILE_SCHEMA_VERSION_1_3
+                        else "temperature_frequency"
+                        if profile.data_schema is TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP
                         else QuantityKind.TEMPERATURE.value
                         if profile.data_schema is TabularDataSchema.DMA_TEMPERATURE_SWEEP
                         else QuantityKind.MINOR_STRAIN.value
@@ -1286,15 +1387,21 @@ def parse_governed_source_evidence(
     )
 
 
+def _normalized_column_name(quantity: QuantityKind) -> str:
+    return f"{quantity.value}_{_NORMALIZED_UNITS[quantity].lower().replace('%', 'pct')}"
+
+
 def normalized_parquet_bytes(value: NormalizedTabularData) -> bytes:
-    names = tuple(
-        f"{quantity.value}_{_NORMALIZED_UNITS[quantity].lower().replace('%', 'pct')}"
-        for quantity in value.columns
-    )
+    names = tuple(_normalized_column_name(quantity) for quantity in value.columns)
     table = pa.table(
         {
-            name: pa.array((row[index] for row in value.rows), type=pa.float64())
-            for index, name in enumerate(names)
+            name: pa.array(
+                (row[index] for row in value.rows),
+                type=(
+                    pa.int64() if quantity is QuantityKind.SOURCE_SWEEP_ORDINAL else pa.float64()
+                ),
+            )
+            for index, (name, quantity) in enumerate(zip(names, value.columns, strict=True))
         }
     )
     sink = pa.BufferOutputStream()
@@ -1319,10 +1426,7 @@ def normalized_rows_from_parquet(
     if content.representation is not GovernedDatasetRepresentation.NORMALIZED:
         raise InvalidGovernedImport("only normalized Dataset Artifacts can be decoded")
     expected_quantities = tuple(channel.normalized_quantity for channel in content.channels)
-    expected_names = tuple(
-        f"{quantity.value}_{_NORMALIZED_UNITS[quantity].lower().replace('%', 'pct')}"
-        for quantity in expected_quantities
-    )
+    expected_names = tuple(_normalized_column_name(quantity) for quantity in expected_quantities)
     try:
         table = cast(Callable[..., pa.Table], pq.read_table)(pa.BufferReader(value))
     except Exception as error:
@@ -1335,9 +1439,25 @@ def normalized_rows_from_parquet(
         raise InvalidGovernedImport(
             "normalized Dataset Artifact does not match its immutable schema and row count"
         )
+    if any(
+        table.schema.field(name).type
+        != (pa.int64() if quantity is QuantityKind.SOURCE_SWEEP_ORDINAL else pa.float64())
+        for name, quantity in zip(expected_names, expected_quantities, strict=True)
+    ):
+        raise InvalidGovernedImport(
+            "normalized Dataset Artifact column types do not match its immutable profile"
+        )
     try:
         columns = tuple(table.column(name).to_pylist() for name in expected_names)
-        rows = tuple(tuple(float(item) for item in row) for row in zip(*columns, strict=True))
+        rows = tuple(
+            tuple(
+                int(item) if quantity is QuantityKind.SOURCE_SWEEP_ORDINAL else float(item)
+                for item, quantity in zip(row, expected_quantities, strict=True)
+            )
+            for row in zip(*columns, strict=True)
+        )
+        if any(item is None for row in rows for item in row):
+            raise ValueError("null normalized value")
     except (TypeError, ValueError) as error:
         raise InvalidGovernedImport(
             "normalized Dataset Artifact contains invalid values"

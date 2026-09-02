@@ -12,7 +12,11 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.orm import Session, sessionmaker
 
-from cmp.modules.artifacts.application.content import ArtifactCommitHook, FinalizedArtifact
+from cmp.modules.artifacts.application.content import (
+    ArtifactBatchCommitHook,
+    ArtifactCommitHook,
+    FinalizedArtifact,
+)
 from cmp.modules.artifacts.domain.content import (
     Artifact,
     ArtifactConflict,
@@ -650,6 +654,116 @@ class SqlAlchemyArtifactRepository:
             if commit_hook is not None:
                 commit_hook(session, result)
             return result
+
+    def commit_available_batch(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        entries: tuple[tuple[UUID, StoredObject, UUID, datetime], ...],
+        commit_hook: ArtifactBatchCommitHook | None = None,
+    ) -> tuple[FinalizedArtifact, ...]:
+        """Insert a bounded DMA Artifact pair and its integrity rows in one transaction."""
+
+        if len(entries) != 2:
+            raise ArtifactConflict("DMA Artifact batch must contain exactly two entries")
+        with self._sessions() as session, session.begin():
+            self._bind(session, context, decision)
+            locked: list[tuple[RowMapping, StoredObject, UUID, datetime]] = []
+            for pending_id, stored, observation_id, now in entries:
+                row = self._pending_row(session, pending_id, lock=True)
+                state = PendingArtifactState(str(row["state"]))
+                if state is not PendingArtifactState.PROMOTING:
+                    raise ArtifactStateError("DMA Artifact batch entries are not promoting")
+                if (
+                    stored.object_key != row["final_object_key"]
+                    or stored.sha256 != row["expected_sha256"]
+                    or stored.size_bytes != int(row["expected_size_bytes"])
+                ):
+                    raise ArtifactConflict("stored DMA batch object differs from pending manifest")
+                locked.append((row, stored, observation_id, now))
+
+            results: list[FinalizedArtifact] = []
+            for row, stored, observation_id, now in locked:
+                artifact_id = cast(UUID, row["reserved_artifact_id"])
+                session.execute(
+                    sa.insert(artifact_table).values(
+                        organization_id=row["organization_id"],
+                        project_id=row["project_id"],
+                        id=artifact_id,
+                        classification=row["classification"],
+                        artifact_kind=row["artifact_kind"],
+                        artifact_role=row["artifact_role"],
+                        schema_ref=row["schema_ref"],
+                        media_type=row["media_type"],
+                        size_bytes=stored.size_bytes,
+                        sha256=stored.sha256,
+                        storage_key=stored.object_key,
+                        encryption_profile=row["encryption_profile"],
+                        source_raw_asset_id=row["source_raw_asset_id"],
+                        source_pending_id=row["id"],
+                        created_at=now,
+                        created_by=context.principal.id,
+                    )
+                )
+                session.execute(
+                    sa.insert(integrity_observation_table).values(
+                        organization_id=row["organization_id"],
+                        project_id=row["project_id"],
+                        id=observation_id,
+                        classification=row["classification"],
+                        artifact_id=artifact_id,
+                        check_kind=IntegrityCheckKind.FINALIZATION.value,
+                        status=IntegrityStatus.VERIFIED.value,
+                        expected_sha256=stored.sha256,
+                        expected_size_bytes=stored.size_bytes,
+                        observed_sha256=stored.sha256,
+                        observed_size_bytes=stored.size_bytes,
+                        object_version_id=stored.version_id,
+                        checked_at=now,
+                        checked_by=context.principal.id,
+                        request_id=context.request_id,
+                        trace_id=context.trace_id,
+                    )
+                )
+                session.execute(
+                    sa.insert(integrity_projection_table).values(
+                        organization_id=row["organization_id"],
+                        project_id=row["project_id"],
+                        artifact_id=artifact_id,
+                        classification=row["classification"],
+                        status=IntegrityStatus.VERIFIED.value,
+                        last_observation_id=observation_id,
+                        last_checked_at=now,
+                        updated_at=now,
+                    )
+                )
+                session.execute(
+                    sa.update(artifact_pending_table)
+                    .where(
+                        artifact_pending_table.c.organization_id == row["organization_id"],
+                        artifact_pending_table.c.project_id == row["project_id"],
+                        artifact_pending_table.c.id == row["id"],
+                        artifact_pending_table.c.state == PendingArtifactState.PROMOTING.value,
+                    )
+                    .values(
+                        state=PendingArtifactState.AVAILABLE.value,
+                        available_artifact_id=artifact_id,
+                        terminal_at=now,
+                        updated_at=now,
+                    )
+                )
+                result = FinalizedArtifact(
+                    _pending(self._pending_row(session, cast(UUID, row["id"]))),
+                    self._record(session, artifact_id),
+                    False,
+                )
+                results.append(result)
+                for hook in self._available_hooks:
+                    hook(session, result)
+            if commit_hook is not None:
+                commit_hook(session, tuple(results))
+            return tuple(results)
 
     def get_artifact(
         self,

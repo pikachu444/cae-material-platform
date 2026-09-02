@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Literal, Protocol, cast
@@ -568,6 +568,8 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
         content: ProcessingOutputContent,
         change_reason: str,
         artifact_created_at: datetime,
+        revision_id: UUID | None = None,
+        post_commit_hook: Callable[[object, ProcessingOutputSnapshot], None] | None = None,
     ) -> ProcessingOutputSnapshot:
         """Insert an output revision in the Artifact finalization transaction.
 
@@ -580,7 +582,7 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
         if not isinstance(session, Session):
             raise TypeError("Artifact commit hook supplied a non-SQLAlchemy session")
         self._bind(session, context, decision)
-        revision_id = uuid4()
+        revision_id = revision_id or uuid4()
         scope = TenantScope(
             context.organization_id,
             context.project_id,
@@ -660,9 +662,18 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
             trace_id=draft.trace_id,
         )
         event = RevisionCreated(record, "draft")
+        deferred_hooks: list[SqlRevisionHook] = []
         for hook in self._hooks:
-            hook(session, event)
-        return ProcessingOutputSnapshot(output_id, record, content)
+            if post_commit_hook is not None and getattr(hook, "after_output_specializer", False):
+                deferred_hooks.append(hook)
+            else:
+                hook(session, event)
+        snapshot = ProcessingOutputSnapshot(output_id, record, content)
+        if post_commit_hook is not None:
+            post_commit_hook(session, snapshot)
+            for hook in deferred_hooks:
+                hook(session, event)
+        return snapshot
 
     @staticmethod
     def _snapshot(session: Session, row: Any) -> ProcessingOutputSnapshot:

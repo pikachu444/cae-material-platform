@@ -140,6 +140,10 @@ Fit difference·Check difference,
 원시 최적화 점수와 반복 설명은 정상 화면에 표시하지 않습니다. 후보와 파라미터 범위를 직접 바꾸는
 작업은 전문가용 **Calculation settings**에만 둡니다.
 
+백엔드 #391은 여러 DMA 등온선을 하나의 exact multi-isotherm Processing Output으로 정렬하고,
+CALIBRATION 행만 다음 Polymer Fit의 Prony 입력으로 제공합니다. 이 단위에는 React 화면을 포함하지
+않으며, 해당 Process 연결 UI는 #392에서 진행합니다.
+
 Metal Fit 상단 상태는 `Calculating`(계산 중), `Saved current`(정확한 Fit Output 복원과 사용 가능한
 preview가 모두 검증됨), `Preview not saved`(현재 preview만 사용 가능), `Saved result stale`(Fit
 history는 있으나 현재 preview/pointer가 검증되지 않음), `Not calculated`(그 밖의 상태)로 고정됩니다.

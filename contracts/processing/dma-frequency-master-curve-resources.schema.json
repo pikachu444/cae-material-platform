@@ -22,19 +22,29 @@
         "content_sha256": {"$ref": "#/$defs/Sha256"}
       }
     },
-    "SourcePins": {
-      "type": "object",
-      "required": ["test_data", "import_profile"],
+    "Confirmation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["confirmed", "reason"],
       "properties": {
-        "test_data": {"$ref": "#/$defs/ExactTestData"},
-        "import_profile": {"$ref": "#/$defs/ExactImportProfile"}
+        "confirmed": {"type": "boolean"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
-    "Disposition": {
+    "FixedRowDisposition": {
       "type": "object", "additionalProperties": false,
       "required": ["source_ordinal", "partition"],
       "properties": {
         "source_ordinal": {"type": "integer", "minimum": 0},
+        "partition": {"enum": ["CALIBRATION", "HOLDOUT", "EXCLUDED"]},
+        "exclusion_reason": {"type": ["string", "null"]}
+      }
+    },
+    "SweepDisposition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_sweep_ordinal", "representative_temperature_k", "partition"],
+      "properties": {
+        "source_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "representative_temperature_k": {"type": "number", "exclusiveMinimum": 0},
         "partition": {"enum": ["CALIBRATION", "HOLDOUT", "EXCLUDED"]},
         "exclusion_reason": {"type": ["string", "null"]}
       }
@@ -47,40 +57,390 @@
         "log10_a_t": {"type": "number"}
       }
     },
-    "ShiftLaw": {
+    "FixedManualShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "manual_table"],
+      "properties": {
+        "kind": {"const": "manual_tabulated"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "manual_table": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/TabulatedFactor"}}
+      }
+    },
+    "FixedWlfShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "c1", "c2_k"],
+      "properties": {
+        "kind": {"const": "wlf"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "c1": {"type": "number", "exclusiveMinimum": 0},
+        "c2_k": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "FixedArrheniusShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "activation_energy_j_per_mol"],
+      "properties": {
+        "kind": {"const": "arrhenius"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "activation_energy_j_per_mol": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "FixedShiftLaw": {
       "oneOf": [
+        {"$ref": "#/$defs/FixedManualShiftLaw"},
+        {"$ref": "#/$defs/FixedWlfShiftLaw"},
+        {"$ref": "#/$defs/FixedArrheniusShiftLaw"}
+      ],
+      "discriminator": {"propertyName": "kind"}
+    },
+    "MultiManualShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "manual_table"],
+      "properties": {
+        "kind": {"const": "manual_tabulated"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "manual_table": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/TabulatedFactor"}}
+      }
+    },
+    "MultiWlfShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "initial_parameters", "lower_bounds", "upper_bounds"],
+      "properties": {
+        "kind": {"const": "wlf_fit"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "initial_parameters": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "lower_bounds": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "upper_bounds": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}}
+      }
+    },
+    "MultiArrheniusShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "initial_parameters", "lower_bounds", "upper_bounds"],
+      "properties": {
+        "kind": {"const": "arrhenius_fit"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "initial_parameters": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}},
+        "lower_bounds": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}},
+        "upper_bounds": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}}
+      }
+    },
+    "MultiShiftLaw": {
+      "oneOf": [
+        {"$ref": "#/$defs/MultiManualShiftLaw"},
+        {"$ref": "#/$defs/MultiWlfShiftLaw"},
+        {"$ref": "#/$defs/MultiArrheniusShiftLaw"}
+      ],
+      "discriminator": {"propertyName": "kind"}
+    },
+    "Scoring": {
+      "type": "object", "additionalProperties": false,
+      "required": ["minimum_overlap_decades", "scoring_point_count", "storage_weight", "loss_weight"],
+      "properties": {
+        "minimum_overlap_decades": {"type": "number", "exclusiveMinimum": 0},
+        "scoring_point_count": {"type": "integer", "minimum": 2, "maximum": 10001},
+        "storage_weight": {"type": "number", "minimum": 0},
+        "loss_weight": {"type": "number", "minimum": 0}
+      }
+    },
+    "AdjacentOptimizer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["relative_shift_lower_bound_log10", "relative_shift_upper_bound_log10", "xatol", "maxiter"],
+      "properties": {
+        "relative_shift_lower_bound_log10": {"type": "number"},
+        "relative_shift_upper_bound_log10": {"type": "number"},
+        "xatol": {"const": 1e-10},
+        "maxiter": {"const": 1000},
+        "seed": {"type": "null"}
+      }
+    },
+    "LawOptimizer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["initial_parameters", "lower_bounds", "upper_bounds", "ftol", "xtol", "gtol", "max_nfev"],
+      "properties": {
+        "initial_parameters": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+        "lower_bounds": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+        "upper_bounds": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+        "ftol": {"const": 1e-12}, "xtol": {"const": 1e-12}, "gtol": {"const": 1e-12}, "max_nfev": {"const": 5000},
+        "seed": {"type": "null"}
+      }
+    },
+    "PersistedFixedManualShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "parameter_source", "manual_table"],
+      "properties": {
+        "kind": {"const": "manual_tabulated"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "parameter_source": {"const": "supplied"},
+        "manual_table": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/TabulatedFactor"}}
+      }
+    },
+    "PersistedFixedWlfShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "parameter_source", "c1", "c2_k"],
+      "properties": {
+        "kind": {"const": "wlf"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "parameter_source": {"const": "supplied"},
+        "c1": {"type": "number", "exclusiveMinimum": 0},
+        "c2_k": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "PersistedFixedArrheniusShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "parameter_source", "activation_energy_j_per_mol", "gas_constant_j_per_mol_k"],
+      "properties": {
+        "kind": {"const": "arrhenius"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "parameter_source": {"const": "supplied"},
+        "activation_energy_j_per_mol": {"type": "number", "exclusiveMinimum": 0},
+        "gas_constant_j_per_mol_k": {"const": 8.31446261815324}
+      }
+    },
+    "PersistedFixedShiftLaw": {
+      "oneOf": [
+        {"$ref": "#/$defs/PersistedFixedManualShiftLaw"},
+        {"$ref": "#/$defs/PersistedFixedWlfShiftLaw"},
+        {"$ref": "#/$defs/PersistedFixedArrheniusShiftLaw"}
+      ],
+      "discriminator": {"propertyName": "kind"}
+    },
+    "PersistedPerTemperature": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_sweep_ordinal", "representative_temperature_k", "observed_log10_a_t", "applied_log10_a_t", "shift_residual_log10_a_t"],
+      "properties": {
+        "source_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "representative_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "observed_log10_a_t": {"type": ["number", "null"]},
+        "applied_log10_a_t": {"type": ["number", "null"]},
+        "shift_residual_log10_a_t": {"type": ["number", "null"]}
+      }
+    },
+    "PersistedAdjacentScore": {
+      "type": "object", "additionalProperties": false,
+      "required": ["overlap_min_log10_reduced_omega", "overlap_max_log10_reduced_omega", "storage_mse", "loss_mse", "weighted_mse"],
+      "properties": {
+        "overlap_min_log10_reduced_omega": {"type": "number"},
+        "overlap_max_log10_reduced_omega": {"type": "number"},
+        "storage_mse": {"type": "number", "minimum": 0},
+        "loss_mse": {"type": "number", "minimum": 0},
+        "weighted_mse": {"type": "number", "minimum": 0}
+      }
+    },
+    "PersistedAdjacentOutcome": {
+      "type": "object", "additionalProperties": false,
+      "required": ["success", "status", "iterations", "evaluations", "objective"],
+      "properties": {
+        "success": {"const": true},
+        "status": {"type": "integer"},
+        "iterations": {"type": "integer", "minimum": 0},
+        "evaluations": {"type": "integer", "minimum": 1},
+        "objective": {"type": "number", "minimum": 0}
+      }
+    },
+    "PersistedAdjacentEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_sweep_ordinal", "comparison_sweep_ordinal", "relative_observed_log10_shift", "score", "evidence"],
+      "properties": {
+        "source_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "comparison_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "relative_observed_log10_shift": {"type": "number"},
+        "score": {"$ref": "#/$defs/PersistedAdjacentScore"},
+        "evidence": {"$ref": "#/$defs/PersistedAdjacentOutcome"}
+      }
+    },
+    "PersistedScoring": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scorer_id", "minimum_overlap_decades", "scoring_point_count", "storage_weight", "loss_weight", "grid_policy", "interpolation", "persisted_scoring_points"],
+      "properties": {
+        "scorer_id": {"const": "cmp.dma_tts.common_log_frequency_grid_log_modulus_mse@1.0.0"},
+        "minimum_overlap_decades": {"type": "number", "exclusiveMinimum": 0},
+        "scoring_point_count": {"type": "integer", "minimum": 2, "maximum": 10001},
+        "storage_weight": {"type": "number", "minimum": 0},
+        "loss_weight": {"type": "number", "minimum": 0},
+        "grid_policy": {"const": "equally_spaced_log10_frequency_inside_measured_overlap"},
+        "interpolation": {"const": "piecewise_linear_log10_modulus"},
+        "persisted_scoring_points": {"const": false}
+      }
+    },
+    "PersistedAdjacentOptimizer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["optimizer_id", "scipy_version", "method", "method_variant", "singleton_policy", "relative_shift_lower_bound_log10", "relative_shift_upper_bound_log10", "xatol", "maxiter", "seed", "evidence"],
+      "properties": {
+        "optimizer_id": {"const": "cmp.dma_tts.adjacent_overlap_log_mse.scipy_bounded@1.0.0"},
+        "scipy_version": {"type": "string", "minLength": 1},
+        "method": {"const": "minimize_scalar"},
+        "method_variant": {"const": "bounded_or_direct_singleton"},
+        "singleton_policy": {"const": "evaluate_once_without_optimizer"},
+        "relative_shift_lower_bound_log10": {"type": "number"},
+        "relative_shift_upper_bound_log10": {"type": "number"},
+        "xatol": {"const": 1e-10},
+        "maxiter": {"const": 1000},
+        "seed": {"type": "null"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedAdjacentEvidence"}}
+      }
+    },
+    "PersistedLawOptimizer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["optimizer_id", "scipy_version", "method", "method_variant", "ftol", "xtol", "gtol", "max_nfev", "seed", "status", "success", "nfev", "cost", "optimality", "objective_mse", "initial_parameters", "lower_bounds", "upper_bounds"],
+      "properties": {
+        "optimizer_id": {"const": "cmp.dma_tts.shift_law_log10_least_squares.scipy_trf@1.0.0"},
+        "scipy_version": {"type": "string", "minLength": 1},
+        "method": {"const": "least_squares"},
+        "method_variant": {"const": "trf"},
+        "ftol": {"const": 1e-12},
+        "xtol": {"const": 1e-12},
+        "gtol": {"const": 1e-12},
+        "max_nfev": {"const": 5000},
+        "seed": {"type": "null"},
+        "status": {"type": "integer"},
+        "success": {"const": true},
+        "nfev": {"type": "integer", "minimum": 1},
+        "cost": {"type": "number", "minimum": 0},
+        "optimality": {"type": "number", "minimum": 0},
+        "objective_mse": {"type": "number", "minimum": 0},
+        "initial_parameters": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+        "lower_bounds": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+        "upper_bounds": {"type": "array", "minItems": 1, "items": {"type": "number"}}
+      }
+    },
+    "PersistedMultiManualShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "parameter_source", "manual_table", "per_temperature", "adjacent_observed"],
+      "properties": {
+        "kind": {"const": "manual_tabulated"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "parameter_source": {"const": "supplied"},
+        "manual_table": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/TabulatedFactor"}},
+        "per_temperature": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedPerTemperature"}},
+        "adjacent_observed": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedAdjacentEvidence"}}
+      }
+    },
+    "PersistedMultiWlfShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "parameter_source", "fitted_parameters", "initial_parameters", "lower_bounds", "upper_bounds", "c1", "c2_k", "per_temperature", "adjacent_observed"],
+      "properties": {
+        "kind": {"const": "wlf_fit"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "parameter_source": {"const": "fitted"},
+        "fitted_parameters": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "initial_parameters": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "lower_bounds": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "upper_bounds": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "c1": {"type": "number", "exclusiveMinimum": 0},
+        "c2_k": {"type": "number", "exclusiveMinimum": 0},
+        "per_temperature": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedPerTemperature"}},
+        "adjacent_observed": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedAdjacentEvidence"}}
+      }
+    },
+    "PersistedMultiArrheniusShiftLaw": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "reference_temperature_k", "parameter_source", "fitted_parameters", "initial_parameters", "lower_bounds", "upper_bounds", "activation_energy_j_per_mol", "gas_constant_j_per_mol_k", "per_temperature", "adjacent_observed"],
+      "properties": {
+        "kind": {"const": "arrhenius_fit"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "parameter_source": {"const": "fitted"},
+        "fitted_parameters": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}},
+        "initial_parameters": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}},
+        "lower_bounds": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}},
+        "upper_bounds": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"type": "number"}},
+        "activation_energy_j_per_mol": {"type": "number", "exclusiveMinimum": 0},
+        "gas_constant_j_per_mol_k": {"const": 8.31446261815324},
+        "per_temperature": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedPerTemperature"}},
+        "adjacent_observed": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/PersistedAdjacentEvidence"}}
+      }
+    },
+    "PersistedMultiShiftLaw": {
+      "oneOf": [
+        {"$ref": "#/$defs/PersistedMultiManualShiftLaw"},
+        {"$ref": "#/$defs/PersistedMultiWlfShiftLaw"},
+        {"$ref": "#/$defs/PersistedMultiArrheniusShiftLaw"}
+      ],
+      "discriminator": {"propertyName": "kind"}
+    },
+    "PersistedShiftLaw": {
+      "oneOf": [
+        {"$ref": "#/$defs/PersistedFixedManualShiftLaw"},
+        {"$ref": "#/$defs/PersistedFixedWlfShiftLaw"},
+        {"$ref": "#/$defs/PersistedFixedArrheniusShiftLaw"},
+        {"$ref": "#/$defs/PersistedMultiManualShiftLaw"},
+        {"$ref": "#/$defs/PersistedMultiWlfShiftLaw"},
+        {"$ref": "#/$defs/PersistedMultiArrheniusShiftLaw"}
+      ],
+      "discriminator": {"propertyName": "kind"}
+    },
+    "PersistedResidualSummary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["calibration_comparison_count", "units", "storage_mse", "loss_mse", "storage_rmse", "loss_rmse", "weighted_mse", "holdout_evaluation_separate"],
+      "properties": {
+        "calibration_comparison_count": {"type": "integer", "minimum": 1},
+        "units": {"const": "log10(modulus) and log10(aT)"},
+        "storage_mse": {"type": "number", "minimum": 0},
+        "loss_mse": {"type": "number", "minimum": 0},
+        "storage_rmse": {"type": "number", "minimum": 0},
+        "loss_rmse": {"type": "number", "minimum": 0},
+        "weighted_mse": {"type": "number", "minimum": 0},
+        "holdout_evaluation_separate": {"const": true}
+      }
+    },
+    "CreateCommon": {
+      "type": "object",
+      "required": ["classification", "label", "test_data", "import_profile", "confirmation", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "test_data": {"$ref": "#/$defs/ExactTestData"},
+        "import_profile": {"$ref": "#/$defs/ExactImportProfile"},
+        "confirmation": {"$ref": "#/$defs/Confirmation"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "FixedCreateRequest": {
+      "allOf": [
+        {"$ref": "#/$defs/CreateCommon"},
         {
-          "type": "object", "additionalProperties": false,
-          "required": ["kind", "reference_temperature_k", "factors", "value_origin"],
+          "type": "object",
+          "required": ["input_mode", "row_dispositions", "shift_law"],
           "properties": {
-            "kind": {"const": "tabulated"},
-            "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
-            "factors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/TabulatedFactor"}},
-            "value_origin": {"enum": ["source_shift_factors", "engineer_edited", "engineer_entered"]}
-          }
-        },
-        {
-          "type": "object", "additionalProperties": false,
-          "required": ["kind", "reference_temperature_k", "c1", "c2_k", "value_origin"],
-          "properties": {
-            "kind": {"const": "wlf"},
-            "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
-            "c1": {"type": "number", "exclusiveMinimum": 0},
-            "c2_k": {"type": "number", "exclusiveMinimum": 0},
-            "value_origin": {"enum": ["generic_wlf_at_tg_starting_suggestion", "engineer_edited", "engineer_entered"]}
-          }
-        },
-        {
-          "type": "object", "additionalProperties": false,
-          "required": ["kind", "reference_temperature_k", "activation_energy_j_per_mol", "value_origin"],
-          "properties": {
-            "kind": {"const": "arrhenius"},
-            "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
-            "activation_energy_j_per_mol": {"type": "number", "exclusiveMinimum": 0},
-            "value_origin": {"enum": ["source_shift_factors", "engineer_edited", "engineer_entered"]}
+            "input_mode": {"const": "fixed_frequency_temperature_sweep"},
+            "row_dispositions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/FixedRowDisposition"}},
+            "shift_law": {"$ref": "#/$defs/FixedShiftLaw"},
+            "recommendation_sha256": {"oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]}
           }
         }
-      ]
+      ],
+      "unevaluatedProperties": false
+    },
+    "MultiCreateRequest": {
+      "allOf": [
+        {"$ref": "#/$defs/CreateCommon"},
+        {
+          "type": "object",
+          "required": ["input_mode", "sweep_dispositions", "reference_sweep_ordinal", "shift_law", "scoring", "adjacent_optimizer"],
+          "properties": {
+            "input_mode": {"const": "multi_frequency_isotherms"},
+            "sweep_dispositions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/SweepDisposition"}},
+            "reference_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "shift_law": {"$ref": "#/$defs/MultiShiftLaw"},
+            "scoring": {"$ref": "#/$defs/Scoring"},
+            "adjacent_optimizer": {"$ref": "#/$defs/AdjacentOptimizer"},
+            "law_optimizer": {"oneOf": [{"$ref": "#/$defs/LawOptimizer"}, {"type": "null"}]}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CreateRequest": {
+      "oneOf": [
+        {"$ref": "#/$defs/FixedCreateRequest"},
+        {"$ref": "#/$defs/MultiCreateRequest"}
+      ],
+      "discriminator": {
+        "propertyName": "input_mode",
+        "mapping": {
+          "fixed_frequency_temperature_sweep": "#/$defs/FixedCreateRequest",
+          "multi_frequency_isotherms": "#/$defs/MultiCreateRequest"
+        }
+      }
     },
     "RecommendationRequest": {
       "type": "object", "additionalProperties": false,
@@ -94,56 +454,180 @@
       "type": "object", "additionalProperties": false,
       "required": ["source_evidence", "reference_temperature_k", "source_ordinal", "c1", "c2_k", "value_origin", "material_specific", "requires_confirmation", "rule_id", "rule_version", "recommendation_sha256"],
       "properties": {
-        "source_evidence": {"type": "object"},
-        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
-        "source_ordinal": {"type": "integer", "minimum": 0},
-        "c1": {"type": "number", "exclusiveMinimum": 0},
-        "c2_k": {"type": "number", "exclusiveMinimum": 0},
-        "value_origin": {"const": "generic_wlf_at_tg_starting_suggestion"},
-        "material_specific": {"const": false},
-        "requires_confirmation": {"const": true},
-        "rule_id": {"const": "polymer.dma_wlf_starting_suggestion"},
-        "rule_version": {"const": "1.0.0"},
-        "recommendation_sha256": {"$ref": "#/$defs/Sha256"}
-      }
-    },
-    "CreateRequest": {
-      "type": "object", "additionalProperties": false,
-      "required": ["classification", "label", "test_data", "import_profile", "dispositions", "shift_law", "confirmation", "change_reason"],
-      "properties": {
-        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
-        "label": {"type": "string", "minLength": 1, "maxLength": 200},
-        "test_data": {"$ref": "#/$defs/ExactTestData"},
-        "import_profile": {"$ref": "#/$defs/ExactImportProfile"},
-        "dispositions": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/Disposition"}},
-        "shift_law": {"$ref": "#/$defs/ShiftLaw"},
-        "confirmation": {
-          "type": "object", "additionalProperties": false,
-          "required": ["confirmed", "reason"],
-          "properties": {"confirmed": {"type": "boolean"}, "reason": {"type": "string", "minLength": 1, "maxLength": 2000}}
-        },
-        "recommendation_sha256": {"oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]},
-        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+        "source_evidence": {"type": "object"}, "reference_temperature_k": {"type": "number"}, "source_ordinal": {"type": "integer", "minimum": 0}, "c1": {"type": "number"}, "c2_k": {"type": "number"}, "value_origin": {"type": "string"}, "material_specific": {"const": false}, "requires_confirmation": {"const": true}, "rule_id": {"const": "polymer.dma_wlf_starting_suggestion"}, "rule_version": {"const": "1.0.0"}, "recommendation_sha256": {"$ref": "#/$defs/Sha256"}
       }
     },
     "OutputPin": {
       "type": "object", "additionalProperties": false,
       "required": ["output_id", "revision_id", "content_sha256", "metadata_artifact_id", "metadata_sha256", "result_artifact_id", "result_sha256", "result_schema_ref", "result_media_type"],
       "properties": {
-        "output_id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"},
-        "content_sha256": {"$ref": "#/$defs/Sha256"}, "metadata_artifact_id": {"$ref": "#/$defs/Uuid"},
-        "metadata_sha256": {"$ref": "#/$defs/Sha256"}, "result_artifact_id": {"$ref": "#/$defs/Uuid"},
-        "result_sha256": {"$ref": "#/$defs/Sha256"}, "result_schema_ref": {"type": "string"},
-        "result_media_type": {"const": "application/vnd.apache.parquet"}
+        "output_id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"}, "content_sha256": {"$ref": "#/$defs/Sha256"}, "metadata_artifact_id": {"$ref": "#/$defs/Uuid"}, "metadata_sha256": {"$ref": "#/$defs/Sha256"}, "result_artifact_id": {"$ref": "#/$defs/Uuid"}, "result_sha256": {"$ref": "#/$defs/Sha256"}, "result_schema_ref": {"const": "urn:cmp:processing:dma-frequency-master-curve-parquet:1.0.0"}, "result_media_type": {"const": "application/vnd.apache.parquet"}
       }
     },
     "CreateResponse": {
       "type": "object", "additionalProperties": false,
-      "required": ["loss_modulus_output", "master_curve_output"],
+      "required": ["master_curve_output"],
       "properties": {
-        "loss_modulus_output": {"oneOf": [{"$ref": "#/$defs/OutputPin"}, {"type": "null"}]},
         "master_curve_output": {"$ref": "#/$defs/OutputPin"}
       }
+    },
+    "LineagePin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["document_id", "revision_id", "content_sha256"],
+      "properties": {"document_id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"}, "content_sha256": {"$ref": "#/$defs/Sha256"}}
+    },
+    "Isotherm": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_mode", "source_sweep_ordinal", "representative_temperature_k", "partition", "is_reference", "exclusion_reason", "holdout_evaluation_status", "source_ordinals", "measured_temperature_k", "source_frequency_hz", "angular_frequency_rad_per_s", "storage_modulus_pa", "loss_modulus_pa", "source_tan_delta", "loss_modulus_origin", "reduced_angular_frequency_rad_per_s", "raw_angular_frequency_min_rad_per_s", "raw_angular_frequency_max_rad_per_s", "shifted_angular_frequency_min_rad_per_s", "shifted_angular_frequency_max_rad_per_s", "comparison_sweep_ordinal", "observed_log10_a_t", "applied_log10_a_t", "shift_factor", "shift_residual_log10_a_t", "overlap_log10_reduced_angular_frequency_min", "overlap_log10_reduced_angular_frequency_max", "scoring_point_count", "storage_mse", "loss_mse", "storage_rmse", "loss_rmse", "weighted_mse", "adjacent_success", "adjacent_status", "adjacent_iterations", "adjacent_evaluations", "adjacent_objective"],
+      "properties": {
+        "input_mode": {"enum": ["fixed_frequency_temperature_sweep", "multi_frequency_isotherms"]},
+        "source_sweep_ordinal": {"type": ["integer", "null"], "minimum": 1},
+        "representative_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "partition": {"enum": ["CALIBRATION", "HOLDOUT", "EXCLUDED"]},
+        "is_reference": {"type": "boolean"}, "exclusion_reason": {"type": ["string", "null"]}, "holdout_evaluation_status": {"type": ["string", "null"]},
+        "source_ordinals": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 0}},
+        "measured_temperature_k": {"type": "array", "minItems": 1, "items": {"type": "number", "exclusiveMinimum": 0}},
+        "source_frequency_hz": {"type": "array", "minItems": 1, "items": {"type": "number", "exclusiveMinimum": 0}},
+        "angular_frequency_rad_per_s": {"type": "array", "minItems": 1, "items": {"type": "number", "exclusiveMinimum": 0}},
+        "storage_modulus_pa": {"type": "array", "minItems": 1, "items": {"type": "number", "exclusiveMinimum": 0}},
+        "loss_modulus_pa": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+        "source_tan_delta": {"type": "array", "minItems": 1, "items": {"type": ["number", "null"]}},
+        "loss_modulus_origin": {"type": "array", "minItems": 1, "items": {"enum": ["measured", "derived_from_tan_delta"]}},
+        "reduced_angular_frequency_rad_per_s": {"type": ["array", "null"], "items": {"type": "number", "exclusiveMinimum": 0}},
+        "raw_angular_frequency_min_rad_per_s": {"type": "number", "exclusiveMinimum": 0}, "raw_angular_frequency_max_rad_per_s": {"type": "number", "exclusiveMinimum": 0},
+        "shifted_angular_frequency_min_rad_per_s": {"type": ["number", "null"]}, "shifted_angular_frequency_max_rad_per_s": {"type": ["number", "null"]}, "comparison_sweep_ordinal": {"type": ["integer", "null"]},
+        "observed_log10_a_t": {"type": ["number", "null"]}, "applied_log10_a_t": {"type": ["number", "null"]}, "shift_factor": {"type": ["number", "null"]}, "shift_residual_log10_a_t": {"type": ["number", "null"]},
+        "overlap_log10_reduced_angular_frequency_min": {"type": ["number", "null"]}, "overlap_log10_reduced_angular_frequency_max": {"type": ["number", "null"]}, "scoring_point_count": {"type": ["integer", "null"]},
+        "storage_mse": {"type": ["number", "null"]}, "loss_mse": {"type": ["number", "null"]}, "storage_rmse": {"type": ["number", "null"]}, "loss_rmse": {"type": ["number", "null"]}, "weighted_mse": {"type": ["number", "null"]},
+        "adjacent_success": {"type": ["boolean", "null"]}, "adjacent_status": {"type": ["integer", "null"]}, "adjacent_iterations": {"type": ["integer", "null"]}, "adjacent_evaluations": {"type": ["integer", "null"]}, "adjacent_objective": {"type": ["number", "null"]}
+      }
+    },
+    "ReadResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output", "input_mode", "options", "isotherms", "test_data", "import_profile"],
+      "properties": {
+        "output": {"$ref": "#/$defs/OutputPin"},
+        "input_mode": {"enum": ["fixed_frequency_temperature_sweep", "multi_frequency_isotherms"]},
+        "options": {"$ref": "#/$defs/DmaOptions"},
+        "isotherms": {"type": "array", "items": {"$ref": "#/$defs/Isotherm"}},
+        "test_data": {"$ref": "#/$defs/LineagePin"},
+        "import_profile": {"$ref": "#/$defs/LineagePin"}
+      }
+    },
+    "DmaOptions": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_mode", "source_normalized_artifact_id", "source_normalized_artifact_sha256", "result_row_count", "frequency_conversion", "shift_direction", "log_base", "reference", "shift_law", "scoring", "adjacent_optimizer", "law_optimizer", "residual_summary", "application_range", "assessment", "warnings"],
+      "properties": {
+        "input_mode": {"enum": ["fixed_frequency_temperature_sweep", "multi_frequency_isotherms"]},
+        "source_normalized_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "source_normalized_artifact_sha256": {"$ref": "#/$defs/Sha256"},
+        "result_row_count": {"type": "integer", "minimum": 1},
+        "frequency_conversion": {"const": "omega_rad_per_s=2*pi*frequency_hz"},
+        "shift_direction": {"const": "omega_reduced=omega*10**log10_a_t"},
+        "log_base": {"const": 10},
+        "reference": {
+          "type": "object", "additionalProperties": false,
+          "required": ["source_sweep_ordinal", "source_ordinal", "representative_temperature_k"],
+          "properties": {
+            "source_sweep_ordinal": {"type": ["integer", "null"], "minimum": 1},
+            "source_ordinal": {"type": ["integer", "null"], "minimum": 0},
+            "representative_temperature_k": {"type": "number", "exclusiveMinimum": 0}
+          }
+        },
+        "shift_law": {"$ref": "#/$defs/PersistedShiftLaw"},
+        "scoring": {"oneOf": [{"$ref": "#/$defs/PersistedScoring"}, {"type": "null"}]},
+        "adjacent_optimizer": {"oneOf": [{"$ref": "#/$defs/PersistedAdjacentOptimizer"}, {"type": "null"}]},
+        "law_optimizer": {"oneOf": [{"$ref": "#/$defs/PersistedLawOptimizer"}, {"type": "null"}]},
+        "residual_summary": {"oneOf": [{"$ref": "#/$defs/PersistedResidualSummary"}, {"type": "null"}]},
+        "application_range": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["basis", "holdout_included", "reduced_angular_frequency_intervals_rad_per_s", "calibration_temperature_interval_k"],
+              "properties": {
+                "basis": {"const": "at_least_two_shifted_calibration_isotherms"},
+                "holdout_included": {"const": false},
+                "reduced_angular_frequency_intervals_rad_per_s": {
+                  "type": "array", "minItems": 1,
+                  "items": {
+                    "type": "object", "additionalProperties": false,
+                    "required": ["minimum", "maximum"],
+                    "properties": {
+                      "minimum": {"type": "number", "exclusiveMinimum": 0},
+                      "maximum": {"type": "number", "exclusiveMinimum": 0}
+                    }
+                  }
+                },
+                "calibration_temperature_interval_k": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["minimum", "maximum"],
+                  "properties": {
+                    "minimum": {"type": "number", "exclusiveMinimum": 0},
+                    "maximum": {"type": "number", "exclusiveMinimum": 0}
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "assessment": {
+          "type": "object", "additionalProperties": false,
+          "required": ["adequacy", "uncertainty", "identifiability", "production_readiness"],
+          "properties": {
+            "adequacy": {"const": "not_assessed"},
+            "uncertainty": {"const": "not_provided"},
+            "identifiability": {"const": "not_assessed"},
+            "production_readiness": {"const": "non_production"}
+          }
+        },
+        "warnings": {
+          "type": "array", "prefixItems": [
+            {"const": "DMA_TTS_LVR_EVIDENCE_MISSING"},
+            {"const": "DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING"},
+            {"const": "DMA_TTS_PRECONDITIONING_EVIDENCE_MISSING"}
+          ], "items": false, "minItems": 3, "maxItems": 3
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"input_mode": {"const": "fixed_frequency_temperature_sweep"}}},
+          "then": {
+            "properties": {
+              "reference": {
+                "properties": {
+                  "source_sweep_ordinal": {"type": "null"},
+                  "source_ordinal": {"type": "integer", "minimum": 0}
+                }
+              },
+              "scoring": {"type": "null"},
+              "adjacent_optimizer": {"type": "null"},
+              "law_optimizer": {"type": "null"},
+              "residual_summary": {"type": "null"},
+              "application_range": {"type": "null"},
+              "shift_law": {"$ref": "#/$defs/PersistedFixedShiftLaw"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"input_mode": {"const": "multi_frequency_isotherms"}}},
+          "then": {
+            "properties": {
+              "reference": {
+                "properties": {
+                  "source_sweep_ordinal": {"type": "integer", "minimum": 1},
+                  "source_ordinal": {"type": "null"}
+                }
+              },
+              "scoring": {"$ref": "#/$defs/PersistedScoring"},
+              "adjacent_optimizer": {"$ref": "#/$defs/PersistedAdjacentOptimizer"},
+              "residual_summary": {"$ref": "#/$defs/PersistedResidualSummary"},
+              "application_range": {"type": "object"},
+              "shift_law": {"$ref": "#/$defs/PersistedMultiShiftLaw"}
+            }
+          }
+        }
+      ]
     }
   }
 }

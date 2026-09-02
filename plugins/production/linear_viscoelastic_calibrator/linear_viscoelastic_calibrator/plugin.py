@@ -11,8 +11,10 @@ import hashlib
 import io
 import json
 import math
+from decimal import Decimal, InvalidOperation
+from itertools import pairwise
 from typing import Any
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 import numpy as np
 import pyarrow as pa
@@ -39,17 +41,96 @@ CONFIG_SCHEMA = "urn:cmp:plugin:linear-viscoelastic-calibrator:config:1.0.0"
 RECOMMENDATION_POLICY = "lowest_bic_then_term_count_then_attempt_ordinal@1.0.0"
 DMA_MASTER_CURVE_SCHEMA = "urn:cmp:processing:dma-frequency-master-curve-parquet:1.0.0"
 DMA_MASTER_CURVE_COLUMNS = (
-    "source_ordinal",
-    "temperature_k",
+    "input_mode",
+    "source_sweep_ordinal",
+    "representative_temperature_k",
+    "partition",
+    "is_reference",
+    "exclusion_reason",
+    "holdout_evaluation_status",
+    "source_ordinals",
+    "measured_temperature_k",
     "source_frequency_hz",
     "angular_frequency_rad_per_s",
-    "log10_a_t",
-    "shift_factor",
-    "reduced_angular_frequency_rad_per_s",
     "storage_modulus_pa",
     "loss_modulus_pa",
-    "partition",
-    "exclusion_reason",
+    "source_tan_delta",
+    "loss_modulus_origin",
+    "reduced_angular_frequency_rad_per_s",
+    "raw_angular_frequency_min_rad_per_s",
+    "raw_angular_frequency_max_rad_per_s",
+    "shifted_angular_frequency_min_rad_per_s",
+    "shifted_angular_frequency_max_rad_per_s",
+    "comparison_sweep_ordinal",
+    "observed_log10_a_t",
+    "applied_log10_a_t",
+    "shift_factor",
+    "shift_residual_log10_a_t",
+    "overlap_log10_reduced_angular_frequency_min",
+    "overlap_log10_reduced_angular_frequency_max",
+    "scoring_point_count",
+    "storage_mse",
+    "loss_mse",
+    "storage_rmse",
+    "loss_rmse",
+    "weighted_mse",
+    "adjacent_success",
+    "adjacent_status",
+    "adjacent_iterations",
+    "adjacent_evaluations",
+    "adjacent_objective",
+)
+
+
+def _list_type(value_type: pa.DataType, *, nullable: bool = False) -> pa.DataType:
+    return pa.list_(pa.field("item", value_type, nullable=nullable))
+
+
+DMA_MASTER_CURVE_ARROW_SCHEMA = pa.schema(
+    (
+        pa.field("input_mode", pa.string(), nullable=False),
+        pa.field("source_sweep_ordinal", pa.int64(), nullable=True),
+        pa.field("representative_temperature_k", pa.float64(), nullable=False),
+        pa.field("partition", pa.string(), nullable=False),
+        pa.field("is_reference", pa.bool_(), nullable=False),
+        pa.field("exclusion_reason", pa.string(), nullable=True),
+        pa.field("holdout_evaluation_status", pa.string(), nullable=True),
+        pa.field("source_ordinals", _list_type(pa.int64()), nullable=False),
+        pa.field("measured_temperature_k", _list_type(pa.float64()), nullable=False),
+        pa.field("source_frequency_hz", _list_type(pa.float64()), nullable=False),
+        pa.field("angular_frequency_rad_per_s", _list_type(pa.float64()), nullable=False),
+        pa.field("storage_modulus_pa", _list_type(pa.float64()), nullable=False),
+        pa.field("loss_modulus_pa", _list_type(pa.float64()), nullable=False),
+        pa.field(
+            "source_tan_delta",
+            _list_type(pa.float64(), nullable=True),
+            nullable=False,
+        ),
+        pa.field("loss_modulus_origin", _list_type(pa.string()), nullable=False),
+        pa.field("reduced_angular_frequency_rad_per_s", _list_type(pa.float64()), nullable=True),
+        pa.field("raw_angular_frequency_min_rad_per_s", pa.float64(), nullable=False),
+        pa.field("raw_angular_frequency_max_rad_per_s", pa.float64(), nullable=False),
+        pa.field("shifted_angular_frequency_min_rad_per_s", pa.float64(), nullable=True),
+        pa.field("shifted_angular_frequency_max_rad_per_s", pa.float64(), nullable=True),
+        pa.field("comparison_sweep_ordinal", pa.int64(), nullable=True),
+        pa.field("observed_log10_a_t", pa.float64(), nullable=True),
+        pa.field("applied_log10_a_t", pa.float64(), nullable=True),
+        pa.field("shift_factor", pa.float64(), nullable=True),
+        pa.field("shift_residual_log10_a_t", pa.float64(), nullable=True),
+        pa.field("overlap_log10_reduced_angular_frequency_min", pa.float64(), nullable=True),
+        pa.field("overlap_log10_reduced_angular_frequency_max", pa.float64(), nullable=True),
+        pa.field("scoring_point_count", pa.int32(), nullable=True),
+        pa.field("storage_mse", pa.float64(), nullable=True),
+        pa.field("loss_mse", pa.float64(), nullable=True),
+        pa.field("storage_rmse", pa.float64(), nullable=True),
+        pa.field("loss_rmse", pa.float64(), nullable=True),
+        pa.field("weighted_mse", pa.float64(), nullable=True),
+        pa.field("adjacent_success", pa.bool_(), nullable=True),
+        pa.field("adjacent_status", pa.int32(), nullable=True),
+        pa.field("adjacent_iterations", pa.int64(), nullable=True),
+        pa.field("adjacent_evaluations", pa.int64(), nullable=True),
+        pa.field("adjacent_objective", pa.float64(), nullable=True),
+    )
 )
 
 
@@ -142,6 +223,10 @@ def _normalized_observations(
     mode = semantics.get("mode")
     if mode not in {"relaxation", "dma"} or semantics.get("deformation_mode") != "shear":
         raise ValueError("Plan input mode or deformation mode is unsupported")
+    if mode == "relaxation" and "dma_domain_policy" in semantics:
+        raise ValueError("relaxation Plan must omit dma_domain_policy")
+    if mode == "dma" and semantics.get("dma_domain_policy") != "strict_unique":
+        raise ValueError("direct DMA Plan requires the server-derived strict_unique policy")
     channel_contracts = semantics.get("channels")
     dispositions = semantics.get("point_dispositions")
     canonical_channels = canonical.get("channels")
@@ -277,12 +362,995 @@ def _normalized_observations(
     return mode, result
 
 
-def _processed_dma_observations(
+_DMA_WARNINGS = [
+    "DMA_TTS_LVR_EVIDENCE_MISSING",
+    "DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING",
+    "DMA_TTS_PRECONDITIONING_EVIDENCE_MISSING",
+]
+_DMA_ASSESSMENT = {
+    "adequacy": "not_assessed",
+    "uncertainty": "not_provided",
+    "identifiability": "not_assessed",
+    "production_readiness": "non_production",
+}
+_DMA_EVIDENCE_FIELDS = (
+    "comparison_sweep_ordinal",
+    "observed_log10_a_t",
+    "shift_residual_log10_a_t",
+    "overlap_log10_reduced_angular_frequency_min",
+    "overlap_log10_reduced_angular_frequency_max",
+    "scoring_point_count",
+    "storage_mse",
+    "loss_mse",
+    "storage_rmse",
+    "loss_rmse",
+    "weighted_mse",
+    "adjacent_success",
+    "adjacent_status",
+    "adjacent_iterations",
+    "adjacent_evaluations",
+    "adjacent_objective",
+)
+
+
+def _dma_number(value: object, name: str, *, positive: bool = False) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"DMA {name} is not numeric")
+    number = float(value)
+    if not math.isfinite(number) or (positive and number <= 0):
+        raise ValueError(f"DMA {name} is not finite and positive")
+    return number
+
+
+def _dma_integer(value: object, name: str, *, minimum: int | None = None) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"DMA {name} is not an integer")
+    if minimum is not None and value < minimum:
+        raise ValueError(f"DMA {name} is below its governed minimum")
+    return value
+
+
+def _dma_list(source: dict[str, Any], name: str) -> list[Any]:
+    value = source.get(name)
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"DMA result {name} is not a nonempty list")
+    return value
+
+
+def _dma_exact_keys(value: object, keys: set[str], name: str) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != keys:
+        raise ValueError(f"DMA {name} does not have the exact current keys")
+    return value
+
+
+def _dma_uuid(value: object, name: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"DMA {name} is not a canonical UUID")
+    try:
+        parsed = UUID(value)
+    except ValueError as error:
+        raise ValueError(f"DMA {name} is not a canonical UUID") from error
+    if str(parsed) != value:
+        raise ValueError(f"DMA {name} is not a canonical UUID")
+    return value
+
+
+def _dma_decimal_temperature(value: object, name: str) -> Decimal:
+    try:
+        result = Decimal(str(value))
+    except (InvalidOperation, ValueError) as error:
+        raise ValueError(f"DMA {name} is not a normalized numeric temperature") from error
+    if not result.is_finite() or result <= 0:
+        raise ValueError(f"DMA {name} is not finite and positive")
+    return result
+
+
+def _dma_validate_temperature(measured: list[Any], representative: float, mode: str) -> None:
+    if mode == "fixed_frequency_temperature_sweep":
+        if representative != _dma_number(measured[0], "measured_temperature_k", positive=True):
+            raise ValueError("fixed DMA representative temperature differs from its point")
+        return
+    values = [_dma_decimal_temperature(item, "measured_temperature_k") for item in measured]
+    counts: dict[Decimal, int] = {}
+    for value in values:
+        counts[value] = counts.get(value, 0) + 1
+    maximum = max(counts.values())
+    expected = min(value for value, count in counts.items() if count == maximum)
+    requested = _dma_decimal_temperature(representative, "representative_temperature_k")
+    if requested != expected:
+        raise ValueError("DMA representative temperature is not the normalized modal value")
+    if any(abs(value - expected) > Decimal("0.05") for value in values):
+        raise ValueError("DMA measured temperature exceeds the inclusive 0.05 K tolerance")
+
+
+def _dma_validate_loss_evidence(
+    mode: str,
+    storage: list[float],
+    loss: list[float],
+    tan_delta: list[Any],
+    origins: list[Any],
+) -> None:
+    if len(tan_delta) != len(loss) or len(origins) != len(loss):
+        raise ValueError("DMA loss evidence arrays have unequal lengths")
+    for storage_value, loss_value, tan_value, origin in zip(
+        storage, loss, tan_delta, origins, strict=True
+    ):
+        if origin not in {"measured", "derived_from_tan_delta"}:
+            raise ValueError("DMA loss-modulus origin is unsupported")
+        if origin == "measured":
+            if tan_value is not None:
+                raise ValueError("measured DMA loss rows must not persist tan delta")
+        else:
+            tan_number = _dma_number(tan_value, "source_tan_delta")
+            if not math.isclose(
+                loss_value,
+                storage_value * tan_number,
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            ):
+                raise ValueError("derived DMA loss evidence does not match tan delta")
+    if mode == "multi_frequency_isotherms" and any(
+        origin != "measured" or tan_value is not None
+        for origin, tan_value in zip(origins, tan_delta, strict=True)
+    ):
+        raise ValueError("multi-frequency DMA loss evidence is not measured-only")
+
+
+def _dma_validate_row(
+    source: object,
+    mode: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if not isinstance(source, dict) or source.get("input_mode") != mode:
+        raise ValueError("DMA result row input_mode differs from persisted options")
+    partition = source.get("partition")
+    if partition not in {"CALIBRATION", "HOLDOUT", "EXCLUDED"}:
+        raise ValueError("DMA result row partition is invalid")
+    representative = _dma_number(
+        source.get("representative_temperature_k"),
+        "representative_temperature_k",
+        positive=True,
+    )
+    sweep_ordinal = source.get("source_sweep_ordinal")
+    if mode == "multi_frequency_isotherms":
+        _dma_integer(sweep_ordinal, "source_sweep_ordinal", minimum=1)
+        if sweep_ordinal > 9_223_372_036_854_775_807:
+            raise ValueError("DMA source_sweep_ordinal exceeds int64")
+    elif sweep_ordinal is not None:
+        raise ValueError("fixed DMA result carries a source sweep identity")
+    source_ordinals = _dma_list(source, "source_ordinals")
+    measured_temperature = _dma_list(source, "measured_temperature_k")
+    source_frequency = _dma_list(source, "source_frequency_hz")
+    angular_frequency = _dma_list(source, "angular_frequency_rad_per_s")
+    storage_values = _dma_list(source, "storage_modulus_pa")
+    loss_values = _dma_list(source, "loss_modulus_pa")
+    tan_delta = _dma_list(source, "source_tan_delta")
+    origins = _dma_list(source, "loss_modulus_origin")
+    raw_lists = (
+        source_ordinals,
+        measured_temperature,
+        source_frequency,
+        angular_frequency,
+        storage_values,
+        loss_values,
+        tan_delta,
+        origins,
+    )
+    if len({len(value) for value in raw_lists}) != 1:
+        raise ValueError("DMA result raw lists have unequal lengths")
+    if mode == "fixed_frequency_temperature_sweep" and len(source_ordinals) != 1:
+        raise ValueError("fixed DMA result rows must contain one raw point")
+    ordinals = tuple(_dma_integer(value, "source_ordinal", minimum=0) for value in source_ordinals)
+    if any(value > 9_223_372_036_854_775_807 for value in ordinals) or ordinals != tuple(
+        sorted(ordinals)
+    ):
+        raise ValueError("DMA result source ordinals are not in source order")
+    for value in measured_temperature:
+        _dma_number(value, "measured_temperature_k", positive=True)
+    frequencies = [
+        _dma_number(value, "source_frequency_hz", positive=True) for value in source_frequency
+    ]
+    angular = [
+        _dma_number(value, "angular_frequency_rad_per_s", positive=True)
+        for value in angular_frequency
+    ]
+    storage = [_dma_number(value, "storage_modulus_pa", positive=True) for value in storage_values]
+    loss = [_dma_number(value, "loss_modulus_pa") for value in loss_values]
+    _dma_validate_temperature(measured_temperature, representative, mode)
+    _dma_validate_loss_evidence(mode, storage, loss, tan_delta, origins)
+    if mode == "multi_frequency_isotherms" and any(value <= 0 for value in loss):
+        raise ValueError("multi-frequency DMA loss modulus must be positive")
+    if any(
+        not math.isclose(omega, 2.0 * math.pi * frequency, rel_tol=1e-12, abs_tol=1e-12)
+        for omega, frequency in zip(angular, frequencies, strict=True)
+    ):
+        raise ValueError("DMA result angular frequency is not 2*pi times source frequency")
+    if mode == "multi_frequency_isotherms" and any(
+        right <= left for left, right in pairwise(frequencies)
+    ):
+        raise ValueError("multi-frequency source frequencies are not strictly increasing")
+    raw_min = _dma_number(
+        source.get("raw_angular_frequency_min_rad_per_s"),
+        "raw_angular_frequency_min_rad_per_s",
+        positive=True,
+    )
+    raw_max = _dma_number(
+        source.get("raw_angular_frequency_max_rad_per_s"),
+        "raw_angular_frequency_max_rad_per_s",
+        positive=True,
+    )
+    if raw_min != min(angular) or raw_max != max(angular) or raw_max < raw_min:
+        raise ValueError("DMA raw frequency bounds are inconsistent")
+    is_reference = source.get("is_reference")
+    if not isinstance(is_reference, bool):
+        raise ValueError("DMA result reference flag is invalid")
+    reduced = source.get("reduced_angular_frequency_rad_per_s")
+    if partition == "EXCLUDED":
+        if (
+            is_reference
+            or not isinstance(source.get("exclusion_reason"), str)
+            or not source["exclusion_reason"].strip()
+            or reduced is not None
+            or source.get("holdout_evaluation_status") is not None
+            or any(source.get(name) is not None for name in _DMA_EVIDENCE_FIELDS)
+        ):
+            raise ValueError("excluded DMA result row contains derived evidence")
+        return source, []
+    if source.get("exclusion_reason") is not None:
+        raise ValueError("included DMA result row carries an exclusion reason")
+    if not isinstance(reduced, list) or len(reduced) != len(ordinals):
+        raise ValueError("included DMA result reduced-frequency list is invalid")
+    reduced_values = [
+        _dma_number(value, "reduced_angular_frequency_rad_per_s", positive=True)
+        for value in reduced
+    ]
+    applied = _dma_number(source.get("applied_log10_a_t"), "applied_log10_a_t")
+    factor = _dma_number(source.get("shift_factor"), "shift_factor", positive=True)
+    if not math.isclose(factor, 10.0**applied, rel_tol=1e-12, abs_tol=1e-12) or any(
+        not math.isclose(value, omega * factor, rel_tol=1e-12, abs_tol=1e-12)
+        for value, omega in zip(reduced_values, angular, strict=True)
+    ):
+        raise ValueError("DMA result reduced frequencies do not match horizontal shifting")
+    shifted_min = _dma_number(
+        source.get("shifted_angular_frequency_min_rad_per_s"),
+        "shifted_angular_frequency_min_rad_per_s",
+        positive=True,
+    )
+    shifted_max = _dma_number(
+        source.get("shifted_angular_frequency_max_rad_per_s"),
+        "shifted_angular_frequency_max_rad_per_s",
+        positive=True,
+    )
+    if shifted_min != min(reduced_values) or shifted_max != max(reduced_values):
+        raise ValueError("DMA shifted-frequency bounds are inconsistent")
+    if is_reference:
+        if (
+            partition != "CALIBRATION"
+            or source.get("observed_log10_a_t") != 0.0
+            or applied != 0.0
+            or factor != 1.0
+            or source.get("shift_residual_log10_a_t") != 0.0
+            or source.get("holdout_evaluation_status") is not None
+            or any(
+                source.get(name) is not None
+                for name in _DMA_EVIDENCE_FIELDS
+                if name not in {"observed_log10_a_t", "shift_residual_log10_a_t"}
+            )
+        ):
+            raise ValueError("DMA result reference row is inconsistent")
+    elif mode == "fixed_frequency_temperature_sweep":
+        expected_status = "not_applicable_no_curve_overlap" if partition == "HOLDOUT" else None
+        if source.get("holdout_evaluation_status") != expected_status or any(
+            source.get(name) is not None for name in _DMA_EVIDENCE_FIELDS
+        ):
+            raise ValueError("fixed DMA result contains multi-frequency evidence")
+    elif partition == "CALIBRATION":
+        if source.get("holdout_evaluation_status") is not None or any(
+            source.get(name) is None for name in _DMA_EVIDENCE_FIELDS
+        ):
+            raise ValueError("multi-frequency calibration evidence is incomplete")
+    elif partition == "HOLDOUT":
+        holdout_required = (
+            "holdout_evaluation_status",
+            "comparison_sweep_ordinal",
+            "overlap_log10_reduced_angular_frequency_min",
+            "overlap_log10_reduced_angular_frequency_max",
+            "scoring_point_count",
+            "storage_mse",
+            "loss_mse",
+            "storage_rmse",
+            "loss_rmse",
+            "weighted_mse",
+        )
+        calibration_only = (
+            "observed_log10_a_t",
+            "shift_residual_log10_a_t",
+            "adjacent_success",
+            "adjacent_status",
+            "adjacent_iterations",
+            "adjacent_evaluations",
+            "adjacent_objective",
+        )
+        if (
+            source.get("holdout_evaluation_status") != "evaluated"
+            or any(source.get(name) is None for name in holdout_required)
+            or any(source.get(name) is not None for name in calibration_only)
+        ):
+            raise ValueError("multi-frequency holdout evidence is incomplete")
+    else:
+        raise ValueError("DMA result partition is invalid")
+    for name in _DMA_EVIDENCE_FIELDS:
+        value = source.get(name)
+        if (
+            name
+            in {
+                "comparison_sweep_ordinal",
+                "scoring_point_count",
+                "adjacent_status",
+                "adjacent_iterations",
+                "adjacent_evaluations",
+            }
+            and value is not None
+        ):
+            _dma_integer(value, name)
+        elif value is not None and name != "adjacent_success":
+            _dma_number(value, name)
+    if source.get("adjacent_success") is not None and not isinstance(
+        source.get("adjacent_success"), bool
+    ):
+        raise ValueError("DMA adjacent success evidence is not boolean")
+    if (
+        source.get("scoring_point_count") is not None
+        and not 2 <= source["scoring_point_count"] <= 10_001
+    ):
+        raise ValueError("DMA scoring point count is outside the governed range")
+    for mse_name, rmse_name in (
+        ("storage_mse", "storage_rmse"),
+        ("loss_mse", "loss_rmse"),
+    ):
+        mse = source.get(mse_name)
+        rmse = source.get(rmse_name)
+        if mse is not None and rmse is not None:
+            if mse < 0 or not math.isclose(rmse, math.sqrt(mse), rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError(f"DMA {rmse_name} does not match {mse_name}")
+    overlap_min = source.get("overlap_log10_reduced_angular_frequency_min")
+    overlap_max = source.get("overlap_log10_reduced_angular_frequency_max")
+    if overlap_min is not None and overlap_max is not None and overlap_max <= overlap_min:
+        raise ValueError("DMA scoring overlap is not a positive-width interval")
+    observations = [
+        {
+            "ordinal": index,
+            "partition": partition,
+            "exclusion_reason": None,
+            "frequency_hz": reduced_value / (2.0 * math.pi),
+            "storage_modulus_pa": storage_value,
+            "loss_modulus_pa": loss_value,
+            "source_sweep_ordinal": sweep_ordinal,
+        }
+        for index, (storage_value, loss_value, reduced_value) in enumerate(
+            zip(storage, loss, reduced_values, strict=True)
+        )
+    ]
+    return source, observations
+
+
+def _dma_validate_options(
+    options: object,
+    mode: str,
+    rows: list[dict[str, Any]],
+) -> None:
+    required = {
+        "input_mode",
+        "source_normalized_artifact_id",
+        "source_normalized_artifact_sha256",
+        "result_row_count",
+        "frequency_conversion",
+        "shift_direction",
+        "log_base",
+        "reference",
+        "shift_law",
+        "scoring",
+        "adjacent_optimizer",
+        "law_optimizer",
+        "residual_summary",
+        "application_range",
+        "assessment",
+        "warnings",
+    }
+    if not isinstance(options, dict) or set(options) != required:
+        raise ValueError("DMA Processing policy does not have the exact current keys")
+    if options["input_mode"] != mode:
+        raise ValueError("DMA Processing policy and result mode differ")
+    _dma_uuid(options["source_normalized_artifact_id"], "source_normalized_artifact_id")
+    source_digest = options["source_normalized_artifact_sha256"]
+    if (
+        not isinstance(source_digest, str)
+        or len(source_digest) != 64
+        or any(character not in "0123456789abcdef" for character in source_digest)
+    ):
+        raise ValueError("DMA source normalized Artifact digest is invalid")
+    if _dma_integer(options["result_row_count"], "result_row_count", minimum=1) != len(rows):
+        raise ValueError("DMA Processing policy row count differs from the result")
+    if (
+        options["frequency_conversion"] != "omega_rad_per_s=2*pi*frequency_hz"
+        or options["shift_direction"] != "omega_reduced=omega*10**log10_a_t"
+        or options["log_base"] != 10
+        or options["assessment"] != _DMA_ASSESSMENT
+        or options["warnings"] != _DMA_WARNINGS
+    ):
+        raise ValueError("DMA Processing policy convention or assessment is unsupported")
+    reference = _dma_exact_keys(
+        options["reference"],
+        {"source_sweep_ordinal", "source_ordinal", "representative_temperature_k"},
+        "reference evidence",
+    )
+    reference_temperature = _dma_number(
+        reference["representative_temperature_k"],
+        "reference temperature",
+        positive=True,
+    )
+    if mode == "multi_frequency_isotherms":
+        _dma_integer(reference["source_sweep_ordinal"], "reference sweep", minimum=1)
+        if reference["source_ordinal"] is not None:
+            raise ValueError("multi-frequency reference must omit source_ordinal")
+    else:
+        _dma_integer(reference["source_ordinal"], "reference source ordinal", minimum=0)
+        if reference["source_sweep_ordinal"] is not None:
+            raise ValueError("fixed reference must omit source_sweep_ordinal")
+    reference_row = next(row for row in rows if row.get("is_reference") is True)
+    if reference_row.get("representative_temperature_k") != reference_temperature:
+        raise ValueError("DMA reference evidence differs from the reference result row")
+    if mode == "multi_frequency_isotherms":
+        if reference["source_sweep_ordinal"] != reference_row.get("source_sweep_ordinal"):
+            raise ValueError("DMA reference sweep evidence differs from the result")
+    elif reference["source_ordinal"] != reference_row["source_ordinals"][0]:
+        raise ValueError("DMA reference source evidence differs from the result")
+    if not isinstance(options["shift_law"], dict):
+        raise ValueError("DMA shift-law evidence is not an object")
+    shift_law = options["shift_law"]
+    if shift_law.get("reference_temperature_k") != reference_temperature:
+        raise ValueError("DMA shift-law reference differs from the result reference")
+    if mode == "fixed_frequency_temperature_sweep":
+        if any(
+            options[name] is not None
+            for name in (
+                "scoring",
+                "adjacent_optimizer",
+                "law_optimizer",
+                "residual_summary",
+                "application_range",
+            )
+        ):
+            raise ValueError("fixed DMA result contains multi-frequency policy evidence")
+        if shift_law.get("parameter_source") != "supplied" or shift_law.get("kind") not in {
+            "manual_tabulated",
+            "wlf",
+            "arrhenius",
+        }:
+            raise ValueError("fixed DMA shift law is not a supplied current-contract law")
+        kind = shift_law["kind"]
+        if kind == "manual_tabulated":
+            _dma_exact_keys(
+                shift_law,
+                {"kind", "reference_temperature_k", "parameter_source", "manual_table"},
+                "fixed manual shift law",
+            )
+            table = shift_law["manual_table"]
+            if (
+                not isinstance(table, list)
+                or not table
+                or any(
+                    not isinstance(item, dict) or set(item) != {"temperature_k", "log10_a_t"}
+                    for item in table
+                )
+            ):
+                raise ValueError("fixed manual shift table is not exact")
+            pairs = [
+                (
+                    _dma_number(item["temperature_k"], "manual temperature", positive=True),
+                    _dma_number(item["log10_a_t"], "manual shift"),
+                )
+                for item in table
+            ]
+            included_temperatures = {
+                row["representative_temperature_k"]
+                for row in rows
+                if row["partition"] != "EXCLUDED"
+            }
+            if (
+                len({temperature for temperature, _ in pairs}) != len(pairs)
+                or {temperature for temperature, _ in pairs} != included_temperatures
+            ):
+                raise ValueError("fixed manual shift table does not cover included rows")
+            if dict(pairs).get(reference_temperature) != 0.0:
+                raise ValueError("fixed manual reference shift is not exact zero")
+        elif kind == "wlf":
+            _dma_exact_keys(
+                shift_law,
+                {"kind", "reference_temperature_k", "parameter_source", "c1", "c2_k"},
+                "fixed WLF shift law",
+            )
+            if (
+                _dma_number(shift_law["c1"], "WLF c1", positive=True) <= 0
+                or _dma_number(shift_law["c2_k"], "WLF c2_k", positive=True) <= 0
+            ):
+                raise ValueError("fixed WLF parameters are invalid")
+        else:
+            _dma_exact_keys(
+                shift_law,
+                {
+                    "kind",
+                    "reference_temperature_k",
+                    "parameter_source",
+                    "activation_energy_j_per_mol",
+                    "gas_constant_j_per_mol_k",
+                },
+                "fixed Arrhenius shift law",
+            )
+            if (
+                _dma_number(
+                    shift_law["activation_energy_j_per_mol"],
+                    "Arrhenius activation energy",
+                    positive=True,
+                )
+                <= 0
+                or _dma_number(shift_law["gas_constant_j_per_mol_k"], "Arrhenius gas constant")
+                != 8.31446261815324
+            ):
+                raise ValueError("fixed Arrhenius parameters are not governed")
+        return
+    scoring = _dma_exact_keys(
+        options["scoring"],
+        {
+            "scorer_id",
+            "minimum_overlap_decades",
+            "scoring_point_count",
+            "storage_weight",
+            "loss_weight",
+            "grid_policy",
+            "interpolation",
+            "persisted_scoring_points",
+        },
+        "scoring evidence",
+    )
+    if (
+        scoring["scorer_id"] != "cmp.dma_tts.common_log_frequency_grid_log_modulus_mse@1.0.0"
+        or scoring["grid_policy"] != "equally_spaced_log10_frequency_inside_measured_overlap"
+        or scoring["interpolation"] != "piecewise_linear_log10_modulus"
+        or scoring["persisted_scoring_points"] is not False
+        or _dma_number(scoring["minimum_overlap_decades"], "minimum overlap", positive=True) <= 0
+        or not 2 <= _dma_integer(scoring["scoring_point_count"], "scoring point count") <= 10_001
+        or _dma_number(scoring["storage_weight"], "storage weight") < 0
+        or _dma_number(scoring["loss_weight"], "loss weight") < 0
+        or _dma_number(scoring["storage_weight"], "storage weight")
+        + _dma_number(scoring["loss_weight"], "loss weight")
+        != 1.0
+    ):
+        raise ValueError("multi-frequency scorer evidence is not exact")
+    adjacent = _dma_exact_keys(
+        options["adjacent_optimizer"],
+        {
+            "optimizer_id",
+            "scipy_version",
+            "method",
+            "method_variant",
+            "singleton_policy",
+            "relative_shift_lower_bound_log10",
+            "relative_shift_upper_bound_log10",
+            "xatol",
+            "maxiter",
+            "seed",
+            "evidence",
+        },
+        "adjacent optimizer evidence",
+    )
+    if (
+        adjacent["optimizer_id"] != "cmp.dma_tts.adjacent_overlap_log_mse.scipy_bounded@1.0.0"
+        or adjacent["method"] != "minimize_scalar"
+        or adjacent["method_variant"] != "bounded_or_direct_singleton"
+        or adjacent["singleton_policy"] != "evaluate_once_without_optimizer"
+        or adjacent["seed"] is not None
+        or adjacent["xatol"] != 1e-10
+        or adjacent["maxiter"] != 1000
+        or _dma_number(adjacent["relative_shift_lower_bound_log10"], "adjacent lower bound")
+        > _dma_number(adjacent["relative_shift_upper_bound_log10"], "adjacent upper bound")
+    ):
+        raise ValueError("multi-frequency adjacent optimizer evidence is not exact")
+    comparison_rows = [
+        row for row in rows if row["partition"] == "CALIBRATION" and not row["is_reference"]
+    ]
+    adjacent_evidence = adjacent["evidence"]
+    if not isinstance(adjacent_evidence, list) or len(adjacent_evidence) != len(comparison_rows):
+        raise ValueError("multi-frequency adjacent evidence is incomplete")
+    kind = shift_law.get("kind")
+    if kind not in {"manual_tabulated", "wlf_fit", "arrhenius_fit"}:
+        raise ValueError("multi-frequency shift-law kind is invalid")
+    if kind == "manual_tabulated":
+        _dma_exact_keys(
+            shift_law,
+            {
+                "kind",
+                "reference_temperature_k",
+                "parameter_source",
+                "manual_table",
+                "per_temperature",
+                "adjacent_observed",
+            },
+            "manual multi-frequency shift law",
+        )
+        if shift_law["parameter_source"] != "supplied" or options["law_optimizer"] is not None:
+            raise ValueError("manual multi-frequency shift law has invalid fit evidence")
+        table = shift_law["manual_table"]
+        if (
+            not isinstance(table, list)
+            or not table
+            or any(
+                not isinstance(item, dict) or set(item) != {"temperature_k", "log10_a_t"}
+                for item in table
+            )
+        ):
+            raise ValueError("manual multi-frequency shift table is incomplete")
+        pairs = [
+            (
+                _dma_number(item["temperature_k"], "manual temperature", positive=True),
+                _dma_number(item["log10_a_t"], "manual shift"),
+            )
+            for item in table
+        ]
+        included_temperatures = {
+            row["representative_temperature_k"] for row in rows if row["partition"] != "EXCLUDED"
+        }
+        if (
+            len({temperature for temperature, _ in pairs}) != len(pairs)
+            or {temperature for temperature, _ in pairs} != included_temperatures
+            or dict(pairs).get(reference_temperature) != 0.0
+        ):
+            raise ValueError("manual multi-frequency shift table coverage is invalid")
+    else:
+        fitted_key = "c1" if kind == "wlf_fit" else "activation_energy_j_per_mol"
+        second_key = "c2_k" if kind == "wlf_fit" else "gas_constant_j_per_mol_k"
+        _dma_exact_keys(
+            shift_law,
+            {
+                "kind",
+                "reference_temperature_k",
+                "parameter_source",
+                "fitted_parameters",
+                "initial_parameters",
+                "lower_bounds",
+                "upper_bounds",
+                fitted_key,
+                second_key,
+                "per_temperature",
+                "adjacent_observed",
+            },
+            "fitted multi-frequency shift law",
+        )
+        if shift_law["parameter_source"] != "fitted":
+            raise ValueError("fitted multi-frequency shift law is not marked fitted")
+        vectors = []
+        for name in ("fitted_parameters", "initial_parameters", "lower_bounds", "upper_bounds"):
+            value = shift_law[name]
+            if not isinstance(value, list) or not value:
+                raise ValueError("fitted multi-frequency parameter vectors are invalid")
+            vectors.append([_dma_number(item, name) for item in value])
+        expected_count = 2 if kind == "wlf_fit" else 1
+        if any(len(value) != expected_count for value in vectors) or any(
+            lower >= initial or initial >= upper
+            for initial, lower, upper in zip(vectors[1], vectors[2], vectors[3], strict=True)
+        ):
+            raise ValueError("fitted multi-frequency parameter vectors are invalid")
+        fitted = vectors[0]
+        if kind == "wlf_fit":
+            if not math.isclose(
+                _dma_number(shift_law["c1"], "WLF c1"), fitted[0], rel_tol=1e-12, abs_tol=1e-12
+            ) or not math.isclose(
+                _dma_number(shift_law["c2_k"], "WLF c2_k", positive=True),
+                fitted[1],
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            ):
+                raise ValueError("fitted WLF parameters differ from the vector")
+        elif (
+            _dma_number(
+                shift_law["activation_energy_j_per_mol"],
+                "Arrhenius activation energy",
+                positive=True,
+            )
+            <= 0
+            or _dma_number(shift_law["gas_constant_j_per_mol_k"], "Arrhenius gas constant")
+            != 8.31446261815324
+            or not math.isclose(
+                float(shift_law["activation_energy_j_per_mol"]),
+                fitted[0],
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            )
+        ):
+            raise ValueError("fitted Arrhenius parameters are not governed")
+        law_optimizer = _dma_exact_keys(
+            options["law_optimizer"],
+            {
+                "optimizer_id",
+                "scipy_version",
+                "method",
+                "method_variant",
+                "ftol",
+                "xtol",
+                "gtol",
+                "max_nfev",
+                "seed",
+                "status",
+                "success",
+                "nfev",
+                "cost",
+                "optimality",
+                "objective_mse",
+                "initial_parameters",
+                "lower_bounds",
+                "upper_bounds",
+            },
+            "law optimizer evidence",
+        )
+        if (
+            law_optimizer["optimizer_id"]
+            != "cmp.dma_tts.shift_law_log10_least_squares.scipy_trf@1.0.0"
+            or law_optimizer["method"] != "least_squares"
+            or law_optimizer["method_variant"] != "trf"
+            or law_optimizer["seed"] is not None
+            or law_optimizer["ftol"] != 1e-12
+            or law_optimizer["xtol"] != 1e-12
+            or law_optimizer["gtol"] != 1e-12
+            or law_optimizer["max_nfev"] != 5000
+            or law_optimizer["initial_parameters"] != shift_law["initial_parameters"]
+            or law_optimizer["lower_bounds"] != shift_law["lower_bounds"]
+            or law_optimizer["upper_bounds"] != shift_law["upper_bounds"]
+            or law_optimizer["success"] is not True
+        ):
+            raise ValueError("multi-frequency law optimizer evidence is not exact")
+        for name in ("cost", "optimality", "objective_mse"):
+            _dma_number(law_optimizer[name], f"law optimizer {name}")
+    nonexcluded = [row for row in rows if row["partition"] != "EXCLUDED"]
+    per_temperature = shift_law["per_temperature"]
+    if not isinstance(per_temperature, list) or len(per_temperature) != len(nonexcluded):
+        raise ValueError("multi-frequency per-temperature law evidence is incomplete")
+    rows_by_sweep = {row["source_sweep_ordinal"]: row for row in nonexcluded}
+    seen_sweeps: set[int] = set()
+    for item in per_temperature:
+        entry = _dma_exact_keys(
+            item,
+            {
+                "source_sweep_ordinal",
+                "representative_temperature_k",
+                "observed_log10_a_t",
+                "applied_log10_a_t",
+                "shift_residual_log10_a_t",
+            },
+            "per-temperature law evidence",
+        )
+        sweep = _dma_integer(entry["source_sweep_ordinal"], "per-temperature sweep", minimum=1)
+        if sweep in seen_sweeps or sweep not in rows_by_sweep:
+            raise ValueError("per-temperature law evidence has an invalid sweep identity")
+        seen_sweeps.add(sweep)
+        row = rows_by_sweep[sweep]
+        if entry["representative_temperature_k"] != row["representative_temperature_k"]:
+            raise ValueError("per-temperature law evidence has an invalid temperature")
+        for name in ("observed_log10_a_t", "applied_log10_a_t", "shift_residual_log10_a_t"):
+            expected = row.get(name)
+            actual = entry[name]
+            if expected is None:
+                if actual is not None:
+                    raise ValueError("per-temperature law evidence has an invalid null pattern")
+            elif not math.isclose(
+                _dma_number(actual, name), expected, rel_tol=1e-12, abs_tol=1e-12
+            ):
+                raise ValueError("per-temperature law evidence differs from result rows")
+    if seen_sweeps != set(rows_by_sweep):
+        raise ValueError("per-temperature law evidence does not cover every nonexcluded sweep")
+    expected_adjacent_rows = sorted(comparison_rows, key=lambda row: row["source_sweep_ordinal"])
+    for item, row in zip(adjacent_evidence, expected_adjacent_rows, strict=True):
+        entry = _dma_exact_keys(
+            item,
+            {
+                "source_sweep_ordinal",
+                "comparison_sweep_ordinal",
+                "relative_observed_log10_shift",
+                "score",
+                "evidence",
+            },
+            "adjacent evidence",
+        )
+        anchor = next(
+            (
+                candidate
+                for candidate in rows
+                if candidate["source_sweep_ordinal"] == row["comparison_sweep_ordinal"]
+            ),
+            None,
+        )
+        if (
+            anchor is None
+            or entry["source_sweep_ordinal"] != row["source_sweep_ordinal"]
+            or entry["comparison_sweep_ordinal"] != row["comparison_sweep_ordinal"]
+            or not math.isclose(
+                _dma_number(entry["relative_observed_log10_shift"], "relative shift"),
+                row["observed_log10_a_t"] - anchor["observed_log10_a_t"],
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            )
+        ):
+            raise ValueError("adjacent evidence identities or shift differ from result rows")
+        score = _dma_exact_keys(
+            entry["score"],
+            {
+                "overlap_min_log10_reduced_omega",
+                "overlap_max_log10_reduced_omega",
+                "storage_mse",
+                "loss_mse",
+                "weighted_mse",
+            },
+            "adjacent score",
+        )
+        for name, result_name in (
+            ("overlap_min_log10_reduced_omega", "overlap_log10_reduced_angular_frequency_min"),
+            ("overlap_max_log10_reduced_omega", "overlap_log10_reduced_angular_frequency_max"),
+            ("storage_mse", "storage_mse"),
+            ("loss_mse", "loss_mse"),
+            ("weighted_mse", "weighted_mse"),
+        ):
+            if not math.isclose(
+                _dma_number(score[name], name),
+                row[result_name],
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            ):
+                raise ValueError("adjacent score differs from result rows")
+        outcome = _dma_exact_keys(
+            entry["evidence"],
+            {"success", "status", "iterations", "evaluations", "objective"},
+            "adjacent optimizer outcome",
+        )
+        if (
+            outcome["success"] is not True
+            or any(
+                outcome[name] != row[f"adjacent_{name}"]
+                for name in ("status", "iterations", "evaluations")
+            )
+            or not math.isclose(
+                _dma_number(outcome["objective"], "adjacent objective"),
+                row["adjacent_objective"],
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            )
+        ):
+            raise ValueError("adjacent optimizer outcome differs from result rows")
+    if shift_law["adjacent_observed"] != adjacent_evidence:
+        raise ValueError("shift-law adjacent evidence differs from optimizer evidence")
+    residual = _dma_exact_keys(
+        options["residual_summary"],
+        {
+            "calibration_comparison_count",
+            "units",
+            "storage_mse",
+            "loss_mse",
+            "storage_rmse",
+            "loss_rmse",
+            "weighted_mse",
+            "holdout_evaluation_separate",
+        },
+        "residual summary",
+    )
+    if (
+        residual["calibration_comparison_count"] != len(comparison_rows)
+        or residual["units"] != "log10(modulus) and log10(aT)"
+        or residual["holdout_evaluation_separate"] is not True
+    ):
+        raise ValueError("multi-frequency residual summary is not exact")
+    for name, expected in (
+        (
+            "storage_mse",
+            sum(row["storage_mse"] for row in comparison_rows) / len(comparison_rows),
+        ),
+        (
+            "loss_mse",
+            sum(row["loss_mse"] for row in comparison_rows) / len(comparison_rows),
+        ),
+        (
+            "weighted_mse",
+            sum(row["weighted_mse"] for row in comparison_rows) / len(comparison_rows),
+        ),
+    ):
+        if not math.isclose(
+            _dma_number(residual[name], name), expected, rel_tol=1e-12, abs_tol=1e-12
+        ):
+            raise ValueError("multi-frequency residual summary differs from result rows")
+    if not math.isclose(
+        _dma_number(residual["storage_rmse"], "residual storage RMSE"),
+        math.sqrt(float(residual["storage_mse"])),
+        rel_tol=1e-12,
+        abs_tol=1e-12,
+    ) or not math.isclose(
+        _dma_number(residual["loss_rmse"], "residual loss RMSE"),
+        math.sqrt(float(residual["loss_mse"])),
+        rel_tol=1e-12,
+        abs_tol=1e-12,
+    ):
+        raise ValueError("multi-frequency residual summary RMSE is invalid")
+    application_range = _dma_exact_keys(
+        options["application_range"],
+        {
+            "basis",
+            "holdout_included",
+            "reduced_angular_frequency_intervals_rad_per_s",
+            "calibration_temperature_interval_k",
+        },
+        "application range",
+    )
+    if (
+        application_range["basis"] != "at_least_two_shifted_calibration_isotherms"
+        or application_range["holdout_included"] is not False
+    ):
+        raise ValueError("multi-frequency application range basis is invalid")
+    actual_intervals = application_range["reduced_angular_frequency_intervals_rad_per_s"]
+    if not isinstance(actual_intervals, list) or not actual_intervals:
+        raise ValueError("multi-frequency application range intervals are missing")
+    actual_pairs: list[tuple[float, float]] = []
+    previous = 0.0
+    for item in actual_intervals:
+        interval = _dma_exact_keys(item, {"minimum", "maximum"}, "application interval")
+        minimum = _dma_number(interval["minimum"], "application minimum", positive=True)
+        maximum = _dma_number(interval["maximum"], "application maximum", positive=True)
+        if maximum <= minimum or minimum <= previous:
+            raise ValueError("application intervals are not sorted and merged")
+        actual_pairs.append((minimum, maximum))
+        previous = maximum
+    shifted_ranges = [
+        (
+            row["shifted_angular_frequency_min_rad_per_s"],
+            row["shifted_angular_frequency_max_rad_per_s"],
+        )
+        for row in rows
+        if row["partition"] == "CALIBRATION"
+    ]
+    endpoints = sorted({endpoint for pair in shifted_ranges for endpoint in pair})
+    expected_pairs: list[tuple[float, float]] = []
+    for left, right in pairwise(endpoints):
+        if (
+            right <= left
+            or sum(start <= left and right <= finish for start, finish in shifted_ranges) < 2
+        ):
+            continue
+        if expected_pairs and expected_pairs[-1][1] == left:
+            expected_pairs[-1] = (expected_pairs[-1][0], right)
+        else:
+            expected_pairs.append((left, right))
+    if len(actual_pairs) != len(expected_pairs) or any(
+        not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12)
+        for actual_pair, expected_pair in zip(actual_pairs, expected_pairs, strict=True)
+        for actual, expected in zip(actual_pair, expected_pair, strict=True)
+    ):
+        raise ValueError("application intervals differ from shifted calibration ranges")
+    temperature_interval = _dma_exact_keys(
+        application_range["calibration_temperature_interval_k"],
+        {"minimum", "maximum"},
+        "calibration temperature interval",
+    )
+    calibration_temperatures = [
+        row["representative_temperature_k"] for row in rows if row["partition"] == "CALIBRATION"
+    ]
+    if _dma_number(temperature_interval["minimum"], "calibration temperature minimum") != min(
+        calibration_temperatures
+    ) or _dma_number(temperature_interval["maximum"], "calibration temperature maximum") != max(
+        calibration_temperatures
+    ):
+        raise ValueError("calibration temperature interval differs from result rows")
+
+
+def _processed_dma_envelope(
     result_bytes: bytes,
     metadata_bytes: bytes,
     plan: dict[str, Any],
-) -> tuple[str, list[dict[str, Any]]]:
-    """Decode one exact governed DMA TTS result and its serialized processing policy."""
+) -> tuple[dict[str, Any], dict[str, Any], pa.Table]:
+    """Validate exact Processing Output pins and return its typed result table."""
 
     semantics = plan.get("input_semantics")
     output_pin = plan.get("processing_output")
@@ -301,6 +1369,7 @@ def _processed_dma_observations(
         or semantics.get("source_kind") != "processing_output"
         or semantics.get("processing_method") != "polymer.dma_frequency_master_curve@1.0.0"
         or semantics.get("frequency_kind") != "reduced_angular_rad_per_s"
+        or semantics.get("dma_domain_policy") != "nondecreasing_observations"
         or semantics.get("angular_frequency_conversion")
         != (
             "omega_reduced_rad_per_s=omega_rad_per_s*shift_factor;"
@@ -312,7 +1381,10 @@ def _processed_dma_observations(
         raise ValueError("Processing Output metadata digest differs from the Plan pin")
     if hashlib.sha256(result_bytes).hexdigest() != result_pin.get("sha256"):
         raise ValueError("Processing Output result digest differs from the Plan pin")
-    metadata = json.loads(metadata_bytes.decode("utf-8"))
+    try:
+        metadata = json.loads(metadata_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError("Processing Output metadata is not valid JSON") from error
     if not isinstance(metadata, dict):
         raise ValueError("Processing Output metadata must be a JSON object")
     result_artifact = metadata.get("result_artifact")
@@ -332,70 +1404,89 @@ def _processed_dma_observations(
     ):
         raise ValueError("Processing Output metadata does not match the Plan or DMA schema")
     options = step.get("options")
-    if (
-        not isinstance(options, dict)
-        or options.get("horizontal_shift_only") is not True
-        or options.get("vertical_shift") is not False
-        or options.get("interpolation") is not False
-        or options.get("resampling") is not False
-        or options.get("smoothing") is not False
-        or options.get("tts_adequacy") != "not_assessed"
-    ):
-        raise ValueError("DMA master-curve Processing policy is incomplete or unsupported")
+    if not isinstance(options, dict):
+        raise ValueError("DMA Processing Output options are not an object")
+    mode = options.get("input_mode")
+    if mode not in {"fixed_frequency_temperature_sweep", "multi_frequency_isotherms"}:
+        raise ValueError("DMA Processing Output mode is unsupported")
     try:
         table = pq.read_table(pa.BufferReader(result_bytes))
     except Exception as error:
         raise ValueError("processing-output.result is not valid Parquet") from error
-    if tuple(table.column_names) != DMA_MASTER_CURVE_COLUMNS:
-        raise ValueError("DMA master-curve Parquet columns are not exact")
-    dispositions = semantics.get("point_dispositions")
-    if not isinstance(dispositions, list) or len(dispositions) != table.num_rows:
-        raise ValueError("processed Plan dispositions do not cover the result rows")
-    rows: list[dict[str, Any]] = []
-    for index, (source, disposition) in enumerate(
-        zip(table.to_pylist(), dispositions, strict=True)
+    if (
+        tuple(table.column_names) != DMA_MASTER_CURVE_COLUMNS
+        or table.schema != DMA_MASTER_CURVE_ARROW_SCHEMA
+        or table.num_rows != options.get("result_row_count")
     ):
-        if (
-            not isinstance(disposition, dict)
-            or source.get("source_ordinal") != index
-            or disposition.get("ordinal") != index
-            or source.get("partition") != disposition.get("partition")
-            or source.get("exclusion_reason") != disposition.get("exclusion_reason")
-        ):
-            raise ValueError("DMA result row decisions differ from the immutable Plan")
-        partition = source.get("partition")
-        reduced_omega = source.get("reduced_angular_frequency_rad_per_s")
-        storage = source.get("storage_modulus_pa")
-        loss = source.get("loss_modulus_pa")
-        if partition == "EXCLUDED":
-            if reduced_omega is not None or not source.get("exclusion_reason"):
-                raise ValueError("excluded DMA result row is invalid")
-            frequency_hz = 0.0
-        else:
-            if partition not in {"CALIBRATION", "HOLDOUT"}:
-                raise ValueError("DMA result row partition is invalid")
-            numeric = (reduced_omega, storage, loss)
-            if any(
-                not isinstance(value, (int, float)) or not math.isfinite(float(value))
-                for value in numeric
-            ):
-                raise ValueError("included DMA result row contains a non-finite value")
-            if float(reduced_omega) <= 0 or float(storage) <= 0 or float(loss) < 0:
-                raise ValueError("included DMA result row violates the response domain")
-            frequency_hz = float(reduced_omega) / (2.0 * math.pi)
-        rows.append(
-            {
-                "ordinal": index,
-                "partition": partition,
-                "exclusion_reason": source.get("exclusion_reason"),
-                "frequency_hz": frequency_hz,
-                "storage_modulus_pa": float(storage),
-                "loss_modulus_pa": float(loss),
-            }
+        raise ValueError("DMA master-curve Parquet fields are not the exact current shape")
+    return semantics, options, table
+
+
+def _processed_dma_observations(
+    result_bytes: bytes,
+    metadata_bytes: bytes,
+    plan: dict[str, Any],
+) -> tuple[str, list[dict[str, Any]]]:
+    """Read exact ragged DMA evidence and expose only model-ready observations."""
+
+    semantics, options, table = _processed_dma_envelope(result_bytes, metadata_bytes, plan)
+    mode = str(options["input_mode"])
+    decoded_rows: list[dict[str, Any]] = []
+    observations: list[dict[str, Any]] = []
+    source_sweeps: set[int] = set()
+    source_ordinals: set[int] = set()
+    calibration_observation_count = 0
+    calibration_sweep_count = 0
+    holdout_sweep_count = 0
+    reference_count = 0
+    for source in table.to_pylist():
+        row, row_observations = _dma_validate_row(source, mode)
+        decoded_rows.append(row)
+        if mode == "multi_frequency_isotherms":
+            sweep = int(row["source_sweep_ordinal"])
+            if sweep in source_sweeps:
+                raise ValueError("multi-frequency source sweep identities are duplicated")
+            source_sweeps.add(sweep)
+            row_source_ordinals = row["source_ordinals"]
+            if any(ordinal in source_ordinals for ordinal in row_source_ordinals):
+                raise ValueError("multi-frequency source row ordinals are duplicated")
+            source_ordinals.update(row_source_ordinals)
+        if row["is_reference"]:
+            reference_count += 1
+        if row["partition"] == "CALIBRATION":
+            calibration_sweep_count += 1
+            calibration_observation_count += len(row["source_ordinals"])
+        elif row["partition"] == "HOLDOUT":
+            holdout_sweep_count += 1
+        observations.extend(row_observations)
+    if reference_count != 1:
+        raise ValueError("DMA result must contain exactly one calibration reference row")
+    if mode == "multi_frequency_isotherms" and (
+        calibration_sweep_count < 2 or holdout_sweep_count != 1
+    ):
+        raise ValueError("multi-frequency result partitions are not exact")
+    dispositions = semantics.get("point_dispositions")
+    if (
+        not isinstance(dispositions, list)
+        or len(dispositions) != calibration_observation_count
+        or any(
+            not isinstance(item, dict)
+            or item.get("ordinal") != index
+            or item.get("partition") != "CALIBRATION"
+            or item.get("exclusion_reason") is not None
+            for index, item in enumerate(dispositions)
         )
-    if len([row for row in rows if row["partition"] == "CALIBRATION"]) < 3:
-        raise ValueError("processed DMA input requires at least three calibration rows")
-    return "dma", rows
+    ):
+        raise ValueError("processed Plan dispositions do not cover calibration observations")
+    if (
+        sum(
+            len(row["source_ordinals"]) for row in decoded_rows if row["partition"] == "CALIBRATION"
+        )
+        < 3
+    ):
+        raise ValueError("processed DMA input requires at least three calibration observations")
+    _dma_validate_options(options, mode, decoded_rows)
+    return "dma", observations
 
 
 def _rank_diagnostic(jacobian: np.ndarray, parameter_count: int) -> dict[str, Any]:
@@ -486,9 +1577,16 @@ class LinearViscoelasticCalibrator:
             normalized = context.read_input("test-data.normalized", maximum_bytes=268_435_456)
             if not normalized:
                 raise ValueError("normalized Artifact is empty")
-            if plan.get("processing_output") is None:
+            semantics = plan.get("input_semantics")
+            if not isinstance(semantics, dict):
+                raise ValueError("Plan input_semantics is missing")
+            source_mode = semantics.get("mode")
+            if source_mode in {"relaxation", "dma"} and plan.get("processing_output") is None:
                 mode, observations = _normalized_observations(normalized, canonical, plan)
-            else:
+            elif (
+                source_mode == "dma_frequency_master_curve"
+                and plan.get("processing_output") is not None
+            ):
                 metadata = context.read_input(
                     "processing-output.metadata", maximum_bytes=64 * 1024 * 1024
                 )
@@ -496,6 +1594,8 @@ class LinearViscoelasticCalibrator:
                     "processing-output.result", maximum_bytes=268_435_456
                 )
                 mode, observations = _processed_dma_observations(processed, metadata, plan)
+            else:
+                raise ValueError("Plan source semantics and staged input roles are inconsistent")
             calibration = [item for item in observations if item.get("partition") == "CALIBRATION"]
             holdout = [item for item in observations if item.get("partition") == "HOLDOUT"]
             if len(calibration) < 3:

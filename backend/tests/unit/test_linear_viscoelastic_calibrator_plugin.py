@@ -359,17 +359,12 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
             for row in source_rows
         ),
         tuple(
-            DmaRowDisposition(
-                int(row["source_ordinal"]), DmaPartition(row["partition"])
-            )
+            DmaRowDisposition(int(row["source_ordinal"]), DmaPartition(row["partition"]))
             for row in source_rows
         ),
         TabulatedShiftLaw(
             float(source["shift_law"]["reference_temperature_k"]),
-            tuple(
-                (float(row["temperature_k"]), float(row["log10_a_t"]))
-                for row in source_rows
-            ),
+            tuple((float(row["temperature_k"]), float(row["log10_a_t"])) for row in source_rows),
         ),
         confirmed=True,
         confirmation_reason="Use the fixture-declared exact tabulated shifts",
@@ -381,6 +376,15 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
     processed_payload = frequency_master_curve_parquet_bytes(result_rows)
     result_artifact_id = UUID(int=31)
     result_sha = hashlib.sha256(processed_payload).hexdigest()
+    normalized_payload = b"exact-source-parquet-is-staged-but-processed-result-is-consumed"
+    normalized_sha = hashlib.sha256(normalized_payload).hexdigest()
+    manual_table = [
+        {
+            "temperature_k": float(row["temperature_k"]),
+            "log10_a_t": float(row["log10_a_t"]),
+        }
+        for row in source_rows
+    ]
     metadata = {
         "document_type": "cmp.processing-output",
         "document_version": "1.6.0",
@@ -389,12 +393,40 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
             "method_id": "polymer.dma_frequency_master_curve",
             "method_version": "1.0.0",
             "options": {
-                "horizontal_shift_only": True,
-                "vertical_shift": False,
-                "interpolation": False,
-                "resampling": False,
-                "smoothing": False,
-                "tts_adequacy": "not_assessed",
+                "input_mode": "fixed_frequency_temperature_sweep",
+                "source_normalized_artifact_id": str(UUID(int=48)),
+                "source_normalized_artifact_sha256": normalized_sha,
+                "result_row_count": len(result_rows),
+                "frequency_conversion": "omega_rad_per_s=2*pi*frequency_hz",
+                "shift_direction": "omega_reduced=omega*10**log10_a_t",
+                "log_base": 10,
+                "reference": {
+                    "source_sweep_ordinal": None,
+                    "source_ordinal": 3,
+                    "representative_temperature_k": 293.15,
+                },
+                "shift_law": {
+                    "kind": "manual_tabulated",
+                    "reference_temperature_k": 293.15,
+                    "parameter_source": "supplied",
+                    "manual_table": manual_table,
+                },
+                "scoring": None,
+                "adjacent_optimizer": None,
+                "law_optimizer": None,
+                "residual_summary": None,
+                "application_range": None,
+                "assessment": {
+                    "adequacy": "not_assessed",
+                    "uncertainty": "not_provided",
+                    "identifiability": "not_assessed",
+                    "production_readiness": "non_production",
+                },
+                "warnings": [
+                    "DMA_TTS_LVR_EVIDENCE_MISSING",
+                    "DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING",
+                    "DMA_TTS_PRECONDITIONING_EVIDENCE_MISSING",
+                ],
             },
         },
         "result_artifact": {
@@ -408,11 +440,13 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
     metadata_sha = hashlib.sha256(metadata_payload).hexdigest()
     dispositions = [
         {
-            "ordinal": row.source_ordinal,
+            "ordinal": ordinal,
             "partition": row.partition.value,
             "exclusion_reason": None,
         }
-        for row in result_rows
+        for ordinal, row in enumerate(
+            row for row in result_rows if row.partition is DmaPartition.CALIBRATION
+        )
     ]
     plan = {
         "processing_output": {
@@ -440,6 +474,7 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
                 "omega_reduced_rad_per_s=omega_rad_per_s*shift_factor;"
                 "frequency_reduced_hz=omega_reduced_rad_per_s/(2*pi)"
             ),
+            "dma_domain_policy": "nondecreasing_observations",
             "point_dispositions": dispositions,
         },
         "recommendation_policy": LINEAR_VISCOELASTIC_RECOMMENDATION_POLICY,
@@ -450,15 +485,12 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
                 for item in fit_policy["bounds"]
             ]
         },
-        "start_vectors": {
-            "1": [[item["start"] for item in fit_policy["bounds"]]]
-        },
+        "start_vectors": {"1": [[item["start"] for item in fit_policy["bounds"]]]},
         "weights": fit_policy["weights"],
         "optimizer": fit_policy["optimizer"],
     }
     plan_payload = json.dumps(plan, separators=(",", ":"), sort_keys=True).encode()
     canonical_payload = b"{}"
-    normalized_payload = b"exact-source-parquet-is-staged-but-processed-result-is-consumed"
     payloads = {
         "calibration.plan": plan_payload,
         "test-data.canonical": canonical_payload,

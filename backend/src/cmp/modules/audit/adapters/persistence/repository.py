@@ -39,6 +39,7 @@ class RlsContext(Protocol):
         decision: AuthorizationDecision,
     ) -> None: ...
 
+
 event_table = sa.Table(
     "event",
     metadata,
@@ -159,6 +160,11 @@ class SqlAlchemyAuditWriter:
 class SqlAlchemyRevisionAuditHook:
     """Translate a T-06 immutable revision fact into the same transaction's audit chain."""
 
+    # A DMA output specializes the ordinary revision Activity before its audit event is
+    # appended.  The common output adapter uses this marker only when a transaction-local
+    # specialization callback is present; ordinary revision writes keep their existing order.
+    after_output_specializer = True
+
     def __init__(
         self,
         *,
@@ -227,9 +233,7 @@ class SqlAlchemyAuditRepository:
         decision: AuthorizationDecision,
         query: AuditEventQuery,
     ) -> AuditEventPage:
-        statement = sa.select(event_table).where(
-            event_table.c.sequence_no > query.after_sequence
-        )
+        statement = sa.select(event_table).where(event_table.c.sequence_no > query.after_sequence)
         if query.action is not None:
             statement = statement.where(event_table.c.action == query.action)
         if query.actor_id is not None:

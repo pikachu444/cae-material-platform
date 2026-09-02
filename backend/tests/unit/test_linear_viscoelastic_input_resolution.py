@@ -48,6 +48,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     AxisRole,
     GovernedChannelMapping,
     GovernedImportProfileContent,
+    InvalidGovernedImport,
     QuantityKind,
     TabularDataSchema,
     TabularFileFormat,
@@ -269,15 +270,12 @@ def _profile(mode: str, *, deformation_mode: str | None = None) -> GovernedImpor
                 0, "temperature", QuantityKind.TEMPERATURE, "K", AxisRole.INDEPENDENT
             ),
             GovernedChannelMapping(
-                1, "frequency", QuantityKind.FREQUENCY, "Hz", AxisRole.INDEPENDENT
+                1, "storage", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
             ),
-            GovernedChannelMapping(
-                2, "storage", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
-            ),
-            GovernedChannelMapping(3, "loss", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT),
+            GovernedChannelMapping(2, "loss", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT),
         )
-        schema = TabularDataSchema.DMA_FREQUENCY_TEMPERATURE_SWEEP
-        version = "1.2.0"
+        schema = TabularDataSchema.DMA_TEMPERATURE_SWEEP
+        version = "1.3.0"
     return GovernedImportProfileContent(
         profile_label=f"{mode} profile",
         data_schema=schema,
@@ -512,25 +510,8 @@ def test_rejects_ungoverned_source_and_dma_without_shear_profile() -> None:
             ungoverned.resolve(_context(), _decision(Permission.CALIBRATION_EXECUTE), command)
         )
 
-    dma = _document("dma")
-    no_shear = _resolver(dma, _profile("dma", deformation_mode=None))
-    dma_command = ResolveGovernedViscoelasticInput(
-        TEST_DATA_ID,
-        TEST_DATA_REVISION_ID,
-        298.15,
-        (
-            PointDisposition(0, PointPartition.CALIBRATION),
-            PointDisposition(1, PointPartition.CALIBRATION),
-            PointDisposition(2, PointPartition.CALIBRATION),
-            PointDisposition(3, PointPartition.EXCLUDED, "different temperature"),
-            PointDisposition(4, PointPartition.EXCLUDED, "different temperature"),
-        ),
-        ChannelAvailability(sweep=DataAvailability.PROVIDED),
-    )
-    with pytest.raises(LinearViscoelasticInputError, match="deformation_mode=shear"):
-        asyncio.run(
-            no_shear.resolve(_context(), _decision(Permission.CALIBRATION_EXECUTE), dma_command)
-        )
+    with pytest.raises(InvalidGovernedImport, match="deformation_mode=shear"):
+        _profile("dma", deformation_mode=None)
 
 
 def test_resolves_exact_dma_master_curve_processing_output() -> None:
@@ -605,17 +586,44 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
     source_snapshot = _snapshot(document)
     result_rows = tuple(
         DmaFrequencyMasterCurveRow(
-            source_ordinal=index,
-            temperature_k=293.15 + index * 10.0,
-            source_frequency_hz=1.0,
-            angular_frequency_rad_per_s=6.283185307179586,
-            log10_a_t=2.0 - index,
-            shift_factor=10.0 ** (2.0 - index),
-            reduced_angular_frequency_rad_per_s=(6.283185307179586 * 10.0 ** (2.0 - index)),
-            storage_modulus_pa=(3_000_000.0, 2_800_000.0, 2_400_000.0, 1_900_000.0)[index],
-            loss_modulus_pa=(100_000.0, 300_000.0, 500_000.0, 200_000.0)[index],
+            input_mode="fixed_frequency_temperature_sweep",
+            source_sweep_ordinal=None,
+            representative_temperature_k=293.15 + index * 10.0,
             partition=(DmaPartition.HOLDOUT if index == 3 else DmaPartition.CALIBRATION),
+            is_reference=index == 2,
             exclusion_reason=None,
+            holdout_evaluation_status=("not_applicable_no_curve_overlap" if index == 3 else None),
+            source_ordinals=(index,),
+            measured_temperature_k=(293.15 + index * 10.0,),
+            source_frequency_hz=(1.0,),
+            angular_frequency_rad_per_s=(6.283185307179586,),
+            storage_modulus_pa=((3_000_000.0, 2_800_000.0, 2_400_000.0, 1_900_000.0)[index],),
+            loss_modulus_pa=((100_000.0, 300_000.0, 500_000.0, 200_000.0)[index],),
+            source_tan_delta=(None,),
+            loss_modulus_origin=("measured",),
+            reduced_angular_frequency_rad_per_s=(6.283185307179586 * 10.0 ** (2.0 - index),),
+            raw_angular_frequency_min_rad_per_s=6.283185307179586,
+            raw_angular_frequency_max_rad_per_s=6.283185307179586,
+            shifted_angular_frequency_min_rad_per_s=(6.283185307179586 * 10.0 ** (2.0 - index)),
+            shifted_angular_frequency_max_rad_per_s=(6.283185307179586 * 10.0 ** (2.0 - index)),
+            comparison_sweep_ordinal=None,
+            observed_log10_a_t=0.0 if index == 2 else None,
+            applied_log10_a_t=2.0 - index,
+            shift_factor=10.0 ** (2.0 - index),
+            shift_residual_log10_a_t=0.0 if index == 2 else None,
+            overlap_log10_reduced_angular_frequency_min=None,
+            overlap_log10_reduced_angular_frequency_max=None,
+            scoring_point_count=None,
+            storage_mse=None,
+            loss_mse=None,
+            storage_rmse=None,
+            loss_rmse=None,
+            weighted_mse=None,
+            adjacent_success=None,
+            adjacent_status=None,
+            adjacent_iterations=None,
+            adjacent_evaluations=None,
+            adjacent_objective=None,
         )
         for index in range(4)
     )
@@ -625,10 +633,45 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
         DMA_FREQUENCY_MASTER_CURVE_METHOD_ID,
         DMA_FREQUENCY_MASTER_CURVE_METHOD_VERSION,
         {
+            "input_mode": "fixed_frequency_temperature_sweep",
+            "source_normalized_artifact_id": str(UUID(int=41)),
+            "source_normalized_artifact_sha256": SHA,
+            "result_row_count": 4,
+            "frequency_conversion": "omega_rad_per_s=2*pi*frequency_hz",
+            "shift_direction": "omega_reduced=omega*10**log10_a_t",
+            "log_base": 10,
+            "reference": {
+                "source_sweep_ordinal": None,
+                "source_ordinal": 2,
+                "representative_temperature_k": 313.15,
+            },
             "shift_law": {
-                "kind": "tabulated",
+                "kind": "manual_tabulated",
                 "reference_temperature_k": 313.15,
-            }
+                "parameter_source": "supplied",
+                "manual_table": [
+                    {"temperature_k": 293.15, "log10_a_t": 2.0},
+                    {"temperature_k": 303.15, "log10_a_t": 1.0},
+                    {"temperature_k": 313.15, "log10_a_t": 0.0},
+                    {"temperature_k": 323.15, "log10_a_t": -1.0},
+                ],
+            },
+            "scoring": None,
+            "adjacent_optimizer": None,
+            "law_optimizer": None,
+            "residual_summary": None,
+            "application_range": None,
+            "assessment": {
+                "adequacy": "not_assessed",
+                "uncertainty": "not_provided",
+                "identifiability": "not_assessed",
+                "production_readiness": "non_production",
+            },
+            "warnings": [
+                "DMA_TTS_LVR_EVIDENCE_MISSING",
+                "DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING",
+                "DMA_TTS_PRECONDITIONING_EVIDENCE_MISSING",
+            ],
         },
     )
     output = ProcessingOutputSnapshot(
@@ -718,7 +761,11 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
     assert resolved.semantics.mode == "dma_frequency_master_curve"
     assert resolved.semantics.selected_temperature_k == Decimal("313.15")
     assert resolved.semantics.source_kind == "processing_output"
-    assert resolved.semantics.point_dispositions[-1].partition is PointPartition.HOLDOUT
+    assert len(resolved.semantics.point_dispositions) == 3
+    assert all(
+        item.partition is PointPartition.CALIBRATION
+        for item in resolved.semantics.point_dispositions
+    )
     fit_input = asyncio.run(
         resolver.read_processing_output_fit_input(
             _context(),
@@ -734,10 +781,11 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
         "dma_storage",
         "dma_loss",
     ]
-    assert fit_input.rows[0].coordinate == result_rows[0].reduced_angular_frequency_rad_per_s
-    assert fit_input.rows[0].storage_modulus_pa == result_rows[0].storage_modulus_pa
-    assert fit_input.rows[0].loss_modulus_pa == result_rows[0].loss_modulus_pa
-    assert fit_input.rows[-1].partition is PointPartition.HOLDOUT
+    first_source_row = next(item for item in fit_input.rows if item.source_ordinal == 0)
+    assert first_source_row.coordinate == result_rows[0].reduced_angular_frequency_rad_per_s[0]
+    assert first_source_row.storage_modulus_pa == result_rows[0].storage_modulus_pa[0]
+    assert first_source_row.loss_modulus_pa == result_rows[0].loss_modulus_pa[0]
+    assert fit_input.rows[-1].partition is PointPartition.CALIBRATION
     resolver.assert_current_revisions(
         _context(),
         _decision(Permission.CALIBRATION_EXECUTE),

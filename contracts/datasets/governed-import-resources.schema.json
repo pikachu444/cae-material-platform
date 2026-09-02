@@ -9,7 +9,7 @@
     "DataSchema": {"enum": ["monotonic_tension", "monotonic_compression", "planar_tension", "biaxial_tension", "simple_shear", "shear_relaxation", "dma_frequency_temperature_sweep", "dma_temperature_sweep", "forming_limit_diagram"]},
     "ProfileSchemaVersion": {"enum": ["1.0.0", "1.1.0", "1.2.0", "1.3.0"]},
     "DeformationMode": {"type": ["string", "null"], "enum": ["shear", null]},
-    "Quantity": {"enum": ["engineering_strain", "engineering_stress", "shear_strain", "shear_stress", "time", "shear_modulus", "displacement", "force", "temperature", "frequency", "storage_modulus", "loss_modulus", "tan_delta", "minor_strain", "major_strain"]},
+    "Quantity": {"enum": ["engineering_strain", "engineering_stress", "shear_strain", "shear_stress", "time", "shear_modulus", "displacement", "force", "temperature", "frequency", "storage_modulus", "loss_modulus", "tan_delta", "minor_strain", "major_strain", "source_sweep_ordinal"]},
     "RevisionMetadata": {
       "type": "object",
       "additionalProperties": false,
@@ -29,20 +29,20 @@
       "type": "object", "additionalProperties": false,
       "required": ["ordinal", "source_column", "source_quantity", "original_unit", "axis_role"],
       "properties": {
-        "ordinal": {"type": "integer", "minimum": 0, "maximum": 4},
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 5},
         "source_column": {"type": "string", "minLength": 1, "maxLength": 255},
         "source_quantity": {"$ref": "#/$defs/Quantity"}, "original_unit": {"type": "string", "minLength": 1, "maxLength": 32},
-        "axis_role": {"enum": ["independent", "dependent"]}
+        "axis_role": {"enum": ["independent", "dependent", "auxiliary"]}
       }
     },
     "ChannelResponse": {
       "type": "object", "additionalProperties": false,
       "required": ["ordinal", "source_column", "source_quantity", "original_unit", "axis_role", "normalized_quantity", "normalized_unit"],
       "properties": {
-        "ordinal": {"type": "integer", "minimum": 0, "maximum": 4},
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 5},
         "source_column": {"type": "string", "minLength": 1, "maxLength": 255},
         "source_quantity": {"$ref": "#/$defs/Quantity"}, "original_unit": {"type": "string", "minLength": 1, "maxLength": 32},
-        "axis_role": {"enum": ["independent", "dependent"]},
+        "axis_role": {"enum": ["independent", "dependent", "auxiliary"]},
         "normalized_quantity": {"$ref": "#/$defs/Quantity"}, "normalized_unit": {"type": "string", "minLength": 1, "maxLength": 32}
       }
     },
@@ -57,7 +57,7 @@
         "encoding": {"enum": ["utf-8", "utf-8-sig", "binary"]},
         "delimiter": {"type": ["string", "null"], "maxLength": 1},
         "decimal_separator": {"enum": [".", ","]},
-        "channels": {"type": "array", "minItems": 2, "maxItems": 5, "items": {"$ref": "#/$defs/ChannelInput"}},
+        "channels": {"type": "array", "minItems": 2, "maxItems": 6, "items": {"$ref": "#/$defs/ChannelInput"}},
         "initial_gauge_length_m": {"type": ["number", "null"], "exclusiveMinimum": 0},
         "initial_cross_section_area_m2": {"type": ["number", "null"], "exclusiveMinimum": 0},
         "approval_kind": {"const": "human_confirmed"},
