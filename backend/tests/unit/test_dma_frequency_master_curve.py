@@ -16,7 +16,9 @@ import pytest
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_COLUMNS,
     DMA_LOSS_MODULUS_COLUMNS,
+    DMA_SWEEP_TEMPERATURE_TOLERANCE_K,
     ArrheniusShiftLaw,
+    DmaFrequencyMasterCurveBuildResult,
     DmaPartition,
     DmaProcessingError,
     DmaRowDisposition,
@@ -30,6 +32,17 @@ from cmp.modules.processing.domain.dma_frequency_master_curve import (
     loss_modulus_from_parquet,
     loss_modulus_parquet_bytes,
     recommend_wlf_starting_values,
+)
+from cmp.modules.processing.domain.dma_multi_frequency_tts import (
+    DmaFrequencySweep,
+    DmaFrequencySweepDisposition,
+    DmaFrequencySweepPoint,
+    DmaShiftLawRequest,
+    DmaTtsAdjacentOptimizerControls,
+    DmaTtsScoringControls,
+    build_multi_frequency_master_curve,
+    optimize_adjacent_shift,
+    score_sweep_pair,
 )
 
 ROOT = Path(__file__).parents[3]
@@ -51,10 +64,9 @@ wlf_log10_shift = _oracle.wlf_log10_shift
 DMA_TTS_REFERENCE_PATH = (
     ROOT / "fixtures/synthetic/dma-temperature-sweep-linear-viscoelastic-v1.json"
 )
-DMA_TTS_WLF_UI_REFERENCE_PATH = (
-    ROOT / "fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json"
-)
+DMA_TTS_WLF_UI_REFERENCE_PATH = ROOT / "fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json"
 _read_parquet = cast(Callable[..., pa.Table], pq.read_table)
+_write_parquet = cast(Callable[..., None], pq.write_table)
 
 
 def _rows() -> tuple[DmaTemperatureSweepRow, ...]:
@@ -99,9 +111,7 @@ def test_fixture_backed_temperature_sweep_matches_independent_decimal_oracle() -
         ),
         TabulatedShiftLaw(
             float(source["shift_law"]["reference_temperature_k"]),
-            tuple(
-                (float(row["temperature_k"]), float(row["log10_a_t"])) for row in rows
-            ),
+            tuple((float(row["temperature_k"]), float(row["log10_a_t"])) for row in rows),
         ),
         confirmed=True,
         confirmation_reason="Use the exact fixture-declared tabulated shifts",
@@ -112,17 +122,17 @@ def test_fixture_backed_temperature_sweep_matches_independent_decimal_oracle() -
 
     for row, actual in zip(rows, result, strict=True):
         expected_omega = reduced_angular_frequency(frequency_hz, Decimal(row["log10_a_t"]))
-        expected_storage = generalized_maxwell_storage(
-            truth["g_inf_pa"], terms, expected_omega
-        )
+        expected_storage = generalized_maxwell_storage(truth["g_inf_pa"], terms, expected_omega)
         expected_loss = generalized_maxwell_loss(terms, expected_omega)
         assert math.isclose(
-            actual.reduced_angular_frequency_rad_per_s or 0.0,
+            (actual.reduced_angular_frequency_rad_per_s or (0.0,))[0],
             float(expected_omega),
             rel_tol=tolerance,
         )
-        assert math.isclose(actual.storage_modulus_pa, float(expected_storage), rel_tol=tolerance)
-        assert math.isclose(actual.loss_modulus_pa, float(expected_loss), rel_tol=tolerance)
+        assert math.isclose(
+            actual.storage_modulus_pa[0], float(expected_storage), rel_tol=tolerance
+        )
+        assert math.isclose(actual.loss_modulus_pa[0], float(expected_loss), rel_tol=tolerance)
 
 
 def test_ui_fixture_recommendation_creates_its_declared_wlf_master_curve() -> None:
@@ -161,10 +171,12 @@ def test_ui_fixture_recommendation_creates_its_declared_wlf_master_curve() -> No
     )
     tolerance = float(reference["acceptance_tolerances"]["master_curve_relative"])
     for expected, actual in zip(source_rows, result, strict=True):
-        assert actual.log10_a_t is not None
-        assert math.isclose(actual.log10_a_t, float(expected["log10_a_t"]), rel_tol=tolerance)
+        assert actual.applied_log10_a_t is not None
+        assert math.isclose(
+            actual.applied_log10_a_t, float(expected["log10_a_t"]), rel_tol=tolerance
+        )
         assert actual.reduced_angular_frequency_rad_per_s is not None
-        assert math.isfinite(actual.reduced_angular_frequency_rad_per_s)
+        assert math.isfinite(actual.reduced_angular_frequency_rad_per_s[0])
 
 
 def test_loss_modulus_derivation_preserves_signed_tan_delta_and_source_order() -> None:
@@ -256,23 +268,29 @@ def test_wlf_master_curve_matches_independent_decimal_reference() -> None:
         confirmation_reason="Engineer accepted WLF starting values.",
     )
 
-    assert [row.source_ordinal for row in result] == [0, 1, 2, 3, 4]
+    assert [row.source_ordinals[0] for row in result] == [0, 1, 2, 3, 4]
     for row in result[:4]:
-        expected_log = wlf_log10_shift(str(row.temperature_k), "313.15", "17.44", "51.6")
+        expected_log = wlf_log10_shift(
+            str(row.representative_temperature_k), "313.15", "17.44", "51.6"
+        )
         expected_omega = angular_frequency("1.0")
         expected_reduced = reduced_angular_frequency("1.0", expected_log)
-        assert math.isclose(row.angular_frequency_rad_per_s, float(expected_omega), rel_tol=1e-15)
-        assert row.log10_a_t is not None
-        assert math.isclose(row.log10_a_t, float(expected_log), rel_tol=1e-14, abs_tol=1e-14)
+        assert math.isclose(
+            row.angular_frequency_rad_per_s[0], float(expected_omega), rel_tol=1e-15
+        )
+        assert row.applied_log10_a_t is not None
+        assert math.isclose(
+            row.applied_log10_a_t, float(expected_log), rel_tol=1e-14, abs_tol=1e-14
+        )
         assert row.reduced_angular_frequency_rad_per_s is not None
         assert math.isclose(
-            row.reduced_angular_frequency_rad_per_s, float(expected_reduced), rel_tol=2e-14
+            row.reduced_angular_frequency_rad_per_s[0], float(expected_reduced), rel_tol=2e-14
         )
-    assert result[2].log10_a_t == 0.0
+    assert result[2].applied_log10_a_t == 0.0
     assert result[2].shift_factor == 1.0
     assert result[4].partition is DmaPartition.EXCLUDED
-    assert result[4].log10_a_t is None
-    assert result[4].loss_modulus_pa == -10_000.0
+    assert result[4].applied_log10_a_t is None
+    assert result[4].loss_modulus_pa == (-10_000.0,)
 
 
 def test_arrhenius_master_curve_matches_independent_decimal_reference() -> None:
@@ -285,10 +303,10 @@ def test_arrhenius_master_curve_matches_independent_decimal_reference() -> None:
         confirmation_reason="Engineer selected Arrhenius.",
     )
     for row in result[:4]:
-        expected = arrhenius_log10_shift(str(row.temperature_k), "313.15", "85000")
-        assert row.log10_a_t is not None
-        assert math.isclose(row.log10_a_t, float(expected), rel_tol=2e-14, abs_tol=1e-14)
-    assert result[2].log10_a_t == 0.0
+        expected = arrhenius_log10_shift(str(row.representative_temperature_k), "313.15", "85000")
+        assert row.applied_log10_a_t is not None
+        assert math.isclose(row.applied_log10_a_t, float(expected), rel_tol=2e-14, abs_tol=1e-14)
+    assert result[2].applied_log10_a_t == 0.0
 
 
 def test_tabulated_factors_require_exact_included_temperature_coverage() -> None:
@@ -303,7 +321,7 @@ def test_tabulated_factors_require_exact_included_temperature_coverage() -> None
         confirmed=True,
         confirmation_reason="Published factors accepted.",
     )
-    assert [row.log10_a_t for row in result] == [2.0, 1.0, 0.0, -1.0, None]
+    assert [row.applied_log10_a_t for row in result] == [2.0, 1.0, 0.0, -1.0, None]
 
     with pytest.raises(DmaProcessingError) as captured:
         build_frequency_master_curve(
@@ -325,12 +343,12 @@ def test_wlf_domain_is_strict_and_confirmation_is_required() -> None:
         DmaRowDisposition(0, DmaPartition.CALIBRATION),
         DmaRowDisposition(1, DmaPartition.CALIBRATION),
     )
-    law = WlfShiftLaw(350.0, 10.0, 50.0)
+    law = WlfShiftLaw(320.0, 10.0, 50.0)
     assert build_frequency_master_curve(
         boundary_rows, dispositions, law, confirmed=True, confirmation_reason="boundary check"
     )
 
-    for temperature in (300.0, 299.999999):
+    for temperature in (260.0, 259.999999):
         invalid = (replace(boundary_rows[0], temperature_k=temperature), boundary_rows[1])
         with pytest.raises(DmaProcessingError) as captured:
             build_frequency_master_curve(
@@ -371,9 +389,11 @@ def test_frequency_master_curve_parquet_round_trip_preserves_excluded_nulls() ->
     table = _read_parquet(pa.BufferReader(value))
 
     assert tuple(table.column_names) == DMA_FREQUENCY_MASTER_CURVE_COLUMNS
-    assert table.schema.field("source_ordinal").type == pa.int64()
+    source_ordinals_field = table.schema.field("source_ordinals")
+    assert source_ordinals_field.type.value_type == pa.int64()
+    assert source_ordinals_field.type.value_field.nullable is False
     assert table.schema.field("partition").type == pa.string()
-    assert table.column("log10_a_t").null_count == 1
+    assert table.column("applied_log10_a_t").null_count == 1
     assert frequency_master_curve_from_parquet(value) == rows
 
 
@@ -384,3 +404,219 @@ def test_nonconstant_frequency_is_rejected_with_recovery() -> None:
         recommend_wlf_starting_values(rows, source_evidence={"sha256": "c" * 64})
     assert captured.value.code == "CMP-PROCESSING-4304"
     assert "Split" in captured.value.recovery
+
+
+def _multi_synthetic_sweeps() -> tuple[DmaFrequencySweep, ...]:
+    shifts = {11: 0.0, 27: 1.0, 42: 2.0, 99: 3.0}
+    temperatures = {11: 300.0, 27: 310.0, 42: 320.0, 99: 330.0}
+    frequencies = {
+        11: (1.0, 10.0, 100.0),
+        27: (1.0, 100.0),
+        42: (1.0, 10.0, 100.0),
+        99: (1.0, 10.0, 100.0),
+    }
+    result: list[DmaFrequencySweep] = []
+    for sweep_ordinal in (11, 27, 42, 99):
+        shift = shifts[sweep_ordinal]
+        points = tuple(
+            DmaFrequencySweepPoint(
+                source_ordinal=(sweep_ordinal * 10) + index,
+                measured_temperature_k=temperatures[sweep_ordinal] + (0.01 * index),
+                frequency_hz=frequency,
+                storage_modulus_pa=10.0 ** (5.0 + 0.2 * (math.log10(frequency) + shift)),
+                loss_modulus_pa=10.0 ** (4.0 + 0.1 * (math.log10(frequency) + shift)),
+            )
+            for index, frequency in enumerate(frequencies[sweep_ordinal])
+        )
+        result.append(DmaFrequencySweep(sweep_ordinal, points))
+    return tuple(result)
+
+
+def _multi_synthetic_dispositions() -> tuple[DmaFrequencySweepDisposition, ...]:
+    return (
+        DmaFrequencySweepDisposition(11, 300.0, DmaPartition.CALIBRATION),
+        DmaFrequencySweepDisposition(27, 310.0, DmaPartition.CALIBRATION),
+        DmaFrequencySweepDisposition(42, 320.0, DmaPartition.CALIBRATION),
+        DmaFrequencySweepDisposition(99, 330.0, DmaPartition.HOLDOUT),
+    )
+
+
+def _multi_scoring() -> DmaTtsScoringControls:
+    return DmaTtsScoringControls(
+        minimum_overlap_decades=0.5,
+        overlap_evaluation_point_count=7,
+        storage_weight=0.7,
+        loss_weight=0.3,
+    )
+
+
+def test_multi_frequency_manual_ragged_result_preserves_identity_and_null_patterns() -> None:
+    result = build_multi_frequency_master_curve(
+        _multi_synthetic_sweeps(),
+        _multi_synthetic_dispositions(),
+        reference_sweep_ordinal=11,
+        shift_law=DmaShiftLawRequest(
+            "manual_tabulated",
+            300.0,
+            manual_table=((300.0, 0.0), (310.0, 1.0), (320.0, 2.0), (330.0, 3.0)),
+        ),
+        scoring=_multi_scoring(),
+        adjacent_optimizer=DmaTtsAdjacentOptimizerControls(-3.0, 3.0),
+        law_optimizer=None,
+        confirmed=True,
+        confirmation_reason="synthetic domain regression",
+    )
+
+    assert [row.source_sweep_ordinal for row in result.rows] == [11, 27, 42, 99]
+    assert [len(row.source_frequency_hz) for row in result.rows] == [3, 2, 3, 3]
+    assert result.rows[0].is_reference is True
+    assert result.rows[0].observed_log10_a_t == 0.0
+    assert result.rows[0].comparison_sweep_ordinal is None
+    assert result.rows[1].observed_log10_a_t == pytest.approx(1.0)
+    assert result.rows[2].observed_log10_a_t == pytest.approx(2.0)
+    assert result.rows[3].partition is DmaPartition.HOLDOUT
+    assert result.rows[3].holdout_evaluation_status == "evaluated"
+    assert result.rows[3].observed_log10_a_t is None
+    assert result.rows[3].shift_residual_log10_a_t is None
+    assert result.rows[3].adjacent_success is None
+    assert result.rows[3].scoring_point_count == 7
+    assert result.application_intervals
+    assert result.residual_summary is not None
+
+
+def _multi_sweeps_with_reference_temperature_deviation(
+    deviation_k: float,
+) -> tuple[DmaFrequencySweep, ...]:
+    sweeps = list(_multi_synthetic_sweeps())
+    reference = sweeps[0]
+    points = list(reference.points)
+    points[1] = replace(
+        points[1],
+        measured_temperature_k=points[0].measured_temperature_k + deviation_k,
+    )
+    points[2] = replace(
+        points[2],
+        measured_temperature_k=points[0].measured_temperature_k,
+    )
+    sweeps[0] = replace(reference, points=tuple(points))
+    return tuple(sweeps)
+
+
+def _build_multi_temperature_boundary(
+    sweeps: tuple[DmaFrequencySweep, ...],
+) -> DmaFrequencyMasterCurveBuildResult:
+    return build_multi_frequency_master_curve(
+        sweeps,
+        _multi_synthetic_dispositions(),
+        reference_sweep_ordinal=11,
+        shift_law=DmaShiftLawRequest(
+            "manual_tabulated",
+            300.0,
+            manual_table=((300.0, 0.0), (310.0, 1.0), (320.0, 2.0), (330.0, 3.0)),
+        ),
+        scoring=_multi_scoring(),
+        adjacent_optimizer=DmaTtsAdjacentOptimizerControls(-3.0, 3.0),
+        law_optimizer=None,
+        confirmed=True,
+        confirmation_reason="temperature tolerance boundary regression",
+    )
+
+
+def test_multi_frequency_temperature_tolerance_accepts_inclusive_half_kelvin() -> None:
+    assert DMA_SWEEP_TEMPERATURE_TOLERANCE_K == Decimal("0.5")
+    result = _build_multi_temperature_boundary(
+        _multi_sweeps_with_reference_temperature_deviation(0.5)
+    )
+
+    assert result.rows[0].representative_temperature_k == 300.0
+    assert result.rows[0].measured_temperature_k == (300.0, 300.5, 300.0)
+    assert frequency_master_curve_from_parquet(
+        frequency_master_curve_parquet_bytes(result.rows)
+    ) == result.rows
+
+
+def test_multi_frequency_temperature_tolerance_rejects_above_half_kelvin() -> None:
+    with pytest.raises(DmaProcessingError) as captured:
+        _build_multi_temperature_boundary(
+            _multi_sweeps_with_reference_temperature_deviation(0.5000000001)
+        )
+
+    assert captured.value.code == "CMP-PROCESSING-4316"
+    assert "inclusive 0.5 K sweep tolerance" in captured.value.cause
+
+
+def test_multi_frequency_result_readback_rejects_temperature_above_half_kelvin() -> None:
+    result = _build_multi_temperature_boundary(
+        _multi_sweeps_with_reference_temperature_deviation(0.5)
+    )
+    valid_payload = frequency_master_curve_parquet_bytes(result.rows)
+    table = _read_parquet(pa.BufferReader(valid_payload))
+    field_index = table.schema.get_field_index("measured_temperature_k")
+    field = table.schema.field(field_index)
+    tampered_temperatures: list[object] = list(
+        table.column("measured_temperature_k").to_pylist()
+    )
+    tampered_temperatures[0] = [300.0, 300.5000000001, 300.0]
+    tampered_table = table.set_column(
+        field_index,
+        field,
+        pa.array(tampered_temperatures, type=field.type),
+    )
+    sink = pa.BufferOutputStream()
+    _write_parquet(tampered_table, sink)
+    tampered_payload = sink.getvalue().to_pybytes()
+    assert isinstance(tampered_payload, bytes)
+
+    with pytest.raises(DmaProcessingError) as captured:
+        frequency_master_curve_from_parquet(tampered_payload)
+
+    assert captured.value.code == "CMP-PROCESSING-4317"
+    assert "inclusive 0.5 K sweep tolerance" in captured.value.cause
+
+
+def test_multi_frequency_singleton_overlap_is_evaluated_without_optimizer() -> None:
+    sweeps = (
+        DmaFrequencySweep(
+            1,
+            (
+                DmaFrequencySweepPoint(0, 300.0, 1.0, 100.0, 10.0),
+                DmaFrequencySweepPoint(1, 300.0, 100.0, 10.0, 1.0),
+            ),
+        ),
+        DmaFrequencySweep(
+            2,
+            (
+                DmaFrequencySweepPoint(2, 310.0, 1.0, 100.0, 10.0),
+                DmaFrequencySweepPoint(3, 310.0, 100.0, 10.0, 1.0),
+            ),
+        ),
+    )
+    shift, score, evidence = optimize_adjacent_shift(
+        sweeps[1],
+        sweeps[0],
+        DmaTtsScoringControls(0.5, 3, 1.0, 0.0),
+        DmaTtsAdjacentOptimizerControls(0.0, 0.0),
+    )
+    assert shift == 0.0
+    assert score.scoring_point_count == 3
+    assert evidence == type(evidence)(True, 0, 0, 1, score.weighted_mse)
+
+
+def test_multi_frequency_empty_feasible_overlap_is_4314() -> None:
+    current = DmaFrequencySweep(
+        1,
+        (
+            DmaFrequencySweepPoint(0, 300.0, 1.0, 100.0, 10.0),
+            DmaFrequencySweepPoint(1, 300.0, 10.0, 90.0, 9.0),
+        ),
+    )
+    anchor = DmaFrequencySweep(
+        2,
+        (
+            DmaFrequencySweepPoint(2, 310.0, 100.0, 100.0, 10.0),
+            DmaFrequencySweepPoint(3, 310.0, 1000.0, 90.0, 9.0),
+        ),
+    )
+    with pytest.raises(DmaProcessingError) as captured:
+        score_sweep_pair(current, anchor, 0.0, DmaTtsScoringControls(0.5, 3, 1.0, 0.0))
+    assert captured.value.code == "CMP-PROCESSING-4314"

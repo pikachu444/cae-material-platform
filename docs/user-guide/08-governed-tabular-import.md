@@ -92,7 +92,7 @@ DMA와 FLD Profile은 다음 의미를 각각 독립적으로 고정합니다.
 | DMA frequency-temperature sweep | Temperature·Frequency는 Independent, Storage modulus·Loss modulus는 Dependent | Tan delta(Dependent) | `degC`/`K` → `K`, `Hz` → `Hz`, `Pa`/`kPa`/`MPa`/`GPa` → `Pa`, tan delta `1` → `1` |
 | Forming limit diagram | Minor strain은 Independent, Major strain은 Dependent | 없음 | 각 strain `1`/`%` → `1` |
 
-DMA의 `Hz`는 기존 explicit-legacy channel 계약만 재사용합니다. 이 절차가 공통 단위 registry나
+DMA의 `Hz`는 명시적인 cyclic frequency 단위 계약을 사용합니다. 이 절차가 공통 단위 registry나
 추가 bundle adapter를 만드는 것은 아닙니다. FLD의 signed strain과 입력 순서는 그대로 허용하며,
 DMA와 FLD 어느 쪽도 row를 자동 정렬하거나 monotonic curve로 바꾸지 않습니다.
 
@@ -121,8 +121,8 @@ mapping이 잘못된 동안에는 마지막 정상 graph를 그대로 두고 **U
 비활성화합니다. mapping을 고친 뒤에만 다시 preview하고 저장할 수 있습니다. Import Run은 `failed`
 terminal evidence로 남고 각 오류의 row, column, channel 원인과 가능한 조치를 표시합니다. 누락된
 column/cell, 숫자가 아닌 값, NaN/Inf를 한 파일에서 함께 찾아도 성공 row만 저장하지 않고 파일
-전체를 거부합니다. DMA에서는 0 K 미만, 0 Hz 이하, 음수 storage/loss/tan delta와 중복
-temperature-frequency 좌표를 거부합니다. FLD에서는 중복 minor strain 좌표만 거부하며 signed 값과
+전체를 거부합니다. DMA에서는 0 K 이하, 0 Hz 이하, 0 이하 storage/loss/tan delta와 중복
+같은 source sweep 안의 frequency 또는 source 순서 위반을 거부합니다. FLD에서는 중복 minor strain 좌표만 거부하며 signed 값과
 비단조 순서는 오류가 아닙니다.
 
 mapping은 완성됐지만 파일 값 검증에서 preview가 거부되면 **Record rejected import**를 누릅니다.

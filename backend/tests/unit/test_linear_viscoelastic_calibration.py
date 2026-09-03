@@ -341,6 +341,7 @@ def test_processed_plan_persists_exact_tts_output_pins() -> None:
         ),
         source_kind="processing_output",
         processing_method="polymer.dma_frequency_master_curve@1.0.0",
+        dma_domain_policy="nondecreasing_observations",
     )
 
     class _Resolver:
@@ -585,10 +586,14 @@ def test_durable_queue_submits_the_real_plugin_job_and_replays_by_calibration_ke
     context = _context()
     execute = replace(
         _decision(Permission.CALIBRATION_EXECUTE),
-        database_permissions=tuple(sorted((
-            Permission.CALIBRATION_EXECUTE.value,
-            Permission.PLUGIN_READ.value,
-        ))),
+        database_permissions=tuple(
+            sorted(
+                (
+                    Permission.CALIBRATION_EXECUTE.value,
+                    Permission.PLUGIN_READ.value,
+                )
+            )
+        ),
     )
     plan = _plan()
     submitted: list[Any] = []

@@ -482,7 +482,7 @@ def _selection_content(row: Any) -> ReferenceDatasetSelectionContent:
     if int(row["member_count"]) != 1:
         raise DatasetNotFound("reference Dataset Selection membership is invalid")
     return ReferenceDatasetSelectionContent(
-        selection_label=str(row["selection_label"]),
+        selection_label=str(row["identity_selection_label"]),
         dataset_id=cast(UUID, row["dataset_id"]),
         dataset_revision_id=cast(UUID, row["dataset_revision_id"]),
     )

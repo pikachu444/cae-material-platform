@@ -270,6 +270,10 @@ class GovernedViscoelasticInputSemantics:
     angular_frequency_conversion: str = "not_applicable"
     source_kind: str = "governed_test_data"
     processing_method: str | None = None
+    # This is server-derived domain behavior.  It is deliberately not a client
+    # control: direct isothermal DMA keeps the historical strict-unique domain,
+    # while a persisted DMA master curve carries its ragged observation policy.
+    dma_domain_policy: str | None = None
 
     def __post_init__(self) -> None:
         if self.mode not in {"relaxation", "dma", "dma_frequency_master_curve"}:
@@ -278,6 +282,24 @@ class GovernedViscoelasticInputSemantics:
             )
         if self.deformation_mode != "shear":
             raise LinearViscoelasticInputError("production input deformation_mode must be shear")
+        if self.dma_domain_policy not in {None, "strict_unique", "nondecreasing_observations"}:
+            raise LinearViscoelasticInputError(
+                "dma_domain_policy is not a supported server-derived policy"
+            )
+        if self.mode == "relaxation" and self.dma_domain_policy is not None:
+            raise LinearViscoelasticInputError("relaxation input must omit dma_domain_policy")
+        if self.mode == "dma" and self.dma_domain_policy != "strict_unique":
+            raise LinearViscoelasticInputError(
+                "direct DMA input requires the server-derived strict_unique policy"
+            )
+        if (
+            self.mode == "dma_frequency_master_curve"
+            and self.dma_domain_policy != "nondecreasing_observations"
+        ):
+            raise LinearViscoelasticInputError(
+                "DMA master-curve input requires the server-derived "
+                "nondecreasing_observations policy"
+            )
         if self.mode != "dma_frequency_master_curve" and (
             self.source_kind != "governed_test_data" or self.processing_method is not None
         ):
@@ -398,7 +420,7 @@ class GovernedViscoelasticInputSemantics:
             )
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "mode": self.mode,
             "deformation_mode": self.deformation_mode,
             "channels": [item.canonical() for item in self.channels],
@@ -421,6 +443,9 @@ class GovernedViscoelasticInputSemantics:
             "source_kind": self.source_kind,
             "processing_method": self.processing_method,
         }
+        if self.dma_domain_policy is not None:
+            result["dma_domain_policy"] = self.dma_domain_policy
+        return result
 
 
 @dataclass(frozen=True, slots=True)

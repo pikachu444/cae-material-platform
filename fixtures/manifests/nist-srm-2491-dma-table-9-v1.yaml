@@ -1,0 +1,46 @@
+schema_version: "1.0"
+fixture:
+  id: nist-srm-2491-dma-table-9-v1
+  path: fixtures/public/nist-srm-2491-dma-table-9-v1.csv
+  format: text/csv
+  classification: public_reference_non_production
+  non_production: true
+  digest:
+    algorithm: sha256
+    value: e67ae6a2d4772b33b5a0ca9667449cc415a310b3399c7532304b7014083758d0
+    byte_contract: UTF-8, LF line endings, final newline included
+
+source:
+  title: Certification of the Rheological Behavior of SRM 2491, Polydimethylsiloxane
+  publisher: National Institute of Standards and Technology
+  report: NIST Special Publication 260-147
+  doi: 10.6028/NIST.SP.260-147
+  landing_page: https://doi.org/10.6028/NIST.SP.260-147
+  license: United States federal government work; public domain in the United States
+  source_pdf_sha256: df923ee46cc8d427df152c35e04956426c2ad9ea4198e808fa84ce63da489726
+
+derivation:
+  source_table: Table 9
+  printed_pages: 65-70
+  pdf_pages: 69-74
+  rows: 96
+  temperatures_c: [0, 10, 20, 30, 40, 50]
+  angular_frequencies_rad_per_s: 16 values from 0.1 through 100
+  operations:
+    - Transcribed every numeric cell in Table 9 in published row and column order.
+    - Preserved the published decimal text and Pa and rad/s units without interpolation.
+    - Added descriptive CSV column names; no smoothing, resampling, or unit conversion was applied.
+
+wlf_reference:
+  formula: a(T)=exp(-C1*(T-TR)/(C2+T-TR))
+  c1_natural_log: "6.64"
+  c2_celsius_difference: "299.4"
+  reference_temperature_c: "25"
+  source_printed_page: 32
+  use: independent log-base, sign, direction, and reference-temperature oracle only
+
+use:
+  role: public_reference_multi_frequency_dma_and_wlf_shift
+  preserve_source_values_and_order: true
+  vertical_density_shift: published_by_source_but_not_applied_by_horizontal_only_regression
+  ir_promotion: forbidden_without_governed_static_property_set

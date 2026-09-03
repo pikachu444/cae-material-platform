@@ -114,8 +114,19 @@ class Client:
         )
 
     def create_dma_frequency_master_curve(self, payload: object) -> object:
+        return self._request_json("POST", "/api/v1/processing/dma-frequency-master-curves", payload)
+
+    def get_dma_frequency_master_curve_revision(
+        self, output_id: str, revision_id: str, content_sha256: str
+    ) -> object:
         return self._request_json(
-            "POST", "/api/v1/processing/dma-frequency-master-curves", payload
+            "GET",
+            "/api/v1/processing/dma-frequency-master-curves/"
+            + output_id
+            + "/revisions/"
+            + revision_id
+            + "?content_sha256="
+            + content_sha256,
         )
 
     def create_linear_viscoelastic_calibration_plan_from_processing_output(

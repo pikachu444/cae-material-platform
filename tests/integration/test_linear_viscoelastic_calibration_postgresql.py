@@ -309,6 +309,7 @@ def _processed_plan() -> LinearViscoelasticCalibrationPlan:
         ),
         source_kind="processing_output",
         processing_method="polymer.dma_frequency_master_curve@1.0.0",
+        dma_domain_policy="nondecreasing_observations",
     )
     return replace(
         source,

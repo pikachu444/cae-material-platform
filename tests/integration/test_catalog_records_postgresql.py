@@ -970,7 +970,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20261007_106_lve_plan_governance"
+        assert version == "20261008_107_dma_tts_sweep"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "

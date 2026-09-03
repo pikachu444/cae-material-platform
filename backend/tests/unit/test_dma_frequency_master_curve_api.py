@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from typing import cast
 from uuid import UUID
 
+import pytest
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -27,6 +28,7 @@ from cmp.modules.processing.application.dma_frequency_master_curve import (
 )
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_PARQUET_SCHEMA_ID,
+    DmaProcessingError,
     DmaWlfStartingSuggestion,
 )
 from fastapi import FastAPI, Request
@@ -102,9 +104,15 @@ class _Service:
             ),
             content=content,
         )
-        return CreatedDmaFrequencyMasterCurve(
-            None, cast(ProcessingOutputSnapshot, snapshot)
-        )
+        return CreatedDmaFrequencyMasterCurve(cast(ProcessingOutputSnapshot, snapshot))
+
+
+class _ErrorService:
+    def __init__(self, error: DmaProcessingError) -> None:
+        self.error = error
+
+    async def create(self, context: object, decision: object, command: object) -> object:
+        raise self.error
 
 
 def _client(service: _Service) -> TestClient:
@@ -162,7 +170,8 @@ def test_create_endpoint_preserves_explicit_policy_and_returns_exact_artifact_pi
         **_pins(),
         "classification": "internal",
         "label": "DMA frequency master curve",
-        "dispositions": [
+        "input_mode": "fixed_frequency_temperature_sweep",
+        "row_dispositions": [
             {"source_ordinal": 0, "partition": "CALIBRATION"},
             {"source_ordinal": 1, "partition": "HOLDOUT"},
         ],
@@ -171,7 +180,6 @@ def test_create_endpoint_preserves_explicit_policy_and_returns_exact_artifact_pi
             "reference_temperature_k": 313.15,
             "c1": 17.44,
             "c2_k": 51.6,
-            "value_origin": "generic_wlf_at_tg_starting_suggestion",
         },
         "confirmation": {"confirmed": True, "reason": "Engineer accepted the settings."},
         "recommendation_sha256": "c" * 64,
@@ -188,3 +196,43 @@ def test_create_endpoint_preserves_explicit_policy_and_returns_exact_artifact_pi
     assert output["result_schema_ref"] == DMA_FREQUENCY_MASTER_CURVE_PARQUET_SCHEMA_ID
     assert output["result_media_type"] == "application/vnd.apache.parquet"
     assert service.create_calls == 1
+
+
+@pytest.mark.parametrize(
+    ("code", "status_code"),
+    (("CMP-PROCESSING-4030", 403), ("CMP-PROCESSING-4317", 409)),
+)
+def test_create_endpoint_preserves_authorization_and_integrity_status_boundary(
+    code: str,
+    status_code: int,
+) -> None:
+    service = _ErrorService(
+        DmaProcessingError(code, "The persistence boundary rejected the request.", "Retry safely.")
+    )
+    body = {
+        **_pins(),
+        "classification": "internal",
+        "label": "DMA frequency master curve",
+        "input_mode": "fixed_frequency_temperature_sweep",
+        "row_dispositions": [
+            {"source_ordinal": 0, "partition": "CALIBRATION"},
+            {"source_ordinal": 1, "partition": "HOLDOUT"},
+        ],
+        "shift_law": {
+            "kind": "wlf",
+            "reference_temperature_k": 313.15,
+            "c1": 17.44,
+            "c2_k": 51.6,
+        },
+        "confirmation": {"confirmed": True, "reason": "Engineer accepted the settings."},
+        "recommendation_sha256": "c" * 64,
+        "change_reason": "Create the confirmed DMA TTS output.",
+    }
+
+    response = _client(cast(_Service, service)).post(
+        "/api/v1/processing/dma-frequency-master-curves",
+        json=body,
+    )
+
+    assert response.status_code == status_code, response.json()
+    assert response.json()["error"]["code"] == code

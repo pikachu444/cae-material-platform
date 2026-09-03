@@ -113,6 +113,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20261005_104_linear_viscoelastic_calibration.py",
         "20261006_105_dma_frequency_master_curve.py",
         "20261007_106_linear_viscoelastic_plan_governance.py",
+        "20261008_107_issue391_dma_tts_sweep_ordinal.py",
     ]
 
 

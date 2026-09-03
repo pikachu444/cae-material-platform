@@ -176,6 +176,8 @@ def _oracle_plan(mode: str, row_count: int) -> dict[str, Any]:
             "omega_rad_per_s=2*pi*frequency_hz" if mode == "dma" else "not_applicable"
         ),
     }
+    if mode == "dma":
+        semantics["dma_domain_policy"] = "strict_unique"
     bounds = {
         "1": [
             {
@@ -289,8 +291,7 @@ def _run_plugin(
         taus = (Decimal("0.1"),)
     else:
         moduli = tuple(
-            Decimal(term_count + 1 - index) / Decimal(2)
-            for index in range(1, term_count + 1)
+            Decimal(term_count + 1 - index) / Decimal(2) for index in range(1, term_count + 1)
         )
         taus = tuple(Decimal(10) ** Decimal(index - 5) for index in range(term_count))
     if mode == "relaxation" and term_count is not None:

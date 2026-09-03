@@ -40,6 +40,7 @@ _SEMANTICS: dict[QuantityKind, str] = {
     QuantityKind.TAN_DELTA: "mechanics.loss_factor",
     QuantityKind.MINOR_STRAIN: "mechanics.strain.minor",
     QuantityKind.MAJOR_STRAIN: "mechanics.strain.major",
+    QuantityKind.SOURCE_SWEEP_ORDINAL: "test.sweep.ordinal",
 }
 
 _MEDIA_TYPES = {

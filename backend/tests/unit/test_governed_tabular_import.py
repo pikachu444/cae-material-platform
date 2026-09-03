@@ -69,18 +69,25 @@ def _dma_profile(
 ) -> GovernedImportProfileContent:
     channels: tuple[GovernedChannelMapping, ...] = (
         GovernedChannelMapping(
-            0, "temperature", QuantityKind.TEMPERATURE, "degC", AxisRole.INDEPENDENT
+            0,
+            "source_sweep_ordinal",
+            QuantityKind.SOURCE_SWEEP_ORDINAL,
+            "1",
+            AxisRole.AUXILIARY,
         ),
-        GovernedChannelMapping(1, "frequency", QuantityKind.FREQUENCY, "Hz", AxisRole.INDEPENDENT),
         GovernedChannelMapping(
-            2, "storage", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
+            1, "temperature", QuantityKind.TEMPERATURE, "degC", AxisRole.INDEPENDENT
         ),
-        GovernedChannelMapping(3, "loss", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT),
+        GovernedChannelMapping(2, "frequency", QuantityKind.FREQUENCY, "Hz", AxisRole.INDEPENDENT),
+        GovernedChannelMapping(
+            3, "storage", QuantityKind.STORAGE_MODULUS, "MPa", AxisRole.DEPENDENT
+        ),
+        GovernedChannelMapping(4, "loss", QuantityKind.LOSS_MODULUS, "MPa", AxisRole.DEPENDENT),
     )
     if include_tan_delta:
         channels = (
             *channels,
-            GovernedChannelMapping(4, "tan_delta", QuantityKind.TAN_DELTA, "1", AxisRole.DEPENDENT),
+            GovernedChannelMapping(5, "tan_delta", QuantityKind.TAN_DELTA, "1", AxisRole.DEPENDENT),
         )
     return GovernedImportProfileContent(
         profile_label="DMA frequency-temperature sweep",
@@ -98,6 +105,8 @@ def _dma_profile(
         ),
         decimal_separator=".",
         channels=channels,
+        schema_version="1.3.0",
+        deformation_mode="shear",
     )
 
 
@@ -437,31 +446,45 @@ def test_catalog_registration_parser_returns_every_named_row() -> None:
     )
 
 
-def test_dma_frequency_temperature_sweep_normalizes_four_required_channels() -> None:
+def test_dma_frequency_temperature_sweep_normalizes_current_five_channel_shape() -> None:
     evidence = parse_governed_source_evidence(
-        b"temperature,frequency,storage,loss\n-40,1,1200,120\n20,1,900,90\n-20,10,1000,100\n",
+        b"source_sweep_ordinal,temperature,frequency,storage,loss\n1,-40,1,1200,120\n1,20,2,900,90\n2,-20,10,1000,100\n",
         _dma_profile(),
     )
 
     assert evidence.normalized.columns == (
+        QuantityKind.SOURCE_SWEEP_ORDINAL,
         QuantityKind.TEMPERATURE,
         QuantityKind.FREQUENCY,
         QuantityKind.STORAGE_MODULUS,
         QuantityKind.LOSS_MODULUS,
     )
     assert evidence.normalized.rows[0] == pytest.approx(
-        (233.15, 1.0, 1_200_000_000.0, 120_000_000.0)
+        (1, 233.15, 1.0, 1_200_000_000.0, 120_000_000.0)
     )
     assert evidence.normalized.rows[-1] == pytest.approx(
-        (253.15, 10.0, 1_000_000_000.0, 100_000_000.0)
+        (2, 253.15, 10.0, 1_000_000_000.0, 100_000_000.0)
     )
-    assert evidence.normalization_offsets == (273.15, 0.0, 0.0, 0.0)
+    assert evidence.original_rows[0][0] == 1
+    assert evidence.normalization_offsets == (0.0, 273.15, 0.0, 0.0, 0.0)
+
+
+def test_dma_current_profile_rejects_duplicate_frequency_with_temperature_jitter() -> None:
+    source = (
+        b"source_sweep_ordinal,temperature,frequency,storage,loss\n"
+        b"1,20,1,1200,120\n1,20.01,1,1100,110\n"
+    )
+
+    with pytest.raises(InvalidGovernedImport) as caught:
+        parse_governed_source(source, _dma_profile())
+
+    assert caught.value.diagnostics[0].error_code == "duplicate_coordinate"
 
 
 def test_dma_optional_tan_delta_and_xlsx_use_the_same_profile_rules() -> None:
     source = _xlsx_table(
-        ("temperature", "frequency", "storage", "loss", "tan_delta"),
-        ((-30, 1, 1100, 110, 0.1), (30, 1, 800, 80, 0.1)),
+        ("source_sweep_ordinal", "temperature", "frequency", "storage", "loss", "tan_delta"),
+        ((1, -30, 1, 1100, 110, 0.1), (1, 30, 2, 800, 80, 0.1)),
     )
     parsed = parse_governed_source(
         source,
@@ -473,8 +496,24 @@ def test_dma_optional_tan_delta_and_xlsx_use_the_same_profile_rules() -> None:
     )
 
     assert parsed.columns[-1] is QuantityKind.TAN_DELTA
-    assert parsed.rows[1] == pytest.approx((303.15, 1.0, 800_000_000.0, 80_000_000.0, 0.1))
+    assert parsed.rows[1] == pytest.approx((1, 303.15, 2.0, 800_000_000.0, 80_000_000.0, 0.1))
     assert normalized_parquet_bytes(parsed).startswith(b"PAR1")
+
+
+@pytest.mark.parametrize("token", ("1.0", "+1", "1e0", "0", "9223372036854775808"))
+def test_dma_source_sweep_ordinal_accepts_only_direct_positive_int64_tokens(token: str) -> None:
+    source = (
+        "source_sweep_ordinal,temperature,frequency,storage,loss\n"
+        f"{token},-30,1,1100,110\n1,30,1,800,80\n"
+    ).encode()
+    with pytest.raises(InvalidGovernedImport) as caught:
+        parse_governed_source(source, _dma_profile())
+    assert caught.value.diagnostics
+    assert caught.value.diagnostics[0].error_code in {
+        "invalid_integral_token",
+        "invalid_decimal_separator",
+        "ordinal_out_of_range",
+    }
 
 
 def test_fixed_frequency_dma_temperature_profile_preserves_signed_loss_factor() -> None:
@@ -517,32 +556,32 @@ def test_forming_limit_accepts_signed_non_monotonic_strain_without_sorting() -> 
     ("source", "profile", "codes"),
     (
         (
-            b"temperature,frequency,loss\n0,1,10\n20,1,8\n",
+            b"source_sweep_ordinal,temperature,frequency,loss\n1,0,1,10\n1,20,1,8\n",
             _dma_profile(),
             {"missing_required_column"},
         ),
         (
-            b"temperature,frequency,storage,loss\n0,1,NaN,\n20,1,Inf,5\n",
+            b"source_sweep_ordinal,temperature,frequency,storage,loss\n1,0,1,NaN,\n1,20,1,Inf,5\n",
             _dma_profile(),
             {"non_finite_value", "missing_value"},
         ),
         (
-            b"temperature,frequency,storage,loss\n0,1,10,5\n0,1,9,4\n",
+            b"source_sweep_ordinal,temperature,frequency,storage,loss\n1,0,1,10,5\n1,0,1,9,4\n",
             _dma_profile(),
             {"duplicate_coordinate"},
         ),
         (
-            b"temperature,frequency,storage,loss\n-274,1,10,5\n0,1,9,4\n",
+            b"source_sweep_ordinal,temperature,frequency,storage,loss\n1,-274,1,10,5\n1,0,1,9,4\n",
             _dma_profile(),
             {"temperature_below_absolute_zero"},
         ),
         (
-            b"temperature,frequency,storage,loss\n0,0,10,5\n20,1,9,4\n",
+            b"source_sweep_ordinal,temperature,frequency,storage,loss\n1,0,0,10,5\n1,20,1,9,4\n",
             _dma_profile(),
             {"frequency_not_positive"},
         ),
         (
-            b"temperature,frequency,storage,loss\n0,1,-10,5\n20,1,9,4\n",
+            b"source_sweep_ordinal,temperature,frequency,storage,loss\n1,0,1,-10,5\n1,20,1,9,4\n",
             _dma_profile(),
             {"negative_dma_response"},
         ),
@@ -569,7 +608,7 @@ def test_dma_fld_fail_closed_with_structured_diagnostics(
 
 
 def test_dma_and_fld_profiles_reject_wrong_channel_contracts() -> None:
-    with pytest.raises(InvalidGovernedImport, match="optional tan_delta"):
+    with pytest.raises(InvalidGovernedImport, match="source_sweep_ordinal"):
         replace(_dma_profile(), channels=_dma_profile().channels[:3])
 
     with pytest.raises(InvalidGovernedImport, match="minor_strain/major_strain"):
