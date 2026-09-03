@@ -802,7 +802,9 @@ class DmaFrequencyMasterCurveService:
                 "source_normalized_artifact_id": str(
                     resolved.test_data_snapshot.content.normalized_artifact_id
                 ),
-                "source_normalized_artifact_sha256": resolved.test_data_snapshot.content.normalized_sha256,
+                "source_normalized_artifact_sha256": (
+                    resolved.test_data_snapshot.content.normalized_sha256
+                ),
             },
             sweeps=sweeps_document,
             reference_sweep_ordinal=command.reference_sweep_ordinal,
@@ -1034,8 +1036,14 @@ class DmaFrequencyMasterCurveService:
             ):
                 raise DmaProcessingError(
                     "CMP-PROCESSING-4317",
-                    "recommendation digest or multi-frequency controls do not match the exact source",
-                    "Reload the exact recommendation or submit explicitly edited settings with no digest.",
+                    (
+                        "recommendation digest or multi-frequency controls do not match "
+                        "the exact source"
+                    ),
+                    (
+                        "Reload the exact recommendation or submit explicitly edited settings "
+                        "with no digest."
+                    ),
                 )
             recommendation_metadata = {
                 "recommendation_sha256": suggestion.recommendation_sha256,

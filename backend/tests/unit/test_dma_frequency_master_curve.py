@@ -9,7 +9,6 @@ from decimal import Decimal
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import cast
-from uuid import UUID
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -465,7 +464,9 @@ def _multi_scoring() -> DmaTtsScoringControls:
 @pytest.mark.anyio
 async def test_application_multi_recommendation_is_deterministic_and_pins_source_evidence() -> None:
     service = object.__new__(DmaFrequencyMasterCurveService)
-    normalized_artifact_id = cast(object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000026"))
+    normalized_artifact_id = cast(
+        object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000026")
+    )
 
     async def resolve(
         context: object,
@@ -540,10 +541,34 @@ def _application_multi_suggestion() -> DmaMultiFrequencyStartingSuggestion:
             "source_normalized_artifact_sha256": "c" * 64,
         },
         sweeps=(
-            {"source_sweep_ordinal": 11, "representative_temperature_k": 300.0, "point_count": 3, "source_frequency_min_hz": 1.0, "source_frequency_max_hz": 100.0},
-            {"source_sweep_ordinal": 27, "representative_temperature_k": 310.0, "point_count": 2, "source_frequency_min_hz": 1.0, "source_frequency_max_hz": 100.0},
-            {"source_sweep_ordinal": 42, "representative_temperature_k": 320.0, "point_count": 3, "source_frequency_min_hz": 1.0, "source_frequency_max_hz": 100.0},
-            {"source_sweep_ordinal": 99, "representative_temperature_k": 330.0, "point_count": 3, "source_frequency_min_hz": 1.0, "source_frequency_max_hz": 100.0},
+            {
+                "source_sweep_ordinal": 11,
+                "representative_temperature_k": 300.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 27,
+                "representative_temperature_k": 310.0,
+                "point_count": 2,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 42,
+                "representative_temperature_k": 320.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 99,
+                "representative_temperature_k": 330.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
         ),
         reference_sweep_ordinal=11,
         reference_temperature_k=300.0,
@@ -597,7 +622,7 @@ def _application_multi_suggestion() -> DmaMultiFrequencyStartingSuggestion:
 
 
 @pytest.mark.anyio
-async def test_application_multi_create_rejects_digest_mismatch_and_persists_recommendation_metadata(
+async def test_application_multi_create_rejects_digest_mismatch_and_persists_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     recommendation = _application_multi_suggestion()
@@ -640,12 +665,14 @@ async def test_application_multi_create_rejects_digest_mismatch_and_persists_rec
 
     def fake_build(*args: object, **kwargs: object) -> object:
         return SimpleNamespace(
-            rows=(SimpleNamespace(
-                is_reference=True,
-                source_sweep_ordinal=11,
-                source_ordinals=(110,),
-                representative_temperature_k=300.0,
-            ),),
+            rows=(
+                SimpleNamespace(
+                    is_reference=True,
+                    source_sweep_ordinal=11,
+                    source_ordinals=(110,),
+                    representative_temperature_k=300.0,
+                ),
+            ),
             shift_law=dict(recommendation.shift_law),
             scoring=dict(recommendation.scoring),
             adjacent_optimizer=dict(recommendation.adjacent_optimizer),
@@ -796,9 +823,10 @@ def test_multi_frequency_temperature_tolerance_accepts_inclusive_half_kelvin() -
 
     assert result.rows[0].representative_temperature_k == 300.0
     assert result.rows[0].measured_temperature_k == (300.0, 300.5, 300.0)
-    assert frequency_master_curve_from_parquet(
-        frequency_master_curve_parquet_bytes(result.rows)
-    ) == result.rows
+    assert (
+        frequency_master_curve_from_parquet(frequency_master_curve_parquet_bytes(result.rows))
+        == result.rows
+    )
 
 
 def test_multi_frequency_temperature_tolerance_rejects_above_half_kelvin() -> None:
@@ -819,9 +847,7 @@ def test_multi_frequency_result_readback_rejects_temperature_above_half_kelvin()
     table = _read_parquet(pa.BufferReader(valid_payload))
     field_index = table.schema.get_field_index("measured_temperature_k")
     field = table.schema.field(field_index)
-    tampered_temperatures: list[object] = list(
-        table.column("measured_temperature_k").to_pylist()
-    )
+    tampered_temperatures: list[object] = list(table.column("measured_temperature_k").to_pylist())
     tampered_temperatures[0] = [300.0, 300.5000000001, 300.0]
     tampered_table = table.set_column(
         field_index,

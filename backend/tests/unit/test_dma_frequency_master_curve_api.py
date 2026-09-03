@@ -6,6 +6,7 @@ from typing import cast
 from uuid import UUID
 
 import pytest
+from cmp.modules.datasets.domain.governed_tabular import GovernedImportNotFound
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -18,7 +19,6 @@ from cmp.modules.identity_access.domain.security import (
     PrincipalType,
     SecurityContext,
 )
-from cmp.modules.datasets.domain.governed_tabular import GovernedImportNotFound
 from cmp.modules.processing.adapters.api.dma_frequency_master_curve import (
     install_dma_frequency_master_curve_api,
 )
