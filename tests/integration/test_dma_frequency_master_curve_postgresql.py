@@ -143,8 +143,9 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from test_catalog_postgresql import PostgresHarness as CatalogHarness
+from test_catalog_postgresql import postgres as _catalog_postgres_fixture
 
-pytest_plugins = ("test_catalog_postgresql",)
+postgres = _catalog_postgres_fixture
 
 POSTGRES_DSN = os.getenv("CMP_TEST_POSTGRES_DSN")
 
@@ -387,8 +388,8 @@ def _command(harness: DmaHarness, *, label: str) -> CreateDmaFrequencyMasterCurv
 
 
 @pytest.fixture(scope="module")
-def dma_postgres(postgres: CatalogHarness) -> Iterator[DmaHarness]:
-    catalog_postgres = postgres
+def dma_postgres(request: pytest.FixtureRequest) -> Iterator[DmaHarness]:
+    catalog_postgres = cast(CatalogHarness, request.getfixturevalue("postgres"))
     profile_context = _context()
     profile_decision = _decision(profile_context, Permission.DATASET_WRITE)
     with catalog_postgres.admin_engine.begin() as connection:
@@ -846,9 +847,10 @@ async def _single_upload_chunk(value: bytes) -> AsyncIterator[bytes]:
 
 
 def test_migration_107_preserves_existing_non_dma_processing_specializer(
-    postgres: CatalogHarness,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Exercise the real Processing -> Dataset hook path after the DMA guard replacement."""
+    postgres = cast(CatalogHarness, request.getfixturevalue("postgres"))
 
     context = _context()
     artifact_decision = _decision(context, Permission.ARTIFACT_WRITE)
