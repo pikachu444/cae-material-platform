@@ -103,7 +103,10 @@ from cmp.modules.processing.adapters.persistence.dma_provenance import (
     dma_submission_digest,
 )
 from cmp.modules.processing.adapters.persistence.repository import SqlAlchemyProcessingRepository
-from cmp.modules.processing.application.common_outputs import ProcessingOutputSnapshot
+from cmp.modules.processing.application.common_outputs import (
+    PROCESSING_OUTPUT_AGGREGATE_TYPE,
+    ProcessingOutputSnapshot,
+)
 from cmp.modules.processing.application.dma_frequency_master_curve import (
     CreateDmaFrequencyMasterCurve,
     DmaFrequencyMasterCurveService,
@@ -190,7 +193,7 @@ class _RecordingOutputRepository(SqlAlchemyCommonProcessingOutputRepository):
 class _FailAfterOutputRevisionProvenance:
     def __call__(self, _session: Session, event_value: object) -> None:
         revision = getattr(event_value, "revision", None)
-        if getattr(revision, "aggregate_type", None) == "processing.common_processing_output":
+        if getattr(revision, "aggregate_type", None) == PROCESSING_OUTPUT_AGGREGATE_TYPE:
             raise RuntimeError("injected ordinary output revision provenance failure")
 
 
@@ -613,7 +616,8 @@ def _assert_dma_graph(
             cast(UUID, row["entity_id"])
             for row in connection.execute(
                 sa.text(
-                    "SELECT id FROM provenance.entity WHERE organization_id = :organization_id "
+                    "SELECT id AS entity_id FROM provenance.entity "
+                    "WHERE organization_id = :organization_id "
                     "AND project_id = :project_id AND classification = :classification "
                     "AND reference_id IN (:revision_id, :metadata_id, :result_id)"
                 ),
@@ -854,6 +858,7 @@ def test_migration_107_preserves_existing_non_dma_processing_specializer(
 
     context = _context()
     artifact_decision = _decision(context, Permission.ARTIFACT_WRITE)
+    artifact_read = _decision(context, Permission.ARTIFACT_READ)
     catalog_decision = _decision(context, Permission.CATALOG_WRITE)
     dataset_decision = _decision(context, Permission.DATASET_WRITE)
     processing_decision = _decision(context, Permission.PROCESSING_EXECUTE)
@@ -992,7 +997,7 @@ def test_migration_107_preserves_existing_non_dma_processing_specializer(
     raw_artifact_id = completion.available_artifact_id
     raw_artifact = postgres.artifacts.get_artifact(
         context=context,
-        decision=artifact_decision,
+        decision=artifact_read,
         artifact_id=raw_artifact_id,
     )
 
