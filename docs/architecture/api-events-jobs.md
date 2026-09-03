@@ -2,7 +2,7 @@
 
 Status: authoritative semantic guide
 
-현재 HTTP contract는 `0.40.0`이다. HTTP identifier와 payload의 machine-readable source of truth는
+현재 HTTP contract는 `0.41.0`이다. HTTP identifier와 payload의 machine-readable source of truth는
 `contracts/http/openapi.yaml`과 runtime OpenAPI다. 외부에 발행하는 event 계약의 source of truth는
 `contracts/events/asyncapi.yaml`과 root event JSON Schema다. Runtime에서만 발행하고 아직 root
 AsyncAPI에 등록하지 않은 event는 emitter와 integration test가 현재 동작의 증거다. 이 문서는 그
@@ -224,7 +224,7 @@ commit 또는 Bundle revision을 덮어쓰지 않는다.
 
 ### 3.5 Common unit and Unit Profile
 
-HTTP contract `0.40.0` references
+HTTP contract `0.41.0` references
 `contracts/units/unit-resources.schema.json` contract `1.1.0` directly. This additive minor keeps
 all `1.0.0` IDs and aliases, adds explicit `speed` with `m/s`, `mm/s`, `mm/min`, and adds
 `tonne/mm3` to `mass_per_volume`.
@@ -280,7 +280,7 @@ authorization 불일치와 잘못된 exact hash를 silent fallback 없이 구분
 
 ### 3.6 Curve channel metadata and deviation
 
-HTTP contract `0.40.0` references
+HTTP contract `0.41.0` references
 `contracts/datasets/curve-channel-metadata.schema.json` contract `1.0.0`. Dataset, canonical Test
 Data, Processing stage/ensemble and Statistics curve responses add the same `curve_metadata` and
 bounded same-index series shape. The following exact reads are the primary public entry points.

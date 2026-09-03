@@ -88,14 +88,16 @@ from cmp.modules.processing.domain.dma_multi_frequency_tts import (
     DmaFrequencySweep,
     DmaFrequencySweepDisposition,
     DmaFrequencySweepPoint,
+    DmaMultiFrequencyStartingSuggestion,
     DmaShiftLawRequest,
     DmaTtsAdjacentOptimizerControls,
     DmaTtsLawOptimizerControls,
     DmaTtsScoringControls,
     build_multi_frequency_master_curve,
+    representative_temperature_for_sweep,
 )
 from cmp.modules.provenance.domain.model import ProvenanceConflict
-from cmp.shared.domain.revisions import canonical_json_bytes
+from cmp.shared.domain.revisions import canonical_json_bytes, content_sha256
 
 
 @dataclass(frozen=True, slots=True)
@@ -116,6 +118,13 @@ class DmaImportProfilePin:
 class RecommendDmaFrequencyMasterCurve:
     test_data: DmaTestDataPin
     import_profile: DmaImportProfilePin
+
+
+@dataclass(frozen=True, slots=True)
+class RecommendMultiDmaFrequencyMasterCurve:
+    test_data: DmaTestDataPin
+    import_profile: DmaImportProfilePin
+    reference_sweep_ordinal: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -400,6 +409,75 @@ def _fixed_law_options(law: DmaShiftLaw) -> dict[str, object]:
     }
 
 
+def _multi_shift_law_request_document(law: DmaShiftLawRequest) -> dict[str, object]:
+    if law.kind == "manual_tabulated":
+        return {
+            "kind": law.kind,
+            "reference_temperature_k": law.reference_temperature_k,
+            "manual_table": [
+                {"temperature_k": temperature, "log10_a_t": shift}
+                for temperature, shift in law.manual_table
+            ],
+        }
+    document: dict[str, object] = {
+        "kind": law.kind,
+        "reference_temperature_k": law.reference_temperature_k,
+        "initial_parameters": list(law.initial_parameters),
+        "lower_bounds": list(law.lower_bounds),
+        "upper_bounds": list(law.upper_bounds),
+    }
+    if law.kind == "arrhenius_fit":
+        document["gas_constant"] = law.gas_constant
+    return document
+
+
+def _multi_scoring_document(value: DmaTtsScoringControls) -> dict[str, object]:
+    return {
+        "minimum_overlap_decades": value.minimum_overlap_decades,
+        "scoring_point_count": value.overlap_evaluation_point_count,
+        "storage_weight": value.storage_weight,
+        "loss_weight": value.loss_weight,
+    }
+
+
+def _multi_adjacent_document(value: DmaTtsAdjacentOptimizerControls) -> dict[str, object]:
+    return {
+        "relative_shift_lower_bound_log10": value.relative_shift_lower_bound_log10,
+        "relative_shift_upper_bound_log10": value.relative_shift_upper_bound_log10,
+        "xatol": value.xatol,
+        "maxiter": value.maxiter,
+        "seed": None,
+    }
+
+
+def _multi_law_optimizer_document(
+    value: DmaTtsLawOptimizerControls | None,
+) -> dict[str, object] | None:
+    if value is None:
+        return None
+    return {
+        "initial_parameters": list(value.initial_parameters),
+        "lower_bounds": list(value.lower_bounds),
+        "upper_bounds": list(value.upper_bounds),
+        "ftol": value.ftol,
+        "xtol": value.xtol,
+        "gtol": value.gtol,
+        "max_nfev": value.max_nfev,
+        "seed": None,
+    }
+
+
+def _multi_disposition_document(
+    value: DmaFrequencySweepDisposition,
+) -> dict[str, object]:
+    return {
+        "source_sweep_ordinal": value.source_sweep_ordinal,
+        "representative_temperature_k": value.representative_temperature_k,
+        "partition": value.partition.value,
+        "exclusion_reason": value.exclusion_reason,
+    }
+
+
 def _options(
     *,
     input_mode: str,
@@ -412,6 +490,7 @@ def _options(
     law_optimizer: dict[str, object] | None,
     residual_summary: dict[str, object] | None,
     application_range: dict[str, object] | None,
+    recommendation: dict[str, object] | None = None,
 ) -> dict[str, object]:
     return {
         "input_mode": input_mode,
@@ -428,6 +507,7 @@ def _options(
         "law_optimizer": law_optimizer,
         "residual_summary": residual_summary,
         "application_range": application_range,
+        "recommendation": recommendation,
         "assessment": {
             "adequacy": "not_assessed",
             "uncertainty": "not_provided",
@@ -600,6 +680,165 @@ class DmaFrequencyMasterCurveService:
             },
         )
 
+    async def recommend_multi(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: RecommendMultiDmaFrequencyMasterCurve,
+    ) -> DmaMultiFrequencyStartingSuggestion:
+        resolved = await self._resolve(
+            context,
+            decision,
+            command.test_data,
+            command.import_profile,
+            DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value,
+        )
+        sweeps = resolved.sweeps
+        if len(sweeps) < 3:
+            raise DmaProcessingError(
+                "CMP-PROCESSING-4316",
+                "multi-frequency DMA recommendation requires at least three sweeps",
+                "Provide at least three valid source frequency sweeps.",
+            )
+        if any(len(sweep.points) < 2 for sweep in sweeps):
+            raise DmaProcessingError(
+                "CMP-PROCESSING-4312",
+                "a multi-frequency DMA sweep has fewer than two measured points",
+                "Provide at least two finite positive points in every source sweep.",
+            )
+        by_ordinal = {sweep.source_sweep_ordinal: sweep for sweep in sweeps}
+        if command.reference_sweep_ordinal not in by_ordinal:
+            raise DmaProcessingError(
+                "CMP-PROCESSING-4316",
+                "the requested reference sweep is not present in the exact source",
+                "Select one positive source_sweep_ordinal from the measured source sweeps.",
+            )
+        temperatures = {
+            ordinal: float(representative_temperature_for_sweep(sweep))
+            for ordinal, sweep in by_ordinal.items()
+        }
+        if len(set(temperatures.values())) != len(temperatures):
+            raise DmaProcessingError(
+                "CMP-PROCESSING-4316",
+                "multi-frequency source sweeps have duplicate representative temperatures",
+                "Provide one distinct representative temperature per source sweep.",
+            )
+        reference_temperature = temperatures[command.reference_sweep_ordinal]
+        holdout_ordinal = min(
+            (ordinal for ordinal in by_ordinal if ordinal != command.reference_sweep_ordinal),
+            key=lambda ordinal: (-abs(temperatures[ordinal] - reference_temperature), ordinal),
+        )
+        sweeps_document = tuple(
+            {
+                "source_sweep_ordinal": ordinal,
+                "representative_temperature_k": temperatures[ordinal],
+                "point_count": len(by_ordinal[ordinal].points),
+                "source_frequency_min_hz": min(
+                    point.frequency_hz for point in by_ordinal[ordinal].points
+                ),
+                "source_frequency_max_hz": max(
+                    point.frequency_hz for point in by_ordinal[ordinal].points
+                ),
+            }
+            for ordinal in sorted(by_ordinal)
+        )
+        dispositions = tuple(
+            {
+                "source_sweep_ordinal": ordinal,
+                "representative_temperature_k": temperatures[ordinal],
+                "partition": "HOLDOUT" if ordinal == holdout_ordinal else "CALIBRATION",
+                "exclusion_reason": None,
+            }
+            for ordinal in sorted(by_ordinal)
+        )
+        # The fitted law is also evaluated against HOLDOUT sweeps.  Its
+        # governed bounds therefore have to stay WLF-safe for every included
+        # sweep, not only the calibration partition.
+        minimum_included_temperature = min(temperatures.values())
+        lower_c2 = max(
+            1e-3,
+            reference_temperature - minimum_included_temperature + 1e-3,
+        )
+        initial_parameters = (17.44, max(51.6, lower_c2 + 1.0))
+        shift_law = {
+            "kind": "wlf_fit",
+            "reference_temperature_k": reference_temperature,
+            "initial_parameters": list(initial_parameters),
+            "lower_bounds": [1e-8, lower_c2],
+            "upper_bounds": [1000.0, 5000.0],
+        }
+        scoring = {
+            "minimum_overlap_decades": 0.25,
+            "scoring_point_count": 101,
+            "storage_weight": 0.5,
+            "loss_weight": 0.5,
+        }
+        adjacent_optimizer = {
+            "relative_shift_lower_bound_log10": -12.0,
+            "relative_shift_upper_bound_log10": 12.0,
+            "xatol": 1e-10,
+            "maxiter": 1000,
+            "seed": None,
+        }
+        law_optimizer = {
+            "initial_parameters": list(initial_parameters),
+            "lower_bounds": [1e-8, lower_c2],
+            "upper_bounds": [1000.0, 5000.0],
+            "ftol": 1e-12,
+            "xtol": 1e-12,
+            "gtol": 1e-12,
+            "max_nfev": 5000,
+            "seed": None,
+        }
+        suggestion = DmaMultiFrequencyStartingSuggestion(
+            input_mode=DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value,
+            source_evidence={
+                "test_data_document_id": str(command.test_data.document_id),
+                "test_data_revision_id": str(command.test_data.revision_id),
+                "test_data_content_sha256": command.test_data.content_sha256,
+                "import_profile_id": str(command.import_profile.profile_id),
+                "import_profile_revision_id": str(command.import_profile.revision_id),
+                "import_profile_content_sha256": command.import_profile.content_sha256,
+                "source_normalized_artifact_id": str(
+                    resolved.test_data_snapshot.content.normalized_artifact_id
+                ),
+                "source_normalized_artifact_sha256": resolved.test_data_snapshot.content.normalized_sha256,
+            },
+            sweeps=sweeps_document,
+            reference_sweep_ordinal=command.reference_sweep_ordinal,
+            reference_temperature_k=reference_temperature,
+            sweep_dispositions=dispositions,
+            shift_law=shift_law,
+            scoring=scoring,
+            adjacent_optimizer=adjacent_optimizer,
+            law_optimizer=law_optimizer,
+            profile_id="cmp.dma_tts.multi_frequency_wlf_starting_profile",
+            profile_version="1.0.0",
+            material_specific=False,
+            production_readiness="non_production",
+            requires_confirmation=True,
+            recommendation_sha256="",
+        )
+        digest = content_sha256(suggestion.canonical_without_digest())
+        return DmaMultiFrequencyStartingSuggestion(
+            input_mode=suggestion.input_mode,
+            source_evidence=suggestion.source_evidence,
+            sweeps=suggestion.sweeps,
+            reference_sweep_ordinal=suggestion.reference_sweep_ordinal,
+            reference_temperature_k=suggestion.reference_temperature_k,
+            sweep_dispositions=suggestion.sweep_dispositions,
+            shift_law=suggestion.shift_law,
+            scoring=suggestion.scoring,
+            adjacent_optimizer=suggestion.adjacent_optimizer,
+            law_optimizer=suggestion.law_optimizer,
+            profile_id=suggestion.profile_id,
+            profile_version=suggestion.profile_version,
+            material_specific=suggestion.material_specific,
+            production_readiness=suggestion.production_readiness,
+            requires_confirmation=suggestion.requires_confirmation,
+            recommendation_sha256=digest,
+        )
+
     async def create(
         self,
         context: SecurityContext,
@@ -642,18 +881,31 @@ class DmaFrequencyMasterCurveService:
                     "multi-frequency controls are forbidden for fixed input",
                     "Remove sweep, overlap, weight, and optimizer controls from a fixed request.",
                 )
+            recommendation_metadata: dict[str, object] | None = None
             if command.recommendation_sha256 is not None:
                 suggestion = await self.recommend(
                     context,
                     decision,
                     RecommendDmaFrequencyMasterCurve(command.test_data, command.import_profile),
                 )
-                if suggestion.recommendation_sha256 != command.recommendation_sha256:
+                law = command.shift_law
+                if (
+                    suggestion.recommendation_sha256 != command.recommendation_sha256
+                    or not isinstance(law, WlfShiftLaw)
+                    or law.reference_temperature_k != suggestion.reference_temperature_k
+                    or law.c1 != suggestion.c1
+                    or law.c2_k != suggestion.c2_k
+                ):
                     raise DmaProcessingError(
                         "CMP-PROCESSING-4317",
-                        "recommendation digest does not match the exact fixed inputs",
+                        "recommendation digest or WLF values do not match the exact fixed inputs",
                         "Reload the fixed recommendation or submit explicitly edited settings.",
                     )
+                recommendation_metadata = {
+                    "recommendation_sha256": suggestion.recommendation_sha256,
+                    "rule_id": suggestion.rule_id,
+                    "rule_version": suggestion.rule_version,
+                }
             fixed_dispositions = tuple(
                 item for item in command.dispositions if isinstance(item, DmaRowDisposition)
             )
@@ -686,6 +938,7 @@ class DmaFrequencyMasterCurveService:
                 law_optimizer=None,
                 residual_summary=None,
                 application_range=None,
+                recommendation=recommendation_metadata,
             )
             master = await self._commit_output(
                 context=context,
@@ -717,8 +970,7 @@ class DmaFrequencyMasterCurveService:
             )
             return CreatedDmaFrequencyMasterCurve(master)
         if (
-            command.recommendation_sha256 is not None
-            or not command.dispositions
+            not command.dispositions
             or command.reference_sweep_ordinal is None
             or command.scoring is None
             or command.adjacent_optimizer is None
@@ -756,6 +1008,40 @@ class DmaFrequencyMasterCurveService:
                 "multi-frequency input carries fixed-row dispositions",
                 "Provide one sweep disposition for every multi-frequency DMA source sweep.",
             )
+        recommendation_metadata = None
+        if command.recommendation_sha256 is not None:
+            suggestion = await self.recommend_multi(
+                context,
+                decision,
+                RecommendMultiDmaFrequencyMasterCurve(
+                    command.test_data,
+                    command.import_profile,
+                    command.reference_sweep_ordinal,
+                ),
+            )
+            expected_law = _multi_shift_law_request_document(command.shift_law)
+            expected_law_optimizer = _multi_law_optimizer_document(command.law_optimizer)
+            if (
+                suggestion.recommendation_sha256 != command.recommendation_sha256
+                or command.reference_sweep_ordinal != suggestion.reference_sweep_ordinal
+                or tuple(_multi_disposition_document(item) for item in multi_dispositions)
+                != tuple(dict(item) for item in suggestion.sweep_dispositions)
+                or expected_law != dict(suggestion.shift_law)
+                or _multi_scoring_document(command.scoring) != dict(suggestion.scoring)
+                or _multi_adjacent_document(command.adjacent_optimizer)
+                != dict(suggestion.adjacent_optimizer)
+                or expected_law_optimizer != dict(suggestion.law_optimizer)
+            ):
+                raise DmaProcessingError(
+                    "CMP-PROCESSING-4317",
+                    "recommendation digest or multi-frequency controls do not match the exact source",
+                    "Reload the exact recommendation or submit explicitly edited settings with no digest.",
+                )
+            recommendation_metadata = {
+                "recommendation_sha256": suggestion.recommendation_sha256,
+                "profile_id": suggestion.profile_id,
+                "profile_version": suggestion.profile_version,
+            }
         result = build_multi_frequency_master_curve(
             resolved.sweeps,
             multi_dispositions,
@@ -783,6 +1069,7 @@ class DmaFrequencyMasterCurveService:
             law_optimizer=result.law_optimizer,
             residual_summary=result.residual_summary,
             application_range=result.application_range,
+            recommendation=recommendation_metadata,
         )
         master = await self._commit_output(
             context=context,

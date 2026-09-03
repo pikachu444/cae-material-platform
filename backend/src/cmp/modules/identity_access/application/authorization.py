@@ -435,12 +435,15 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
         }
     ),
     # Processing previews reconstruct their typed result from immutable output Artifacts and
-    # pinned Dataset/Test evidence. These are transaction-local read capabilities only; they do
-    # not authorize the public Dataset, Artifact, or Testing endpoints.
+    # pinned Dataset/Test evidence. Exact DMA output read-back also validates the immutable
+    # provenance graph before returning the typed result. These are transaction-local read
+    # capabilities only; they do not authorize the public Dataset, Artifact, Testing, or
+    # Provenance endpoints.
     Permission.PROCESSING_READ: frozenset(
         {
             Permission.ARTIFACT_READ,
             Permission.DATASET_READ,
+            Permission.PROVENANCE_READ,
             Permission.TESTING_READ,
             Permission.UNITS_READ,
         }

@@ -1045,4 +1045,47 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line").length).toBeGreaterThanOrEqual(2);
   });
+
+  it("groups a multi-frequency DMA legend by temperature and keeps channel/shift line keys separate", () => {
+    const dmaStage: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "polymer.dma_frequency_master_curve",
+      method_version: "1.0.0",
+      point_count: 3,
+      series: [
+        { quantity: "frequency.angular.reduced", unit: "rad/s", values: [0.1, 1, 10] },
+        { quantity: "mechanics.modulus.storage", unit: "Pa", values: [1e6, 2e6, 3e6] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const curvePreview = (values: number[]) => ({
+      ...preview,
+      independent_quantity: "frequency.angular.reduced",
+      stages: [{ ...dmaStage, series: [dmaStage.series[0], { quantity: "mechanics.modulus.storage", unit: "Pa", values }] }],
+    });
+    const { container } = render(<EngineeringCurvePlot
+      preview={{ ...preview, independent_quantity: "frequency.angular.reduced", stages: [dmaStage] }}
+      activeStage={dmaStage}
+      baseStage={dmaStage}
+      width={760}
+      height={420}
+      observedCurves={[
+        { id: "273-raw-storage", label: "273.15 K · raw · G′", preview: curvePreview([1e6, 2e6, 3e6]), color: "#2563ad", style: { temperatureK: 273.15, channel: "storage", representation: "raw", lineStyle: "solid" } },
+        { id: "273-shifted-loss", label: "273.15 K · shifted · G″", preview: curvePreview([0.5e6, 1e6, 1.5e6]), color: "#2563ad", style: { temperatureK: 273.15, channel: "loss", representation: "shifted", lineStyle: "dashed" } },
+        { id: "283-raw-storage", label: "283.15 K · raw · G′", preview: curvePreview([1.2e6, 2.2e6, 3.2e6]), color: "#0f9f9a", style: { temperatureK: 283.15, channel: "storage", representation: "raw", lineStyle: "solid" } },
+      ]}
+    />);
+
+    expect(screen.getAllByRole("button", { name: "273.15 K" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "283.15 K" })).toHaveLength(1);
+    expect(screen.getByText("G′")).toBeTruthy();
+    expect(screen.getByText("G″")).toBeTruthy();
+    expect(screen.getByText("Raw")).toBeTruthy();
+    expect(screen.getByText("Shifted")).toBeTruthy();
+    expect(screen.queryByText("273.15 K · raw · G′")).toBeNull();
+    expect(container.querySelector("polyline.observed-dashed.observed-shifted")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "273.15 K" }));
+    expect(screen.getByRole("button", { name: "273.15 K" }).getAttribute("aria-pressed")).toBe("false");
+  });
 });

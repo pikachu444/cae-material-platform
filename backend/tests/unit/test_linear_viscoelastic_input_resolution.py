@@ -659,9 +659,10 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
             "scoring": None,
             "adjacent_optimizer": None,
             "law_optimizer": None,
-            "residual_summary": None,
-            "application_range": None,
-            "assessment": {
+                "residual_summary": None,
+                "application_range": None,
+                "recommendation": None,
+                "assessment": {
                 "adequacy": "not_assessed",
                 "uncertainty": "not_provided",
                 "identifiability": "not_assessed",
@@ -787,6 +788,9 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
     assert first_source_row.coordinate == reduced_frequencies[0]
     assert first_source_row.storage_modulus_pa == result_rows[0].storage_modulus_pa[0]
     assert first_source_row.loss_modulus_pa == result_rows[0].loss_modulus_pa[0]
+    assert len(fit_input.rows) == 4
+    holdout_row = next(item for item in fit_input.rows if item.source_ordinal == 3)
+    assert holdout_row.partition is PointPartition.HOLDOUT
     assert fit_input.rows[-1].partition is PointPartition.CALIBRATION
     resolver.assert_current_revisions(
         _context(),

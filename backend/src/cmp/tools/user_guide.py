@@ -360,7 +360,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-1366x768": (
         "modeling-process",
-        "polymer-dma-tts-ready",
+        "polymer-dma-tts-multi-frequency-recommendation",
         1366,
         768,
         "modeling-process-polymer-dma-tts-1366",
@@ -369,7 +369,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-1440x900": (
         "modeling-process",
-        "polymer-dma-tts-ready",
+        "polymer-dma-tts-multi-frequency-recommendation",
         1440,
         900,
         "modeling-process-polymer-dma-tts-1440",
@@ -378,7 +378,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-1920x1080": (
         "modeling-process",
-        "polymer-dma-tts-ready",
+        "polymer-dma-tts-multi-frequency-recommendation",
         1920,
         1080,
         "modeling-process-polymer-dma-tts-1920",
@@ -387,7 +387,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-2560x1440": (
         "modeling-process",
-        "polymer-dma-tts-ready-wide",
+        "polymer-dma-tts-multi-frequency-recommendation-wide",
         2560,
         1440,
         "modeling-process-polymer-dma-tts-2560",
@@ -396,7 +396,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-3840x2160": (
         "modeling-process",
-        "polymer-dma-tts-ready-wide",
+        "polymer-dma-tts-multi-frequency-recommendation-wide",
         3840,
         2160,
         "modeling-process-polymer-dma-tts-3840",
@@ -405,7 +405,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-saved-1366x768": (
         "modeling-process",
-        "polymer-dma-tts-saved",
+        "polymer-dma-tts-multi-frequency-saved-exact-read",
         1366,
         768,
         "modeling-process-polymer-dma-tts-saved-1366",
@@ -414,7 +414,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-saved-1440x900": (
         "modeling-process",
-        "polymer-dma-tts-saved",
+        "polymer-dma-tts-multi-frequency-saved-exact-read",
         1440,
         900,
         "modeling-process-polymer-dma-tts-saved-1440",
@@ -423,7 +423,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-saved-1920x1080": (
         "modeling-process",
-        "polymer-dma-tts-saved",
+        "polymer-dma-tts-multi-frequency-saved-exact-read",
         1920,
         1080,
         "modeling-process-polymer-dma-tts-saved-1920",
@@ -432,7 +432,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-saved-2560x1440": (
         "modeling-process",
-        "polymer-dma-tts-saved-wide",
+        "polymer-dma-tts-multi-frequency-saved-exact-read-wide",
         2560,
         1440,
         "modeling-process-polymer-dma-tts-saved-2560",
@@ -441,7 +441,7 @@ _CURRENT_GUIDE_REFERENCE_TARGETS: dict[str, tuple[str, str, int, int, str, str, 
     ),
     "modeling-process-polymer-dma-tts-saved-3840x2160": (
         "modeling-process",
-        "polymer-dma-tts-saved-wide",
+        "polymer-dma-tts-multi-frequency-saved-exact-read-wide",
         3840,
         2160,
         "modeling-process-polymer-dma-tts-saved-3840",
@@ -1780,7 +1780,7 @@ def _verify_service_reference_manifest(
                 raise UserGuideContractError(
                     "current Polymer Fit operational evidence disposition is not accepted"
                 )
-            if disposition.get("scope") != "issue-377-live-behavior-and-main-agent-original-review":
+            if disposition.get("scope") != "issue-392-live-behavior-and-main-agent-original-review":
                 raise UserGuideContractError(
                     "current Polymer Fit operational evidence scope drifted"
                 )

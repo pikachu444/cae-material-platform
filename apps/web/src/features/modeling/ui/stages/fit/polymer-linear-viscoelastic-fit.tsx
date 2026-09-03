@@ -8,7 +8,7 @@ import { useLinearViscoelasticCalibration } from "../../../controller/use-linear
 import { useLinearViscoelasticApprovedSetup } from "../../../controller/use-linear-viscoelastic-approved-setup";
 import { useLinearViscoelasticFitInput } from "../../../controller/use-linear-viscoelastic-fit-input";
 import type { CommonProcessingOutputResponse } from "../../../model/common-processing-contracts";
-import { parseDmaTemperatureSweep } from "../../../model/dma-tts-draft";
+import { hasDmaTemperatureProcessShape, parseDmaTemperatureSweep } from "../../../model/dma-tts-draft";
 import type { LinearViscoelasticCatalogContext } from "../../../model/linear-viscoelastic-calibration-contracts";
 import {
   activePolymerDirectPartitionCounts,
@@ -87,7 +87,12 @@ export function PolymerLinearViscoelasticFit({
   const processingSource = processingOutput && processedDeclared
     ? { id: processingOutput.processing_output_id, revisionId: processingOutput.current_revision.id }
     : undefined;
-  const dmaTemperatureSweepRequiresProcess = Boolean(parseDmaTemperatureSweep(sourceDocument));
+  // Any temperature-channel DMA shape belongs to Process, including malformed
+  // or multi-frequency sources. Only a single-temperature frequency sweep may
+  // fall through to direct Fit.
+  const dmaTemperatureSweepRequiresProcess = Boolean(
+    parseDmaTemperatureSweep(sourceDocument) || hasDmaTemperatureProcessShape(sourceDocument),
+  );
   const directSourceAvailable = Boolean(testData && testDataRef && sourceDocument)
     && !dmaTemperatureSweepRequiresProcess;
   const processedInput = useLinearViscoelasticFitInput(config, processingSource);

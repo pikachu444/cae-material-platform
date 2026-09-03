@@ -60,6 +60,12 @@ export interface ObservedCurveInput {
   label: string;
   preview: CommonProcessingPreview;
   color?: string;
+  style?: {
+    lineStyle?: "solid" | "dashed";
+    channel?: "storage" | "loss";
+    temperatureK?: number;
+    representation?: "raw" | "shifted";
+  };
 }
 
 interface PlotBand {
@@ -1014,6 +1020,24 @@ export function EngineeringCurvePlot({
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
+  const dmaTemperatureLegend = useMemo(() => {
+    const groups = new Map<number, { color: string; seriesIds: string[] }>();
+    observedCurves?.forEach((curve, index) => {
+      const temperatureK = curve.style?.temperatureK;
+      if (temperatureK === undefined) return;
+      const current = groups.get(temperatureK) ?? {
+        color: curve.color ?? CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
+        seriesIds: [],
+      };
+      current.seriesIds.push(`observed.${curve.id}`);
+      groups.set(temperatureK, current);
+    });
+    return [...groups.entries()].map(([temperatureK, value]) => ({ temperatureK, ...value }));
+  }, [observedCurves]);
+  const dmaLegendHasRawAndShifted = Boolean(
+    observedCurves?.some((curve) => curve.style?.representation === "raw")
+    && observedCurves?.some((curve) => curve.style?.representation === "shifted"),
+  );
   const model = useMemo(() => {
     const rawModel = ensemblePreview
       ? seriesForEnsemble(ensemblePreview)
@@ -1036,7 +1060,7 @@ export function EngineeringCurvePlot({
         xValues: x.values,
         yValues: y.values,
         color: curve.color ?? CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
-        className: "data-observed",
+        className: `data-observed${curve.style?.lineStyle === "dashed" ? " observed-dashed" : ""}${curve.style?.channel === "loss" ? " observed-loss" : ""}${curve.style?.representation === "shifted" ? " observed-shifted" : ""}`,
       }];
     });
     if (!processOverlay) {
@@ -1135,7 +1159,11 @@ export function EngineeringCurvePlot({
   const xDisplayUnit = model.xChannel?.display_unit ?? model.xUnit;
   const yDisplayUnit = dataReviewEngineering ? yScale.label : model.yChannel?.display_unit ?? yScale.label;
   const xAxisLabel = isDmaTts
-    ? `${activeStage.method_id === "polymer.dma_frequency_master_curve" ? "Angular frequency" : "Temperature"} [${model.xUnit}]`
+    ? `${model.xQuantity === "physics.temperature"
+      ? "Temperature"
+      : model.xQuantity === "frequency.cyclic"
+        ? "Frequency"
+        : "Reduced angular frequency"} [${model.xUnit}]`
     : model.xChannel
       ? channelAxisLabel(model.xChannel)
       : `${quantityLabel(model.xQuantity)} [${model.xUnit}]`;
@@ -1444,8 +1472,24 @@ export function EngineeringCurvePlot({
       </svg>
       {inspectedPixel && inspectedX !== null && inspectedY !== null ? <div className="engineering-curve-tooltip" role="status" style={{ left: `${Math.min(68, Math.max(4, (inspectedPixel.x / width) * 100))}%`, top: `${Math.max(22, (inspectedPixel.y / height) * 100)}%` }}><strong>{inspectedSeries?.label ?? "Curve"} · point {(inspection?.index ?? 0) + 1}</strong><span>{model.xChannel?.label ?? quantityLabel(model.xQuantity)}: {axisNumber(displayX(inspectedX))} {xDisplayUnit}</span><span>{model.yChannel?.label ?? quantityLabel(model.yQuantity)}: {axisNumber(displayY(inspectedY))} {yDisplayUnit}</span>{inspectedBandLower !== null && inspectedBandUpper !== null ? <span>{inspectedBandMeaning}<br/>lower {axisNumber(displayY(inspectedBandLower))} · upper {axisNumber(displayY(inspectedBandUpper))} {yDisplayUnit}{inspectedSourceCount === null ? "" : ` · n=${inspectedSourceCount}`}</span> : null}</div> : null}
       <p id={inspectionLiveId} className="visually-hidden" aria-live="polite">{inspectionLiveText}</p>
-      <div className="curve-legend interactive" aria-label="Curve visibility">
-        {validSeries.filter((series, index, all) => hardeningResponseSeries.some((item) => item.id === series.id) && (!isHardening || !series.className.includes("extrapolated-domain")) && (!isHardening || index === all.findIndex((item) => item.id.split(".observed")[0] === series.id.split(".observed")[0]))).map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{isHardening && series.className.includes("fitted-domain") ? series.label.replace(" · fit", "") : series.label}</button>)}
+      <div className={`curve-legend interactive${isDmaTts && dmaTemperatureLegend.length ? " dma-temperature-legend" : ""}`} aria-label="Curve visibility">
+        {isDmaTts && dmaTemperatureLegend.length ? <>
+          {dmaTemperatureLegend.map((group) => {
+            const hidden = group.seriesIds.every((id) => hiddenSeries.includes(id));
+            return <button type="button" className={hidden ? "hidden" : ""} key={group.temperatureK} onClick={() => setHiddenSeries((current) => {
+              if (group.seriesIds.every((id) => current.includes(id))) {
+                return current.filter((id) => !group.seriesIds.includes(id));
+              }
+              return [...new Set([...current, ...group.seriesIds])];
+            })} aria-pressed={!hidden}><i style={{ background: group.color }} />{group.temperatureK} K</button>;
+          })}
+          <span className="dma-legend-line-key"><i className="storage" />G′</span>
+          <span className="dma-legend-line-key"><i className="loss" />G″</span>
+          {dmaLegendHasRawAndShifted ? <>
+            <span className="dma-legend-line-key"><i className="raw" />Raw</span>
+            <span className="dma-legend-line-key"><i className="shifted" />Shifted</span>
+          </> : null}
+        </> : validSeries.filter((series, index, all) => hardeningResponseSeries.some((item) => item.id === series.id) && (!isHardening || !series.className.includes("extrapolated-domain")) && (!isHardening || index === all.findIndex((item) => item.id.split(".observed")[0] === series.id.split(".observed")[0]))).map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{isHardening && series.className.includes("fitted-domain") ? series.label.replace(" · fit", "") : series.label}</button>)}
         {isHardening && hardeningMode === "response" ? <span className="curve-band-legend">Shaded: extrapolated/unobserved</span> : null}
         {model.band ? <span className="curve-band-legend"><i />{model.band.label}</span> : null}
       </div>

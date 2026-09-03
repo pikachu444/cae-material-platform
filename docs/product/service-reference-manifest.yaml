@@ -24,9 +24,10 @@ current_materials_operational_disposition:
   - materials-card-unsupported-blocked-1440x900
 current_modeling_polymer_operational_disposition:
   status: accepted
-  date: '2026-09-02'
-  scope: issue-377-live-behavior-and-main-agent-original-review
+  date: '2026-09-04'
+  scope: issue-392-live-behavior-and-main-agent-original-review
   visual_quality: pending-owner-disposition
+  evidence_manifest: docs/17-evidence/issue-392-dma-tts-process-ui/manifest.yaml
   supersedes: MOD-FIT-white-application-bar-for-polymer-only
   targets:
   - modeling-process-polymer-dma-tts-1366x768
@@ -367,103 +368,103 @@ references:
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-1366x768
   screen: modeling-process
-  state: polymer-dma-tts-ready
+  state: polymer-dma-tts-multi-frequency-recommendation
   lifecycle: current-guide
   viewport: {width: 1366, height: 768, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-1366
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1366x768.png
-  image_sha256: c28373d4e6e6fe2c2b722d38b25bfa4c74fe3258aee058003fc102d383e40aa6
+  image_sha256: eaf8e433ead7b3eba3f64cf073c73d7f208364080ebfb85a047ad6fad561e302
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-1440x900
   screen: modeling-process
-  state: polymer-dma-tts-ready
+  state: polymer-dma-tts-multi-frequency-recommendation
   lifecycle: current-guide
   viewport: {width: 1440, height: 900, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-1440
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1440x900.png
-  image_sha256: b65054c7b8dbb7d5c73fc30884894af06ff8c08748698bc0b7fef9890f5f675a
+  image_sha256: 052d8cf81d72149e282913cffbb9eefbdcedf43b46dab7f3c927ff10c05c37eb
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-1920x1080
   screen: modeling-process
-  state: polymer-dma-tts-ready
+  state: polymer-dma-tts-multi-frequency-recommendation
   lifecycle: current-guide
   viewport: {width: 1920, height: 1080, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-1920
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1920x1080.png
-  image_sha256: faceca500be1844a99017a647a16e027decb86bfc8240a215a908fe993de7583
+  image_sha256: 418c0bb74003c0d44c5d4201323b777d036d48a3f751b2e61097ecd9a530841b
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-2560x1440
   screen: modeling-process
-  state: polymer-dma-tts-ready-wide
+  state: polymer-dma-tts-multi-frequency-recommendation-wide
   lifecycle: current-guide
   viewport: {width: 2560, height: 1440, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-2560
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-2560x1440.png
-  image_sha256: b75f5c21cd3c54bacf4a603fe828afe57cf2e751c59e57d46ccd58d78894cce1
+  image_sha256: a00f035e4306781b7e97eea685c4808a5fd54e3a35c02f62f5b4033a62affe5b
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-3840x2160
   screen: modeling-process
-  state: polymer-dma-tts-ready-wide
+  state: polymer-dma-tts-multi-frequency-recommendation-wide
   lifecycle: current-guide
   viewport: {width: 3840, height: 2160, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-3840
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-3840x2160.png
-  image_sha256: bd8f510264ab3b566b26052077443a5cb30d99610ea818c6c4d87a33b67a1acc
+  image_sha256: 8b92b6989030d4e153b40cca33b2dc20c2cece1220630436fc23f3909f42ffb3
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1366x768
   screen: modeling-process
-  state: polymer-dma-tts-saved
+  state: polymer-dma-tts-multi-frequency-saved-exact-read
   lifecycle: current-guide
   viewport: {width: 1366, height: 768, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1366
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1366x768.png
-  image_sha256: 4090b41c23b296e83d7ab7e6da023642a2c0eb112c1663baa2e31fccaa7c6ff8
+  image_sha256: e411fdc1a0e3d2beac722a965d2207e5a01db5c7054258e1992eab71af1a9b2f
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1440x900
   screen: modeling-process
-  state: polymer-dma-tts-saved
+  state: polymer-dma-tts-multi-frequency-saved-exact-read
   lifecycle: current-guide
   viewport: {width: 1440, height: 900, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1440
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1440x900.png
-  image_sha256: b669bdf7c1bda4ae6fda9d9d0a3234125618581447c72a885885937333a39bef
+  image_sha256: ddc7679041dc9b873e77ab98e1dd3c727238c2a8a7ce2f69a3fdd349c0825cb6
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1920x1080
   screen: modeling-process
-  state: polymer-dma-tts-saved
+  state: polymer-dma-tts-multi-frequency-saved-exact-read
   lifecycle: current-guide
   viewport: {width: 1920, height: 1080, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1920
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png
-  image_sha256: 19636726c7cabb5b743d366d342b28ea7913ea1d480293f7e4bcbb52ad431af7
+  image_sha256: d42afd5075ff810a6459b6fe9a247f7761862fa28e0c20b011a554844c1a1d39
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-2560x1440
   screen: modeling-process
-  state: polymer-dma-tts-saved-wide
+  state: polymer-dma-tts-multi-frequency-saved-exact-read-wide
   lifecycle: current-guide
   viewport: {width: 2560, height: 1440, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-2560
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png
-  image_sha256: d0c7a10f844c3e281cf57686770354c0a5bce79f41cea6a1293d81b7174ecb67
+  image_sha256: 02bdfbb5e407220e290e64070814e0e0999bf5573e249aabf7c73fe5666c839d
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-3840x2160
   screen: modeling-process
-  state: polymer-dma-tts-saved-wide
+  state: polymer-dma-tts-multi-frequency-saved-exact-read-wide
   lifecycle: current-guide
   viewport: {width: 3840, height: 2160, device_scale_factor: 1}
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-3840
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png
-  image_sha256: 5ceb20ae78338259c4b2c1e8159e3f24b006ce6a71f2377b57abe872e3aa5bc3
+  image_sha256: 921f446e2f501a6090ad32f5ad3dd05e1b68a9c60fda3ed1f12ee527f5ce3c94
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-input-1920x1080
   screen: modeling-fit
