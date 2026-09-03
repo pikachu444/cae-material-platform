@@ -556,6 +556,7 @@ def _assert_dma_graph(
         "profile_revision_id": harness.profile.current.record.revision_id,
         "normalized_id": harness.source.content.normalized_artifact_id,
         "principal_id": context.principal.id,
+        "audit_target_type": f"{PROCESSING_OUTPUT_AGGREGATE_TYPE}.revision",
     }
     with harness.catalog.admin_engine.connect() as connection:
         activities = (
@@ -752,7 +753,7 @@ def _assert_dma_graph(
                     "SELECT actor_type, actor_id, action, target_type, target_id, outcome, "
                     "request_id, trace_id FROM audit.event "
                     "WHERE organization_id = :organization_id AND project_id = :project_id "
-                    "AND target_type = 'processing.common_processing_output.revision' "
+                    "AND target_type = :audit_target_type "
                     "AND target_id = :revision_id"
                 ),
                 params,
@@ -764,7 +765,7 @@ def _assert_dma_graph(
         audit = audit_rows[0]
         assert audit["actor_type"] == context.principal.principal_type.value
         assert audit["actor_id"] == context.principal.id
-        assert audit["action"] == "processing.common_processing_output.revision.create"
+        assert audit["action"] == f"{PROCESSING_OUTPUT_AGGREGATE_TYPE}.revision.create"
         assert audit["outcome"] == "success"
         assert audit["request_id"] == context.request_id
         assert audit["trace_id"] == context.trace_id
