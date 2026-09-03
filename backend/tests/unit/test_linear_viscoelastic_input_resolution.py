@@ -782,7 +782,9 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
         "dma_loss",
     ]
     first_source_row = next(item for item in fit_input.rows if item.source_ordinal == 0)
-    assert first_source_row.coordinate == result_rows[0].reduced_angular_frequency_rad_per_s[0]
+    reduced_frequencies = result_rows[0].reduced_angular_frequency_rad_per_s
+    assert reduced_frequencies is not None
+    assert first_source_row.coordinate == reduced_frequencies[0]
     assert first_source_row.storage_modulus_pa == result_rows[0].storage_modulus_pa[0]
     assert first_source_row.loss_modulus_pa == result_rows[0].loss_modulus_pa[0]
     assert fit_input.rows[-1].partition is PointPartition.CALIBRATION

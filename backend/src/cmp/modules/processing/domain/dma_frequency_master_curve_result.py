@@ -391,7 +391,10 @@ def parquet_bytes(rows: Sequence[DmaFrequencyMasterCurveRow]) -> bytes:
         use_dictionary=False,
         write_statistics=True,
     )
-    return sink.getvalue().to_pybytes()
+    payload = sink.getvalue().to_pybytes()
+    if not isinstance(payload, bytes):
+        raise _read_failure("canonical DMA result bytes could not be materialized")
+    return payload
 
 
 def _tuple_int(values: object, name: str) -> tuple[int, ...]:
@@ -435,7 +438,14 @@ def _tuple_string(values: object, name: str) -> tuple[str, ...]:
 
 
 def _optional_float(value: object) -> float | None:
-    return None if value is None else float(value)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        raise _read_failure("result optional value is not numeric")
+    try:
+        return float(value)
+    except (TypeError, ValueError) as error:
+        raise _read_failure("result optional value is not numeric") from error
 
 
 def from_parquet(value: bytes) -> tuple[DmaFrequencyMasterCurveRow, ...]:
@@ -1175,6 +1185,8 @@ def validate_options_against_rows(
                 ):
                     if outcome[field_name] != expected:
                         raise _read_failure(f"{name} optimizer outcome does not match result rows")
+                if row.adjacent_objective is None:
+                    raise _read_failure(f"{name} is missing its objective")
                 close(outcome["objective"], row.adjacent_objective, f"{name} objective")
             if seen != {cast(int, row.source_sweep_ordinal) for row in expected_rows}:
                 raise _read_failure(f"{name} does not cover every calibration comparison")
@@ -1208,13 +1220,14 @@ def validate_options_against_rows(
             or residual_summary["holdout_evaluation_separate"] is not True
         ):
             raise _read_failure("multi-frequency residual summary is not exact")
-        expected_storage = sum(float(row.storage_mse) for row in calibration_rows) / len(
-            calibration_rows
-        )
-        expected_loss = sum(float(row.loss_mse) for row in calibration_rows) / len(calibration_rows)
-        expected_weighted = sum(float(row.weighted_mse) for row in calibration_rows) / len(
-            calibration_rows
-        )
+        calibration_metrics: list[tuple[float, float, float]] = []
+        for row in calibration_rows:
+            if row.storage_mse is None or row.loss_mse is None or row.weighted_mse is None:
+                raise _read_failure("calibration result rows are missing residual metrics")
+            calibration_metrics.append((row.storage_mse, row.loss_mse, row.weighted_mse))
+        expected_storage = sum(item[0] for item in calibration_metrics) / len(calibration_rows)
+        expected_loss = sum(item[1] for item in calibration_metrics) / len(calibration_rows)
+        expected_weighted = sum(item[2] for item in calibration_metrics) / len(calibration_rows)
         if residual_summary["calibration_comparison_count"] < 1:
             raise _read_failure("multi-frequency residual summary has no calibration comparisons")
         if (

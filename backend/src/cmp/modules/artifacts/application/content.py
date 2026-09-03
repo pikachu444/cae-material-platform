@@ -654,18 +654,23 @@ class ArtifactService:
                 raise ArtifactConflict(
                     "DMA Artifact batch replay is only valid when both entries are available"
                 )
-            return tuple(
-                FinalizedArtifact(
-                    pending,
-                    self._repository.get_artifact(
-                        context=context,
-                        decision=decision,
-                        artifact_id=pending.available_artifact_id,
-                    ),
-                    True,
+            finalized: list[FinalizedArtifact] = []
+            for pending, _, _ in prepared:
+                artifact_id = pending.available_artifact_id
+                if artifact_id is None:
+                    raise ArtifactStateError("available pending Artifact lost its identity")
+                finalized.append(
+                    FinalizedArtifact(
+                        pending,
+                        self._repository.get_artifact(
+                            context=context,
+                            decision=decision,
+                            artifact_id=artifact_id,
+                        ),
+                        True,
+                    )
                 )
-                for pending, _, _ in prepared
-            )
+            return tuple(finalized)
 
         promoting: list[tuple[PendingArtifact, bool, StoredObject]] = []
         try:

@@ -20,11 +20,13 @@ from scipy.optimize import least_squares, minimize_scalar  # type: ignore[import
 from cmp.modules.datasets.domain.reference_shear_relaxation import ShearRelaxationPoint
 from cmp.modules.processing.domain.temperature_shift import (
     UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K,
-    ManualShiftFactor,
     TemperatureShiftError,
     arrhenius_log10_shift,
     validate_manual_shift_table,
     wlf_log10_shift,
+)
+from cmp.modules.processing.domain.temperature_shift import (
+    ManualShiftFactor as ManualShiftFactor,
 )
 from cmp.shared.domain.revisions import content_sha256
 

@@ -9,10 +9,10 @@ boundary rather than a fitting monolith.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypedDict, cast
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -709,7 +709,7 @@ class DmaFrequencyMasterCurveRow:
                 )
             return
         if self.partition is DmaPartition.CALIBRATION:
-            required = (
+            required: tuple[object, ...] = (
                 self.comparison_sweep_ordinal,
                 self.observed_log10_a_t,
                 self.shift_residual_log10_a_t,
@@ -778,6 +778,47 @@ class DmaFrequencyMasterCurveRow:
             )
 
 
+class DmaFrequencyMasterCurveRowValues(TypedDict):
+    input_mode: str
+    source_sweep_ordinal: int | None
+    representative_temperature_k: float
+    partition: DmaPartition
+    is_reference: bool
+    exclusion_reason: str | None
+    holdout_evaluation_status: str | None
+    source_ordinals: tuple[int, ...]
+    measured_temperature_k: tuple[float, ...]
+    source_frequency_hz: tuple[float, ...]
+    angular_frequency_rad_per_s: tuple[float, ...]
+    storage_modulus_pa: tuple[float, ...]
+    loss_modulus_pa: tuple[float, ...]
+    reduced_angular_frequency_rad_per_s: tuple[float, ...] | None
+    raw_angular_frequency_min_rad_per_s: float
+    raw_angular_frequency_max_rad_per_s: float
+    shifted_angular_frequency_min_rad_per_s: float | None
+    shifted_angular_frequency_max_rad_per_s: float | None
+    comparison_sweep_ordinal: int | None
+    observed_log10_a_t: float | None
+    applied_log10_a_t: float | None
+    shift_factor: float | None
+    shift_residual_log10_a_t: float | None
+    overlap_log10_reduced_angular_frequency_min: float | None
+    overlap_log10_reduced_angular_frequency_max: float | None
+    scoring_point_count: int | None
+    storage_mse: float | None
+    loss_mse: float | None
+    storage_rmse: float | None
+    loss_rmse: float | None
+    weighted_mse: float | None
+    adjacent_success: bool | None
+    adjacent_status: int | None
+    adjacent_iterations: int | None
+    adjacent_evaluations: int | None
+    adjacent_objective: float | None
+    source_tan_delta: tuple[float | None, ...]
+    loss_modulus_origin: tuple[str, ...]
+
+
 @dataclass(frozen=True, slots=True)
 class DmaFrequencyMasterCurveBuildResult:
     rows: tuple[DmaFrequencyMasterCurveRow, ...]
@@ -792,7 +833,7 @@ class DmaFrequencyMasterCurveBuildResult:
     application_intervals: tuple[dict[str, object], ...]
     application_range: dict[str, object] | None = None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[DmaFrequencyMasterCurveRow]:
         return iter(self.rows)
 
     def __len__(self) -> int:
@@ -853,24 +894,29 @@ def _validate_fixed_loss_evidence(
             "Provide measured loss modulus or tan delta for every source row.",
         )
     if loss_present[0] and tan_present[0]:
-        assert all(row.loss_modulus_pa is not None and row.tan_delta is not None for row in frozen)
-        if any(
-            not math.isclose(
-                row.loss_modulus_pa,
-                row.storage_modulus_pa * row.tan_delta,
+        for row in frozen:
+            loss_modulus = row.loss_modulus_pa
+            tan_delta = row.tan_delta
+            if loss_modulus is None or tan_delta is None:
+                raise _fail(
+                    4312,
+                    "fixed DMA loss evidence is incomplete or mixed",
+                    "Provide one complete measured loss channel or one complete tan-delta channel.",
+                )
+            if not math.isclose(
+                loss_modulus,
+                row.storage_modulus_pa * tan_delta,
                 rel_tol=1e-12,
                 abs_tol=1e-12,
-            )
-            for row in frozen
-        ):
-            raise _fail(
-                4312,
-                "fixed measured loss modulus conflicts with tan delta",
-                (
-                    "Correct the loss/tan-delta source channels or create a corrected "
-                    "immutable Test Data revision."
-                ),
-            )
+            ):
+                raise _fail(
+                    4312,
+                    "fixed measured loss modulus conflicts with tan delta",
+                    (
+                        "Correct the loss/tan-delta source channels or create a corrected "
+                        "immutable Test Data revision."
+                    ),
+                )
     return loss_present[0]
 
 
@@ -1088,7 +1134,7 @@ def build_frequency_master_curve(
         disposition = by_ordinal[row.source_ordinal]
         loss_modulus = row.usable_loss_modulus_pa
         omega = 2.0 * math.pi * row.frequency_hz
-        common = {
+        common: DmaFrequencyMasterCurveRowValues = {
             "input_mode": DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value,
             "source_sweep_ordinal": None,
             "representative_temperature_k": row.temperature_k,
@@ -1156,22 +1202,20 @@ def build_frequency_master_curve(
                 "Review the shift parameters or exclude the affected temperature.",
             )
         is_reference = row.source_ordinal == reference_matches[0].source_ordinal
-        common.update(
-            is_reference=is_reference,
-            exclusion_reason=None,
-            holdout_evaluation_status=(
-                "not_applicable_no_curve_overlap"
-                if disposition.partition is DmaPartition.HOLDOUT
-                else None
-            ),
-            reduced_angular_frequency_rad_per_s=(reduced_omega,),
-            shifted_angular_frequency_min_rad_per_s=reduced_omega,
-            shifted_angular_frequency_max_rad_per_s=reduced_omega,
-            observed_log10_a_t=0.0 if is_reference else None,
-            applied_log10_a_t=log10_a_t,
-            shift_factor=shift_factor,
-            shift_residual_log10_a_t=0.0 if is_reference else None,
+        common["is_reference"] = is_reference
+        common["exclusion_reason"] = None
+        common["holdout_evaluation_status"] = (
+            "not_applicable_no_curve_overlap"
+            if disposition.partition is DmaPartition.HOLDOUT
+            else None
         )
+        common["reduced_angular_frequency_rad_per_s"] = (reduced_omega,)
+        common["shifted_angular_frequency_min_rad_per_s"] = reduced_omega
+        common["shifted_angular_frequency_max_rad_per_s"] = reduced_omega
+        common["observed_log10_a_t"] = 0.0 if is_reference else None
+        common["applied_log10_a_t"] = log10_a_t
+        common["shift_factor"] = shift_factor
+        common["shift_residual_log10_a_t"] = 0.0 if is_reference else None
         output.append(DmaFrequencyMasterCurveRow(**common))
     return tuple(output)
 
@@ -1257,7 +1301,7 @@ def frequency_master_curve_from_parquet(value: bytes) -> tuple[DmaFrequencyMaste
     return from_parquet(value)
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> object:
     """Lazily expose the separated TTS kernel without creating an import cycle."""
 
     names = {
@@ -1273,5 +1317,20 @@ def __getattr__(name: str):
     if name in names:
         from cmp.modules.processing.domain import dma_multi_frequency_tts
 
-        return getattr(dma_multi_frequency_tts, name)
+        if name == "DmaFrequencySweep":
+            return dma_multi_frequency_tts.DmaFrequencySweep
+        if name == "DmaFrequencySweepDisposition":
+            return dma_multi_frequency_tts.DmaFrequencySweepDisposition
+        if name == "DmaMultiFrequencyBuildResult":
+            return DmaFrequencyMasterCurveBuildResult
+        if name == "DmaShiftLawRequest":
+            return dma_multi_frequency_tts.DmaShiftLawRequest
+        if name == "DmaTtsAdjacentOptimizerControls":
+            return dma_multi_frequency_tts.DmaTtsAdjacentOptimizerControls
+        if name == "DmaTtsLawOptimizerControls":
+            return dma_multi_frequency_tts.DmaTtsLawOptimizerControls
+        if name == "DmaTtsScoringControls":
+            return dma_multi_frequency_tts.DmaTtsScoringControls
+        if name == "build_multi_frequency_master_curve":
+            return dma_multi_frequency_tts.build_multi_frequency_master_curve
     raise AttributeError(name)

@@ -132,6 +132,7 @@ from cmp.modules.testing.application.service import (
     CreateReferenceTensileRun,
     CreateSpecimen,
 )
+from cmp.shared.adapters.persistence.revisions import SqlRevisionHook
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     ReviseAggregate,
@@ -327,9 +328,9 @@ def _source_document(profile: GovernedImportProfileContent) -> Any:
 
 def _output_repository(
     catalog: CatalogHarness,
-    *extra_hooks: object,
+    *extra_hooks: SqlRevisionHook,
 ) -> SqlAlchemyCommonProcessingOutputRepository:
-    hooks = (
+    hooks: tuple[SqlRevisionHook, ...] = (
         SqlInitialLifecycleHook(),
         SqlAlchemyRevisionProvenanceHook(),
         *extra_hooks,
@@ -478,7 +479,7 @@ def _artifact_records(
     metadata = harness.catalog.artifacts.get_artifact(
         context=context,
         decision=decision,
-        artifact_id=cast(UUID, snapshot.content.output_artifact_id),
+        artifact_id=snapshot.content.output_artifact_id,
     )
     result = harness.catalog.artifacts.get_artifact(
         context=context,
@@ -796,7 +797,7 @@ def test_dma_rls_hides_exact_output_across_tenant_project_and_classification(
             _command(dma_postgres, label=f"Issue 391 RLS output {uuid4()}"),
         )
     )
-    metadata_id = cast(UUID, created.master_curve_output.content.output_artifact_id)
+    metadata_id = created.master_curve_output.content.output_artifact_id
 
     wrong_project = _context(project_id=PROJECT_B)
     assert (
@@ -986,7 +987,7 @@ def test_migration_107_preserves_existing_non_dma_processing_specializer(
         )
     )
     assert completion.available_artifact_id is not None
-    raw_artifact_id = cast(UUID, completion.available_artifact_id)
+    raw_artifact_id = completion.available_artifact_id
     raw_artifact = postgres.artifacts.get_artifact(
         context=context,
         decision=artifact_decision,

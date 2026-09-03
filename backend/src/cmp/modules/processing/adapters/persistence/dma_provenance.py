@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from datetime import datetime
-from typing import Any, cast
+from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
@@ -190,7 +190,7 @@ association_table = provenance_association_table
 attribution_table = provenance_attribution_table
 
 
-class RlsContext:
+class RlsContext(Protocol):
     """Small structural type for the composition-root authorization binder."""
 
     def bind_authorization(
@@ -360,7 +360,7 @@ def _ensure_entity(
         .one_or_none()
     )
     if row is not None:
-        existing = _entity_from_row(row)
+        existing = _entity_from_row({str(key): value for key, value in row.items()})
         if (
             existing.entity_type != candidate.entity_type
             or existing.reference.content_sha256 != candidate.reference.content_sha256

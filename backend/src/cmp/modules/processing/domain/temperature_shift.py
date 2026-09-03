@@ -29,6 +29,29 @@ class TemperatureShiftError(ValueError):
     """A malformed shift-law value or domain."""
 
 
+def _serialized_float(value: object, name: str) -> float:
+    """Narrow a JSON-like numeric value before passing it to the equations."""
+
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        raise TemperatureShiftError(f"{name} must be numeric")
+    try:
+        return float(value)
+    except (TypeError, ValueError) as error:
+        raise TemperatureShiftError(f"{name} must be numeric") from error
+
+
+_MISSING = object()
+
+
+def _serialized_law_float(
+    law: Mapping[str, object], name: str, default: object = _MISSING
+) -> float:
+    value = law.get(name, default)
+    if value is _MISSING:
+        raise TemperatureShiftError(f"shift law is missing {name}")
+    return _serialized_float(value, name)
+
+
 def _positive_finite(name: str, value: float) -> None:
     if not math.isfinite(value) or value <= 0:
         raise TemperatureShiftError(f"{name} must be positive and finite")
@@ -68,7 +91,7 @@ class WlfParameters:
         _positive_finite("c1", self.c1)
         _positive_finite("c2_k", self.c2_k)
 
-    def canonical(self) -> dict[str, float | str]:
+    def canonical(self) -> dict[str, object]:
         return {
             "kind": ShiftLawKind.WLF_FIT.value,
             "reference_temperature_k": self.reference_temperature_k,
@@ -91,7 +114,7 @@ class ArrheniusParameters:
                 "gas_constant_j_per_mol_k must equal the platform fixed gas constant"
             )
 
-    def canonical(self) -> dict[str, float | str]:
+    def canonical(self) -> dict[str, object]:
         return {
             "kind": ShiftLawKind.ARRHENIUS_FIT.value,
             "reference_temperature_k": self.reference_temperature_k,
@@ -213,26 +236,41 @@ def shift_log10_value(
     """Evaluate a serialized shift law without fitting or interpolation."""
 
     kind = str(law.get("kind"))
-    reference = float(law["reference_temperature_k"])
+    reference = _serialized_law_float(law, "reference_temperature_k")
     if kind == ShiftLawKind.MANUAL_TABULATED.value:
-        values = manual
-        if values is None:
-            values = {
-                float(item["temperature_k"]): float(item["log10_a_t"])
-                for item in law.get("factors", [])
-                if isinstance(item, Mapping)
-            }
+        values: Mapping[float, float]
+        if manual is None:
+            factors = law.get("factors", ())
+            if not isinstance(factors, Sequence) or isinstance(factors, (str, bytes, bytearray)):
+                raise TemperatureShiftError("manual shift factors are not a sequence")
+            manual_values: dict[float, float] = {}
+            for item in factors:
+                if not isinstance(item, Mapping):
+                    continue
+                manual_values[
+                    _serialized_float(item.get("temperature_k"), "manual temperature")
+                ] = _serialized_float(item.get("log10_a_t"), "manual shift")
+            values = manual_values
+        else:
+            values = manual
         try:
-            return float(values[temperature_k])
+            return values[temperature_k]
         except KeyError as error:
             raise TemperatureShiftError("manual shift is missing a required temperature") from error
     if kind == ShiftLawKind.WLF_FIT.value:
-        return wlf_log10_shift(temperature_k, reference, float(law["c1"]), float(law["c2_k"]))
+        return wlf_log10_shift(
+            temperature_k,
+            reference,
+            _serialized_law_float(law, "c1"),
+            _serialized_law_float(law, "c2_k"),
+        )
     if kind == ShiftLawKind.ARRHENIUS_FIT.value:
         return arrhenius_log10_shift(
             temperature_k,
             reference,
-            float(law["activation_energy_j_per_mol"]),
-            float(law.get("gas_constant_j_per_mol_k", UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K)),
+            _serialized_law_float(law, "activation_energy_j_per_mol"),
+            _serialized_law_float(
+                law, "gas_constant_j_per_mol_k", UNIVERSAL_GAS_CONSTANT_J_PER_MOL_K
+            ),
         )
     raise TemperatureShiftError(f"unsupported shift law kind {kind!r}")

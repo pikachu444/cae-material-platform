@@ -10,14 +10,19 @@ extrapolates outside measured frequency ranges.
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 from itertools import pairwise
 from typing import cast
 
-import scipy
-from scipy.optimize import least_squares, minimize_scalar
+import scipy  # type: ignore[import-untyped]
+from scipy.optimize import (  # type: ignore[import-untyped]
+    least_squares as _scipy_least_squares,
+)
+from scipy.optimize import (
+    minimize_scalar as _scipy_minimize_scalar,
+)
 
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_TTS_ADJACENT_OPTIMIZER_ID,
@@ -25,6 +30,7 @@ from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_TTS_SCORER_ID,
     DmaFrequencyMasterCurveBuildResult,
     DmaFrequencyMasterCurveRow,
+    DmaFrequencyMasterCurveRowValues,
     DmaInputMode,
     DmaPartition,
     DmaProcessingError,
@@ -37,6 +43,78 @@ from cmp.modules.processing.domain.temperature_shift import (
     validate_manual_shift_table,
     wlf_log10_shift,
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _ScalarOptimizationResult:
+    x: float
+    fun: float
+    success: bool
+    status: int
+    nit: int
+    nfev: int
+
+
+@dataclass(frozen=True, slots=True)
+class _LeastSquaresResult:
+    x: tuple[float, ...]
+    success: bool
+    cost: float
+    status: int
+    nfev: int
+    optimality: float
+
+
+def _run_minimize_scalar(
+    objective: Callable[[float], float], bounds: tuple[float, float]
+) -> _ScalarOptimizationResult:
+    """Adapt the untyped SciPy result to the fields governed by this kernel."""
+
+    raw = _scipy_minimize_scalar(
+        objective,
+        bounds=bounds,
+        method="bounded",
+        options={"xatol": 1e-10, "maxiter": 1000},
+    )
+    return _ScalarOptimizationResult(
+        x=float(raw.x),
+        fun=float(raw.fun),
+        success=bool(raw.success),
+        status=int(raw.status),
+        nit=int(raw.nit),
+        nfev=int(raw.nfev),
+    )
+
+
+def _run_least_squares(
+    residual: Callable[[Sequence[float]], list[float]],
+    initial_parameters: tuple[float, ...],
+    lower_bounds: tuple[float, ...],
+    upper_bounds: tuple[float, ...],
+) -> _LeastSquaresResult:
+    """Adapt the untyped SciPy result to the fields governed by this kernel."""
+
+    raw = _scipy_least_squares(
+        residual,
+        initial_parameters,
+        bounds=(lower_bounds, upper_bounds),
+        method="trf",
+        ftol=1e-12,
+        xtol=1e-12,
+        gtol=1e-12,
+        max_nfev=5000,
+    )
+    return _LeastSquaresResult(
+        x=tuple(float(item) for item in raw.x),
+        success=bool(raw.success),
+        cost=float(raw.cost),
+        status=int(raw.status),
+        nfev=int(raw.nfev),
+        optimality=float(raw.optimality),
+    )
+
+
+_SCIPY_VERSION = str(scipy.__version__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -449,12 +527,7 @@ def optimize_adjacent_shift(
             return math.inf
 
     try:
-        outcome = minimize_scalar(
-            objective,
-            bounds=(lower, upper),
-            method="bounded",
-            options={"xatol": 1e-10, "maxiter": 1000},
-        )
+        outcome = _run_minimize_scalar(objective, (lower, upper))
         candidate = float(outcome.x)
         if (
             not outcome.success
@@ -762,15 +835,11 @@ def _fit_shift_law(
         ]
 
     try:
-        outcome = least_squares(
+        outcome = _run_least_squares(
             residual,
             law.initial_parameters,
-            bounds=(law.lower_bounds, law.upper_bounds),
-            method="trf",
-            ftol=1e-12,
-            xtol=1e-12,
-            gtol=1e-12,
-            max_nfev=5000,
+            law.lower_bounds,
+            law.upper_bounds,
         )
         fitted = tuple(float(item) for item in outcome.x)
         if (
@@ -824,7 +893,7 @@ def _fit_shift_law(
         )
     optimizer_document: dict[str, object] = {
         "optimizer_id": DMA_TTS_LAW_OPTIMIZER_ID,
-        "scipy_version": scipy.__version__,
+        "scipy_version": _SCIPY_VERSION,
         "method": "least_squares",
         "method_variant": "trf",
         "ftol": 1e-12,
@@ -974,7 +1043,7 @@ def build_multi_frequency_master_curve(
         omegas = tuple(2.0 * math.pi * value for value in frequencies)
         storage = tuple(point.storage_modulus_pa for point in sweep.points)
         loss = tuple(point.loss_modulus_pa for point in sweep.points)
-        common: dict[str, object] = {
+        common: DmaFrequencyMasterCurveRowValues = {
             "input_mode": DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value,
             "source_sweep_ordinal": ordinal,
             "representative_temperature_k": disposition.representative_temperature_k,
@@ -1033,43 +1102,39 @@ def build_multi_frequency_master_curve(
                 "applied DMA TTS shift is not finite and positive",
                 "Correct the explicit shift-law bounds and representative temperatures.",
             )
-        common.update(
-            reduced_angular_frequency_rad_per_s=reduced,
-            shifted_angular_frequency_min_rad_per_s=min(reduced),
-            shifted_angular_frequency_max_rad_per_s=max(reduced),
-            applied_log10_a_t=applied_value,
-            shift_factor=factor,
-        )
+        common["reduced_angular_frequency_rad_per_s"] = reduced
+        common["shifted_angular_frequency_min_rad_per_s"] = min(reduced)
+        common["shifted_angular_frequency_max_rad_per_s"] = max(reduced)
+        common["applied_log10_a_t"] = applied_value
+        common["shift_factor"] = factor
         if ordinal == reference_sweep_ordinal:
-            common.update(
-                is_reference=True,
-                observed_log10_a_t=0.0,
-                shift_residual_log10_a_t=0.0,
-            )
+            common["is_reference"] = True
+            common["observed_log10_a_t"] = 0.0
+            common["shift_residual_log10_a_t"] = 0.0
         elif disposition.partition is DmaPartition.CALIBRATION:
             comparison, _, _, evidence = adjacent[ordinal]
             observed_value = observed[ordinal]
-            common.update(
-                comparison_sweep_ordinal=comparison,
-                observed_log10_a_t=observed_value,
-                shift_residual_log10_a_t=applied_value - observed_value,
-                adjacent_success=evidence.success,
-                adjacent_status=evidence.status,
-                adjacent_iterations=evidence.iterations,
-                adjacent_evaluations=evidence.evaluations,
-                adjacent_objective=evidence.objective,
-            )
+            common["comparison_sweep_ordinal"] = comparison
+            common["observed_log10_a_t"] = observed_value
+            common["shift_residual_log10_a_t"] = applied_value - observed_value
+            common["adjacent_success"] = evidence.success
+            common["adjacent_status"] = evidence.status
+            common["adjacent_iterations"] = evidence.iterations
+            common["adjacent_evaluations"] = evidence.evaluations
+            common["adjacent_objective"] = evidence.objective
             score = adjacent[ordinal][2]
-            common.update(
-                overlap_log10_reduced_angular_frequency_min=score.overlap_min_log10_reduced_omega,
-                overlap_log10_reduced_angular_frequency_max=score.overlap_max_log10_reduced_omega,
-                scoring_point_count=score.scoring_point_count,
-                storage_mse=score.storage_mse,
-                loss_mse=score.loss_mse,
-                storage_rmse=score.storage_rmse,
-                loss_rmse=score.loss_rmse,
-                weighted_mse=score.weighted_mse,
+            common["overlap_log10_reduced_angular_frequency_min"] = (
+                score.overlap_min_log10_reduced_omega
             )
+            common["overlap_log10_reduced_angular_frequency_max"] = (
+                score.overlap_max_log10_reduced_omega
+            )
+            common["scoring_point_count"] = score.scoring_point_count
+            common["storage_mse"] = score.storage_mse
+            common["loss_mse"] = score.loss_mse
+            common["storage_rmse"] = score.storage_rmse
+            common["loss_rmse"] = score.loss_rmse
+            common["weighted_mse"] = score.weighted_mse
         else:
             comparison = min(
                 calibration,
@@ -1082,22 +1147,22 @@ def build_multi_frequency_master_curve(
                     item,
                 ),
             )
-            common.update(
-                holdout_evaluation_status="evaluated",
-                comparison_sweep_ordinal=comparison,
-            )
+            common["holdout_evaluation_status"] = "evaluated"
+            common["comparison_sweep_ordinal"] = comparison
             relative = applied_value - applied[comparison]
             score = score_sweep_pair(sweep, by_sweep[comparison], relative, scoring)
-            common.update(
-                overlap_log10_reduced_angular_frequency_min=score.overlap_min_log10_reduced_omega,
-                overlap_log10_reduced_angular_frequency_max=score.overlap_max_log10_reduced_omega,
-                scoring_point_count=score.scoring_point_count,
-                storage_mse=score.storage_mse,
-                loss_mse=score.loss_mse,
-                storage_rmse=score.storage_rmse,
-                loss_rmse=score.loss_rmse,
-                weighted_mse=score.weighted_mse,
+            common["overlap_log10_reduced_angular_frequency_min"] = (
+                score.overlap_min_log10_reduced_omega
             )
+            common["overlap_log10_reduced_angular_frequency_max"] = (
+                score.overlap_max_log10_reduced_omega
+            )
+            common["scoring_point_count"] = score.scoring_point_count
+            common["storage_mse"] = score.storage_mse
+            common["loss_mse"] = score.loss_mse
+            common["storage_rmse"] = score.storage_rmse
+            common["loss_rmse"] = score.loss_rmse
+            common["weighted_mse"] = score.weighted_mse
         rows.append(DmaFrequencyMasterCurveRow(**common))
 
     application_intervals = _application_intervals(by_sweep, by_disposition, applied)

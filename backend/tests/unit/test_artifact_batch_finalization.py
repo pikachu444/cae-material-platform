@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+from collections.abc import AsyncIterable
 from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
@@ -9,8 +10,12 @@ from uuid import UUID, uuid4
 
 import pytest
 from cmp.modules.artifacts.application.content import (
+    ArtifactBatchCommitHook,
+    ArtifactCommitHook,
+    ArtifactRepository,
     ArtifactService,
     ArtifactTransferCodec,
+    ContentObjectStore,
     FinalizedArtifact,
     PrepareArtifact,
 )
@@ -22,9 +27,11 @@ from cmp.modules.artifacts.domain.content import (
     ArtifactKind,
     ArtifactNotFound,
     ArtifactRecord,
+    IntegrityObservation,
     IntegrityStatus,
     PendingArtifact,
     PendingArtifactState,
+    ReconciliationIssue,
     StoredObject,
 )
 from cmp.modules.artifacts.domain.uploads import ObjectStoreError
@@ -76,7 +83,7 @@ def _decision(context: SecurityContext) -> AuthorizationDecision:
     )
 
 
-class _BatchObjectStore:
+class _BatchObjectStore(ContentObjectStore):
     def __init__(self, events: list[str], *, fail_promote_at: int | None = None) -> None:
         self.events = events
         self.fail_promote_at = fail_promote_at
@@ -126,8 +133,32 @@ class _BatchObjectStore:
         self.events.append(f"discard:{object_key}")
         self.staged.pop(object_key, None)
 
+    async def stage_stream(
+        self,
+        *,
+        object_key: str,
+        chunks: AsyncIterable[bytes],
+        media_type: str,
+        expected_sha256: str,
+        expected_size_bytes: int,
+    ) -> StoredObject:
+        del object_key, chunks, media_type, expected_sha256, expected_size_bytes
+        raise NotImplementedError
 
-class _BatchRepository:
+    async def inspect(self, object_key: str) -> StoredObject | None:
+        del object_key
+        raise NotImplementedError
+
+    async def list_objects(self, prefix: str) -> tuple[StoredObject, ...]:
+        del prefix
+        raise NotImplementedError
+
+    def stream(self, object_key: str) -> AsyncIterable[bytes]:
+        del object_key
+        raise NotImplementedError
+
+
+class _BatchRepository(ArtifactRepository):
     """Small repository fake with the same atomic boundary as the SQL adapter."""
 
     def __init__(self, events: list[str]) -> None:
@@ -138,7 +169,14 @@ class _BatchRepository:
         self.batch_calls = 0
         self.retryable_calls: list[tuple[UUID, str]] = []
 
-    def prepare(self, *, pending: PendingArtifact, **_: Any) -> tuple[PendingArtifact, bool]:
+    def prepare(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        pending: PendingArtifact,
+    ) -> tuple[PendingArtifact, bool]:
+        del context, decision
         existing_id = self.pending_by_key.get(pending.idempotency_key)
         if existing_id is not None:
             return self.pending_by_id[existing_id], True
@@ -146,7 +184,15 @@ class _BatchRepository:
         self.pending_by_key[pending.idempotency_key] = pending.id
         return pending, False
 
-    def begin_promotion(self, *, pending_id: UUID, now: datetime, **_: Any) -> PendingArtifact:
+    def begin_promotion(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        pending_id: UUID,
+        now: datetime,
+    ) -> PendingArtifact:
+        del context, decision
         current = self.pending_by_id[pending_id]
         if current.state is PendingArtifactState.AVAILABLE:
             return current
@@ -162,11 +208,13 @@ class _BatchRepository:
     def mark_retryable(
         self,
         *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         pending_id: UUID,
         failure_code: str,
         now: datetime,
-        **_: Any,
     ) -> PendingArtifact:
+        del context, decision
         current = self.pending_by_id[pending_id]
         retryable = replace(
             current,
@@ -182,10 +230,12 @@ class _BatchRepository:
     def commit_available_batch(
         self,
         *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         entries: tuple[tuple[UUID, StoredObject, UUID, datetime], ...],
-        commit_hook: Any = None,
-        **_: Any,
+        commit_hook: ArtifactBatchCommitHook | None = None,
     ) -> tuple[FinalizedArtifact, ...]:
+        del context, decision
         self.batch_calls += 1
         self.events.append("repository:batch_commit")
         pending_backup = self.pending_by_id.copy()
@@ -239,11 +289,93 @@ class _BatchRepository:
             raise
         return tuple(finalized)
 
-    def get_artifact(self, *, artifact_id: UUID, **_: Any) -> ArtifactRecord:
+    def get_artifact(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+    ) -> ArtifactRecord:
+        del context, decision
         try:
             return self.records[artifact_id]
         except KeyError as error:
             raise ArtifactNotFound("Artifact is not available") from error
+
+    def reject(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        pending_id: UUID,
+        failure_code: str,
+        now: datetime,
+    ) -> PendingArtifact:
+        del context, decision, pending_id, failure_code, now
+        raise NotImplementedError
+
+    def commit_available(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        pending_id: UUID,
+        stored: StoredObject,
+        observation_id: UUID,
+        now: datetime,
+        commit_hook: ArtifactCommitHook | None = None,
+    ) -> FinalizedArtifact:
+        del context, decision, pending_id, stored, observation_id, now, commit_hook
+        raise NotImplementedError
+
+    def record_integrity(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        observation: IntegrityObservation,
+    ) -> ArtifactRecord:
+        del context, decision, observation
+        raise NotImplementedError
+
+    def list_artifacts(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        limit: int,
+    ) -> tuple[ArtifactRecord, ...]:
+        del context, decision, limit
+        raise NotImplementedError
+
+    def list_unfinished(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        limit: int,
+    ) -> tuple[PendingArtifact, ...]:
+        del context, decision, limit
+        raise NotImplementedError
+
+    def known_final_keys(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> frozenset[str]:
+        del context, decision
+        raise NotImplementedError
+
+    def record_issue(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        issue: ReconciliationIssue,
+    ) -> ReconciliationIssue:
+        del context, decision, issue
+        raise NotImplementedError
 
 
 def _entries(context: SecurityContext, suffix: str) -> tuple[tuple[PrepareArtifact, bytes], ...]:

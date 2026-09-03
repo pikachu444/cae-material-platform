@@ -86,6 +86,7 @@ from cmp.modules.processing.domain.dma_frequency_master_curve_result import (
 )
 from cmp.modules.processing.domain.dma_multi_frequency_tts import (
     DmaFrequencySweep,
+    DmaFrequencySweepDisposition,
     DmaFrequencySweepPoint,
     DmaShiftLawRequest,
     DmaTtsAdjacentOptimizerControls,
@@ -124,7 +125,7 @@ class CreateDmaFrequencyMasterCurve:
     label: str
     test_data: DmaTestDataPin
     import_profile: DmaImportProfilePin
-    dispositions: tuple[DmaRowDisposition, ...]
+    dispositions: tuple[DmaRowDisposition | DmaFrequencySweepDisposition, ...]
     shift_law: DmaShiftLaw | DmaShiftLawRequest | None
     confirmed: bool
     confirmation_reason: str
@@ -296,7 +297,9 @@ def _fixed_rows(document: CanonicalTestDataDocument) -> tuple[DmaTemperatureSwee
         loss is not None
         and tan_delta is not None
         and any(
-            not math.isclose(
+            row.loss_modulus_pa is None
+            or row.tan_delta is None
+            or not math.isclose(
                 row.loss_modulus_pa,
                 row.storage_modulus_pa * row.tan_delta,
                 rel_tol=1e-12,
@@ -348,7 +351,7 @@ def _multi_sweeps(document: CanonicalTestDataDocument) -> tuple[DmaFrequencySwee
             "multi-frequency DMA channels have different row counts",
             "Reload the exact canonical Test Data artifact.",
         )
-    grouped: dict[int, list[object]] = defaultdict(list)
+    grouped: dict[int, list[DmaFrequencySweepPoint]] = defaultdict(list)
     for index in range(count):
         ordinal = _positive_source_sweep_ordinal(sweep_ordinal, index)
         grouped[ordinal].append(
@@ -651,10 +654,19 @@ class DmaFrequencyMasterCurveService:
                         "recommendation digest does not match the exact fixed inputs",
                         "Reload the fixed recommendation or submit explicitly edited settings.",
                     )
+            fixed_dispositions = tuple(
+                item for item in command.dispositions if isinstance(item, DmaRowDisposition)
+            )
+            if len(fixed_dispositions) != len(command.dispositions):
+                raise DmaProcessingError(
+                    "CMP-PROCESSING-4311",
+                    "fixed input carries non-row sweep dispositions",
+                    "Provide one fixed-row disposition for every fixed DMA source row.",
+                )
             fixed_rows = build_frequency_master_curve(
                 resolved.fixed_rows,
-                command.dispositions,
-                cast(DmaShiftLaw, command.shift_law),
+                fixed_dispositions,
+                command.shift_law,
                 confirmed=command.confirmed,
                 confirmation_reason=command.confirmation_reason,
             )
@@ -668,7 +680,7 @@ class DmaFrequencyMasterCurveService:
                     "source_ordinal": reference_row.source_ordinals[0],
                     "representative_temperature_k": reference_row.representative_temperature_k,
                 },
-                shift_law=_fixed_law_options(cast(DmaShiftLaw, command.shift_law)),
+                shift_law=_fixed_law_options(command.shift_law),
                 scoring=None,
                 adjacent_optimizer=None,
                 law_optimizer=None,
@@ -735,9 +747,18 @@ class DmaFrequencyMasterCurveService:
                 "fitted multi-frequency law requires law optimizer controls",
                 "Supply the exact positive fit starts, bounds, and governed optimizer settings.",
             )
+        multi_dispositions = tuple(
+            item for item in command.dispositions if isinstance(item, DmaFrequencySweepDisposition)
+        )
+        if len(multi_dispositions) != len(command.dispositions):
+            raise DmaProcessingError(
+                "CMP-PROCESSING-4311",
+                "multi-frequency input carries fixed-row dispositions",
+                "Provide one sweep disposition for every multi-frequency DMA source sweep.",
+            )
         result = build_multi_frequency_master_curve(
             resolved.sweeps,
-            command.dispositions,
+            multi_dispositions,
             reference_sweep_ordinal=command.reference_sweep_ordinal,
             shift_law=command.shift_law,
             scoring=command.scoring,
@@ -1077,7 +1098,8 @@ class DmaFrequencyMasterCurveService:
                 result_media_type=result_artifact.artifact.media_type,
             )
 
-        if self._dma_provenance_writer is None:
+        dma_provenance_writer = self._dma_provenance_writer
+        if dma_provenance_writer is None:
             raise DmaProcessingError(
                 "CMP-PROCESSING-5030",
                 "DMA provenance finalization is not configured",
@@ -1129,7 +1151,7 @@ class DmaFrequencyMasterCurveService:
                 hook_session: object,
                 snapshot: ProcessingOutputSnapshot,
             ) -> None:
-                self._dma_provenance_writer(
+                dma_provenance_writer(
                     session=hook_session,
                     context=context,
                     decision=decision,
