@@ -14,6 +14,7 @@ import pyarrow.parquet as pq
 
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_COLUMNS,
+    DMA_SWEEP_TEMPERATURE_TOLERANCE_K,
     DmaFrequencyMasterCurveRow,
     DmaInputMode,
     DmaPartition,
@@ -109,9 +110,13 @@ def _validate_temperature_identity(row: DmaFrequencyMasterCurveRow) -> None:
         raise _read_failure(
             "result representative temperature is not the normalized modal source temperature"
         )
-    if any(abs(value - expected) > Decimal("0.05") for value in measured_values):
+    if any(
+        abs(value - expected) > DMA_SWEEP_TEMPERATURE_TOLERANCE_K
+        for value in measured_values
+    ):
         raise _read_failure(
-            "result measured temperature exceeds the inclusive 0.05 K sweep tolerance"
+            "result measured temperature exceeds the inclusive "
+            f"{DMA_SWEEP_TEMPERATURE_TOLERANCE_K} K sweep tolerance"
         )
 
 
@@ -195,9 +200,7 @@ def _validate_row_semantics(row: DmaFrequencyMasterCurveRow) -> None:
     if row.input_mode == DmaInputMode.MULTI_FREQUENCY_ISOTHERMS.value:
         if any(
             right <= left
-            for left, right in zip(
-                row.source_frequency_hz, row.source_frequency_hz[1:], strict=True
-            )
+            for left, right in pairwise(row.source_frequency_hz)
         ):
             raise _read_failure("multi-frequency source frequencies are not strictly increasing")
     if (

@@ -142,7 +142,9 @@ Fit difference·Check difference,
 
 백엔드 #391은 여러 DMA 등온선을 하나의 exact multi-isotherm Processing Output으로 정렬하고,
 CALIBRATION 행만 다음 Polymer Fit의 Prony 입력으로 제공합니다. 이 단위에는 React 화면을 포함하지
-않으며, 해당 Process 연결 UI는 #392에서 진행합니다.
+않으며, 해당 Process 연결 UI는 #392에서 진행합니다. 명시적인 한 주파수 sweep 안에서는 대표 온도와
+각 실측 온도의 차이를 `0.5 K`까지 허용하되 실측값을 수정하지 않고 모두 보존합니다. 이 범위를 넘는
+sweep은 서로 다른 온도 자료가 섞이지 않도록 전체를 차단합니다.
 
 Metal Fit 상단 상태는 `Calculating`(계산 중), `Saved current`(정확한 Fit Output 복원과 사용 가능한
 preview가 모두 검증됨), `Preview not saved`(현재 preview만 사용 가능), `Saved result stale`(Fit

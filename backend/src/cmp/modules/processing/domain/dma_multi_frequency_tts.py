@@ -25,6 +25,7 @@ from scipy.optimize import (
 )
 
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
+    DMA_SWEEP_TEMPERATURE_TOLERANCE_K,
     DMA_TTS_ADJACENT_OPTIMIZER_ID,
     DMA_TTS_LAW_OPTIMIZER_ID,
     DMA_TTS_SCORER_ID,
@@ -610,10 +611,16 @@ def _validate_sweeps(
                     "source measured temperature is not a normalized finite number",
                     "Correct the source temperature and create a new immutable Test Data revision.",
                 ) from error
-            if not measured.is_finite() or abs(measured - expected) > Decimal("0.05"):
+            if (
+                not measured.is_finite()
+                or abs(measured - expected) > DMA_SWEEP_TEMPERATURE_TOLERANCE_K
+            ):
                 raise _fail(
                     4316,
-                    "source measured temperature exceeds the inclusive 0.05 K sweep tolerance",
+                    (
+                        "source measured temperature exceeds the inclusive "
+                        f"{DMA_SWEEP_TEMPERATURE_TOLERANCE_K} K sweep tolerance"
+                    ),
                     "Correct the source temperatures or create a new immutable Test Data revision.",
                 )
         by_disposition[ordinal] = replace(

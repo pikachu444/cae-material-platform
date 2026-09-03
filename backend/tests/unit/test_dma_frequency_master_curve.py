@@ -16,7 +16,9 @@ import pytest
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_COLUMNS,
     DMA_LOSS_MODULUS_COLUMNS,
+    DMA_SWEEP_TEMPERATURE_TOLERANCE_K,
     ArrheniusShiftLaw,
+    DmaFrequencyMasterCurveBuildResult,
     DmaPartition,
     DmaProcessingError,
     DmaRowDisposition,
@@ -64,6 +66,7 @@ DMA_TTS_REFERENCE_PATH = (
 )
 DMA_TTS_WLF_UI_REFERENCE_PATH = ROOT / "fixtures/synthetic/dma-temperature-sweep-wlf-ui-v1.json"
 _read_parquet = cast(Callable[..., pa.Table], pq.read_table)
+_write_parquet = cast(Callable[..., None], pq.write_table)
 
 
 def _rows() -> tuple[DmaTemperatureSweepRow, ...]:
@@ -479,6 +482,96 @@ def test_multi_frequency_manual_ragged_result_preserves_identity_and_null_patter
     assert result.rows[3].scoring_point_count == 7
     assert result.application_intervals
     assert result.residual_summary is not None
+
+
+def _multi_sweeps_with_reference_temperature_deviation(
+    deviation_k: float,
+) -> tuple[DmaFrequencySweep, ...]:
+    sweeps = list(_multi_synthetic_sweeps())
+    reference = sweeps[0]
+    points = list(reference.points)
+    points[1] = replace(
+        points[1],
+        measured_temperature_k=points[0].measured_temperature_k + deviation_k,
+    )
+    points[2] = replace(
+        points[2],
+        measured_temperature_k=points[0].measured_temperature_k,
+    )
+    sweeps[0] = replace(reference, points=tuple(points))
+    return tuple(sweeps)
+
+
+def _build_multi_temperature_boundary(
+    sweeps: tuple[DmaFrequencySweep, ...],
+) -> DmaFrequencyMasterCurveBuildResult:
+    return build_multi_frequency_master_curve(
+        sweeps,
+        _multi_synthetic_dispositions(),
+        reference_sweep_ordinal=11,
+        shift_law=DmaShiftLawRequest(
+            "manual_tabulated",
+            300.0,
+            manual_table=((300.0, 0.0), (310.0, 1.0), (320.0, 2.0), (330.0, 3.0)),
+        ),
+        scoring=_multi_scoring(),
+        adjacent_optimizer=DmaTtsAdjacentOptimizerControls(-3.0, 3.0),
+        law_optimizer=None,
+        confirmed=True,
+        confirmation_reason="temperature tolerance boundary regression",
+    )
+
+
+def test_multi_frequency_temperature_tolerance_accepts_inclusive_half_kelvin() -> None:
+    assert DMA_SWEEP_TEMPERATURE_TOLERANCE_K == Decimal("0.5")
+    result = _build_multi_temperature_boundary(
+        _multi_sweeps_with_reference_temperature_deviation(0.5)
+    )
+
+    assert result.rows[0].representative_temperature_k == 300.0
+    assert result.rows[0].measured_temperature_k == (300.0, 300.5, 300.0)
+    assert frequency_master_curve_from_parquet(
+        frequency_master_curve_parquet_bytes(result.rows)
+    ) == result.rows
+
+
+def test_multi_frequency_temperature_tolerance_rejects_above_half_kelvin() -> None:
+    with pytest.raises(DmaProcessingError) as captured:
+        _build_multi_temperature_boundary(
+            _multi_sweeps_with_reference_temperature_deviation(0.5000000001)
+        )
+
+    assert captured.value.code == "CMP-PROCESSING-4316"
+    assert "inclusive 0.5 K sweep tolerance" in captured.value.cause
+
+
+def test_multi_frequency_result_readback_rejects_temperature_above_half_kelvin() -> None:
+    result = _build_multi_temperature_boundary(
+        _multi_sweeps_with_reference_temperature_deviation(0.5)
+    )
+    valid_payload = frequency_master_curve_parquet_bytes(result.rows)
+    table = _read_parquet(pa.BufferReader(valid_payload))
+    field_index = table.schema.get_field_index("measured_temperature_k")
+    field = table.schema.field(field_index)
+    tampered_temperatures: list[object] = list(
+        table.column("measured_temperature_k").to_pylist()
+    )
+    tampered_temperatures[0] = [300.0, 300.5000000001, 300.0]
+    tampered_table = table.set_column(
+        field_index,
+        field,
+        pa.array(tampered_temperatures, type=field.type),
+    )
+    sink = pa.BufferOutputStream()
+    _write_parquet(tampered_table, sink)
+    tampered_payload = sink.getvalue().to_pybytes()
+    assert isinstance(tampered_payload, bytes)
+
+    with pytest.raises(DmaProcessingError) as captured:
+        frequency_master_curve_from_parquet(tampered_payload)
+
+    assert captured.value.code == "CMP-PROCESSING-4317"
+    assert "inclusive 0.5 K sweep tolerance" in captured.value.cause
 
 
 def test_multi_frequency_singleton_overlap_is_evaluated_without_optimizer() -> None:

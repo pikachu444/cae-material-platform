@@ -5,11 +5,13 @@ import math
 import shutil
 from collections import Counter
 from dataclasses import dataclass
+from decimal import Decimal, localcontext
 from pathlib import Path
 
 import pytest
 import yaml
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
+    DMA_SWEEP_TEMPERATURE_TOLERANCE_K,
     DmaPartition,
     DmaRowDisposition,
     DmaTemperatureSweepRow,
@@ -38,12 +40,15 @@ VITRIMER_MANIFEST = ROOT / "fixtures/manifests/public-viscoelastic-vitrimer-v1.0
 
 @dataclass(frozen=True, slots=True)
 class _DarusPublishedShiftSweep:
-    published_temperature_c: float
-    published_shift_factor: float
+    published_shift_factor: Decimal
+    published_point_count: int
     source_result_number: int
     source_rows: tuple[tuple[int, dict[str, str]], ...]
     representative_temperature_c: float
     maximum_temperature_deviation_c: float
+
+
+_DECIMAL_PI = Decimal("3.14159265358979323846264338327950288419716939937510582097494")
 
 
 def test_darus_archive_preserves_every_member_and_only_exact_temperature_groups() -> None:
@@ -181,6 +186,13 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
 
     assert dataset.source["doi"] == "10.18419/darus-2021"
     assert dataset.source["license"] == "CC BY 4.0"
+    assert dataset.source["landing_page"] == (
+        "https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2021"
+    )
+    assert dataset.archive_path.stat().st_size == 109_927
+    assert dataset.archive_sha256 == (
+        "26568b82a6031edbbeab933bce0273918d1f3dfebbc5202f91742becc51088cf"
+    )
     assert frequency_sweep.sha256 == (
         "37f70abaae12791d0661ff78e778e2bbe765d46506b4ee9268ad50de4d2523e7"
     )
@@ -194,32 +206,62 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
     frequency_rows = tuple(
         dict(zip(frequency_sweep.header, row, strict=True)) for row in frequency_sweep.rows
     )
+    master_rows = tuple(
+        dict(zip(published_master.header, row, strict=True)) for row in published_master.rows
+    )
+    shift_rows = tuple(
+        dict(zip(published_shift.header, row, strict=True)) for row in published_shift.rows
+    )
+    assert len(frequency_rows) == 429
+    assert len(master_rows) == 323
+    assert len(shift_rows) == 25
+
     grouped_rows: dict[int, list[tuple[int, dict[str, str]]]] = {}
     for source_ordinal, row in enumerate(frequency_rows):
         grouped_rows.setdefault(int(row["Result No."]), []).append((source_ordinal, row))
 
-    shift_rows = tuple(
-        dict(zip(published_shift.header, row, strict=True)) for row in published_shift.rows
+    raw_by_response: dict[tuple[str, str, str], int] = {}
+    for row in frequency_rows:
+        key = (row["Angular Frequency"], row["Storage Modulus"], row["Loss Modulus"])
+        assert key not in raw_by_response
+        raw_by_response[key] = int(row["Result No."])
+
+    master_response_counts = Counter(
+        (row["Angular Frequency"], row["Storage Modulus"], row["Loss Modulus"])
+        for row in master_rows
     )
-    matched_sweeps: list[_DarusPublishedShiftSweep] = []
-    used_result_numbers: set[int] = set()
-    for shift_row in shift_rows:
-        published_temperature_c = float(shift_row["T"])
-        candidates = tuple(
-            (
-                abs(
-                    sum(float(row["Temperature"]) for _, row in rows) / len(rows)
-                    - published_temperature_c
-                ),
-                result_number,
-                tuple(rows),
-            )
-            for result_number, rows in grouped_rows.items()
+    assert set(master_response_counts) <= set(raw_by_response)
+    assert sum(count - 1 for count in master_response_counts.values()) == 13
+    duplicated_result_numbers = {
+        raw_by_response[key] for key, count in master_response_counts.items() if count > 1
+    }
+    assert duplicated_result_numbers == {18}
+    assert {count for count in master_response_counts.values() if count > 1} == {2}
+
+    published_by_response: dict[tuple[str, str, str], set[tuple[str, str]]] = {}
+    for row in master_rows:
+        key = (row["Angular Frequency"], row["Storage Modulus"], row["Loss Modulus"])
+        published_by_response.setdefault(key, set()).add(
+            (row["Horizontal Shift Factor"], row["Reduced Angular Frequency"])
         )
-        temperature_delta_c, result_number, source_rows = min(candidates)
-        assert temperature_delta_c <= 0.003
-        assert result_number not in used_result_numbers
-        used_result_numbers.add(result_number)
+    assert sum(key in published_by_response for key in raw_by_response) == 310
+    assert sum(key not in published_by_response for key in raw_by_response) == 119
+
+    matched_sweeps: list[_DarusPublishedShiftSweep] = []
+    for result_number, rows in grouped_rows.items():
+        source_rows = tuple(rows)
+        evidence = {
+            item
+            for _, row in source_rows
+            for item in published_by_response.get(
+                (row["Angular Frequency"], row["Storage Modulus"], row["Loss Modulus"]),
+                set(),
+            )
+        }
+        if not evidence:
+            continue
+        published_factors = {Decimal(factor) for factor, _ in evidence}
+        assert len(published_factors) == 1
 
         temperature_counts = Counter(row["Temperature"] for _, row in source_rows)
         maximum_count = max(temperature_counts.values())
@@ -233,10 +275,16 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
         )
         matched_sweeps.append(
             _DarusPublishedShiftSweep(
-                published_temperature_c=published_temperature_c,
-                # The source header is counterintuitive: this column contains aT while
-                # the following column contains its rounded base-10 logarithm.
-                published_shift_factor=float(shift_row["log alpha_T"]),
+                published_shift_factor=next(iter(published_factors)),
+                published_point_count=sum(
+                    (
+                        row["Angular Frequency"],
+                        row["Storage Modulus"],
+                        row["Loss Modulus"],
+                    )
+                    in published_by_response
+                    for _, row in source_rows
+                ),
                 source_result_number=result_number,
                 source_rows=source_rows,
                 representative_temperature_c=representative_temperature_c,
@@ -252,13 +300,54 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
         32,
         33,
     ]
-    rejected = tuple(item for item in matched_sweeps if item.maximum_temperature_deviation_c > 0.05)
+    assert sum(item.published_point_count for item in matched_sweeps) == 310
+    assert sorted(set(grouped_rows) - {item.source_result_number for item in matched_sweeps}) == [
+        21,
+        22,
+        24,
+        26,
+        28,
+        29,
+        30,
+        31,
+    ]
+
+    # alpha_T_30.csv independently lists the same 25 shifted sweeps, but its headers are
+    # reversed in practice and both values are less precise than the master-curve factors.
+    for shift_row, item in zip(shift_rows, matched_sweeps, strict=True):
+        mean_source_temperature_c = sum(
+            Decimal(row["Temperature"]) for _, row in item.source_rows
+        ) / Decimal(len(item.source_rows))
+        assert abs(Decimal(shift_row["T"]) - mean_source_temperature_c) <= Decimal("0.003")
+        assert math.isclose(
+            float(shift_row["log alpha_T"]),
+            float(item.published_shift_factor),
+            rel_tol=0.003,
+        )
+        assert math.isclose(
+            10.0 ** float(shift_row["alpha_T"]),
+            float(item.published_shift_factor),
+            rel_tol=0.003,
+        )
+
+    rejected = tuple(
+        item
+        for item in matched_sweeps
+        if item.maximum_temperature_deviation_c
+        > float(DMA_SWEEP_TEMPERATURE_TOLERANCE_K)
+    )
     assert [
-        (item.source_result_number, item.maximum_temperature_deviation_c) for item in rejected
-    ] == [(33, 0.25)]
+        (
+            item.source_result_number,
+            item.published_point_count,
+            item.maximum_temperature_deviation_c,
+        )
+        for item in rejected
+    ] == []
     usable = tuple(item for item in matched_sweeps if item not in rejected)
-    assert len(usable) == 24
-    assert sum(len(item.source_rows) for item in usable) == 312
+    assert len(usable) == 25
+    assert sum(len(item.source_rows) for item in usable) == 325
+    assert sum(item.published_point_count for item in usable) == 310
 
     sweeps = tuple(
         DmaFrequencySweep(
@@ -280,16 +369,16 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
         DmaFrequencySweepDisposition(
             source_sweep_ordinal=item.source_result_number,
             representative_temperature_k=item.representative_temperature_c + 273.15,
-            # The highest contract-admissible published sweep is the independent holdout.
+            # The highest published sweep is the independent holdout.
             partition=(
                 DmaPartition.HOLDOUT
-                if item.source_result_number == 32
+                if item.source_result_number == 33
                 else DmaPartition.CALIBRATION
             ),
         )
         for item in usable
     )
-    reference = next(item for item in usable if item.published_shift_factor == 1.0)
+    reference = next(item for item in usable if item.published_shift_factor == Decimal(1))
     result = build_multi_frequency_master_curve(
         sweeps,
         dispositions,
@@ -298,11 +387,11 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
             kind="manual_tabulated",
             reference_temperature_k=reference.representative_temperature_c + 273.15,
             # The immutable raw sweep's exact modal temperature remains the contract key;
-            # each factor is the corresponding value in the publication's alpha_T table.
+            # each factor is the authoritative value in the published master curve.
             manual_table=tuple(
                 (
                     item.representative_temperature_c + 273.15,
-                    math.log10(item.published_shift_factor),
+                    math.log10(float(item.published_shift_factor)),
                 )
                 for item in usable
             ),
@@ -317,8 +406,8 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
         law_optimizer=None,
         confirmed=True,
         confirmation_reason=(
-            "Validate the multi-frequency result against the CC BY 4.0 DaRUS shift table "
-            "and published master curve"
+            "Validate the multi-frequency result against the CC BY 4.0 DaRUS raw data "
+            "and published master-curve shift factors"
         ),
     )
 
@@ -326,68 +415,95 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
     shift_by_result_number = {
         item.source_result_number: item.published_shift_factor for item in usable
     }
-    for actual in result.rows:
-        source_sweep_ordinal = actual.source_sweep_ordinal
-        assert source_sweep_ordinal is not None
-        expected_factor = shift_by_result_number[source_sweep_ordinal]
-        assert math.isclose(actual.shift_factor or 0.0, expected_factor, rel_tol=5e-15)
-        for index, source_ordinal in enumerate(actual.source_ordinals):
-            source = source_by_ordinal[source_ordinal]
-            source_frequency_hz = float(source["Frequency"])
-            assert actual.source_frequency_hz[index] == source_frequency_hz
-            assert actual.storage_modulus_pa[index] == (
-                float(source["Storage Modulus"]) * 1_000_000.0
-            )
-            assert actual.loss_modulus_pa[index] == (float(source["Loss Modulus"]) * 1_000_000.0)
+    with localcontext() as decimal_context:
+        decimal_context.prec = 70
+        for actual in result.rows:
+            source_sweep_ordinal = actual.source_sweep_ordinal
+            assert source_sweep_ordinal is not None
+            expected_factor = shift_by_result_number[source_sweep_ordinal]
             assert math.isclose(
-                (actual.reduced_angular_frequency_rad_per_s or ())[index],
-                2.0 * math.pi * source_frequency_hz * expected_factor,
-                rel_tol=5e-15,
+                actual.shift_factor or 0.0,
+                float(expected_factor),
+                rel_tol=1e-12,
             )
-
-    master_rows = tuple(
-        dict(zip(published_master.header, row, strict=True)) for row in published_master.rows
-    )
-    published_by_response: dict[tuple[str, str, str], set[tuple[str, str]]] = {}
-    for row in master_rows:
-        key = (row["Angular Frequency"], row["Storage Modulus"], row["Loss Modulus"])
-        published_by_response.setdefault(key, set()).add(
-            (row["Horizontal Shift Factor"], row["Reduced Angular Frequency"])
-        )
+            reduced = actual.reduced_angular_frequency_rad_per_s
+            assert reduced is not None
+            for index, source_ordinal in enumerate(actual.source_ordinals):
+                source = source_by_ordinal[source_ordinal]
+                source_frequency_hz = float(source["Frequency"])
+                expected_omega = Decimal(2) * _DECIMAL_PI * Decimal(source["Frequency"])
+                expected_reduced_omega = expected_omega * expected_factor
+                assert actual.measured_temperature_k[index] == (
+                    float(source["Temperature"]) + 273.15
+                )
+                assert actual.source_frequency_hz[index] == source_frequency_hz
+                assert actual.storage_modulus_pa[index] == (
+                    float(source["Storage Modulus"]) * 1_000_000.0
+                )
+                assert actual.loss_modulus_pa[index] == (
+                    float(source["Loss Modulus"]) * 1_000_000.0
+                )
+                assert math.isclose(
+                    actual.angular_frequency_rad_per_s[index],
+                    float(expected_omega),
+                    rel_tol=1e-12,
+                )
+                assert math.isclose(
+                    reduced[index],
+                    float(expected_reduced_omega),
+                    rel_tol=1e-12,
+                )
 
     published_comparison_count = 0
     unpublished_source_points: list[tuple[int, str]] = []
-    for actual in result.rows:
-        source_sweep_ordinal = actual.source_sweep_ordinal
-        assert source_sweep_ordinal is not None
-        for index, source_ordinal in enumerate(actual.source_ordinals):
-            source = source_by_ordinal[source_ordinal]
-            key = (
-                source["Angular Frequency"],
-                source["Storage Modulus"],
-                source["Loss Modulus"],
-            )
-            evidence = published_by_response.get(key, set())
-            if not evidence:
-                unpublished_source_points.append((source_sweep_ordinal, source["Frequency"]))
-                continue
-            assert len(evidence) == 1
-            published_factor, published_reduced_omega = next(iter(evidence))
-            # alpha_T.csv and master_curve_SMP_30.csv round the same published shift
-            # independently, so agreement is bounded by the coarser source precision.
-            assert math.isclose(
-                actual.shift_factor or 0.0,
-                float(published_factor),
-                rel_tol=0.003,
-            )
-            assert math.isclose(
-                (actual.reduced_angular_frequency_rad_per_s or ())[index],
-                float(published_reduced_omega),
-                rel_tol=0.004,
-            )
-            published_comparison_count += 1
+    maximum_published_rounding_relative_error = Decimal(0)
+    with localcontext() as decimal_context:
+        decimal_context.prec = 70
+        for actual in result.rows:
+            source_sweep_ordinal = actual.source_sweep_ordinal
+            assert source_sweep_ordinal is not None
+            expected_factor = shift_by_result_number[source_sweep_ordinal]
+            reduced = actual.reduced_angular_frequency_rad_per_s
+            assert reduced is not None
+            for index, source_ordinal in enumerate(actual.source_ordinals):
+                source = source_by_ordinal[source_ordinal]
+                key = (
+                    source["Angular Frequency"],
+                    source["Storage Modulus"],
+                    source["Loss Modulus"],
+                )
+                evidence = published_by_response.get(key, set())
+                if not evidence:
+                    unpublished_source_points.append((source_sweep_ordinal, source["Frequency"]))
+                    continue
+                assert len(evidence) == 1
+                published_factor_text, published_reduced_omega_text = next(iter(evidence))
+                assert Decimal(published_factor_text) == expected_factor
+                expected_reduced_omega = (
+                    Decimal(2) * _DECIMAL_PI * Decimal(source["Frequency"]) * expected_factor
+                )
+                published_reduced_omega = Decimal(published_reduced_omega_text)
+                rounding_relative_error = abs(
+                    expected_reduced_omega - published_reduced_omega
+                ) / abs(expected_reduced_omega)
+                maximum_published_rounding_relative_error = max(
+                    maximum_published_rounding_relative_error,
+                    rounding_relative_error,
+                )
+                assert rounding_relative_error <= Decimal("0.003")
+                assert math.isclose(
+                    reduced[index],
+                    float(published_reduced_omega),
+                    rel_tol=0.003,
+                )
+                published_comparison_count += 1
 
-    assert published_comparison_count == 302
+    assert published_comparison_count == 310
+    assert math.isclose(
+        float(maximum_published_rounding_relative_error),
+        0.0010009653484362203,
+        rel_tol=1e-15,
+    )
     assert unpublished_source_points == [
         (23, "3.16"),
         (23, "5.62"),
@@ -399,13 +515,18 @@ def test_darus_multi_frequency_result_matches_published_shift_and_master_data() 
         (27, "5.62"),
         (27, "10"),
         (32, "10"),
+        (33, "0.01"),
+        (33, "1.78"),
+        (33, "3.16"),
+        (33, "5.62"),
+        (33, "10"),
     ]
     holdout = next(row for row in result.rows if row.partition is DmaPartition.HOLDOUT)
-    assert holdout.source_sweep_ordinal == 32
+    assert holdout.source_sweep_ordinal == 33
     assert holdout.holdout_evaluation_status == "evaluated"
     assert holdout.weighted_mse is not None and math.isfinite(holdout.weighted_mse)
     assert result.residual_summary is not None
-    assert result.residual_summary["calibration_comparison_count"] == 22
+    assert result.residual_summary["calibration_comparison_count"] == 23
 
 
 def test_vitrimer_archive_preserves_all_relevant_experiments_without_promotion() -> None:

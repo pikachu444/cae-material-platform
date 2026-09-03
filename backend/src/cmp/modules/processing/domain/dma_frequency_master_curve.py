@@ -11,6 +11,7 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING, TypedDict, cast
 
@@ -48,6 +49,10 @@ PARQUET_MEDIA_TYPE = "application/vnd.apache.parquet"
 DMA_TTS_SCORER_ID = "cmp.dma_tts.common_log_frequency_grid_log_modulus_mse@1.0.0"
 DMA_TTS_ADJACENT_OPTIMIZER_ID = "cmp.dma_tts.adjacent_overlap_log_mse.scipy_bounded@1.0.0"
 DMA_TTS_LAW_OPTIMIZER_ID = "cmp.dma_tts.shift_law_log10_least_squares.scipy_trf@1.0.0"
+# A source sweep is identified explicitly; this secondary guard only prevents a
+# materially different measured temperature from being folded into that sweep.
+# Temperature intervals have the same numerical magnitude in kelvin and Celsius.
+DMA_SWEEP_TEMPERATURE_TOLERANCE_K = Decimal("0.5")
 DMA_TTS_WARNINGS = (
     "DMA_TTS_LVR_EVIDENCE_MISSING",
     "DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING",
