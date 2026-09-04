@@ -349,6 +349,50 @@
   stroke-width: 2.5;
   vector-effect: non-scaling-stroke;
 }
+.curve-line.observed-dashed {
+  stroke-dasharray: 7 4;
+}
+.curve-line.observed-shifted {
+  stroke-dasharray: 2 5;
+  stroke-width: 2;
+  opacity: .72;
+}
+
+.curve-line.observed-dashed.observed-shifted {
+  stroke-dasharray: 2 4 7 4;
+}
+
+.persistent-modeling-plot .engineering-plot-frame > .curve-legend.dma-temperature-legend {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: min(190px, calc(100% - var(--ux-space-8)));
+}
+
+.dma-temperature-legend .dma-legend-line-key {
+  display: inline-flex;
+  min-height: 18px;
+  align-items: center;
+  gap: var(--ux-space-2);
+  padding-inline: 3px;
+  color: var(--ux-text-subtle);
+  font-size: var(--ux-metadata-font-size);
+  white-space: nowrap;
+}
+
+.dma-temperature-legend .dma-legend-line-key i {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-top: 2px solid currentColor;
+}
+
+.dma-temperature-legend .dma-legend-line-key i.loss {
+  border-top-style: dashed;
+}
+
+.dma-temperature-legend .dma-legend-line-key i.shifted {
+  border-top-style: dotted;
+  opacity: .72;
+}
 .extrapolation-region rect {
   fill: rgb(213 144 55 / 8%);
   pointer-events: none;

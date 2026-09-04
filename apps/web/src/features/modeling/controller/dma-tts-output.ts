@@ -36,7 +36,8 @@ export async function readBackDmaTtsOutput(
   const refreshed = await listCommonProcessingOutputs(config);
   const output = refreshed.data.items.find((candidate) =>
     candidate.processing_output_id === created.master_curve_output.output_id
-    && candidate.current_revision.id === created.master_curve_output.revision_id);
+    && candidate.current_revision.id === created.master_curve_output.revision_id
+    && candidate.current_revision.content_hash === created.master_curve_output.content_sha256);
   if (!matchesDmaTtsSource(output, source)) {
     throw new Error("The newly saved DMA response did not read back with its exact source.");
   }

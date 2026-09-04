@@ -61,7 +61,7 @@ import {
   type ModelingSessionSummary, type ModelingStage,
   buildPolymerFitInputRestoration,
   DmaTtsProcessStage,
-  findExactDmaTtsOutput,
+  findExactDmaTtsOutput, readBackDmaTtsOutput,
   modelingCurveDisplayName,
   modelingDataNextTask,
   modelingWorkflowPath,
@@ -70,7 +70,6 @@ import {
   ModelingTrackMenu,
   polymerProcessingDefaults,
   PolymerLinearViscoelasticStage,
-  readBackDmaTtsOutput,
 } from "./features/modeling";
 import {
   DEFAULT_PROFILE,
@@ -1591,11 +1590,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   async function adoptDmaTtsOutput(created: CreateDmaTtsResponse): Promise<void> {
     if (!selectedSourceRef) throw new Error("The exact DMA Test Data input is no longer selected.");
-    const readBack = await readBackDmaTtsOutput(config, created, selectedSourceRef);
-    const exact = readBack.output;
-    setOutputs(readBack.outputs);
+    // The specialized POST/GET establishes the DMA result.  Only after that
+    // exact read-back succeeds may the common output list bind the result into
+    // the Process -> Fit composition path.
+    const linked = await readBackDmaTtsOutput(config, created, selectedSourceRef);
+    const exact = linked.output;
+    setOutputs(linked.outputs);
     updateLocalCurrentOutput({ id: exact.processing_output_id, revisionId: exact.current_revision.id });
-    setNotice("Shifted DMA response saved and ready for Fit.");
+    setNotice("TTS result saved. Ready for Prony Fit.");
     onSessionChange?.({ processingOutput: {
       id: exact.processing_output_id,
       revisionId: exact.current_revision.id,
@@ -2687,10 +2689,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     config={config}
     testData={selectedSourceRef && exactSourceLoaded ? selectedTrackDocument : undefined}
     sourceDocument={selectedSourceRef && exactSourceLoaded ? document ?? undefined : undefined}
-    sourceLabel={selectedTestDisplayLabel}
     initialOutput={exactDmaTtsOutput ? {
       id: exactDmaTtsOutput.processing_output_id,
       revisionId: exactDmaTtsOutput.current_revision.id,
+      contentSha256: exactDmaTtsOutput.current_revision.content_hash,
     } : undefined}
     chart={chart}
     ribbonOpen={inspectorVisible}

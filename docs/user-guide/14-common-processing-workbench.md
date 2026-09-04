@@ -195,6 +195,29 @@ Test Data에는 frequency channel과 모든 exact source pin이 그대로 남습
 같은 입력으로 다시 시도할 수 있습니다. mapping 변경은 Process부터 Export까지의 current pointer를
 stale/clear하며 이전 immutable revision은 history에 남습니다.
 
+### DMA TTS Process
+
+DMA 자료가 governed Import Profile에서 `dma_temperature_sweep`로 분류되면 Process는
+**Fixed-frequency reduced-frequency projection**을 표시합니다. `dma_frequency_temperature_sweep`이면
+각 sweep의 원본 `G′`/`G″`와 measured Hz 범위를 먼저 확인할 수 있는 multi-frequency Process를
+표시합니다. 한 온도의 `dma_frequency_sweep`는 Process를 거치지 않고 Fit으로 이동합니다. Profile과
+문서의 schema가 다르거나 sweep marker, 채널, 길이, 온도, 주파수 조건이 유효하지 않으면 직접 Fit이나
+고정 주파수 fallback을 선택하지 않고 원인과 복구 문구를 표시합니다.
+
+Multi-frequency Process에서는 measured sweep rail에서 reference 하나를 고르고 CALIBRATION,
+HOLDOUT, EXCLUDED 상태와 화면 표시 여부를 확인합니다. **Prepare recommendation**은 저장하지
+않고 exact source/profile pin에 대한 bounded WLF starting profile만 반환합니다. 추천을 그대로
+사용하거나 Advanced에서 reference, disposition, WLF/Arrhenius/manual controls와 #391 scoring/
+optimizer controls를 검토한 뒤, 변경 시 engineer reason을 입력하고 **Save TTS result**를 한 번
+누릅니다. plot visibility는 표시만 바꾸며 digest나 provenance를 바꾸지 않습니다.
+
+Create가 201을 반환해도 즉시 Fit으로 이동하지 않습니다. 화면은 반환된 output pin으로
+`GET /api/v1/processing/dma-frequency-master-curves/{output_id}/revisions/{revision_id}?content_sha256=...`
+를 읽어 exact source/profile pin과 input mode를 확인한 뒤에만 Fit input을 연결합니다. 4xx는 draft를
+남기고 수정·재시도할 수 있으며 timeout/connection/5xx는 create를 자동 재전송하지 않고 outcome
+unknown으로 남깁니다. 201 뒤 exact GET 또는 Fit link가 실패하면 기존 output pin을 보존하고 GET/link만
+재시도합니다.
+
 잘못된 channel mapping이 길어지면 setup 안의 실제 local scrollbar로 validation과 recovery action까지
 이동할 수 있고 마지막 정상 graph는 유지됩니다.
 

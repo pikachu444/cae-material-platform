@@ -5,17 +5,23 @@
 1. 상단 **Modeling**에서 **Polymer · Viscoelastic**을 선택하고 **Data**에서 시험 자료를 고릅니다.
 2. 다음 단계는 데이터 형태에 따라 자동으로 정해집니다.
    - 시간-완화탄성률 또는 한 온도의 DMA 주파수 자료: **Fit**으로 바로 이동합니다.
-   - 한 주파수에서 여러 온도를 측정한 DMA 자료: **Process**에서 WLF로 이동한 DMA 응답을 먼저 만듭니다. 이 결과는 온도별 주파수 곡선을 겹쳐 검증한 master curve가 아닙니다.
-3. 온도 이동이 필요한 경우 그래프와 기준 온도를 확인하고 **Create shifted response**를 누릅니다. 보통은 값을
-   바꿀 필요가 없습니다. 필요한 경우에만 **Change settings**에서 기준 온도, WLF 값, 사용할 온도를
-   조정합니다.
-4. **Fit**에서 **Calculate Prony models**를 누릅니다. 새 입력에 검토된 계산 설정이 아직 없으면
+   - 여러 온도에서 측정한 DMA 자료: **Process**에서 온도 이동 결과를 먼저 만듭니다.
+3. **Process** 왼쪽의 **Curves on graph**에서는 그래프에 보일 곡선만 고릅니다. 체크를 끄더라도
+   TTS 계산에서 빠지지는 않습니다. 온도 이동의 기준 곡선은 그래프 아래 **Reference curve**에서
+   고르고 **Prepare recommendation**을 누릅니다.
+4. 그래프와 제안을 확인한 뒤 **Save TTS result**를 누릅니다. 보통은 값을 바꿀 필요가 없습니다.
+   필요한 경우에만 제안 요약 아래의 접힌 **TTS settings**를 엽니다. **Fit**은 TTS 계산에 쓰고,
+   **Validate**는 계산에는 쓰지 않고 결과만 확인하며, **Ignore**는 제외합니다. 기준 곡선은 항상
+   **Fit**으로 잠겨 있습니다. WLF, Arrhenius, Manual도 이 설정 안에서 고릅니다. 저장 뒤에는 핵심
+   범위만 보이며, shift factor와 판정 근거는 **Calculation details**에서 확인할 수 있습니다.
+   **Continue to Prony Fit**으로 이동합니다.
+5. **Fit**에서 **Calculate Prony models**를 누릅니다. 새 입력에 검토된 계산 설정이 아직 없으면
    **Review calculation settings**가 먼저 나타납니다. 일반 사용자는 기본값을 그대로 검토 요청하고,
    검토가 끝난 뒤 돌아와 계산하면 됩니다. 데이터로 계산 가능한 1항부터 최대 10항까지를 서버가
    한 번에 비교하므로 사용자가 먼저 3항이나 5항을 정할 필요가 없습니다.
-5. **Response curves**에서 실험값과 후보 곡선을 비교하고, 필요하면 **Point differences**에서 계산에 사용한 점과 별도로 확인한 점의 차이를 봅니다.
+6. **Response curves**에서 실험값과 후보 곡선을 비교하고, 필요하면 **Point differences**에서 계산에 사용한 점과 별도로 확인한 점의 차이를 봅니다.
    **Recommended**는 데이터 적합도와 불필요한 복잡도를 함께 고려한 서버 제안입니다.
-6. 사용할 모델을 고르고 짧은 선택 이유를 입력한 뒤 **Save fit & continue**를 누릅니다. 새로고침하거나
+7. 사용할 모델을 고르고 짧은 선택 이유를 입력한 뒤 **Save fit & continue**를 누릅니다. 새로고침하거나
    다시 Fit으로 돌아와도 선택, 이유, 저장된 모델이 복원됩니다.
 
 현재 예제 자료에서는 1~10항을 모두 계산한 뒤 5항이 추천되지만, 5항으로 고정된 제품은 아닙니다.
@@ -31,16 +37,16 @@
 
 | 상태 | 화면 |
 |---|---|
-| 온도별 DMA 자료의 TTS Process · 1366×768 | ![DMA temperature sweep Process at 1366 by 768](images/current/modeling-process-polymer-dma-tts-1366x768.png) |
-| 온도별 DMA 자료의 TTS Process · 1440×900 | ![DMA temperature sweep Process at 1440 by 900](images/current/modeling-process-polymer-dma-tts-1440x900.png) |
-| 온도별 DMA 자료의 TTS Process · 1920×1080 | ![DMA temperature sweep Process at 1920 by 1080](images/current/modeling-process-polymer-dma-tts-1920x1080.png) |
-| 온도별 DMA 자료의 TTS Process · 2560×1440 | ![DMA temperature sweep Process at 2560 by 1440](images/current/modeling-process-polymer-dma-tts-2560x1440.png) |
-| 온도별 DMA 자료의 TTS Process · 3840×2160 | ![DMA temperature sweep Process at 3840 by 2160](images/current/modeling-process-polymer-dma-tts-3840x2160.png) |
-| 저장한 shifted DMA response · 1366×768 | ![Saved shifted DMA response at 1366 by 768](images/current/modeling-process-polymer-dma-tts-saved-1366x768.png) |
-| 저장한 shifted DMA response · 1440×900 | ![Saved shifted DMA response at 1440 by 900](images/current/modeling-process-polymer-dma-tts-saved-1440x900.png) |
-| 저장한 shifted DMA response · 1920×1080 | ![Saved shifted DMA response at 1920 by 1080](images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png) |
-| 저장한 shifted DMA response · 2560×1440 | ![Saved shifted DMA response at 2560 by 1440](images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png) |
-| 저장한 shifted DMA response · 3840×2160 | ![Saved shifted DMA response at 3840 by 2160](images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png) |
+| DMA TTS 검토 및 저장, 1366×768 | ![DMA temperature sweep Process at 1366 by 768](images/current/modeling-process-polymer-dma-tts-1366x768.png) |
+| DMA TTS 검토 및 저장, 1440×900 | ![DMA temperature sweep Process at 1440 by 900](images/current/modeling-process-polymer-dma-tts-1440x900.png) |
+| DMA TTS 검토 및 저장, 1920×1080 | ![DMA temperature sweep Process at 1920 by 1080](images/current/modeling-process-polymer-dma-tts-1920x1080.png) |
+| DMA TTS 검토 및 저장, 2560×1440 | ![DMA temperature sweep Process at 2560 by 1440](images/current/modeling-process-polymer-dma-tts-2560x1440.png) |
+| DMA TTS 검토 및 저장, 3840×2160 | ![DMA temperature sweep Process at 3840 by 2160](images/current/modeling-process-polymer-dma-tts-3840x2160.png) |
+| 저장한 TTS 결과, 1366×768 | ![Saved shifted DMA response at 1366 by 768](images/current/modeling-process-polymer-dma-tts-saved-1366x768.png) |
+| 저장한 TTS 결과, 1440×900 | ![Saved shifted DMA response at 1440 by 900](images/current/modeling-process-polymer-dma-tts-saved-1440x900.png) |
+| 저장한 TTS 결과, 1920×1080 | ![Saved shifted DMA response at 1920 by 1080](images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png) |
+| 저장한 TTS 결과, 2560×1440 | ![Saved shifted DMA response at 2560 by 1440](images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png) |
+| 저장한 TTS 결과, 3840×2160 | ![Saved shifted DMA response at 3840 by 2160](images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png) |
 | 계산에 사용할 점과 확인용 점 구분 | ![Polymer Fit input](images/current/modeling-fit-polymer-input-1920x1080.png) |
 | 필요할 때만 여는 Calculation settings—1~10항 선택과 τ10까지의 파라미터 표 | ![Polymer Fit calculation settings](images/current/modeling-fit-polymer-calculation-settings-1920x1080.png) |
 | 저장된 추천·선택 모델 응답 · 1366×768 | ![Polymer Fit saved at 1366 by 768](images/current/modeling-fit-polymer-saved-1366x768.png) |

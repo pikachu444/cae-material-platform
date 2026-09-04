@@ -53,6 +53,7 @@ const UNIT_OPTIONS: Record<GovernedQuantityKind, string[]> = {
   storage_modulus: ["Pa", "kPa", "MPa", "GPa"],
   loss_modulus: ["Pa", "kPa", "MPa", "GPa"],
   tan_delta: ["1"],
+  source_sweep_ordinal: ["1"],
   minor_strain: ["1", "%"],
   major_strain: ["1", "%"],
 };

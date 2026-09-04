@@ -416,6 +416,11 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
                 "law_optimizer": None,
                 "residual_summary": None,
                 "application_range": None,
+                "recommendation": {
+                    "recommendation_sha256": "d" * 64,
+                    "rule_id": "cmp.processing.dma_tts.synthetic_test",
+                    "rule_version": "1.0.0",
+                },
                 "assessment": {
                     "adequacy": "not_assessed",
                     "uncertainty": "not_provided",

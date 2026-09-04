@@ -41,7 +41,6 @@ const recommendation = {
   recommendation_sha256: "d".repeat(64),
 };
 const created = {
-  loss_modulus_output: null,
   master_curve_output: {
     output_id: "output-a",
     revision_id: "output-revision-a",
@@ -53,6 +52,31 @@ const created = {
     result_schema_ref: "urn:cmp:dma-master-curve:1",
     result_media_type: "application/vnd.apache.parquet",
   },
+};
+const readBack = {
+  output: created.master_curve_output,
+  input_mode: "fixed_frequency_temperature_sweep",
+  options: {
+    input_mode: "fixed_frequency_temperature_sweep",
+    recommendation: null,
+    shift_law: {
+      kind: "wlf",
+      reference_temperature_k: 303.15,
+      initial_parameters: [17.44, 51.6],
+    },
+    application_range: {
+      basis: "at_least_two_shifted_calibration_isotherms",
+      holdout_included: false,
+      reduced_angular_frequency_intervals_rad_per_s: [{ minimum: 1, maximum: 100 }],
+      calibration_temperature_interval_k: { minimum: 293.15, maximum: 313.15 },
+    },
+    assessment: { adequacy: "not_assessed" },
+    production_readiness: "non_production",
+    warnings: ["Backend warning"],
+  },
+  isotherms: [],
+  test_data: { document_id: "document-a", revision_id: "revision-a", content_sha256: "a".repeat(64) },
+  import_profile: { document_id: "profile-a", revision_id: "profile-revision-a", content_sha256: "b".repeat(64) },
 };
 const fitInput = {
   mode: "dma_frequency_master_curve",
@@ -84,7 +108,7 @@ afterEach(() => {
 });
 
 describe("DMA TTS Process workspace", () => {
-  it("uses the recommendation by default, saves one shifted response, and reloads its Fit input", async () => {
+  it("prepares a recommendation, saves one shifted response, and reloads its Fit input after exact GET", async () => {
     const requests: Array<{ url: string; body?: Record<string, unknown> }> = [];
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
       const url = String(input);
@@ -95,6 +119,7 @@ describe("DMA TTS Process workspace", () => {
       }] });
       if (url.endsWith("/dma-frequency-master-curves/recommendations")) return response(recommendation);
       if (url.endsWith("/dma-frequency-master-curves")) return response(created);
+      if (url.includes("/dma-frequency-master-curves/output-a/revisions/")) return response(readBack);
       if (url.includes("/linear-viscoelastic-fit-input")) return response(fitInput);
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -103,7 +128,6 @@ describe("DMA TTS Process workspace", () => {
       config={config}
       testData={testData}
       sourceDocument={sourceDocument}
-      sourceLabel="DMA temperature sweep"
       chart={{ width: 1200, height: 420 }}
       ribbonOpen
       onRibbonOpenChange={vi.fn()}
@@ -111,22 +135,38 @@ describe("DMA TTS Process workspace", () => {
       onContinue={vi.fn()}
     />);
 
-    const createButton = await screen.findByRole("button", { name: "Create shifted response" });
+    const prepareButton = await screen.findByRole("button", { name: "Prepare recommendation" });
     expect(container.querySelector(".modeling-workspace-rail")).toBeNull();
     expect(container.querySelector(".modeling-split-workspace-no-navigator")).toBeTruthy();
     expect(screen.queryByRole("separator", { name: "Resize curve and process navigator" })).toBeNull();
     expect(screen.queryByLabelText("C1")).toBeNull();
+    expect(requests.some((item) => item.url.endsWith("/dma-frequency-master-curves"))).toBe(false);
+    fireEvent.click(prepareButton);
+    const createButton = await screen.findByRole("button", { name: "Save TTS result" });
     expect(screen.getByText("Shift method")).toBeTruthy();
     expect(screen.getByText("WLF")).toBeTruthy();
+    expect(container.querySelector(".dma-tts-settings-disclosure")?.hasAttribute("open")).toBe(false);
+    expect(screen.queryByRole("button", { name: "TTS settings" })).toBeNull();
     expect((createButton as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(createButton);
 
-    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
-    expect(onSaved).toHaveBeenCalledWith(created);
+    await screen.findByRole("heading", { name: "TTS result saved" });
+    expect(screen.getByText("303.15 K")).toBeTruthy();
+    expect(screen.getByText("1–100 rad/s")).toBeTruthy();
+    expect(screen.getByText("293.15–313.15 K")).toBeTruthy();
+    expect(screen.queryByText(/calibration_temperature_interval_k|reduced_angular_frequency_intervals_rad_per_s|\"minimum\"/)).toBeNull();
+    expect(screen.queryByText(/initial_parameters/)).toBeNull();
+    expect(onSaved).toHaveBeenCalledWith(created, readBack);
     const createRequest = requests.find((item) => item.url.endsWith("/dma-frequency-master-curves"));
     expect(createRequest?.body).toMatchObject({
       test_data: { document_id: "document-a", revision_id: "revision-a" },
       import_profile: { profile_id: "profile-a", revision_id: "profile-revision-a" },
+      input_mode: "fixed_frequency_temperature_sweep",
+      row_dispositions: [
+        { source_ordinal: 0, partition: "CALIBRATION", exclusion_reason: null },
+        { source_ordinal: 1, partition: "CALIBRATION", exclusion_reason: null },
+        { source_ordinal: 2, partition: "CALIBRATION", exclusion_reason: null },
+      ],
       shift_law: { reference_temperature_k: 303.15, c1: 17.44, c2_k: 51.6 },
       confirmation: { confirmed: true, reason: "Use the recommended shift settings for this test." },
     });
@@ -135,6 +175,7 @@ describe("DMA TTS Process workspace", () => {
 
   it("retries only the Fit handoff after the shifted response was already created", async () => {
     let createCount = 0;
+    let readCount = 0;
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = String(input);
       if (url.endsWith("/import-profiles")) return response({ items: [{
@@ -146,6 +187,10 @@ describe("DMA TTS Process workspace", () => {
         createCount += 1;
         return response(created);
       }
+      if (url.includes("/dma-frequency-master-curves/output-a/revisions/")) {
+        readCount += 1;
+        return response(readBack);
+      }
       if (url.includes("/linear-viscoelastic-fit-input")) return response(fitInput);
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -156,7 +201,6 @@ describe("DMA TTS Process workspace", () => {
       config={config}
       testData={testData}
       sourceDocument={sourceDocument}
-      sourceLabel="DMA temperature sweep"
       chart={{ width: 1200, height: 420 }}
       ribbonOpen
       onRibbonOpenChange={vi.fn()}
@@ -164,12 +208,90 @@ describe("DMA TTS Process workspace", () => {
       onContinue={vi.fn()}
     />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Create shifted response" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Prepare recommendation" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Save TTS result" }));
     await screen.findByText("Fit handoff failed.");
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: "Retry exact read" }));
 
-    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
+    await screen.findByRole("heading", { name: "TTS result saved" });
     expect(createCount).toBe(1);
+    expect(readCount).toBe(2);
     expect(onSaved).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps a rejected client draft editable and allows one explicit corrected save", async () => {
+    let createCount = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/import-profiles")) return response({ items: [{
+        import_profile_id: "profile-a",
+        current_revision: { id: "profile-revision-a", content_hash: "b".repeat(64) },
+      }] });
+      if (url.endsWith("/dma-frequency-master-curves/recommendations")) return response(recommendation);
+      if (url.endsWith("/dma-frequency-master-curves")) {
+        createCount += 1;
+        if (createCount === 1) return response({ detail: "Correct the governed draft." }, 422);
+        return response(created);
+      }
+      if (url.includes("/dma-frequency-master-curves/output-a/revisions/")) return response(readBack);
+      if (url.includes("/linear-viscoelastic-fit-input")) return response(fitInput);
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    render(<DmaTtsProcessWorkspace
+      config={config}
+      testData={testData}
+      sourceDocument={sourceDocument}
+      chart={{ width: 1200, height: 420 }}
+      ribbonOpen
+      onRibbonOpenChange={vi.fn()}
+      onSaved={vi.fn().mockResolvedValue(undefined)}
+      onContinue={vi.fn()}
+    />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Prepare recommendation" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Save TTS result" }));
+    await screen.findByText("Correct the governed draft.");
+    fireEvent.click(screen.getByText("TTS settings", { selector: "summary" }));
+    const c1 = document.querySelector('input[name="dma-tts-c1"]') as HTMLInputElement;
+    expect(c1).toBeTruthy();
+    expect(c1.disabled).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Save TTS result" }));
+
+    await screen.findByRole("heading", { name: "TTS result saved" });
+    expect(createCount).toBe(2);
+  });
+
+  it("does not repeat an outcome-unknown create request", async () => {
+    let createCount = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/import-profiles")) return response({ items: [{
+        import_profile_id: "profile-a",
+        current_revision: { id: "profile-revision-a", content_hash: "b".repeat(64) },
+      }] });
+      if (url.endsWith("/dma-frequency-master-curves/recommendations")) return response(recommendation);
+      if (url.endsWith("/dma-frequency-master-curves")) {
+        createCount += 1;
+        return response({ detail: "Service unavailable." }, 503);
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    render(<DmaTtsProcessWorkspace
+      config={config}
+      testData={testData}
+      sourceDocument={sourceDocument}
+      chart={{ width: 1200, height: 420 }}
+      ribbonOpen
+      onRibbonOpenChange={vi.fn()}
+      onSaved={vi.fn()}
+      onContinue={vi.fn()}
+    />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Prepare recommendation" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Save TTS result" }));
+    await screen.findByText("Save outcome unknown", { exact: true });
+    expect((screen.getByRole("button", { name: "Save TTS result" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(createCount).toBe(1);
   });
 });

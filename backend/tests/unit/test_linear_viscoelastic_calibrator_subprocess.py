@@ -572,7 +572,7 @@ def _run_public_plugin(
     package = ExecutablePluginPackage(
         package_id=UUID(int=108),
         plugin_id="cmp.linear_viscoelastic.calibrator",
-        plugin_version="1.0.0",
+        plugin_version="1.0.2",
         package_digest=package_digest,
         extension_type=ExtensionType.CALIBRATOR,
         entrypoint=entrypoint,

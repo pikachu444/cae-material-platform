@@ -555,7 +555,6 @@ class GovernedLinearViscoelasticInputResolver:
                 "Processing Output row count differs from its immutable metadata",
                 code="INPUT_PROCESSING_OUTPUT_ROW_COUNT_MISMATCH",
             )
-        calibration = tuple(row for row in rows if row.partition is DmaPartition.CALIBRATION)
         options = content.steps[0].options
         input_mode = options.get("input_mode")
         if input_mode not in {
@@ -566,14 +565,16 @@ class GovernedLinearViscoelasticInputResolver:
                 "DMA master curve input_mode is unsupported",
                 code="INPUT_PROCESSING_OUTPUT_SCHEMA_UNSUPPORTED",
             )
-        calibration_observations: list[
-            tuple[float, float, int | None, int, float, float, float]
+        model_observations: list[
+            tuple[float, float, int | None, int, float, float, float, DmaPartition]
         ] = []
-        for row in calibration:
+        for row in rows:
+            if row.partition is DmaPartition.EXCLUDED:
+                continue
             reduced = row.reduced_angular_frequency_rad_per_s
             if reduced is None:
                 raise LinearViscoelasticInputError(
-                    "calibration result row has no reduced frequency values",
+                    "included result row has no reduced frequency values",
                     code="INPUT_PROCESSING_OUTPUT_RELOAD_INTEGRITY",
                 )
             for source_ordinal, measured_temperature, coordinate, storage, loss in zip(
@@ -584,7 +585,7 @@ class GovernedLinearViscoelasticInputResolver:
                 row.loss_modulus_pa,
                 strict=True,
             ):
-                calibration_observations.append(
+                model_observations.append(
                     (
                         float(coordinate),
                         row.representative_temperature_k,
@@ -593,17 +594,21 @@ class GovernedLinearViscoelasticInputResolver:
                         float(storage),
                         float(loss),
                         float(measured_temperature),
+                        row.partition,
                     )
                 )
         # This is an observation sequence, not a unique interpolation domain.  Keep
         # equal reduced frequencies and sort only by the governed stable identity.
-        calibration_observations.sort(
+        model_observations.sort(
             key=lambda item: (
                 item[0],
                 item[1],
                 -1 if item[2] is None else item[2],
                 item[3],
             )
+        )
+        calibration_observations = tuple(
+            item for item in model_observations if item[7] is DmaPartition.CALIBRATION
         )
         if len(calibration_observations) < 3:
             raise LinearViscoelasticInputError(
@@ -808,7 +813,7 @@ class GovernedLinearViscoelasticInputResolver:
                     coordinate=coordinate,
                     storage_modulus_pa=storage,
                     loss_modulus_pa=loss,
-                    partition=PointPartition.CALIBRATION,
+                    partition=PointPartition(partition.value),
                     exclusion_reason=None,
                     source_sweep_ordinal=sweep_ordinal,
                     source_ordinal=source_ordinal,
@@ -821,7 +826,8 @@ class GovernedLinearViscoelasticInputResolver:
                     storage,
                     loss,
                     _measured_temperature,
-                ) in enumerate(calibration_observations)
+                    partition,
+                ) in enumerate(model_observations)
             ),
             dma_domain_policy="nondecreasing_observations",
         )

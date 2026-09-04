@@ -7,12 +7,26 @@ from collections.abc import Callable
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import cast
+from uuid import UUID
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+)
+from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.processing.application.dma_frequency_master_curve import (
+    CreateDmaFrequencyMasterCurve,
+    DmaFrequencyMasterCurveService,
+    DmaImportProfilePin,
+    DmaTestDataPin,
+    RecommendMultiDmaFrequencyMasterCurve,
+)
+from cmp.modules.processing.domain.common_pipeline import ProcessingStep
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_COLUMNS,
     DMA_LOSS_MODULUS_COLUMNS,
@@ -37,13 +51,16 @@ from cmp.modules.processing.domain.dma_multi_frequency_tts import (
     DmaFrequencySweep,
     DmaFrequencySweepDisposition,
     DmaFrequencySweepPoint,
+    DmaMultiFrequencyStartingSuggestion,
     DmaShiftLawRequest,
     DmaTtsAdjacentOptimizerControls,
+    DmaTtsLawOptimizerControls,
     DmaTtsScoringControls,
     build_multi_frequency_master_curve,
     optimize_adjacent_shift,
     score_sweep_pair,
 )
+from cmp.shared.domain.revisions import content_sha256
 
 ROOT = Path(__file__).parents[3]
 ORACLE_PATH = ROOT / "tests/fixtures/linear_viscoelastic/dma_temperature_shift_oracle.py"
@@ -450,6 +467,293 @@ def _multi_scoring() -> DmaTtsScoringControls:
     )
 
 
+@pytest.mark.anyio
+async def test_application_multi_recommendation_is_deterministic_and_pins_source_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = object.__new__(DmaFrequencyMasterCurveService)
+    normalized_artifact_id = UUID("da100000-0000-4000-8000-000000000026")
+
+    async def resolve(
+        context: object,
+        decision: object,
+        test_data: object,
+        import_profile: object,
+        input_mode: object,
+    ) -> object:
+        return SimpleNamespace(
+            sweeps=_multi_synthetic_sweeps(),
+            test_data_snapshot=SimpleNamespace(
+                content=SimpleNamespace(
+                    normalized_artifact_id=normalized_artifact_id,
+                    normalized_sha256="c" * 64,
+                )
+            ),
+        )
+
+    monkeypatch.setattr(service, "_resolve", resolve)
+    command = RecommendMultiDmaFrequencyMasterCurve(
+        DmaTestDataPin(
+            UUID("da100000-0000-4000-8000-000000000021"),
+            UUID("da100000-0000-4000-8000-000000000022"),
+            "a" * 64,
+        ),
+        DmaImportProfilePin(
+            UUID("da100000-0000-4000-8000-000000000023"),
+            UUID("da100000-0000-4000-8000-000000000024"),
+            "b" * 64,
+        ),
+        42,
+    )
+
+    context = cast(SecurityContext, None)
+    decision = cast(AuthorizationDecision, None)
+    first = await service.recommend_multi(context, decision, command)
+    second = await service.recommend_multi(context, decision, command)
+
+    assert first == second
+    assert first.reference_sweep_ordinal == 42
+    assert first.reference_temperature_k == 320.0
+    assert [cast(str, item["partition"]) for item in first.sweep_dispositions] == [
+        "HOLDOUT",
+        "CALIBRATION",
+        "CALIBRATION",
+        "CALIBRATION",
+    ]
+    assert cast(int, first.sweep_dispositions[0]["source_sweep_ordinal"]) == 11
+    lower_bounds = cast(list[float], first.shift_law["lower_bounds"])
+    assert lower_bounds[1] == pytest.approx(20.001)
+    assert all(
+        lower_bounds[1]
+        > first.reference_temperature_k - cast(float, item["representative_temperature_k"])
+        for item in first.sweep_dispositions
+        if cast(str, item["partition"]) != "EXCLUDED"
+    )
+    assert first.law_optimizer["seed"] is None
+    assert first.adjacent_optimizer["seed"] is None
+    assert first.source_evidence["source_normalized_artifact_id"] == str(normalized_artifact_id)
+    assert first.source_evidence["test_data_content_sha256"] == "a" * 64
+    assert first.recommendation_sha256 == content_sha256(first.canonical_without_digest())
+
+
+def _application_multi_suggestion() -> DmaMultiFrequencyStartingSuggestion:
+    value = DmaMultiFrequencyStartingSuggestion(
+        input_mode="multi_frequency_isotherms",
+        source_evidence={
+            "test_data_document_id": "da100000-0000-4000-8000-000000000021",
+            "test_data_revision_id": "da100000-0000-4000-8000-000000000022",
+            "test_data_content_sha256": "a" * 64,
+            "import_profile_id": "da100000-0000-4000-8000-000000000023",
+            "import_profile_revision_id": "da100000-0000-4000-8000-000000000024",
+            "import_profile_content_sha256": "b" * 64,
+            "source_normalized_artifact_id": "da100000-0000-4000-8000-000000000026",
+            "source_normalized_artifact_sha256": "c" * 64,
+        },
+        sweeps=(
+            {
+                "source_sweep_ordinal": 11,
+                "representative_temperature_k": 300.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 27,
+                "representative_temperature_k": 310.0,
+                "point_count": 2,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 42,
+                "representative_temperature_k": 320.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 99,
+                "representative_temperature_k": 330.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+        ),
+        reference_sweep_ordinal=11,
+        reference_temperature_k=300.0,
+        sweep_dispositions=tuple(
+            {
+                "source_sweep_ordinal": item.source_sweep_ordinal,
+                "representative_temperature_k": item.representative_temperature_k,
+                "partition": item.partition.value,
+                "exclusion_reason": item.exclusion_reason,
+            }
+            for item in _multi_synthetic_dispositions()
+        ),
+        shift_law={
+            "kind": "wlf_fit",
+            "reference_temperature_k": 300.0,
+            "initial_parameters": [17.44, 51.6],
+            "lower_bounds": [1e-8, 1.0],
+            "upper_bounds": [1000.0, 5000.0],
+        },
+        scoring={
+            "minimum_overlap_decades": 0.5,
+            "scoring_point_count": 7,
+            "storage_weight": 0.7,
+            "loss_weight": 0.3,
+        },
+        adjacent_optimizer={
+            "relative_shift_lower_bound_log10": -3.0,
+            "relative_shift_upper_bound_log10": 3.0,
+            "xatol": 1e-10,
+            "maxiter": 1000,
+            "seed": None,
+        },
+        law_optimizer={
+            "initial_parameters": [17.44, 51.6],
+            "lower_bounds": [1e-8, 1.0],
+            "upper_bounds": [1000.0, 5000.0],
+            "ftol": 1e-12,
+            "xtol": 1e-12,
+            "gtol": 1e-12,
+            "max_nfev": 5000,
+            "seed": None,
+        },
+        profile_id="cmp.dma_tts.multi_frequency_wlf_starting_profile",
+        profile_version="1.0.0",
+        material_specific=False,
+        production_readiness="non_production",
+        requires_confirmation=True,
+        recommendation_sha256="",
+    )
+    return replace(value, recommendation_sha256=content_sha256(value.canonical_without_digest()))
+
+
+@pytest.mark.anyio
+async def test_application_multi_create_rejects_digest_mismatch_and_persists_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recommendation = _application_multi_suggestion()
+    service = object.__new__(DmaFrequencyMasterCurveService)
+    snapshot = SimpleNamespace(
+        current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+        content=SimpleNamespace(
+            canonical_sha256="e" * 64,
+            normalized_artifact_id=UUID("da100000-0000-4000-8000-000000000026"),
+            normalized_sha256="c" * 64,
+            governed_source=None,
+        ),
+    )
+
+    async def resolve(
+        context: object,
+        decision: object,
+        test_data: object,
+        import_profile: object,
+        input_mode: object,
+    ) -> object:
+        return SimpleNamespace(sweeps=_multi_synthetic_sweeps(), test_data_snapshot=snapshot)
+
+    async def recommend_multi(
+        context: object,
+        decision: object,
+        command: object,
+    ) -> DmaMultiFrequencyStartingSuggestion:
+        return recommendation
+
+    committed: dict[str, object] = {}
+
+    async def commit_output(**kwargs: object) -> object:
+        committed.update(kwargs)
+        return SimpleNamespace()
+
+    monkeypatch.setattr(service, "_resolve", resolve)
+    monkeypatch.setattr(service, "recommend_multi", recommend_multi)
+    monkeypatch.setattr(service, "_commit_output", commit_output)
+
+    def fake_build(*args: object, **kwargs: object) -> object:
+        return SimpleNamespace(
+            rows=(
+                SimpleNamespace(
+                    is_reference=True,
+                    source_sweep_ordinal=11,
+                    source_ordinals=(110,),
+                    representative_temperature_k=300.0,
+                ),
+            ),
+            shift_law=dict(recommendation.shift_law),
+            scoring=dict(recommendation.scoring),
+            adjacent_optimizer=dict(recommendation.adjacent_optimizer),
+            law_optimizer=dict(recommendation.law_optimizer),
+            residual_summary={"status": "not_assessed"},
+            application_range={"status": "measured_only"},
+        )
+
+    monkeypatch.setattr(
+        "cmp.modules.processing.application.dma_frequency_master_curve.build_multi_frequency_master_curve",
+        fake_build,
+    )
+    monkeypatch.setattr(
+        "cmp.modules.processing.application.dma_frequency_master_curve.frequency_master_curve_parquet_bytes",
+        lambda rows: b"synthetic parquet",
+    )
+    test_data_pin = DmaTestDataPin(
+        UUID("da100000-0000-4000-8000-000000000021"),
+        UUID("da100000-0000-4000-8000-000000000022"),
+        "a" * 64,
+    )
+    import_profile_pin = DmaImportProfilePin(
+        UUID("da100000-0000-4000-8000-000000000023"),
+        UUID("da100000-0000-4000-8000-000000000024"),
+        "b" * 64,
+    )
+    command = CreateDmaFrequencyMasterCurve(
+        input_mode="multi_frequency_isotherms",
+        classification=DataClassification.INTERNAL,
+        label="Synthetic multi-frequency output",
+        dispositions=_multi_synthetic_dispositions(),
+        shift_law=DmaShiftLawRequest(
+            "wlf_fit",
+            300.0,
+            initial_parameters=(17.44, 51.6),
+            lower_bounds=(1e-8, 1.0),
+            upper_bounds=(1000.0, 5000.0),
+        ),
+        confirmed=True,
+        confirmation_reason="Synthetic application boundary regression.",
+        change_reason="Exercise exact recommendation persistence.",
+        reference_sweep_ordinal=11,
+        scoring=_multi_scoring(),
+        adjacent_optimizer=DmaTtsAdjacentOptimizerControls(-3.0, 3.0),
+        law_optimizer=DmaTtsLawOptimizerControls(
+            (17.44, 51.6),
+            (1e-8, 1.0),
+            (1000.0, 5000.0),
+        ),
+        recommendation_sha256=recommendation.recommendation_sha256,
+        test_data=test_data_pin,
+        import_profile=import_profile_pin,
+    )
+
+    context = cast(SecurityContext, None)
+    decision = cast(AuthorizationDecision, None)
+    with pytest.raises(DmaProcessingError) as mismatch:
+        await service.create(context, decision, replace(command, recommendation_sha256="0" * 64))
+    assert mismatch.value.code == "CMP-PROCESSING-4317"
+    assert committed == {}
+
+    created = await service.create(context, decision, command)
+    assert created.master_curve_output is not None
+    step = cast(ProcessingStep, committed["step"])
+    options = step.options
+    assert options["recommendation"] == {
+        "recommendation_sha256": recommendation.recommendation_sha256,
+        "profile_id": recommendation.profile_id,
+        "profile_version": recommendation.profile_version,
+    }
+
+
 def test_multi_frequency_manual_ragged_result_preserves_identity_and_null_patterns() -> None:
     result = build_multi_frequency_master_curve(
         _multi_synthetic_sweeps(),
@@ -530,9 +834,10 @@ def test_multi_frequency_temperature_tolerance_accepts_inclusive_half_kelvin() -
 
     assert result.rows[0].representative_temperature_k == 300.0
     assert result.rows[0].measured_temperature_k == (300.0, 300.5, 300.0)
-    assert frequency_master_curve_from_parquet(
-        frequency_master_curve_parquet_bytes(result.rows)
-    ) == result.rows
+    assert (
+        frequency_master_curve_from_parquet(frequency_master_curve_parquet_bytes(result.rows))
+        == result.rows
+    )
 
 
 def test_multi_frequency_temperature_tolerance_rejects_above_half_kelvin() -> None:
@@ -553,9 +858,7 @@ def test_multi_frequency_result_readback_rejects_temperature_above_half_kelvin()
     table = _read_parquet(pa.BufferReader(valid_payload))
     field_index = table.schema.get_field_index("measured_temperature_k")
     field = table.schema.field(field_index)
-    tampered_temperatures: list[object] = list(
-        table.column("measured_temperature_k").to_pylist()
-    )
+    tampered_temperatures: list[object] = list(table.column("measured_temperature_k").to_pylist())
     tampered_temperatures[0] = [300.0, 300.5000000001, 300.0]
     tampered_table = table.set_column(
         field_index,

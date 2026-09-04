@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Query, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
+from cmp.modules.datasets.domain.governed_tabular import GovernedImportNotFound
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -23,6 +24,7 @@ from cmp.modules.processing.application.dma_frequency_master_curve import (
     DmaImportProfilePin,
     DmaTestDataPin,
     RecommendDmaFrequencyMasterCurve,
+    RecommendMultiDmaFrequencyMasterCurve,
 )
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     ArrheniusShiftLaw,
@@ -36,6 +38,7 @@ from cmp.modules.processing.domain.dma_frequency_master_curve import (
 )
 from cmp.modules.processing.domain.dma_multi_frequency_tts import (
     DmaFrequencySweepDisposition,
+    DmaMultiFrequencyStartingSuggestion,
     DmaShiftLawRequest,
     DmaTtsAdjacentOptimizerControls,
     DmaTtsLawOptimizerControls,
@@ -330,6 +333,7 @@ class MultiDmaMasterCurveRequest(_CreateCommon):
     scoring: ScoringInput
     adjacent_optimizer: AdjacentOptimizerInput
     law_optimizer: LawOptimizerInput | None = None
+    recommendation_sha256: Sha256 | None = None
 
     @model_validator(mode="after")
     def require_law_optimizer_for_fits(self) -> MultiDmaMasterCurveRequest:
@@ -356,6 +360,7 @@ class MultiDmaMasterCurveRequest(_CreateCommon):
             scoring=self.scoring.to_domain(),
             adjacent_optimizer=self.adjacent_optimizer.to_domain(),
             law_optimizer=(None if self.law_optimizer is None else self.law_optimizer.to_domain()),
+            recommendation_sha256=self.recommendation_sha256,
         )
 
 
@@ -370,6 +375,16 @@ class DmaMasterCurveRecommendationRequest(BaseModel):
 
     test_data: TestDataPinInput
     import_profile: ImportProfilePinInput
+
+
+class DmaMultiFrequencyRecommendationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    test_data: TestDataPinInput
+    import_profile: ImportProfilePinInput
+    reference_sweep_ordinal: Annotated[
+        int, Field(ge=1, le=9_223_372_036_854_775_807)
+    ]
 
 
 class DmaMasterCurveRecommendationResponse(BaseModel):
@@ -400,6 +415,87 @@ class DmaMasterCurveRecommendationResponse(BaseModel):
             requires_confirmation=value.requires_confirmation,
             rule_id=value.rule_id,
             rule_version=value.rule_version,
+            recommendation_sha256=value.recommendation_sha256,
+        )
+
+
+class DmaMultiRecommendationEvidenceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    test_data_document_id: UUID
+    test_data_revision_id: UUID
+    test_data_content_sha256: Sha256
+    import_profile_id: UUID
+    import_profile_revision_id: UUID
+    import_profile_content_sha256: Sha256
+    source_normalized_artifact_id: UUID
+    source_normalized_artifact_sha256: Sha256
+
+
+class MultiSweepSummaryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_sweep_ordinal: Annotated[int, Field(ge=1, le=9_223_372_036_854_775_807)]
+    representative_temperature_k: float
+    point_count: Annotated[int, Field(ge=2)]
+    source_frequency_min_hz: float
+    source_frequency_max_hz: float
+
+
+class DmaMultiFrequencyRecommendationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    input_mode: Literal["multi_frequency_isotherms"]
+    source_evidence: DmaMultiRecommendationEvidenceResponse
+    sweeps: tuple[MultiSweepSummaryResponse, ...]
+    reference_sweep_ordinal: Annotated[int, Field(ge=1, le=9_223_372_036_854_775_807)]
+    reference_temperature_k: float
+    sweep_dispositions: tuple[SweepDispositionInput, ...]
+    shift_law: MultiWlfShiftLawInput
+    scoring: ScoringInput
+    adjacent_optimizer: AdjacentOptimizerInput
+    law_optimizer: LawOptimizerInput
+    profile_id: Literal["cmp.dma_tts.multi_frequency_wlf_starting_profile"]
+    profile_version: Literal["1.0.0"]
+    material_specific: Literal[False]
+    production_readiness: Literal["non_production"]
+    requires_confirmation: Literal[True]
+    recommendation_sha256: Sha256
+
+    @classmethod
+    def from_domain(
+        cls, value: DmaMultiFrequencyStartingSuggestion
+    ) -> DmaMultiFrequencyRecommendationResponse:
+        return cls(
+            input_mode=cast(Literal["multi_frequency_isotherms"], value.input_mode),
+            source_evidence=DmaMultiRecommendationEvidenceResponse.model_validate(
+                value.source_evidence
+            ),
+            sweeps=tuple(
+                MultiSweepSummaryResponse.model_validate(item)
+                for item in value.sweeps
+            ),
+            reference_sweep_ordinal=value.reference_sweep_ordinal,
+            reference_temperature_k=value.reference_temperature_k,
+            sweep_dispositions=tuple(
+                SweepDispositionInput.model_validate(item)
+                for item in value.sweep_dispositions
+            ),
+            shift_law=MultiWlfShiftLawInput.model_validate(value.shift_law),
+            scoring=ScoringInput.model_validate(value.scoring),
+            adjacent_optimizer=AdjacentOptimizerInput.model_validate(
+                value.adjacent_optimizer
+            ),
+            law_optimizer=LawOptimizerInput.model_validate(value.law_optimizer),
+            profile_id=cast(
+                Literal["cmp.dma_tts.multi_frequency_wlf_starting_profile"], value.profile_id
+            ),
+            profile_version=cast(Literal["1.0.0"], value.profile_version),
+            material_specific=cast(Literal[False], value.material_specific),
+            production_readiness=cast(
+                Literal["non_production"], value.production_readiness
+            ),
+            requires_confirmation=cast(Literal[True], value.requires_confirmation),
             recommendation_sha256=value.recommendation_sha256,
         )
 
@@ -571,6 +667,19 @@ def _error(error: DmaProcessingError) -> JSONResponse:
     )
 
 
+def _hidden_source_error() -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={
+            "error": {
+                "code": "CMP-PROCESSING-4040",
+                "cause": "DMA source or Import Profile is not visible in this tenant",
+                "recovery_hint": "Select visible exact Test Data and Import Profile revisions.",
+            }
+        },
+    )
+
+
 def install_dma_frequency_master_curve_api(
     application: FastAPI,
     *,
@@ -609,9 +718,40 @@ def install_dma_frequency_master_curve_api(
                     body.test_data.to_domain(), body.import_profile.to_domain()
                 ),
             )
+        except GovernedImportNotFound:
+            return _hidden_source_error()
         except DmaProcessingError as error:
             return _error(error)
         return DmaMasterCurveRecommendationResponse.from_domain(value)
+
+    @application.post(
+        "/api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency",
+        response_model=DmaMultiFrequencyRecommendationResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+    )
+    async def recommend_multi(
+        body: DmaMultiFrequencyRecommendationRequest,
+        request: Request,
+    ) -> DmaMultiFrequencyRecommendationResponse | JSONResponse:
+        context, decision = scope(request)
+        if service is None:
+            return JSONResponse(status_code=503, content={"detail": "DMA TTS is unavailable"})
+        try:
+            value = await service.recommend_multi(
+                context,
+                decision,
+                RecommendMultiDmaFrequencyMasterCurve(
+                    body.test_data.to_domain(),
+                    body.import_profile.to_domain(),
+                    body.reference_sweep_ordinal,
+                ),
+            )
+        except GovernedImportNotFound:
+            return _hidden_source_error()
+        except DmaProcessingError as error:
+            return _error(error)
+        return DmaMultiFrequencyRecommendationResponse.from_domain(value)
 
     @application.post(
         "/api/v1/processing/dma-frequency-master-curves",
@@ -628,6 +768,8 @@ def install_dma_frequency_master_curve_api(
             return JSONResponse(status_code=503, content={"detail": "DMA TTS is unavailable"})
         try:
             value = await service.create(context, decision, body.to_domain())
+        except GovernedImportNotFound:
+            return _hidden_source_error()
         except DmaProcessingError as error:
             return _error(error)
         return _created(value)

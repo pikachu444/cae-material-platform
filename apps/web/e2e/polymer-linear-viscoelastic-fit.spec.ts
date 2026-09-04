@@ -6,12 +6,26 @@ import {
   approveSyntheticDmaFitSetup,
   ensureSyntheticRelaxationFitSetup,
 } from "./polymer-linear-viscoelastic-fit-governance";
+import {
+  deriveNistSrm2491CyclicHzUpload,
+  NIST_SRM_2491_HOLDOUT_SWEEP_ORDINAL,
+  NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL,
+  NIST_SRM_2491_REFERENCE_TEMPERATURE_K,
+} from "./issue-392-dma-tts-fixture";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 const evidenceDir =
   process.env.CMP_POLYMER_FIT_EVIDENCE_DIR ??
   resolve(process.cwd(), "../../.artifacts/polymer-linear-viscoelastic-fit");
 const sessionStatePath = resolve(evidenceDir, "modeling-fit-polymer-session.json");
+const issue392EvidenceDir = resolve(
+  process.cwd(),
+  "../../docs/17-evidence/issue-392-dma-tts-process-ui",
+);
+const currentGuideImageDir = resolve(
+  process.cwd(),
+  "../../docs/user-guide/images/current",
+);
 
 const acceptanceViewports = [
   { width: 1366, height: 768 },
@@ -22,6 +36,20 @@ const acceptanceViewports = [
 ] as const;
 
 test.describe.configure({ mode: "serial" });
+
+async function writeScreenshot(path: string, image: Uint8Array): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    try {
+      await writeFile(path, image);
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 100 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
 
 async function installDemoUser(page: Page, persona?: "administrator"): Promise<string> {
   const tokenResponse = await page.request.get(
@@ -303,6 +331,67 @@ async function capture(
   else await page.screenshot({ path, animations: "disabled", fullPage: false });
 }
 
+async function captureIssue392ProcessState(
+  page: Page,
+  state: "recommendation" | "saved",
+): Promise<void> {
+  const originals = resolve(issue392EvidenceDir, "after/originals");
+  const crops = resolve(issue392EvidenceDir, "after/crops");
+  await Promise.all([
+    mkdir(originals, { recursive: true }),
+    mkdir(crops, { recursive: true }),
+    mkdir(currentGuideImageDir, { recursive: true }),
+  ]);
+  for (const viewport of acceptanceViewports) {
+    const size = `${viewport.width}x${viewport.height}`;
+    await page.setViewportSize(viewport);
+    await page.evaluate(() => new Promise<void>((resolveFrame) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame()));
+    }));
+    const geometry = await page.evaluate(() => ({
+      width: innerWidth,
+      height: innerHeight,
+      dpr: devicePixelRatio,
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(geometry).toMatchObject({ width: viewport.width, height: viewport.height, dpr: 1 });
+    expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + 1);
+    await expectInsideViewport(page.locator(".dma-tts-process-surface"));
+    await expectInsideViewport(page.locator(".dma-tts-sweep-rail"));
+
+    const guideName = state === "saved"
+      ? `modeling-process-polymer-dma-tts-saved-${size}.png`
+      : `modeling-process-polymer-dma-tts-${size}.png`;
+    const originalPath = resolve(
+      originals,
+      `modeling-process-polymer-dma-tts-${state}-${size}.png`,
+    );
+    const viewportImage = await page.screenshot({
+      animations: "disabled",
+      fullPage: false,
+    });
+    await writeScreenshot(originalPath, viewportImage);
+    await writeScreenshot(resolve(currentGuideImageDir, guideName), viewportImage);
+    for (const [role, locator] of [
+      ["header", page.locator(".application-menu-bar")],
+      ["navigator", page.locator(".dma-tts-sweep-rail")],
+      ["controls", page.locator(".dma-tts-work-area")],
+      ["graph", page.locator(".dma-tts-graph")],
+    ] as const) {
+      await expect(locator).toBeVisible();
+      const cropImage = await locator.screenshot({
+        animations: "disabled",
+      });
+      await writeScreenshot(
+        resolve(crops, `modeling-process-polymer-dma-tts-${state}-${role}-${size}.png`),
+        cropImage,
+      );
+    }
+  }
+  await page.setViewportSize({ width: 1920, height: 1080 });
+}
+
 async function persistModelingSession(page: Page): Promise<void> {
   const value = await page.evaluate(() =>
     window.sessionStorage.getItem("cmp.modeling.recent-session.v4"),
@@ -519,11 +608,10 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   await expect(page.locator(".stage-process .modeling-pane-divider")).toHaveCount(0);
   await expect(page.locator(".stage-process .modeling-split-workspace-no-navigator")).toHaveCount(1);
 
-  const create = page.getByRole("button", { name: "Create shifted response" });
-  await expect(create).toBeVisible({ timeout: 30_000 });
-  await expect(create).toBeEnabled();
-  await expect(page.getByText("Shift method")).toBeVisible();
-  await expect(page.getByText("WLF", { exact: true })).toBeVisible();
+  const prepare = page.getByRole("button", { name: "Prepare recommendation" });
+  await expect(prepare).toBeVisible({ timeout: 30_000 });
+  await expect(prepare).toBeEnabled();
+  await expect(page.getByText("1. Prepare the DMA master curve", { exact: true })).toBeVisible();
   await expect(page.getByLabel("C1")).toHaveCount(0);
   const processGeometry = await page.locator(".dma-tts-process-surface").evaluate((surface) => {
     const graph = surface.querySelector<HTMLElement>(".dma-tts-graph")!;
@@ -544,10 +632,17 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
     await page.setViewportSize(viewport);
     await expectInsideViewport(page.locator(".dma-tts-process-surface"));
     await expectInsideViewport(page.locator(".dma-tts-graph"));
-    await expectInsideViewport(create);
+    await expectInsideViewport(prepare);
     await capture(page, `modeling-process-polymer-dma-tts-${size}.png`);
   }
   await page.setViewportSize({ width: 1920, height: 1080 });
+
+  await prepare.click();
+  const create = page.getByRole("button", { name: "Save TTS result" });
+  await expect(create).toBeVisible({ timeout: 30_000 });
+  await expect(create).toBeEnabled();
+  await expect(page.getByText("Shift method")).toBeVisible();
+  await expect(page.getByText("WLF", { exact: true })).toBeVisible();
 
   const createdResponsePromise = page.waitForResponse((response) => (
     response.request().method() === "POST"
@@ -559,10 +654,10 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   const created = (await createdResponse.json()) as {
     master_curve_output: { output_id: string; revision_id: string };
   };
-  await expect(page.getByRole("heading", { name: "Shifted DMA response saved" })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "TTS result saved" })).toBeVisible({
     timeout: 30_000,
   });
-  const continueToFit = page.getByRole("button", { name: "Continue to Fit" });
+  const continueToFit = page.getByRole("button", { name: "Continue to Prony Fit" });
   await expect(continueToFit).toHaveCount(1);
   for (const viewport of acceptanceViewports) {
     const size = `${viewport.width}x${viewport.height}`;
@@ -616,6 +711,253 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   await expect(page).toHaveURL(/stage=fit/);
   await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
   await expectDistinctFitDecision(page, decision);
+});
+
+test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores a Prony selection", async ({
+  page,
+}) => {
+  test.setTimeout(600_000);
+  const pageErrors: string[] = [];
+  const processCreateRequests: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().endsWith("/api/v1/processing/dma-frequency-master-curves")) {
+      processCreateRequests.push(request.url());
+    }
+  });
+
+  const accessToken = await installDemoUser(page);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openPolymerModeling(page, accessToken);
+  await expect(page.getByRole("heading", { name: "Select Test Data" })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("tab", { name: "Local file", exact: true }).click();
+
+  const upload = deriveNistSrm2491CyclicHzUpload();
+  await page.getByLabel("Import Test Data file").setInputFiles({
+    name: "nist-srm-2491-dma-multi-frequency.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from(upload, "utf8"),
+  });
+  const runSelect = page.getByLabel("Imported file Test record");
+  await expect(runSelect).toBeVisible({ timeout: 30_000 });
+  await expect.poll(() => runSelect.locator("option").count()).toBeGreaterThan(1);
+  const runOption = await runSelect.locator("option").evaluateAll((options) => options
+    .map((option) => ({
+      value: (option as HTMLOptionElement).value,
+      text: option.textContent?.trim() ?? "",
+    }))
+    .find((option) => option.value && /DMA/i.test(option.text))
+    ?? options.map((option) => ({
+      value: (option as HTMLOptionElement).value,
+      text: option.textContent?.trim() ?? "",
+    })).find((option) => option.value));
+  expect(runOption?.value, "an exact polymer Test record is required for the governed import").toBeTruthy();
+  await runSelect.selectOption(runOption!.value);
+
+  const inspectResponse = page.waitForResponse((response) => (
+    response.request().method() === "POST"
+    && response.url().endsWith("/api/v1/tabular-import-previews")
+  ));
+  await page.getByRole("button", { name: "Inspect file", exact: true }).click();
+  expect((await inspectResponse).ok()).toBeTruthy();
+  const schema = page.getByLabel("Local data schema");
+  if (!await schema.count()) {
+    await page.getByRole("button", { name: "Change mapping", exact: true }).click();
+  }
+  await expect(schema).toBeVisible({ timeout: 30_000 });
+  await schema.selectOption("dma_frequency_temperature_sweep");
+  for (const [label, column, unit] of [
+    ["Source sweep ordinal", "source_sweep_ordinal", "1"],
+    ["Temperature", "temperature_degC", "degC"],
+    ["Frequency", "frequency_Hz", "Hz"],
+    ["Storage modulus", "storage_modulus_Pa", "Pa"],
+    ["Loss modulus", "loss_modulus_Pa", "Pa"],
+  ] as const) {
+    await page.getByLabel(`${label} source column`).selectOption(column);
+    await page.getByLabel(`${label} original unit`).selectOption(unit);
+  }
+  await expect(page.getByText("DMA 1.3.0 mapping:", { exact: false })).toBeVisible();
+  await page.getByText("Save details", { exact: true }).click();
+  await page.locator('input[name="test-data-name"]').fill("ISSUE-392-NIST-SRM-2491-DMA");
+  await page.locator('input[name="test-data-maker"]').fill("NIST public SRM 2491 reference");
+  await page.locator('input[name="test-data-operator"]').fill("Issue 392 browser acceptance");
+  await page.locator('input[name="test-data-laboratory"]').fill("Public fixture validation");
+  await page.getByLabel("Mapping change reason").fill(
+    "Map the immutable NIST frequency, temperature, storage, loss, and sweep ordinal columns.",
+  );
+
+  const previewResponse = page.waitForResponse((response) => (
+    response.request().method() === "POST"
+    && response.url().endsWith("/api/v1/test-data:convert-tabular")
+  ));
+  await page.getByRole("button", { name: "Update preview", exact: true }).click();
+  expect((await previewResponse).ok()).toBeTruthy();
+  await expect(page.getByRole("button", { name: "Save Test Data", exact: true })).toBeEnabled({ timeout: 30_000 });
+  const saveDocumentResponse = page.waitForResponse((response) => (
+    response.request().method() === "POST"
+    && /\/api\/v1\/test-data-documents(?:\/[^/]+\/revisions)?$/.test(response.url())
+  ));
+  await page.getByRole("button", { name: "Save Test Data", exact: true }).click();
+  expect((await saveDocumentResponse).status()).toBe(201);
+  const imported = page.locator('[data-document-key="ISSUE-392-NIST-SRM-2491-DMA"]');
+  await expect(imported).toHaveClass(/active/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Continue to Process", exact: true }).click();
+
+  await expect(page).toHaveURL(/stage=process/);
+  await expect(page.locator(".dma-tts-sweep-rail")).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator(".dma-tts-sweep-entry")).toHaveCount(6);
+  await expect(page.getByText("Curves on graph", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Reference curve")).toHaveValue(String(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL));
+  await expect(page.getByRole("checkbox", { name: /^Show .* K on graph$/ })).toHaveCount(6);
+  await expect(page.getByRole("button", { name: "Prepare recommendation", exact: true })).toBeEnabled();
+  await expect(page.locator(".curve-legend button")).toHaveCount(6);
+  await expect(page.locator(".dma-legend-line-key", { hasText: "G′" })).toBeVisible();
+  await expect(page.locator(".dma-legend-line-key", { hasText: "G″" })).toBeVisible();
+  const graphOnlyToggle = page.getByLabel("Show 283.15 K on graph");
+  await graphOnlyToggle.uncheck();
+  await expect(page.locator(".curve-legend button")).toHaveCount(5);
+
+  const recommendationResponse = page.waitForResponse((response) => (
+    response.request().method() === "POST"
+    && response.url().endsWith("/api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency")
+  ));
+  await page.getByRole("button", { name: "Prepare recommendation", exact: true }).click();
+  const recommendationHttp = await recommendationResponse;
+  expect(recommendationHttp.ok()).toBeTruthy();
+  const recommendation = await recommendationHttp.json() as {
+    reference_sweep_ordinal: number;
+    reference_temperature_k: number;
+    sweep_dispositions: Array<{ source_sweep_ordinal: number; partition: string }>;
+  };
+  expect(recommendation.reference_sweep_ordinal).toBe(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL);
+  expect(recommendation.reference_temperature_k).toBe(NIST_SRM_2491_REFERENCE_TEMPERATURE_K);
+  expect(recommendation.sweep_dispositions.find(
+    (item) => item.source_sweep_ordinal === NIST_SRM_2491_HOLDOUT_SWEEP_ORDINAL,
+  )?.partition).toBe("HOLDOUT");
+  await expect(page.getByText("Sweeps included", { exact: true })).toBeVisible();
+  await expect(page.getByText("6 of 6", { exact: true })).toBeVisible();
+  await expect(graphOnlyToggle).not.toBeChecked();
+  await graphOnlyToggle.check();
+  await expect(page.locator(".curve-legend button")).toHaveCount(6);
+  await expect(page.getByText(`${NIST_SRM_2491_REFERENCE_TEMPERATURE_K} K · #${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`, { exact: true })).toBeVisible();
+
+  const settingsDisclosure = page.locator("details.dma-tts-settings-disclosure");
+  await expect(settingsDisclosure).not.toHaveAttribute("open", "");
+  await expect(page.getByLabel("Shift method")).toBeHidden();
+  await expect(page.getByRole("button", { name: "TTS settings", exact: true })).toHaveCount(0);
+  await settingsDisclosure.locator("summary").click();
+  await expect(settingsDisclosure).toHaveAttribute("open", "");
+  await expect(page.getByLabel("Reference curve")).toHaveValue(String(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL));
+  await expect(page.getByLabel(`Analysis role for sweep ${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`)).toBeDisabled();
+  const visibleSweepRole = page.getByLabel("Analysis role for sweep 2");
+  await expect(visibleSweepRole.locator("option")).toHaveText([
+    "Fit — calculate TTS",
+    "Validate — check result only",
+    "Ignore — exclude",
+  ]);
+  await visibleSweepRole.selectOption("EXCLUDED");
+  const ignoreReason = page.getByLabel("Reason for ignoring sweep 2");
+  await expect(ignoreReason).toBeVisible();
+  await ignoreReason.fill("Outside the selected fit range");
+  await visibleSweepRole.selectOption("CALIBRATION");
+  await expect(ignoreReason).toHaveCount(0);
+  const law = page.getByLabel("Shift method");
+  await expect(law).toBeVisible();
+  await expect(law.locator("option")).toHaveText([
+    "WLF fit",
+    "Arrhenius fit",
+    "Manual",
+  ]);
+  await expect(page.locator('input[name="dma-tts-adjacent-xatol"]')).toHaveAttribute("readonly", "");
+  await expect(page.locator('input[name="dma-tts-law-ftol"]')).toHaveAttribute("readonly", "");
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await capture(page, "issue-392-central-tts-settings-1920x1080.png");
+  await settingsDisclosure.locator("summary").click();
+  await expect(settingsDisclosure).not.toHaveAttribute("open", "");
+  await captureIssue392ProcessState(page, "recommendation");
+
+  const createResponse = page.waitForResponse((response) => (
+    response.request().method() === "POST"
+    && response.url().endsWith("/api/v1/processing/dma-frequency-master-curves")
+  ));
+  const exactReadResponse = page.waitForResponse((response) => (
+    response.request().method() === "GET"
+    && /\/api\/v1\/processing\/dma-frequency-master-curves\/[^/]+\/revisions\/[^/?]+\?content_sha256=/.test(response.url())
+  ));
+  await page.getByRole("button", { name: "Save TTS result", exact: true }).click();
+  const createdHttp = await createResponse;
+  expect(createdHttp.status()).toBe(201);
+  const created = await createdHttp.json() as {
+    master_curve_output: { output_id: string; revision_id: string; content_sha256: string };
+  };
+  const exactReadHttp = await exactReadResponse;
+  expect(exactReadHttp.ok()).toBeTruthy();
+  expect(new URL(exactReadHttp.url()).searchParams.get("content_sha256"))
+    .toBe(created.master_curve_output.content_sha256);
+  await expect(page.getByRole("heading", { name: "TTS result saved" })).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
+  await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
+  await expect(page.locator(".dma-tts-saved-row").getByText("Ready for Prony Fit.", { exact: true })).toBeVisible();
+  const calculationDetails = page.locator(".dma-tts-result-details");
+  await calculationDetails.getByText("Calculation details", { exact: true }).click();
+  const backendResults = page.getByRole("table").filter({ hasText: "Applied log10(aT)" });
+  await expect(backendResults.locator("tbody > tr")).toHaveCount(6);
+  await expect(backendResults.getByRole("cell", { name: "Validate", exact: true })).toBeVisible();
+  await expect(page.locator(".curve-legend button")).toHaveCount(6);
+  await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
+  await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: /^Show .* K on graph$/ })).toHaveCount(6);
+  await expect(page.getByLabel("Show 273.15 K on graph")).toBeEnabled();
+  expect(processCreateRequests).toHaveLength(1);
+  await calculationDetails.getByText("Calculation details", { exact: true }).click();
+  await captureIssue392ProcessState(page, "saved");
+
+  const continueToFit = page.getByRole("button", { name: "Continue to Prony Fit", exact: true });
+  await expect(continueToFit).toBeEnabled();
+  await continueToFit.click();
+  await expect(page).toHaveURL(/stage=fit/);
+  await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
+  const dmaSession = await page.evaluate(() => JSON.parse(
+    window.sessionStorage.getItem("cmp.modeling.recent-session.v4") ?? "null",
+  )) as {
+    material: { id: string; revisionId: string };
+    materialState: { id: string; revisionId: string };
+  };
+  await approveSyntheticDmaFitSetup({
+    request: page.request,
+    webUrl,
+    material: dmaSession.material,
+    materialState: dmaSession.materialState,
+    processingOutput: {
+      id: created.master_curve_output.output_id,
+      revisionId: created.master_curve_output.revision_id,
+    },
+  });
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
+  const decision = await calculateAndSelectAlternateModel(
+    page,
+    "Selected the adjacent Prony candidate after comparing the NIST DMA response and point differences.",
+  );
+  await page.getByRole("button", { name: "Save fit & continue", exact: true }).click();
+  await expect(page).toHaveURL(/stage=export/, { timeout: 60_000 });
+  const fitStage = page.locator(".modeling-stage-shell button").filter({
+    has: page.locator("strong", { hasText: /^Fit$/ }),
+  });
+  await fitStage.click();
+  await expect(page).toHaveURL(/stage=fit/);
+  await expectDistinctFitDecision(page, decision);
+  await page.screenshot({
+    path: resolve(issue392EvidenceDir, "after/originals/modeling-fit-polymer-dma-selection-saved-1920x1080.png"),
+    animations: "disabled",
+    fullPage: false,
+  });
+  await page.reload();
+  await expect(page).toHaveURL(/stage=fit/);
+  await expect(page.getByRole("heading", { name: "Shifted DMA response" })).toBeVisible({ timeout: 30_000 });
+  await expectDistinctFitDecision(page, decision);
+  await expect.poll(() => pageErrors, { message: pageErrors.join("\n") }).toEqual([]);
+  expect(processCreateRequests).toHaveLength(1);
 });
 
 test("a user calculates, compares, saves, and reloads an exact Polymer Fit at FHD", async ({

@@ -29,6 +29,7 @@ import type {
   CanonicalTestDataPreviewResponse,
   GovernedChannelMapping,
   GovernedImportPreview,
+  GovernedImportProfileSchemaVersion,
   GovernedImportProfileContent,
   GovernedImportProfileResponse,
   GovernedImportRunResponse,
@@ -106,6 +107,7 @@ const UNIT_OPTIONS: Record<GovernedQuantityKind, string[]> = {
   storage_modulus: ["Pa", "kPa", "MPa", "GPa", "%"],
   loss_modulus: ["Pa", "kPa", "MPa", "GPa", "%"],
   tan_delta: ["1"],
+  source_sweep_ordinal: ["1"],
   minor_strain: ["1", "%"],
   major_strain: ["1", "%"],
 };
@@ -171,9 +173,12 @@ async function fileBase64(file: File): Promise<string> {
 function quantities(
   schema: GovernedTabularDataSchema,
   includeTanDelta = false,
+  schemaVersion: GovernedImportProfileSchemaVersion = "1.1.0",
 ): GovernedQuantityKind[] {
   if (schema === "dma_frequency_temperature_sweep") {
+    const historical = schemaVersion !== "1.3.0";
     return [
+      ...(historical ? [] : ["source_sweep_ordinal" as const]),
       "temperature",
       "frequency",
       "storage_modulus",
@@ -190,12 +195,13 @@ function quantities(
 function axisRole(
   schema: GovernedTabularDataSchema,
   ordinal: number,
+  schemaVersion: GovernedImportProfileSchemaVersion = "1.1.0",
 ): GovernedChannelMapping["axis_role"] {
-  return schema === "dma_frequency_temperature_sweep" && ordinal < 2
-    ? "independent"
-    : ordinal === 0
-      ? "independent"
-      : "dependent";
+  if (schema === "dma_frequency_temperature_sweep" && schemaVersion === "1.3.0") {
+    if (ordinal === 0) return "auxiliary";
+    return ordinal < 3 ? "independent" : "dependent";
+  }
+  return ordinal === 0 ? "independent" : "dependent";
 }
 
 function defaultUnit(quantity: GovernedQuantityKind): string {
@@ -203,6 +209,7 @@ function defaultUnit(quantity: GovernedQuantityKind): string {
   if (quantity === "time") return "s";
   if (quantity === "temperature") return "degC";
   if (quantity === "frequency") return "Hz";
+  if (quantity === "source_sweep_ordinal") return "1";
   if (quantity === "tan_delta") return "1";
   return "MPa";
 }
@@ -223,6 +230,7 @@ function normalizedUnit(quantity: GovernedQuantityKind): string {
   if (quantity === "time") return "s";
   if (quantity === "temperature") return "K";
   if (quantity === "frequency") return "Hz";
+  if (quantity === "source_sweep_ordinal") return "1";
   if (quantity === "tan_delta") return "1";
   if (quantity === "displacement") return "m";
   if (quantity === "force") return "N";
@@ -263,7 +271,8 @@ export function channelMappingBlockers({
 
 function intakePreviewProfile(profile: GovernedImportProfileContent): CommonMappingProfileContent {
   const previewChannels = profile.data_schema === "dma_frequency_temperature_sweep"
-    ? profile.channels.filter((channel) => channel.source_quantity !== "frequency")
+    ? profile.channels.filter((channel) => channel.source_quantity !== "frequency"
+      && channel.source_quantity !== "source_sweep_ordinal")
     : profile.channels;
   const bindings = previewChannels.map((channel) => {
     const quantity = normalizedQuantity(channel.source_quantity);
@@ -297,7 +306,7 @@ function matchingPreviewProfile(
   const governedDma = ["temperature", "frequency", "storage_modulus", "loss_modulus"]
     .every((key) => keys.has(key));
   const previewChannels = governedDma
-    ? channels.filter((channel) => channel.key !== "frequency")
+    ? channels.filter((channel) => channel.key !== "frequency" && channel.key !== "source_sweep_ordinal")
     : channels;
   const independent = previewChannels.find((channel) => channel.axis_role === "independent")
     ?? previewChannels[0];
@@ -371,6 +380,8 @@ function editableProfile(value: GovernedImportProfileContent): GovernedImportPro
       original_unit: channel.original_unit,
       axis_role: channel.axis_role,
     })),
+    schema_version: value.schema_version,
+    deformation_mode: value.deformation_mode,
     initial_gauge_length_m: value.initial_gauge_length_m,
     initial_cross_section_area_m2: value.initial_cross_section_area_m2,
     approval_kind: "human_confirmed",
@@ -469,6 +480,8 @@ export function ModelingDataIntake({
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const [mappingEditing, setMappingEditing] = useState(false);
   const [schema, setSchema] = useState<GovernedTabularDataSchema>("monotonic_tension");
+  const [schemaVersion, setSchemaVersion] = useState<GovernedImportProfileSchemaVersion>("1.1.0");
+  const [deformationMode, setDeformationMode] = useState<"shear" | null>(null);
   const [includeTanDelta, setIncludeTanDelta] = useState(false);
   const [channelColumns, setChannelColumns] = useState<string[]>(["", ""]);
   const [channelUnits, setChannelUnits] = useState<string[]>(["%", "MPa"]);
@@ -537,8 +550,8 @@ export function ModelingDataIntake({
   const selectedRun = testRuns.find((item) => item.test_run_id === testRunId) ?? null;
   const selectedProfile = profiles.find((item) => item.import_profile_id === selectedProfileId) ?? null;
   const channelQuantities = useMemo(
-    () => quantities(schema, includeTanDelta),
-    [includeTanDelta, schema],
+    () => quantities(schema, includeTanDelta, schemaVersion),
+    [includeTanDelta, schema, schemaVersion],
   );
   const matchingProfiles = useMemo(
     () => tabularPreview
@@ -716,6 +729,8 @@ export function ModelingDataIntake({
       setSelectedProfileId(matched.import_profile_id);
       setMappingEditing(false);
       setSchema(matched.content.data_schema);
+      setSchemaVersion(matched.content.schema_version ?? "1.1.0");
+      setDeformationMode(matched.content.deformation_mode ?? null);
       setIncludeTanDelta(matched.content.channels.some((channel) => channel.source_quantity === "tan_delta"));
       setChannelColumns(matched.content.channels.map((channel) => channel.source_column));
       setChannelUnits(matched.content.channels.map((channel) => channel.original_unit));
@@ -775,8 +790,11 @@ export function ModelingDataIntake({
   }
 
   function changeSchema(next: GovernedTabularDataSchema): void {
-    const nextQuantities = quantities(next);
+    const nextVersion: GovernedImportProfileSchemaVersion = next === "dma_frequency_temperature_sweep" ? "1.3.0" : "1.1.0";
+    const nextQuantities = quantities(next, false, nextVersion);
     setSchema(next);
+    setSchemaVersion(nextVersion);
+    setDeformationMode(next === "dma_frequency_temperature_sweep" ? "shear" : null);
     setIncludeTanDelta(false);
     setChannelColumns((current) => nextQuantities.map(
       (_, ordinal) => current[ordinal] ?? tabularPreview?.header_columns[ordinal] ?? "",
@@ -786,7 +804,7 @@ export function ModelingDataIntake({
   }
 
   function changeTanDelta(included: boolean): void {
-    const nextQuantities = quantities(schema, included);
+    const nextQuantities = quantities(schema, included, schemaVersion);
     setIncludeTanDelta(included);
     setChannelColumns((current) => nextQuantities.map(
       (_, ordinal) => current[ordinal] ?? tabularPreview?.header_columns[ordinal] ?? "",
@@ -814,7 +832,7 @@ export function ModelingDataIntake({
       source_column: channelColumns[ordinal],
       source_quantity: quantity,
       original_unit: channelUnits[ordinal],
-      axis_role: axisRole(schema, ordinal),
+      axis_role: axisRole(schema, ordinal, schemaVersion),
     }));
     return {
       profile_label: selectedProfile?.content.profile_label ?? `${documentKey || "Test data"} mapping`,
@@ -826,6 +844,8 @@ export function ModelingDataIntake({
       delimiter: tabularPreview.delimiter,
       decimal_separator: tabularPreview.decimal_separator,
       channels,
+      schema_version: schemaVersion,
+      deformation_mode: schema === "dma_frequency_temperature_sweep" ? deformationMode ?? "shear" : null,
       initial_gauge_length_m: null,
       initial_cross_section_area_m2: null,
       approval_kind: "human_confirmed",
@@ -1159,6 +1179,8 @@ export function ModelingDataIntake({
                         setMappingEditing(false);
                         if (profile) {
                           setSchema(profile.content.data_schema);
+                          setSchemaVersion(profile.content.schema_version ?? "1.1.0");
+                          setDeformationMode(profile.content.deformation_mode ?? null);
                           setIncludeTanDelta(profile.content.channels.some((channel) => channel.source_quantity === "tan_delta"));
                           setChannelColumns(profile.content.channels.map((channel) => channel.source_column));
                           setChannelUnits(profile.content.channels.map((channel) => channel.original_unit));
@@ -1167,13 +1189,15 @@ export function ModelingDataIntake({
                       }}><option value="">Choose approved mapping</option>{matchingProfiles.map((profile) => <option key={profile.import_profile_id} value={profile.import_profile_id}>{profile.content.profile_label}</option>)}</select> : null}
                       <label>Test type<select name="local-data-schema" aria-label="Local data schema" value={schema} onChange={(event) => changeSchema(event.target.value as GovernedTabularDataSchema)}>{SCHEMAS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
                       {schema === "dma_frequency_temperature_sweep" ? <label className="data-optional-channel"><input type="checkbox" name="include-tan-delta" checked={includeTanDelta} onChange={(event) => changeTanDelta(event.target.checked)} /> Include optional tan delta channel</label> : null}
-                      <div className="data-mapping-table" role="region" aria-label="Axis and unit mapping decision table"><table><thead><tr><th>Modeling data</th><th>Column in file</th><th>File unit</th><th>Modeling unit</th></tr></thead><tbody>{channelQuantities.map((quantity, ordinal) => {
+                      {schema === "dma_frequency_temperature_sweep" && schemaVersion === "1.3.0" ? <p className="data-mapping-contract-note">DMA 1.3.0 mapping: source sweep ordinal is auxiliary with identity unit 1; temperature and frequency are independent axes.</p> : null}
+                      <div className="data-mapping-table" role="region" aria-label="Axis and unit mapping decision table"><table><thead><tr><th>Modeling data</th><th>Column in file</th><th>File unit</th><th>Modeling unit</th><th>Mapping role</th></tr></thead><tbody>{channelQuantities.map((quantity, ordinal) => {
                         const column = channelColumns[ordinal] ?? "";
                         return <tr key={quantity}>
                           <td><strong>{quantityLabel(quantity)}</strong></td>
                           <td><select name={`${quantity}-source-column`} aria-label={`${quantityLabel(quantity)} source column`} title={column} value={column} onChange={(event) => changeChannelColumn(ordinal, event.target.value)}><option value="">Choose column</option>{tabularPreview.header_columns.map((name, columnOrdinal) => <option key={name} value={name} title={name}>{sourceColumnLabel(name, columnOrdinal)}</option>)}</select></td>
                           <td><select name={`${quantity}-original-unit`} aria-label={`${quantityLabel(quantity)} original unit`} value={channelUnits[ordinal] ?? defaultUnit(quantity)} onChange={(event) => changeChannelUnit(ordinal, event.target.value)}>{UNIT_OPTIONS[quantity].map((unit) => <option key={unit}>{unit}</option>)}</select></td>
                           <td><strong aria-label={`${quantityLabel(quantity)} saved unit`}>{normalizedUnit(normalizedQuantity(quantity))}</strong></td>
+                          <td>{axisRole(schema, ordinal, schemaVersion)}</td>
                         </tr>;
                       })}</tbody></table></div>
                     </div>

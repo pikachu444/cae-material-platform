@@ -725,9 +725,11 @@ def _dma_validate_row(
             "storage_modulus_pa": storage_value,
             "loss_modulus_pa": loss_value,
             "source_sweep_ordinal": sweep_ordinal,
+            "source_ordinal": source_ordinal,
+            "representative_temperature_k": representative,
         }
-        for index, (storage_value, loss_value, reduced_value) in enumerate(
-            zip(storage, loss, reduced_values, strict=True)
+        for index, (source_ordinal, storage_value, loss_value, reduced_value) in enumerate(
+            zip(ordinals, storage, loss, reduced_values, strict=True)
         )
     ]
     return source, observations
@@ -753,6 +755,7 @@ def _dma_validate_options(
         "law_optimizer",
         "residual_summary",
         "application_range",
+        "recommendation",
         "assessment",
         "warnings",
     }
@@ -778,6 +781,30 @@ def _dma_validate_options(
         or options["warnings"] != _DMA_WARNINGS
     ):
         raise ValueError("DMA Processing policy convention or assessment is unsupported")
+    recommendation = options["recommendation"]
+    if recommendation is not None:
+        recommendation_keys = (
+            {"recommendation_sha256", "rule_id", "rule_version"}
+            if mode == "fixed_frequency_temperature_sweep"
+            else {"recommendation_sha256", "profile_id", "profile_version"}
+        )
+        recommendation = _dma_exact_keys(
+            recommendation,
+            recommendation_keys,
+            "recommendation evidence",
+        )
+        digest = recommendation["recommendation_sha256"]
+        if (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            raise ValueError("DMA recommendation digest is invalid")
+        if any(
+            not isinstance(recommendation[key], str) or not recommendation[key]
+            for key in recommendation_keys - {"recommendation_sha256"}
+        ):
+            raise ValueError("DMA recommendation identity is invalid")
     reference = _dma_exact_keys(
         options["reference"],
         {"source_sweep_ordinal", "source_ordinal", "representative_temperature_k"},
@@ -1459,6 +1486,18 @@ def _processed_dma_observations(
         elif row["partition"] == "HOLDOUT":
             holdout_sweep_count += 1
         observations.extend(row_observations)
+    observations.sort(
+        key=lambda item: (
+            item["frequency_hz"],
+            item["representative_temperature_k"],
+            -1
+            if item["source_sweep_ordinal"] is None
+            else item["source_sweep_ordinal"],
+            item["source_ordinal"],
+        )
+    )
+    for ordinal, observation in enumerate(observations):
+        observation["ordinal"] = ordinal
     if reference_count != 1:
         raise ValueError("DMA result must contain exactly one calibration reference row")
     if mode == "multi_frequency_isotherms" and (

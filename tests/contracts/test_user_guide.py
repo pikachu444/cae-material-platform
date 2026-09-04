@@ -931,9 +931,10 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "e55d30f597923509607dd7651d734bda3867b583+issue371-catalog-single-owner-worktree"
     )
     issue377_source = "aa8c6e942420cc67b637edd92d988c9fbf678b27+issue377-worktree"
-    assert manifest["version"] == 142
-    assert manifest["scope"] == "issue-377-polymer-linear-viscoelastic-fit-ui"
-    assert manifest_source == issue377_source
+    issue392_source = "6abddd25b9ef8e7f2e0a8d112feaf3846996379b+issue392-worktree"
+    assert manifest["version"] == 143
+    assert manifest["scope"] == "issue-392-dma-tts-process-ui"
+    assert manifest_source == issue392_source
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -948,8 +949,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "sidecar",
     }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Preserved-volume cmp-377-ui-dense Compose" in manifest["capture_command"]
-    assert "Thirty-one reviewed originals" in manifest["capture_command"]
+    assert "Preserved-volume cmp-issue392-after Compose" in manifest["capture_command"]
+    assert "NIST SRM 2491-derived six-sweep DMA import" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -959,6 +960,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
         issue377_source,
+        issue392_source,
         issue371_source,
         modeling_state_source,
         fit_css_source,
@@ -1126,7 +1128,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     new_issue_377_captures = {
         capture_id
         for capture_id in captures
-        if capture_id.startswith(("modeling-fit-polymer-", "modeling-process-polymer-dma-tts"))
+        if capture_id.startswith("modeling-fit-polymer-")
         or capture_id in {
             "modeling-fit-1366",
             "modeling-fit-1440",
@@ -1134,6 +1136,11 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
             "modeling-fit-2560",
             "modeling-fit-3840",
         }
+    }
+    new_issue_392_captures = {
+        capture_id
+        for capture_id in captures
+        if capture_id.startswith("modeling-process-polymer-dma-tts")
     }
     assert set(previous_provenance_ids) == (
         set(captures)
@@ -1150,6 +1157,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - new_issue_342_captures
         - new_issue_371_captures
         - new_issue_377_captures
+        - new_issue_392_captures
     )
     assert {
         prior_source,
@@ -1202,6 +1210,14 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     )
     assert "browser zoom 100%, DPR 1" in issue_377_provenance["command"]
     assert new_issue_377_captures == set(issue_377_provenance["ids"])
+    issue_392_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == issue392_source
+    )
+    assert "NIST SRM 2491-derived" in issue_392_provenance["command"]
+    assert "direct 100%-pixel" in issue_392_provenance["command"]
+    assert new_issue_392_captures == set(issue_392_provenance["ids"])
     issue_210_provenance = next(
         provenance
         for provenance in manifest["capture_provenance"]

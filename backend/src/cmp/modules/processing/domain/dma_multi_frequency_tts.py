@@ -306,6 +306,50 @@ DmaMultiFrequencyShiftLaw = DmaShiftLawRequest
 
 
 @dataclass(frozen=True, slots=True)
+class DmaMultiFrequencyStartingSuggestion:
+    """Read-only, deterministic controls for a multi-frequency DMA draft.
+
+    The application layer supplies the exact source evidence and computes the
+    digest.  Keeping the suggestion as a typed value makes the response and
+    create-time equality check share one closed vocabulary without coupling
+    the HTTP adapter to the numerical kernel.
+    """
+
+    input_mode: str
+    source_evidence: Mapping[str, object]
+    sweeps: tuple[Mapping[str, object], ...]
+    reference_sweep_ordinal: int
+    reference_temperature_k: float
+    sweep_dispositions: tuple[Mapping[str, object], ...]
+    shift_law: Mapping[str, object]
+    scoring: Mapping[str, object]
+    adjacent_optimizer: Mapping[str, object]
+    law_optimizer: Mapping[str, object]
+    profile_id: str
+    profile_version: str
+    material_specific: bool
+    production_readiness: str
+    requires_confirmation: bool
+    recommendation_sha256: str
+
+    def canonical_without_digest(self) -> dict[str, object]:
+        return {
+            "profile_id": self.profile_id,
+            "profile_version": self.profile_version,
+            "input_mode": self.input_mode,
+            "source_evidence": dict(self.source_evidence),
+            "sweeps": [dict(item) for item in self.sweeps],
+            "reference_sweep_ordinal": self.reference_sweep_ordinal,
+            "reference_temperature_k": self.reference_temperature_k,
+            "sweep_dispositions": [dict(item) for item in self.sweep_dispositions],
+            "shift_law": dict(self.shift_law),
+            "scoring": dict(self.scoring),
+            "adjacent_optimizer": dict(self.adjacent_optimizer),
+            "law_optimizer": dict(self.law_optimizer),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class DmaTtsAdjacentEvidence:
     success: bool
     status: int
@@ -695,6 +739,12 @@ def _representative_temperature(sweep: DmaFrequencySweep) -> Decimal:
         counts[value] = counts.get(value, 0) + 1
     maximum = max(counts.values())
     return min(value for value, count in counts.items() if count == maximum)
+
+
+def representative_temperature_for_sweep(sweep: DmaFrequencySweep) -> Decimal:
+    """Expose the exact modal temperature used by recommendation and build."""
+
+    return _representative_temperature(sweep)
 
 
 def _law_value(

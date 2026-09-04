@@ -26,6 +26,7 @@ rules:
       - "docs/17-evidence/issue-309-modeling-data-axis-overlap.md"
       - "docs/17-evidence/issue-342-task1b-frontend-design-packet.md"
       - "docs/17-evidence/issue-342-task1b-json-record-registration.md"
+      - "docs/17-evidence/issue-392-dma-tts-process-ui/README.md"
       - "docs/17-evidence/images/**/*.md"
   - status: current
     include:
