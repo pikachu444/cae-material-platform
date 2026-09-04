@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Query, Request, status
@@ -467,25 +467,35 @@ class DmaMultiFrequencyRecommendationResponse(BaseModel):
         cls, value: DmaMultiFrequencyStartingSuggestion
     ) -> DmaMultiFrequencyRecommendationResponse:
         return cls(
-            input_mode=value.input_mode,
-            source_evidence=DmaMultiRecommendationEvidenceResponse(
-                **dict(value.source_evidence)
+            input_mode=cast(Literal["multi_frequency_isotherms"], value.input_mode),
+            source_evidence=DmaMultiRecommendationEvidenceResponse.model_validate(
+                value.source_evidence
             ),
-            sweeps=tuple(MultiSweepSummaryResponse(**dict(item)) for item in value.sweeps),
+            sweeps=tuple(
+                MultiSweepSummaryResponse.model_validate(item)
+                for item in value.sweeps
+            ),
             reference_sweep_ordinal=value.reference_sweep_ordinal,
             reference_temperature_k=value.reference_temperature_k,
             sweep_dispositions=tuple(
-                SweepDispositionInput(**dict(item)) for item in value.sweep_dispositions
+                SweepDispositionInput.model_validate(item)
+                for item in value.sweep_dispositions
             ),
-            shift_law=MultiWlfShiftLawInput(**dict(value.shift_law)),
-            scoring=ScoringInput(**dict(value.scoring)),
-            adjacent_optimizer=AdjacentOptimizerInput(**dict(value.adjacent_optimizer)),
-            law_optimizer=LawOptimizerInput(**dict(value.law_optimizer)),
-            profile_id=value.profile_id,
-            profile_version=value.profile_version,
-            material_specific=value.material_specific,
-            production_readiness=value.production_readiness,
-            requires_confirmation=value.requires_confirmation,
+            shift_law=MultiWlfShiftLawInput.model_validate(value.shift_law),
+            scoring=ScoringInput.model_validate(value.scoring),
+            adjacent_optimizer=AdjacentOptimizerInput.model_validate(
+                value.adjacent_optimizer
+            ),
+            law_optimizer=LawOptimizerInput.model_validate(value.law_optimizer),
+            profile_id=cast(
+                Literal["cmp.dma_tts.multi_frequency_wlf_starting_profile"], value.profile_id
+            ),
+            profile_version=cast(Literal["1.0.0"], value.profile_version),
+            material_specific=cast(Literal[False], value.material_specific),
+            production_readiness=cast(
+                Literal["non_production"], value.production_readiness
+            ),
+            requires_confirmation=cast(Literal[True], value.requires_confirmation),
             recommendation_sha256=value.recommendation_sha256,
         )
 

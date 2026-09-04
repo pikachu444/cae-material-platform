@@ -128,7 +128,6 @@ describe("DMA TTS Process workspace", () => {
       config={config}
       testData={testData}
       sourceDocument={sourceDocument}
-      sourceLabel="DMA temperature sweep"
       chart={{ width: 1200, height: 420 }}
       ribbonOpen
       onRibbonOpenChange={vi.fn()}
@@ -149,9 +148,10 @@ describe("DMA TTS Process workspace", () => {
     expect((createButton as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(createButton);
 
-    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
-    expect(screen.getByText("WLF · reference 303.15 K")).toBeTruthy();
-    expect(screen.getByText("Reduced frequency 1–100 rad/s · Calibration temperature 293.15–313.15 K · Holdout not included")).toBeTruthy();
+    await screen.findByRole("heading", { name: "TTS result saved" });
+    expect(screen.getByText("303.15 K")).toBeTruthy();
+    expect(screen.getByText("1–100 rad/s")).toBeTruthy();
+    expect(screen.getByText("293.15–313.15 K")).toBeTruthy();
     expect(screen.queryByText(/calibration_temperature_interval_k|reduced_angular_frequency_intervals_rad_per_s|\"minimum\"/)).toBeNull();
     expect(screen.queryByText(/initial_parameters/)).toBeNull();
     expect(onSaved).toHaveBeenCalledWith(created, readBack);
@@ -199,7 +199,6 @@ describe("DMA TTS Process workspace", () => {
       config={config}
       testData={testData}
       sourceDocument={sourceDocument}
-      sourceLabel="DMA temperature sweep"
       chart={{ width: 1200, height: 420 }}
       ribbonOpen
       onRibbonOpenChange={vi.fn()}
@@ -212,7 +211,7 @@ describe("DMA TTS Process workspace", () => {
     await screen.findByText("Fit handoff failed.");
     fireEvent.click(screen.getByRole("button", { name: "Retry exact read" }));
 
-    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
+    await screen.findByRole("heading", { name: "TTS result saved" });
     expect(createCount).toBe(1);
     expect(readCount).toBe(2);
     expect(onSaved).toHaveBeenCalledTimes(2);
@@ -240,7 +239,6 @@ describe("DMA TTS Process workspace", () => {
       config={config}
       testData={testData}
       sourceDocument={sourceDocument}
-      sourceLabel="DMA temperature sweep"
       chart={{ width: 1200, height: 420 }}
       ribbonOpen
       onRibbonOpenChange={vi.fn()}
@@ -257,7 +255,7 @@ describe("DMA TTS Process workspace", () => {
     expect(c1.disabled).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Save TTS result" }));
 
-    await screen.findByRole("heading", { name: "Shifted DMA response saved" });
+    await screen.findByRole("heading", { name: "TTS result saved" });
     expect(createCount).toBe(2);
   });
 
@@ -280,7 +278,6 @@ describe("DMA TTS Process workspace", () => {
       config={config}
       testData={testData}
       sourceDocument={sourceDocument}
-      sourceLabel="DMA temperature sweep"
       chart={{ width: 1200, height: 420 }}
       ribbonOpen
       onRibbonOpenChange={vi.fn()}

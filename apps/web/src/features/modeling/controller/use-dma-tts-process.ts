@@ -45,7 +45,6 @@ interface UseDmaTtsProcessInput {
   config: ApiConfig;
   testData: CanonicalTestDataDocumentResponse;
   sourceDocument: Record<string, unknown>;
-  sourceLabel: string;
   initialOutput?: { id: string; revisionId: string; contentSha256: string };
   onSaved: (created: CreateDmaTtsResponse, readBack?: DmaTtsReadResponse) => Promise<void> | void;
 }
@@ -91,7 +90,6 @@ export function useDmaTtsProcess({
   config,
   testData,
   sourceDocument,
-  sourceLabel,
   initialOutput,
   onSaved,
 }: UseDmaTtsProcessInput) {
@@ -114,7 +112,9 @@ export function useDmaTtsProcess({
   const inputMode: DmaTtsInputMode | null = classification.kind === "fixed"
     ? "fixed_frequency_temperature_sweep"
     : classification.kind === "multi" ? "multi_frequency_isotherms" : null;
-  const label = `${sourceLabel} · ${inputMode === "fixed_frequency_temperature_sweep" ? "Fixed-frequency reduced-frequency projection" : "Multi-frequency WLF master curve"}`;
+  const label = inputMode === "fixed_frequency_temperature_sweep"
+    ? "Fixed-frequency DMA master curve"
+    : "Multi-frequency DMA master curve";
 
   useEffect(() => {
     const currentGeneration = generation.current + 1;

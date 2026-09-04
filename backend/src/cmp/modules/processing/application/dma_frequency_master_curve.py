@@ -1012,7 +1012,7 @@ class DmaFrequencyMasterCurveService:
             )
         recommendation_metadata = None
         if command.recommendation_sha256 is not None:
-            suggestion = await self.recommend_multi(
+            multi_suggestion = await self.recommend_multi(
                 context,
                 decision,
                 RecommendMultiDmaFrequencyMasterCurve(
@@ -1024,15 +1024,15 @@ class DmaFrequencyMasterCurveService:
             expected_law = _multi_shift_law_request_document(command.shift_law)
             expected_law_optimizer = _multi_law_optimizer_document(command.law_optimizer)
             if (
-                suggestion.recommendation_sha256 != command.recommendation_sha256
-                or command.reference_sweep_ordinal != suggestion.reference_sweep_ordinal
+                multi_suggestion.recommendation_sha256 != command.recommendation_sha256
+                or command.reference_sweep_ordinal != multi_suggestion.reference_sweep_ordinal
                 or tuple(_multi_disposition_document(item) for item in multi_dispositions)
-                != tuple(dict(item) for item in suggestion.sweep_dispositions)
-                or expected_law != dict(suggestion.shift_law)
-                or _multi_scoring_document(command.scoring) != dict(suggestion.scoring)
+                != tuple(dict(item) for item in multi_suggestion.sweep_dispositions)
+                or expected_law != dict(multi_suggestion.shift_law)
+                or _multi_scoring_document(command.scoring) != dict(multi_suggestion.scoring)
                 or _multi_adjacent_document(command.adjacent_optimizer)
-                != dict(suggestion.adjacent_optimizer)
-                or expected_law_optimizer != dict(suggestion.law_optimizer)
+                != dict(multi_suggestion.adjacent_optimizer)
+                or expected_law_optimizer != dict(multi_suggestion.law_optimizer)
             ):
                 raise DmaProcessingError(
                     "CMP-PROCESSING-4317",
@@ -1046,9 +1046,9 @@ class DmaFrequencyMasterCurveService:
                     ),
                 )
             recommendation_metadata = {
-                "recommendation_sha256": suggestion.recommendation_sha256,
-                "profile_id": suggestion.profile_id,
-                "profile_version": suggestion.profile_version,
+                "recommendation_sha256": multi_suggestion.recommendation_sha256,
+                "profile_id": multi_suggestion.profile_id,
+                "profile_version": multi_suggestion.profile_version,
             }
         result = build_multi_frequency_master_curve(
             resolved.sweeps,

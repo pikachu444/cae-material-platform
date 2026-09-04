@@ -292,12 +292,40 @@ export interface DmaTtsIsotherm {
   adjacent_objective: number | null;
 }
 
+export interface DmaTtsResultInterval {
+  minimum: number;
+  maximum: number;
+}
+
+export interface DmaTtsApplicationRange {
+  basis: "at_least_two_shifted_calibration_isotherms";
+  holdout_included: false;
+  reduced_angular_frequency_intervals_rad_per_s: DmaTtsResultInterval[];
+  calibration_temperature_interval_k: DmaTtsResultInterval;
+}
+
+export interface DmaTtsResultAssessment {
+  adequacy: "not_assessed";
+  uncertainty: "not_provided";
+  identifiability: "not_assessed";
+  production_readiness: "non_production";
+}
+
+export interface DmaTtsResultShiftLaw {
+  kind: "wlf" | "wlf_fit" | "arrhenius" | "arrhenius_fit" | "manual_tabulated";
+  reference_temperature_k: number;
+}
+
 export interface DmaTtsReadResponse {
   output: DmaTtsOutputPin;
   input_mode: DmaTtsInputMode;
   options: Record<string, unknown> & {
     input_mode?: DmaTtsInputMode;
     recommendation?: Record<string, unknown> | null;
+    shift_law?: DmaTtsResultShiftLaw;
+    application_range?: DmaTtsApplicationRange | null;
+    assessment?: DmaTtsResultAssessment;
+    warnings?: string[];
   };
   isotherms: DmaTtsIsotherm[];
   test_data: DmaTtsExactTestDataPin;

@@ -300,7 +300,8 @@ def test_multi_recommendation_endpoint_returns_exact_defaults_evidence_and_holdo
     ]
     assert body["law_optimizer"]["seed"] is None
     assert body["adjacent_optimizer"]["xatol"] == 1e-10
-    assert body["source_evidence"]["import_profile_id"] == _pins()["import_profile"]["profile_id"]
+    import_profile_pin = cast(dict[str, object], _pins()["import_profile"])
+    assert body["source_evidence"]["import_profile_id"] == import_profile_pin["profile_id"]
     assert body["recommendation_sha256"] == "d" * 64
     assert service.multi_recommendation_calls == 1
     assert service.create_calls == 0

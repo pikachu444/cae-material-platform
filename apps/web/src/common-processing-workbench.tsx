@@ -1597,7 +1597,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const exact = linked.output;
     setOutputs(linked.outputs);
     updateLocalCurrentOutput({ id: exact.processing_output_id, revisionId: exact.current_revision.id });
-    setNotice("Shifted DMA response saved and ready for Fit.");
+    setNotice("TTS result saved. Ready for Prony Fit.");
     onSessionChange?.({ processingOutput: {
       id: exact.processing_output_id,
       revisionId: exact.current_revision.id,
@@ -2689,7 +2689,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     config={config}
     testData={selectedSourceRef && exactSourceLoaded ? selectedTrackDocument : undefined}
     sourceDocument={selectedSourceRef && exactSourceLoaded ? document ?? undefined : undefined}
-    sourceLabel={selectedTestDisplayLabel}
     initialOutput={exactDmaTtsOutput ? {
       id: exactDmaTtsOutput.processing_output_id,
       revisionId: exactDmaTtsOutput.current_revision.id,

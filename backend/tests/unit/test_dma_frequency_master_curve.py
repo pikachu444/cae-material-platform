@@ -9,11 +9,16 @@ from decimal import Decimal
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import cast
+from uuid import UUID
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
-from cmp.modules.identity_access.domain.authorization import DataClassification
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+)
+from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.dma_frequency_master_curve import (
     CreateDmaFrequencyMasterCurve,
     DmaFrequencyMasterCurveService,
@@ -21,6 +26,7 @@ from cmp.modules.processing.application.dma_frequency_master_curve import (
     DmaTestDataPin,
     RecommendMultiDmaFrequencyMasterCurve,
 )
+from cmp.modules.processing.domain.common_pipeline import ProcessingStep
 from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_COLUMNS,
     DMA_LOSS_MODULUS_COLUMNS,
@@ -462,11 +468,11 @@ def _multi_scoring() -> DmaTtsScoringControls:
 
 
 @pytest.mark.anyio
-async def test_application_multi_recommendation_is_deterministic_and_pins_source_evidence() -> None:
+async def test_application_multi_recommendation_is_deterministic_and_pins_source_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     service = object.__new__(DmaFrequencyMasterCurveService)
-    normalized_artifact_id = cast(
-        object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000026")
-    )
+    normalized_artifact_id = UUID("da100000-0000-4000-8000-000000000026")
 
     async def resolve(
         context: object,
@@ -485,40 +491,43 @@ async def test_application_multi_recommendation_is_deterministic_and_pins_source
             ),
         )
 
-    service._resolve = resolve  # type: ignore[attr-defined]
+    monkeypatch.setattr(service, "_resolve", resolve)
     command = RecommendMultiDmaFrequencyMasterCurve(
         DmaTestDataPin(
-            cast(object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000021")),
-            cast(object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000022")),
+            UUID("da100000-0000-4000-8000-000000000021"),
+            UUID("da100000-0000-4000-8000-000000000022"),
             "a" * 64,
         ),
         DmaImportProfilePin(
-            cast(object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000023")),
-            cast(object, __import__("uuid").UUID("da100000-0000-4000-8000-000000000024")),
+            UUID("da100000-0000-4000-8000-000000000023"),
+            UUID("da100000-0000-4000-8000-000000000024"),
             "b" * 64,
         ),
         42,
     )
 
-    first = await service.recommend_multi(None, None, command)
-    second = await service.recommend_multi(None, None, command)
+    context = cast(SecurityContext, None)
+    decision = cast(AuthorizationDecision, None)
+    first = await service.recommend_multi(context, decision, command)
+    second = await service.recommend_multi(context, decision, command)
 
     assert first == second
     assert first.reference_sweep_ordinal == 42
     assert first.reference_temperature_k == 320.0
-    assert [item["partition"] for item in first.sweep_dispositions] == [
+    assert [cast(str, item["partition"]) for item in first.sweep_dispositions] == [
         "HOLDOUT",
         "CALIBRATION",
         "CALIBRATION",
         "CALIBRATION",
     ]
-    assert first.sweep_dispositions[0]["source_sweep_ordinal"] == 11
-    assert first.shift_law["lower_bounds"][1] == pytest.approx(20.001)
+    assert cast(int, first.sweep_dispositions[0]["source_sweep_ordinal"]) == 11
+    lower_bounds = cast(list[float], first.shift_law["lower_bounds"])
+    assert lower_bounds[1] == pytest.approx(20.001)
     assert all(
-        first.shift_law["lower_bounds"][1]
-        > first.reference_temperature_k - item["representative_temperature_k"]
+        lower_bounds[1]
+        > first.reference_temperature_k - cast(float, item["representative_temperature_k"])
         for item in first.sweep_dispositions
-        if item["partition"] != "EXCLUDED"
+        if cast(str, item["partition"]) != "EXCLUDED"
     )
     assert first.law_optimizer["seed"] is None
     assert first.adjacent_optimizer["seed"] is None
@@ -631,7 +640,7 @@ async def test_application_multi_create_rejects_digest_mismatch_and_persists_met
         current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
         content=SimpleNamespace(
             canonical_sha256="e" * 64,
-            normalized_artifact_id=__import__("uuid").UUID("da100000-0000-4000-8000-000000000026"),
+            normalized_artifact_id=UUID("da100000-0000-4000-8000-000000000026"),
             normalized_sha256="c" * 64,
             governed_source=None,
         ),
@@ -659,9 +668,9 @@ async def test_application_multi_create_rejects_digest_mismatch_and_persists_met
         committed.update(kwargs)
         return SimpleNamespace()
 
-    service._resolve = resolve  # type: ignore[attr-defined]
-    service.recommend_multi = recommend_multi  # type: ignore[attr-defined]
-    service._commit_output = commit_output  # type: ignore[attr-defined]
+    monkeypatch.setattr(service, "_resolve", resolve)
+    monkeypatch.setattr(service, "recommend_multi", recommend_multi)
+    monkeypatch.setattr(service, "_commit_output", commit_output)
 
     def fake_build(*args: object, **kwargs: object) -> object:
         return SimpleNamespace(
@@ -689,18 +698,16 @@ async def test_application_multi_create_rejects_digest_mismatch_and_persists_met
         "cmp.modules.processing.application.dma_frequency_master_curve.frequency_master_curve_parquet_bytes",
         lambda rows: b"synthetic parquet",
     )
-    pins = {
-        "test_data": DmaTestDataPin(
-            __import__("uuid").UUID("da100000-0000-4000-8000-000000000021"),
-            __import__("uuid").UUID("da100000-0000-4000-8000-000000000022"),
-            "a" * 64,
-        ),
-        "import_profile": DmaImportProfilePin(
-            __import__("uuid").UUID("da100000-0000-4000-8000-000000000023"),
-            __import__("uuid").UUID("da100000-0000-4000-8000-000000000024"),
-            "b" * 64,
-        ),
-    }
+    test_data_pin = DmaTestDataPin(
+        UUID("da100000-0000-4000-8000-000000000021"),
+        UUID("da100000-0000-4000-8000-000000000022"),
+        "a" * 64,
+    )
+    import_profile_pin = DmaImportProfilePin(
+        UUID("da100000-0000-4000-8000-000000000023"),
+        UUID("da100000-0000-4000-8000-000000000024"),
+        "b" * 64,
+    )
     command = CreateDmaFrequencyMasterCurve(
         input_mode="multi_frequency_isotherms",
         classification=DataClassification.INTERNAL,
@@ -725,17 +732,21 @@ async def test_application_multi_create_rejects_digest_mismatch_and_persists_met
             (1000.0, 5000.0),
         ),
         recommendation_sha256=recommendation.recommendation_sha256,
-        **pins,
+        test_data=test_data_pin,
+        import_profile=import_profile_pin,
     )
 
+    context = cast(SecurityContext, None)
+    decision = cast(AuthorizationDecision, None)
     with pytest.raises(DmaProcessingError) as mismatch:
-        await service.create(None, None, replace(command, recommendation_sha256="0" * 64))
+        await service.create(context, decision, replace(command, recommendation_sha256="0" * 64))
     assert mismatch.value.code == "CMP-PROCESSING-4317"
     assert committed == {}
 
-    created = await service.create(None, None, command)
+    created = await service.create(context, decision, command)
     assert created.master_curve_output is not None
-    options = committed["step"].options  # type: ignore[union-attr]
+    step = cast(ProcessingStep, committed["step"])
+    options = step.options
     assert options["recommendation"] == {
         "recommendation_sha256": recommendation.recommendation_sha256,
         "profile_id": recommendation.profile_id,

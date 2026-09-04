@@ -21,7 +21,6 @@ export interface DmaTtsProcessWorkspaceProps {
   config: ApiConfig;
   testData: CanonicalTestDataDocumentResponse;
   sourceDocument: Record<string, unknown>;
-  sourceLabel: string;
   initialOutput?: { id: string; revisionId: string; contentSha256: string };
   chart: { width: number; height: number };
   ribbonOpen: boolean;
@@ -31,9 +30,29 @@ export interface DmaTtsProcessWorkspaceProps {
 }
 
 const PARTITION_LABELS: Record<DmaTtsPartition, string> = {
-  CALIBRATION: "CALIBRATION",
-  HOLDOUT: "HOLDOUT",
-  EXCLUDED: "EXCLUDED",
+  CALIBRATION: "Fit",
+  HOLDOUT: "Check",
+  EXCLUDED: "Exclude",
+};
+
+const SHIFT_LAW_LABELS: Record<string, string> = {
+  wlf: "WLF",
+  wlf_fit: "WLF fit",
+  arrhenius: "Arrhenius",
+  arrhenius_fit: "Arrhenius fit",
+  manual_tabulated: "Manual",
+};
+
+const ASSESSMENT_LABELS: Record<string, string> = {
+  not_assessed: "Not assessed",
+  not_provided: "Not provided",
+  non_production: "Not ready for production",
+};
+
+const WARNING_LABELS: Record<string, string> = {
+  DMA_TTS_LVR_EVIDENCE_MISSING: "Linear viscoelastic range evidence is missing.",
+  DMA_TTS_TEMPERATURE_EQUILIBRIUM_EVIDENCE_MISSING: "Temperature equilibrium evidence is missing.",
+  DMA_TTS_PRECONDITIONING_EVIDENCE_MISSING: "Preconditioning evidence is missing.",
 };
 
 function compact(value: number): string {
@@ -48,17 +67,11 @@ function statusText(status: string): string {
   switch (status) {
     case "preparing": return "Preparing a read-only recommendation…";
     case "saving": return "Saving one immutable TTS result and verifying its exact read-back…";
-    case "saved": return "Exact GET and common Process → Fit link verified.";
+    case "saved": return "";
     case "read_error": return "The result pin exists, but exact read-back or Fit linking needs a retry.";
     case "save_outcome_unknown": return "Save outcome unknown; the create request will not be retried automatically.";
     default: return "";
   }
-}
-
-function backendRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
 }
 
 function backendValue(value: unknown): string {
@@ -70,63 +83,6 @@ function backendValue(value: unknown): string {
   } catch {
     return "—";
   }
-}
-
-function backendList(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function backendShiftLawSummary(value: unknown): string {
-  const law = backendRecord(value);
-  if (!law) return backendValue(value);
-
-  const kind = typeof law.kind === "string"
-    ? ({
-      wlf: "WLF",
-      wlf_fit: "WLF fit",
-      arrhenius: "Arrhenius",
-      arrhenius_fit: "Arrhenius fit",
-      manual_tabulated: "Manual/tabulated",
-    } as Record<string, string>)[law.kind] ?? law.kind
-    : "Backend shift law";
-  const reference = typeof law.reference_temperature_k === "number" && Number.isFinite(law.reference_temperature_k)
-    ? `reference ${compact(law.reference_temperature_k)} K`
-    : null;
-  return [kind, reference].filter(Boolean).join(" · ");
-}
-
-function backendScalar(value: unknown): string | null {
-  if (typeof value === "number") return Number.isFinite(value) ? compact(value) : null;
-  if (typeof value === "string" && value.trim()) return value;
-  return null;
-}
-
-function backendIntervalSummary(value: unknown, unit: string): string | null {
-  const interval = backendRecord(value);
-  if (!interval) return null;
-  const minimum = backendScalar(interval.minimum);
-  const maximum = backendScalar(interval.maximum);
-  return minimum !== null && maximum !== null ? `${minimum}–${maximum} ${unit}` : null;
-}
-
-function backendApplicationRangeSummary(value: unknown): string {
-  if (value === null || value === undefined) return "—";
-  const range = backendRecord(value);
-  if (!range) return backendScalar(value) ?? "Backend application range details unavailable";
-
-  const facts: string[] = [];
-  const frequencyIntervals = backendList(range.reduced_angular_frequency_intervals_rad_per_s)
-    .map((interval) => backendIntervalSummary(interval, "rad/s"))
-    .filter((interval): interval is string => interval !== null);
-  if (frequencyIntervals.length) facts.push(`Reduced frequency ${frequencyIntervals.join("; ")}`);
-
-  const temperatureInterval = backendIntervalSummary(range.calibration_temperature_interval_k, "K");
-  if (temperatureInterval) facts.push(`Calibration temperature ${temperatureInterval}`);
-
-  if (typeof range.holdout_included === "boolean") {
-    facts.push(`Holdout ${range.holdout_included ? "included" : "not included"}`);
-  }
-  return facts.length ? facts.join(" · ") : "Backend application range details unavailable";
 }
 
 function MultiSweepRail({
@@ -153,8 +109,8 @@ function MultiSweepRail({
   onPartition: (ordinal: number, partition: DmaTtsPartition) => void;
 }) {
   return <nav className="dma-tts-sweep-rail" aria-label="DMA frequency sweeps">
-    <div className="dma-tts-rail-heading"><span>Measured sweeps</span><strong>{source.sweeps.length}</strong></div>
-    <p className="dma-tts-rail-note">{locked ? "Saved partitions and reference are read-only. Visibility changes affect display only." : "Choose one calibration reference. Visibility changes affect display only."}</p>
+    <div className="dma-tts-rail-heading"><span>Frequency sweeps</span><strong>{source.sweeps.length}</strong></div>
+    <p className="dma-tts-rail-note">{locked ? "Saved setup. You can still show or hide curves." : "Choose one Reference. Set every sweep to Fit, Check, or Exclude."}</p>
     <div className="dma-tts-sweep-list" tabIndex={0} aria-label="Measured DMA frequency sweeps">
       {source.sweeps.map((sweep) => {
         const disposition = draft?.sweepDispositions.find((item) => item.source_sweep_ordinal === sweep.sourceSweepOrdinal);
@@ -166,13 +122,14 @@ function MultiSweepRail({
         const visible = visibleSweepOrdinals.includes(sweep.sourceSweepOrdinal);
         return <article className={`dma-tts-sweep-entry${isReference ? " is-reference" : ""}`} key={sweep.sourceSweepOrdinal}>
           <div className="dma-tts-sweep-entry-head">
-            <button type="button" className="dma-tts-sweep-visibility" aria-pressed={visible} aria-label={`${visible ? "Hide" : "Show"} sweep ${sweep.sourceSweepOrdinal}`} onClick={() => onToggle(sweep.sourceSweepOrdinal)}>{visible ? "◉" : "○"}</button>
-            <strong>Sweep {sweep.sourceSweepOrdinal}</strong>
-            <label><input type="radio" name="dma-tts-reference-sweep" checked={isReference} disabled={locked} onChange={() => onReference(sweep.sourceSweepOrdinal)} /><span>Reference</span></label>
+            <div><strong>{compact(sweep.representativeTemperatureK)} K</strong><span>Sweep {sweep.sourceSweepOrdinal}</span></div>
+            <label className="dma-tts-sweep-visibility"><input type="checkbox" checked={visible} onChange={() => onToggle(sweep.sourceSweepOrdinal)} /><span>Show</span></label>
           </div>
-          <div className="dma-tts-sweep-meta"><span>{compact(sweep.representativeTemperatureK)} K</span><span>{sweep.points.length} points</span></div>
-          <div className="dma-tts-sweep-meta"><span>{rawRange(sweep.sourceFrequencyMinHz, sweep.sourceFrequencyMaxHz, "Hz")}</span></div>
-          <label className="dma-tts-rail-partition">Partition<select aria-label={`Partition sweep ${sweep.sourceSweepOrdinal}`} value={partition} disabled={locked} onChange={(event) => onPartition(sweep.sourceSweepOrdinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></label>
+          <div className="dma-tts-sweep-meta"><span>{sweep.points.length} points</span><span>{rawRange(sweep.sourceFrequencyMinHz, sweep.sourceFrequencyMaxHz, "Hz")}</span></div>
+          <div className="dma-tts-sweep-actions">
+            <label className="dma-tts-reference-choice"><input type="radio" name="dma-tts-reference-sweep" checked={isReference} disabled={locked} onChange={() => onReference(sweep.sourceSweepOrdinal)} /><span>Reference</span></label>
+            <label className="dma-tts-rail-partition"><span>Use</span><select aria-label={`Partition sweep ${sweep.sourceSweepOrdinal}`} value={partition} disabled={locked} onChange={(event) => onPartition(sweep.sourceSweepOrdinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></label>
+          </div>
         </article>;
       })}
     </div>
@@ -183,7 +140,6 @@ export function DmaTtsProcessWorkspace({
   config,
   testData,
   sourceDocument,
-  sourceLabel,
   initialOutput,
   chart,
   ribbonOpen,
@@ -191,7 +147,7 @@ export function DmaTtsProcessWorkspace({
   onSaved,
   onContinue,
 }: DmaTtsProcessWorkspaceProps) {
-  const process = useDmaTtsProcess({ config, testData, sourceDocument, sourceLabel, initialOutput, onSaved });
+  const process = useDmaTtsProcess({ config, testData, sourceDocument, initialOutput, onSaved });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const isMulti = process.inputMode === "multi_frequency_isotherms" && process.multiSource;
   const plot = useMemo(() => {
@@ -242,14 +198,28 @@ export function DmaTtsProcessWorkspace({
     })
   ));
   const graphTitle = process.readBack
-    ? "Saved DMA response · backend reduced frequency"
+    ? "Saved DMA response"
     : isMulti ? "DMA frequency isotherms" : "DMA temperature sweep";
   const includedCount = fixedDraft?.dispositions.filter((item) => item.partition !== "EXCLUDED").length
     ?? multiDraft?.sweepDispositions.filter((item) => item.partition !== "EXCLUDED").length ?? 0;
   const savedOptions = process.readBack?.options ?? {};
-  const savedAssessment = backendRecord(savedOptions.assessment);
-  const savedShiftLaw = backendRecord(savedOptions.shift_law);
-  const savedWarnings = backendList(savedOptions.warnings);
+  const savedAssessment = savedOptions.assessment;
+  const savedShiftLaw = savedOptions.shift_law;
+  const savedApplicationRange = savedOptions.application_range;
+  const savedWarnings = savedOptions.warnings ?? [];
+  const savedFrequencyRange = savedApplicationRange?.reduced_angular_frequency_intervals_rad_per_s
+    .map((interval) => rawRange(interval.minimum, interval.maximum, "rad/s"))
+    .join(", ") ?? "—";
+  const savedTemperatureRange = savedApplicationRange
+    ? rawRange(
+      savedApplicationRange.calibration_temperature_interval_k.minimum,
+      savedApplicationRange.calibration_temperature_interval_k.maximum,
+      "K",
+    )
+    : "—";
+  const commandTitle = process.readBack
+    ? "3. Continue to Prony Fit"
+    : process.recommendation ? "2. Review and save" : "1. Prepare the DMA master curve";
 
   function numberField(value: number): string {
     return Number.isFinite(value) ? String(value) : "";
@@ -350,20 +320,23 @@ export function DmaTtsProcessWorkspace({
   /> : undefined;
 
   const ribbon = <div className="dma-tts-command-ribbon">
-    <span>{process.status === "saved" ? "Exact saved TTS result verified" : process.inputMode === "fixed_frequency_temperature_sweep" ? "Fixed-frequency reduced-frequency projection" : process.status === "preparing" ? "Preparing recommendation…" : multiDraft ? `Multi-frequency ${multiDraft.shiftLawKind}` : "Multi-frequency recommendation"}</span>
-    <div>
+    <div className="dma-tts-command-context">
+      <strong>{commandTitle}</strong>
+    </div>
+    <div className="dma-tts-command-actions">
       {process.canPrepare && !process.recommendation ? <button type="button" className="button primary" disabled={process.status === "preparing"} onClick={() => void process.prepareRecommendation()}>{process.status === "preparing" ? "Preparing…" : "Prepare recommendation"}</button> : null}
       {process.recommendation && !process.readBack ? <button type="button" className="button secondary" onClick={() => setSettingsOpen((value) => !value)} disabled={process.status === "saving"}>{settingsOpen ? "Hide settings" : "Advanced settings"}</button> : null}
-      {process.fitInput && process.status === "saved" ? <button type="button" className="button primary" onClick={onContinue}>Continue to Fit</button> : null}
+      {process.recommendation && !process.readBack ? <button type="button" className="button primary" disabled={!process.canSave || process.status === "saving" || process.status === "save_outcome_unknown"} onClick={() => void process.save()}>{process.status === "saving" ? "Saving…" : "Save TTS result"}</button> : null}
+      {process.fitInput && process.status === "saved" ? <button type="button" className="button primary" onClick={onContinue}>Continue to Prony Fit</button> : null}
     </div>
   </div>;
 
   return <ModelingWorkspaceLayout
     navigator={rail}
     navigatorLabel="DMA frequency sweeps"
-    navigatorSize={isMulti ? { min: 184, default: 192, max: 210 } : undefined}
+    navigatorSize={isMulti ? { min: 232, default: 256, max: 288 } : undefined}
     ribbon={ribbon}
-    plot={<div className={`dma-tts-process-surface${isMulti ? " dma-tts-process-surface-multi" : ""}`}>
+    plot={<div className={`dma-tts-process-surface${isMulti ? " dma-tts-process-surface-multi" : ""}${process.readBack ? " is-saved" : ""}`}>
       <section className="persistent-modeling-plot dma-tts-graph" aria-labelledby="dma-tts-graph-heading">
         <h2 id="dma-tts-graph-heading">{graphTitle}</h2>
         {plot && stage ? <EngineeringCurvePlot
@@ -375,19 +348,19 @@ export function DmaTtsProcessWorkspace({
           height={chart.height}
         /> : <div className="dma-tts-plot-placeholder" role="status">Select an exact governed DMA source to show measured curves.</div>}
         <details className="dma-tts-text-alternative"><summary>Textual curve data</summary>
-          {process.fixedSource ? <p>Fixed source: {process.fixedSource.rows.map((row) => `${compact(row.temperatureK)} K · G′ ${compact(row.storageModulusPa)} Pa · G″ ${compact(row.lossModulusPa)} Pa`).join("; ")}.</p> : null}
+          {process.fixedSource ? <p>Fixed source: {process.fixedSource.rows.map((row) => `${compact(row.temperatureK)} K, G′ ${compact(row.storageModulusPa)} Pa, G″ ${compact(row.lossModulusPa)} Pa`).join("; ")}.</p> : null}
           {process.multiSource ? <ul>{process.multiSource.sweeps.map((sweep) => <li key={sweep.sourceSweepOrdinal}>Sweep {sweep.sourceSweepOrdinal}: {compact(sweep.representativeTemperatureK)} K, {sweep.points.length} points, raw {rawRange(sweep.sourceFrequencyMinHz, sweep.sourceFrequencyMaxHz, "Hz")}, G′ and G″ measured.</li>)}</ul> : null}
-          {process.readBack ? <p>Backend reduced range and shifts: {process.readBack.isotherms.map((row) => `${row.source_sweep_ordinal ?? "fixed"} ${row.shifted_angular_frequency_min_rad_per_s === null ? "not shifted" : rawRange(row.shifted_angular_frequency_min_rad_per_s, row.shifted_angular_frequency_max_rad_per_s ?? row.shifted_angular_frequency_min_rad_per_s, "rad/s")} · log10(aT) ${row.applied_log10_a_t ?? "—"} · residual ${row.shift_residual_log10_a_t ?? "—"}`).join("; ")}.</p> : null}
+          {process.readBack ? <p>Backend reduced range and shifts: {process.readBack.isotherms.map((row) => `Sweep ${row.source_sweep_ordinal ?? "fixed"}: ${row.shifted_angular_frequency_min_rad_per_s === null ? "not shifted" : rawRange(row.shifted_angular_frequency_min_rad_per_s, row.shifted_angular_frequency_max_rad_per_s ?? row.shifted_angular_frequency_min_rad_per_s, "rad/s")}, log10(aT) ${row.applied_log10_a_t ?? "—"}, residual ${row.shift_residual_log10_a_t ?? "—"}`).join("; ")}.</p> : null}
         </details>
       </section>
       <section className="dma-tts-work-area" aria-label="DMA shift setup">
-        <div className="dma-tts-status" role="status" aria-live="polite">{statusText(process.status)}</div>
+        {statusText(process.status) ? <div className="dma-tts-status" role="status" aria-live="polite">{statusText(process.status)}</div> : null}
         {process.error ? <WorkbenchMessage kind="error" title={process.status === "save_outcome_unknown" ? "Save outcome unknown" : "DMA response not ready"} action={{ label: process.createdOutput ? "Retry exact read" : "Retry", onClick: process.retry }}>{process.error}</WorkbenchMessage> : null}
         {!process.readBack && process.recommendation && process.draft ? <>
           <header className="dma-tts-summary">
             <div><span>{isMulti ? "Sweeps included" : "Temperatures used"}</span><strong>{includedCount} of {isMulti ? process.multiSource?.sweeps.length ?? 0 : process.fixedSource?.rows.length ?? 0}</strong></div>
             <div><span>{isMulti ? "Reference sweep" : "Test frequency"}</span><strong>{isMulti ? `#${multiDraft?.referenceSweepOrdinal}` : `${compact(process.fixedSource?.frequencyHz ?? 0)} Hz`}</strong></div>
-            <div><span>Shift method</span><strong>{isMulti ? (multiDraft?.shiftLawKind ?? "—") : "WLF"}</strong></div>
+            <div><span>Shift method</span><strong>{isMulti ? (SHIFT_LAW_LABELS[multiDraft?.shiftLawKind ?? ""] ?? "—") : "WLF"}</strong></div>
             <div><span>Reference temperature</span><strong>{compact(Number(process.draft.referenceTemperatureK))} K</strong></div>
           </header>
           {settingsOpen ? <div className="dma-tts-settings">
@@ -441,14 +414,16 @@ export function DmaTtsProcessWorkspace({
               const disposition = fixedDraft.dispositions[row.ordinal];
               return <tr key={row.ordinal}><td>{compact(row.temperatureK)} K</td><td><select name={`dma-tts-temperature-${row.ordinal}-use`} aria-label={`Use ${compact(row.temperatureK)} K`} value={disposition.partition} onChange={(event) => process.setDisposition(row.ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></td><td>{disposition.partition === "EXCLUDED" ? <input name={`dma-tts-temperature-${row.ordinal}-exclusion-reason`} autoComplete="off" aria-label={`Reason for not using ${compact(row.temperatureK)} K`} value={disposition.exclusionReason} onChange={(event) => process.setExclusionReason(row.ordinal, event.target.value)} /> : "—"}</td></tr>;
             })}</tbody></table></div> : null}
-            {multiDraft ? <div className="dma-tts-temperature-table-scroll"><table><caption>Sweep disposition</caption><thead><tr><th>Sweep</th><th>Partition</th><th>Reason when excluded</th></tr></thead><tbody>{multiDraft.sweepDispositions.map((item) => <tr key={item.source_sweep_ordinal}><td>#{item.source_sweep_ordinal} · {compact(item.representative_temperature_k)} K</td><td><select name={`dma-tts-sweep-${item.source_sweep_ordinal}-partition`} aria-label={`Partition sweep ${item.source_sweep_ordinal}`} value={item.partition} onChange={(event) => process.setSweepDisposition(item.source_sweep_ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></td><td>{item.partition === "EXCLUDED" ? <input name={`dma-tts-sweep-${item.source_sweep_ordinal}-reason`} aria-label={`Reason for excluding sweep ${item.source_sweep_ordinal}`} value={item.exclusion_reason ?? ""} onChange={(event) => process.setSweepExclusionReason(item.source_sweep_ordinal, event.target.value)} /> : "—"}</td></tr>)}</tbody></table></div> : null}
+            {multiDraft ? <div className="dma-tts-temperature-table-scroll"><table><caption>Sweep disposition</caption><thead><tr><th>Sweep</th><th>Use</th><th>Reason when excluded</th></tr></thead><tbody>{multiDraft.sweepDispositions.map((item) => <tr key={item.source_sweep_ordinal}><td>Sweep {item.source_sweep_ordinal}, {compact(item.representative_temperature_k)} K</td><td><select name={`dma-tts-sweep-${item.source_sweep_ordinal}-partition`} aria-label={`Partition sweep ${item.source_sweep_ordinal}`} value={item.partition} onChange={(event) => process.setSweepDisposition(item.source_sweep_ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></td><td>{item.partition === "EXCLUDED" ? <input name={`dma-tts-sweep-${item.source_sweep_ordinal}-reason`} aria-label={`Reason for excluding sweep ${item.source_sweep_ordinal}`} value={item.exclusion_reason ?? ""} onChange={(event) => process.setSweepExclusionReason(item.source_sweep_ordinal, event.target.value)} /> : "—"}</td></tr>)}</tbody></table></div> : null}
           </div> : null}
-          <div className="dma-tts-confirmation"><button type="button" className="button primary" disabled={!process.canSave || process.status === "saving" || process.status === "save_outcome_unknown"} onClick={() => void process.save()}>{process.status === "saving" ? "Saving…" : "Save TTS result"}</button></div>
         </> : null}
         {process.readBack ? <div className="dma-tts-result-evidence">
-          <div className="dma-tts-saved-row"><div><h2>Shifted DMA response saved</h2><p>{process.status === "saved" ? "Exact GET and common Processing Output link verified; Fit handoff is available." : "Exact GET verified; the common Processing Output link still needs a retry."}</p><p className="dma-tts-results-summary">Backend-provided shift factors, overlap ranges, G′/G″ RMSE, holdout evaluation, application range, assessment, and warnings are shown below.</p></div></div>
-          <section aria-labelledby="dma-tts-isotherm-results-heading"><h3 id="dma-tts-isotherm-results-heading">Backend isotherm results</h3><div className="dma-tts-result-table-scroll"><table><thead><tr><th>Sweep</th><th>Temperature</th><th>Partition</th><th>Reference</th><th>Holdout state</th><th>Applied log10(aT)</th><th>Shift factor</th><th>Shift residual</th><th>G′ RMSE</th><th>G″ RMSE</th><th>Overlap</th></tr></thead><tbody>{process.readBack.isotherms.map((row) => <tr key={`${row.source_sweep_ordinal ?? "fixed"}-${row.representative_temperature_k}`}><td>{row.source_sweep_ordinal ?? "fixed"}</td><td>{backendValue(row.representative_temperature_k)} K</td><td>{row.partition}</td><td>{row.is_reference ? "Yes" : "No"}</td><td>{backendValue(row.holdout_evaluation_status)}</td><td>{backendValue(row.applied_log10_a_t)}</td><td>{backendValue(row.shift_factor)}</td><td>{backendValue(row.shift_residual_log10_a_t)}</td><td>{backendValue(row.storage_rmse)}</td><td>{backendValue(row.loss_rmse)}</td><td>{backendValue(row.overlap_log10_reduced_angular_frequency_min)}–{backendValue(row.overlap_log10_reduced_angular_frequency_max)}</td></tr>)}</tbody></table></div></section>
-          <section className="dma-tts-output-summary" aria-labelledby="dma-tts-output-summary-heading"><h3 id="dma-tts-output-summary-heading">Backend output summary</h3><dl><div><dt>Application range</dt><dd>{backendApplicationRangeSummary(savedOptions.application_range)}</dd></div><div><dt>Shift law</dt><dd>{backendShiftLawSummary(savedShiftLaw ?? savedOptions.shift_law)}</dd></div><div><dt>Assessment</dt><dd>{savedAssessment ? <span className="dma-tts-assessment-list">{Object.entries(savedAssessment).map(([key, value]) => <span key={key}>{key}: {backendValue(value)}</span>)}</span> : backendValue(savedOptions.assessment)}</dd></div><div><dt>Production status</dt><dd>{backendValue(savedOptions.production_readiness ?? savedAssessment?.production_readiness)}</dd></div><div><dt>Warnings</dt><dd>{savedWarnings.length ? <span className="dma-tts-warning-list">{savedWarnings.map((warning, index) => <span key={`${index}-${String(warning)}`}>{backendValue(warning)}</span>)}</span> : "—"}</dd></div></dl></section>
+          <div className="dma-tts-saved-row"><h2>TTS result saved</h2><p>{process.status === "saved" ? "Ready for Prony Fit." : "The saved result is available. Fit linking needs a retry."}</p></div>
+          <section className="dma-tts-result-summary" aria-labelledby="dma-tts-result-summary-heading"><h3 id="dma-tts-result-summary-heading">Result summary</h3><dl><div><dt>Shift method</dt><dd>{SHIFT_LAW_LABELS[savedShiftLaw?.kind ?? ""] ?? "—"}</dd></div><div><dt>Reference temperature</dt><dd>{savedShiftLaw ? `${compact(savedShiftLaw.reference_temperature_k)} K` : "—"}</dd></div><div><dt>Fit frequency range</dt><dd>{savedFrequencyRange}</dd></div><div><dt>Fit temperature range</dt><dd>{savedTemperatureRange}</dd></div></dl></section>
+          <details className="dma-tts-result-details"><summary>Calculation details</summary><div className="dma-tts-result-details-body">
+            <section aria-labelledby="dma-tts-isotherm-results-heading"><h3 id="dma-tts-isotherm-results-heading">Sweep results</h3><div className="dma-tts-result-table-scroll"><table><thead><tr><th>Sweep</th><th>Temperature</th><th>Use</th><th>Reference</th><th>Check state</th><th>Applied log10(aT)</th><th>Shift factor</th><th>Shift residual</th><th>G′ RMSE</th><th>G″ RMSE</th><th>Overlap</th></tr></thead><tbody>{process.readBack.isotherms.map((row) => <tr key={`${row.source_sweep_ordinal ?? "fixed"}-${row.representative_temperature_k}`}><td>{row.source_sweep_ordinal ?? "fixed"}</td><td>{backendValue(row.representative_temperature_k)} K</td><td>{PARTITION_LABELS[row.partition]}</td><td>{row.is_reference ? "Yes" : "No"}</td><td>{backendValue(row.holdout_evaluation_status)}</td><td>{backendValue(row.applied_log10_a_t)}</td><td>{backendValue(row.shift_factor)}</td><td>{backendValue(row.shift_residual_log10_a_t)}</td><td>{backendValue(row.storage_rmse)}</td><td>{backendValue(row.loss_rmse)}</td><td>{backendValue(row.overlap_log10_reduced_angular_frequency_min)}–{backendValue(row.overlap_log10_reduced_angular_frequency_max)}</td></tr>)}</tbody></table></div></section>
+            <section className="dma-tts-output-summary" aria-labelledby="dma-tts-output-summary-heading"><h3 id="dma-tts-output-summary-heading">Assessment</h3><dl><div><dt>Adequacy</dt><dd>{ASSESSMENT_LABELS[savedAssessment?.adequacy ?? ""] ?? "—"}</dd></div><div><dt>Uncertainty</dt><dd>{ASSESSMENT_LABELS[savedAssessment?.uncertainty ?? ""] ?? "—"}</dd></div><div><dt>Identifiability</dt><dd>{ASSESSMENT_LABELS[savedAssessment?.identifiability ?? ""] ?? "—"}</dd></div><div><dt>Production use</dt><dd>{ASSESSMENT_LABELS[savedAssessment?.production_readiness ?? ""] ?? "—"}</dd></div>{savedWarnings.length ? <div className="dma-tts-output-warnings"><dt>Missing evidence</dt><dd><span className="dma-tts-warning-list">{savedWarnings.map((warning) => <span key={warning}>{WARNING_LABELS[warning] ?? warning}</span>)}</span></dd></div> : null}</dl></section>
+          </div></details>
         </div> : null}
         {process.status === "loading" && !process.error ? <p className="dma-tts-loading" role="status">Loading exact governed DMA source…</p> : null}
       </section>

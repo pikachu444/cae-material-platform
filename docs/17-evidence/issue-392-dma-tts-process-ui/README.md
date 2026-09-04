@@ -18,9 +18,10 @@
 The browser imports the bounded NIST SRM 2491-derived six-temperature frequency-sweep fixture, resolves the
 five required DMA channels, and enters Process. It asks the backend for the recommendation, displays sweep 4
 at 303.15 K as the recommended reference without recalculating that decision in React, and keeps sweep 1 as
-the checking partition. The engineer may review Advanced controls, then performs one explicit **Save TTS
-processing output** action. After `201`, the client reads the exact specialized output and common Processing
-Output link, displays raw plus backend-shifted sweeps, and continues with that pinned revision to Fit. Fit
+the checking partition. The left rail names the three decisions directly: Show, Reference and
+Fit/Check/Exclude. The engineer may review **Advanced settings**, then performs one explicit **Save TTS
+result** action. After `201`, the client reads the exact specialized output and common Processing Output link,
+displays raw plus backend-shifted sweeps, and uses **Continue to Prony Fit** with that pinned revision. Fit
 calculates the 1–10-term candidates, exposes the recommendation separately from engineer Selection, saves an
 alternate selection with a reason, and reads the same decision back after reload.
 
@@ -41,16 +42,22 @@ exact read or common-link loading retry only those GETs.
   replay.
 - Five viewport geometry: PASS at 1366×768, 1440×900, 1920×1080, 2560×1440 and 3840×2160, browser zoom 100%,
   DPR 1. Physical Windows 4K readability remains governed by #223.
+- Product-owner correction: the first visual pass was rejected because the sweep rail was narrow and unclear,
+  filenames and conditions were concatenated into long helper copy, and backend evidence dominated the saved
+  state. The corrected pass widens and labels the rail, presents Prepare → Review and save → Continue to Prony
+  Fit, and keeps sweep metrics, assessments and warnings under **Calculation details**. Final owner geometry
+  disposition remains pending.
 
 ## #249 synthesis disposition
 
-- Information hierarchy: PASS. The flat sweep rail, recommendation/advanced decision band, dominant graph and
-  saved-result details form one readable hierarchy without nested cards or a permanent inspector.
+- Information hierarchy: PASS after correction. The flat labeled sweep rail, one command band, dominant graph,
+  compact result summary and collapsed calculation details form one readable hierarchy without nested cards or
+  a permanent inspector.
 - Engineering task flow: PASS. Raw review → backend recommendation → explicit save → exact read-back → Fit is
   visible and ordered; error recovery stays at the affected operation.
-- Responsive/wide-screen composition: PASS. The sweep rail remains bounded, controls retain readable widths,
-  and the graph uses additional width and height at 1920/2560/3840 without a capped work island or synthetic
-  filler.
+- Responsive/wide-screen composition: PASS after correction. The sweep rail remains readable and bounded,
+  controls retain useful widths, and the graph uses additional space at 1920/2560/3840 without a capped work
+  island, oversized empty result pane or synthetic filler.
 
 ## Q-01–Q-20 disposition
 

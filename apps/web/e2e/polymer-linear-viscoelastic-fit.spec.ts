@@ -611,7 +611,7 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   const prepare = page.getByRole("button", { name: "Prepare recommendation" });
   await expect(prepare).toBeVisible({ timeout: 30_000 });
   await expect(prepare).toBeEnabled();
-  await expect(page.getByText("Fixed-frequency reduced-frequency projection", { exact: true })).toBeVisible();
+  await expect(page.getByText("1. Prepare the DMA master curve", { exact: true })).toBeVisible();
   await expect(page.getByLabel("C1")).toHaveCount(0);
   const processGeometry = await page.locator(".dma-tts-process-surface").evaluate((surface) => {
     const graph = surface.querySelector<HTMLElement>(".dma-tts-graph")!;
@@ -654,10 +654,10 @@ test("a fixed-frequency DMA temperature sweep creates one shifted response befor
   const created = (await createdResponse.json()) as {
     master_curve_output: { output_id: string; revision_id: string };
   };
-  await expect(page.getByRole("heading", { name: "Shifted DMA response saved" })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "TTS result saved" })).toBeVisible({
     timeout: 30_000,
   });
-  const continueToFit = page.getByRole("button", { name: "Continue to Fit" });
+  const continueToFit = page.getByRole("button", { name: "Continue to Prony Fit" });
   await expect(continueToFit).toHaveCount(1);
   for (const viewport of acceptanceViewports) {
     const size = `${viewport.width}x${viewport.height}`;
@@ -863,22 +863,25 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   expect(exactReadHttp.ok()).toBeTruthy();
   expect(new URL(exactReadHttp.url()).searchParams.get("content_sha256"))
     .toBe(created.master_curve_output.content_sha256);
-  await expect(page.getByRole("heading", { name: "Shifted DMA response saved" })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole("heading", { name: "TTS result saved" })).toBeVisible({ timeout: 60_000 });
   await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
   await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
-  await expect(page.locator(".dma-tts-saved-row").getByText("Exact GET and common Processing Output link verified", { exact: false })).toBeVisible();
+  await expect(page.locator(".dma-tts-saved-row").getByText("Ready for Prony Fit.", { exact: true })).toBeVisible();
+  const calculationDetails = page.locator(".dma-tts-result-details");
+  await calculationDetails.getByText("Calculation details", { exact: true }).click();
   const backendResults = page.getByRole("table").filter({ hasText: "Applied log10(aT)" });
   await expect(backendResults.locator("tbody > tr")).toHaveCount(6);
-  await expect(backendResults.getByRole("cell", { name: "HOLDOUT", exact: true })).toBeVisible();
+  await expect(backendResults.getByRole("cell", { name: "Check", exact: true })).toBeVisible();
   await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
   await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
   await expect(page.getByRole("radio", { name: /Reference/ }).first()).toBeDisabled();
   await expect(page.getByLabel("Partition sweep 1").first()).toBeDisabled();
   expect(processCreateRequests).toHaveLength(1);
+  await calculationDetails.getByText("Calculation details", { exact: true }).click();
   await captureIssue392ProcessState(page, "saved");
 
-  const continueToFit = page.getByRole("button", { name: "Continue to Fit", exact: true });
+  const continueToFit = page.getByRole("button", { name: "Continue to Prony Fit", exact: true });
   await expect(continueToFit).toBeEnabled();
   await continueToFit.click();
   await expect(page).toHaveURL(/stage=fit/);
