@@ -5,7 +5,7 @@ source_commit: 6abddd25b9ef8e7f2e0a8d112feaf3846996379b+issue392-worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: 'Preserved-volume cmp-issue392-after Compose with a fresh API, worker, repeatable demo seed and production web build; serial Playwright NIST SRM 2491-derived six-sweep DMA import, backend recommendation, one explicit save, exact Processing Output read-back, Fit calculation, alternate candidate selection, reason save and reload at browser zoom 100% and DPR 1. Recommendation and exact-saved Process states were captured at 1366x768, 1440x900, 1920x1080, 2560x1440 and 3840x2160; the final saved Fit decision was captured at 1920x1080. Physical Windows 4K readability remains governed by #223.'
 notes:
-  - "Issue #392 connects the Issue #391 multi-temperature, multi-frequency DMA TTS Processing Output to the existing Issue #377 Modeling and Prony Fit journey. The corrected normal surface consumes the backend recommendation verbatim, labels the six-sweep rail with Plot, Shift reference and Fit/Validate/Ignore roles, locks the shift reference to Fit, orders the journey as Prepare, Review and save, then Continue to Prony Fit, and moves sweep metrics, assessment and warning evidence into collapsed Calculation details. TTS settings owns the WLF, Arrhenius or Manual choice without duplicating the sweep-role table. Raw data remains visible before save and backend-shifted data after exact read-back; the exact saved output reaches 1–10-term Fit calculation, engineer Selection, reason save and reload. A 4xx response remains editable; timeout, network and 5xx states are outcome-unknown and never repeat the create POST automatically. Forty direct 100%-pixel header, navigator, controls and graph crops plus twenty-one before/after originals are registered in the Issue #392 evidence manifest. The initial visual pass was rejected by the product owner and corrected; final product-owner visual geometry disposition remains pending."
+  - "Issue #392 connects the Issue #391 multi-temperature, multi-frequency DMA TTS Processing Output to the existing Issue #377 Modeling and Prony Fit journey. The current candidate consumes the backend recommendation verbatim, keeps the left rail to compact temperature-curve visibility rows, and moves the single Reference curve choice plus Fit/Validate/Ignore roles into the central setup area. TTS settings owns the sweep-role table and WLF, Arrhenius or Manual shift method without repeating them in the rail. Raw data remains visible before save and backend-shifted data after exact read-back; the exact saved output reaches 1–10-term Fit calculation, engineer Selection, reason save and reload. A 4xx response remains editable; timeout, network and 5xx states are outcome-unknown and never repeat the create POST automatically. Forty direct 100%-pixel header, navigator, controls and graph crops plus twenty-one before/after originals are registered in the Issue #392 evidence manifest. Two visual passes were rejected by the product owner; final product-owner visual geometry disposition for this candidate remains pending."
   - "Issue #331 refreshes the existing five current Process originals after moving the remaining Modeling-state CSS to its feature owners. The exact DP780 Data to Process to Fit journey completed at all five viewports; the calculation curves remain inside the plot and no longer enter the legend reservation. Data selection, Mapping Profile, saved Processing Output, Fit attempts, reload and exact-source retry were read back without a latest or first-item fallback. The product owner waived retroactive before-image regeneration and approved proceeding from the successful after run; this is not approval of the existing design quality or physical Windows 4K readability."
   - "The current Administration set uses the exact Technical Data Table revision r1, default Layout revision r1 and DP780 technical-data Record context; the Records set shows the exact DP780 technical-data editor. A single retained disposable Compose project captured Database, Record preview and Records at all five viewports after the zero-consumer CSS retirement; decoded before/after RGBA comparisons are pixel-identical. On 2026-09-01 the product owner approved the presented 1920/2560/3840 originals as no-regression evidence, not as approval of the existing design quality."
   - "Issue #331's behavior-preserving CSS-ownership evidence remains historical. Issue #377 replaces the affected current-guide Modeling Fit images with the shared full-width graph, bottom candidate/engineer decision dock and bounded Calculation settings drawer, and promotes the five-viewport DMA TTS Process evidence. Product-owner visual disposition remains pending."
@@ -1295,35 +1295,35 @@ captures:
     height: 2160
   - id: modeling-process-polymer-dma-tts-1366
     route: /modeling?stage=process&family=polymer
-    workflow: multi-frequency DMA routes through Process; six temperature sweeps expose Plot, one Fit-locked Shift reference and Fit/Validate/Ignore roles before the single Save TTS result action
+    workflow: multi-frequency DMA routes through Process; the compact rail controls curve visibility while central Reference curve and TTS settings own the Fit/Validate/Ignore decisions before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-1366x768.png
     width: 1366
     height: 768
   - id: modeling-process-polymer-dma-tts-1440
     route: /modeling?stage=process&family=polymer
-    workflow: multi-frequency DMA routes through Process; six temperature sweeps expose Plot, one Fit-locked Shift reference and Fit/Validate/Ignore roles before the single Save TTS result action
+    workflow: multi-frequency DMA routes through Process; the compact rail controls curve visibility while central Reference curve and TTS settings own the Fit/Validate/Ignore decisions before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-1440x900.png
     width: 1440
     height: 900
   - id: modeling-process-polymer-dma-tts-1920
     route: /modeling?stage=process&family=polymer
-    workflow: multi-frequency DMA routes through Process; six temperature sweeps expose Plot, one Fit-locked Shift reference and Fit/Validate/Ignore roles before the single Save TTS result action
+    workflow: multi-frequency DMA routes through Process; the compact rail controls curve visibility while central Reference curve and TTS settings own the Fit/Validate/Ignore decisions before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-process-polymer-dma-tts-2560
     route: /modeling?stage=process&family=polymer
-    workflow: the wide Process workspace keeps the labeled sweep rail readable while allocating additional width and height to the raw engineering graph and one Save TTS result action
+    workflow: the wide Process workspace keeps the compact visibility rail bounded while allocating additional width and height to the raw engineering graph and one Save TTS result action
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-process-polymer-dma-tts-3840
     route: /modeling?stage=process&family=polymer
-    workflow: the wide Process workspace keeps the labeled sweep rail readable while allocating additional width and height to the raw engineering graph and one Save TTS result action
+    workflow: the wide Process workspace keeps the compact visibility rail bounded while allocating additional width and height to the raw engineering graph and one Save TTS result action
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-3840x2160.png
     width: 3840
@@ -1351,14 +1351,14 @@ captures:
     height: 1080
   - id: modeling-process-polymer-dma-tts-saved-2560
     route: /modeling?stage=process&family=polymer
-    workflow: the exact saved result and labeled sweep rail stay readable while the raw/shifted overlay uses the wide workspace before Continue to Prony Fit
+    workflow: the exact saved result and compact visibility rail stay readable while the raw/shifted overlay uses the wide workspace before Continue to Prony Fit
     fixture: exact immutable six-sweep DMA master-curve output with 80 calculation observations and 16 checking observations
     image: images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-process-polymer-dma-tts-saved-3840
     route: /modeling?stage=process&family=polymer
-    workflow: the exact saved result and labeled sweep rail stay readable while the raw/shifted overlay uses the wide workspace before Continue to Prony Fit
+    workflow: the exact saved result and compact visibility rail stay readable while the raw/shifted overlay uses the wide workspace before Continue to Prony Fit
     fixture: exact immutable six-sweep DMA master-curve output with 80 calculation observations and 16 checking observations
     image: images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png
     width: 3840

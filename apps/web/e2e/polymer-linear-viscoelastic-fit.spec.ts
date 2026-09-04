@@ -806,7 +806,9 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await expect(page).toHaveURL(/stage=process/);
   await expect(page.locator(".dma-tts-sweep-rail")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator(".dma-tts-sweep-entry")).toHaveCount(6);
-  await expect(page.getByText("0.015915–15.915 Hz", { exact: false }).first()).toBeVisible();
+  await expect(page.getByText("Temperature curves", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Reference curve")).toHaveValue(String(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL));
+  await expect(page.getByRole("checkbox", { name: /^Show .* K curve$/ })).toHaveCount(6);
   await expect(page.getByRole("button", { name: "Prepare recommendation", exact: true })).toBeEnabled();
   await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.locator(".dma-legend-line-key", { hasText: "G′" })).toBeVisible();
@@ -830,11 +832,10 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
     (item) => item.source_sweep_ordinal === NIST_SRM_2491_HOLDOUT_SWEEP_ORDINAL,
   )?.partition).toBe("HOLDOUT");
   await expect(page.getByText("Sweeps included", { exact: true })).toBeVisible();
-  await expect(page.getByText("#4", { exact: true })).toBeVisible();
+  await expect(page.getByText(`${NIST_SRM_2491_REFERENCE_TEMPERATURE_K} K · #${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`, { exact: true })).toBeVisible();
 
-  const referenceRadios = page.getByRole("radio", { name: "Shift reference" });
-  await expect(referenceRadios).toHaveCount(6);
-  await expect(referenceRadios.nth(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL - 1)).toBeChecked();
+  await page.getByRole("button", { name: "TTS settings", exact: true }).click();
+  await expect(page.getByLabel("Reference curve")).toHaveValue(String(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL));
   await expect(page.getByLabel(`Analysis role for sweep ${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`)).toBeDisabled();
   const visibleSweepRole = page.getByLabel("Analysis role for sweep 2");
   await visibleSweepRole.selectOption("EXCLUDED");
@@ -843,7 +844,6 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await ignoreReason.fill("Outside the selected fit range");
   await visibleSweepRole.selectOption("CALIBRATION");
   await expect(ignoreReason).toHaveCount(0);
-  await page.getByRole("button", { name: "TTS settings", exact: true }).click();
   const law = page.getByLabel("Shift method");
   await expect(law).toBeVisible();
   await expect(law.locator("option")).toHaveText([
@@ -886,8 +886,8 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
   await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Shift reference" }).first()).toBeDisabled();
-  await expect(page.getByLabel("Analysis role for sweep 1").first()).toBeDisabled();
+  await expect(page.getByRole("checkbox", { name: /^Show .* K curve$/ })).toHaveCount(6);
+  await expect(page.getByLabel("Show 273.15 K curve")).toBeEnabled();
   expect(processCreateRequests).toHaveLength(1);
   await calculationDetails.getByText("Calculation details", { exact: true }).click();
   await captureIssue392ProcessState(page, "saved");

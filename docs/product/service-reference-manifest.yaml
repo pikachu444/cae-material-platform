@@ -374,7 +374,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-1366
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1366x768.png
-  image_sha256: 0873350e86196f19709fb9156d319edbfa84315705e1188acf774b56704bdbb8
+  image_sha256: 01498d45ae83c9fb217c0893c6b4cbbdd2d181cc6c03f86952b924a2de7af5da
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-1440x900
   screen: modeling-process
@@ -384,7 +384,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-1440
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1440x900.png
-  image_sha256: dfa1d0791aaee1308f50cbad663a26363f8e4beed1c87e662ec38ba2fc02d41f
+  image_sha256: 25e8bc12087d26e00128512ce072a2660ee83463ac2478c496f241bc167d2074
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-1920x1080
   screen: modeling-process
@@ -394,7 +394,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-1920
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-1920x1080.png
-  image_sha256: 292d8e5d0122770c075d3924a2ecb71615f048695c6a181fc98e9915799bca40
+  image_sha256: 60eb11b431e620e6bf632eab3082cb6e7cdef8a9d4214c8f8b8bc7dd5efdcddd
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-2560x1440
   screen: modeling-process
@@ -404,7 +404,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-2560
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-2560x1440.png
-  image_sha256: 2c7c615bec54b50276bca5b1a9203348b31b76401e1bc55ed7b18c10d5756cec
+  image_sha256: 17800f1c7d4e951df50df13b2dd840b936fa322c118990dad4f2a74e5f3c4ed0
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-3840x2160
   screen: modeling-process
@@ -414,7 +414,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-3840
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-3840x2160.png
-  image_sha256: b996531c5d61cd680eefde647fc1a78fe79c9209324f650d9210371b1c7c3bbc
+  image_sha256: 9489a48d12b9fbc15a3b1163344675cf5bcc17b251dd534b41b016b30639e563
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1366x768
   screen: modeling-process
@@ -424,7 +424,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1366
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1366x768.png
-  image_sha256: 84b1f989d177a613172ca94119f965e75ae3da531668627e6eb7008d9d50e03d
+  image_sha256: 7976020afb21803c88469a365b936236ed71b1c3431136d132dcdeeaad34af1f
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1440x900
   screen: modeling-process
@@ -434,7 +434,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1440
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1440x900.png
-  image_sha256: 62e75fd8b23eadd482245955305f7a4438c91aefd62d57c2faa397014df45979
+  image_sha256: 07543c51c7a1cf671e7ac19d83471e7e6f81fc7e486056a0d5ed8a28f0ac95bb
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-1920x1080
   screen: modeling-process
@@ -444,7 +444,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-1920
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-1920x1080.png
-  image_sha256: c741d3a5296ccf3163668ce004779e08571cb9ad662b7f24bb1528a880abbab2
+  image_sha256: 179f4a20c311f91aa272c1e94cf9a773ca469353bd43394ef36aa8137e099a49
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-2560x1440
   screen: modeling-process
@@ -454,7 +454,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-2560
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-2560x1440.png
-  image_sha256: 9fe968954ecbe1cd1e62df90d645000647a38bd7c3eca972efa7fee56ab82453
+  image_sha256: e77e50cfc0267902d0b1c63b5160a02193ebcba01f3a03625fda7589b9b57b9e
   status: operational-evidence-accepted
 - id: modeling-process-polymer-dma-tts-saved-3840x2160
   screen: modeling-process
@@ -464,7 +464,7 @@ references:
   guide_manifest: docs/user-guide/screenshot-manifest.yaml
   guide_screenshot_id: modeling-process-polymer-dma-tts-saved-3840
   image: docs/user-guide/images/current/modeling-process-polymer-dma-tts-saved-3840x2160.png
-  image_sha256: 2e171a7901c84a132723fe30964637cdc26ad83a291b3248f8e28aad1421d2d8
+  image_sha256: 687e6fc5ad3e5f6cb261e80b762d3452b17d92a2dbf3db9014cac71c54ebdbbf
   status: operational-evidence-accepted
 - id: modeling-fit-polymer-input-1920x1080
   screen: modeling-fit

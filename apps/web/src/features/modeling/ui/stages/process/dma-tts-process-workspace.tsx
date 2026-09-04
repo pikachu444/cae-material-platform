@@ -87,52 +87,22 @@ function backendValue(value: unknown): string {
 
 function MultiSweepRail({
   source,
-  draft,
-  recommendation,
-  readBack,
-  selectedReferenceSweepOrdinal,
   visibleSweepOrdinals,
-  locked,
-  onReference,
   onToggle,
-  onPartition,
-  onExclusionReason,
 }: {
   source: NonNullable<ReturnType<typeof useDmaTtsProcess>["multiSource"]>;
-  draft: ReturnType<typeof useDmaTtsProcess>["draft"];
-  recommendation: ReturnType<typeof useDmaTtsProcess>["recommendation"];
-  readBack: ReturnType<typeof useDmaTtsProcess>["readBack"];
-  selectedReferenceSweepOrdinal: number | null;
   visibleSweepOrdinals: number[];
-  locked: boolean;
-  onReference: (ordinal: number) => void;
   onToggle: (ordinal: number) => void;
-  onPartition: (ordinal: number, partition: DmaTtsPartition) => void;
-  onExclusionReason: (ordinal: number, reason: string) => void;
 }) {
   return <nav className="dma-tts-sweep-rail" aria-label="DMA frequency sweeps">
-    <div className="dma-tts-rail-heading"><span>Frequency sweeps</span><strong>{source.sweeps.length}</strong></div>
+    <div className="dma-tts-rail-heading"><span>Temperature curves</span><span>Show</span></div>
     <div className="dma-tts-sweep-list" tabIndex={0} aria-label="Measured DMA frequency sweeps">
       {source.sweeps.map((sweep) => {
-        const disposition = draft?.sweepDispositions.find((item) => item.source_sweep_ordinal === sweep.sourceSweepOrdinal);
-        const saved = readBack?.isotherms.find((item) => item.source_sweep_ordinal === sweep.sourceSweepOrdinal);
-        const partition = saved?.partition ?? disposition?.partition ?? "CALIBRATION";
-        const isReference = saved?.is_reference ?? ((recommendation?.input_mode === "multi_frequency_isotherms"
-          ? recommendation.reference_sweep_ordinal
-          : selectedReferenceSweepOrdinal) === sweep.sourceSweepOrdinal);
         const visible = visibleSweepOrdinals.includes(sweep.sourceSweepOrdinal);
-        return <article className={`dma-tts-sweep-entry${isReference ? " is-reference" : ""}`} key={sweep.sourceSweepOrdinal}>
-          <div className="dma-tts-sweep-entry-head">
-            <div><strong>{compact(sweep.representativeTemperatureK)} K</strong><span>Sweep {sweep.sourceSweepOrdinal}</span></div>
-            <label className="dma-tts-sweep-visibility"><input type="checkbox" checked={visible} onChange={() => onToggle(sweep.sourceSweepOrdinal)} /><span>Plot</span></label>
-          </div>
-          <div className="dma-tts-sweep-meta"><span>{sweep.points.length} points</span><span>{rawRange(sweep.sourceFrequencyMinHz, sweep.sourceFrequencyMaxHz, "Hz")}</span></div>
-          <div className="dma-tts-sweep-actions">
-            <label className="dma-tts-reference-choice"><input type="radio" name="dma-tts-reference-sweep" checked={isReference} disabled={locked} onChange={() => onReference(sweep.sourceSweepOrdinal)} /><span>Shift reference</span></label>
-            <label className="dma-tts-rail-partition"><span>Role</span><select aria-label={`Analysis role for sweep ${sweep.sourceSweepOrdinal}`} value={partition} disabled={locked || isReference} onChange={(event) => onPartition(sweep.sourceSweepOrdinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></label>
-          </div>
-          {!locked && partition === "EXCLUDED" ? <label className="dma-tts-exclusion-reason"><span>Reason</span><input aria-label={`Reason for ignoring sweep ${sweep.sourceSweepOrdinal}`} value={disposition?.exclusion_reason ?? ""} onChange={(event) => onExclusionReason(sweep.sourceSweepOrdinal, event.target.value)} /></label> : null}
-        </article>;
+        return <label className="dma-tts-sweep-entry" key={sweep.sourceSweepOrdinal}>
+          <span><strong>{compact(sweep.representativeTemperatureK)} K</strong><small>Sweep {sweep.sourceSweepOrdinal}</small></span>
+          <input type="checkbox" aria-label={`Show ${compact(sweep.representativeTemperatureK)} K curve`} checked={visible} onChange={() => onToggle(sweep.sourceSweepOrdinal)} />
+        </label>;
       })}
     </div>
   </nav>;
@@ -204,6 +174,7 @@ export function DmaTtsProcessWorkspace({
     : isMulti ? "DMA frequency isotherms" : "DMA temperature sweep";
   const includedCount = fixedDraft?.dispositions.filter((item) => item.partition !== "EXCLUDED").length
     ?? multiDraft?.sweepDispositions.filter((item) => item.partition !== "EXCLUDED").length ?? 0;
+  const referenceCurve = process.multiSource?.sweeps.find((sweep) => sweep.sourceSweepOrdinal === multiDraft?.referenceSweepOrdinal);
   const savedOptions = process.readBack?.options ?? {};
   const savedAssessment = savedOptions.assessment;
   const savedShiftLaw = savedOptions.shift_law;
@@ -310,16 +281,8 @@ export function DmaTtsProcessWorkspace({
 
   const rail = isMulti ? <MultiSweepRail
     source={process.multiSource!}
-    draft={process.draft}
-    recommendation={process.recommendation}
-    readBack={process.readBack}
-    selectedReferenceSweepOrdinal={process.selectedReferenceSweepOrdinal}
     visibleSweepOrdinals={process.visibleSweepOrdinals}
-    locked={Boolean(process.readBack)}
-    onReference={process.setReferenceSweep}
     onToggle={process.toggleSweepVisibility}
-    onPartition={process.setSweepDisposition}
-    onExclusionReason={process.setSweepExclusionReason}
   /> : undefined;
 
   const ribbon = <div className="dma-tts-command-ribbon">
@@ -337,7 +300,7 @@ export function DmaTtsProcessWorkspace({
   return <ModelingWorkspaceLayout
     navigator={rail}
     navigatorLabel="DMA frequency sweeps"
-    navigatorSize={isMulti ? { min: 232, default: 256, max: 288 } : undefined}
+    navigatorSize={isMulti ? { min: 200, default: 220, max: 256 } : undefined}
     ribbon={ribbon}
     plot={<div className={`dma-tts-process-surface${isMulti ? " dma-tts-process-surface-multi" : ""}${process.readBack ? " is-saved" : ""}`}>
       <section className="persistent-modeling-plot dma-tts-graph" aria-labelledby="dma-tts-graph-heading">
@@ -359,10 +322,11 @@ export function DmaTtsProcessWorkspace({
       <section className="dma-tts-work-area" aria-label="DMA shift setup">
         {statusText(process.status) ? <div className="dma-tts-status" role="status" aria-live="polite">{statusText(process.status)}</div> : null}
         {process.error ? <WorkbenchMessage kind="error" title={process.status === "save_outcome_unknown" ? "Save outcome unknown" : "DMA response not ready"} action={{ label: process.createdOutput ? "Retry exact read" : "Retry", onClick: process.retry }}>{process.error}</WorkbenchMessage> : null}
+        {!process.readBack && !process.recommendation && isMulti ? <div className="dma-tts-reference-setup"><label>Reference curve<select aria-label="Reference curve" value={process.selectedReferenceSweepOrdinal ?? ""} onChange={(event) => process.setReferenceSweep(Number(event.target.value))}>{process.multiSource?.sweeps.map((sweep) => <option value={sweep.sourceSweepOrdinal} key={sweep.sourceSweepOrdinal}>{compact(sweep.representativeTemperatureK)} K · Sweep {sweep.sourceSweepOrdinal}</option>)}</select></label></div> : null}
         {!process.readBack && process.recommendation && process.draft ? <>
           <header className="dma-tts-summary">
             <div><span>{isMulti ? "Sweeps included" : "Temperatures used"}</span><strong>{includedCount} of {isMulti ? process.multiSource?.sweeps.length ?? 0 : process.fixedSource?.rows.length ?? 0}</strong></div>
-            <div><span>{isMulti ? "Reference sweep" : "Test frequency"}</span><strong>{isMulti ? `#${multiDraft?.referenceSweepOrdinal}` : `${compact(process.fixedSource?.frequencyHz ?? 0)} Hz`}</strong></div>
+            <div><span>{isMulti ? "Reference curve" : "Test frequency"}</span><strong>{isMulti ? `${compact(referenceCurve?.representativeTemperatureK ?? 0)} K · #${multiDraft?.referenceSweepOrdinal}` : `${compact(process.fixedSource?.frequencyHz ?? 0)} Hz`}</strong></div>
             <div><span>Shift method</span><strong>{isMulti ? (SHIFT_LAW_LABELS[multiDraft?.shiftLawKind ?? ""] ?? "—") : "WLF"}</strong></div>
             <div><span>Reference temperature</span><strong>{compact(Number(process.draft.referenceTemperatureK))} K</strong></div>
           </header>
@@ -373,6 +337,10 @@ export function DmaTtsProcessWorkspace({
               <label>C2 <span><input name="dma-tts-c2" autoComplete="off" type="number" inputMode="decimal" value={fixedDraft.c2K} onChange={(event) => process.updateDraft({ c2K: event.target.value, reason: "" })} /><b>K</b></span></label>
             </fieldset> : null}
             {multiDraft ? <div className="dma-tts-multi-settings">
+              <section className="dma-tts-sweep-settings" aria-labelledby="dma-tts-sweep-settings-heading">
+                <div className="dma-tts-sweep-settings-heading"><h3 id="dma-tts-sweep-settings-heading">Sweep roles</h3><label>Reference curve<select aria-label="Reference curve" value={multiDraft.referenceSweepOrdinal ?? ""} onChange={(event) => process.setReferenceSweep(Number(event.target.value))}>{process.multiSource?.sweeps.map((sweep) => <option value={sweep.sourceSweepOrdinal} key={sweep.sourceSweepOrdinal}>{compact(sweep.representativeTemperatureK)} K · Sweep {sweep.sourceSweepOrdinal}</option>)}</select></label></div>
+                <div className="dma-tts-temperature-table-scroll"><table><thead><tr><th>Temperature curve</th><th>Role</th></tr></thead><tbody>{multiDraft.sweepDispositions.map((item) => <tr key={item.source_sweep_ordinal}><td>{compact(item.representative_temperature_k)} K · Sweep {item.source_sweep_ordinal}</td><td><div className={`dma-tts-sweep-role-cell${item.partition === "EXCLUDED" ? " has-reason" : ""}`}><select aria-label={`Analysis role for sweep ${item.source_sweep_ordinal}`} value={item.partition} disabled={item.source_sweep_ordinal === multiDraft.referenceSweepOrdinal} onChange={(event) => process.setSweepDisposition(item.source_sweep_ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select>{item.partition === "EXCLUDED" ? <label><span>Reason</span><input aria-label={`Reason for ignoring sweep ${item.source_sweep_ordinal}`} value={item.exclusion_reason ?? ""} onChange={(event) => process.setSweepExclusionReason(item.source_sweep_ordinal, event.target.value)} /></label> : null}</div></td></tr>)}</tbody></table></div>
+              </section>
               <fieldset className="dma-tts-wlf-fields"><legend>Shift method</legend>
                 <label>Method<select name="dma-tts-shift-law" aria-label="Shift method" value={multiDraft.shiftLawKind} onChange={(event) => setMultiLawKind(event.target.value as typeof multiDraft.shiftLawKind)}><option value="wlf_fit">WLF fit</option><option value="arrhenius_fit">Arrhenius fit</option><option value="manual_tabulated">Manual</option></select></label>
                 <label>Reference temperature <span><input name="dma-tts-multi-reference-temperature" type="number" value={multiDraft.referenceTemperatureK} onChange={(event) => process.updateDraft({ referenceTemperatureK: event.target.value, reason: "" })} /><b>K</b></span></label>
