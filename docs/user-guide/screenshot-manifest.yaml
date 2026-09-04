@@ -1295,35 +1295,35 @@ captures:
     height: 2160
   - id: modeling-process-polymer-dma-tts-1366
     route: /modeling?stage=process&family=polymer
-    workflow: multi-frequency DMA routes through Process; the compact rail controls curve visibility while central Reference curve and TTS settings own the Fit/Validate/Ignore decisions before Save TTS result
+    workflow: multi-frequency DMA routes through Process; the compact rail controls graph visibility only while the central collapsed TTS settings owns role and shift-method decisions before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-1366x768.png
     width: 1366
     height: 768
   - id: modeling-process-polymer-dma-tts-1440
     route: /modeling?stage=process&family=polymer
-    workflow: multi-frequency DMA routes through Process; the compact rail controls curve visibility while central Reference curve and TTS settings own the Fit/Validate/Ignore decisions before Save TTS result
+    workflow: multi-frequency DMA routes through Process; the compact rail controls graph visibility only while the central collapsed TTS settings owns role and shift-method decisions before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-1440x900.png
     width: 1440
     height: 900
   - id: modeling-process-polymer-dma-tts-1920
     route: /modeling?stage=process&family=polymer
-    workflow: multi-frequency DMA routes through Process; the compact rail controls curve visibility while central Reference curve and TTS settings own the Fit/Validate/Ignore decisions before Save TTS result
+    workflow: multi-frequency DMA routes through Process; the compact rail controls graph visibility only while the central collapsed TTS settings owns role and shift-method decisions before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-process-polymer-dma-tts-2560
     route: /modeling?stage=process&family=polymer
-    workflow: the wide Process workspace keeps the compact visibility rail bounded while allocating additional width and height to the raw engineering graph and one Save TTS result action
+    workflow: the wide Process workspace keeps the graph-only visibility rail and collapsed central TTS settings bounded while the raw engineering graph uses the remaining space before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-2560x1440.png
     width: 2560
     height: 1440
   - id: modeling-process-polymer-dma-tts-3840
     route: /modeling?stage=process&family=polymer
-    workflow: the wide Process workspace keeps the compact visibility rail bounded while allocating additional width and height to the raw engineering graph and one Save TTS result action
+    workflow: the wide Process workspace keeps the graph-only visibility rail and collapsed central TTS settings bounded while the raw engineering graph uses the remaining space before Save TTS result
     fixture: bounded NIST SRM 2491-derived six-sweep non-production shear DMA fixture; sweep 4 at 303.15 K is the backend-recommended reference and sweep 1 is held back for checking
     image: images/current/modeling-process-polymer-dma-tts-3840x2160.png
     width: 3840

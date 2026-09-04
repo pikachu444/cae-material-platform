@@ -27,58 +27,58 @@ before_originals:
   - {image: before/originals/modeling-process-polymer-dma-tts-saved-2560x1440.png, width: 2560, height: 1440, sha256: d0c7a10f844c3e281cf57686770354c0a5bce79f41cea6a1293d81b7174ecb67}
   - {image: before/originals/modeling-process-polymer-dma-tts-saved-3840x2160.png, width: 3840, height: 2160, sha256: 5ceb20ae78338259c4b2c1e8159e3f24b006ce6a71f2377b57abe872e3aa5bc3}
 after_originals:
-  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-1366x768.png, width: 1366, height: 768, sha256: 01498d45ae83c9fb217c0893c6b4cbbdd2d181cc6c03f86952b924a2de7af5da}
-  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-1440x900.png, width: 1440, height: 900, sha256: 25e8bc12087d26e00128512ce072a2660ee83463ac2478c496f241bc167d2074}
-  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-1920x1080.png, width: 1920, height: 1080, sha256: 60eb11b431e620e6bf632eab3082cb6e7cdef8a9d4214c8f8b8bc7dd5efdcddd}
-  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-2560x1440.png, width: 2560, height: 1440, sha256: 17800f1c7d4e951df50df13b2dd840b936fa322c118990dad4f2a74e5f3c4ed0}
-  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-3840x2160.png, width: 3840, height: 2160, sha256: 9489a48d12b9fbc15a3b1163344675cf5bcc17b251dd534b41b016b30639e563}
-  - {image: after/originals/modeling-process-polymer-dma-tts-saved-1366x768.png, width: 1366, height: 768, sha256: 7976020afb21803c88469a365b936236ed71b1c3431136d132dcdeeaad34af1f}
-  - {image: after/originals/modeling-process-polymer-dma-tts-saved-1440x900.png, width: 1440, height: 900, sha256: 07543c51c7a1cf671e7ac19d83471e7e6f81fc7e486056a0d5ed8a28f0ac95bb}
-  - {image: after/originals/modeling-process-polymer-dma-tts-saved-1920x1080.png, width: 1920, height: 1080, sha256: 179f4a20c311f91aa272c1e94cf9a773ca469353bd43394ef36aa8137e099a49}
-  - {image: after/originals/modeling-process-polymer-dma-tts-saved-2560x1440.png, width: 2560, height: 1440, sha256: e77e50cfc0267902d0b1c63b5160a02193ebcba01f3a03625fda7589b9b57b9e}
-  - {image: after/originals/modeling-process-polymer-dma-tts-saved-3840x2160.png, width: 3840, height: 2160, sha256: 687e6fc5ad3e5f6cb261e80b762d3452b17d92a2dbf3db9014cac71c54ebdbbf}
-  - {image: after/originals/modeling-fit-polymer-dma-selection-saved-1920x1080.png, width: 1920, height: 1080, sha256: 9e465fb72c2038d223888a15e31861dc5c1fddba7bcf76b2f211ed01d45a1912}
+  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-1366x768.png, width: 1366, height: 768, sha256: 0b21cd8b9fc4676fbe297fb7ab5324933f86108fa6510636b6520c518ca5a41b}
+  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-1440x900.png, width: 1440, height: 900, sha256: 0cc935db95f3a4cc4bd41ce2c91c78a9782cf74cecf28a107bfcb66916ee0a66}
+  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-1920x1080.png, width: 1920, height: 1080, sha256: e20a77539825fa1e93f6d45ffabe1d95a5818e7895f8607c7a0ae1d713d85304}
+  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-2560x1440.png, width: 2560, height: 1440, sha256: 8e726efff743695b8c4a13ddb01961ab61e9088d8e64a4670eb1de10ac9e5d84}
+  - {image: after/originals/modeling-process-polymer-dma-tts-recommendation-3840x2160.png, width: 3840, height: 2160, sha256: cf2f0b466d03035264365ae266eefa72b99bcc99f2155498d159e9fd297364e3}
+  - {image: after/originals/modeling-process-polymer-dma-tts-saved-1366x768.png, width: 1366, height: 768, sha256: af4379399f18ed24865330d19f73340f1e7ced265a7d5478ce797ab4610b2c99}
+  - {image: after/originals/modeling-process-polymer-dma-tts-saved-1440x900.png, width: 1440, height: 900, sha256: 805e7142cef47e0e44254e6df98845a72f9ca163119ec3d7ba2dfca4f450be6d}
+  - {image: after/originals/modeling-process-polymer-dma-tts-saved-1920x1080.png, width: 1920, height: 1080, sha256: 938c9373dbbf1a25f46783bb1ae84b246608c3bb0797c3a91987fd56c58b24be}
+  - {image: after/originals/modeling-process-polymer-dma-tts-saved-2560x1440.png, width: 2560, height: 1440, sha256: 765db310ead06e4f992fc3d5b4cf3aeea79a85b9e83e35af496ef6ad25a035c5}
+  - {image: after/originals/modeling-process-polymer-dma-tts-saved-3840x2160.png, width: 3840, height: 2160, sha256: 6e5ffc7b32c2cf78b8b11c037c013f9ec4ff4dc3eba4b248447869535b283569}
+  - {image: after/originals/modeling-fit-polymer-dma-selection-saved-1920x1080.png, width: 1920, height: 1080, sha256: 82db9c1cdaf45b3a0b20d9837800ad3ece6e76e0502e91a18a9c59b9c8471eb5}
 crops:
   - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-header-1366x768.png, role: header, width: 1366, height: 50, sha256: 4203266c29d598b4f7f0c7d3578846cffa8d2635beee518437f54bea4b0d7925}
   - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-header-1440x900.png, role: header, width: 1440, height: 50, sha256: 03bdfc1f5c07cf9e729951053d7ffbf5f78ed8577eeb6855e723331cad986d1b}
   - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-header-1920x1080.png, role: header, width: 1920, height: 50, sha256: 4f0c90f7bbe1379578862ad8f8a6fa9013ec39e9344a371636ae2a00015290d7}
   - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-header-2560x1440.png, role: header, width: 2560, height: 50, sha256: 14c5d7537402db7ec36525e92b648b779d11909aa61b9db21b6c149e8be8a5a7}
   - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-header-3840x2160.png, role: header, width: 3840, height: 50, sha256: 152d1c6270c191a27ea497b86ab3f85bafc9895ffaa07987a50e42a88e70011c}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-1366x768.png, role: navigator, width: 217, height: 632, sha256: 69b66f5c7516eec3c658fc6bd86c0a424b1861f8b5fbe5f0b630ba2c2e58b885}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-1440x900.png, role: navigator, width: 230, height: 764, sha256: dd3f1e556091e49b1661128e2b4dffa99ce1d1333b14623e883eb6a7ece95b2c}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-1920x1080.png, role: navigator, width: 273, height: 944, sha256: 912d1f775ae6b91e1910806e18d9ab38b7b3314dc4929881c061d041d5408ddc}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-2560x1440.png, role: navigator, width: 273, height: 1045, sha256: 7e6349ee41c937568ea8e346a37c1637908cd0de8768ca6c5e371c03e6d591c8}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-3840x2160.png, role: navigator, width: 274, height: 1045, sha256: 7e6349ee41c937568ea8e346a37c1637908cd0de8768ca6c5e371c03e6d591c8}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-1366x768.png, role: controls, width: 1129, height: 58, sha256: 7b951ad664fbbcb3d82be4bd025cae170f6e31adfcb524e129e798be868dde7e}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-1440x900.png, role: controls, width: 1191, height: 58, sha256: 1d5faf08339163994b06b61270b24b61e369903a02ecc8c75bc4ddfdd1380e0c}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-1920x1080.png, role: controls, width: 1627, height: 58, sha256: 7215f69449e632029e18837c7ec73d4cfa24ed48329a35686c709451c419064f}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-2560x1440.png, role: controls, width: 2267, height: 58, sha256: aa04b9b895027652bcd313db423e73eff3757763f3074430a612b9cbfc2fd277}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-3840x2160.png, role: controls, width: 3547, height: 58, sha256: 6c88610bdbed3e43f5ed7953231ccf97d5ae3228c1a01eb1a03ce92c75b4ed9f}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-1366x768.png, role: graph, width: 1129, height: 513, sha256: 89efda03a3230d87df23116e2a547c2ead9e6020ee497b92997b75e97a8bab08}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-1440x900.png, role: graph, width: 1191, height: 645, sha256: 899a635c4c5bb85e8419d99014a819bcdbe932ed874a0e4099d2191640bfddac}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-1920x1080.png, role: graph, width: 1627, height: 825, sha256: f638e847db9964586f8fb2242308936c71a255e67af3a2f4e99f4acb2438d858}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-2560x1440.png, role: graph, width: 2267, height: 1185, sha256: 5719d041f2c60534f482053156c7a8f0979db415e27db2363bffb74a53d2b8a5}
-  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-3840x2160.png, role: graph, width: 3547, height: 1905, sha256: dfffadf64e3b2b5710411ace32edafc0de04c99267c711991e668753b7035f1f}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-1366x768.png, role: navigator, width: 217, height: 632, sha256: 899f4bd47a16defcc827ea8715b026461c9b590048d3e395358444dfc18da789}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-1440x900.png, role: navigator, width: 230, height: 764, sha256: 6026a42d938c389a4a57b67b50389f0f831ca2b20648602af48957a845892c2f}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-1920x1080.png, role: navigator, width: 273, height: 944, sha256: 47b1620978bd459acdd1d75ae6dd548a7bd24c9c7192d6eae4facc5da91ecd21}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-2560x1440.png, role: navigator, width: 273, height: 1045, sha256: 47b1620978bd459acdd1d75ae6dd548a7bd24c9c7192d6eae4facc5da91ecd21}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-navigator-3840x2160.png, role: navigator, width: 274, height: 1045, sha256: 47b1620978bd459acdd1d75ae6dd548a7bd24c9c7192d6eae4facc5da91ecd21}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-1366x768.png, role: controls, width: 1129, height: 58, sha256: 24f043f732df296d6e73cd20d96ba938179caa07b055d4cbe665ddf96ab84271}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-1440x900.png, role: controls, width: 1191, height: 58, sha256: 42d2da769b0ac0e3d8383a3e7296b0fe89dfb455875daa2a16d1e2c1b63ce78c}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-1920x1080.png, role: controls, width: 1627, height: 58, sha256: 26129eec0d8f932d2be1e6fbe7e6077ff2e80f2bbb4c560dbb9d97fa73dc2940}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-2560x1440.png, role: controls, width: 2267, height: 58, sha256: dc4b64fa3f8705056dadc8dcf2e25c295c9127f092c316b9af36ec4055896c40}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-controls-3840x2160.png, role: controls, width: 3547, height: 58, sha256: 50e1b46984839fa65dc2015db574951a940389aa1938a56294e7e87ade1a2601}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-1366x768.png, role: graph, width: 1129, height: 513, sha256: 155449f978417f6ecf79043893c89891f31f2c8b33735d5af81a354d93b69963}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-1440x900.png, role: graph, width: 1191, height: 645, sha256: 5aea3e9d3544af818474fcf6a0aefee047d8231498364b9d849f19fec6b97698}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-1920x1080.png, role: graph, width: 1627, height: 825, sha256: abc9898069acfd9fa083b387a4ee0e6b2a638563bd7562a309b51ddbcc723cc2}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-2560x1440.png, role: graph, width: 2267, height: 1185, sha256: 93fee6275a9742d56ddb0b3b64e9358185b6d5fedaa60df1342d837fba24d55c}
+  - {image: after/crops/modeling-process-polymer-dma-tts-recommendation-graph-3840x2160.png, role: graph, width: 3547, height: 1905, sha256: 1773df1148525f2d4a255fe39659affbc5dcc23f5c15f2f676ec5a3cc21a98ca}
   - {image: after/crops/modeling-process-polymer-dma-tts-saved-header-1366x768.png, role: header, width: 1366, height: 50, sha256: 4203266c29d598b4f7f0c7d3578846cffa8d2635beee518437f54bea4b0d7925}
   - {image: after/crops/modeling-process-polymer-dma-tts-saved-header-1440x900.png, role: header, width: 1440, height: 50, sha256: 03bdfc1f5c07cf9e729951053d7ffbf5f78ed8577eeb6855e723331cad986d1b}
   - {image: after/crops/modeling-process-polymer-dma-tts-saved-header-1920x1080.png, role: header, width: 1920, height: 50, sha256: 4f0c90f7bbe1379578862ad8f8a6fa9013ec39e9344a371636ae2a00015290d7}
   - {image: after/crops/modeling-process-polymer-dma-tts-saved-header-2560x1440.png, role: header, width: 2560, height: 50, sha256: 14c5d7537402db7ec36525e92b648b779d11909aa61b9db21b6c149e8be8a5a7}
   - {image: after/crops/modeling-process-polymer-dma-tts-saved-header-3840x2160.png, role: header, width: 3840, height: 50, sha256: 152d1c6270c191a27ea497b86ab3f85bafc9895ffaa07987a50e42a88e70011c}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-1366x768.png, role: navigator, width: 217, height: 632, sha256: 69b66f5c7516eec3c658fc6bd86c0a424b1861f8b5fbe5f0b630ba2c2e58b885}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-1440x900.png, role: navigator, width: 230, height: 764, sha256: dd3f1e556091e49b1661128e2b4dffa99ce1d1333b14623e883eb6a7ece95b2c}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-1920x1080.png, role: navigator, width: 273, height: 944, sha256: 912d1f775ae6b91e1910806e18d9ab38b7b3314dc4929881c061d041d5408ddc}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-2560x1440.png, role: navigator, width: 273, height: 1045, sha256: 7e6349ee41c937568ea8e346a37c1637908cd0de8768ca6c5e371c03e6d591c8}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-3840x2160.png, role: navigator, width: 274, height: 1045, sha256: 7e6349ee41c937568ea8e346a37c1637908cd0de8768ca6c5e371c03e6d591c8}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-1366x768.png, role: controls, width: 1129, height: 229, sha256: c7f00f14938c397bc69f65257e5aaa161a2599b4c4c696b148adad2292572aa7}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-1440x900.png, role: controls, width: 1191, height: 229, sha256: dce8f4a7ac278a606f6bbe2dc3aaf66084103cdf1af70ae1562b851f64de4af9}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-1920x1080.png, role: controls, width: 1627, height: 229, sha256: adde038b1a9f5dcf3c74f7ecbf10bc5cc5fa6e64a3b9c02eb72745f55bf0f6df}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-2560x1440.png, role: controls, width: 2267, height: 229, sha256: a444bb14ba79d8b9d5b20c2c7995f387001ce6ef8e7f14fbd0a12d5dc3be3d36}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-3840x2160.png, role: controls, width: 3547, height: 229, sha256: c110ebf5267bc53aa6f2325db67ae1027b9514eeb3ada20778280ef800926e46}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-1366x768.png, role: graph, width: 1129, height: 342, sha256: ca46ef0b4441ba6415a3a7639e07db1e5ff8fc7bd86f8c6c8b1ac2cde5831a02}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-1440x900.png, role: graph, width: 1191, height: 474, sha256: 31e3a2e06da26810bb4f1a767ef054806a6647107a14bcbc97ceebf3c53b7ec7}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-1920x1080.png, role: graph, width: 1627, height: 654, sha256: 7e07ed3cbc6e423d093f1e3ef8a8a74855ecd78415834487d09b09f0518a3372}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-2560x1440.png, role: graph, width: 2267, height: 1014, sha256: 88946fcbd80a90eae82dd19a9ff340c24573db508437004dc0fb4ff1b7322254}
-  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-3840x2160.png, role: graph, width: 3547, height: 1734, sha256: f556936529685f525c26535c81cf9b037bc121bf20e6b4af1f679fb5fed278f8}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-1366x768.png, role: navigator, width: 217, height: 632, sha256: 899f4bd47a16defcc827ea8715b026461c9b590048d3e395358444dfc18da789}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-1440x900.png, role: navigator, width: 230, height: 764, sha256: 6026a42d938c389a4a57b67b50389f0f831ca2b20648602af48957a845892c2f}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-1920x1080.png, role: navigator, width: 273, height: 944, sha256: 47b1620978bd459acdd1d75ae6dd548a7bd24c9c7192d6eae4facc5da91ecd21}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-2560x1440.png, role: navigator, width: 273, height: 1045, sha256: 47b1620978bd459acdd1d75ae6dd548a7bd24c9c7192d6eae4facc5da91ecd21}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-navigator-3840x2160.png, role: navigator, width: 274, height: 1045, sha256: 47b1620978bd459acdd1d75ae6dd548a7bd24c9c7192d6eae4facc5da91ecd21}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-1366x768.png, role: controls, width: 1129, height: 229, sha256: 48e584dc1b2baebcce9cad33e268c87ac29bcfec6fb31e6a2c0ac8d24cdc514a}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-1440x900.png, role: controls, width: 1191, height: 229, sha256: dfaec42495bdd2e15d29cff652398bb636a3d50e2c328d1dd02cc298b992f5fe}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-1920x1080.png, role: controls, width: 1627, height: 229, sha256: 6a0f90d192cb082b972b6d4f472ffed452bb535b1ad122a44a1af0121dc5aff2}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-2560x1440.png, role: controls, width: 2267, height: 229, sha256: a60629512409ac363a3182a7547f988c63a15ee421eec3ac3b0756480b951b0c}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-controls-3840x2160.png, role: controls, width: 3547, height: 229, sha256: 7b0ad83b1dd2294040366e5ca283342e4b1a263d0cadbb2d0cbf8835548febd9}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-1366x768.png, role: graph, width: 1129, height: 342, sha256: 5c6c09841f1902e399848c83e244d268578d4432c58015217fbd1fb9ab541621}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-1440x900.png, role: graph, width: 1191, height: 474, sha256: f5a6d4377feef1e8954d685a756b52fe494ab82ccd6a98ed8f747d056eb1e07f}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-1920x1080.png, role: graph, width: 1627, height: 654, sha256: 9df61e3fe20adb63e202eebc4d34549b5bf71a5d348ea1d61fb4ac5c4af35388}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-2560x1440.png, role: graph, width: 2267, height: 1014, sha256: a743c979e56dcc7f714c0574bc18016a5011d06ed2bad1ab8bfaea6fb0c7c207}
+  - {image: after/crops/modeling-process-polymer-dma-tts-saved-graph-3840x2160.png, role: graph, width: 3547, height: 1734, sha256: 29b71671fee92d3ce06e185d81d4d45ef8b75c16f4cc17ddd8b0bef57b962b33}
 acceptance:
   primary_journey: pass
   exact_read_back: pass

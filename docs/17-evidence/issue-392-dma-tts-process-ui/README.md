@@ -18,9 +18,10 @@
 The browser imports the bounded NIST SRM 2491-derived six-temperature frequency-sweep fixture, resolves the
 five required DMA channels, and enters Process. It asks the backend for the recommendation, displays sweep 4
 at 303.15 K as the recommended reference without recalculating that decision in React, and keeps sweep 1 as
-the validation partition. The left rail is a compact temperature-curve visibility list. Reference-curve selection
-and Fit/Validate/Ignore roles live once in the central setup area; the reference curve remains locked to Fit.
-The engineer may review **TTS settings**, then performs one explicit **Save TTS result** action. After `201`, the client reads the exact specialized output and common Processing Output link,
+the validation partition. The left rail is a compact graph-visibility list and never changes TTS participation.
+Reference-curve selection and Fit/Validate/Ignore roles live once in the central setup area; the reference curve
+remains locked to Fit. The engineer may open the central, initially collapsed **TTS settings**, then performs one
+explicit **Save TTS result** action. After `201`, the client reads the exact specialized output and common Processing Output link,
 displays raw plus backend-shifted sweeps, and uses **Continue to Prony Fit** with that pinned revision. Fit
 calculates the 1–10-term candidates, exposes the recommendation separately from engineer Selection, saves an
 alternate selection with a reason, and reads the same decision back after reload.
@@ -45,15 +46,17 @@ exact read or common-link loading retry only those GETs.
 - Product-owner correction: the first visual pass was rejected because the sweep rail was narrow and unclear,
   filenames and conditions were concatenated into long helper copy, and backend evidence dominated the saved
   state. The second pass was also rejected because per-sweep metadata, visibility, role and reference controls
-  still made every rail row too tall and repetitive. The current candidate keeps only compact temperature and
-  Show rows in the rail; one central Reference curve control and one TTS settings role table own the remaining
-  decisions. Ignore reveals its reason only in the affected row. Final owner geometry disposition remains pending.
+  still made every rail row too tall and repetitive. The third pass was rejected because a top-ribbon settings
+  button obscured the sequence and the rail checkboxes still did not state their effect. The current candidate
+  uses compact one-line graph-visibility rows and an initially collapsed central TTS settings disclosure. Its role
+  options state their consequences; Ignore reveals its reason only in the affected row. Final owner geometry
+  disposition remains pending.
 
 ## #249 synthesis disposition
 
-- Information hierarchy: PASS in the current candidate. The compact visibility rail, one command band, dominant graph,
-  compact result summary and collapsed calculation details form one readable hierarchy without nested cards or
-  a permanent inspector.
+- Information hierarchy: PASS in the current candidate. The compact visibility rail, one primary-action band,
+  dominant graph, summary-led central settings disclosure and collapsed calculation details form one readable
+  hierarchy without nested cards or a permanent inspector.
 - Engineering task flow: PASS. Raw review → backend recommendation → explicit save → exact read-back → Fit is
   visible and ordered; error recovery stays at the affected operation.
 - Responsive/wide-screen composition: PASS in the current candidate. The sweep rail remains readable and bounded,

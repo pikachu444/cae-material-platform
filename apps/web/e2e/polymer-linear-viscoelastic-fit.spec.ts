@@ -806,13 +806,16 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await expect(page).toHaveURL(/stage=process/);
   await expect(page.locator(".dma-tts-sweep-rail")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator(".dma-tts-sweep-entry")).toHaveCount(6);
-  await expect(page.getByText("Temperature curves", { exact: true })).toBeVisible();
+  await expect(page.getByText("Curves on graph", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Reference curve")).toHaveValue(String(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL));
-  await expect(page.getByRole("checkbox", { name: /^Show .* K curve$/ })).toHaveCount(6);
+  await expect(page.getByRole("checkbox", { name: /^Show .* K on graph$/ })).toHaveCount(6);
   await expect(page.getByRole("button", { name: "Prepare recommendation", exact: true })).toBeEnabled();
   await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.locator(".dma-legend-line-key", { hasText: "G′" })).toBeVisible();
   await expect(page.locator(".dma-legend-line-key", { hasText: "G″" })).toBeVisible();
+  const graphOnlyToggle = page.getByLabel("Show 283.15 K on graph");
+  await graphOnlyToggle.uncheck();
+  await expect(page.locator(".curve-legend button")).toHaveCount(5);
 
   const recommendationResponse = page.waitForResponse((response) => (
     response.request().method() === "POST"
@@ -832,12 +835,26 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
     (item) => item.source_sweep_ordinal === NIST_SRM_2491_HOLDOUT_SWEEP_ORDINAL,
   )?.partition).toBe("HOLDOUT");
   await expect(page.getByText("Sweeps included", { exact: true })).toBeVisible();
+  await expect(page.getByText("6 of 6", { exact: true })).toBeVisible();
+  await expect(graphOnlyToggle).not.toBeChecked();
+  await graphOnlyToggle.check();
+  await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.getByText(`${NIST_SRM_2491_REFERENCE_TEMPERATURE_K} K · #${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`, { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "TTS settings", exact: true }).click();
+  const settingsDisclosure = page.locator("details.dma-tts-settings-disclosure");
+  await expect(settingsDisclosure).not.toHaveAttribute("open", "");
+  await expect(page.getByLabel("Shift method")).toBeHidden();
+  await expect(page.getByRole("button", { name: "TTS settings", exact: true })).toHaveCount(0);
+  await settingsDisclosure.locator("summary").click();
+  await expect(settingsDisclosure).toHaveAttribute("open", "");
   await expect(page.getByLabel("Reference curve")).toHaveValue(String(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL));
   await expect(page.getByLabel(`Analysis role for sweep ${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`)).toBeDisabled();
   const visibleSweepRole = page.getByLabel("Analysis role for sweep 2");
+  await expect(visibleSweepRole.locator("option")).toHaveText([
+    "Fit — calculate TTS",
+    "Validate — check result only",
+    "Ignore — exclude",
+  ]);
   await visibleSweepRole.selectOption("EXCLUDED");
   const ignoreReason = page.getByLabel("Reason for ignoring sweep 2");
   await expect(ignoreReason).toBeVisible();
@@ -853,7 +870,10 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   ]);
   await expect(page.locator('input[name="dma-tts-adjacent-xatol"]')).toHaveAttribute("readonly", "");
   await expect(page.locator('input[name="dma-tts-law-ftol"]')).toHaveAttribute("readonly", "");
-  await page.getByRole("button", { name: "Close settings", exact: true }).click();
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await capture(page, "issue-392-central-tts-settings-1920x1080.png");
+  await settingsDisclosure.locator("summary").click();
+  await expect(settingsDisclosure).not.toHaveAttribute("open", "");
   await captureIssue392ProcessState(page, "recommendation");
 
   const createResponse = page.waitForResponse((response) => (
@@ -886,8 +906,8 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
   await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
-  await expect(page.getByRole("checkbox", { name: /^Show .* K curve$/ })).toHaveCount(6);
-  await expect(page.getByLabel("Show 273.15 K curve")).toBeEnabled();
+  await expect(page.getByRole("checkbox", { name: /^Show .* K on graph$/ })).toHaveCount(6);
+  await expect(page.getByLabel("Show 273.15 K on graph")).toBeEnabled();
   expect(processCreateRequests).toHaveLength(1);
   await calculationDetails.getByText("Calculation details", { exact: true }).click();
   await captureIssue392ProcessState(page, "saved");

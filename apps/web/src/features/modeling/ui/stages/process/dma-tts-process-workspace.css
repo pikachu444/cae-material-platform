@@ -47,8 +47,10 @@
 .dma-tts-rail-heading {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: var(--ux-space-2);
-  padding: var(--ux-space-3) var(--ux-space-2) var(--ux-space-1);
+  min-height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-space-2);
   border-bottom: 1px solid var(--ux-border);
   color: var(--ux-text);
   font-size: var(--ux-engineering-control-font-size);
@@ -95,22 +97,12 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ux-space-3);
-  min-height: var(--ux-navigator-row-block-size);
-  padding: var(--ux-space-2) var(--ux-space-3);
+  min-height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-space-2);
   border-bottom: 1px solid var(--ux-border);
   color: var(--ux-text);
   font-variant-numeric: tabular-nums;
   cursor: pointer;
-}
-
-.dma-tts-sweep-entry > span {
-  display: grid;
-  gap: 1px;
-}
-
-.dma-tts-sweep-entry small {
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
 }
 
 .dma-tts-sweep-entry input {
@@ -228,6 +220,31 @@
   font-variant-numeric: tabular-nums;
 }
 
+.dma-tts-settings-disclosure {
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.dma-tts-settings-disclosure > summary {
+  display: list-item;
+  box-sizing: border-box;
+  min-height: var(--ux-engineering-control-block-size);
+  padding: 0 var(--ux-pane-padding);
+  color: var(--ux-text);
+  font-size: var(--ux-engineering-control-font-size);
+  font-weight: var(--ux-font-weight-label);
+  line-height: var(--ux-engineering-control-block-size);
+  cursor: pointer;
+}
+
+.dma-tts-settings-disclosure > summary:hover {
+  background: var(--ux-surface-subtle);
+}
+
+.dma-tts-settings-disclosure > summary:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
+}
+
 .dma-tts-settings {
   display: grid;
   grid-template-columns: minmax(330px, .7fr) minmax(520px, 1.3fr);
@@ -269,7 +286,7 @@
   display: grid;
   grid-template-columns: minmax(0, 320px);
   padding: var(--ux-space-3) var(--ux-pane-padding);
-  border-bottom: 1px solid var(--ux-border);
+  border-top: 1px solid var(--ux-border);
 }
 
 .dma-tts-reference-setup label,

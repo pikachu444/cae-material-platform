@@ -6,13 +6,15 @@
 2. 다음 단계는 데이터 형태에 따라 자동으로 정해집니다.
    - 시간-완화탄성률 또는 한 온도의 DMA 주파수 자료: **Fit**으로 바로 이동합니다.
    - 여러 온도에서 측정한 DMA 자료: **Process**에서 온도 이동 결과를 먼저 만듭니다.
-3. **Process** 왼쪽의 **Temperature curves**에서는 그래프에 보일 곡선만 고릅니다. 온도 이동의
-   기준 곡선은 그래프 아래 **Reference curve**에서 고르고 **Prepare recommendation**을 누릅니다.
+3. **Process** 왼쪽의 **Curves on graph**에서는 그래프에 보일 곡선만 고릅니다. 체크를 끄더라도
+   TTS 계산에서 빠지지는 않습니다. 온도 이동의 기준 곡선은 그래프 아래 **Reference curve**에서
+   고르고 **Prepare recommendation**을 누릅니다.
 4. 그래프와 제안을 확인한 뒤 **Save TTS result**를 누릅니다. 보통은 값을 바꿀 필요가 없습니다.
-   필요한 경우에만 **TTS settings**를 엽니다. 여기에서 각 곡선의 **Fit**, **Validate**, **Ignore**
-   역할과 WLF, Arrhenius, Manual 중 shift method를 정합니다. 기준 곡선은 항상 **Fit**입니다. 저장
-   뒤에는 핵심 범위만 보이며, shift factor와 판정 근거는 **Calculation details**에서 확인할 수
-   있습니다. **Continue to Prony Fit**으로 이동합니다.
+   필요한 경우에만 제안 요약 아래의 접힌 **TTS settings**를 엽니다. **Fit**은 TTS 계산에 쓰고,
+   **Validate**는 계산에는 쓰지 않고 결과만 확인하며, **Ignore**는 제외합니다. 기준 곡선은 항상
+   **Fit**으로 잠겨 있습니다. WLF, Arrhenius, Manual도 이 설정 안에서 고릅니다. 저장 뒤에는 핵심
+   범위만 보이며, shift factor와 판정 근거는 **Calculation details**에서 확인할 수 있습니다.
+   **Continue to Prony Fit**으로 이동합니다.
 5. **Fit**에서 **Calculate Prony models**를 누릅니다. 새 입력에 검토된 계산 설정이 아직 없으면
    **Review calculation settings**가 먼저 나타납니다. 일반 사용자는 기본값을 그대로 검토 요청하고,
    검토가 끝난 뒤 돌아와 계산하면 됩니다. 데이터로 계산 가능한 1항부터 최대 10항까지를 서버가

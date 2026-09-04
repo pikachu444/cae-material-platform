@@ -145,6 +145,8 @@ describe("DMA TTS Process workspace", () => {
     const createButton = await screen.findByRole("button", { name: "Save TTS result" });
     expect(screen.getByText("Shift method")).toBeTruthy();
     expect(screen.getByText("WLF")).toBeTruthy();
+    expect(container.querySelector(".dma-tts-settings-disclosure")?.hasAttribute("open")).toBe(false);
+    expect(screen.queryByRole("button", { name: "TTS settings" })).toBeNull();
     expect((createButton as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(createButton);
 
@@ -249,7 +251,7 @@ describe("DMA TTS Process workspace", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Prepare recommendation" }));
     fireEvent.click(await screen.findByRole("button", { name: "Save TTS result" }));
     await screen.findByText("Correct the governed draft.");
-    fireEvent.click(screen.getByRole("button", { name: "TTS settings" }));
+    fireEvent.click(screen.getByText("TTS settings", { selector: "summary" }));
     const c1 = document.querySelector('input[name="dma-tts-c1"]') as HTMLInputElement;
     expect(c1).toBeTruthy();
     expect(c1.disabled).toBe(false);

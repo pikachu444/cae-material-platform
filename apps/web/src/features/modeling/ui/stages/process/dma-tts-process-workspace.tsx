@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { ModelingWorkspaceLayout } from "../../../../../design/modeling-workspace-layout";
 import { WorkbenchMessage } from "../../../../../design/semantic-ui";
@@ -33,6 +33,12 @@ const PARTITION_LABELS: Record<DmaTtsPartition, string> = {
   CALIBRATION: "Fit",
   HOLDOUT: "Validate",
   EXCLUDED: "Ignore",
+};
+
+const PARTITION_OPTION_LABELS: Record<DmaTtsPartition, string> = {
+  CALIBRATION: "Fit — calculate TTS",
+  HOLDOUT: "Validate — check result only",
+  EXCLUDED: "Ignore — exclude",
 };
 
 const SHIFT_LAW_LABELS: Record<string, string> = {
@@ -94,14 +100,14 @@ function MultiSweepRail({
   visibleSweepOrdinals: number[];
   onToggle: (ordinal: number) => void;
 }) {
-  return <nav className="dma-tts-sweep-rail" aria-label="DMA frequency sweeps">
-    <div className="dma-tts-rail-heading"><span>Temperature curves</span><span>Show</span></div>
-    <div className="dma-tts-sweep-list" tabIndex={0} aria-label="Measured DMA frequency sweeps">
+  return <nav className="dma-tts-sweep-rail" aria-label="DMA graph curve visibility">
+    <div className="dma-tts-rail-heading"><span>Curves on graph</span><span>Show</span></div>
+    <div className="dma-tts-sweep-list" tabIndex={0} aria-label="Temperature curves visible on graph">
       {source.sweeps.map((sweep) => {
         const visible = visibleSweepOrdinals.includes(sweep.sourceSweepOrdinal);
         return <label className="dma-tts-sweep-entry" key={sweep.sourceSweepOrdinal}>
-          <span><strong>{compact(sweep.representativeTemperatureK)} K</strong><small>Sweep {sweep.sourceSweepOrdinal}</small></span>
-          <input type="checkbox" aria-label={`Show ${compact(sweep.representativeTemperatureK)} K curve`} checked={visible} onChange={() => onToggle(sweep.sourceSweepOrdinal)} />
+          <strong>{compact(sweep.representativeTemperatureK)} K</strong>
+          <input type="checkbox" aria-label={`Show ${compact(sweep.representativeTemperatureK)} K on graph`} checked={visible} onChange={() => onToggle(sweep.sourceSweepOrdinal)} />
         </label>;
       })}
     </div>
@@ -120,7 +126,6 @@ export function DmaTtsProcessWorkspace({
   onContinue,
 }: DmaTtsProcessWorkspaceProps) {
   const process = useDmaTtsProcess({ config, testData, sourceDocument, initialOutput, onSaved });
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const isMulti = process.inputMode === "multi_frequency_isotherms" && process.multiSource;
   const plot = useMemo(() => {
     if (process.readBack) return dmaReadBackPreview(process.readBack, process.visibleSweepOrdinals);
@@ -291,7 +296,6 @@ export function DmaTtsProcessWorkspace({
     </div>
     <div className="dma-tts-command-actions">
       {process.canPrepare && !process.recommendation ? <button type="button" className="button primary" disabled={process.status === "preparing"} onClick={() => void process.prepareRecommendation()}>{process.status === "preparing" ? "Preparing…" : "Prepare recommendation"}</button> : null}
-      {process.recommendation && !process.readBack ? <button type="button" className="button secondary" onClick={() => setSettingsOpen((value) => !value)} disabled={process.status === "saving"}>{settingsOpen ? "Close settings" : "TTS settings"}</button> : null}
       {process.recommendation && !process.readBack ? <button type="button" className="button primary" disabled={!process.canSave || process.status === "saving" || process.status === "save_outcome_unknown"} onClick={() => void process.save()}>{process.status === "saving" ? "Saving…" : "Save TTS result"}</button> : null}
       {process.fitInput && process.status === "saved" ? <button type="button" className="button primary" onClick={onContinue}>Continue to Prony Fit</button> : null}
     </div>
@@ -300,7 +304,7 @@ export function DmaTtsProcessWorkspace({
   return <ModelingWorkspaceLayout
     navigator={rail}
     navigatorLabel="DMA frequency sweeps"
-    navigatorSize={isMulti ? { min: 200, default: 220, max: 256 } : undefined}
+    navigatorSize={isMulti ? { min: 184, default: 196, max: 210 } : undefined}
     ribbon={ribbon}
     plot={<div className={`dma-tts-process-surface${isMulti ? " dma-tts-process-surface-multi" : ""}${process.readBack ? " is-saved" : ""}`}>
       <section className="persistent-modeling-plot dma-tts-graph" aria-labelledby="dma-tts-graph-heading">
@@ -330,7 +334,9 @@ export function DmaTtsProcessWorkspace({
             <div><span>Shift method</span><strong>{isMulti ? (SHIFT_LAW_LABELS[multiDraft?.shiftLawKind ?? ""] ?? "—") : "WLF"}</strong></div>
             <div><span>Reference temperature</span><strong>{compact(Number(process.draft.referenceTemperatureK))} K</strong></div>
           </header>
-          {settingsOpen ? <div className="dma-tts-settings">
+          <details className="dma-tts-settings-disclosure">
+            <summary>TTS settings</summary>
+            <div className="dma-tts-settings">
             {fixedDraft ? <fieldset className="dma-tts-wlf-fields"><legend>WLF shift settings</legend>
               <label>Reference temperature <span><input name="dma-tts-reference-temperature" autoComplete="off" type="number" inputMode="decimal" value={fixedDraft.referenceTemperatureK} onChange={(event) => process.updateDraft({ referenceTemperatureK: event.target.value, reason: "" })} /><b>K</b></span></label>
               <label>C1 <span><input name="dma-tts-c1" autoComplete="off" type="number" inputMode="decimal" value={fixedDraft.c1} onChange={(event) => process.updateDraft({ c1: event.target.value, reason: "" })} /><b>1</b></span></label>
@@ -339,7 +345,7 @@ export function DmaTtsProcessWorkspace({
             {multiDraft ? <div className="dma-tts-multi-settings">
               <section className="dma-tts-sweep-settings" aria-labelledby="dma-tts-sweep-settings-heading">
                 <div className="dma-tts-sweep-settings-heading"><h3 id="dma-tts-sweep-settings-heading">Sweep roles</h3><label>Reference curve<select aria-label="Reference curve" value={multiDraft.referenceSweepOrdinal ?? ""} onChange={(event) => process.setReferenceSweep(Number(event.target.value))}>{process.multiSource?.sweeps.map((sweep) => <option value={sweep.sourceSweepOrdinal} key={sweep.sourceSweepOrdinal}>{compact(sweep.representativeTemperatureK)} K · Sweep {sweep.sourceSweepOrdinal}</option>)}</select></label></div>
-                <div className="dma-tts-temperature-table-scroll"><table><thead><tr><th>Temperature curve</th><th>Role</th></tr></thead><tbody>{multiDraft.sweepDispositions.map((item) => <tr key={item.source_sweep_ordinal}><td>{compact(item.representative_temperature_k)} K · Sweep {item.source_sweep_ordinal}</td><td><div className={`dma-tts-sweep-role-cell${item.partition === "EXCLUDED" ? " has-reason" : ""}`}><select aria-label={`Analysis role for sweep ${item.source_sweep_ordinal}`} value={item.partition} disabled={item.source_sweep_ordinal === multiDraft.referenceSweepOrdinal} onChange={(event) => process.setSweepDisposition(item.source_sweep_ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select>{item.partition === "EXCLUDED" ? <label><span>Reason</span><input aria-label={`Reason for ignoring sweep ${item.source_sweep_ordinal}`} value={item.exclusion_reason ?? ""} onChange={(event) => process.setSweepExclusionReason(item.source_sweep_ordinal, event.target.value)} /></label> : null}</div></td></tr>)}</tbody></table></div>
+                <div className="dma-tts-temperature-table-scroll"><table><thead><tr><th>Temperature curve</th><th>Role</th></tr></thead><tbody>{multiDraft.sweepDispositions.map((item) => <tr key={item.source_sweep_ordinal}><td>{compact(item.representative_temperature_k)} K · Sweep {item.source_sweep_ordinal}</td><td><div className={`dma-tts-sweep-role-cell${item.partition === "EXCLUDED" ? " has-reason" : ""}`}><select aria-label={`Analysis role for sweep ${item.source_sweep_ordinal}`} value={item.partition} disabled={item.source_sweep_ordinal === multiDraft.referenceSweepOrdinal} onChange={(event) => process.setSweepDisposition(item.source_sweep_ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_OPTION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_OPTION_LABELS[value]}</option>)}</select>{item.partition === "EXCLUDED" ? <label><span>Reason</span><input aria-label={`Reason for ignoring sweep ${item.source_sweep_ordinal}`} value={item.exclusion_reason ?? ""} onChange={(event) => process.setSweepExclusionReason(item.source_sweep_ordinal, event.target.value)} /></label> : null}</div></td></tr>)}</tbody></table></div>
               </section>
               <fieldset className="dma-tts-wlf-fields"><legend>Shift method</legend>
                 <label>Method<select name="dma-tts-shift-law" aria-label="Shift method" value={multiDraft.shiftLawKind} onChange={(event) => setMultiLawKind(event.target.value as typeof multiDraft.shiftLawKind)}><option value="wlf_fit">WLF fit</option><option value="arrhenius_fit">Arrhenius fit</option><option value="manual_tabulated">Manual</option></select></label>
@@ -383,9 +389,10 @@ export function DmaTtsProcessWorkspace({
             {fixedDraft && settingsEdited ? <label className="dma-tts-change-reason">Reason for changes <input name="dma-tts-change-reason" autoComplete="off" type="text" value={fixedDraft.reason} onChange={(event) => process.updateDraft({ reason: event.target.value })} /></label> : null}
             {fixedDraft ? <div className="dma-tts-temperature-table-scroll"><table><caption>Temperature disposition</caption><thead><tr><th>Temperature</th><th>Role</th><th>Reason when ignored</th></tr></thead><tbody>{process.fixedSource?.rows.map((row) => {
               const disposition = fixedDraft.dispositions[row.ordinal];
-              return <tr key={row.ordinal}><td>{compact(row.temperatureK)} K</td><td><select name={`dma-tts-temperature-${row.ordinal}-use`} aria-label={`Use ${compact(row.temperatureK)} K`} value={disposition.partition} onChange={(event) => process.setDisposition(row.ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_LABELS[value]}</option>)}</select></td><td>{disposition.partition === "EXCLUDED" ? <input name={`dma-tts-temperature-${row.ordinal}-exclusion-reason`} autoComplete="off" aria-label={`Reason for not using ${compact(row.temperatureK)} K`} value={disposition.exclusionReason} onChange={(event) => process.setExclusionReason(row.ordinal, event.target.value)} /> : "—"}</td></tr>;
+              return <tr key={row.ordinal}><td>{compact(row.temperatureK)} K</td><td><select name={`dma-tts-temperature-${row.ordinal}-use`} aria-label={`Use ${compact(row.temperatureK)} K`} value={disposition.partition} onChange={(event) => process.setDisposition(row.ordinal, event.target.value as DmaTtsPartition)}>{(Object.keys(PARTITION_OPTION_LABELS) as DmaTtsPartition[]).map((value) => <option value={value} key={value}>{PARTITION_OPTION_LABELS[value]}</option>)}</select></td><td>{disposition.partition === "EXCLUDED" ? <input name={`dma-tts-temperature-${row.ordinal}-exclusion-reason`} autoComplete="off" aria-label={`Reason for not using ${compact(row.temperatureK)} K`} value={disposition.exclusionReason} onChange={(event) => process.setExclusionReason(row.ordinal, event.target.value)} /> : "—"}</td></tr>;
             })}</tbody></table></div> : null}
-          </div> : null}
+            </div>
+          </details>
         </> : null}
         {process.readBack ? <div className="dma-tts-result-evidence">
           <div className="dma-tts-saved-row"><h2>TTS result saved</h2><p>{process.status === "saved" ? "Ready for Prony Fit." : "The saved result is available. Fit linking needs a retry."}</p></div>
