@@ -55,14 +55,6 @@
   font-weight: var(--ux-font-weight-label);
 }
 
-.dma-tts-rail-note {
-  margin: 0;
-  padding: var(--ux-space-2);
-  color: var(--ux-text-muted);
-  font-size: var(--ux-metadata-font-size);
-  line-height: 1.35;
-}
-
 .dma-tts-sweep-list {
   min-height: 0;
   padding-inline-end: var(--ux-space-1);
@@ -175,7 +167,16 @@
   font-size: var(--ux-metadata-font-size);
 }
 
-.dma-tts-rail-partition select {
+.dma-tts-exclusion-reason {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ux-space-1);
+  color: var(--ux-text-muted);
+}
+
+.dma-tts-rail-partition select,
+.dma-tts-exclusion-reason input {
   width: 100%;
   min-width: 0;
   min-height: var(--ux-engineering-control-block-size);

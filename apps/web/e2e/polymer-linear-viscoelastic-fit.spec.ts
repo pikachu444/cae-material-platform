@@ -832,17 +832,28 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await expect(page.getByText("Sweeps included", { exact: true })).toBeVisible();
   await expect(page.getByText("#4", { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Advanced settings", exact: true }).click();
-  const law = page.getByLabel("Multi-frequency shift law");
+  const referenceRadios = page.getByRole("radio", { name: "Shift reference" });
+  await expect(referenceRadios).toHaveCount(6);
+  await expect(referenceRadios.nth(NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL - 1)).toBeChecked();
+  await expect(page.getByLabel(`Analysis role for sweep ${NIST_SRM_2491_REFERENCE_SWEEP_ORDINAL}`)).toBeDisabled();
+  const visibleSweepRole = page.getByLabel("Analysis role for sweep 2");
+  await visibleSweepRole.selectOption("EXCLUDED");
+  const ignoreReason = page.getByLabel("Reason for ignoring sweep 2");
+  await expect(ignoreReason).toBeVisible();
+  await ignoreReason.fill("Outside the selected fit range");
+  await visibleSweepRole.selectOption("CALIBRATION");
+  await expect(ignoreReason).toHaveCount(0);
+  await page.getByRole("button", { name: "TTS settings", exact: true }).click();
+  const law = page.getByLabel("Shift method");
   await expect(law).toBeVisible();
   await expect(law.locator("option")).toHaveText([
     "WLF fit",
     "Arrhenius fit",
-    "Manual/tabulated shift law",
+    "Manual",
   ]);
   await expect(page.locator('input[name="dma-tts-adjacent-xatol"]')).toHaveAttribute("readonly", "");
   await expect(page.locator('input[name="dma-tts-law-ftol"]')).toHaveAttribute("readonly", "");
-  await page.getByRole("button", { name: "Hide settings", exact: true }).click();
+  await page.getByRole("button", { name: "Close settings", exact: true }).click();
   await captureIssue392ProcessState(page, "recommendation");
 
   const createResponse = page.waitForResponse((response) => (
@@ -871,12 +882,12 @@ test("Issue #392 imports NIST multi-frequency DMA, saves exact TTS, and restores
   await calculationDetails.getByText("Calculation details", { exact: true }).click();
   const backendResults = page.getByRole("table").filter({ hasText: "Applied log10(aT)" });
   await expect(backendResults.locator("tbody > tr")).toHaveCount(6);
-  await expect(backendResults.getByRole("cell", { name: "Check", exact: true })).toBeVisible();
+  await expect(backendResults.getByRole("cell", { name: "Validate", exact: true })).toBeVisible();
   await expect(page.locator(".curve-legend button")).toHaveCount(6);
   await expect(page.locator(".dma-legend-line-key", { hasText: "Raw" })).toBeVisible();
   await expect(page.locator(".dma-legend-line-key", { hasText: "Shifted" })).toBeVisible();
-  await expect(page.getByRole("radio", { name: /Reference/ }).first()).toBeDisabled();
-  await expect(page.getByLabel("Partition sweep 1").first()).toBeDisabled();
+  await expect(page.getByRole("radio", { name: "Shift reference" }).first()).toBeDisabled();
+  await expect(page.getByLabel("Analysis role for sweep 1").first()).toBeDisabled();
   expect(processCreateRequests).toHaveLength(1);
   await calculationDetails.getByText("Calculation details", { exact: true }).click();
   await captureIssue392ProcessState(page, "saved");

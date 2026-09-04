@@ -249,7 +249,7 @@ describe("DMA TTS Process workspace", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Prepare recommendation" }));
     fireEvent.click(await screen.findByRole("button", { name: "Save TTS result" }));
     await screen.findByText("Correct the governed draft.");
-    fireEvent.click(screen.getByRole("button", { name: "Advanced settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "TTS settings" }));
     const c1 = document.querySelector('input[name="dma-tts-c1"]') as HTMLInputElement;
     expect(c1).toBeTruthy();
     expect(c1.disabled).toBe(false);
