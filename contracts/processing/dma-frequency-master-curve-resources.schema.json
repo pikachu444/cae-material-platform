@@ -423,7 +423,8 @@
             "shift_law": {"$ref": "#/$defs/MultiShiftLaw"},
             "scoring": {"$ref": "#/$defs/Scoring"},
             "adjacent_optimizer": {"$ref": "#/$defs/AdjacentOptimizer"},
-            "law_optimizer": {"oneOf": [{"$ref": "#/$defs/LawOptimizer"}, {"type": "null"}]}
+            "law_optimizer": {"oneOf": [{"$ref": "#/$defs/LawOptimizer"}, {"type": "null"}]},
+            "recommendation_sha256": {"oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]}
           }
         }
       ],
@@ -455,6 +456,80 @@
       "required": ["source_evidence", "reference_temperature_k", "source_ordinal", "c1", "c2_k", "value_origin", "material_specific", "requires_confirmation", "rule_id", "rule_version", "recommendation_sha256"],
       "properties": {
         "source_evidence": {"type": "object"}, "reference_temperature_k": {"type": "number"}, "source_ordinal": {"type": "integer", "minimum": 0}, "c1": {"type": "number"}, "c2_k": {"type": "number"}, "value_origin": {"type": "string"}, "material_specific": {"const": false}, "requires_confirmation": {"const": true}, "rule_id": {"const": "polymer.dma_wlf_starting_suggestion"}, "rule_version": {"const": "1.0.0"}, "recommendation_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "MultiRecommendationRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["test_data", "import_profile", "reference_sweep_ordinal"],
+      "properties": {
+        "test_data": {"$ref": "#/$defs/ExactTestData"},
+        "import_profile": {"$ref": "#/$defs/ExactImportProfile"},
+        "reference_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807}
+      }
+    },
+    "MultiRecommendationEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["test_data_document_id", "test_data_revision_id", "test_data_content_sha256", "import_profile_id", "import_profile_revision_id", "import_profile_content_sha256", "source_normalized_artifact_id", "source_normalized_artifact_sha256"],
+      "properties": {
+        "test_data_document_id": {"$ref": "#/$defs/Uuid"},
+        "test_data_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_data_content_sha256": {"$ref": "#/$defs/Sha256"},
+        "import_profile_id": {"$ref": "#/$defs/Uuid"},
+        "import_profile_revision_id": {"$ref": "#/$defs/Uuid"},
+        "import_profile_content_sha256": {"$ref": "#/$defs/Sha256"},
+        "source_normalized_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "source_normalized_artifact_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "MultiSweepSummary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_sweep_ordinal", "representative_temperature_k", "point_count", "source_frequency_min_hz", "source_frequency_max_hz"],
+      "properties": {
+        "source_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "representative_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "point_count": {"type": "integer", "minimum": 2},
+        "source_frequency_min_hz": {"type": "number", "exclusiveMinimum": 0},
+        "source_frequency_max_hz": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "MultiRecommendationResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_mode", "source_evidence", "sweeps", "reference_sweep_ordinal", "reference_temperature_k", "sweep_dispositions", "shift_law", "scoring", "adjacent_optimizer", "law_optimizer", "profile_id", "profile_version", "material_specific", "production_readiness", "requires_confirmation", "recommendation_sha256"],
+      "properties": {
+        "input_mode": {"const": "multi_frequency_isotherms"},
+        "source_evidence": {"$ref": "#/$defs/MultiRecommendationEvidence"},
+        "sweeps": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/MultiSweepSummary"}},
+        "reference_sweep_ordinal": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "sweep_dispositions": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/SweepDisposition"}},
+        "shift_law": {"$ref": "#/$defs/MultiWlfShiftLaw"},
+        "scoring": {"$ref": "#/$defs/Scoring"},
+        "adjacent_optimizer": {"$ref": "#/$defs/AdjacentOptimizer"},
+        "law_optimizer": {"$ref": "#/$defs/LawOptimizer"},
+        "profile_id": {"const": "cmp.dma_tts.multi_frequency_wlf_starting_profile"},
+        "profile_version": {"const": "1.0.0"},
+        "material_specific": {"const": false},
+        "production_readiness": {"const": "non_production"},
+        "requires_confirmation": {"const": true},
+        "recommendation_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "PersistedFixedRecommendation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["recommendation_sha256", "rule_id", "rule_version"],
+      "properties": {
+        "recommendation_sha256": {"$ref": "#/$defs/Sha256"},
+        "rule_id": {"const": "polymer.dma_wlf_starting_suggestion"},
+        "rule_version": {"const": "1.0.0"}
+      }
+    },
+    "PersistedMultiRecommendation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["recommendation_sha256", "profile_id", "profile_version"],
+      "properties": {
+        "recommendation_sha256": {"$ref": "#/$defs/Sha256"},
+        "profile_id": {"const": "cmp.dma_tts.multi_frequency_wlf_starting_profile"},
+        "profile_version": {"const": "1.0.0"}
       }
     },
     "OutputPin": {
@@ -535,6 +610,7 @@
           }
         },
         "shift_law": {"$ref": "#/$defs/PersistedShiftLaw"},
+        "recommendation": {"oneOf": [{"$ref": "#/$defs/PersistedFixedRecommendation"}, {"$ref": "#/$defs/PersistedMultiRecommendation"}, {"type": "null"}]},
         "scoring": {"oneOf": [{"$ref": "#/$defs/PersistedScoring"}, {"type": "null"}]},
         "adjacent_optimizer": {"oneOf": [{"$ref": "#/$defs/PersistedAdjacentOptimizer"}, {"type": "null"}]},
         "law_optimizer": {"oneOf": [{"$ref": "#/$defs/PersistedLawOptimizer"}, {"type": "null"}]},

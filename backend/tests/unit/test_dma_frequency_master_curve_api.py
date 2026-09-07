@@ -6,6 +6,7 @@ from typing import cast
 from uuid import UUID
 
 import pytest
+from cmp.modules.datasets.domain.governed_tabular import GovernedImportNotFound
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -30,6 +31,9 @@ from cmp.modules.processing.domain.dma_frequency_master_curve import (
     DMA_FREQUENCY_MASTER_CURVE_PARQUET_SCHEMA_ID,
     DmaProcessingError,
     DmaWlfStartingSuggestion,
+)
+from cmp.modules.processing.domain.dma_multi_frequency_tts import (
+    DmaMultiFrequencyStartingSuggestion,
 )
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
@@ -68,6 +72,7 @@ _DECISION = AuthorizationDecision(
 class _Service:
     def __init__(self) -> None:
         self.recommendation_calls = 0
+        self.multi_recommendation_calls = 0
         self.create_calls = 0
 
     async def recommend(self, context: object, decision: object, command: object) -> object:
@@ -85,6 +90,10 @@ class _Service:
             rule_version="1.0.0",
             recommendation_sha256="c" * 64,
         )
+
+    async def recommend_multi(self, context: object, decision: object, command: object) -> object:
+        self.multi_recommendation_calls += 1
+        return _multi_suggestion()
 
     async def create(self, context: object, decision: object, command: object) -> object:
         self.create_calls += 1
@@ -113,6 +122,17 @@ class _ErrorService:
 
     async def create(self, context: object, decision: object, command: object) -> object:
         raise self.error
+
+
+class _NotFoundService:
+    async def recommend(self, context: object, decision: object, command: object) -> object:
+        raise GovernedImportNotFound("secret governed import")
+
+    async def recommend_multi(self, context: object, decision: object, command: object) -> object:
+        raise GovernedImportNotFound("secret governed import")
+
+    async def create(self, context: object, decision: object, command: object) -> object:
+        raise GovernedImportNotFound("secret governed import")
 
 
 def _client(service: _Service) -> TestClient:
@@ -150,6 +170,103 @@ def _pins() -> dict[str, object]:
     }
 
 
+def _multi_suggestion() -> DmaMultiFrequencyStartingSuggestion:
+    return DmaMultiFrequencyStartingSuggestion(
+        input_mode="multi_frequency_isotherms",
+        source_evidence={
+            "test_data_document_id": "da100000-0000-4000-8000-000000000021",
+            "test_data_revision_id": "da100000-0000-4000-8000-000000000022",
+            "test_data_content_sha256": "a" * 64,
+            "import_profile_id": "da100000-0000-4000-8000-000000000023",
+            "import_profile_revision_id": "da100000-0000-4000-8000-000000000024",
+            "import_profile_content_sha256": "b" * 64,
+            "source_normalized_artifact_id": "da100000-0000-4000-8000-000000000025",
+            "source_normalized_artifact_sha256": "c" * 64,
+        },
+        sweeps=(
+            {
+                "source_sweep_ordinal": 11,
+                "representative_temperature_k": 300.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 27,
+                "representative_temperature_k": 310.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+            {
+                "source_sweep_ordinal": 42,
+                "representative_temperature_k": 320.0,
+                "point_count": 3,
+                "source_frequency_min_hz": 1.0,
+                "source_frequency_max_hz": 100.0,
+            },
+        ),
+        reference_sweep_ordinal=11,
+        reference_temperature_k=300.0,
+        sweep_dispositions=(
+            {
+                "source_sweep_ordinal": 11,
+                "representative_temperature_k": 300.0,
+                "partition": "CALIBRATION",
+                "exclusion_reason": None,
+            },
+            {
+                "source_sweep_ordinal": 27,
+                "representative_temperature_k": 310.0,
+                "partition": "CALIBRATION",
+                "exclusion_reason": None,
+            },
+            {
+                "source_sweep_ordinal": 42,
+                "representative_temperature_k": 320.0,
+                "partition": "HOLDOUT",
+                "exclusion_reason": None,
+            },
+        ),
+        shift_law={
+            "kind": "wlf_fit",
+            "reference_temperature_k": 300.0,
+            "initial_parameters": [17.44, 51.6],
+            "lower_bounds": [1e-8, 1.0],
+            "upper_bounds": [1000.0, 5000.0],
+        },
+        scoring={
+            "minimum_overlap_decades": 0.25,
+            "scoring_point_count": 101,
+            "storage_weight": 0.5,
+            "loss_weight": 0.5,
+        },
+        adjacent_optimizer={
+            "relative_shift_lower_bound_log10": -12.0,
+            "relative_shift_upper_bound_log10": 12.0,
+            "xatol": 1e-10,
+            "maxiter": 1000,
+            "seed": None,
+        },
+        law_optimizer={
+            "initial_parameters": [17.44, 51.6],
+            "lower_bounds": [1e-8, 1.0],
+            "upper_bounds": [1000.0, 5000.0],
+            "ftol": 1e-12,
+            "xtol": 1e-12,
+            "gtol": 1e-12,
+            "max_nfev": 5000,
+            "seed": None,
+        },
+        profile_id="cmp.dma_tts.multi_frequency_wlf_starting_profile",
+        profile_version="1.0.0",
+        material_specific=False,
+        production_readiness="non_production",
+        requires_confirmation=True,
+        recommendation_sha256="d" * 64,
+    )
+
+
 def test_recommendation_endpoint_is_read_only_and_returns_confirmation_evidence() -> None:
     service = _Service()
     response = _client(service).post(
@@ -162,6 +279,77 @@ def test_recommendation_endpoint_is_read_only_and_returns_confirmation_evidence(
     assert response.json()["value_origin"] == "generic_wlf_at_tg_starting_suggestion"
     assert service.recommendation_calls == 1
     assert service.create_calls == 0
+
+
+def test_multi_recommendation_endpoint_returns_exact_defaults_evidence_and_holdout() -> None:
+    service = _Service()
+    response = _client(service).post(
+        "/api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency",
+        json={**_pins(), "reference_sweep_ordinal": 11},
+    )
+
+    assert response.status_code == 200, response.json()
+    body = response.json()
+    assert body["input_mode"] == "multi_frequency_isotherms"
+    assert body["reference_sweep_ordinal"] == 11
+    assert body["reference_temperature_k"] == 300.0
+    assert [item["partition"] for item in body["sweep_dispositions"]] == [
+        "CALIBRATION",
+        "CALIBRATION",
+        "HOLDOUT",
+    ]
+    assert body["law_optimizer"]["seed"] is None
+    assert body["adjacent_optimizer"]["xatol"] == 1e-10
+    import_profile_pin = cast(dict[str, object], _pins()["import_profile"])
+    assert body["source_evidence"]["import_profile_id"] == import_profile_pin["profile_id"]
+    assert body["recommendation_sha256"] == "d" * 64
+    assert service.multi_recommendation_calls == 1
+    assert service.create_calls == 0
+
+
+@pytest.mark.parametrize(
+    ("path", "body"),
+    (
+        (
+            "/api/v1/processing/dma-frequency-master-curves/recommendations",
+            _pins(),
+        ),
+        (
+            "/api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency",
+            {**_pins(), "reference_sweep_ordinal": 11},
+        ),
+        (
+            "/api/v1/processing/dma-frequency-master-curves",
+            {
+                **_pins(),
+                "classification": "internal",
+                "label": "DMA frequency master curve",
+                "input_mode": "fixed_frequency_temperature_sweep",
+                "row_dispositions": [
+                    {"source_ordinal": 0, "partition": "CALIBRATION"},
+                    {"source_ordinal": 1, "partition": "HOLDOUT"},
+                ],
+                "shift_law": {
+                    "kind": "wlf",
+                    "reference_temperature_k": 313.15,
+                    "c1": 17.44,
+                    "c2_k": 51.6,
+                },
+                "confirmation": {"confirmed": True, "reason": "Engineer accepted the settings."},
+                "change_reason": "Create the confirmed DMA TTS output.",
+            },
+        ),
+    ),
+)
+def test_governed_import_not_found_is_a_non_enumerating_404(
+    path: str, body: dict[str, object]
+) -> None:
+    response = _client(cast(_Service, _NotFoundService())).post(path, json=body)
+
+    assert response.status_code == 404, response.json()
+    assert response.json()["error"]["code"] == "CMP-PROCESSING-4040"
+    assert "secret governed import" not in response.text
+    assert "da100000-0000-4000-8000-000000000021" not in response.text
 
 
 def test_create_endpoint_preserves_explicit_policy_and_returns_exact_artifact_pins() -> None:

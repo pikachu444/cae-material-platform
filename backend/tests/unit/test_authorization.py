@@ -329,6 +329,12 @@ def test_modeling_write_closes_catalog_binding_transaction_capability() -> None:
     # continues to use the caller's explicit top-level permission decision.
 
 
+def test_processing_read_closes_provenance_validation_transaction_capability() -> None:
+    permissions = set(database_permissions_for(Permission.PROCESSING_READ))
+
+    assert Permission.PROVENANCE_READ.value in permissions
+
+
 def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
     for permissions in ROLE_PERMISSIONS.values():
         for action in permissions:

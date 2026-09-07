@@ -790,6 +790,16 @@ def test_dma_success_persists_the_complete_batch_graph_for_user_and_service(
     )
     assert dma_postgres.outputs.commit_calls >= 1
     _assert_dma_graph(dma_postgres, context, created.master_curve_output)
+    read_back = asyncio.run(
+        _dma_service(dma_postgres).read(
+            context,
+            _decision(context, Permission.PROCESSING_READ),
+            created.master_curve_output.id,
+            created.master_curve_output.current.revision_id,
+            created.master_curve_output.current.content_hash,
+        )
+    )
+    assert read_back.output.current == created.master_curve_output.current
 
 
 def test_dma_rls_hides_exact_output_across_tenant_project_and_classification(

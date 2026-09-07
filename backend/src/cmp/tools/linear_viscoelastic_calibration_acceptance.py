@@ -48,10 +48,10 @@ except ModuleNotFoundError:  # Installed backend package; repository scripts are
     build_package = _builder_module.build_package
 
 PLUGIN_ID = "cmp.linear_viscoelastic.calibrator"
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.0.2"
 SIGNATURE_SCHEMA_ID = "urn:cmp:artifact:detached-signature:1.0.0"
 SIGNATURE_PAYLOAD_PREFIX = "cmp-plugin-package-sha256-v1"
-IDEMPOTENCY_PREFIX = "linear-viscoelastic-calibrator:1.0.0"
+IDEMPOTENCY_PREFIX = "linear-viscoelastic-calibrator:1.0.2"
 
 
 class AcceptanceArtifactPublisher(Protocol):

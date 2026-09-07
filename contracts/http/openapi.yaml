@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.40.0
+  version: 0.41.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -9876,8 +9876,27 @@ paths:
       responses:
         "200": {description: Read-only starting suggestion that still requires engineer confirmation., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/RecommendationResponse"}}}}
         "403": {description: Processing execution is not authorized.}
+        "404": {description: The exact source or Import Profile is not visible in this tenant.}
         "409": {description: An exact source or profile revision is stale.}
         "422": {description: The sweep has no unique positive interior loss-factor peak.}
+        "503": {description: The source, artifact, or processing service is temporarily unavailable.}
+  /api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency:
+    post:
+      operationId: recommendMultiFrequencyDmaMasterCurve
+      tags: [processing]
+      summary: Inspect exact multi-frequency DMA isotherms and return the bounded non-production WLF starting profile.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/MultiRecommendationRequest"}
+      responses:
+        "200": {description: Read-only multi-frequency starting profile that still requires engineer confirmation., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/MultiRecommendationResponse"}}}}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: The exact source or Import Profile is not visible in this tenant.}
+        "409": {description: An exact source or profile revision is stale, or the recommendation lineage is inconsistent.}
+        "422": {description: The source sweeps, reference, or recommendation controls are invalid.}
         "503": {description: The source, artifact, or processing service is temporarily unavailable.}
   /api/v1/processing/dma-frequency-master-curves:
     post:
@@ -9893,6 +9912,7 @@ paths:
       responses:
         "201": {description: Exact immutable Processing Output and result Artifact pins., content: {application/json: {schema: {$ref: "../processing/dma-frequency-master-curve-resources.schema.json#/$defs/CreateResponse"}}}}
         "403": {description: Processing execution is not authorized.}
+        "404": {description: The exact source or Import Profile is not visible in this tenant.}
         "409": {description: An exact source or profile revision is stale.}
         "422": {description: Quantity, unit, shift law, confirmation, or row decision is invalid.}
         "503": {description: The artifact, provenance, or processing service is temporarily unavailable.}

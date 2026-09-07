@@ -514,7 +514,8 @@ def test_rejects_ungoverned_source_and_dma_without_shear_profile() -> None:
         _profile("dma", deformation_mode=None)
 
 
-def test_resolves_exact_dma_master_curve_processing_output() -> None:
+@pytest.mark.parametrize("legacy_metadata", [False, True])
+def test_resolves_exact_dma_master_curve_processing_output(legacy_metadata: bool) -> None:
     document = CanonicalTestDataDocument(
         document_type="cmp.test-data",
         schema_version="1.0.0",
@@ -661,6 +662,7 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
             "law_optimizer": None,
             "residual_summary": None,
             "application_range": None,
+            **({} if legacy_metadata else {"recommendation": None}),
             "assessment": {
                 "adequacy": "not_assessed",
                 "uncertainty": "not_provided",
@@ -787,6 +789,9 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
     assert first_source_row.coordinate == reduced_frequencies[0]
     assert first_source_row.storage_modulus_pa == result_rows[0].storage_modulus_pa[0]
     assert first_source_row.loss_modulus_pa == result_rows[0].loss_modulus_pa[0]
+    assert len(fit_input.rows) == 4
+    holdout_row = next(item for item in fit_input.rows if item.source_ordinal == 3)
+    assert holdout_row.partition is PointPartition.HOLDOUT
     assert fit_input.rows[-1].partition is PointPartition.CALIBRATION
     resolver.assert_current_revisions(
         _context(),

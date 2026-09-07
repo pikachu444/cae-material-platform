@@ -16,7 +16,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 PLUGIN_ID = "cmp.linear_viscoelastic.calibrator"
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.0.2"
 _ALLOWED = {
     "dependency.lock",
     "linear_viscoelastic_calibrator/plugin.py",

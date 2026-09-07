@@ -939,7 +939,7 @@ class _AcceptanceRegistry:
         del context, decision
         self.calls.append("get_active")
         assert plugin_id == "cmp.linear_viscoelastic.calibrator"
-        assert plugin_version == "1.0.0"
+        assert plugin_version == "1.0.2"
         assert len(package_digest) == 64
         assert self.package is not None and self.package.active
         return self.package

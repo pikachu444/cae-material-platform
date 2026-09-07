@@ -597,10 +597,12 @@ def validate_options_against_rows(
         "law_optimizer",
         "residual_summary",
         "application_range",
+        "recommendation",
         "assessment",
         "warnings",
     }
-    if set(options) != required:
+    # Earlier saved outputs predate recommendation metadata; never rewrite their bytes.
+    if set(options) not in (required, required - {"recommendation"}):
         raise _read_failure("DMA ProcessingStep options do not have the exact required keys")
     frozen = _validate_collection(rows)
     mode = frozen[0].input_mode
@@ -649,6 +651,27 @@ def validate_options_against_rows(
         "production_readiness": "non_production",
     }:
         raise _read_failure("DMA ProcessingStep assessment is invalid")
+    recommendation = options.get("recommendation")
+    if recommendation is not None:
+        if not isinstance(recommendation, dict):
+            raise _read_failure("DMA recommendation evidence is not an object")
+        recommendation_keys = (
+            {"recommendation_sha256", "rule_id", "rule_version"}
+            if mode == DmaInputMode.FIXED_FREQUENCY_TEMPERATURE_SWEEP.value
+            else {"recommendation_sha256", "profile_id", "profile_version"}
+        )
+        if set(recommendation) != recommendation_keys:
+            raise _read_failure("DMA recommendation evidence does not have the exact current keys")
+        recommendation_sha256 = recommendation["recommendation_sha256"]
+        if (
+            not isinstance(recommendation_sha256, str)
+            or len(recommendation_sha256) != 64
+            or any(character not in "0123456789abcdef" for character in recommendation_sha256)
+        ):
+            raise _read_failure("DMA recommendation digest is invalid")
+        for key in recommendation_keys - {"recommendation_sha256"}:
+            if not isinstance(recommendation[key], str) or not recommendation[key]:
+                raise _read_failure("DMA recommendation identity is invalid")
     reference = options["reference"]
     if not isinstance(reference, dict) or set(reference) != {
         "source_sweep_ordinal",
@@ -1165,14 +1188,21 @@ def validate_options_against_rows(
                     },
                     f"{name} score",
                 )
-                for field_name in (
-                    "overlap_min_log10_reduced_omega",
-                    "overlap_max_log10_reduced_omega",
-                    "storage_mse",
-                    "loss_mse",
-                    "weighted_mse",
-                ):
-                    close(score[field_name], getattr(row, field_name), f"{name} {field_name}")
+                row_score_fields = {
+                    "overlap_min_log10_reduced_omega": (
+                        row.overlap_log10_reduced_angular_frequency_min
+                    ),
+                    "overlap_max_log10_reduced_omega": (
+                        row.overlap_log10_reduced_angular_frequency_max
+                    ),
+                    "storage_mse": row.storage_mse,
+                    "loss_mse": row.loss_mse,
+                    "weighted_mse": row.weighted_mse,
+                }
+                for field_name, expected in row_score_fields.items():
+                    if expected is None:
+                        raise _read_failure(f"{name} is missing {field_name}")
+                    close(score[field_name], expected, f"{name} {field_name}")
                 outcome = mapping(item_map["evidence"], f"{name} optimizer outcome")
                 exact_keys(
                     outcome,

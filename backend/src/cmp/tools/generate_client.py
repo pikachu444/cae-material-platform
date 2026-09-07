@@ -113,6 +113,13 @@ class Client:
             "POST", "/api/v1/processing/dma-frequency-master-curves/recommendations", payload
         )
 
+    def recommend_multi_frequency_dma_master_curve(self, payload: object) -> object:
+        return self._request_json(
+            "POST",
+            "/api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency",
+            payload,
+        )
+
     def create_dma_frequency_master_curve(self, payload: object) -> object:
         return self._request_json("POST", "/api/v1/processing/dma-frequency-master-curves", payload)
 

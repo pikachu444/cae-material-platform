@@ -2,7 +2,7 @@
 
 Status: authoritative semantic guide
 
-현재 HTTP contract는 `0.40.0`이다. HTTP identifier와 payload의 machine-readable source of truth는
+현재 HTTP contract는 `0.41.0`이다. HTTP identifier와 payload의 machine-readable source of truth는
 `contracts/http/openapi.yaml`과 runtime OpenAPI다. 외부에 발행하는 event 계약의 source of truth는
 `contracts/events/asyncapi.yaml`과 root event JSON Schema다. Runtime에서만 발행하고 아직 root
 AsyncAPI에 등록하지 않은 event는 emitter와 integration test가 현재 동작의 증거다. 이 문서는 그
@@ -224,7 +224,7 @@ commit 또는 Bundle revision을 덮어쓰지 않는다.
 
 ### 3.5 Common unit and Unit Profile
 
-HTTP contract `0.40.0` references
+HTTP contract `0.41.0` references
 `contracts/units/unit-resources.schema.json` contract `1.1.0` directly. This additive minor keeps
 all `1.0.0` IDs and aliases, adds explicit `speed` with `m/s`, `mm/s`, `mm/min`, and adds
 `tonne/mm3` to `mass_per_volume`.
@@ -280,7 +280,7 @@ authorization 불일치와 잘못된 exact hash를 silent fallback 없이 구분
 
 ### 3.6 Curve channel metadata and deviation
 
-HTTP contract `0.40.0` references
+HTTP contract `0.41.0` references
 `contracts/datasets/curve-channel-metadata.schema.json` contract `1.0.0`. Dataset, canonical Test
 Data, Processing stage/ensemble and Statistics curve responses add the same `curve_metadata` and
 bounded same-index series shape. The following exact reads are the primary public entry points.
@@ -306,6 +306,21 @@ source/provenance 일치를 확인한 뒤에만 preview를 sampling한다. 알�
 metadata가 손상된 경우 `CMP-CURVE-0001..0038`의 `code`, `location`, `message`를 가진 structured
 error로 실패한다. 새로 생성하거나 실제로 변경하는 Catalog curve pointer는 declared 또는 reviewed
 legacy adapter를 통과해야 하지만, 변경하지 않은 역사적 unknown pointer는 계속 읽을 수 있다.
+
+### 3.7 DMA TTS 추천과 저장 결과 재사용
+
+`POST /api/v1/processing/dma-frequency-master-curves/recommendations/multi-frequency`는
+지정한 실험 데이터와 기준 sweep에 대한 초기 설정을 반환한다. 저장이나 TTS 계산을 실행하지 않는다.
+현재 WLF 초기 설정은 `non_production`이며 사용자의 검토가 필요하다. 소재별 검증된 기본값을 뜻하지 않는다.
+
+계산 요청에 추천 hash를 보낼 때는 입력과 설정이 해당 추천과 일치해야 한다. 설정을 바꾼 요청은
+추천 hash 없이 명시적으로 제출한다. 저장 결과의 `recommendation`은 선택 항목이다.
+이 항목이 없던 기존 결과도 원본 metadata와 hash를 바꾸지 않고 재조회하고 Prony Fit에 사용할 수 있다.
+알 수 없는 필드나 잘못된 추천 정보까지 허용하지는 않는다.
+
+Prony 입력은 계산용(CALIBRATION)과 검증용(HOLDOUT) 자료를 구분해 전달하고 EXCLUDED 자료는 제외한다.
+같은 감소 주파수의 실측점도 보존하며, 주파수·온도·원본 행 순서를 기준으로 결정적으로 정렬한다.
+이 API 지원과 별개로 #392의 실패한 UI 후보는 철회됐다. 새 처리 화면 구현은 frontend 개편에서 진행한다.
 
 ## 4. Revision create 예시
 

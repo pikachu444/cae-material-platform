@@ -10,7 +10,7 @@ from cmp.modules.jobs.domain.jobs import ImmutableJobSpec, ResourcePolicy
 
 LINEAR_VISCOELASTIC_CALIBRATION_JOB_TYPE = "modeling.linear_viscoelastic_calibration"
 LINEAR_VISCOELASTIC_CALIBRATOR_ID = "cmp.linear_viscoelastic.calibrator"
-LINEAR_VISCOELASTIC_CALIBRATOR_VERSION = "1.0.0"
+LINEAR_VISCOELASTIC_CALIBRATOR_VERSION = "1.0.2"
 LINEAR_VISCOELASTIC_CONFIG_SCHEMA = "urn:cmp:plugin:linear-viscoelastic-calibrator:config:1.0.0"
 LINEAR_VISCOELASTIC_RESULT_SCHEMA = "urn:cmp:modeling:linear-viscoelastic-calibration-result:1.0.0"
 LINEAR_VISCOELASTIC_RESIDUAL_SCHEMA = (
