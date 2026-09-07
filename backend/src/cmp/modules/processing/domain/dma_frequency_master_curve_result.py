@@ -601,7 +601,8 @@ def validate_options_against_rows(
         "assessment",
         "warnings",
     }
-    if set(options) != required:
+    # Earlier saved outputs predate recommendation metadata; never rewrite their bytes.
+    if set(options) not in (required, required - {"recommendation"}):
         raise _read_failure("DMA ProcessingStep options do not have the exact required keys")
     frozen = _validate_collection(rows)
     mode = frozen[0].input_mode
@@ -650,7 +651,7 @@ def validate_options_against_rows(
         "production_readiness": "non_production",
     }:
         raise _read_failure("DMA ProcessingStep assessment is invalid")
-    recommendation = options["recommendation"]
+    recommendation = options.get("recommendation")
     if recommendation is not None:
         if not isinstance(recommendation, dict):
             raise _read_failure("DMA recommendation evidence is not an object")

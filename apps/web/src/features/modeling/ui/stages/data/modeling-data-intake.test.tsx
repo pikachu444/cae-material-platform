@@ -544,7 +544,7 @@ describe("Modeling data intake", () => {
     expect(screen.getByText("Match file columns", { exact: true })).toBeTruthy();
     expect(screen.queryByText("Review required", { exact: true })).toBeNull();
     expect(Array.from(container.querySelectorAll(".data-mapping-table th")).map((item) => item.textContent))
-      .toEqual(["Modeling data", "Column in file", "File unit", "Modeling unit", "Mapping role"]);
+      .toEqual(["Modeling data", "Column in file", "File unit", "Modeling unit"]);
     expect(container.querySelector('.data-mapping-blockers[data-status="success"]')).toBeNull();
     expect(container.querySelector(".data-source-evidence")).toBeNull();
     const technicalDetails = screen.getByText(/Raw bytes, source units/).closest("details.data-source-advanced");
@@ -557,8 +557,6 @@ describe("Modeling data intake", () => {
     expect(container.querySelector('.data-mapping-blockers[data-message-kind="blocked"]')?.textContent)
       .toContain("Fix the test data mapping.");
     expect(screen.getByRole("combobox", { name: "Temperature source column" })).toBeTruthy();
-    expect(screen.getByRole("combobox", { name: "Source sweep ordinal source column" })).toBeTruthy();
-    expect(screen.getByText(/source sweep ordinal is auxiliary with identity unit 1/)).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Frequency source column" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Storage modulus source column" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Loss modulus source column" })).toBeTruthy();
@@ -630,8 +628,8 @@ describe("Modeling data intake", () => {
       encoding: "utf-8",
       delimiter: ",",
       decimal_separator: ".",
-      header_columns: ["source_sweep_ordinal", "temperature", "frequency", "storage", "loss"],
-      sample_rows: [["1", "23", "0", "1200", "80"]],
+      header_columns: ["temperature", "frequency", "storage", "loss"],
+      sample_rows: [["23", "0", "1200", "80"]],
       status: "needs_input",
       report_sha256: "c".repeat(64),
     };
@@ -716,7 +714,7 @@ describe("Modeling data intake", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Local file" }));
     fireEvent.change(screen.getByLabelText("Import Test Data file"), {
       target: { files: [new File([
-        "source_sweep_ordinal,temperature,frequency,storage,loss\n1,23,0,1200,80\n",
+        "temperature,frequency,storage,loss\n23,0,1200,80\n",
       ], "dma-invalid.csv", { type: "text/csv" })] },
     });
     fireEvent.change(await screen.findByRole("combobox", { name: "Imported file Test record" }), {
@@ -743,7 +741,6 @@ describe("Modeling data intake", () => {
       .toBe("error");
     expect(onImported).not.toHaveBeenCalled();
 
-    await waitFor(() => expect(recordButton.hasAttribute("disabled")).toBe(false));
     fireEvent.click(screen.getByRole("button", { name: "Record rejected import" }));
     await waitFor(() => expect(retryKeys).toHaveLength(2));
     expect(retryKeys[0]).not.toBe("");

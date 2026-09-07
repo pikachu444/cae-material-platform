@@ -1003,7 +1003,6 @@ export interface RawAsset {
 }
 
 export type GovernedTabularFileFormat = "csv" | "tsv" | "xlsx";
-export type GovernedImportProfileSchemaVersion = "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0";
 export type GovernedTabularDataSchema =
   | "monotonic_tension"
   | "monotonic_compression"
@@ -1011,8 +1010,6 @@ export type GovernedTabularDataSchema =
   | "biaxial_tension"
   | "simple_shear"
   | "shear_relaxation"
-  | "dma_temperature_sweep"
-  | "dma_frequency_sweep"
   | "dma_frequency_temperature_sweep"
   | "forming_limit_diagram";
 export type GovernedQuantityKind =
@@ -1029,7 +1026,6 @@ export type GovernedQuantityKind =
   | "storage_modulus"
   | "loss_modulus"
   | "tan_delta"
-  | "source_sweep_ordinal"
   | "minor_strain"
   | "major_strain";
 
@@ -1040,7 +1036,7 @@ export interface GovernedChannelMapping {
   original_unit: string;
   normalized_quantity?: GovernedQuantityKind;
   normalized_unit?: string;
-  axis_role: "independent" | "dependent" | "auxiliary";
+  axis_role: "independent" | "dependent";
 }
 
 export interface GovernedImportProfileContent {
@@ -1056,8 +1052,6 @@ export interface GovernedImportProfileContent {
   initial_gauge_length_m: number | null;
   initial_cross_section_area_m2: number | null;
   approval_kind: "human_confirmed";
-  schema_version?: GovernedImportProfileSchemaVersion;
-  deformation_mode?: "shear" | null;
   profile_sha256?: string;
 }
 

@@ -12,6 +12,7 @@ from uuid import UUID
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pytest
 from cmp.modules.exporting.domain.reference_linear_viscoelasticity import (
     render_abaqus_linear_viscoelastic_card,
 )
@@ -342,7 +343,8 @@ def test_plugin_runs_actual_canonical_test_data_to_three_declared_outputs(
     assert len(result["candidates"][0]["holdout_residuals"]) == 1
 
 
-def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
+@pytest.mark.parametrize("legacy_metadata", [False, True])
+def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path, legacy_metadata: bool) -> None:
     reference = json.loads(DMA_TTS_REFERENCE_PATH.read_bytes())
     source = reference["input"]
     source_rows = source["rows"]
@@ -416,11 +418,11 @@ def test_plugin_fits_exact_dma_tts_processing_output(tmp_path: Path) -> None:
                 "law_optimizer": None,
                 "residual_summary": None,
                 "application_range": None,
-                "recommendation": {
+                **({} if legacy_metadata else {"recommendation": {
                     "recommendation_sha256": "d" * 64,
                     "rule_id": "cmp.processing.dma_tts.synthetic_test",
                     "rule_version": "1.0.0",
-                },
+                }}),
                 "assessment": {
                     "adequacy": "not_assessed",
                     "uncertainty": "not_provided",

@@ -759,7 +759,10 @@ def _dma_validate_options(
         "assessment",
         "warnings",
     }
-    if not isinstance(options, dict) or set(options) != required:
+    # Accept the original saved schema as well as its optional recommendation field.
+    if not isinstance(options, dict) or set(options) not in (
+        required, required - {"recommendation"}
+    ):
         raise ValueError("DMA Processing policy does not have the exact current keys")
     if options["input_mode"] != mode:
         raise ValueError("DMA Processing policy and result mode differ")
@@ -781,7 +784,7 @@ def _dma_validate_options(
         or options["warnings"] != _DMA_WARNINGS
     ):
         raise ValueError("DMA Processing policy convention or assessment is unsupported")
-    recommendation = options["recommendation"]
+    recommendation = options.get("recommendation")
     if recommendation is not None:
         recommendation_keys = (
             {"recommendation_sha256", "rule_id", "rule_version"}

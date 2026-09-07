@@ -13,7 +13,6 @@ import {
 interface ModelingWorkspaceLayoutProps {
   navigator?: ReactNode;
   navigatorLabel?: string;
-  navigatorSize?: { min: number; default: number; max: number };
   ribbon: ReactNode;
   plot: ReactNode;
   dock?: ReactNode;
@@ -47,7 +46,6 @@ export function modelingDataRibbonPreferredSize(
 export function ModelingWorkspaceLayout({
   navigator,
   navigatorLabel,
-  navigatorSize,
   ribbon,
   plot,
   dock,
@@ -59,7 +57,7 @@ export function ModelingWorkspaceLayout({
   onRibbonOpenChange,
 }: ModelingWorkspaceLayoutProps) {
   const { density } = useDisplayDensity();
-  const navigatorMetrics = navigatorSize ?? modelingPaneMetricsForDensity(density);
+  const navigatorMetrics = modelingPaneMetricsForDensity(density);
   const [viewport, setViewport] = useState<DesktopViewportClass>(() =>
     desktopViewportClass(typeof window === "undefined" ? 1440 : window.innerWidth),
   );

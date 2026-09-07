@@ -514,7 +514,8 @@ def test_rejects_ungoverned_source_and_dma_without_shear_profile() -> None:
         _profile("dma", deformation_mode=None)
 
 
-def test_resolves_exact_dma_master_curve_processing_output() -> None:
+@pytest.mark.parametrize("legacy_metadata", [False, True])
+def test_resolves_exact_dma_master_curve_processing_output(legacy_metadata: bool) -> None:
     document = CanonicalTestDataDocument(
         document_type="cmp.test-data",
         schema_version="1.0.0",
@@ -659,10 +660,10 @@ def test_resolves_exact_dma_master_curve_processing_output() -> None:
             "scoring": None,
             "adjacent_optimizer": None,
             "law_optimizer": None,
-                "residual_summary": None,
-                "application_range": None,
-                "recommendation": None,
-                "assessment": {
+            "residual_summary": None,
+            "application_range": None,
+            **({} if legacy_metadata else {"recommendation": None}),
+            "assessment": {
                 "adequacy": "not_assessed",
                 "uncertainty": "not_provided",
                 "identifiability": "not_assessed",
