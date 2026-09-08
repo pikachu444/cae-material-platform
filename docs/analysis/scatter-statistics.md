@@ -1,5 +1,14 @@
 # 반복시험 산포 분석 및 통계 모듈 요구사항
 
+## D0-v3 accepted target boundary
+
+Statistical equations, specimen/test condition semantics, outlier non-deletion and saved result inputs
+remain unchanged. Selection, TestRun, TestData, Dataset and processing records use stable IDs and a
+statistical result retains the actual population, grouping, method and settings it used. Only Material
+information edits have domain revision history. Any older “revision/provenance” wording is a
+compatibility label for the concrete result/evidence contract; it does not require a separate Selection
+history or universal Entity–Activity–Agent graph.
+
 ## 1. 목적
 
 반복시험에서 개별 specimen의 차이, 측정 품질, lot/batch 및 시험조건 효과를 보존하면서 보정에 사용할 데이터 population을 설명한다. 통계 모듈은 평균 곡선을 만들어 원본을 대체하는 도구가 아니다.

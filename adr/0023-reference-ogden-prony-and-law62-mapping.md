@@ -1,5 +1,10 @@
 # ADR-0023: bounded Ogden–Prony IR and LAW62 mapping
 
+> **ADR-0036 target notice (partial supersession):** The bounded Ogden/Prony equations, IR payload,
+> LAW62 mapping and unsupported/approximation gates remain preserved. The accepted target supersedes
+> a revision-history assumption for ordinary model and card objects; actual result data and release
+> artifacts retain the inputs and mapping evidence they need.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** elastomer 전용의 제한된 Ogden–Prony IR을 별도로 두고, Abaqus에는 exact

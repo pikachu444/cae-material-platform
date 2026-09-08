@@ -9,12 +9,18 @@
   },
   "description": "CAE Material Platform web workspace.",
   "workspaces": [
-    "apps/web"
+    "apps/web",
+    "apps/web-next"
   ],
   "scripts": {
     "build": "npm run build --workspace @cmp/web",
     "test:web": "npm run test --workspace @cmp/web",
-    "check": "npm run check:frontend-guard --workspace @cmp/web && npm run build && npm run test:web"
+    "build:prototype": "npm run build:prototype --workspace @cmp/web-next",
+    "dev:prototype": "npm run dev:prototype --workspace @cmp/web-next",
+    "test:web-next": "npm run test --workspace @cmp/web-next",
+    "test:prototype": "npm run test:prototype --workspace @cmp/web-next",
+    "check": "npm run check:frontend-guard --workspace @cmp/web && npm run build && npm run test:web",
+    "check:web-next": "npm run typecheck --workspace @cmp/web-next && npm run build:prototype && npm run test:prototype"
   }
 }
 

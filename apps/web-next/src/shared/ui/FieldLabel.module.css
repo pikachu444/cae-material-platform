@@ -1,0 +1,14 @@
+.label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--cmp-space-2);
+  color: var(--cmp-muted);
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.label small {
+  color: var(--cmp-subtle);
+  font-weight: 400;
+}

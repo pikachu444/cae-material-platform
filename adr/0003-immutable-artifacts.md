@@ -1,5 +1,9 @@
 # ADR-003: Content-addressed immutable artifact
 
+> **ADR-0036 target notice (partial supersession):** Immutable content-addressed raw and released
+> artifact bytes, digests and exact download meaning remain preserved. The accepted target supersedes
+> extending artifact identity into a domain revision history for every saved object.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 원본 시험 파일과 큰 curve·table, solver 결과, release package는 내용의

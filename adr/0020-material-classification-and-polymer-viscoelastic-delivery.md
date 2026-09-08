@@ -1,5 +1,10 @@
 # ADR-0020: Route Material workflows by governed class and deliver polymer viscoelasticity in two stages
 
+> **ADR-0036 target notice (partial supersession):** Governed material classification, route boundaries
+> and the staged polymer scope remain preserved. The accepted target supersedes history assumptions for
+> ordinary State, Test Data and model objects; applicable Material information history and concrete
+> scientific results retain their required evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** Material revision에 class를 명시해 알맞은 workflow를 안내하되 model을 자동

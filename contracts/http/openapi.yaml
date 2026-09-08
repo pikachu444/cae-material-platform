@@ -149,6 +149,27 @@ paths:
               schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/DocumentListResponse"}
         "401": {description: Authentication required.}
         "403": {description: Dataset read is not authorized.}
+  /api/v1/test-data-documents/{document_id}:
+    get:
+      operationId: getCanonicalTestDataDocument
+      tags: [test-data-json]
+      summary: Read one Test Data aggregate at its current head or an explicitly pinned immutable revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: document_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/TestDataRevisionId"}
+      responses:
+        "200":
+          description: Test Data identity and the selected revision metadata.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/DocumentResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: The exact Test Data aggregate or revision is not visible.}
+        "409": {description: Stored Test Data identity or revision evidence is inconsistent.}
   /api/v1/test-data-documents/{document_id}/revisions/{revision_id}/content:
     get:
       operationId: downloadCanonicalTestDataRevision
@@ -5087,6 +5108,27 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Processing read is not authorized.}
         "503": {description: Processing Output store unavailable.}
+  /api/v1/processing-outputs/{output_id}:
+    get:
+      operationId: getCommonProcessingOutput
+      tags: [processing-workbench]
+      summary: Read one Processing Output at its current head or an explicitly pinned immutable revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: output_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/ProcessingOutputRevisionId"}
+      responses:
+        "200":
+          description: Processing Output identity and selected revision metadata.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ProcessingOutputResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: The exact Processing Output aggregate or revision is not visible.}
+        "503": {description: Processing Output store unavailable.}
   /api/v1/processing-outputs/{output_id}/content:
     get:
       operationId: downloadCommonProcessingOutput
@@ -5098,6 +5140,7 @@ paths:
           in: path
           required: true
           schema: {type: string, format: uuid}
+        - {$ref: "#/components/parameters/ProcessingOutputRevisionId"}
       responses:
         "200":
           description: Exact cmp.processing-output JSON bytes with detached digest header.
@@ -7730,6 +7773,47 @@ paths:
             application/problem+json:
               schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
         "503": {description: Solver Card service unavailable.}
+  /api/v1/solver-cards:
+    get:
+      operationId: listProjectSolverCards
+      tags: [exporting]
+      summary: List the complete current Solver Card family index visible in the authorized project.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: q, in: query, required: false, schema: {type: string, maxLength: 200}}
+        - {name: family, in: query, required: false, schema: {type: string, maxLength: 80}}
+        - {name: material_id, in: query, required: false, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current card rows with family-specific exact self, preview and download links.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total_count, page_size]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [solver_card_id, revision_id, revision_no, schema_id, content_sha256, card_sha256, family, title, target, links]
+                      properties:
+                        solver_card_id: {type: string, format: uuid}
+                        revision_id: {type: string, format: uuid}
+                        revision_no: {type: integer, minimum: 1}
+                        schema_id: {type: string}
+                        content_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+                        card_sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+                        family: {type: string}
+                        title: {type: string}
+                        target: {type: object, required: [solver, version, unit_system]}
+                        links: {type: object}
+                  total_count: {type: integer, minimum: 0}
+                  page_size: {type: integer, minimum: 1, maximum: 12}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "422": {description: Card index filter is invalid.}
+        "503": {description: Solver Card index unavailable.}
   /api/v1/solver-cards/{solver_card_id}:
     get:
       operationId: getSolverCard
@@ -10135,6 +10219,18 @@ components:
       name: material_model_id
       in: path
       required: true
+      schema: {type: string, format: uuid}
+    TestDataRevisionId:
+      name: revision_id
+      in: query
+      required: false
+      description: Optional exact immutable Test Data revision. The connected reader always supplies this pin for detail, curve and artifact reads.
+      schema: {type: string, format: uuid}
+    ProcessingOutputRevisionId:
+      name: revision_id
+      in: query
+      required: false
+      description: Optional exact immutable Processing Output revision. The connected reader always supplies this pin for detail and artifact reads.
       schema: {type: string, format: uuid}
     SolverCardId:
       name: solver_card_id

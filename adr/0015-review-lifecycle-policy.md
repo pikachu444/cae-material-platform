@@ -1,5 +1,9 @@
 # ADR-015: Immutable review lifecycle for candidate revisions
 
+> **ADR-0036 target notice (partial supersession):** Review requests, separation of duties and review
+> decision state remain preserved. The accepted target supersedes requiring every review edit to create
+> a domain revision; the review record and any concrete package retain the evidence needed for review.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** Review Request는 정확한 candidate revision과 manifest digest를 고정하고,

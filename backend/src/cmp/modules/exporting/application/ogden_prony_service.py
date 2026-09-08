@@ -68,6 +68,15 @@ class OgdenPronyExportingRepository(Protocol):
         solver_card_id: UUID,
     ) -> OgdenPronySolverCardSnapshot: ...
 
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        revision_id: UUID,
+    ) -> OgdenPronySolverCardSnapshot: ...
+
     def list_solver_cards_for_model(
         self,
         *,
@@ -201,6 +210,21 @@ class OgdenPronySolverCardService:
         _require_decision(context, decision, Permission.EXPORT_READ)
         return self._repository.get_solver_card(
             context=context, decision=decision, solver_card_id=solver_card_id
+        )
+
+    def get_card_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        revision_id: UUID,
+    ) -> OgdenPronySolverCardSnapshot:
+        _require_decision(context, decision, Permission.EXPORT_READ)
+        return self._repository.get_solver_card_revision(
+            context=context,
+            decision=decision,
+            solver_card_id=solver_card_id,
+            revision_id=revision_id,
         )
 
     def list_cards_for_model(

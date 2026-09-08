@@ -1,110 +1,24 @@
 ---
 name: desktop-engineering-ui
-description: Execute or review CAE Material Platform visual work, including approved-reference selection, React/CSS porting, five-viewport and Windows 4K/high-DPI evidence, screenshots, and full-screen qualitative acceptance.
+description: Capture and review CAE Material Platform screens for engineering readability, interaction continuity and responsive composition against the current product target.
 ---
 
-# Desktop Engineering UI
-
-Build a compact browser-delivered engineering workspace, not a marketing site or generic card
-dashboard. Agent selection, correction limits, publication, and current-worktree boundaries are
-external to this visual skill. The main orchestrator fixes writer scope and escalation before applying
-the skill; correction and publication boundaries remain external.
-
-## Architecture and semantic preflight
-
-Before this visual skill is used for work under `apps/web`, read `apps/web/AGENTS.md` and run the
-project-local `material-platform-frontend-architecture` skill whenever the change touches feature
-ownership, a registered hotspot, Materials-to-Modeling continuity, state/API/type/CSS structure, helper
-copy, semantic emphasis, or wide-screen composition. This visual skill does not authorize a route-topology
-redesign, a new frontend dependency, or mixing broad structural and visual changes in one PR.
-
-## Route only the needed context
-
-1. Read the exact GitHub issue.
-2. Find its target family in `docs/product/service-reference-inventory.yaml` with `rg`.
-3. Read only that family's entries in `docs/product/service-reference-manifest.yaml` and inspect
-   every listed HTML, CSS and image at original resolution.
-4. `docs/product/visual-acceptance-matrix.md`의 20개 정성 판정 항목 (Q-01~Q-20)을
-   읽은 뒤 영향받는 route-specific gate와 관련 product/UI-spec 절만 읽는다.
-5. Inspect the affected React, API, state and test contracts.
-
-Do not bulk-read the complete product specs, manifest or incoming package. Use
-`frontend-ui-engineering` only for production React/CSS/component work, `web-design-guidelines` only
-for an explicit UI/accessibility audit, and `webapp-testing` only for live interaction, capture or
-browser evidence.
+# 공학 작업공간 시각 검토
 
 ## Prepare and implement from authority
 
-Treat the registered approved HTML/CSS and images as implementation authority for their exact target.
-Port their region structure and CSS faithfully while wiring existing data and state contracts. Do not
-invent replacement topology, route-specific override layers, fake data fallbacks or decorative
-technical content.
-
-Before calling a writer, the main orchestrator opens the exact approved images plus named HTML/CSS at original
-resolution, inspects the current live/capture state and stores one bounded packet naming:
-
-- the user task and exact assets/screens;
-- the visual matrix's locked owner-feedback rows, with exact actionable sentences and every target state;
-- static region to component, event, state and data-source mapping;
-- region-by-region reference-to-current differences;
-- preserved behavior, loading/empty/blocked/error states and invalidation contracts;
-- forbidden shortcuts, required captures, interactions and tests.
-
-A family name or image list alone is insufficient. Writer scope and escalation are fixed before this
-skill is applied; correction and publication boundaries remain external.
+[UI 원칙](../../../docs/product/frontend-ui-principles.md)의 현재 목표와 대상 화면·상태를 확인한다. 이전 비교안은 평가 이력이며 모든 안을 다시 만들 의무가 아니다.
+해당 소스와 실제 현재 화면을 보고 차이를 정한다. 새로운 사용자 피드백은 전체 업무 목표 안에서 반영한다.
+기존 화면의 업무·데이터 의미와 새 목표 배치를 구분한다. 등록 자료가 필요하면 service-reference inventory에서 해당 항목만 찾는다.
 
 ## Verify the complete screen
 
-For every user-visible React/CSS change, capture the task at 1366×768, 1440×900, 1920×1080,
-2560×1440, and 3840×2160 with browser zoom fixed at 100%. Capture the live state before implementation
-and after each proposed correction. Verify the task flow, keyboard path, state recovery, selection
-continuity, local scroll discoverability and absence of page overflow, clipping, overlap or distorted
-plots. Capture live/reference comparisons and update the required current guide, screenshot manifest
-and live screenshots.
-
-Open each capture at original resolution. Return the 1920/2560/3840 full-screen comparison plus
-100%-pixel crops of the header, navigator, table/form controls, and graph or native preview to the
-product owner. Do not approve from a scaled contact sheet, DOM measurements, or image dimensions alone.
-Automated viewport capture proves CSS geometry. #221 compares representative candidates using the
-five original-resolution viewport captures and fixes a provisional shared implementation decision; #184 revalidates that
-decision across every route/state. Both record the available display, CSS viewport and device pixel
-ratio. When an actual 4K display is unavailable, they record `DEFERRED_TO_223` and do not claim physical
-readability. #223 performs the final product-wide Windows 4K 100%, 150%, and 200% check.
-
-Judge wide screens by semantic elasticity. The application shell uses the full viewport; graphs,
-tables, and native previews grow while extra space improves the task, while navigators, property forms,
-and prose keep readable limits and balanced gutters. Fail a one-sided 1920 px work island, a large void
-between related regions, or tiny fixed-density controls at 2560/3840. Also fail uniform stretching,
-fabricated filler, route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, and non-uniform
-SVG stretching. Implement scale tiers only through shared typography, control, row, spacing, pane, and
-plot tokens.
-
-Only #160 and #161 may record an inherited global layout or density failure for the #221 decision
-packet and subsequent #184 carryover. The packet must retain the original-resolution evidence, name
-every affected route/state, prove no new page-specific workaround was added, and include the
-product-owner disposition. #221 approves the provisional shared policy, not every route; #184 completes
-the full automated application. After #184 merges, only unavailable actual-device physical readability
-may remain for #223; known geometry, clipping, overflow or interaction failures may not be deferred.
-
-After implementation and the packet's deterministic gates, the main orchestrator opens every target/state image
-at original resolution, repeats the region-by-region comparison, records resolved and unresolved
-differences, and completes the 20개 정성 판정 항목 (Q-01~Q-20) once. Judge the whole screen before an isolated control:
-engineering credibility, information density, hierarchy, graph/table/tree dominance, whitespace,
-typography, meaningful wide-screen use and responsive continuity. Numeric or existence checks are only
-supporting evidence. Reconcile every locked owner-feedback row before independent review; partial
-screen/state completion does not pass. Publication also requires the product owner's explicit final
-disposition for the complete target set.
+캡처 범위·크기·기록은 [시각 매트릭스](../../../docs/product/visual-acceptance-matrix.md)를 따른다. 실제 앱의 전후 상태를 캡처하고 원본 해상도와 필요한 영역 crop을 연다.
+정보 위계, 공학 업무, 넓고 좁은 화면 구성을 각각 판단한다. 긴 이름·많은 목록·빈 결과·오류·미지원·입력 변경을 대상 업무에 맞게 확인한다.
+물성값·단위·조건, 축·범례·곡선, 선택·주요 행동, 목록 복귀를 함께 본다. 특정 control 한 개의 개선으로 전체 화면 검토를 대신하지 않는다.
+DOM geometry와 실제 장비 가독성, 테스트 통과와 사용자의 화면 선택을 구분한다. 이미지 크기나 축소 contact sheet만으로 승인하지 않는다.
 
 ## Independent review and approval
 
-Only after the main-orchestrator gate passes, store one bounded reviewer packet containing issue acceptance,
-approved references, implementation diff, live/comparison paths, interaction/test results and the
-completed checklist. The configured canonical read-only reviewer reopens only that evidence and returns
-actionable findings plus an approval disposition. It may disagree with the main-orchestrator judgment using
-the named criteria, but it does not introduce new acceptance criteria.
-
-The main orchestrator evaluates the findings. Reviewer completion alone does not trigger another full-screen
-checklist. If a correction changes implementation or evidence, rerun only the affected comparisons and
-gates before review through the same canonical reviewer; when neither changed, do not request another
-review. Correction, approval,
-and publication boundaries remain with the main orchestrator and the applicable workflow contract.
+독립 검수가 배정되면 현재 diff·실제 캡처·검사 결과·적용 기준을 전달한다. 검수자는 읽기 전용으로 구체 결함과 근거를 제시한다.
+담당 Main이 결과를 판단하고 수정한다. 소스/증거가 바뀌면 영향 범위를 다시 검증한다. 이 skill은 모델 배정·필수 agent 수·게시 권한을 정하지 않는다.

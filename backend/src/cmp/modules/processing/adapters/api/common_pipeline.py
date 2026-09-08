@@ -7,7 +7,7 @@ from typing import Annotated, Any, Literal
 from uuid import UUID
 
 import numpy as np
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
 
@@ -1200,17 +1200,53 @@ def install_common_processing_api(
         )
 
     @app.get(
+        "/api/v1/processing-outputs/{output_id}",
+        response_model=ProcessingOutputResponse,
+        operation_id="getProcessingOutput",
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing-workbench"],
+    )
+    def get_processing_output(
+        output_id: UUID,
+        request: Request,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> ProcessingOutputResponse:
+        """Read the current output or the exact revision requested by the caller."""
+
+        context, decision = scope(request)
+        if output_service is None:
+            raise HTTPException(status_code=503, detail="Processing Output store unavailable")
+        try:
+            snapshot = (
+                output_service.get_output_revision(context, decision, output_id, revision_id)
+                if revision_id is not None
+                else output_service.get_output(context, decision, output_id)
+            )
+            return ProcessingOutputResponse.from_snapshot(snapshot)
+        except ProcessingOutputNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+
+    @app.get(
         "/api/v1/processing-outputs/{output_id}/content",
         response_class=Response,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["processing-workbench"],
     )
-    async def download_processing_output(output_id: UUID, request: Request) -> Response:
+    async def download_processing_output(
+        output_id: UUID,
+        request: Request,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> Response:
         context, decision = scope(request)
         if output_service is None:
             raise HTTPException(status_code=503, detail="Processing Output store unavailable")
         try:
-            snapshot, value = await output_service.export(context, decision, output_id)
+            if revision_id is None:
+                snapshot, value = await output_service.export(context, decision, output_id)
+            else:
+                snapshot, value = await output_service.export_exact(
+                    context, decision, output_id, revision_id
+                )
         except ProcessingOutputNotFound as error:
             raise HTTPException(status_code=404, detail=str(error)) from error
         return Response(

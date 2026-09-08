@@ -308,6 +308,14 @@ class SqlAlchemyElastoplasticExportingRepository(ElastoplasticExportingRepositor
             .where(revision.c.exporter_id.in_(_EXPORTER_IDS))
         )
 
+    def _revision_statement(self) -> sa.Select[Any]:
+        revision = solver_card_revision_table
+        return (
+            sa.select(*_columns(revision))
+            .select_from(revision)
+            .where(revision.c.exporter_id.in_(_EXPORTER_IDS))
+        )
+
     @staticmethod
     def _snapshot(row: Any) -> ElastoplasticSolverCardSnapshot:
         content = _content(row)
@@ -342,6 +350,33 @@ class SqlAlchemyElastoplasticExportingRepository(ElastoplasticExportingRepositor
         if row is None:
             raise ElastoplasticSolverCardNotFound(
                 "elastoplastic Solver Card is not visible in this tenant"
+            )
+        return self._snapshot(row)
+
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        revision_id: UUID,
+    ) -> ElastoplasticSolverCardSnapshot:
+        statement = self._revision_statement().where(
+            solver_card_revision_table.c.aggregate_id == solver_card_id,
+            solver_card_revision_table.c.id == revision_id,
+            solver_card_revision_table.c.organization_id == context.organization_id,
+            solver_card_revision_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+            except DBAPIError as error:
+                raise ElastoplasticSolverCardNotFound(
+                    "elastoplastic Solver Card revision is not available"
+                ) from error
+        if row is None:
+            raise ElastoplasticSolverCardNotFound(
+                "elastoplastic Solver Card revision is not visible in this tenant"
             )
         return self._snapshot(row)
 

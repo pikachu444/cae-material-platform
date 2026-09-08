@@ -1,10 +1,13 @@
-version: 142
-verified_at: 2026-09-02
-scope: issue-377-polymer-linear-viscoelastic-fit-ui
-source_commit: aa8c6e942420cc67b637edd92d988c9fbf678b27+issue377-worktree
+version: 149
+verified_at: 2026-09-08
+scope: rd02-connected-reader
+source_commit: 4c545ea18322769b25d67177d609e3eb14202666+rd02-detail-cleanup-20260908
 capture_script: ../../scripts/capture_current_product.py
-capture_command: 'Preserved-volume cmp-377-ui-dense Compose migration, repeatable full demo seed, API, worker and production web build; serial Playwright Polymer input-blocked, DMA TTS Process input/save, FHD automatic 1-10 calculation, compare/select/save/reload, manual 10-term parameter-table scroll, five-viewport saved result, stale restore/use-current, and Metal Data-to-Export regression journeys at browser zoom 100% and DPR 1. Thirty-one reviewed originals were promoted to the current guide; physical Windows 4K readability remains governed by #223.'
+capture_command: "node .artifacts/rd02/detail-cleanup/capture.mjs guide; API18000/web5174; zoom100%, DPR1; test/card detail10 current images refreshed. Unchanged materials list/test preview10 retained from reader-finish. Six affected detail routes at1440/1920 in detail-cleanup/after; no token/layout changes. Physical Windows4K unverified."
 notes:
+  - "2026-09-08 상세 정보: 긴 식별자·해시·응답 전문을 제거하고 소재 정보, 사용한 처리 설정, 적용 범위와 솔버 반영 방식을 표시했다. 실제 파일 내용과 저장 연결은 보존했다. 최신 지시는 PR 제출 후 대기이며 병합·포크는 별도 승인 후 진행한다. 제품 전환과 공학 검증 승인을 뜻하지 않는다."
+  - "2026-09-08 조회 화면 마무리: helper와 서로 다른 속성의 연결 문구를 정리하고 비교 항목, 미리보기 접기/복귀, 좁은 화면, 검색 오류 복구를 검증했다. 아래 이전 검수 기록을 이번 화면 승인으로 대신하지 않는다. 현재 검수는 reader-finish/review.md에 기록한다."
+  - "node .artifacts/rd02/capture-connected.mjs --out=.artifacts/rd02/fidelity/verified; retained cmp-demo-test-rd02-20260907 API18000 and web-next5174, existing synthetic saved corpus, no reseed, zoom100%, DPR1. Approved material-workspace fidelity correction;20 guide originals plus20 supplemental originals and their direct crops are in fidelity/verified and fidelity/supplement; same independent reviewer approved 2026-09-08; no blocking findings. Chromium capture hides scrollbars by default; --hide-scrollbars is excluded in the refreshed guide originals. Product scrollbar styles were not changed. Physical Windows4K and owner visual disposition remain unverified."
   - "Issue #331 refreshes the existing five current Process originals after moving the remaining Modeling-state CSS to its feature owners. The exact DP780 Data to Process to Fit journey completed at all five viewports; the calculation curves remain inside the plot and no longer enter the legend reservation. Data selection, Mapping Profile, saved Processing Output, Fit attempts, reload and exact-source retry were read back without a latest or first-item fallback. The product owner waived retroactive before-image regeneration and approved proceeding from the successful after run; this is not approval of the existing design quality or physical Windows 4K readability."
   - "The current Administration set uses the exact Technical Data Table revision r1, default Layout revision r1 and DP780 technical-data Record context; the Records set shows the exact DP780 technical-data editor. A single retained disposable Compose project captured Database, Record preview and Records at all five viewports after the zero-consumer CSS retirement; decoded before/after RGBA comparisons are pixel-identical. On 2026-09-01 the product owner approved the presented 1920/2560/3840 originals as no-regression evidence, not as approval of the existing design quality."
   - "Issue #331's behavior-preserving CSS-ownership evidence remains historical. Issue #377 replaces the affected current-guide Modeling Fit images with the shared full-width graph, bottom candidate/engineer decision dock and bounded Calculation settings drawer, and promotes the five-viewport DMA TTS Process evidence. Product-owner visual disposition remains pending."
@@ -647,6 +650,30 @@ visual_evidence:
   independent_read_only_review: required_issue309_exact_candidate_before_commit
   product_owner_review: task_owner_supplied_exact_issue309_scope_and_acceptance
 capture_provenance:
+  - source_commit: 4c545ea18322769b25d67177d609e3eb14202666+rd02-detail-cleanup-20260908
+    captured_at: '2026-09-07'
+    command: node .artifacts/rd02/reader-finish/capture.mjs after; retained synthetic API18000/web5174; browser zoom100%, DPR1, visible scrollbars; 33 live after originals and direct crops; selected 20 current guide originals. Main review in .artifacts/rd02/reader-finish/review.md. Owner visual and physical Windows4K approval pending.
+    ids:
+    - rd02-materials-list-1366x768
+    - rd02-test-data-preview-1366x768
+    - rd02-test-data-expanded-1366x768
+    - rd02-solver-card-detail-1366x768
+    - rd02-materials-list-1440x900
+    - rd02-test-data-preview-1440x900
+    - rd02-test-data-expanded-1440x900
+    - rd02-solver-card-detail-1440x900
+    - rd02-materials-list-1920x1080
+    - rd02-test-data-preview-1920x1080
+    - rd02-test-data-expanded-1920x1080
+    - rd02-solver-card-detail-1920x1080
+    - rd02-materials-list-2560x1440
+    - rd02-test-data-preview-2560x1440
+    - rd02-test-data-expanded-2560x1440
+    - rd02-solver-card-detail-2560x1440
+    - rd02-materials-list-3840x2160
+    - rd02-test-data-preview-3840x2160
+    - rd02-test-data-expanded-3840x2160
+    - rd02-solver-card-detail-3840x2160
   - source_commit: e55d30f597923509607dd7651d734bda3867b583+issue371-catalog-single-owner-worktree
     captured_at: '2026-08-31'
     command: 'Preserved current-source Compose environment with the existing PostgreSQL/object data and web capture at browser zoom 100% and DPR 1; capture_current_product.py --only-materials recorded the source-v2 Catalog Material detail related-long and empty states, solver-card approximation/unsupported recovery boundaries at 1440x900, and exact solver-card previews at 2560x1440 and 3840x2160.'
@@ -1870,5 +1897,146 @@ captures:
     workflow: compare-scalar-distribution-candidates-and-read-saved-selection
     fixture: synthetic DP780 exact eight-member processed replicate Selection; saved Plan r1; seed 210; 999 bootstrap refits
     image: images/current/modeling-distribution-3840x2160.png
+    width: 3840
+    height: 2160
+
+  - id: rd02-materials-list-1366x768
+    route: /materials
+    workflow: rd02-materials-list
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-materials-list-1366x768.png
+    width: 1366
+    height: 768
+  - id: rd02-test-data-preview-1366x768
+    route: /test-data?q=DP780-TEST-JSON&id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4
+    workflow: rd02-test-data-preview
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-preview-1366x768.png
+    width: 1366
+    height: 768
+  - id: rd02-test-data-expanded-1366x768
+    route: /test-data?id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4&expanded=1
+    workflow: rd02-test-data-expanded
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-expanded-1366x768.png
+    width: 1366
+    height: 768
+  - id: rd02-solver-card-detail-1366x768
+    route: /cards?id=32e16173-aaa1-4a29-a079-3c2eb03a4276&revision_id=d5343207-3ff3-48db-847b-47c7ce321c1d&card_family=tabulated_plasticity&expanded=1
+    workflow: rd02-solver-card-detail
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-solver-card-detail-1366x768.png
+    width: 1366
+    height: 768
+  - id: rd02-materials-list-1440x900
+    route: /materials
+    workflow: rd02-materials-list
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-materials-list-1440x900.png
+    width: 1440
+    height: 900
+  - id: rd02-test-data-preview-1440x900
+    route: /test-data?q=DP780-TEST-JSON&id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4
+    workflow: rd02-test-data-preview
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-preview-1440x900.png
+    width: 1440
+    height: 900
+  - id: rd02-test-data-expanded-1440x900
+    route: /test-data?id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4&expanded=1
+    workflow: rd02-test-data-expanded
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-expanded-1440x900.png
+    width: 1440
+    height: 900
+  - id: rd02-solver-card-detail-1440x900
+    route: /cards?id=32e16173-aaa1-4a29-a079-3c2eb03a4276&revision_id=d5343207-3ff3-48db-847b-47c7ce321c1d&card_family=tabulated_plasticity&expanded=1
+    workflow: rd02-solver-card-detail
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-solver-card-detail-1440x900.png
+    width: 1440
+    height: 900
+  - id: rd02-materials-list-1920x1080
+    route: /materials
+    workflow: rd02-materials-list
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-materials-list-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: rd02-test-data-preview-1920x1080
+    route: /test-data?q=DP780-TEST-JSON&id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4
+    workflow: rd02-test-data-preview
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-preview-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: rd02-test-data-expanded-1920x1080
+    route: /test-data?id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4&expanded=1
+    workflow: rd02-test-data-expanded
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-expanded-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: rd02-solver-card-detail-1920x1080
+    route: /cards?id=32e16173-aaa1-4a29-a079-3c2eb03a4276&revision_id=d5343207-3ff3-48db-847b-47c7ce321c1d&card_family=tabulated_plasticity&expanded=1
+    workflow: rd02-solver-card-detail
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-solver-card-detail-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: rd02-materials-list-2560x1440
+    route: /materials
+    workflow: rd02-materials-list
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-materials-list-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: rd02-test-data-preview-2560x1440
+    route: /test-data?q=DP780-TEST-JSON&id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4
+    workflow: rd02-test-data-preview
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-preview-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: rd02-test-data-expanded-2560x1440
+    route: /test-data?id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4&expanded=1
+    workflow: rd02-test-data-expanded
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-expanded-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: rd02-solver-card-detail-2560x1440
+    route: /cards?id=32e16173-aaa1-4a29-a079-3c2eb03a4276&revision_id=d5343207-3ff3-48db-847b-47c7ce321c1d&card_family=tabulated_plasticity&expanded=1
+    workflow: rd02-solver-card-detail
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-solver-card-detail-2560x1440.png
+    width: 2560
+    height: 1440
+  - id: rd02-materials-list-3840x2160
+    route: /materials
+    workflow: rd02-materials-list
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-materials-list-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: rd02-test-data-preview-3840x2160
+    route: /test-data?q=DP780-TEST-JSON&id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4
+    workflow: rd02-test-data-preview
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-preview-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: rd02-test-data-expanded-3840x2160
+    route: /test-data?id=41d6520e-5385-468f-b178-9356b870bfa8&revision_id=847bf1b2-302e-40b0-8e9c-1580630d98f4&expanded=1
+    workflow: rd02-test-data-expanded
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-test-data-expanded-3840x2160.png
+    width: 3840
+    height: 2160
+  - id: rd02-solver-card-detail-3840x2160
+    route: /cards?id=32e16173-aaa1-4a29-a079-3c2eb03a4276&revision_id=d5343207-3ff3-48db-847b-47c7ce321c1d&card_family=tabulated_plasticity&expanded=1
+    workflow: rd02-solver-card-detail
+    fixture: stored synthetic DP780 exact saved input and generated card; source head advanced once; non-production
+    image: images/current/rd02-solver-card-detail-3840x2160.png
     width: 3840
     height: 2160

@@ -1,5 +1,10 @@
 # ADR-0033: Exact Recipe/Batch execution lineage for promoted Processing Outputs
 
+> **ADR-0036 target notice (partial supersession):** Exact Recipe/Batch execution inputs, promoted
+> Processing Output evidence and result integrity remain preserved where the result contract requires
+> them. The accepted target supersedes universal lineage and domain-history requirements for ordinary
+> saved objects.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 성공한 Batch Attempt를 게시된 Recipe 리비전과 Processing Output 리비전을 잇는 공식 근거로 사용합니다. 승격된 모델, Neutral Material JSON, solver card와 내보내기 묶음까지 정확한 Recipe·Batch·Member·Attempt 식별자를 이어서 보존합니다.

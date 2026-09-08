@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Query, Request, Response, status
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
@@ -511,11 +511,16 @@ def install_linear_viscoelastic_solver_card_api(
         )
 
     def card_for_text(
-        request: Request, solver_card_id: UUID
+        request: Request, solver_card_id: UUID, revision_id: UUID | None = None
     ) -> LinearViscoelasticSolverCardSnapshot:
         context, decision = _scope(request)
         try:
-            return require_service(context).get_card(context, decision, solver_card_id)
+            service = require_service(context)
+            return (
+                service.get_card_revision(context, decision, solver_card_id, revision_id)
+                if revision_id is not None
+                else service.get_card(context, decision, solver_card_id)
+            )
         except (LinearViscoelasticExportError, RevisionKernelError, ValueError) as error:
             raise _translate(context, error) from error
 
@@ -526,8 +531,13 @@ def install_linear_viscoelastic_solver_card_api(
         responses=errors,
         tags=["exporting"],
     )
-    def get_card(request: Request, response: Response, solver_card_id: UUID) -> CardResponse:
-        card = card_for_text(request, solver_card_id)
+    def get_card(
+        request: Request,
+        response: Response,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> CardResponse:
+        card = card_for_text(request, solver_card_id, revision_id)
         response.headers["ETag"] = str(RevisionETag.from_ref(card.current.record.ref))
         response.headers["Cache-Control"] = "no-store"
         return CardResponse.from_snapshot(card)
@@ -539,8 +549,12 @@ def install_linear_viscoelastic_solver_card_api(
         responses=errors,
         tags=["exporting"],
     )
-    def preview(request: Request, solver_card_id: UUID) -> PlainTextResponse:
-        card = card_for_text(request, solver_card_id)
+    def preview(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> PlainTextResponse:
+        card = card_for_text(request, solver_card_id, revision_id)
         return PlainTextResponse(
             card.current.content.card_text,
             headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"},
@@ -553,8 +567,12 @@ def install_linear_viscoelastic_solver_card_api(
         responses=errors,
         tags=["exporting"],
     )
-    def download(request: Request, solver_card_id: UUID) -> PlainTextResponse:
-        card = card_for_text(request, solver_card_id)
+    def download(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> PlainTextResponse:
+        card = card_for_text(request, solver_card_id, revision_id)
         return PlainTextResponse(
             card.current.content.card_text,
             media_type="text/plain; charset=utf-8",

@@ -1,17 +1,33 @@
 # 테스트 전략과 Solver-card Golden-file 테스트
 
+## 현재 정책과 기존 검사 해석
+
+This strategy keeps the scientific, security, artifact and release checks below, but their domain
+history boundary follows the accepted D0-v3 policy. Only Material information edits have domain
+revision history, including associated State/manufacturing/heat-treatment and direct property values.
+State/PropertySet identities and Specimen, TestRun, TestData, Dataset, Selection, Mapping Profile,
+Process, Model, Solver Card and Link records are stable-ID saved objects. A saved result retains the
+actual typed inputs and settings it used; software/schema/file versions, hashes and opaque concurrency
+tokens remain metadata.
+
+The Entity–Activity–Agent graph, per-edit save reason and snapshot checks are not universal product
+requirements. Keep lineage, usage, validation, review, authorization and release checks only where a
+concrete result/artifact/release contract requires them. In the historical gates below, “revision” for
+an ordinary saved object is a legacy compatibility term until the real DB/API migration; it must not
+be implemented as a new nonmaterial revision writer. 이 문서의 정책 변경은 실제 DB/API 이관 완료가 아니다. T 번호는 해당 업무의 추적 표식이며 모든 작업에 전부 실행하는 승인 단계가 아니다.
+
 ## 1. 품질 목표
 
-이 플랫폼의 실패는 단순 UI 오류뿐 아니라 단위 변환 오류, provenance 누락, 잘못된 parameter, solver card semantic 변화처럼 눈에 잘 띄지 않는 공학 오류를 포함한다. 따라서 일반 software test와 scientific validation을 분리하되 release gate에서 결합한다.
+이 플랫폼의 실패는 단순 UI 오류뿐 아니라 단위 변환 오류, 실제 입력/설정 누락, 잘못된 parameter, solver card semantic 변화처럼 눈에 잘 띄지 않는 공학 오류를 포함한다. 따라서 일반 software test와 scientific validation을 분리하되 release gate에서 결합한다.
 
 ## 2. 테스트 분류
 
 | ID prefix | 범주 | 실행 주기 |
 | --- | --- | --- |
-| `UT-*` | pure unit/domain/numeric function | 모든 PR |
-| `PT-*` | property-based/metamorphic | 모든 PR 또는 nightly |
-| `CT-*` | OpenAPI/event/job/plugin/schema contract | 모든 PR |
-| `IT-*` | PostgreSQL/object store/worker/runner integration | 모든 PR |
+| `UT-*` | pure unit/domain/numeric function | 관련 변경 PR / CI 통합 검증 |
+| `PT-*` | property-based/metamorphic | 관련 변경 PR / 정기 통합 검증 |
+| `CT-*` | OpenAPI/event/job/plugin/schema contract | 관련 변경 PR / CI 통합 검증 |
+| `IT-*` | PostgreSQL/object store/worker/runner integration | 관련 변경 PR / CI 통합 검증 |
 | `ST-*` | security/RLS/sandbox/parser fuzz | PR + nightly |
 | `NT-*` | numeric/scientific reference | 모든 scientific 변경 |
 | `GT-*` | solver-card golden/semantic | exporter 변경마다 |
@@ -20,11 +36,13 @@
 | `PF-*` | performance/load/soak/fault injection | nightly/release candidate |
 | `E2E-*` | raw→release vertical scenario | release candidate |
 
+CI의 실제 자동 실행 범위는 workflow와 실행 스크립트를 따른다. 위 분류는 작업자가 모든 무관한 검사를 반복 실행하라는 지시가 아니다.
+
 ## 3. 일반 software test
 
 ### 3.1 Domain unit test
 
-- aggregate/revision immutability
+- Material information revision immutability and stable saved-object identity
 - lifecycle transition
 - optimistic concurrency
 - organization/project classification propagation
@@ -56,7 +74,7 @@ Ephemeral PostgreSQL과 S3-compatible test storage를 사용한다.
 - worker claim/lease/crash/retry
 - outbox publish/dedup
 - plugin runner artifact I/O/sandbox
-- provenance completeness/recursive query
+- concrete result/artifact input and release-evidence completeness where its contract requires it
 - backup/restore fixture
 
 Mock repository만으로 통과하는 test를 persistence integration의 대체로 쓰지 않는다.
@@ -122,26 +140,26 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 - curve point 수를 늘려도 replicate `n` 불변
 - display downsample과 full calculation 분리
 
-## 6. Provenance·revision test
+## 6. Material revision and concrete result-evidence test
 
 ### 필수 invariants
 
-1. output entity는 primary generation activity 하나를 가진다.
-2. activity input은 구체 immutable entity revision이다.
-3. derivation/revision DAG에 금지 cycle이 없다.
-4. release에서 raw까지 complete path가 있다.
-5. raw/released artifact digest는 변하지 않는다.
-6. failure/cancel run도 usage/agent/log lineage를 가진다.
-7. outlier decision은 input artifact를 변경하지 않는다.
-8. migration은 old entity를 보존하고 explicit activity를 만든다.
-9. a promoted IR must pin the current Candidate Selection revision, exact Candidate/diagnostics
-   digests, and evaluated source IR revision; superseded selections and stale IR heads fail.
-10. a T-28 Validation Result must pin the terminal Result Manifest and exact experimental Selection
-    revision, create separate response/health/result Artifacts, and preserve every earlier Run,
-    Manifest, Dataset, IR, Card, and result fact. The result cannot pass after abnormal/unhealthy
-    evidence or fit/holdout overlap.
+1. Material information revisions are immutable and retain identity, associated state and direct
+   property values as one domain history; State/PropertySet identity does not open a second history.
+2. Specimen, TestRun, TestData, Dataset, Selection, Profile, Process, Model, Card and Link rows keep
+   stable IDs; a rename preserves links and does not stale science or append a hidden revision.
+3. A concrete result/artifact stores the exact typed inputs, options/settings, units and output bytes
+   required by its contract; raw and released artifact digests do not change.
+4. Concrete release or validation contracts may require an explicit input/result/evidence path and
+   responsible review or usage facts; this does not make a universal E-A-A domain history mandatory.
+5. Outlier adjudication never mutates input artifact bytes, and unsupported or approximated mappings
+   remain explicit.
+6. Migration preserves old records and provides an additive, reversible DB/API mapping; it does not
+   create nonmaterial revision chains or silently rewrite new data.
 
-Property-based graph fixture와 intentionally corrupt DB fixture를 모두 둔다.
+Property-based typed-link fixture와 intentionally corrupt DB fixture를 모두 둔다. Graph traversal
+may reach both directions, but traversal is not derivation and no sibling/name/`latest` fallback is
+valid.
 
 ## 7. Solver-card golden-file 전략
 
@@ -213,6 +231,8 @@ metamorphic relations, and canonical snapshot reload/tamper detection. Productio
 fit-decision, browser warning, and model-promotion tests remain separate comparison gates.
 
 ## T-43 governed multi-test Ogden regression matrix
+
+적용: Ogden 모델·관련 입력/IR·계산 계약 변경. 단순 조회 화면이나 문서 작업에는 해당 모델 검사 전체를 강제하지 않는다.
 
 The bounded elastomer calibration slice is verified independently of solver execution:
 
@@ -438,9 +458,10 @@ TCK 통과는 scientific validity를 자동 보증하지 않는다. domain accep
 - clean install latest schema
 - supported previous release→latest migration
 - rollback이 필요한 경우 명시; data migration은 forward-fix 우선
-- revision/content hash 보존
+- Material information content and artifact hash preservation; saved result bytes and actual input/settings
+  read back unchanged
 - old IR/plugin/event compatibility
-- migration provenance
+- concrete migration mapping and evidence for each migrated saved object
 - large-table lock/time budget
 - backup restore 후 migration rehearsal
 
@@ -688,6 +709,9 @@ keyword rendering or golden text equality.
 
 #### T-42 replicate/TTS/master-curve gate
 
+적용 대상은 반복 DMA/TTS/master-curve 처리다. 인장 반복 곡선에 로그 축·WLF 기준을 그대로 적용하지 않는다.
+아래 기존 비소재 immutable revision·세 provenance subactivity 검사는 현재 backend의 legacy 계약 검사다. 실제 ADR-0036 이관 때 stable ID·실제 입력/설정·저장 결과 read-back·원본 bytes·권한 검사로 대체하고, 그 전에는 삭제하지 않는다.
+
 - numeric fixtures prove log10 common-intersection alignment, piecewise-linear interpolation,
   sample statistics by replicate count, no extrapolation, manual shift behavior and deterministic
   WLF recovery with at least three distinct temperatures;
@@ -784,6 +808,8 @@ registered current user-guide captures.
 
 ## T-47 observability and isolated recovery gate
 
+적용 범위: 관측·작업 복구 변경. 다른 T-47 절과 별개로 해당 변경에 적용한다.
+
 The first operational-hardening slice is accepted only when all of the following pass:
 
 - unit tests redact bearer/JWT/DSN/password/secret fixtures, discard arbitrary log extras and
@@ -808,6 +834,8 @@ must additionally contain at least one approved Release, use the scheduled/versi
 exercise KMS/object-lock access and record operator-approved RPO/RTO evidence.
 
 ## T-47 supply-chain and frontend budget gate
+
+적용 범위: dependency·frontend bundle 또는 공급망 변경. 다른 T-47 절과 별개로 해당 변경에 적용한다.
 
 The release-quality command is a separate, reproducible delivery gate because it requires already
 built container images and a current vulnerability database:
@@ -912,6 +940,8 @@ or contract rejection for every candidate, affected regressions, and proposed he
 
 ## T-47 bounded full-stack performance/security gate
 
+적용 범위: 성능·보안 변경 및 통합 검증. 다른 T-47 절과 별개로 해당 변경에 적용한다.
+
 `cmp-performance-acceptance` uses the running Docker API rather than a mocked transport. It measures
 Catalog reads, appends a real 2 MiB/32-part upload, proves a tampered upload capability is denied,
 downloads an existing governed Bundle through a short-lived transfer authorization and assembles
@@ -990,6 +1020,8 @@ interruption and recovery remain an operator-controlled extension to the soak ga
 
 ## T-47 external Bundle worker and reconciliation gate
 
+적용 범위: 외부 Bundle worker·저장 정합성 변경. 다른 T-47 절과 별개로 해당 변경에 적용한다.
+
 The Compose demo deliberately sets `CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES=16384` so its small public
 fixtures exercise the same external path that the default 64-MiB boundary protects. Acceptance
 requires a `202` queued response, worker completion, a typed immutable output commit, Bundle
@@ -1009,6 +1041,8 @@ rotation remain explicit release conditions; the separate production-scale exten
 only the 10,000-Material and 2-GiB streaming conditions.
 
 ## T-64 family-neutral solver export gate
+
+적용: solver exporter·지원 범위·단위/파일 의미 변경. 저장 파일 조회만 수정하면 실제 다운로드와 권한/bytes 확인 범위를 먼저 구분한다.
 
 The export gate starts from canonical `cmp.neutral-material` bytes, never from a latest model alias.
 It validates metal Abaqus/OpenRadioss semantic keywords, generalized-Maxwell Abaqus Prony rows,

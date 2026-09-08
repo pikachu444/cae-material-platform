@@ -435,6 +435,8 @@ async def test_import_list_and_exact_revision_export_round_trip() -> None:
     assert imported.json()["canonical_artifact_id"] == str(CANONICAL_ARTIFACT)
     assert imported.headers["etag"].startswith('"revision:1:')
     assert listed.json()["items"][0]["document_key"] == "DP600-TENSILE-01"
+    assert listed.json()["items"][0]["conditions"] == _fixture()["conditions"]
+    assert listed.json()["items"][0]["source"] == _fixture()["source"]
     assert exported.status_code == 200
     assert exported.headers["content-disposition"].endswith('"DP600-TENSILE-01.json"')
     assert json.loads(exported.content) == _fixture()

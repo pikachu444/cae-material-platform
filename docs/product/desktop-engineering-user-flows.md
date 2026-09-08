@@ -2,13 +2,36 @@
 
 Status: authoritative product and interaction specification
 
+## D0-v3 accepted target boundary
+
+The integrated redesign keeps the two product journeys and existing backend contracts while introducing
+task-left navigation with direct Test Data and Solver Card paths. The first reader comparison uses the
+same synthetic Test Data/Card task and same stored association: A is table-first and recommended; B is
+full-width selected-detail/curve-first with a visible Results return. B is a reader surface, not a
+Modeling Data/Process/Fit/Export screen.
+
+Only Material information edits create domain revision history, including associated state,
+manufacturing/heat-treatment and direct property values. State/PropertySet, Specimen, TestRun, TestData,
+Dataset, Selection, Profile, Process, Model, Card and Link data use stable IDs and separate saved
+objects. Renames preserve links and do not stale science. Saved results retain actual inputs/settings;
+universal Entity–Activity–Agent provenance and per-edit save reasons are not required. The connected
+reader uses ordinary TestData with `DATASET_READ` and stored cards with `EXPORT_READ`; Catalog
+publication and card release retain separate meanings.
+
+The detailed workflow tables below remain an implemented-flow compatibility map. Wherever they use
+“revision” for an ordinary State/PropertySet, TestRun, TestData, Dataset, Selection, Profile, Process,
+Model, Card or Link, the D0 target means the stable saved-object ID and the actual input/result snapshot;
+only Material information revision is a domain-history operation. Existing scientific, authorization,
+validation, review, release and artifact behaviors remain applicable until their RD migration unit.
+
 ## UXC workflow-state and recovery contract
 
-State names describe actual auditable events, not convenient labels. A Modeling session may be
+State names describe actual workflow events, not convenient labels. A Modeling session may be
 `new → draft → previewing → committed output → selected candidate → validation run → in review →
 approved → released → delivered`; unavailable policy remains `not run`, `blocked`, or `ready for
 review`, never validated, approved, released, or delivered. Preview is ephemeral; saved inputs and
-processing outputs are immutable revisions. Running a fit produces candidates; selecting a candidate
+processing outputs are immutable saved objects/results, with Material information revisions only where
+applicable. Running a fit produces candidates; selecting a candidate
 or blend with a reason is an explicit engineer decision. A recommendation never becomes a selection.
 
 On an API, job, mapping, or permission error, preserve selected Material/Test Data revision,

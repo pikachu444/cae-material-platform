@@ -2,6 +2,21 @@
 
 Status: authoritative product-design tooling decision
 
+## D0-v3 accepted target boundary
+
+The integrated redesign may use a full foundation in isolated `apps/web-next` against the same backend,
+then one cutover. Approved candidates are Radix accessible primitives, CSS Modules/custom-property
+tokens, React Router, TanStack Query/Table, RHF/Zod, Lucide, existing resizable panels and conditional
+ECharts/SVG/Recharts after capability, accessibility, bundle and scientific proof. Packages are
+preferred over copying or forking a repository; shadcn source maintenance must be explicit. A blanket
+no-rewrite, no-UI-kit or no-dependency rule does not apply to this accepted scope.
+
+Visual comparison A/B uses the same Test Data/Card reader (A table-first recommended, B full-width
+curve/detail-first with Results return), not different Modeling screens. Legacy captures and references
+are parity evidence. First-shell evidence covers five viewports; later small edits use risk-bounded
+affected scope. Material-only domain history and stable ordinary saved-object identities apply to any
+fields shown by the tooling.
+
 ## Purpose
 
 The frontend must be designed and reviewed as a desktop engineering application, not as a marketing site or generic SaaS dashboard. No single design plugin is authoritative. The workflow combines repository-owned controls with three external quality helpers.

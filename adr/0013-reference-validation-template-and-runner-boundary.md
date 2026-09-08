@@ -1,5 +1,10 @@
 # ADR-0013: Reference Validation Template and Runner preserve evidence before verdicts
 
+> **ADR-0036 target notice (partial supersession):** Validation templates, runner boundaries, immutable
+> evidence and explicit verdict meaning remain preserved. The accepted target supersedes universal
+> immutable revision and provenance requirements for validation objects; concrete validation results
+> retain their typed inputs, outputs and evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** exact Template·IR·solver card·experimental Selection을 Validation Plan에 고정하고,

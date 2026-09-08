@@ -1,5 +1,9 @@
 # ADR-0031: Reviewed polymer Processing Output promotion
 
+> **ADR-0036 target notice (partial supersession):** Processing Output review, scientific promotion and
+> release eligibility remain preserved. The accepted target supersedes a revision wrapper around
+> ordinary saved objects; the promoted result keeps its concrete input, output and review evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 저장된 `polymer.prony_fit_compare` 처리 결과를 사람이 검토한 뒤, 선택한 결과를 새 선형 점탄성 Material Model IR로 승격합니다. 서버가 원본 산출물을 다시 읽어 Test Data, Mapping Profile, Property Set과 근거를 정확히 연결하며, 클라이언트가 피팅 계수를 대신 제출할 수는 없습니다.

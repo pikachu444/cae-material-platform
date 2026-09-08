@@ -2,6 +2,25 @@
 
 Status: authoritative semantic guide
 
+## D0-v3 accepted target boundary
+
+The HTTP/event/job contracts continue to preserve typed scientific inputs and outputs, units,
+authorization, raw/input/output artifact bytes, validation and release meaning. Only Material
+information edits create domain revisions, containing Material identity, associated state/manufacturing/
+heat-treatment and direct properties. State/PropertySet, Specimen, TestRun, TestData, Dataset,
+Selection, Mapping Profile, Process, Model, Solver Card and Link records use stable IDs and separate
+saved objects; ordinary renames preserve links and do not stale science.
+
+Jobs and result payloads retain the actual input objects, options/settings and typed output they used.
+ETags, `If-Match`, `expected_revision_id`, software/schema/file versions and hashes are concurrency or
+compatibility metadata, not a domain-history mechanism. Universal Entity–Activity–Agent provenance,
+per-edit save reasons and hidden nonmaterial revision writers are not required; concrete result,
+validation, review, release and security/business audit contracts keep only the evidence they need.
+The unmodified v1 routes/payloads remain legacy compatibility until the real DB/API migration.
+The endpoint and event examples below therefore describe implemented v1 compatibility behavior;
+new RD contracts use stable ordinary-object IDs and Material information revisions only where the
+target boundary requires them, while preserving concrete result and security evidence.
+
 현재 HTTP contract는 `0.41.0`이다. HTTP identifier와 payload의 machine-readable source of truth는
 `contracts/http/openapi.yaml`과 runtime OpenAPI다. 외부에 발행하는 event 계약의 source of truth는
 `contracts/events/asyncapi.yaml`과 root event JSON Schema다. Runtime에서만 발행하고 아직 root

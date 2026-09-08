@@ -1,5 +1,10 @@
 # ADR-0032: Conditional OpenRadioss linear-Prony export
 
+> **ADR-0036 target notice (partial supersession):** OpenRadioss eligibility, unsupported/approximation
+> reporting and exact export bytes remain preserved. The accepted target supersedes a default history
+> assumption for exporter and card objects; the concrete card/export contract retains selected inputs
+> and mapping evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 조건을 만족하는 거의 비압축성·전단 전용 선형 점탄성 IR만 OpenRadioss의 `/MAT/LAW1`과 `/VISC/LPRONY` 조각으로 내보냅니다. 조건을 벗어나면 지원하지 않는 것으로 보고하며 LAW62로 바꾸거나 계수를 다시 맞추지 않습니다.

@@ -1,5 +1,22 @@
 # 제품 비전, 사용자 역할, 핵심 흐름, 범위
 
+## D0-v3 accepted target boundary
+
+The product vision now prioritizes a task-left engineering workbench with direct Test Data and Solver
+Card paths. Wireframes A (recommended table-first) and B (curve/detail-first) show the same synthetic
+Test Data/Card reader and explicit association; B is a full-width selected detail/curve surface with a
+visible Results return, not a Modeling Data/Process/Fit/Export screen. The redesign uses the existing
+backend through an isolated foundation and one cutover.
+
+Material information edits alone have domain revision history, including associated state,
+manufacturing/heat-treatment and direct property values. State/PropertySet, Specimen, TestRun, TestData,
+Dataset, Selection, Profile, Process, Model, Solver Card and Link data are stable-ID saved objects;
+renames preserve links. Saved results retain actual inputs/settings. Raw/input/output bytes, units,
+authorization, scientific validation and release meaning remain preserved. Universal Entity–Activity–
+Agent provenance and per-edit save reasons are not product requirements. Ordinary reader access uses
+`DATASET_READ` for TestData and `EXPORT_READ` for stored cards; Catalog publication and card release
+remain separate.
+
 ## 1. 제품 비전
 
 > **Search-first and reference-layout correction:** 일반 사용자의 첫 작업은 기존 Material을

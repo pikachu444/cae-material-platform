@@ -1,5 +1,10 @@
 # ADR-008: Reference two-selection Statistics/QC slice
 
+> **ADR-0036 target notice (partial supersession):** Statistics/QC calculations, source Test Data,
+> selection semantics and outlier visibility remain preserved. The accepted target supersedes a
+> universal history requirement for Selection and statistics edits; saved selections and results use
+> stable IDs and retain their actual inputs and settings.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 서로 다른 Test Run에서 나온 normalized Dataset Selection 두 개만 고정해

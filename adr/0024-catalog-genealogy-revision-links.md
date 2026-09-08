@@ -1,5 +1,11 @@
 # ADR-0024: typed Catalog genealogy pins exact revisions
 
+> **ADR-0036 target notice (partial supersession):** Typed Catalog genealogy, relationship cardinality,
+> authorization and exact pins where a scientific or release contract needs them remain preserved. The
+> accepted target supersedes universal exact-revision links and graph-as-derivation assumptions; stable
+> links traverse both directions, and Catalog publication is not required for ordinary TestData/Card
+> reader access.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** Process Definition, Material Lot, State Genealogy를 각자 stable identity와 불변

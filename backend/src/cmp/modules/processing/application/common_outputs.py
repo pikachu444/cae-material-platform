@@ -741,6 +741,15 @@ class ProcessingOutputRepository(Protocol):
         output_id: UUID,
     ) -> ProcessingOutputSnapshot: ...
 
+    def get_output_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        revision_id: UUID,
+    ) -> ProcessingOutputSnapshot: ...
+
     def list_outputs(
         self, *, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[ProcessingOutputSnapshot, ...]: ...
@@ -1744,6 +1753,38 @@ class CommonProcessingOutputService:
         _require(context, decision, Permission.PROCESSING_READ)
         return self._repository.list_outputs(context=context, decision=decision)
 
+    def get_output(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+    ) -> ProcessingOutputSnapshot:
+        """Read the current Processing Output revision."""
+
+        _require(context, decision, Permission.PROCESSING_READ)
+        return self._repository.get_output(
+            context=context,
+            decision=decision,
+            output_id=output_id,
+        )
+
+    def get_output_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        revision_id: UUID,
+    ) -> ProcessingOutputSnapshot:
+        """Read one explicitly pinned Processing Output revision."""
+
+        _require(context, decision, Permission.PROCESSING_READ)
+        return self._repository.get_output_revision(
+            context=context,
+            decision=decision,
+            output_id=output_id,
+            revision_id=revision_id,
+        )
+
     async def export(
         self,
         context: SecurityContext,
@@ -1771,9 +1812,15 @@ class CommonProcessingOutputService:
         output_id: UUID,
         output_revision_id: UUID,
     ) -> tuple[ProcessingOutputSnapshot, bytes]:
-        snapshot, value = await self.export(context, decision, output_id)
-        if snapshot.current.revision_id != output_revision_id:
-            raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
+        snapshot = self.get_output_revision(context, decision, output_id, output_revision_id)
+        artifact, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            snapshot.content.output_artifact_id,
+            maximum_bytes=64 * 1024 * 1024,
+        )
+        if artifact.artifact.sha256 != snapshot.content.output_sha256:
+            raise CommonPipelineError("Processing Output Artifact digest pin is inconsistent")
         return snapshot, value
 
     async def export_exact_result(
@@ -1794,11 +1841,7 @@ class CommonProcessingOutputService:
         """
 
         _require(context, decision, Permission.PROCESSING_READ)
-        snapshot = self._repository.get_output(
-            context=context, decision=decision, output_id=output_id
-        )
-        if snapshot.current.revision_id != output_revision_id:
-            raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
+        snapshot = self.get_output_revision(context, decision, output_id, output_revision_id)
         content = snapshot.content
         if (
             content.result_artifact_id is None
@@ -1834,9 +1877,7 @@ class CommonProcessingOutputService:
                 "Export permission is required for Processing Output provenance"
             )
         _require(context, decision, decision.permission)
-        snapshot = self._repository.get_output(
-            context=context, decision=decision, output_id=output_id
+        snapshot = self._repository.get_output_revision(
+            context=context, decision=decision, output_id=output_id, revision_id=output_revision_id
         )
-        if snapshot.current.revision_id != output_revision_id:
-            raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
         return snapshot

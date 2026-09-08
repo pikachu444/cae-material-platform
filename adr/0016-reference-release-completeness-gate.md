@@ -1,5 +1,9 @@
 # ADR-0016: Reference Release completeness gate and immutable package
 
+> **ADR-0036 target notice (partial supersession):** Release completeness checks, package bytes and
+> release meaning remain preserved. The accepted target supersedes all-entity provenance history as a
+> release gate; concrete inputs, artifacts, validation and review evidence remain required.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** exact Material lineage·IR·solver card·validation result·review를 한 package에

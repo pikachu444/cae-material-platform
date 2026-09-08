@@ -32,6 +32,7 @@ from cmp.bootstrap.exporting import (
     build_linear_viscoelastic_solver_card_service,
     build_neutral_hyperelastic_solver_card_service,
     build_ogden_prony_solver_card_service,
+    build_project_card_index_service,
     build_solver_card_service,
     build_target_delivery_receipt_recorder,
 )
@@ -122,6 +123,9 @@ from cmp.modules.exporting.adapters.api.neutral_hyperelastic_solver_cards import
 from cmp.modules.exporting.adapters.api.ogden_prony_solver_cards import (
     install_ogden_prony_solver_card_api,
 )
+from cmp.modules.exporting.adapters.api.project_card_index import (
+    install_project_card_index_api,
+)
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
 from cmp.modules.exporting.adapters.api.target_delivery import install_target_delivery_api
 from cmp.modules.exporting.adapters.api.target_preview import install_target_preview_api
@@ -139,6 +143,7 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
     NeutralHyperelasticSolverCardService,
 )
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
+from cmp.modules.exporting.application.project_card_index import ProjectCardIndexService
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.exporting.application.target_delivery import TargetDeliveryService
 from cmp.modules.exporting.application.target_preview import TargetPreviewService
@@ -342,6 +347,7 @@ def create_app(
     linear_viscoelastic_solver_card_service: LinearViscoelasticSolverCardService | None = None,
     ogden_prony_solver_card_service: OgdenPronySolverCardService | None = None,
     neutral_hyperelastic_solver_card_service: NeutralHyperelasticSolverCardService | None = None,
+    project_card_index_service: ProjectCardIndexService | None = None,
     bulk_export_service: BulkExportService | None = None,
     validation_service: ReferenceValidationService | None = None,
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
@@ -1135,6 +1141,17 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_project_card_index = project_card_index_service or build_project_card_index_service(
+        services
+    )
+    install_project_card_index_api(
+        application,
+        service=resolved_project_card_index,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+    )
     resolved_solver_cards = solver_card_service or build_solver_card_service(services)
     install_solver_card_api(
         application,
@@ -1375,6 +1392,7 @@ def create_app(
     application.state.voce_candidate_projection_service = resolved_voce_projection
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
+    application.state.project_card_index_service = resolved_project_card_index
     application.state.elastoplastic_solver_card_service = resolved_elastoplastic_solver_cards
     application.state.linear_viscoelastic_solver_card_service = (
         resolved_linear_viscoelastic_solver_cards

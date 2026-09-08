@@ -320,6 +320,34 @@ class SqlAlchemyOgdenPronyExportingRepository(OgdenPronyExportingRepository):
         )
 
     @staticmethod
+    def _revision_statement() -> sa.Select[Any]:
+        revision = solver_card_revision_table
+        summary = ogden_prony_card_revision_table
+        return (
+            sa.select(
+                *(revision.c[name] for name in _REVISION_COLUMNS),
+                summary.c.ogden_mu_pa,
+                summary.c.ogden_alpha,
+                summary.c.law62_poisson_ratio,
+                summary.c.ogden_mapping_status,
+                summary.c.prony_mapping_status,
+                summary.c.volumetric_mapping_status,
+            )
+            .select_from(
+                revision.join(
+                    summary,
+                    sa.and_(
+                        summary.c.solver_card_id == revision.c.aggregate_id,
+                        summary.c.solver_card_revision_id == revision.c.id,
+                        summary.c.organization_id == revision.c.organization_id,
+                        summary.c.project_id == revision.c.project_id,
+                    ),
+                )
+            )
+            .where(revision.c.exporter_id.in_((ABAQUS_EXPORTER_ID, OPENRADIOSS_EXPORTER_ID)))
+        )
+
+    @staticmethod
     def _terms(session: Session, row: Any) -> tuple[ReferenceShearPronyTerm, ...]:
         values = session.execute(
             sa.select(
@@ -402,6 +430,33 @@ class SqlAlchemyOgdenPronyExportingRepository(OgdenPronyExportingRepository):
                 return self._snapshot(session, row)
             except DBAPIError as error:
                 raise OgdenPronySolverCardNotFound("Ogden-Prony card is unavailable") from error
+
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        revision_id: UUID,
+    ) -> OgdenPronySolverCardSnapshot:
+        statement = self._revision_statement().where(
+            solver_card_revision_table.c.aggregate_id == solver_card_id,
+            solver_card_revision_table.c.id == revision_id,
+            solver_card_revision_table.c.organization_id == context.organization_id,
+            solver_card_revision_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+                if row is None:
+                    raise OgdenPronySolverCardNotFound(
+                        "Ogden-Prony card revision is not visible"
+                    )
+                return self._snapshot(session, row)
+            except DBAPIError as error:
+                raise OgdenPronySolverCardNotFound(
+                    "Ogden-Prony card revision is unavailable"
+                ) from error
 
     def list_solver_cards_for_model(
         self,

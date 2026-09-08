@@ -1,5 +1,10 @@
 # ADR-0025: complete the product as user-visible production-pilot verticals
 
+> **ADR-0036 target notice (partial supersession):** User-visible pilot journeys, recovery and
+> scientific/security acceptance remain preserved. The accepted target supersedes all-entity snapshot
+> and universal provenance completion criteria; stable saved objects and concrete result/release
+> evidence still need exact read-back.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 기존 migration과 불변 data 기반을 보존하면서, test context부터 Processing,

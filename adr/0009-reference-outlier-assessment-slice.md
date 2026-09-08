@@ -1,5 +1,9 @@
 # ADR-0009: Reference pair outlier candidates require explicit human scope decisions
 
+> **ADR-0036 target notice (partial supersession):** Candidate detection, explicit human adjudication,
+> no silent deletion and scientific evidence remain preserved. The accepted target supersedes a
+> per-decision domain revision or activity requirement for ordinary candidate and selection objects.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 두 시험값 차이가 기준을 넘으면 양쪽 모두를 검토 후보로 표시하고, 사람은

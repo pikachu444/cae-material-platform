@@ -1,0 +1,14 @@
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(20, 32, 43, .32); }
+.content { position: fixed; z-index: 21; top: 50%; left: 50%; width: min(540px, calc(100vw - 32px)); transform: translate(-50%, -50%); border: 1px solid var(--cmp-line-strong); border-radius: 4px; background: var(--cmp-surface); box-shadow: 0 14px 40px rgba(20, 32, 43, .18); padding: var(--cmp-space-5); }
+.heading { display: flex; justify-content: space-between; gap: var(--cmp-space-4); border-bottom: 1px solid var(--cmp-line); padding-bottom: var(--cmp-space-3); }
+.heading h2 { margin: 0; font-size: 1.2em; }
+.heading p { margin: var(--cmp-space-1) 0 0; color: var(--cmp-muted); font-size: .9em; }
+.close { border: 0; background: transparent; color: var(--cmp-muted); padding: 4px; }
+.field { margin-top: var(--cmp-space-4); }
+.field input, .field textarea { display: block; width: 100%; margin-top: var(--cmp-space-1); border: 1px solid var(--cmp-line-strong); border-radius: 3px; background: white; color: var(--cmp-ink); padding: 8px; }
+.field textarea { resize: vertical; }
+.error { margin: var(--cmp-space-1) 0 0; color: var(--cmp-red); font-size: .86em; }
+.dirtyPrompt { display: grid; gap: 4px; margin-top: var(--cmp-space-4); border-left: 4px solid var(--cmp-amber); background: #fff9e8; padding: var(--cmp-space-3); color: var(--cmp-amber); }
+.dirtyPrompt span { color: var(--cmp-muted); }
+.dirtyPrompt div { display: flex; gap: var(--cmp-space-2); margin-top: var(--cmp-space-2); }
+.actions { display: flex; justify-content: flex-end; gap: var(--cmp-space-2); margin-top: var(--cmp-space-5); border-top: 1px solid var(--cmp-line); padding-top: var(--cmp-space-3); }

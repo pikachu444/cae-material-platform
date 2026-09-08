@@ -1,5 +1,10 @@
 # ADR-0034: Product-facing session and workspace rebuild
 
+> **ADR-0036 target notice (partial supersession):** Session, workspace, API and product-shell behavior
+> remain preserved. The accepted target supersedes universal revision/provenance as the product target;
+> current eligibility, stable saved objects and concrete result evidence retain the state needed for
+> safe recovery and read-back.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 기존 엔지니어링 기능은 유지하되, 제품 화면을 Material Database와 Material Modeling 작업 공간 중심으로 다시 구성합니다. 사용자는 한 출처의 제품 세션을 사용하고, 화면은 낮은 수준의 API를 직접 조합하는 대신 제품용 조회 모델을 통해 필요한 정보를 받습니다.

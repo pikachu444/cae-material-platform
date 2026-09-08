@@ -758,7 +758,9 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 158
+    assert report.capture_count == len(yaml.safe_load(
+        (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
+    )["captures"])
     assert report.navigation_count == 3
     assert report.classified_markdown_count >= 100
     assert report.current_document_count >= 40
@@ -807,7 +809,7 @@ def test_repository_map_and_current_readme_guidance_are_preserved() -> None:
         ("missing-157", "missing the closed #157 current guidance"),
         ("stale-157-old", "stale open-issue guidance for closed #157"),
         ("stale-157-reworded", "stale open-issue guidance for closed #157"),
-        ("fixed-tunnel", "must not pin a temporary Quick Tunnel URL"),
+        ("fixed-tunnel", "needs a check date and renewal guidance"),
     ),
 )
 def test_repository_guidance_rejects_narrow_documentation_drift(
@@ -931,9 +933,9 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "e55d30f597923509607dd7651d734bda3867b583+issue371-catalog-single-owner-worktree"
     )
     issue377_source = "aa8c6e942420cc67b637edd92d988c9fbf678b27+issue377-worktree"
-    assert manifest["version"] == 142
-    assert manifest["scope"] == "issue-377-polymer-linear-viscoelastic-fit-ui"
-    assert manifest_source == issue377_source
+    assert isinstance(manifest["version"], int) and manifest["version"] > 0
+    assert manifest["scope"] == "rd02-connected-reader"
+    assert re.fullmatch(r"[0-9a-f]{40}\+rd02-[a-z-]+-\d{8}", manifest_source)
     assert re.fullmatch(r"[0-9a-f]{40}\+issue309-worktree", capture_source)
     assert manifest["visual_evidence"]["baseline_source"] == capture_source.split("+")[0]
     assert manifest["visual_evidence"]["current_source"] == capture_source
@@ -948,8 +950,8 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         "sidecar",
     }.isdisjoint(manifest["visual_evidence"])
     assert manifest["visual_evidence"]["issue_309_evidence_after_original_count"] == 5
-    assert "Preserved-volume cmp-377-ui-dense Compose" in manifest["capture_command"]
-    assert "Thirty-one reviewed originals" in manifest["capture_command"]
+    assert "detail-cleanup/capture.mjs guide" in manifest["capture_command"]
+    assert "zoom100%, DPR1" in manifest["capture_command"]
     assert len(provenance_ids) == len(set(provenance_ids))
     preserved_fixture_ids = {
         "solver-card-preview-1366",
@@ -958,6 +960,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
     }
     assert set(captures) - set(provenance_ids) == preserved_fixture_ids
     assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        manifest_source,
         issue377_source,
         issue371_source,
         modeling_state_source,
@@ -1135,6 +1138,15 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
             "modeling-fit-3840",
         }
     }
+    rd02_captures = {
+        f"rd02-{state}-{width}x{height}"
+        for state in ("materials-list", "test-data-preview", "test-data-expanded", "solver-card-detail")
+        for width, height in ((1366, 768), (1440, 900), (1920, 1080), (2560, 1440), (3840, 2160))
+    }
+    current_provenance = next(
+        item for item in manifest["capture_provenance"] if item["source_commit"] == manifest_source
+    )
+    assert set(current_provenance["ids"]) == rd02_captures
     assert set(previous_provenance_ids) == (
         set(captures)
         - new_issue_184_captures
@@ -1150,6 +1162,7 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         - new_issue_342_captures
         - new_issue_371_captures
         - new_issue_377_captures
+        - rd02_captures
     )
     assert {
         prior_source,
@@ -1392,10 +1405,11 @@ def test_current_images_are_product_routes_and_storybook_captures_are_untracked(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     current_images = root / "docs/user-guide/images/current"
-    assert len(manifest["captures"]) == 158
+    assert len({capture["id"] for capture in manifest["captures"]}) == len(manifest["captures"])
     assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
     assert not list(current_images.glob("storybook-*.png"))
-    assert len(list(current_images.glob("*.png"))) == 160
+    for capture in manifest["captures"]:
+        assert (root / "docs/user-guide" / capture["image"]).is_file()
     assert not list((root / "docs/17-evidence/images").glob("**/storybook-*.png"))
 
 

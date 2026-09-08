@@ -1,0 +1,48 @@
+:root {
+  font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+  color: #202a35; background: #fff; font-synthesis: none; text-rendering: optimizeLegibility;
+  --cmp-ink: #202a35; --cmp-muted: #657383; --cmp-subtle: #657383;
+  --cmp-line: #d9dfe5; --cmp-line-strong: #c5ced8;
+  --cmp-surface: #fff; --cmp-surface-alt: #f5f7fa; --cmp-canvas: #fff;
+  --cmp-blue: #315f8a; --cmp-blue-strong: #254e7a; --cmp-blue-soft: #eaf1f9;
+  --cmp-teal: #007f86; --cmp-green: #1c6d43; --cmp-red: #b42318; --cmp-amber: #8a5c00;
+  --cmp-radius: 4px; --cmp-control-height: 36px; --cmp-row-height: 46px;
+  --cmp-space-1: 4px; --cmp-space-2: 8px; --cmp-space-3: 12px;
+  --cmp-space-4: 16px; --cmp-space-5: 24px; --cmp-space-6: 32px;
+  --cmp-body-size: 14px; --cmp-small-size: 12px; --cmp-title-size: 24px;
+  --cmp-task-rail-width: 162px; --cmp-reader-tree-width: 212px;
+  --cmp-reader-preview-width: 440px; --cmp-reader-card-min: 285px;
+  --cmp-reader-form-width: 620px; --cmp-reader-gap: 20px;
+  --cmp-numeric: "Segoe UI", "Malgun Gothic", sans-serif;
+  --cmp-card-header-padding: 13px 15px 11px; --cmp-card-values-padding: 6px 15px;
+  --cmp-card-row-padding: 8px 0; --cmp-card-unit-width: 50px; --cmp-card-footer-padding: 10px 14px;
+}
+@media (max-width: 1499px) {
+  :root {
+    --cmp-body-size: 13px; --cmp-small-size: 12px; --cmp-title-size: 22px;
+    --cmp-task-rail-width: 143px; --cmp-reader-tree-width: 186px;
+    --cmp-reader-preview-width: 354px; --cmp-reader-card-min: 248px; --cmp-reader-gap: 16px;
+  }
+}
+@media (min-width: 2200px) {
+  :root {
+    --cmp-body-size: 16px; --cmp-small-size: 14px; --cmp-title-size: 28px;
+    --cmp-control-height: 42px; --cmp-row-height: 52px;
+    --cmp-task-rail-width: 186px; --cmp-reader-tree-width: 240px;
+    --cmp-reader-preview-width: 560px; --cmp-reader-card-min: 320px;
+    --cmp-reader-form-width: 680px; --cmp-reader-gap: 25px;
+    --cmp-space-2: 10px; --cmp-space-3: 14px; --cmp-space-4: 20px;
+  }
+}
+@media (min-width: 3200px) {
+  :root {
+    --cmp-body-size: 20px; --cmp-small-size: 18px; --cmp-title-size: 34px;
+    --cmp-control-height: 48px; --cmp-row-height: 64px;
+    --cmp-task-rail-width: 235px; --cmp-reader-tree-width: 300px;
+    --cmp-reader-preview-width: 780px; --cmp-reader-card-min: 445px;
+    --cmp-reader-form-width: 800px; --cmp-reader-gap: 32px;
+    --cmp-space-2: 12px; --cmp-space-3: 16px; --cmp-space-4: 24px;
+    --cmp-card-header-padding: 20px; --cmp-card-values-padding: 10px 22px;
+    --cmp-card-row-padding: 12px 0; --cmp-card-unit-width: 65px; --cmp-card-footer-padding: 16px 20px;
+  }
+}

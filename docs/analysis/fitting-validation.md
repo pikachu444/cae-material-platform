@@ -1,5 +1,15 @@
 # Fitting 및 검증 실행 구조
 
+## D0-v3 accepted target boundary
+
+The equations, numerical assumptions, unit semantics, typed inputs/outputs, scientific validation and
+release meaning in this analysis remain in force. A fit/result saves the actual TestRun/TestData/
+Dataset/Selection/Process inputs, options and settings it used; those ordinary records have stable IDs.
+Only Material information edits have domain revision history, including associated state/manufacturing/
+heat-treatment and direct properties. Universal Entity–Activity–Agent provenance, per-edit save reasons
+and nonmaterial revision chains are not required; concrete result/evidence contracts keep the facts they
+need.
+
 ## 1. 핵심 구분
 
 | 개념 | 역할 |

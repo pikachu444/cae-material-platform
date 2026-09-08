@@ -24,6 +24,15 @@ old issue packets.
    affected current guide Markdown, screenshot manifest, and one complete five-view PNG family
    (`1366x768`, `1440x900`, `1920x1080`, `2560x1440`, `3840x2160`). A clean checkout can therefore
    read current guidance from tracked Markdown, manifest, and current PNGs alone.
+
+   > **ADR-0037 target notice (partial supersession):** Current, frozen and transient evidence paths
+   > remain as defined here, as do frozen bytes, recovery from the base snapshot, checksums, viewport
+   > identity and offline checks. ADR-0037 partially supersedes only the requirement that every small
+   > change repeat the complete five-view family: the first foundation shell and connected reader still
+   > require all five viewports, while later small changes use risk-bounded affected viewport/state
+   > evidence recorded in the redesign program. The first P1 foundation set of 30 original screen
+   > captures remains required. Known geometry, clipping, overflow or interaction failures are never
+   > deferred.
 3. Frozen evidence is immutable by default. The exact #167 current-product exception consists of the
    three issue-289 administration database originals and requires both the service-reference
    manifest and issue-289 visual-evidence manifest in the same diff. The #184-to-#223 handoff is

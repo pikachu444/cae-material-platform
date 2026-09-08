@@ -954,11 +954,18 @@ def _verify_repository_guidance(project: Path) -> None:
         raise UserGuideContractError("README.md is missing the closed #157 current guidance")
     if _STALE_ISSUE_157_GUIDANCE.search(readme):
         raise UserGuideContractError("README.md contains stale open-issue guidance for closed #157")
-    fixed_tunnel = _FIXED_QUICK_TUNNEL_URL.search(readme)
-    if fixed_tunnel:
-        raise UserGuideContractError(
-            f"README.md must not pin a temporary Quick Tunnel URL: {fixed_tunnel.group(0)}"
-        )
+    for line in readme.splitlines():
+        fixed_tunnel = _FIXED_QUICK_TUNNEL_URL.search(line)
+        if fixed_tunnel and not (
+            re.search(r"\b\d{4}-\d{2}-\d{2}\b", line)
+            and "접속 확인" in line
+            and "docker logs" in readme
+            and "갱신" in readme
+        ):
+            raise UserGuideContractError(
+                "README.md temporary Quick Tunnel URL needs a check date and renewal guidance: "
+                f"{fixed_tunnel.group(0)}"
+            )
 
 
 def _verify_readme(project: Path, registered_images: set[str]) -> None:

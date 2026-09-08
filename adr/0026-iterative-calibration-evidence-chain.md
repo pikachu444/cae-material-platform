@@ -1,5 +1,10 @@
 # ADR-0026: iterative calibration appends IR revisions and evidence
 
+> **ADR-0036 target notice (partial supersession):** Iterative calibration evidence, comparison and
+> promotion boundaries remain preserved. The accepted target supersedes appending IR domain revisions
+> for ordinary nonmaterial changes; each saved result records the actual inputs, settings and evidence
+> required for its scientific meaning.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 같은 논리 model을 다시 calibration할 때 새 model ID를 만들지 않고, exact 이전

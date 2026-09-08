@@ -6,6 +6,7 @@ import base64
 import binascii
 import json
 from collections.abc import Callable, Iterator
+from dataclasses import asdict
 from datetime import date
 from decimal import Decimal
 from typing import Annotated, Any
@@ -387,6 +388,8 @@ class CanonicalTestDataDocumentResponse(BaseModel):
     canonical_sha256: str
     normalized_artifact_id: UUID
     normalized_sha256: str
+    conditions: tuple[ConditionInput, ...]
+    source: SourceInput
     channels: tuple[ChannelPreview, ...]
     governed_source: GovernedSourceInput | None
 
@@ -412,6 +415,8 @@ class CanonicalTestDataDocumentResponse(BaseModel):
             canonical_sha256=content.canonical_sha256,
             normalized_artifact_id=content.normalized_artifact_id,
             normalized_sha256=content.normalized_sha256,
+            conditions=tuple(ConditionInput(**asdict(item)) for item in content.conditions),
+            source=SourceInput(**asdict(content.source)),
             channels=tuple(
                 ChannelPreview(
                     key=item.key,
@@ -601,6 +606,42 @@ def install_canonical_test_data_api(
             )
         except GovernedImportConflict as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
+
+    @app.get(
+        "/api/v1/test-data-documents/{document_id}",
+        response_model=CanonicalTestDataDocumentResponse,
+        operation_id="getCanonicalTestDataDocument",
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["test-data-json"],
+    )
+    def get_test_data(
+        document_id: UUID,
+        request: Request,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> CanonicalTestDataDocumentResponse:
+        """Read the current document or the explicitly pinned revision.
+
+        A revision pin is resolved by the application service's exact snapshot loader.  The
+        endpoint intentionally does not substitute the current revision when a pin is supplied.
+        """
+
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            snapshot = (
+                service.get_document_revision(
+                    context,
+                    decision,
+                    document_id,
+                    revision_id,
+                )
+                if revision_id is not None
+                else service.get_document(context, decision, document_id)
+            )
+            return CanonicalTestDataDocumentResponse.from_snapshot(snapshot)
+        except GovernedImportNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
 
     @app.post(
         "/api/v1/test-data-documents/{document_id}/revisions",

@@ -1,5 +1,10 @@
 # ADR-002: PostgreSQL authoritative store와 typed provenance
 
+> **ADR-0036 target notice (partial supersession):** PostgreSQL authority, tenant isolation, RLS,
+> typed integrity and concrete result/artifact relationships remain preserved. The accepted target
+> supersedes only the universal Entity–Activity–Agent, all-entity revision and audit-as-domain-history
+> requirements; ordinary saved objects use stable IDs and retain only contract-specific evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** metadata와 provenance의 공식 원본을 PostgreSQL에 두고, 데이터가 무엇을

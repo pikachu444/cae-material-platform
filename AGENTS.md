@@ -1,167 +1,38 @@
-# Implementation Instructions
+# CAE Material Platform 작업 지침
 
-## Authority and safety
+## 먼저 확인
 
-- Preserve the current branch and all worktree changes. Never use `git reset`, `git clean`, stash,
-  checkout discard, or another operation that drops or hides work.
-- Start new issues from latest main with `git pull --ff-only origin main`. Keep an active issue on its
-  branch; do not reopen merged work or close a multi-unit issue before all its listed units finish.
-- `docs/planning/backlog.md` is the baseline, issue order, and handoff router. Read it and the exact
-  issue first. Use `rg` to locate only affected requirements, ADRs, contracts, tests, and product specs.
-  Start architecture-decision lookup at [`adr/README.md`](adr/README.md).
-  `IMPLEMENTATION_STATUS.md`, live code, and user guides describe implemented behavior. Do not bulk-read
-  archives.
-- For schema-driven integration issues #204-#216 and #246, read the exact P/G rows in
-  [`docs/requirements/schema-driven-requirement-traceability.md`](docs/requirements/schema-driven-requirement-traceability.md)
-  and its linked source fixture before changing a contract or narrowing acceptance. Record and resolve a
-  source/Issue mismatch instead of silently dropping it.
-- Product language is **test data**, **selected model**, **review request**, and **solver card**. Keep
-  UUIDs, hashes, Mapping Profile, Recipe/Batch, provenance, and checksums in Evidence, Advanced, or
-  Administration.
+- 사용자의 현재 지시와 승인한 작업 범위를 우선한다. 진행 중인 작업에서는 branch와 미커밋 변경을 보존한다. reset, clean, stash 등으로 변경을 없애거나 숨기지 않는다.
+- 개편 작업은 [현재 작업 상태](docs/planning/frontend-redesign-status.md)에서 실제 작업 위치·현재 단계·완료 증거를 확인하고 [개편 계획](docs/planning/frontend-redesign-program.md)의 해당 RD 단위를 읽는다. 다른 작업은 backlog의 해당 issue를 따른다. 새 이슈를 시작할 때만 적절한 새 분기와 최신 base를 준비한다.
+- 필요한 문서만 찾는다. 결정은 [ADR 색인](adr/README.md), 제품 데이터 의미는 [데이터 정책](docs/product/data-management-policy.md), 구현 사실은 코드·현재 가이드에서 확인한다. 과거 증거를 현행 제품 요구로 사용하지 않는다.
+- 사용자 피드백이 기존 문서와 다르면 전체 목표 안에서 반영하고, 영향을 받는 기준 문서를 함께 정리한다. 일반적인 구현 선택을 이유로 이미 승인한 작업을 다시 멈추지 않는다.
 
-## Work definition and acceptance
+## 반드시 보존할 의미
 
-- A fresh task takes the first unfinished backlog unit and its dependencies. Before
-  implementation, classify existing behavior as complete, partial, or missing and change only the
-  missing bounded scope.
-- For nontrivial work, record one realistic primary user journey: setup, actions, visible outcome,
-  persistence/read-back outcome, preserved contract/state, recovery, owned scope, forbidden shortcuts,
-  and exact acceptance. Keep negative and technical cases separate; use
-  [`docs/testing/product-work-acceptance.md`](docs/testing/product-work-acceptance.md).
-- Read the exact requirement and affected contract before domain, API, data, migration, or
-  documentation. Update contracts before adapters; load visual references only for UI work.
-- Run Compose, database, browser, reload, and viewport checks only when applicable; otherwise record N/A
-  or deferred. Before Docker, run `make compose-preflight`, recreate canonical composition, and reject
-  stale environments without deleting data.
-- After failure, continue safe applicable checks while evidence remains valid. Stop only for unsafe or
-  invalid evidence, record that boundary, diagnose related causes, revise observable pass conditions,
-  and never replay unchanged instructions. After three failures, recheck authority, scope, journey,
-  gates, and evidence.
-- Stop for unresolved product decisions, missing authority, unsafe action, external blockers, or
-  scope-changing ambiguity. Repeated Compose or test execution never substitutes for semantic diagnosis.
-- Keep automation thin: one realistic high-value browser flow when applicable, lower-level regression
-  tests for rules, and Docker preflight. Do not create a generic verification framework.
+- 소재 정보 수정만 리비전 이력을 관리한다. 다른 데이터는 안정적인 ID와 명시적으로 저장된 관계를 사용한다. 이름 변경으로 관계나 공학적 유효성이 깨지지 않게 한다.
+- raw 파일, 사용한 입력, 저장한 결과·모델, 배포한 카드의 의미를 구분한다. 원본·확정 artifact bytes를 덮어쓰지 않는다. 모든 편집에 별도 이력·사유·출처 그래프를 추가하지 않는다.
+- 결과에는 실제 사용한 입력과 설정이 있어야 한다. 현재 입력이 바뀌면 이전 결과임을 표시하고 잘못된 저장·출력을 막는다. 기존 결과 조회·다운로드를 위해 다시 처리하거나 생성하게 하지 않는다.
+- 단위 원문·정규화 단위·물리량·조건·적용 범위를 보존한다. 변환·리샘플링·평활화·근사·미지원을 숨기지 않는다. 검증되지 않은 공학 기본값과 허용오차를 정답으로 확정하지 않는다.
+- 소재 연결과 실제 계산에 사용한 입력 관계를 구분한다. 관계를 이름, 첫 항목, latest 또는 다른 세션 결과로 대체하지 않는다.
+- 이상치를 자동 삭제하지 않는다. 후보 탐지와 사용자의 제외 판단을 구분한다. 핵심 도메인의 generic EAV, 큰 곡선의 점별 DB 행 저장, plugin의 직접 DB 접근은 금지한다.
+- 권한은 서비스/DB에서 검사한다. core와 domain plugin 경계, 필요한 IR·solver 매핑 계약을 지킨다. 비밀자료를 fixture로 커밋하지 않는다.
 
-## Visual work
+## 작업과 검증
 
-- Every user-visible React/CSS change, including a small copy, control, or layout edit, must apply the
-  **mandatory #249 design synthesis**: Carbon-level hierarchy, COMSOL-style engineering task flow, and
-  SAP-style responsive logic. Read its canonical interpretation in
-  [`docs/product/frontend-ui-principles.md`](docs/product/frontend-ui-principles.md). Review and
-  evidence must explicitly pass its three axes: information hierarchy, engineering task flow, and
-  responsive/wide-screen composition. A passing test suite or close screenshot match does not replace
-  this judgment.
-- Production UI uses `.agents/skills/desktop-engineering-ui`, its selected inventory/manifest entry,
-  original assets, affected contracts, and `docs/product/visual-acceptance-matrix.md`.
-- When explicit current product-owner feedback conflicts with a registered visual reference, the owner
-  feedback controls. Record the conflict and update the affected reference and manifest in the same
-  bounded visual unit instead of reproducing a stale defect.
-- Use `frontend-ui-engineering` for React/CSS, `web-design-guidelines` for explicit UI audits, and
-  `webapp-testing` for browser evidence.
-- For every user-visible React/CSS change, capture the live before/after state at 1366×768,
-  1440×900, 1920×1080, 2560×1440, and 3840×2160 with browser zoom fixed at 100%. Open every image at
-  original resolution and also provide 100%-pixel crops of the header, navigator, table/form controls,
-  and graph or native preview where applicable. A scaled contact sheet alone is not approval evidence.
-- The application shell uses the full viewport. Inside it, graphs, tables, and native previews may grow
-  while extra space improves comparison or interaction; navigators, property forms, and prose retain
-  readable bounds. A one-sided 1920 px work island, unrelated internal void, or tiny fixed-density UI at
-  2560/3840 fails, as does uniformly stretching every row, sentence, form, or plot merely to fill space.
-- Carryover requires before/after evidence, exact affected routes/states, no new page-specific workaround,
-  and explicit product-owner disposition.
-- Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens.
-  Do not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
-  non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability.
-- Check visibility, clipping, wrapping, exact identity/revision, interaction reachability, and layout bounds.
-- Hidden text and measurements do not replace normal-surface usability.
-- Present the original 1920/2560/3840 comparison to the product owner and do not merge before the owner checklist and visual geometry approval pass.
-- See [frontend change review playbook](docs/repository/frontend-change-review-playbook.md) for the
-  authoritative high-DPI policy and historical handoff.
+- 의미 있는 작업 하나의 시작 상태·사용자 행동·눈에 보이는 결과·저장/재조회·복구 조건을 짧게 정의한다. 변경하지 않는 업무까지 거대한 명세를 다시 만들지 않는다.
+- 기존 코드를 이동할 때 보존할 계산·검증·출력 조합 로직을 먼저 찾는다. 새 기반에서는 실제 대표 업무가 요구하는 만큼만 공통화한다.
+- frontend 작업은 해당 앱 지침을 읽는다. 화면은 UI principles와 승인한 목표로 평가한다. 과거 색상·컴포넌트·시안이 새 화면의 고정 기준은 아니다.
+- 변경된 규칙은 단위/계약 검사, 연결 업무는 브라우저, 화면은 실제 캡처로 확인한다. 적용되지 않는 Docker·DB·물리 장비 검사는 이유를 적고 실행하지 않는다. 실제 Docker 검증 전에는 compose-preflight를 수행하며 데이터를 삭제하지 않는다.
+- 실패하면 원인을 진단하고 수정한다. 같은 지시와 검사를 그대로 반복하지 않는다. 요구 누락, 잘못된 환경 또는 테스트 자체 오류를 구별한다.
+- 데이터·단위·출력의 golden 변경은 검증 기준과 검토 근거가 필요하다. 기존의 잘못된 결과를 호환성이라는 이유로 복제하지 않는다.
 
-## Domain invariants
+## 전달
 
-- Raw bytes and released artifacts are immutable. Stable identities and immutable revisions are
-  separate; runs and links pin concrete revisions, never `latest`.
-- Preserve original unit text, normalized unit, and quantity semantics. Never delete outliers;
-  candidate detection and adjudication are separate records.
-- Every derived entity records input usage, generation activity, and responsible agents. A production
-  solver card requires a Material Model IR revision. Exporters report exact, transformed, approximated,
-  and unsupported mappings without silent defaults.
-- Core code never imports domain plugin implementations. Organization/project authorization is enforced
-  at service and database levels.
+- schema 통합 #204–#216·#246은 해당 P/G 추적 행과 원본 fixture를 읽고 계약 불일치를 해결한다. 계약 변경은 adapter와 함께 맞춘다.
+- 완료한 코드와 현재 가이드·계약·상태 기록을 맞춘다. 관련 테스트, 문서 영향 검사, user-guide 검사, diff 공백 검사를 수행하고 범위와 한계를 기록한다.
+- 커밋·push·PR·merge·전환은 해당 행동에 대한 사용자 권한 안에서 수행한다. 유효한 기존 권한은 반복해서 묻지 않는다. 검증 완료만으로 게시 권한이 생기지는 않는다.
+- 게시 전 정확한 branch/base/head/diff를 확인하고 적용되는 pre-publish 검사를 통과한다. 게시 후 원격 상태와 전달 기록을 확인한다.
+- 이번 작업의 목적과 결과가 같은 동안에는 현재 태스크에서 이어갈 수 있다. 새 태스크가 필요할 때는 작업 위치·범위·미커밋 변경·증거·다음 행동을 전달한다. 태스크 이름만으로 이어받았다고 판단하지 않는다.
 
-## Product and UX invariants
 
-- Normal navigation is `Materials | Modeling | Activity`; `/materials` is home. The Materials Browse
-  tree exposes Technical Data, Test Data, Simulation Data, and Solver Cards with their data items.
-  Database/Profile/Table/Folder/Record and format definitions remain available in Administration;
-  exact-revision links and keyboard browsing remain available in Materials.
-- Materials is one explorer/result/datasheet workspace with results dominant. Modeling keeps a compact
-  curve/process explorer and dominant persistent graph; use a shallow ribbon or disclosure, never a
-  third inspector column.
-- Prefer flat panes, alignment, and dividers before borders, radius, background, or shadow. Avoid nested
-  cards, decorative gradients, repeated eyebrow labels, and non-status badges.
-- Every engineering field has a decision consequence and UI contract or moves to Advanced/Evidence.
-  Recommendation, selection, saved result, review, release, and artifact are distinct states. Upstream
-  changes invalidate current pointers without mutating revisions.
-- Materials rows, totals, and facet counts come from one server-scoped query. Condition-aware properties
-  are not universal facets. Approved static HTML/CSS and registered images are authority for their exact
-  target.
-
-## Frontend architecture routing
-
-- Any nontrivial change under `apps/web` also reads [`apps/web/AGENTS.md`](apps/web/AGENTS.md),
-  [`docs/product/frontend-ui-principles.md`](docs/product/frontend-ui-principles.md), and
-  [`docs/architecture/frontend-architecture.md`](docs/architecture/frontend-architecture.md), then
-  runs `.agents/skills/material-platform-frontend-architecture` before implementation.
-- Every child unit of issue #249 must read the parent issue and
-  [`docs/planning/frontend-refactoring-roadmap.md`](docs/planning/frontend-refactoring-roadmap.md)
-  from FE-00 through the active FE unit before changing code. Its review records pass/fail for the
-  inherited contracts and runs the applicable earlier-unit guards; a child issue is never reviewed in
-  isolation from #249.
-- Preserve two primary frontend journeys: Materials search/browse to exact card download or Start
-  Modeling, and exact Material/State/Test Data through Data, Process, Fit, explicit saved model, Export,
-  solver-card creation, and Materials read-back. Do not replace missing context with `latest`, first-item,
-  global-output, or another-session fallback.
-- Issue #249 is an owner-approved cross-cutting program governed by
-  [`docs/planning/frontend-refactoring-roadmap.md`](docs/planning/frontend-refactoring-roadmap.md).
-  Its documentation unit does not authorize production React/CSS changes. Later units require a bounded
-  issue and explicit owner priority and do not silently reorder unrelated domain backlog work.
-- Do not add a new feature responsibility to the registered frontend hotspots without an issue-owned
-  extraction plan or approved exception. Separate behavior-preserving structural movement from broad
-  semantic visual normalization.
-
-## Delivery and publication
-
-- Implement one issue or clearly bounded subset and add the specified unit, integration, regression,
-  and browser tests. Run only gates required by issue acceptance, affected contracts, selected skills,
-  changed behavior, or hooks; resolve hook failures.
-- A unit remains incomplete until delivery tracking is synchronized. Before merge, record its PR and
-  next row; after merge, record PR, merge SHA, and next unit in the issue, update parent #117 when
-  applicable, and keep a multi-unit issue open until every row finishes.
-- User-visible React/CSS changes update the current guide, screenshot manifest, and required live
-  screenshots. An `app.tsx` navigation change also updates the navigation contract. README/user-guide
-  prose follows `docs/documentation-manifest.yaml` and its restrained Korean-humanizer hook.
-- Before handoff, run affected tests, `uv run cmp-check-user-guide --root .`, `make docs-impact` (or
-  `uv run cmp-check-doc-impact --root . --mode worktree` when Make is unavailable), and
-  `git diff --check` when applicable.
-- An edit or validation authorizes no commit, push, PR, ready transition, or merge. Each requires an
-  explicit owner instruction for the named repository, branch, diff, and action; failure or scope
-  expansion requires renewed authority.
-- Before commit, fetch `origin/main`, confirm expected base/head/diff/paths, and inspect the pending diff.
-  After commit and before publication, require a clean worktree, inspect the exact commit diff, and run
-  `make pre-publish` (or `uv run cmp-pre-publish --root . --trigger manual`). A failed gate blocks
-  publication. After push/PR, fetch and read back remote state. Immediately after merge and before the
-  final report, synchronize delivery records and verify the remote `main` merge SHA.
-
-## Do not decide TBD domain items
-
-Do not select or imply a production tensile standard, material family, constitutive model, optimizer
-policy, solver card, virtual specimen, or validation threshold. Use bounded synthetic non-production
-references until the corresponding open decision is approved.
-
-## Forbidden shortcuts
-
-No generic EAV for core domain data, row-per-point storage for large curves, mutable raw/released keys,
-hidden conversion/resampling/smoothing/manual curve edits, direct plugin database access, in-process
-production plugin loading, silent solver approximation, unreviewed golden updates, or confidential test
-data in source control.
+세부 적용 기준은 [작업 검증](docs/testing/product-work-acceptance.md)과 [프론트엔드 검토 절차](docs/repository/frontend-change-review-playbook.md)를 따른다. 모델·역할 배정은 개인 오케스트레이션 정책의 범위이며 이 문서가 변경하지 않는다.

@@ -1,5 +1,9 @@
 # ADR-0027: bulk delivery uses an immutable Export Bundle
 
+> **ADR-0036 target notice (partial supersession):** Immutable export-bundle/card bytes, member
+> integrity and exact delivery mapping remain preserved. The accepted target supersedes revision
+> history for ordinary export selections and bundle objects; concrete export evidence remains linked.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 사용자가 고른 exact raw·processed data, IR, mapping report, solver card를

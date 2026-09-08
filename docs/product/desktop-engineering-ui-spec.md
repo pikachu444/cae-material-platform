@@ -2,19 +2,39 @@
 
 Status: authoritative implementation specification
 
+## D0-v3 accepted target boundary
+
+The visible-field contract supports task-left direct Test Data and Solver Card paths and the same-data
+reader comparison: table-first A is recommended; curve/detail-first B is full-width selected detail with
+a visible Results return. B is not a Modeling Data/Process/Fit/Export screen. Existing engineering
+units, typed input/output relations, authorization, validation, release meaning and artifact bytes stay
+intact.
+
+Only Material information edits expose a domain revision boundary, including associated state,
+manufacturing/heat-treatment and direct properties. State/PropertySet and other saved objects use stable
+IDs; renames preserve links. Result surfaces show the actual inputs/settings used when the result contract
+requires them. Universal provenance, per-edit save reasons and hidden nonmaterial revision writers are
+not normal field requirements; software/schema/file versions, hashes and concurrency tokens are metadata.
+
+The field matrices below are retained for current behavior characterization and migration mapping. A
+nonmaterial “revision” reference means the stable saved-object ID plus the concrete input/result data
+needed by its contract. Only Material information edits create domain history; ordinary rename preserves
+links and does not stale science. Existing scientific, unit, authorization, validation, release and
+artifact semantics remain in force.
+
 ## Canonical visible-field contract
 
 This document is the single source for component-level field behavior. Each visible engineering
 component or field must record: `purpose` (the user decision), `placement` (why it is adjacent to
 its evidence), `visible_when` (family, workflow, permission and data state), `source` (including
-revision, unit and condition), `requires`, `invalidates`, `states`, and `error_recovery`. The
+applicable Material information revision, saved-object ID, unit and condition), `requires`, `invalidates`, `states`, and `error_recovery`. The
 implementation may add `action_output`, validation, and forbidden representations where needed.
 
 Use this contract as follows: Materials search scope, facets and result count share a server-scoped
 query source; a condition-aware Yield control is visible only for compatible metal results. Modeling
-recommendations, explicit engineer selections, saved snapshots, validation, review, release and
+recommendations, explicit engineer selections, saved results, validation, review, release and
 delivery are separate states. An upstream input change clears downstream *current pointers* and
-marks UI state stale, but never rewrites immutable revisions. In a blocked or error state, preserve
+marks UI state stale, but never rewrites immutable saved bytes or Material information revisions. In a blocked or error state, preserve
 the source, selected curves/candidate and plot context, name the unmet requirement, and offer the
 next safe recovery action. UUIDs, hashes, raw JSON and plugin keys remain Advanced/Evidence fields.
 

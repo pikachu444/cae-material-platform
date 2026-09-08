@@ -3,6 +3,15 @@
 이 문서는 장기 Stage/DoD 방향(long-term stage/DoD direction)을 정리합니다. 현재 작업 순서는
 `docs/planning/backlog.md`와 정확한 active issue가 소유합니다.
 
+## D0-v3 accepted target boundary
+
+The frontend redesign program is the current owner-prioritized work before backlog #195. It proceeds
+from foundation governance to a connected ordinary TestData/Card reader, validation, write journeys,
+expansion, one cutover and retirement; it does not reorder or complete the historical #195/#196 science
+scope. Material information edits alone have domain revision history. Other saved objects use stable IDs,
+and result contracts retain actual typed inputs/settings, artifact bytes, units, authorization,
+validation and release meaning. Universal provenance and nonmaterial revision writers are not required.
+
 ## 1. 로드맵 원칙
 
 - 화면별 개발이 아니라 raw→release 수직 흐름을 단계적으로 완성한다.

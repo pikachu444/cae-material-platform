@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Query, Request, Response, status
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
@@ -633,24 +633,39 @@ def install_elastoplastic_solver_card_api(
         tags=["exporting"],
     )
     def get_card(
-        request: Request, response: Response, solver_card_id: UUID
+        request: Request,
+        response: Response,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
     ) -> ElastoplasticCardResponse:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
-            value = service.get_card(context, decision, solver_card_id)
+            value = (
+                service.get_card_revision(context, decision, solver_card_id, revision_id)
+                if revision_id is not None
+                else service.get_card(context, decision, solver_card_id)
+            )
         except (ElastoplasticExportError, RevisionKernelError, ValueError) as error:
             raise _translate(context, error) from error
         _etag(response, value.current.record)
         return ElastoplasticCardResponse.from_snapshot(value)
 
-    def _card_for_text(request: Request, solver_card_id: UUID) -> ElastoplasticSolverCardSnapshot:
+    def _card_for_text(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: UUID | None = None,
+    ) -> ElastoplasticSolverCardSnapshot:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
-            return service.get_card(context, decision, solver_card_id)
+            return (
+                service.get_card_revision(context, decision, solver_card_id, revision_id)
+                if revision_id is not None
+                else service.get_card(context, decision, solver_card_id)
+            )
         except (ElastoplasticExportError, RevisionKernelError, ValueError) as error:
             raise _translate(context, error) from error
 
@@ -662,8 +677,12 @@ def install_elastoplastic_solver_card_api(
         responses=errors,
         tags=["exporting"],
     )
-    def preview(request: Request, solver_card_id: UUID) -> PlainTextResponse:
-        card = _card_for_text(request, solver_card_id)
+    def preview(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> PlainTextResponse:
+        card = _card_for_text(request, solver_card_id, revision_id)
         return PlainTextResponse(
             card.current.content.card_text,
             headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"},
@@ -677,8 +696,12 @@ def install_elastoplastic_solver_card_api(
         responses=errors,
         tags=["exporting"],
     )
-    def download(request: Request, solver_card_id: UUID) -> PlainTextResponse:
-        card = _card_for_text(request, solver_card_id)
+    def download(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> PlainTextResponse:
+        card = _card_for_text(request, solver_card_id, revision_id)
         extension = "rad" if card.target.is_openradioss else "inp"
         filename = f"{card.material_name}-{str(card.id)[:8]}.{extension}"
         return PlainTextResponse(

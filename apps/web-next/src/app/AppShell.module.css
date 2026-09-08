@@ -1,0 +1,32 @@
+/* Shared shell: task rail dimensions come from display tokens. */
+.app { display: flex; height: 100vh; min-height: 0; flex-direction: column; overflow: hidden; background: var(--cmp-canvas); }
+.topbar { display: flex; flex: 0 0 auto; height: 60px; min-height: 60px; align-items: center; gap: 28px; padding: 0 22px; border-bottom: 1px solid #cdd6e0; background: white; }
+.brandBlock { display: flex; align-items: center; gap: 13px; min-width: 0; color: var(--cmp-ink); text-decoration: none; }
+.brandMark { flex: 0 0 auto; color: #2d5477; font-size: 23px; font-weight: 800; letter-spacing: -1px; }
+.brand { font-size: 16px; font-weight: 600; }
+.body { display: grid; flex: 1; min-height: 0; grid-template-columns: var(--cmp-task-rail-width) minmax(0, 1fr); }
+.nav { display: flex; min-height: 0; flex-direction: column; gap: 6px; overflow: auto; border-right: 1px solid var(--cmp-line); background: #f1f4f8; padding: 20px 10px; }
+.navTitle { margin: 0; padding: 13px 12px 5px; color: var(--cmp-muted); font-size: var(--cmp-small-size); font-weight: 400; }
+.navItem { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; min-height: 43px; border: 0; border-radius: 2px; padding: 11px 12px; color: #4c5c6e; text-decoration: none; font-weight: 400; }
+.navItem:not(.disabledNavItem):hover { background: #e2e8ed; color: var(--cmp-ink); }
+.navItem.active { background: #dfe9f5; color: #254e7a; font-weight: 600; }
+.disabledNavItem { cursor: default; opacity: .62; }
+.navDivider { flex: 0 0 auto; height: 1px; margin: var(--cmp-space-3) 10px; background: var(--cmp-line); }
+.main { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: hidden; background: white; }
+.prototypeToolbar { display: flex; flex: 0 0 auto; align-items: center; gap: var(--cmp-space-3); flex-wrap: wrap; min-height: 46px; border-bottom: 1px solid var(--cmp-line); background: #f8fbfd; padding: var(--cmp-space-2) var(--cmp-space-5); }
+.banner { color: var(--cmp-blue-strong); font-weight: 700; }
+.prototypeToolbar label { display: inline-flex; align-items: center; gap: var(--cmp-space-2); color: var(--cmp-muted); font-size: .86em; font-weight: 650; }
+.prototypeToolbar select { height: 30px; border: 1px solid var(--cmp-line-strong); border-radius: 3px; background: white; color: var(--cmp-ink); padding: 0 24px 0 8px; }
+.layoutControl { display: inline-flex; align-items: center; gap: 4px; color: var(--cmp-muted); font-size: .86em; }
+.layoutControl button, .resetButton { min-height: 30px; border: 1px solid var(--cmp-line-strong); border-radius: 3px; background: white; color: var(--cmp-ink); padding: 0 9px; font-size: .9em; }
+.layoutControl button:hover, .resetButton:hover { border-color: var(--cmp-blue); }
+.layoutControl .selectedControl { border-color: var(--cmp-blue); background: var(--cmp-blue-soft); color: var(--cmp-blue-strong); font-weight: 700; }
+.resetButton { margin-left: auto; color: var(--cmp-blue-strong); }
+@media (min-width: 3200px) { .topbar { height: 78px; min-height: 78px; } .brand { font-size: 22px; } .brandMark { font-size: 29px; } }
+@media (max-width: 800px) {
+  .topbar { padding-inline: 12px; gap: 12px; }
+  .body { display: flex; flex-direction: column; }
+  .nav { display: flex; flex-direction: row; border-right: 0; border-bottom: 1px solid var(--cmp-line); padding: 8px; }
+  .navTitle, .navDivider { display: none; }
+  .navItem { min-height: 36px; padding: 0 8px; font-size: .88em; }
+}

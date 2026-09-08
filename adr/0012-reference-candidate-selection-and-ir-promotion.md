@@ -1,5 +1,10 @@
 # ADR-0012: Human Candidate Selection is versioned separately from numerical convergence and IR promotion
 
+> **ADR-0036 target notice (partial supersession):** Numerical convergence, human candidate selection,
+> IR promotion boundaries and their evidence remain preserved. The accepted target supersedes a default
+> Candidate/Model revision chain for ordinary saved objects; a concrete result or released artifact
+> retains the exact inputs and selected decision it needs.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 계산이 수렴한 Candidate 중 하나를 사람이 이유와 함께 선택하고, 그 선택과

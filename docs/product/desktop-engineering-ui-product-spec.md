@@ -2,9 +2,31 @@
 
 Status: authoritative product and interaction specification
 
+## D0-v3 accepted target boundary
+
+This specification keeps the existing backend, scientific contracts, units, authorization, validation,
+release meaning and raw/input/output artifacts while the integrated redesign moves through an isolated
+`apps/web-next` foundation and one cutover. Task-left navigation exposes direct Test Data and Solver
+Card paths. Wireframes A (recommended table-first) and B (curve/detail-first) compare the same Test
+Data/Card reader and same explicit association; B is full-width selected detail/curve with a visible
+Results return, not a Modeling Data/Process/Fit/Export screen.
+
+Only Material information edits have domain revision history, including associated state,
+manufacturing/heat-treatment and direct properties. State/PropertySet, Specimen, TestRun, TestData,
+Dataset, Selection, Mapping Profile, Process, Model, Solver Card and Link data use stable IDs and
+separate saved objects; renames preserve links. Saved results retain actual inputs and settings, while
+current eligibility changes do not rewrite saved bytes. The connected reader authorizes ordinary TestData
+with `DATASET_READ` and stored cards with `EXPORT_READ`; Catalog publication and card release are
+separate lifecycle meanings.
+
+The detailed sections below are the current/legacy interaction map used for behavior characterization.
+Under the accepted target, nonmaterial “revision” language maps to stable saved-object IDs and actual
+input/result snapshots. Only Material information edits create domain revisions; the connected reader
+does not require Catalog publication, and B remains the same-data reader surface described above.
+
 ## 1. Objective
 
-The product must behave as a desktop engineering application delivered through a browser. The redesign is not a visual reskin. It must reduce the time and cognitive work required to complete the user's daily lookup/download job and the expert data-to-card lifecycle while preserving the existing configurable Material Database, revision/provenance and solver-card contracts.
+The product must behave as a desktop engineering application delivered through a browser. The redesign is not a visual reskin. It must reduce the time and cognitive work required to complete the user's daily lookup/download job and the expert data-to-card lifecycle while preserving the existing configurable Material Database, Material information revision, concrete result/evidence and solver-card contracts.
 
 Primary daily job for most users:
 
@@ -110,12 +132,11 @@ expands or stops according to its function instead of inheriting one global 1920
 - Responsive graph geometry is recomputed from the rendered plot box. SVG is acceptable when its
   viewBox and marks use the same aspect ratio; non-uniform stretching is forbidden. Canvas or WebGL
   is reserved for point density or interaction cost that SVG cannot meet, not for repairing layout.
-- 2560×1440 and 3840×2160 are mandatory deterministic wide-screen evidence viewports for every
-  user-visible React/CSS change. They do not rewrite #167's approved static inventory, but their live
-  original-resolution comparison and product-owner geometry disposition are required before merge.
-  #221 selects a provisional shared policy and #184 revalidates it across all routes. These captures do
-  not prove physical readability; #223 performs that final product-wide check on actual Windows 4K at
-  100%, 150%, and 200% display scale.
+- The first foundation shell and connected reader require deterministic evidence at all five target
+  viewports. Later small changes use risk-bounded evidence for affected viewports and states, while a
+  broad layout change repeats the full set when its RD packet requires it. These captures do not prove
+  physical readability; #223 performs that separate final check on actual Windows 4K at 100%, 150%,
+  and 200% display scale.
 
 ### 4.3 Command hierarchy
 
@@ -123,7 +144,8 @@ Commands are rendered according to scope.
 
 | Scope | UI form | Examples |
 | --- | --- | --- |
-| Global workspace | menu/tab | Materials, Modeling, Activity |
+| Legacy global workspace | menu/tab (implemented baseline) | Materials, Modeling, Activity |
+| Target task navigation | task rail/results | Results, Test Data, Solver Cards, and the applicable Modeling or Activity task |
 | Current task | command bar | Search, New session, Save, Preview, Download |
 | Selected row/object | row action or context menu | Open, Compare, Show related, Add to batch |
 | Rare configuration | property sheet/disclosure | revision IDs, JSON, mapping evidence |
@@ -713,17 +735,18 @@ These primitives must use one token system and must not depend on legacy `conten
 
 ## 14. Reference-to-production contract
 
-#167 completed the service reference freeze in PR #170. The approved set covers
+#167 completed the service reference freeze in PR #170. The legacy parity set covers
 Materials search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery;
 and Administration database/table/attribute/layout/subset/link/access edit/publish, at 1366×768,
 1440×900 and 1920×1080. Each affected workflow also has the relevant long, empty, loading, blocked
 and error state. A reference entry records its static HTML/CSS source, rendered image path and hash,
 viewport, date, status, main-agent evaluation and product-owner approval.
 
-Static HTML/CSS plus an approved rendered image are the implementation source and visual authority.
-React ports their workspace regions and CSS faithfully while connecting the existing component,
-state and backend contracts. It does not invent a replacement topology or add incremental route-level
-CSS overrides. This does not require pixel-perfect copying or arbitrary number tuning. Review the
+Static HTML/CSS plus an approved rendered image remain legacy parity evidence. The accepted redesign
+program and selected wireframe define the new topology; React ports preserve the existing component,
+state and backend contracts while implementing the task-first surface. It does not add incremental
+route-level CSS overrides or invent unsupported data. This does not require pixel-perfect copying or
+arbitrary number tuning. Review the
 whole task flow, region topology, information priority, readable density, graph/table/tree dominance,
 control-result continuity and absence of overlap, clipping and overflow; measurements prevent unsafe
 regressions rather than becoming the design objective.
@@ -752,9 +775,11 @@ checklist, and product-owner approval is the final visual decision.
 Recommended dependency policy:
 
 - prefer existing native React/HTML components where contracts are already met;
-- introduce `react-resizable-panels` only for persistent split-pane behavior instead of implementing drag/keyboard resize incorrectly;
-- introduce a grid library only if current table/virtualization requirements cannot be met with the existing implementation and bundle budget;
-- do not introduce a general-purpose UI kit that forces marketing/SaaS visual defaults.
+- use approved accessible primitives such as Radix when they satisfy the foundation contract;
+- introduce `react-resizable-panels` for persistent split-pane behavior when its accessibility and
+  ownership evidence is recorded;
+- introduce a grid or chart library when its capability, numeric behavior, accessibility and bundle
+  evidence justify it; do not copy or fork a whole repository or accept forced marketing defaults.
 
 ## 16. Acceptance metrics
 
@@ -787,23 +812,24 @@ Required Playwright scenarios:
 6. Link Type → Related Records navigation;
 7. interrupted session → Activity → exact resume context.
 
-Required live viewports: 1366×768, 1440×900, 1920×1080, 2560×1440, and 3840×2160.
-#221 selects the provisional policy from these originals; #184 applies and revalidates it across all
-routes. When an actual 4K display is unavailable, both record the physical check as deferred rather than
-blocking their geometry work. #223 requires actual Windows 4K 100%, 150%, and 200%
-physical-readability evidence before final product closure.
+The first foundation shell and connected reader require live viewports at 1366×768, 1440×900,
+1920×1080, 2560×1440, and 3840×2160. Later small changes use the affected viewport/state scope
+recorded in the RD packet; known geometry, clipping, overflow and interaction failures remain blocking.
+When an actual 4K display is unavailable, physical readability is deferred to #223 without deferring
+geometry work.
 
 ## 17. Non-goals
 
 - pixel-copying Granta MI or Material Modeler;
 - changing numerical algorithms or domain persistence to obtain a visual effect;
-- hiding mapping approximations, provenance or revisions from users who open Evidence/Advanced;
+- hiding mapping approximations or concrete evidence from users who open Evidence/Advanced; ordinary
+  nonmaterial revision IDs are not required as a separate history surface;
 - adding new material models or solvers as part of this UI program;
 - turning every desktop command into an icon without a label or accessible name.
 
 ## 18. Open decisions
 
-- whether the resizable pane implementation uses `react-resizable-panels` or an internal accessible primitive;
+  - whether the resizable pane implementation uses `react-resizable-panels` or an internal accessible primitive;
 - whether Material result column customization is included after P0;
 - final shortcut mapping after conflicts with browser defaults are tested;
 - whether a detachable/full-screen graph is required after the core persistent graph workflow is accepted.
@@ -813,10 +839,12 @@ physical-readability evidence before final product closure.
 Materials has three deliberately separate intentions inside one navigator: scope/tree browse changes
 the governed result scope, facets refine that scoped server query, and advanced criteria is an
 explicit search task. Result total, rows, pagination and facet counts describe that same query.
-Provider and evidence source are distinct facets. Condition-aware properties carry source, revision,
-condition and unit; Yield is not shown for polymer or elastomer results.
+Provider and evidence source are distinct facets. Condition-aware properties carry source, applicable
+Material information revision or saved-object ID, condition and unit; Yield is not shown for polymer
+or elastomer results.
 
-Modeling uses a session context strip (exact Material/Test Data revision, family, condition and stage)
+Modeling uses a session context strip (ordinary Material/Test Data identity, applicable Material
+information revision, family, condition and stage)
 above one persistent graph. Data owns input mapping; Process owns ordered operations and commit; Fit
 owns candidate comparison and explicit selection; Validate owns the pinned non-production reference plan/run/result;
 Export owns only an exact allowed source, target, preflight, preview and delivery. Review and Release remain

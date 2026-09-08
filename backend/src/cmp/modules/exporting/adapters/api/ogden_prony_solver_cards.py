@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Query, Request, Response, status
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -253,12 +253,18 @@ def install_ogden_prony_solver_card_api(
             raise _translate(context, error) from error
         return CardListResponse(items=tuple(CardResponse.from_snapshot(value) for value in values))
 
-    def _get(request: Request, solver_card_id: UUID) -> OgdenPronySolverCardSnapshot:
+    def _get(
+        request: Request, solver_card_id: UUID, revision_id: UUID | None = None
+    ) -> OgdenPronySolverCardSnapshot:
         context, decision = _scope(request)
         if service is None:
             raise ExportHttpError(context, 503, "service is unavailable")
         try:
-            return service.get_card(context, decision, solver_card_id)
+            return (
+                service.get_card_revision(context, decision, solver_card_id, revision_id)
+                if revision_id is not None
+                else service.get_card(context, decision, solver_card_id)
+            )
         except Exception as error:
             raise _translate(context, error) from error
 
@@ -270,8 +276,12 @@ def install_ogden_prony_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def get_card(request: Request, solver_card_id: UUID) -> CardResponse:
-        return CardResponse.from_snapshot(_get(request, solver_card_id))
+    def get_card(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> CardResponse:
+        return CardResponse.from_snapshot(_get(request, solver_card_id, revision_id))
 
     @application.get(
         "/api/v1/ogden-prony-solver-cards/{solver_card_id}/preview",
@@ -281,8 +291,12 @@ def install_ogden_prony_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def preview(request: Request, solver_card_id: UUID) -> PlainTextResponse:
-        snapshot = _get(request, solver_card_id)
+    def preview(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> PlainTextResponse:
+        snapshot = _get(request, solver_card_id, revision_id)
         return PlainTextResponse(snapshot.current.content.card_text)
 
     @application.get(
@@ -292,8 +306,12 @@ def install_ogden_prony_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def download(request: Request, solver_card_id: UUID) -> Response:
-        snapshot = _get(request, solver_card_id)
+    def download(
+        request: Request,
+        solver_card_id: UUID,
+        revision_id: Annotated[UUID | None, Query()] = None,
+    ) -> Response:
+        snapshot = _get(request, solver_card_id, revision_id)
         suffix = "inp" if snapshot.target.is_abaqus else "rad"
         filename = f"{snapshot.material_name}-{snapshot.id}.{suffix}"
         return Response(

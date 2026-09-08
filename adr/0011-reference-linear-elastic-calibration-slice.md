@@ -1,5 +1,10 @@
 # ADR-0011: Reference linear-elastic Calibration keeps numerical execution bounded and evidence-first
 
+> **ADR-0036 target notice (partial supersession):** The bounded equations, numerical execution,
+> applicability limits and evidence-first calibration remain preserved. The accepted target supersedes
+> universal calibration revision history; each saved result still records the actual inputs, options,
+> diagnostics and artifacts needed to reproduce its scientific meaning.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 하나의 정확한 tensile Selection과 선형탄성 IR revision을 고정해, 제한된

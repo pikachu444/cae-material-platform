@@ -1,5 +1,9 @@
 # ADR-0017: Append-only Release lifecycle and downstream impact
 
+> **ADR-0036 target notice (partial supersession):** Release lifecycle states, downstream impact and
+> append-only released artifacts remain preserved. The accepted target supersedes treating every
+> lifecycle edit as a content revision for ordinary saved objects.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** Release와 package는 바꾸지 않고, 사용 가능 상태와 `superseded`·`withdrawn`

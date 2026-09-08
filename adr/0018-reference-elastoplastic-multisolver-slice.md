@@ -1,5 +1,10 @@
 # ADR-0018: Reference tensile-to-elastoplastic IR supports explicit OpenRadioss and Abaqus mappings
 
+> **ADR-0036 target notice (partial supersession):** The bounded metal equations, IR semantics, solver
+> mappings and unsupported/approximation gates remain preserved. The accepted target supersedes a
+> domain-history assumption for nonmaterial model and result objects; concrete results retain actual
+> inputs, settings and mapping evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** exact tensile Dataset과 물성을 명시된 식으로 true stress·plastic strain curve로
