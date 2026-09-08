@@ -1,0 +1,57 @@
+import { chromium, expect } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+const dir=path.dirname(fileURLToPath(import.meta.url));
+const output=path.resolve(dir,'../../.artifacts/granta-reader-update');
+fs.mkdirSync(output,{recursive:true});
+const html='<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:16px">'+fs.readFileSync(path.join(dir,'workspaces.html'),'utf8')+'</body></html>';
+fs.writeFileSync(path.join(output,'granta.html'),html);
+const browser=await chromium.launch();
+try {
+ const page=await browser.newPage({viewport:{width:1920,height:1080}});
+ await page.goto(pathToFileURL(path.join(output,'granta.html')).href);
+ await expect(page.locator('.g-preview-empty')).toBeVisible();
+ for(const width of [1024,960]){
+  await page.setViewportSize({width,height:900});
+  await page.locator('[data-open="1"]').click();
+  const list=await page.locator('.result-scroll').boundingBox();
+  const preview=await page.locator('.reader-preview').boundingBox();
+  expect(preview.x).toBeGreaterThanOrEqual(list.x+list.width-1);
+  expect(preview.y).toBeLessThan(list.y+100);
+  await page.screenshot({path:path.join(output,`inline-${width}.png`)});
+ }
+ await page.setViewportSize({width:1920,height:1080});
+ await page.locator('[data-material-tree]>summary').click();
+ await expect(page.locator('[data-browse="STL-042"]')).toBeHidden();
+ await page.locator('[data-material-tree]>summary').press('Enter');
+ await expect(page.locator('[data-browse="STL-042"]')).toBeVisible();
+ await page.locator('[data-browse="STL-042"]').click();
+ await expect(page.locator('[data-open]')).toHaveCount(2);
+ await page.locator('[data-temp]').selectOption('23');
+ await page.locator('[data-rate]').selectOption('0.001');
+ await page.locator('[data-search]').click();
+ await expect(page.locator('[data-open]')).toHaveCount(1);
+ await page.locator('[data-open="1"]').click();
+ await page.locator('[data-expand]').click();
+ await expect(page.locator('[data-open]')).toHaveCount(0);
+ await page.locator('[data-close]').click();
+ await expect(page.locator('.reader-preview')).toBeVisible();
+ await expect(page.locator('[data-browse="STL-042"]')).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('[data-temp]')).toHaveValue('23');
+ await expect(page.locator('[data-rate]')).toHaveValue('0.001');
+ await page.locator('[data-temp]').selectOption('-20');
+ await page.locator('[data-search]').click();
+ await expect(page.locator('.empty')).toBeVisible();
+ await expect(page.locator('.reader-preview')).toHaveCount(0);
+ await page.locator('[data-reset]').first().click();
+ await expect(page.locator('[data-open]')).toHaveCount(12);
+ await page.locator('[data-browse="STL-048"]').click();
+ const treeOffset=await page.locator('.g-tree').evaluate(el=>el.scrollTop);
+ expect(treeOffset).toBeGreaterThan(0);
+ await page.locator('[data-open="48"]').dblclick();
+ await page.locator('[data-close]').click();
+ await expect(page.locator('[data-browse="STL-048"]')).toHaveAttribute('aria-pressed','true');
+ expect(Math.abs(await page.locator('.g-tree').evaluate(el=>el.scrollTop)-treeOffset)).toBeLessThan(2);
+ console.log('Granta specimen + temperature + rate filtering, preview return, empty and reset: PASS');
+} finally {await browser.close();}

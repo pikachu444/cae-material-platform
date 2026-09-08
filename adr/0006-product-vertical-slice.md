@@ -1,5 +1,10 @@
 # ADR-006: 재료 데이터 관리 중심의 첫 제품 수직 기능
 
+> **ADR-0036 target notice (partial supersession):** The Material-data-first product purpose and
+> bounded reference science remain preserved. The accepted target supersedes universal revision and
+> provenance as the ordinary product surface; only Material information edits create domain history,
+> while concrete scientific results retain the evidence their contracts require.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 첫 사용자 흐름을 Material 등록에서 물성, 중립 IR, mapping 사전 확인을 거쳐

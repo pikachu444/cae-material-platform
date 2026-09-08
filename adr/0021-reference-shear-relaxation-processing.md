@@ -1,5 +1,10 @@
 # ADR-0021: Reference shear-relaxation processing creates a separate Dataset identity
 
+> **ADR-0036 target notice (partial supersession):** Shear-relaxation semantics, source data, separate
+> Dataset identity and immutable result bytes remain preserved. The accepted target supersedes a
+> Dataset identity revision chain; saved Dataset and result objects use stable IDs and record actual
+> inputs/settings where needed.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** normalized shear-relaxation Dataset에서 관측된 시간 범위를 양 끝 포함해 자르고,

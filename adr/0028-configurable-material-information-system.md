@@ -1,5 +1,10 @@
 # ADR-0028: configurable material information system and dual explorer
 
+> **ADR-0036 target notice (partial supersession):** Typed Catalog, configurable attributes, links,
+> explorer behavior and publication meaning remain preserved. The accepted target supersedes
+> independent histories for ordinary records, profiles, layouts and links; ordinary TestData/Card
+> reader access uses stable IDs and `DATASET_READ`/`EXPORT_READ` without requiring Catalog publication.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 관리자가 versioned Table·Attribute·Layout·Link를 정의하고 typed value로 Record를

@@ -1,5 +1,10 @@
 # ADR-0010: Reference import orchestration preserves an explicit human mapping boundary
 
+> **ADR-0036 target notice (partial supersession):** Import orchestration, raw bytes, server detection,
+> explicit mapping acknowledgement and read-back remain preserved. The accepted target supersedes
+> universal mapping-profile or mapping-snapshot revision history; profiles and snapshots are stable
+> saved objects unless a concrete result contract requires their recorded input.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** CSV header 탐지는 낮은 신뢰도의 제안만 만들고, 사용자가 column과 원래 unit을

@@ -1,5 +1,10 @@
 # ADR-0022: Bounded reference Prony calibration does not select or promote automatically
 
+> **ADR-0036 target notice (partial supersession):** Prony equations, bounded candidates, manual
+> selection and the no-automatic-promotion rule remain preserved. The accepted target supersedes
+> universal Plan, Candidate and IR revision histories; each concrete result retains its actual input
+> and decision evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** exact processed shear-relaxation Dataset과 baseline IR을 사용해 비운영 2항

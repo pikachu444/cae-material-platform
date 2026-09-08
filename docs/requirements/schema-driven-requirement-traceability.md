@@ -6,6 +6,21 @@
 원본 패키지: [`schema-driven-integration-source`](../00-research/schema-driven-integration-source/README.md)
 보완 추적: [#246](https://github.com/pikachu444/cae-material-platform/issues/246)
 
+## D0-v3 accepted target reconciliation
+
+The P/G source rows and their implementation evidence remain preserved. For current target work,
+Material information edits alone have domain revision history; State/PropertySet and TestRun, TestData,
+Dataset, Selection, Mapping Profile, Process, Model, Solver Card and Link data use stable IDs and
+separate saved objects. Actual computational inputs/options are retained in saved results and affect
+current eligibility without rewriting saved bytes. Raw/input/output artifacts, units, typed relations,
+authorization, scientific validation and release meaning remain required.
+
+Source-v2 Record JSON remains a separate schema-driven intake contract and is not an automatic
+Record→compute bridge. Catalog publication and card release remain separate lifecycle meanings. The
+legacy revision/provenance wording in historical P/G rows is retained as evidence until the real DB/API
+migration and does not authorize universal Entity–Activity–Agent provenance, per-edit save reasons or
+nonmaterial revision writers.
+
 ## 판정 규칙
 
 - 원본 P1~P10과 G1~G24는 요구와 설계 배경을 보존한다.

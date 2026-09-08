@@ -1,5 +1,10 @@
 # ADR-007: Reference tensile processing 수직 기능의 불변 경계
 
+> **ADR-0036 target notice (partial supersession):** Processing semantics, unit/quantity meaning,
+> raw bytes and immutable outputs remain preserved. The accepted target supersedes nonmaterial
+> revision and activity requirements for saved processing objects; actual inputs, settings and
+> concrete output evidence remain part of each result contract.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 하나의 정확한 normalized tensile Dataset revision을 선택하고, 관측된 strain

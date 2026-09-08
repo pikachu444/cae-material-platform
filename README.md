@@ -5,6 +5,70 @@
 업무에 필요한 정보만 보입니다. 상세 식별값과 계산 근거는 필요할 때 Evidence와 Advanced에서
 확인합니다.
 
+## 새 프론트엔드와 외부 테스트
+
+### 접속 주소와 시안 원본
+
+| 용도 | 주소·위치 | 현재 상태 |
+| --- | --- | --- |
+| 실제 API에 연결된 새 화면 | <http://127.0.0.1:5174/materials> | 로컬 개발 서버 |
+| 비교할 기존 대표 시안 | <http://127.0.0.1:8767/index.html> | 합성 데이터로 작동하는 독립 시안 |
+| 기존 시안 외부 주소 | <https://mathematics-integer-hardwood-journals.trycloudflare.com/index.html> | 2026-09-08 접속 확인 · 합성 데이터 시안 |
+| 실제 앱 외부 주소 | <https://invalid-volume-intranet-crossing.trycloudflare.com/materials> | 2026-09-08 화면·API 접속 확인 |
+
+임시 도메인은 영구 주소가 아닙니다. 터널을 종료하거나 주소가 바뀌면
+[주소 발급 절차](apps/web-next/README.md#외부-테스트-cloudflare)로 새 주소를 받고,
+**위 표의 해당 외부 주소와 확인 날짜를 갱신**합니다. 아래 Docker 방식은 localhost 호스트 헤더를 전달하므로 Vite에 새 도메인을 추가하지 않아도 됩니다.
+이전 주소가 계속 동작한다고 가정하지 않습니다.
+
+원격 기기에서는 위 표의 **외부 주소**를 사용합니다. 현재 터널은 `cmp-rd02-reference-tunnel`(시안),
+`cmp-rd02-app-tunnel`(실제 앱)입니다. PC·Docker Desktop·각 서버·터널이 켜져 있어야 합니다.
+컨테이너가 멈췄다면 `docker start cmp-rd02-reference-tunnel cmp-rd02-app-tunnel`로 시작합니다.
+재시작 후 아래 명령으로 새 주소를 확인하고 위 표를 갱신합니다.
+
+```powershell
+foreach ($cmpTunnel in @('cmp-rd02-reference-tunnel', 'cmp-rd02-app-tunnel')) {
+  $cmpAddress = docker logs $cmpTunnel 2>&1 |
+    Select-String -AllMatches 'https://[a-z0-9-]+\.trycloudflare\.com' |
+    ForEach-Object { $_.Matches.Value } | Select-Object -Last 1
+  Write-Output "$cmpTunnel : $cmpAddress"
+}
+```
+
+새 환경에서 컨테이너가 없을 때만 생성합니다. 시안 서버는 아래 원본 안내의 `8767`,
+실제 앱은 API proxy를 설정한 Vite preview의 `4174`를 사용합니다.
+Docker에서 접근하도록 preview는 `--host 0.0.0.0 --port 4174 --strictPort`로 실행합니다.
+
+```powershell
+docker run -d --name cmp-rd02-reference-tunnel cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://host.docker.internal:8767
+docker run -d --name cmp-rd02-app-tunnel cloudflare/cloudflared:latest tunnel --no-autoupdate --http-host-header localhost:4174 --url http://host.docker.internal:4174
+```
+
+공개 종료: `docker stop cmp-rd02-reference-tunnel cmp-rd02-app-tunnel`.
+
+시안은 시각화 도구의 탭에만 있는 것이 아닙니다.
+[원본 HTML](design/frontend-reader-proposals/material-workspace/index.html), 같은 폴더의 `workspace.css`와
+`workspace.js`가 실제 파일입니다. 새 태스크에서 탭이 없어지거나 서버가 꺼져도
+[시안 다시 열기](design/frontend-reader-proposals/material-workspace/README.md#새-태스크에서-시안-다시-열기)의 명령으로 복구할 수 있습니다.
+현재 미커밋 작업은 `C:\SourceCodes\cae-material-platform-rd02`의 `codex/rd02-connected-reader`에 있습니다.
+새 태스크가 main에서 시작하면 이 변경이 자동으로 따라오지 않으므로, 같은 작업 폴더를 사용하거나 명시적으로 이관해야 합니다.
+
+현재 개편 중인 화면은 `apps/web-next`이며, 로컬 개발 주소는 <http://127.0.0.1:5174>입니다.
+소재·실험·처리 결과·모델·솔버 카드 조회와 다운로드를 먼저 구현했습니다.
+등록·처리 실행·평균화는 후속 구현 범위입니다. 아래의 기존 화면 소개와 구분해 사용합니다.
+
+외부 기기에서는 **Cloudflare Quick Tunnel**로 임시 `https://….trycloudflare.com` 주소를 받을 수 있습니다.
+빌드한 화면을 `127.0.0.1:4174`에서 실행하고 이 포트 하나에 터널을 연결합니다.
+`/api`도 같은 주소로 전달되므로 API와 DB 포트를 따로 공개하지 않습니다.
+
+**현재 데모 로그인은 관리자 토큰을 발급합니다.** 임시 주소 자체에는 로그인 제한이 없으므로
+누가 접근해도 괜찮은 격리 데모에만 사용합니다. 기존 작업 데이터나 비공개 자료를 외부에서
+테스트하려면 지정한 이메일만 허용하는 Cloudflare Access를 먼저 설정합니다.
+
+Windows 설치, 터미널별 실행 명령, 허용 호스트 설정, 접속 종료와 문제 해결은
+[외부 테스트 실행 방법](apps/web-next/README.md#외부-테스트-cloudflare)에 있습니다.
+현재 작업 폴더와 단계는 [개편 상태](docs/planning/frontend-redesign-status.md)에서 확인합니다.
+
 > 저장소의 예제 데이터와 수치 모델은 `reference/non-production` 범위입니다. 실제 승인 재료값,
 > 생산용 재료 모델 또는 특정 솔버의 사용 승인을 대신하지 않습니다.
 
@@ -150,8 +214,9 @@ docker logs cmp-cloudflared 2>&1 |
   Select-Object -Last 1
 ```
 
-Quick Tunnel 주소는 임시 주소이므로 README에 고정하지 않습니다. 컨테이너를 다시 만들거나
-재시작하면 바뀔 수 있으므로, 접속할 때마다 위 명령으로 현재 주소를 확인합니다. PC, Docker Desktop,
+이 절차는 기존 5173 화면용입니다. 새 화면과 시안은 README 상단의 주소를 사용합니다.
+Quick Tunnel 주소는 컨테이너를 다시 만들거나 재시작하면 바뀔 수 있습니다.
+위 명령으로 현재 주소를 확인하고 README의 해당 주소와 확인 날짜를 갱신합니다. PC, Docker Desktop,
 `cmp-local-demo-web`, `cmp-cloudflared`가 모두 실행 중이어야 외부에서 접속할 수 있습니다.
 
 Quick Tunnel에는 별도의 Cloudflare 접근 제한을 설정하지 않았으므로 주소를 아는 누구나 데모 화면에

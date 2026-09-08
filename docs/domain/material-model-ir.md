@@ -1,12 +1,30 @@
 # Solver-neutral Material Model IR 구조
 
+## Current accepted target — D0-v3
+
+The IR remains a solver-neutral scientific representation and preserves units, engineering semantics,
+applicability, validation, mapping status and exact typed inputs/outputs. It is a saved Material Model
+IR/result object with a stable identity. Only Material information edits have domain revision history;
+State/PropertySet, TestRun/TestData/Dataset, Selection, Profile, Process, Model and Solver Card data use
+stable IDs and separate saved objects. A saved IR/result retains the actual input objects, options and
+settings used to produce it. Software, schema, file and plugin versions, hashes and concurrency tokens
+are metadata, not domain history.
+
+Concrete result, artifact and release contracts may retain the input/evidence relations needed for
+reproduction and authorization. Universal Entity–Activity–Agent provenance, per-edit save reasons and
+nonmaterial IR/card revision chains are not required. The old revision-shaped examples below remain
+legacy compatibility representations until the real DB/API migration; they must not add independent
+histories or change scientific meaning.
+
 ## 1. 목적
 
-Material Model IR은 보정된 재료 거동의 **solver-independent source representation**이다. 하나의 IR revision에서 여러 solver exporter가 target-specific card를 만들 수 있게 하고, 각 mapping의 손실·근사·미지원을 명시한다.
+Material Model IR은 보정된 재료 거동의 **solver-independent source representation**이다. 하나의
+저장된 IR/result object에서 여러 solver exporter가 target-specific card를 만들 수 있게 하고, 각
+mapping의 손실·근사·미지원을 명시한다.
 
 IR은 모든 solver의 최소 공통분모가 아니다. 다음을 분리한다.
 
-- 공통 provenance·unit·convention·applicability envelope
+- 공통 input/evidence·unit·convention·applicability envelope
 - model family plugin이 소유하는 constitutive payload
 - solver exporter가 소유하는 target mapping
 
@@ -17,28 +35,28 @@ payload와 target mapping은 명시적으로 분리한다.
 
 ### 1.1 구현된 reference subset
 
-`modeling.material_model`은 stable identity이고, `modeling.material_model_revision`은
-append-only immutable revision이다. 첫 revision은 하나의 concrete `Property Set Revision`에서만
-생성한다. density, Young's modulus, Poisson ratio는 명시적 SI 열로 snapshot하며,
-Material/State/Property의 각 concrete revision을 composite foreign key로 고정한다. optional
-yield stress는 이 선형탄성 model에 적용되지 않음을 explicit disposition으로 남긴다. 따라서
-새 Catalog revision이 생겨도 과거 IR의 source, 값, applicability는 바뀌지 않는다.
+`modeling.material_model`은 stable identity이고 저장된 IR/result object는 immutable content와
+digest를 가진다. 하나의 concrete Material information input과 Property Set/State/Test Data IDs를
+입력 데이터로 보존하며, density, Young's modulus, Poisson ratio는 명시적 SI 열로 저장한다.
+optional yield stress는 이 선형탄성 model에 적용되지 않음을 explicit disposition으로 남긴다.
+현재 Catalog/Material information이 바뀌어도 이미 저장된 IR/result의 source, 값, applicability는
+바뀌지 않는다.
 
 이 reference subset은 calibration, temperature/rate dependent law, plastic hardening, production
 validation, release를 주장하지 않는다. OpenRadioss mapping/card는 별도 exporting slice가
-그 IR revision만 입력으로 받는다.
+그 saved IR/result object만 입력으로 받는다.
 
 ### 1.2 구현된 reference export subset
 
-`exporting.solver_card`는 stable identity이고, `exporting.solver_card_revision`은 append-only
-immutable revision이다. 현재 허용되는 target tuple은 OpenRadioss `2025`, `/MAT/ELAST`,
+`exporting.solver_card`는 stable identity이고, card bytes/result는 immutable saved data다. 현재
+허용되는 target tuple은 OpenRadioss `2025`, `/MAT/ELAST`,
 `kg_m_s` 하나뿐이다. preflight는 density, Young's modulus, Poisson ratio와 unit을 `exact`로,
 reference law에 적용되지 않는 source yield/temperature/rate를 `not_applicable`으로 명시한다.
 지원하지 않는 target은 `unsupported`로 실패하며, default 또는 approximation은 사용하지 않는다.
 
-card 생성은 concrete IR revision과 다시 계산한 mapping-report SHA-256을 함께 요구한다.
+card 생성은 concrete saved IR/result object와 다시 계산한 mapping-report SHA-256을 함께 요구한다.
 보고서와 입력이 달라지면 생성할 수 없고, 생성된 card에는 typed field, 각 mapping status,
-report/card SHA-256 및 provenance derivation이 고정된다. 이 구현은 generic exporter framework,
+report/card SHA-256 및 actual input/output evidence가 고정된다. 이 구현은 generic exporter framework,
 arbitrary option payload, production solver qualification, 또는 release approval을 뜻하지 않는다.
 
 ## 2. IR이 해결해야 하는 문제
@@ -63,10 +81,9 @@ parameter 이름과 숫자만 저장하면 다음을 알 수 없다.
 {
   "ir_version": "1.0.0",
   "ir_id": "uuid",
-  "ir_revision_id": "uuid",
   "material_ref": {
-    "material_revision_id": "uuid",
-    "material_state_revision_id": "uuid"
+    "material_information_revision_id": "uuid",
+    "material_state_id": "uuid"
   },
   "model_family": {
     "id": "urn:cmp:model-family:TBD",
@@ -85,7 +102,7 @@ parameter 이름과 숫자만 저장하면 다음을 알 수 없다.
   "validity_domain": {},
   "calibration_evidence": {},
   "validation_evidence": [],
-  "provenance": {},
+  "input_evidence": {},
   "extensions": {}
 }
 ```
@@ -151,7 +168,7 @@ core는 모든 역할 조합이 유효하다고 가정하지 않는다. model fa
   "normalized_unit": "Pa",
   "source": {
     "kind": "calibrated | measured | assumed | literature | derived",
-    "entity_revision_id": "uuid"
+    "source_object_id": "uuid"
   },
   "bounds_used": {"lower": 0.0, "upper": 10.0, "unit": "MPa"},
   "uncertainty": {
@@ -187,7 +204,7 @@ core는 모든 역할 조합이 유효하다고 가정하지 않는다. model fa
   "interpolation": {"method": "linear", "space": "linear-linear"},
   "extrapolation": {"below": "error", "above": "error"},
   "constraints": {"monotonic": "nondecreasing | none | plugin_defined"},
-  "source_entity_revision_ids": ["uuid"]
+  "source_object_ids": ["uuid"]
 }
 ```
 
@@ -237,7 +254,7 @@ it does not copy raw optimizer logs or a generic parameter dictionary into the I
 {
   "status": "reference_candidate_selected",
   "selection_id": "uuid",
-  "selection_revision_id": "uuid",
+  "selection_id": "uuid",
   "calibration_run_id": "uuid",
   "candidate_id": "uuid",
   "candidate_sha256": "sha256:...",
@@ -247,19 +264,19 @@ it does not copy raw optimizer logs or a generic parameter dictionary into the I
 }
 ```
 
-`converged` is numerical evidence only. The separately versioned Candidate Selection requires a
-human reason, and only its current revision may promote the exact IR revision evaluated by the
-Calibration Run. Future model families may require richer evidence, but must preserve this
-separation between immutable calculation evidence and a human domain decision.
+`converged` is numerical evidence only. The separately saved Candidate Selection requires a human
+reason, and the saved result records the exact selection/input snapshot evaluated by the Calibration
+Run. Future model families may require richer evidence, but must preserve this separation between
+immutable calculation evidence and a human domain decision.
 
 IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참조한다. release package는 필요한 evidence digest를 함께 고정한다.
 
 ### 8.1 Saved metal Recipe/Batch promotion
 
 금속 `metal.hardening_fit_extrapolate` Output이 성공한 common Batch Attempt에서 생성되었다면
-신규 IR은 schema `1.3.0`을 사용한다. `source_revisions`에는 exact Processing Output, published
+신규 IR은 schema `1.3.0`을 사용한다. `source_objects`에는 exact Processing Output, saved
 Processing Recipe, Batch/Member/Attempt와 attempt number를 함께 기록한다. PostgreSQL deferred
-constraint trigger는 Attempt가 `succeeded`이고 동일 Output revision을 생성했는지 검사한다.
+constraint trigger는 Attempt가 `succeeded`이고 동일 Output object를 생성했는지 검사한다.
 Promotion은 final step option의 `equation_contract`가
 `altair-material-modeler-2025-v1`인 Output만 받으며, 식 계약이 없는 legacy Recipe 결과를
 새 Ghosh 의미로 해석하지 않는다.
@@ -281,7 +298,7 @@ Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으
   "validation_run_id": "uuid",
   "kind": "virtual_specimen",
   "status": "pass | fail | warning | not_evaluated",
-  "plan_revision_id": "uuid",
+  "plan_id": "uuid",
   "metrics": [{"id": "TBD", "value": null, "threshold_ref": "uuid"}],
   "evidence_artifact_ids": ["uuid"]
 }
@@ -295,7 +312,7 @@ Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으
 | L1 Schema | envelope + model payload JSON Schema | core + model plugin schema |
 | L2 Unit/Semantic | dimension, quantity kind, required convention | core + model plugin |
 | L3 Physical | bounds, stability, monotonicity, model-specific invariant | model/validator plugin |
-| L4 Evidence | calibration/validation provenance completeness | core governance |
+| L4 Evidence | contract-required calibration/validation input and evidence completeness | core governance |
 | L5 Target Capability | exporter mapping exactness/support | solver exporter |
 | L6 Release Policy | reviewer, required validations, no blocking issue | review/release module |
 
@@ -319,7 +336,7 @@ Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으
 ```json
 {
   "mapping_report_version": "1.0",
-  "ir_revision_id": "uuid",
+  "ir_id": "uuid",
   "exporter_package_digest": "sha256:...",
   "target": {"solver": "TBD", "version": "TBD", "card_type": "TBD"},
   "unit_system": "TBD",
@@ -344,14 +361,16 @@ Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으
 
 승인된 report digest와 실제 export run의 report digest가 같아야 한다.
 
-## 12. IR versioning과 migration
+## 12. IR schema versions and migration
 
 - envelope: semantic version; major는 breaking semantic/schema change
 - model payload: model family별 독립 version
 - schema digest: version label과 별도로 고정
-- migration: old IR → new IR을 생성하는 explicit migration activity
-- migration output: 새 IR revision, migration plugin digest, mapping report, warnings
-- 과거 IR은 그대로 보존한다.
+- migration: old IR → new saved IR/result object를 생성하는 explicit migration operation
+- migration output: 새 object, migration plugin digest, mapping report, warnings
+- 과거 IR bytes와 digest는 그대로 보존한다.
+- schema, plugin, software and file versions describe compatibility and reproducibility metadata;
+  they do not create a domain history for the Model or Card.
 - exporter는 지원 IR/model schema version range를 manifest에 선언한다.
 
 ## 13. IR에서 금지하는 것
@@ -373,15 +392,19 @@ Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으
 - `OQ-IR-003` uncertainty/covariance의 MVP 필수 수준
 - `OQ-IR-004` material orientation과 field dependency의 공통 envelope 범위
 - `OQ-IR-005` solver-specific parameterization 변환의 허용 정책
-- `DECISION-IR-006` ADR-0026에 따라 같은 Material Model stable identity의 다음 revision에
-  revision-owned promotion evidence를 append한다. T-44의 Ogden--Prony schema 1.1은 exact
-  Selection/Run/Candidate/diagnostics와 `promoted_from_model_revision_id`를 각 revision-owned typed
-  evidence row에 저장한다. r2 evidence를 r3에 복사하거나 mutable list로 합치지 않으며,
-  linear-Prony의 기존 단일 승격 제한은 별도 bounded 계약으로 유지한다.
+- `DECISION-IR-006` is superseded for domain-history purposes by ADR-0036. Preserve prior promotion
+  evidence and exact input/output semantics in each saved IR/result object, but do not append a
+  nonmaterial Model revision or use `promoted_from_model_revision_id` as a new history writer. Existing
+  v1 compatibility reads remain available until the real DB/API migration; linear-Prony's bounded
+  promotion limits remain a separate scientific contract.
 
 첫 vertical model이 결정되면 domain expert와 exporter expert가 실제 IR instance 세 개 이상을 작성하여 envelope/payload 경계를 검증한 뒤 schema를 동결한다.
 
-## 15. Material class compatibility routing
+## 15. Material class compatibility routing (scientific contracts)
+
+The family contracts in Sections 15–17 preserve numerical equations, units, applicability and mapping
+behavior. Their historical `revision` labels are compatibility/schema terminology for saved IR/card
+artifacts, not permission to create independent Model or Card domain histories.
 
 Material class is Catalog metadata and is not a constitutive-model discriminator inside the IR.
 The first routed families are:
@@ -400,16 +423,16 @@ family/schema digest and emit an explicit
 mapping status; Material class alone never authorizes card generation.
 
 The implemented linear family is
-`urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0`. It pins exact Material, Material
-State and Property Set revisions, interprets the Catalog elastic moduli as instantaneous, stores
+`urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0`. It pins exact Material information,
+Material State and Property Set object inputs, interprets the Catalog elastic moduli as instantaneous, stores
 one to ten ordered `(g_ratio, k_ratio, relaxation_time_s)` rows for the reviewed Processing Output
 schema (legacy manual/reviewed Candidate revisions retain their earlier one-to-five boundary), and records bulk relaxation as
 either `characterized` or `not_characterized`. The latter requires every `k_ratio` to be explicit
 zero; it is not a silent incompressibility default. Both ratio sums remain below one. This bounded
 family is reference/non-production until the domain and solver mapping fixtures are approved.
 
-ADR-0031 defines the Processing Output promotion evidence. The new IR revision pins the exact
-Processing Output, source Test Data JSON, Mapping Profile and Property Set revisions plus the
+ADR-0031 defines the Processing Output promotion evidence. The saved IR/result object pins the exact
+Processing Output, source Test Data JSON, Mapping Profile and Property Set object inputs plus the
 selected term count/mode, RMSE, BIC, fitted instantaneous shear modulus and caller-acknowledged
 Catalog modulus mismatch limit. Terms are re-read from the immutable server Artifact; fitted
 parameters are never accepted from the browser.
@@ -420,7 +443,8 @@ ADR-0023 adds a separate non-production family rather than widening linear visco
 
 `urn:cmp:reference:ogden-prony-hyperviscoelastic:1.0.0`
 
-Its immutable revision pins the exact Material, Material State, and Property Set revisions and
+Its immutable saved result pins the exact Material information input, Material State and Property Set
+object inputs and
 contains explicit SI density, one Ogden term `(mu_pa, alpha)`, and one-to-five ordered normalized
 shear-Prony terms `(g_ratio, relaxation_time_s)`. The model declares `instantaneous` moduli,
 `incompressible` volumetric response, temperature-independent behavior, and `elastomer` class.
@@ -438,8 +462,8 @@ The two declared projections are:
 
 The reference scope excludes generic parameter maps, EAV properties, multiple Ogden terms,
 bulk-Prony terms, temperature shift functions, and production calibration. The mapping report
-SHA-256 must be acknowledged before card creation. A card revision pins its exact source IR
-revision and duplicates its ordered terms in typed card tables so deferred database constraints
+SHA-256 must be acknowledged before card creation. A card result pins its exact source IR/result
+object and duplicates its ordered terms in typed card tables so deferred database constraints
 can reject a mismatched projection.
 
 ## 17. Neutral Material JSON exchange envelope
@@ -448,17 +472,17 @@ can reject a mismatched projection.
 model authority. The document contains:
 
 - document/schema version, organization/project/classification and content digest;
-- exact Material/State/Test/Dataset revision references and source artifact digests;
-- exact Mapping Profile and Processing Recipe revisions;
+- exact Material information/State/Test/Dataset object references and source artifact digests;
+- exact Mapping Profile and Processing Recipe object references;
 - common Batch가 생성한 Output이면 exact Batch/Member/successful Attempt와 Recipe digest;
 - ordered processing methods/options and raw/normalized/processed/fitted/extrapolated curve stages;
 - calibration candidates, selected candidate/reason, bounds, objective, prediction and residual;
 - characterized, fitted and extrapolated domains;
-- one schema-valid Material Model IR revision payload;
+- one schema-valid Material Model IR saved-result payload;
 - applicability, validation state and solver mapping evidence.
 
 Import validates every referenced schema/method/model version before creating an immutable imported
-document and derived internal artifacts. Export of the same revision is deterministic. Large curves
+document and derived internal artifacts. Export of the same saved object is deterministic. Large curves
 may be chunked inside the documented JSON+ZIP package, but manifest order and SHA-256 make the
 logical document identical. Abaqus `.inp` and OpenRadioss `.rad` remain separate native artifacts.
 
@@ -472,13 +496,13 @@ versioned solver capability manifest and mapping tests support that concrete sch
 
 Schema version `1.0.0` implements the bounded hyperelastic promotion path. A user reviews one
 Neo-Hookean, Mooney--Rivlin, Yeoh or one-term Ogden Candidate and records a non-empty selection
-reason. Promotion creates a new Neutral Material stable identity and revision 1; it never mutates the
+reason. Promotion creates a new Neutral Material saved identity/object; it never mutates the
 Candidate, calibration Run, Dataset or existing solver-specific IR.
 
 The canonical JSON is also stored as an immutable Artifact. PostgreSQL migration 071 projects its
 governed fields into explicit typed tables and columns, including family-specific parameters and one
-row per exact source Dataset revision. Import recalculates the canonical digest and resolves every
-tenant-scoped Candidate, Plan, scientific profile, Dataset revision and Artifact digest before it
+row per exact source Dataset object. Import recalculates the canonical digest and resolves every
+tenant-scoped Candidate, Plan, scientific profile, Dataset object and Artifact digest before it
 creates an identity. A mismatch is rejected rather than repaired or defaulted.
 
 The exchange endpoint is solver-neutral. Abaqus/OpenRadioss capability decisions, six-state mapping
@@ -495,10 +519,10 @@ typed branches:
   domains;
 - `generalized_maxwell`: density, instantaneous E/Poisson ratio, bulk-relaxation status,
   reference temperature and ordered typed Prony terms;
-- `hyperelastic`: the four existing public families plus an optional exact-revision Prony overlay.
+- `hyperelastic`: the four existing public families plus an optional exact-input Prony overlay.
 
 Source curve evidence also has a closed discriminator: governed Dataset, canonical Test Data
-document or shear-relaxation Dataset. PostgreSQL verifies the exact revision in the corresponding
+document or shear-relaxation Dataset. PostgreSQL verifies the exact saved object in the corresponding
 typed table. Metal selections pin an exact Processing Output and Mapping Profile; polymer and
 hyperelastic selections pin the exact Candidate, Run, Plan, diagnostics Artifact and source
 Dataset evidence used by the bounded fitting path. A missing Recipe or scientific profile is
@@ -507,16 +531,16 @@ represented by an explicit `not_applicable` reason, never a silent null/default.
 The existing hyperelastic 1.0 canonical representation remains readable byte-for-byte. New
 documents preserve `normalized`, `processed`, `fitted`, `extrapolated` or `residual` stages as
 applicable and round-trip through validate/import/export without numeric changes. T-64 owns
-family-specific solver-card regeneration and Bulk consumer parity from these exact Neutral
-revisions.
+family-specific solver-card regeneration and Bulk consumer parity from these exact Neutral saved
+objects.
 
 ### 17.3 T-64 family-neutral solver projection
 
 Migration 077 extends the existing immutable Neutral solver-card identity rather than creating a
-parallel card store. New revisions carry the closed `model_family`, the exact Neutral model-schema
+parallel card store. New saved objects carry the closed `model_family`, the exact Neutral model-schema
 digest, typed metal or linear-viscoelastic parameters, optional hardening Artifact evidence,
 ordered Prony terms and every six-state mapping item. Existing T-57 rate-independent hyperelastic
-revisions remain readable and preserve their original canonical bytes and digest.
+saved objects remain readable and preserve their original canonical bytes and digest.
 
 The declared reference mappings are deliberately bounded:
 
@@ -530,5 +554,5 @@ The declared reference mappings are deliberately bounded:
 
 The primary resource path is `/api/v1/neutral-solver-cards/{id}`. The former
 `neutral-hyperelastic-solver-cards` paths remain compatibility aliases. A stored card can reproduce
-its mapping report only by reading the exact Neutral revision and matching the pinned report digest.
+its mapping report only by reading the exact Neutral saved object and matching the pinned report digest.
 

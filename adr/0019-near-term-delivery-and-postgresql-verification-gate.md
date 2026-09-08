@@ -1,5 +1,9 @@
 # ADR-0019: Near-term delivery waves start with a live PostgreSQL verification gate
 
+> **ADR-0036 target notice (partial supersession):** The live PostgreSQL verification gate and staged
+> delivery evidence remain preserved. The accepted target supersedes universal revision/provenance as
+> a delivery criterion; database/API migration still requires exact read-back and contract evidence.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 작업 순서를 live PostgreSQL 검증, repeat-test 처리·통계, bounded nonlinear

@@ -11,6 +11,10 @@ __pycache__/
 build/
 dist/
 apps/web/storybook-static/
+apps/web-next/dist-prototype/
+apps/web-next/storybook-static/
+apps/web-next/test-results/
+apps/web-next/playwright-report/
 .coverage
 htmlcov/
 .env

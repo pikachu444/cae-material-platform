@@ -1,5 +1,27 @@
 # 시스템 아키텍처, 기술 스택 비교 및 최종 권고
 
+## D0-v3 accepted target reconciliation
+
+The system keeps the existing backend, typed scientific contracts, units, raw/input/output artifacts,
+authorization, validation and release meaning while the frontend redesign is implemented in an isolated
+`apps/web-next` foundation and then moved through one cutover. The first connected surface is a
+task-first reader with direct ordinary Test Data and Solver Card paths; table-first A and curve/detail-
+first B compare the same Test Data/Card task, and B returns visibly to Results.
+
+Only Material information edits have domain revision history, including associated material-state/
+manufacturing/heat-treatment and direct property values. State/PropertySet, Specimen, TestRun, TestData,
+Dataset, Selection, Profile, Process, Model, Card and Link data use stable IDs and separate saved
+objects. Actual inputs/options stay in saved results; software/schema/file versions, hashes and
+concurrency tokens are metadata. Catalog publication and card release remain separate meanings.
+Universal Entity–Activity–Agent provenance and nonmaterial revision writers are not a product
+requirement; concrete result/release evidence remains where its contract requires it.
+
+The architecture tables and diagrams below retain the implemented v1 topology for compatibility and
+scientific reading. Where they say `revision`, `provenance` or `lineage` for an ordinary object, the
+D0 target mapping is the stable saved-object ID plus the concrete input/result evidence required by
+that contract; they do not authorize a new universal history writer. The RD foundation follows the
+target reader and one-cutover plan above while the real DB/API migration is prepared.
+
 ## 1. 아키텍처 목표
 
 - 특정 시험·재료모델·solver와 core를 분리한다.

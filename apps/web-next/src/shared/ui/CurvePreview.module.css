@@ -1,0 +1,26 @@
+.wrapper { min-width: 0; border-top: 1px solid var(--cmp-line); padding-top: var(--cmp-space-3); }
+.heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--cmp-space-3); }
+.heading h3 { margin: 0; font-size: 1.08em; }
+.heading p { margin: 2px 0 0; color: var(--cmp-muted); }
+.pointCount { color: var(--cmp-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.plotFrame { height: clamp(240px, 34vh, 420px); margin-top: var(--cmp-space-3); overflow: hidden; border: 1px solid var(--cmp-line); background: #fbfcfd; }
+.plotFrame.compact { height: clamp(210px, 30vh, 340px); }
+.plot { display: block; width: 100%; height: 100%; }
+.axis { stroke: #64727d; stroke-width: 1.25; }
+.grid { stroke: #dce3e8; stroke-width: 1; stroke-dasharray: 3 5; }
+.curve { fill: none; stroke: var(--cmp-teal); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.band { fill: #7894d0; fill-opacity: .22; stroke: none; }
+.axisLabel { fill: #53616d; }
+.axisTitle { fill: #31414d; font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: var(--cmp-space-2) var(--cmp-space-4); margin-top: var(--cmp-space-2); color: var(--cmp-muted); font-size: .86em; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lineSwatch, .deviationSwatch { display: inline-block; width: 18px; height: 3px; background: var(--cmp-teal); }
+.deviationSwatch { height: 10px; border: 1px solid #7c91cc; background: #7894d0; opacity: .65; }
+.points, .contractDetails { margin-top: var(--cmp-space-3); border-top: 1px solid var(--cmp-line); padding-top: var(--cmp-space-2); }
+.points summary, .contractDetails summary { color: var(--cmp-blue-strong); cursor: pointer; font-weight: 600; }
+.points table { width: 100%; margin-top: var(--cmp-space-2); font-variant-numeric: tabular-nums; }
+.points th, .points td { border-bottom: 1px solid var(--cmp-line); padding: 4px 8px; text-align: right; }
+.points th { color: var(--cmp-muted); font-size: .9em; }
+.contractDetails { color: var(--cmp-subtle); font-size: .84em; }
+.contractDetails p { margin: var(--cmp-space-2) 0 0; }
+.invalid { border-left: 4px solid var(--cmp-red); background: #fff4f2; padding: var(--cmp-space-3); color: var(--cmp-red); }

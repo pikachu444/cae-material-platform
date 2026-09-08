@@ -9,6 +9,12 @@
 | `authoritative` | 제품·도메인·아키텍처·계약 규범 | 구현 전에 관련 ID와 문단을 확인 |
 | `reference` | 외부 조사·비교 입력 또는 범위가 정해진 이슈 증거 | 제품 계약은 `current`·`authoritative` 문서와 활성 이슈에서 확인 |
 
+현재 frontend redesign의 accepted target은 [data management policy](product/data-management-policy.md),
+[frontend redesign program](planning/frontend-redesign-program.md), [ADR-0036](../adr/0036-material-only-revisions-and-data-links.md)
+및 [ADR-0037](../adr/0037-task-first-frontend-foundation.md)에 기록한다. 감사·검토 결과와 기존
+reference는 근거 자료이며 제품 권위가 아니다. 정책 충돌은 이 문서들의 accepted target과 정확한
+owner discussion에서 해결한다.
+
 완료 보고서와 과거 캡처는 working tree에 쌓지 않습니다. Git 이력과 병합된 GitHub issue/PR이
 변경 연대기를 보존합니다.
 
@@ -36,6 +42,7 @@
 | --- | --- |
 | 제품 사용과 운영 절차 | [사용자 가이드](user-guide/index.md) · [관리자 가이드](admin-guide/index.md) |
 | 제품 원칙과 요구사항 | [제품과 UX](product/) · [요구사항](requirements/) |
+| redesign target과 데이터 저장 경계 | [데이터 관리 정책](product/data-management-policy.md) · [frontend redesign program](planning/frontend-redesign-program.md) |
 | contract의 의미와 경계 | [API·이벤트·작업 계약](architecture/api-events-jobs.md) |
 | 아키텍처 결정의 배경 | [ADR 색인](../adr/README.md) |
 | 작업 순서와 검증 | [현재 전달 backlog](planning/backlog.md) · [테스트 전략](testing/test-strategy.md) |
@@ -68,9 +75,10 @@
 ## 권위가 충돌할 때
 
 문서, 현재 코드·화면, contract·fixture, 활성 이슈의 내용이 서로 다르면 편한 쪽을 골라 진행하지
-않습니다. 변경을 멈추고 충돌한 두 경로와 문장·ID, 실제로 확인한 동작을 기록한 뒤 활성 이슈나
-제품 소유자 지시에서 해결합니다. 해결 전에는 contract를 좁히거나 fixture를 현재 정답처럼 바꾸지
-않습니다.
+않습니다. accepted data policy/redesign ADR의 범위 안에서는 그 target과 owner discussion을
+우선하고, 충돌한 legacy 문장·ID와 실제로 확인한 동작을 migration 기록에 남깁니다. 그 범위 밖의
+새 결정이 필요하면 활성 이슈나 제품 소유자 지시에서 해결합니다. 해결 전에는 contract를 좁히거나
+fixture를 현재 정답처럼 바꾸지 않습니다.
 
 #167의 승인 시각 기준은 [inventory](product/service-reference-inventory.yaml)와
 [manifest](product/service-reference-manifest.yaml)에서 확인합니다. 등록된 화면과 현재 제품 소유자

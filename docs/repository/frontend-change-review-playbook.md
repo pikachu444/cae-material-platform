@@ -1,201 +1,49 @@
 # 프론트엔드 변경 검토 절차
 
-상태: authoritative repository procedure
-범위: `apps/web`의 구조 변경과 사용자에게 보이는 React/CSS 변경
+두 앱의 검사 적용 범위를 정한다. [공통 구현 지침](frontend-development.md), [아키텍처](../architecture/frontend-architecture.md), [UI 원칙](../product/frontend-ui-principles.md), [시각 매트릭스](../product/visual-acceptance-matrix.md)를 필요한 부분만 읽는다.
+현재 작업은 [개편 상태](../planning/frontend-redesign-status.md)에서 확인한다. 과거 #249 FE 순서와 D0 문서 예외는 새 작업의 선행 의무가 아니다.
 
-## 1. 변경을 먼저 분류한다
+## 변경과 검사 연결
 
-해당하는 항목을 모두 기록한다.
+| 변경 | 필요한 확인 |
+| --- | --- |
+| 문서·지침 | 링크/분류/대체 관계, docs-impact, user-guide, diff 검사. runtime을 바꾸지 않으면 DB·브라우저·재촬영은 N/A |
+| 기존 앱 코드 | 해당 계약/component 검사·build, `@cmp/web` frontend guard. 실제 변화가 있는 업무·복구·화면만 추가 확인 |
+| 새 앱 코드 | `npm run check:web-next`의 현재 범위와 관련 단위 검사. 연결 이후 실제 API·권한·다운로드·재조회 흐름 검증 |
+| primitive/token/layout | 접근성·키보드와 영향 화면·viewport 원본. 공통 layout 영향이면 범위를 넓힘 |
+| 단위·처리·통계·모델·출력 | 기준 입력·허용오차·미지원 사례, 실제 결과 저장/재조회. golden 변경 이유와 검증 근거 |
+| 이관·전환 | ID/link/bytes·권한 비교, backup read-back, 전환·복구 rehearsal, 쓰기 정합성 |
 
-- feature behavior
-- structural refactor
-- semantic visual change
-- defect correction
-- shared primitive/token
-- application shell/layout
-- documentation/evidence only
+루트 `npm run check`는 기존 `apps/web`의 guard/build/test다. 새 앱을 검사했다고 보고하지 않는다.
+새 앱의 `check:web-next`는 현재 합성 prototype 검사이며 실제 API 연결의 완료 증거가 아니다. 연결 단위에서 필요한 검사를 보강한다.
+CI의 자동 실행 범위는 workflow/스크립트를 따른다. 변경 범위별 작업 검사와 자동 CI 전체 검증을 구분한다.
 
-structural refactor와 broad semantic visual change는 원칙적으로 별도 PR이다.
+## 책임·상태 검토
 
-## 2. 작업 전 읽기
+경계가 바뀌면 아키텍처의 점검표를 작업 계획에 포함한다. 필수 architecture skill 호출이나 고정 controller 추출 순서는 없다.
+큰 파일에 책임이 더 쌓이지 않게 하되 줄 수만으로 분할하지 않는다. 기존 API·계산·출력의 의미와 호출자를 확인한다.
+입력 변경·늦은 응답·이름 변경·미저장 편집·목록 복귀를 해당 업무에서 검사한다.
 
-1. 정확한 issue와 승인된 작업 단위
-2. root `AGENTS.md`와 `apps/web/AGENTS.md`
-3. [프론트엔드 UI 원칙](../product/frontend-ui-principles.md)
-4. [프론트엔드 아키텍처](../architecture/frontend-architecture.md)
-5. 정확한 route/product contract
-6. 적용되는 [시각 수용 매트릭스](../product/visual-acceptance-matrix.md) 절과 승인 reference
-7. 대상 component, state/controller, API, style와 test
+## 화면 검토
 
-그 뒤 project-local `material-platform-frontend-architecture` skill로 preflight packet을 만든다.
+현재 기준과 대상 상태를 확인하고 실제 전후 화면을 비교한다. 정보 위계·공학 업무·넓고 좁은 화면 구성을 함께 판단한다.
+모든 작은 수정에 전체 Q 표와 여섯 비교안을 재작성하지 않는다. 해당 Q와 영향 상태를 기록하고 무관한 항목은 묶어서 N/A와 이유를 남긴다.
+독립 검수가 배정되면 같은 기준·diff·실제 증거를 전달한다. 검수의 판정은 사용자의 제품 방향 선택이나 게시 권한을 대신하지 않는다.
 
-## 3. Preflight packet
+## 문서와 guard
 
-```text
-Primary user journey:
-Owned feature:
-Change classes:
-Current owner files:
-Current responsibilities:
-Target owner files and dependency direction:
-Registered hotspot impact:
-Preserved API/domain/URL/revision contracts:
-Preserved state transitions and recovery:
-Structural movement:
-Semantic visual movement:
-Helper/color/weight/chip/surface/wide-screen rationale:
-Compatibility and removal condition:
-Tests:
-Viewport/interaction evidence:
-Forbidden shortcuts:
-Owner decisions required:
-```
-
-파일 목록만 있는 계획은 충분하지 않다.
-
-## 4. Architecture review
-
-다음을 확인한다.
-
-- dependency 방향이 `app -> features -> shared`를 따른다.
-- feature가 다른 feature의 내부를 deep import하지 않는다.
-- circular dependency가 없다.
-- route/page가 composition 중심이다.
-- 큰 render block 안에 여러 async workflow와 recovery가 추가되지 않는다.
-- feature API/model/controller/UI 소유자가 명확하다.
-- 등록 hotspot에 extraction plan 없이 새 책임을 넣지 않는다.
-- legacy global CSS에 새 feature selector를 추가하지 않는다.
-- compatibility code에 제거 이슈와 exit condition이 있다.
-- Materials↔Modeling과 Data→Process→Fit→Export의 exact-context continuity를 보존한다.
-
-같은 책임을 여러 wrapper 파일에 나눠 놓는 기계적 분할은 거절한다.
-
-## 5. UI semantics review
-
-새로 보이는 각 요소에 대해 다음 역할을 설명한다.
-
-- color
-- weight
-- badge/chip
-- helper copy
-- border/card surface
-- illustration/diagram
-- wide-screen space
-
-“더 명확해 보인다”, “빈 공간을 채운다”, “다른 card와 맞춘다”, “smallest diff다”만으로는 승인하지
-않는다.
-
-확인 사항:
-
-- 일반 heading과 label은 neutral role이다.
-- accent는 action, selection, focus와 link에 한정한다.
-- status color/chip은 실제 상태만 표현한다.
-- helper copy는 consequence, block, recovery 또는 engineering interpretation을 설명한다.
-- 정상 작업공간에 장식용 illustration이 없다.
-- plot은 engineering usefulness가 증가하는 범위까지만 커진다.
-- 넓은 공간은 실제 contract-backed companion data 또는 균형 잡힌 여백을 사용한다.
-
-## 6. Behavior와 접근성
-
-- exact identity와 revision
-- Materials 검색·Tree·selection continuity
-- Modeling session과 stage continuity
-- upstream invalidation과 stale state
-- restore, retry와 recovery
-- loading, empty, blocked와 error
-- keyboard operation과 visible focus
-- local scroll ownership
-- page-level horizontal overflow 없음
-- 새 console error 없음
-
-## 7. Evidence
-
-### 자동 악화 방지 guard
-
-frontend source를 변경하면 다음 명령을 실행한다.
-
-```bash
-npm run check:frontend-guard --workspace @cmp/web
-npm run test:frontend-guard --workspace @cmp/web
-```
-
-`apps/web/frontend-guard-baseline.json`은 기존 debt를 신규 위반과 구분하기 위한 warning 기준선이다.
-기존 수치를 신규 위반의 여유분으로 사용하지 않는다. debt가 줄면 수치를 낮출 수 있지만, 수치를
-늘리거나 예외를 추가하려면 정확한 rule·path·fingerprint, 사유, 소유 issue와 제거 조건을 함께
-기록한다. 검사 오류에는 위반 책임과 복구 방법이 포함되며, 오류를 warning으로 낮추거나 포괄적인
-path 예외를 추가해 통과시키지 않는다.
-
-Storybook-only story/fixture/CSS는 current 제품 screenshot이 아니다. 아직 제품 route가 소비하지 않는
-shared design foundation이면서 기존 computed appearance가 그대로인 경우, 제품 소유자가 승인한
-정확한 issue-owned documentation-impact 확인서로만 user-guide 영향 N/A를 기록한다. 확인서는
-`docs/testing/documentation-impact-exceptions/`에 두며 wildcard, route/feature source, 실제 product
-consumer와 appearance 변경을 허용하지 않는다. 검사기는 확인서의 boolean 자기신고를 받지 않고
-base/current CSS 계산값을 비교하며 새 selector를 자동 도출해 모든 제품 CSS/TS/TSX에서 소비 여부를
-검사한다. foundation을 제품 route에서 처음 사용하거나 이미 사용 중인 foundation을 시각적으로
-바꾸는 PR은 일반 current guide·PNG·manifest gate를 수행한다.
-
-### 증거 범위
-
-### 구조만 변경하는 경우
-
-- affected unit/component test
-- production build
-- primary journey와 recovery 실행
-- DOM/layout이 바뀔 수 있으면 viewport geometry 확인
-- 책임 경계 before/after map
-
-### 사용자에게 보이는 경우
-
-- 1366×768, 1440×900, 1920×1080, 2560×1440, 3840×2160의 live before/after
-- original-resolution full screen과 요구되는 100% crop
-- interaction, keyboard와 recovery evidence
-- 1920/2560/3840 semantic composition 판정
-- 필요한 경우 실제 4K physical-readability 판정
-
-contact sheet만 보고 승인하지 않는다. test pass는 ownership, semantic hierarchy 또는 visual composition
-failure를 덮지 않는다.
+실제 제품의 navigation/화면이 바뀌면 해당 계약·가이드·현재 PNG·manifest를 함께 갱신한다. 합성 시안과 미사용 Storybook fixture는 실제 제품 화면이라고 기록하지 않는다.
+기존 documentation-impact의 정밀한 예외/소비자 검사는 유지한다. 검사 실패를 피하려고 production 경로를 reference로 분류하거나 넓은 예외를 추가하지 않는다.
+legacy guard baseline을 새 앱의 설계 기준으로 복사하지 않는다. 예외는 정확한 rule/path/원인·소유 범위·제거 조건을 설명하고 관련 검사를 유지한다.
 
 ## High-DPI policy and historical handoff (authoritative)
 
-This section preserves the issue-specific safety and handoff history for high-DPI review. Only #160 and #161 may carry an already-existing global layout or density failure into #221.
-#221 selects the shared implementation policy from representative five-viewport evidence; #184 applies it to every route/state.
-When an actual 4K display is unavailable, #221 and #184 may defer only the physical-readability record to
-#223. Known geometry, clipping, overflow or interaction failures still block merge. Carryover requires
-before/after evidence, exact affected routes/states, no new page-specific workaround, and explicit
-product-owner disposition.
+현재 캡처 크기·원본/crop·판독 기준은 시각 매트릭스에서 관리한다. 브라우저 geometry와 실제 모니터/Windows 배율의 가독성은 다른 검증이다.
+실제 4K 장비가 없으면 물리 가독성은 #223에 deferred로 기록할 수 있다. 알려진 clipping·overflow·접근 불가능한 동작까지 미루지는 않는다.
+#160/161 → #221 → #184 → #223은 과거 전환/장비 검증의 이력이다. 당시 예외·화면 수치를 새 frontend 모든 변경에 강제하지 않는다.
+공통 token을 사용하고 route별 4K override·CSS zoom·전체 scale·가짜 filler·SVG 비균일 확대는 허용하지 않는다.
 
-Implement display tiers only through shared typography, control, row, spacing, pane, and plot tokens. Do
-not use route-specific 4K overrides, CSS `zoom`, blanket `transform: scale`, fabricated filler, or
-non-uniform SVG stretching. Automated viewport capture proves geometry, not physical readability.
+## 전달
 
-#221 selects a provisional shared policy and #184 revalidates it across every route/state using the five
-deterministic CSS viewports. Both record the available display, CSS viewport and device pixel ratio without
-presenting emulation as actual hardware. #223 performs the final product-wide Windows 4K 100%, 150%, and
-200% physical-readability gate. This #221/#184 approval is not final actual-device readability when the physical record is explicitly deferred to #223.
-
-## 8. Review disposition
-
-- `APPROVED`
-- `APPROVED_WITH_RECORDED_FOLLOWUP`: authority가 명시적으로 허용한 잔여 항목만
-- `CHANGES_REQUIRED`
-- `BLOCKED_BY_PRODUCT_DECISION`
-- `BLOCKED_BY_INVALID_EVIDENCE`
-
-## 9. PR 본문 형식
-
-```text
-Scope:
-Change class:
-Primary user journey:
-User-visible behavior:
-Architecture movement:
-Hotspot responsibility before/after:
-UI semantic changes:
-Contracts preserved:
-Tests:
-Viewport/interaction evidence:
-Physical 4K disposition:
-Compatibility/removal issue:
-Remaining debt:
-Owner decisions required:
-```
+사용자에게 달라진 행동, 보존 의미, 검사와 한계, 남은 작업을 설명한다. 시안 검증·실제 API 검증·공학 검증·제품 전환 완료를 구별한다.
+커밋/게시와 추적 동기화는 루트 AGENTS의 사용자 권한 범위에서 수행한다.

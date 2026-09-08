@@ -14,6 +14,16 @@
 기록하고 [#246](https://github.com/pikachu444/cae-material-platform/issues/246)이 보완 작업을
 소유한다. 실제 시험 데이터, 스캔 이미지와 기밀 식별자는 포함하지 않는다.
 
+## D0-v3 accepted target reconciliation
+
+This plan preserves the source-v2 schema, exact source bytes, units, typed relations, authorization and
+scientific/release contracts. Material information edits alone create domain revisions; TestRun,
+TestData, Dataset, Selection, Profile, Process, Model, Solver Card and Link data use stable IDs and
+separate saved objects. Record JSON remains a separate schema-driven intake and is not an automatic
+Record→compute bridge. Actual inputs/options remain in saved results, while software/schema/file
+versions and hashes are metadata. Historical nonmaterial revision/provenance wording below remains
+compatibility evidence until the real DB/API migration.
+
 ## 1. JSON 참고 포맷의 해석
 
 JSON 입력은 제품에 고정된 데이터 schema가 아니다. 관리자가 JSON Schema draft 2020-12 정의를

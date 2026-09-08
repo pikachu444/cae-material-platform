@@ -4,7 +4,7 @@
 완료 이력은 Git과 병합된 GitHub issue/PR에서 확인합니다. 새 Codex 작업은 `AGENTS.md`, 아래
 표의 첫 미완료 작업 단위, 해당 GitHub 본문 순서로 시작합니다.
 
-## 기준선
+## 기존 제품의 기준선 — 개편 화면 기준과 구분
 
 - production React/CSS: PR #156, commit `55cfa62`
 - 승인된 시각 target: PR #170, commit `7601ec8`
@@ -14,6 +14,20 @@
 - 자동 LLM review: #119가 열려 있는 동안 비활성
 
 ## 현재 위치
+
+### Current owner priority: frontend redesign program
+
+The accepted [frontend redesign program](frontend-redesign-program.md) is the current owner-prioritized
+program before backlog #195 for this redesign task. Its bounded rows are RD-00 (governance), RD-01
+(contracts + prototype), RD-02 (connected reader), RD-03 (validation), RD-04 (write journeys), RD-05
+(expansion), RD-06 (single cutover) and RD-07 (retirement). These are program status rows, not fake
+GitHub issues or delivery records. D0 changes documentation only; it does not mark the program or
+#195 complete. 현재 진행 상태와 바로 다음 작업은 [redesign checkpoint](frontend-redesign-status.md)에서
+확인한다. 소재 중심 대표 화면의 큰 구조가 채택됐고 규칙 정리를 적용했다. 다음은 실제 조회·카드 다운로드 연결이다. 필터/열 세부 조정과 처리·반복 통계는 해당 구현 단계에 남는다. 별도 backlog 순서를 만들지 않는다.
+
+Historical delivery order is preserved: #391 is merged, #392 remains open, and #380 follows the DMA
+program. PR #397 preserved the backend on main `4c545ea1`; its failed UI branch was retired.
+The preserved redesign snapshot is now being implemented in the separate RD-02 worktree.
 
 - 순서 1 `#157 깨끗한 데모 실행`은 PR #176, main `8469c03`에서 완료했습니다.
 - 순서 2 `#159 Materials 검색·조회·다운로드`는 제품 소유자 확인을 거쳐 PR #177,
@@ -71,7 +85,7 @@
   `712bda0b5c8680844d53bd27cd7295dbb0e52208`에서 지원 경계와 #195 소유권을 확정했습니다. 현재
   [#344](https://github.com/pikachu444/cae-material-platform/issues/344) Task 3+4 [PR #357](https://github.com/pikachu444/cae-material-platform/pull/357), main
   `1dcd4c90ec8636bc66de46961cbb93a8392fda47`에서 후속 소유권과 보류 결정을 닫아 #246을 완료했습니다.
-  현재 첫 미완료 제품 단위는 #195입니다.
+  The first unfinished product backlog unit remains #195 after the accepted redesign program's RD rows.
 - 순서 14 `#160` Task 1은 [PR #220](https://github.com/pikachu444/cae-material-platform/pull/220),
   main `53e4a698235e4c7dad8c87e0156bc2627866989f`에서 병합했습니다. Task 2는
   [PR #224](https://github.com/pikachu444/cae-material-platform/pull/224)에서 병합해 `#160`을 [x]로

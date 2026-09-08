@@ -1,70 +1,43 @@
-# Product work acceptance evidence
+# 작업 결과 검증
 
-이 문서는 제품 작업의 요구, 사용자 행동, 보존 상태와 검증 증거를 짧게 추적하는 실무 양식이다.
-문서 자체가 요구사항이나 승인 권한을 만들지는 않는다. 활성 사용자/제품 소유자 지시와 정확한
-issue가 항상 이 양식보다 우선한다.
+이 문서는 짧은 검증 양식이다. 사용자 지시나 승인된 범위에 새로운 요구·승인 단계를 더하지 않는다.
+제품 데이터 의미는 [데이터 정책](../product/data-management-policy.md), frontend 검사 범위는 [검토 절차](../repository/frontend-change-review-playbook.md)에서 확인한다.
 
-## 권위와 시작
+## 작업 전에 남길 내용
 
-권위 순서는 다음과 같다.
+| 항목 | 기록 |
+| --- | --- |
+| 범위 | 현재 지시·해당 계획/issue, 수정 책임, 기존 완료/부분/누락 상태 |
+| 주요 업무 | 시작 데이터·사용자 행동·눈에 보이는 결과 |
+| 저장과 복구 | 재조회/재접속 결과, 입력 변경, 실패/미저장 편집 복구 |
+| 보존할 의미 | 해당 API·ID/관계·단위·소재 리비전·권한·출력 계약 |
+| 확인 방법 | 관련 자동 검사, 실제 업무/화면 증거, 적용하지 않는 검사와 이유 |
 
-1. 활성 사용자/제품 소유자 지시와 정확한 GitHub issue
-2. issue에 연결된 승인 reference, 요구사항 또는 계약
-3. 이 문서의 재사용 trace와 검증 예시
+한 작업 계획에 이 내용이 있으면 별도 긴 packet을 복제하지 않는다. 단순 문서·문구 변경에 무관한 사용자 흐름이나 DB 시나리오를 꾸며 쓰지 않는다.
 
-작업 전에 기존 동작을 완료·부분 구현·누락으로 구분하고 누락 범위만 고정한다. 제품 작업은
-실제 사용자가 수행할 주 흐름 하나와 분리된 복구·오류 사례를 정의하며, 저장소 파일 수나 변경량이
-아니라 사용자 결과와 운영 위험을 기준으로 합격 조건을 정한다. 모호한 권위, 새 제품 판단, 범위
-확대, 위험한 조치 또는 외부 상태 변경이 필요하면 추측하지 않고 정확한 결정 경계를 기록한다.
+## 적용할 검사
 
-저장소 수정이나 검증 완료만으로 commit, push, PR 생성, ready-for-review 또는 merge 권한이
-생기지 않는다. 명시된 사용자/제품 소유자 권한은 이름을 적은 repository·branch·diff·행동에만
-적용한다. ready와 merge는 별도 외부 상태 변경이며 pre-publish 실패는 게시를 막는다.
+- 문서·지침: 로컬 링크·분류·관련 결정 일치, `uv run cmp-check-user-guide --root .`, `uv run cmp-check-doc-impact --root . --mode worktree`, `git diff --check`.
+- 코드: 변경한 계약/규칙의 단위·통합 검사와 해당 앱 build. 실제 연결 업무는 브라우저로 저장/재조회까지 확인한다.
+- 화면: 시각 매트릭스의 해당 상태·viewport 원본 검토. 측정치나 selector 존재만으로 사용성을 통과시키지 않는다.
+- 계산/변환/출력: 기준 데이터와 허용오차, 미지원/잘못된 입력을 검사한다. 잘못된 기존 golden을 무조건 정답으로 삼지 않는다.
+- DB·Compose·이관: 관련 변경일 때만 적용한다. Docker 전 compose-preflight, 실제 환경 식별, 원본/데이터 보존과 복구를 확인한다.
 
-## 재사용 trace
+D0는 과거 문서 작업이었다. 그때의 N/A를 현재 코드 작업의 면제 사유로 사용하지 않는다.
+T/Q는 관련 요구·검사를 찾는 표식이며 매 작업에 전부 실행할 별도 승인 절차가 아니다.
 
-| # | 기록할 필드 | 확인할 내용 |
-|---:|---|---|
-| 1 | 권위/source | 정확한 issue, 승인 reference/계약, 사용자 지시와 우선순위 |
-| 2 | fixture/setup와 정확한 operator action | 시작 상태, fixture, 사용자가 고른 값과 수행한 행동 |
-| 3 | known-bad baseline 또는 구별되는 precondition | 의미 있는 gate가 실패해야 하는 기준과 그 이유 |
-| 4 | visible outcome | 화면·메시지·상태에서 사용자가 판단할 결과 |
-| 5 | persistence/reload/read-back outcome | 저장, 재접속, 외부 기록 재조회에서 유지되는 결과 |
-| 6 | preserved contract/state | API·UI·데이터·revision·승인 상태와 보존해야 할 기존 상태 |
-| 7 | automated/live/visual gate | 해당 항목에 실제 적용한 결정적 검사와 관찰 증거 |
-| 8 | recovery와 N/A/deferred/stop | 복구 행동, 적용하지 않거나 미룬 이유, 결정이 필요한 중단 조건 |
-| 9 | owned files/systems와 forbidden shortcuts | 편집·외부 변경 대상과 금지한 우회 방법 |
+## 실패와 전달
 
-Repository 파일을 건드리지 않는 외부 fact 기록은 정확히 쓰고 다시 읽어
-target/value/body/SHA와 상태를 맞춘다. 기존 worktree를 보존해야 할 때는 작업 전후에 다음
-fingerprint를 byte 단위로 비교한다.
+실패 원인을 환경·구현·검사·요구 불일치로 나누고 안전한 관련 검사는 계속한다. 입력이나 진단이 바뀌지 않은 재시도를 반복하지 않는다.
+반복 실패는 범위·기준·환경을 다시 확인할 신호다. 실제 제품 판단이나 위험한 변경이 필요하면 구체적인 결정 경계를 제시한다.
+기존 미커밋·staged·untracked 작업을 보존한다. 다른 작업 폴더를 수정하지 않는 검사에서는 필요에 따라 status·diff·untracked hash를 비교한다.
+완료 보고에는 결과·검증·남은 조건을 적는다. 게시 권한과 원격 read-back은 루트 AGENTS를 따른다.
 
-- `git status --porcelain=v2 -z`
-- `git diff --no-ext-diff --binary`
-- `git diff --cached --no-ext-diff --binary`
-- `git ls-files --others --exclude-standard -z`의 정렬된 untracked 경로 목록과 각 기존 untracked
-  regular file의 SHA-256
+## 기존 Process geometry 회귀 예시 — legacy 구현에만 적용
 
-기존 tracked·staged·untracked 변경은 그대로 보존한다. 외부 API 오류나 read-back 불일치는 성공으로
-기록하지 않고 입증된 일시적·idempotent 오류만 재시도한다. Repository 변경은 scoped diff,
-`git diff --check`, 변경 경로별 결정적 검사, `uv run cmp-check-user-guide --root .`, `make docs-impact`
-(Make를 사용할 수 없으면 `uv run cmp-check-doc-impact --root . --mode worktree`)를 실행한다.
+아래는 기존 앱의 28px control과 save reason UI를 확인하던 역사적 회귀 예시다. 새 frontend의 높이·편집 사유·화면 배치를 고정하지 않는다. 해당 legacy 소비자 수정에만 적용한다.
 
-Docker 검증이 실제 적용 대상이면 `make compose-preflight` 뒤 canonical composition을 새로
-build/recreate한다. UI 작업은 issue가 요구하는 모든 viewport를 원본 해상도로 확인하고 정성 검토를
-수치 측정으로 대체하지 않는다. 적용되지 않는 gate 유형은 이유와 함께 N/A 또는 deferred로 기록한다.
-
-실패한 checkpoint에서는 frozen evidence가 유효한 동안 안전한 applicable 검사를 모두 수행하고
-결과를 기록한다. 계속하는 것이 안전하지 않거나 실패한 prerequisite 때문에 나머지 증거가 유효하지
-않을 때만 discovery를 멈추며, 그 경계와 이후 검사가 무효인 이유를 적는다. 관련 원인을 묶어
-새롭고 실질적으로 바뀐 교정 범위와 합격 조건을 만들며, **변경하지 않은 지시를 다시 실행하지
-않는다**. 세 번 실패하면 authority·범위·journey·gate·evidence를 처음부터 재검토한다. 제품 결정,
-권한 부족, unsafe action, 외부 blocker 또는 범위를 바꾸는 모호성이 있으면 중단하고, 그렇지 않으면
-새 진단과 합격 조건으로 계속한다.
-
-## Process geometry calibration trace
-
-User guide의 Process 계약은 visible evaluation method, range, processed-curve label, save reason,
+당시 User guide의 Process 계약은 visible evaluation method, range, processed-curve label, save reason,
 Save 버튼을 같은 `28px` compact control height로 둔다. 기존 browser gate와 동일하게 다음을
 검사한다.
 
@@ -166,18 +139,3 @@ Accepted에서는 모든 box가 panel의 네 edge 안에 있고 normal row botto
 row bottoms `[83, 83, 83]`와 tops가 정렬되며 모든 control이 `28px`이고 Save action/label이
 줄바꿈하지 않는다. Numeric evidence(수치 결과)는 supporting evidence일 뿐 qualitative owner가 화면을 실패로
 판정하면 이를 덮어쓰지 않는다. 반대로 이 문서와 수치 준수만으로 구현을 승인하지 않는다.
-
-## N/A·deferred·stop
-
-- **N/A:** 이 문서/정책 변경처럼 product runtime을 건드리지 않는 단위에서는 Compose, DB,
-  browser interaction, 새 screenshot, viewport 재오픈, visual score를 실행하지 않고 그 이유를
-  적는다.
-- **Deferred:** 제품 소유자 승인 전에는 merge SHA, 완료/종료 상태와 다음 backlog unit 활성화를
-  완료로 기록하지 않는다.
-- **Stop:** 해결되지 않은 제품 결정, missing authority, unsafe action, 외부 blocker, 또는 범위를
-  바꾸는 classification 모호성이 있을 때 정확한 경계를 기록하고 멈춘다.
-
-Visual evidence가 필요한 경우에만 [Prepare and implement from authority](../../.agents/skills/desktop-engineering-ui/SKILL.md#prepare-and-implement-from-authority),
-[Verify the complete screen](../../.agents/skills/desktop-engineering-ui/SKILL.md#verify-the-complete-screen),
-[Independent review and approval](../../.agents/skills/desktop-engineering-ui/SKILL.md#independent-review-and-approval)의
-해당 절을 교차 참조한다. 이 문서는 별도 전역 skill이나 공통 verification framework가 아니다.

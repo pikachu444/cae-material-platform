@@ -2,6 +2,13 @@
 
 Status: implemented non-production reference subset (`T-23`/`T-24`, 2026-07-20)
 
+The accepted D0-v3 data boundary applies to this scientific slice: preserve equations, units,
+applicability, validation evidence, mapping statuses and exact typed inputs/outputs. Material
+information edits alone have domain revision history; State/PropertySet, TestRun, TestData, Dataset,
+Profile, Process, Model and Card records use stable IDs and saved results retain actual inputs/settings.
+The revision-shaped compatibility fields in this historical reference are not a new nonmaterial history
+writer, and universal Entity–Activity–Agent provenance is not required.
+
 This document records the executable contract for the first calibration slice. It supplements the
 future-oriented fitting/validation design in [fitting-validation.md](fitting-validation.md) and
 does not approve a production material model, optimizer, or solver validation policy.

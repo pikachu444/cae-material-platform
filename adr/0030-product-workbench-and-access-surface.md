@@ -1,5 +1,9 @@
 # ADR-0030: material modeling workbench and simplified product access surface
 
+> **ADR-0036 target notice (partial supersession):** Workbench actions, access surfaces, solver mapping
+> and scientific eligibility remain preserved. The accepted target supersedes treating every committed
+> change as a recipe or output domain revision; saved results retain their actual inputs and settings.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** mapping부터 crop·통계·fitting·후보 비교까지 하나의 method-driven Workbench에서

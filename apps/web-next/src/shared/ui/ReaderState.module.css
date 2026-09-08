@@ -1,0 +1,10 @@
+.page { min-height: 70vh; }
+.pageHeading { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--cmp-line); padding-bottom: var(--cmp-space-4); }
+.pageHeading h1 { margin: 0; font-size: var(--cmp-title-size); letter-spacing: -0.02em; }
+.kicker { margin: 0 0 2px; color: var(--cmp-blue-strong); font-size: .8em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.state { display: flex; align-items: flex-start; gap: var(--cmp-space-3); max-width: 720px; margin: var(--cmp-space-5) auto; border: 1px solid var(--cmp-line); border-left: 4px solid var(--cmp-blue); background: var(--cmp-surface); padding: var(--cmp-space-5); color: var(--cmp-blue-strong); }
+.state h2 { margin: 0; color: var(--cmp-ink); font-size: 1.1em; }
+.state p { margin: var(--cmp-space-2) 0 var(--cmp-space-3); color: var(--cmp-muted); }
+.error { border-left-color: var(--cmp-red); color: var(--cmp-red); }
+.empty { border-left-color: var(--cmp-line-strong); color: var(--cmp-muted); }
+.state { align-self: flex-start; height: fit-content; max-width: min(720px, 100%); }

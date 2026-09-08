@@ -13,3 +13,6 @@ fixtures/public/smp-shear-dma-283.15k-v1.csv text eol=lf
 fixtures/public/nist-srm-2491-dma-table-9-v1.csv text eol=lf
 fixtures/synthetic/linear-viscoelastic-abaqus-reference-v1.json text eol=lf
 tests/fixtures/abaqus/reference-linear-viscoelastic-prony-kg-m-s.inp text eol=lf
+apps/web-next/tests/fixtures/openradioss/reference-linear-elasticity-kg-m-s.rad -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+design/frontend-reader-proposals/*.html text eol=lf
+design/frontend-reader-proposals/comparison.pdf binary

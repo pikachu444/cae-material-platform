@@ -1,0 +1,16 @@
+.value { display: inline-flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; }
+.value strong { font-weight: 700; }
+.value small { color: var(--cmp-muted); }
+.condition { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--cmp-space-2); margin: 0; }
+.condition div { min-width: 0; }
+.condition dt { color: var(--cmp-subtle); font-size: .78em; font-weight: 700; text-transform: uppercase; }
+.condition dd { margin: 2px 0 0; overflow-wrap: anywhere; font-weight: 600; }
+.propertyTableWrap { min-width: 0; overflow-x: auto; }
+.propertyTable { width: 100%; border-collapse: collapse; font-size: .88em; }
+.propertyTable caption { margin-bottom: var(--cmp-space-2); color: var(--cmp-ink); font-size: 1rem; font-weight: 700; text-align: left; }
+.propertyTable th, .propertyTable td { border-bottom: 1px solid var(--cmp-line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.propertyTable thead th { color: var(--cmp-muted); font-size: .78em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.propertyTable tbody th { color: var(--cmp-ink); font-weight: 650; }
+.propertyValue { color: var(--cmp-ink); font-variant-numeric: tabular-nums; font-weight: 700; text-align: right !important; white-space: nowrap; }
+.propertyUnit { color: var(--cmp-muted); white-space: nowrap; }
+.unknown { color: var(--cmp-muted); font-weight: 500; }

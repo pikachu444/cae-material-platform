@@ -731,6 +731,38 @@ class SqlAlchemyCommonProcessingOutputRepository(ProcessingOutputRepository):
                 raise ProcessingOutputNotFound("Processing Output is not visible")
             return self._snapshot(session, row)
 
+    def get_output_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        revision_id: UUID,
+    ) -> ProcessingOutputSnapshot:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(revision_table)
+                    .join(
+                        output_table,
+                        sa.and_(
+                            output_table.c.organization_id == revision_table.c.organization_id,
+                            output_table.c.project_id == revision_table.c.project_id,
+                            output_table.c.id == revision_table.c.aggregate_id,
+                        ),
+                    )
+                    .where(
+                        output_table.c.id == output_id,
+                        revision_table.c.id == revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise ProcessingOutputNotFound("Processing Output revision is not visible")
+            return self._snapshot(session, row)
+
     def list_outputs(
         self, *, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[ProcessingOutputSnapshot, ...]:

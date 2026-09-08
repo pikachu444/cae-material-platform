@@ -1,5 +1,23 @@
 # Plugin SDK와 확장 인터페이스
 
+## D0-v3 accepted target boundary
+
+Plugin isolation, runner sandboxing, authorization, typed scientific inputs/outputs, units, mapping
+statuses and artifact bytes remain unchanged. Plugin package/version/digest, schema and software versions
+are reproducibility metadata; they do not create domain revision history. Only Material information
+edits have that history. State/PropertySet, TestRun/TestData/Dataset, Selection, Profile, Process, Model,
+Solver Card and Link data use stable IDs and separate saved objects.
+
+Jobs and result manifests retain the actual input objects, options/settings and output artifacts needed
+by their concrete contract. Universal Entity–Activity–Agent provenance, per-edit save reasons and
+nonmaterial revision chains are not required. Existing v1 revision-shaped adapter fields remain legacy
+compatibility until the real DB/API migration; no plugin may silently infer a `latest` input or mutate
+an immutable artifact.
+
+The adapter signatures and revision-shaped examples below are the implemented v1 compatibility
+surface. New RD work keeps stable ordinary-object IDs and concrete result inputs/settings, and does
+not add independent histories merely to satisfy an old adapter field.
+
 ## 1. 목표와 비목표
 
 ### 목표

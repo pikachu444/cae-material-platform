@@ -490,6 +490,27 @@ class CanonicalTestDataService:
             document_id=document_id,
         )
 
+    def get_document_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        document_id: UUID,
+        revision_id: UUID,
+    ) -> TestDataDocumentSnapshot:
+        """Read one explicitly pinned Test Data revision.
+
+        This is a separate application boundary so callers cannot accidentally turn an
+        immutable relationship into a current-revision lookup.
+        """
+
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.get_document_revision(
+            context=context,
+            decision=decision,
+            document_id=document_id,
+            revision_id=revision_id,
+        )
+
     async def revise_document(
         self,
         context: SecurityContext,

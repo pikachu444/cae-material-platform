@@ -1,14 +1,35 @@
 # Canonical Domain Model 및 ERD
 
+## Current accepted target — D0-v3
+
+This canonical model preserves raw/input/output artifacts, units and quantity semantics, actual typed
+input/output relations, authorization, scientific validation and release meaning. Only Material
+information edits have domain revision history. A Material information revision contains Material
+identity fields, associated material-state/manufacturing/heat-treatment values and direct properties
+such as density, E, nu and yield/applicability.
+
+State/PropertySet identities and Specimen, TestRun, TestData, Dataset, Selection, Mapping Profile,
+Process, Model, Solver Card and Link records are stable-ID saved objects with separate saved data.
+Test conditions remain TestRun/TestData data. Renaming an ordinary object preserves links and does not
+stale science. Actual computational inputs/options change current eligibility; a saved result retains
+the inputs/settings it used and its typed output. Software/schema/file versions, hashes and opaque
+concurrency tokens are metadata.
+
+Universal Entity–Activity–Agent provenance, per-edit save reasons, snapshot proliferation and hidden
+nonmaterial revision writers are removed from the target. Concrete result/artifact/review/release
+contracts may retain the exact evidence, usage and responsible action they require. The older tables
+and ERDs in this document remain compatibility descriptions until the real DB/API migration and must
+not be treated as instructions to add independent histories.
+
 ## 1. 모델링 원칙
 
-1. **Identity와 Revision 분리**: 사람에게 동일 대상으로 인식되는 안정 ID와 시점별 immutable content를 분리한다.
+1. **Material information identity와 revision 분리**: Material의 안정 ID와 Material information의 immutable content를 분리한다. 다른 saved object는 stable ID와 실제 저장 결과를 사용한다.
 2. **물리적 대상과 디지털 표현 분리**: Specimen은 물리적 쿠폰이고 Dataset은 측정 데이터다.
 3. **정의와 실행 분리**: Test Method/Process Definition/Recipe/Template과 실제 Run을 구분한다.
 4. **문맥과 측정 분리**: Material State와 Test Condition은 다르다.
 5. **대형 배열의 외부화**: DB는 식별·관계·schema·digest·summary를 관리하고 point array는 columnar object로 저장한다.
 6. **확장 metadata의 schema 강제**: JSONB를 자유 메모장처럼 쓰지 않고 plugin JSON Schema와 schema version으로 검증한다.
-7. **파생 관계는 provenance에서 표현**: 모든 도메인 table에 임의의 upstream FK를 늘리는 대신 typed provenance relation을 사용한다.
+7. **관계와 결과를 구분**: typed link는 양방향 탐색을 제공하지만 traversal을 derivation으로 추정하지 않는다. concrete result/artifact에 필요한 input/output evidence만 저장한다.
 
 ## 2. 핵심 용어의 정확한 구분
 
@@ -16,11 +37,11 @@
 
 조성, grade, formulation 또는 조직이 동일 재료로 관리하는 개념적 identity다. 공급 lot이나 시험 상태가 아니다.
 
-예: 특정 강종 grade, 특정 polymer formulation. 이름·분류·명목 조성의 변경은 `MaterialRevision`이다.
+예: 특정 강종 grade, 특정 polymer formulation. 이름·분류·명목 조성 같은 Material information의 변경은 `MaterialInformationRevision`이다.
 
 ### 2.2 Material State
 
-동일 Material의 물성에 영향을 주는 상태 정의다. 열처리 상태, temper, aging, 수분 상태, 결정화 상태, irradiation history 같은 **재료 자체의 상태**를 표현한다.
+동일 Material의 물성에 영향을 주는 상태 정의다. 열처리 상태, temper, aging, 수분 상태, 결정화 상태, irradiation history 같은 **재료 자체의 상태**를 표현하며 stable State identity로 저장한다. 필요한 Material information revision은 Material history에 함께 포함한다.
 
 시험 중 온도, crosshead speed, chamber humidity 같은 값은 `TestConditionSnapshot`이다. 시험 전에 정해진 시간 동안 conditioning한 이력은 `SpecimenConditioningEvent`이고, 그 결과를 Material State assignment로 연결할 수 있다.
 
@@ -40,10 +61,12 @@
 MaterialBatch를 구현할 때에는 여러 input lot의 소비, 한 lot의 여러 batch 분할과 material balance를
 명시적으로 모델링해야 한다. 조직 용어가 다르면 UI label을 바꿀 수 있지만 canonical 의미는 유지한다.
 
-현재 bounded 구현은 `ProcessDefinition`, `MaterialLot(kind=lot|batch)`,
-`StateGenealogy`를 stable identity와 immutable revision으로 분리한다. `StateGenealogyRevision`은
-하나의 concrete Material State revision과 선택된 manufacturing/heat-treatment Process
-revision, Material Lot revision을 정확히 고정한다. 기존 State의 문자열 descriptor는 과거
+현재 v1 bounded 구현은 `ProcessDefinition`, `MaterialLot(kind=lot|batch)`,
+`StateGenealogy`와 관련 nonmaterial revision structures를 legacy compatibility shape으로
+보존한다. Accepted target에서는 이들을 stable saved objects와 typed links로 분리하며, 실제
+DB/API migration과 read-back 전에는 그 target을 현재 구현으로 간주하지 않는다. Target의
+`StateGenealogy`는 필요한 Material information input과 선택된 manufacturing/heat-treatment
+Process 및 Material Lot IDs를 실제 관계 데이터로 보존한다. 기존 State의 문자열 descriptor는 과거
 입력 보존용이며 governed link를 대신하지 않는다. 별도 physical `MaterialBatch` resource와
 split/merge, multi-lot material balance는 현재 구현되지 않았고 후속 범위로 남는다(ADR-0024).
 
@@ -53,78 +76,77 @@ split/merge, multi-lot material balance는 현재 구현되지 않았고 후속 
 
 ### 2.6 Test Method, Campaign, Run, Condition
 
-- `TestMethodDefinitionRevision`: 표준/사내 method, required channels, metadata schema, QC profile
-- `TestCampaignRevision`: 시험 목적, population, 계획
-- `TestRunRevision`: 한 specimen에 수행된 실제 시험 사건
+- `TestMethodDefinition`: 표준/사내 method, required channels, metadata schema, QC profile
+- `TestCampaign`: 시험 목적, population, 계획
+- `TestRun`: 한 specimen에 수행된 실제 시험 사건
 - `TestConditionSnapshot`: 시험 시점의 설정값과 관측값
 
-Method의 default가 바뀌어도 과거 Run은 당시 method revision과 condition snapshot을 유지한다.
+Method의 default가 바뀌어도 과거 TestRun은 당시 사용한 method data와 condition snapshot을 유지한다.
 
 ### 2.7 Configurable catalog와 계산 구성
 
 - **Catalog Table**: 관리자가 정의하는 record 종류의 stable identity
-- **Attribute Definition Revision**: 데이터형, quantity/unit, validation과 표시 규칙의 immutable 정의
-- **Catalog Record / Record Revision**: 자유 schema record의 stable identity와 immutable content
-- **Layout Revision**: record datasheet에 보일 Attribute와 순서·그룹
-- **Subset Revision**: Table 범위에 저장된 typed filter/search 정의
-- **Link Type Revision**: 허용 source/target Table, 방향명과 cardinality
-- **Record Link Revision**: 두 exact Record Revision 사이의 사용자 정의 관계
-- **Mapping Profile Revision**: Attribute/채널을 계산 quantity에 연결하는 immutable 계약
-- **Processing Recipe Revision**: ordered method/version/options와 compatibility 계약
+- **Attribute Definition**: 데이터형, quantity/unit, validation과 표시 규칙의 saved definition
+- **Catalog Record**: 자유 schema record의 stable identity와 saved content
+- **Layout / Subset**: record datasheet와 저장된 typed filter/search 정의
+- **Link Type**: 허용 source/target Table, 방향명과 cardinality
+- **Record Link**: 두 stable saved object 사이의 사용자 정의 관계
+- **Mapping Profile**: Attribute/채널을 계산 quantity에 연결하는 saved 계약
+- **Processing Recipe**: ordered method/version/options와 compatibility 계약을 가진 saved object
 - **Processing Batch**: exact input Selection과 Recipe를 여러 member Run으로 실행한 집합
 
 고정 Material/State/Property aggregate는 기존 API와 solver workflow의 호환 projection으로
 유지한다. 새 configurable record가 기존 identity를 복제하지 않도록 record reference가 기존
-revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 전용 tree projection으로
+saved object를 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 전용 tree projection으로
 표현한다.
 
-## 3. Aggregate와 entity 목록
+## 3. Aggregate와 entity 목록 — accepted target (not current v1 implementation)
 
 ### 3.1 재료·공정·시편
 
-| Aggregate | 안정 identity | 주요 revision/content | 불변조건 |
+| Aggregate | 안정 identity | 저장 데이터/관계 | 불변조건 |
 | --- | --- | --- | --- |
-| Material | `material` | `material_revision` | released revision의 content update 금지 |
-| Material State | `material_state` | `material_state_revision` | material revision과 state descriptor 명시 |
-| Process Definition | `process_definition` | `process_definition_revision` | plugin schema version 고정 |
-| Process Run | `process_run` | run facts + input/output relation | 완료 후 fact 수정 대신 correction revision |
-| Material Lot | `material_lot` | `material_lot_revision` | producer lot code와 source organization 보존 |
-| Specimen | `specimen` | `specimen_revision` | physical identity 유지; geometry는 measured/nominal 구분 |
+| Material | `material` | `material_information_revision` | Material information content update는 새 revision; 기존 content 수정 금지 |
+| Material State | `material_state` | state data + Material information association | stable identity; 독립 revision history 없음 |
+| Process Definition | `process_definition` | saved definition data | plugin schema version은 metadata |
+| Process Run | `process_run` | run facts + typed input/output relation | 완료 후 fact와 결과 bytes를 수정하지 않음 |
+| Material Lot | `material_lot` | saved lot data | producer lot code와 source organization 보존 |
+| Specimen | `specimen` | saved physical identity/data | geometry는 measured/nominal 구분 |
 | Conditioning | event identity | immutable event | specimen, start/end, environment, procedure 연결 |
 
 ### 3.2 시험과 데이터
 
-| Aggregate | 안정 identity | 주요 revision/content | 불변조건 |
+| Aggregate | 안정 identity | 저장 데이터/관계 | 불변조건 |
 | --- | --- | --- | --- |
-| Test Method | `test_method` | `test_method_revision` | plugin/schema/version 고정 |
-| Test Campaign | `test_campaign` | `test_campaign_revision` | 목적·population·plan 보존 |
-| Test Run | `test_run` | `test_run_revision` | specimen 1개와 당시 condition snapshot 참조 |
-| Instrument | `instrument` | `instrument_revision` | serial/asset identity와 calibration history 분리 |
+| Test Method | `test_method` | saved method data | plugin/schema/version metadata 고정 |
+| Test Campaign | `test_campaign` | saved campaign data | 목적·population·plan 보존 |
+| Test Run | `test_run` | run data + TestConditionSnapshot | specimen 1개와 당시 condition snapshot 참조 |
+| Instrument | `instrument` | saved instrument data | serial/asset identity와 calibration evidence 분리 |
 | Raw Asset | content identity | `raw_asset` + ingestion event | raw bytes immutable, SHA-256 필수 |
-| Import Mapping | `import_mapping` | `import_mapping_revision` | source column→semantic/unit mapping 고정 |
-| Canonical Test Data | `test_data_document` | `test_data_document_revision` | canonical/normalized Artifact를 고정하고, 검증된 경우 exact Material·State·Test Run source를 revision content에 함께 고정 |
-| Dataset | `dataset` | `dataset_revision` | revision은 immutable artifact manifest 참조 |
-| Selection | `selection` | `selection_revision` + members | 계산 input membership 고정 |
+| Import Mapping | `import_mapping` | saved mapping data | source column→semantic/unit mapping 고정 |
+| Canonical Test Data | `test_data_document` | canonical/normalized Artifact + source IDs | canonical bytes와 actual source context를 보존 |
+| Dataset | `dataset` | saved dataset/output object | immutable artifact manifest 참조 |
+| Selection | `selection` | saved membership/input snapshot | 계산 input membership와 사용 snapshot 고정 |
 
 ### 3.3 분석·모델·검증
 
-| Aggregate | 안정 identity | 주요 revision/content | 불변조건 |
+| Aggregate | 안정 identity | 저장 데이터/관계 | 불변조건 |
 | --- | --- | --- | --- |
-| Processing Recipe | `processing_recipe` | `processing_recipe_revision` | ordered steps와 plugin schema digest 고정 |
-| Processing Run | `processing_run` | plan snapshot, attempts, result refs | input revision head-follow 금지 |
-| Common Processing Output | `common_processing_output` | `common_processing_output_revision` | exact Test Data/Profile와 source proof projection을 immutable content 및 Artifact에 고정 |
+| Processing Recipe | `processing_recipe` | saved recipe data | ordered steps와 plugin schema digest 고정 |
+| Processing Run | `processing_run` | plan snapshot, attempts, result refs | actual input/settings를 결과에 보존 |
+| Common Processing Output | `common_processing_output` | saved output + Artifact | exact Test Data/Profile IDs와 source proof를 결과에 고정 |
 | Statistical Plan/Run | `statistical_plan`, `statistical_run` | grouping, methods, outputs | replicate unit와 assumptions 필수 |
 | QC Observation | immutable observation | rule, evidence, severity | input을 수정하지 않음 |
 | Outlier Assessment | append-only decision | scope, decision, reason, actor | candidate와 사람 판정 분리 |
 | Model Family | plugin definition | schema/capability | core가 constitutive payload를 해석하지 않음 |
 | Calibration Plan/Run | stable plan/run | input, algorithm, config, attempts | failed run도 보존 |
 | Calibration Candidate Selection | stable selection | selected Candidate/SHA-256, human reason | one succeeded Run identity; convergence and human acceptance are separate |
-| Material Model | `material_model` | `material_model_revision` | IR document와 digest 필수 |
-| Solver Card | `solver_card` | `solver_card_revision` | IR revision과 exporter run에 연결 |
-| Validation Template | `validation_template` | revisioned geometry/BC/extraction | 변경 시 새 revision |
+| Material Model | `material_model` | saved IR document/result + digest | actual input/settings와 IR document 보존 |
+| Solver Card | `solver_card` | saved card bytes/result + digest | saved IR object와 exporter run에 연결 |
+| Validation Template | `validation_template` | saved Template definition | 일반 metadata 편집은 독립 domain history를 만들지 않으며, Validation Run은 해당 결과에 사용한 실제 geometry/mesh/BC/loading/output extraction/metric inputs를 보존 |
 | Validation Plan/Run | stable plan/run | solver inputs/results/metrics | numerical/experimental verdict 분리 |
-| Release | stable release ID | immutable release manifest | 구성 revision 고정; 삭제 대신 withdraw |
-| Export Selection | `export_selection` | `export_selection_revision` + ordered members | exact revision/artifact와 requested representation 고정 |
+| Release | stable release ID | immutable release manifest | 구성 object/input 고정; 삭제 대신 withdraw |
+| Export Selection | `export_selection` | saved ordered members | concrete input/artifact와 requested representation 고정 |
 | Export Bundle | immutable result identity | manifest Artifact + archive Artifact | retry/re-export는 새 result 또는 digest reuse; 기존 bytes 수정 금지 |
 
 ### 3.4 플랫폼·거버넌스
@@ -138,39 +160,49 @@ revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 �
 | Job / Job Attempt | durable async state와 실행 시도 |
 | Review Request / Review Decision | 검토 snapshot과 append-only 판정 |
 | Audit Event | security/business change의 append-only 기록 |
-| Provenance Entity/Activity/Agent/Relations | 데이터 생성·사용·책임 관계 |
+| Concrete result/evidence relation | 계약에 필요한 typed input/output/usage/review evidence |
 
 ### 3.4.1 Canonical Test Data의 governed source 경계
 
-로컬 파일을 Modeling의 exact Test Run 문맥에서 저장할 때만 application adapter가
-`Test Run revision → Specimen revision → Material State revision → Material revision`을
-Catalog/Testing service를 통해 검증한다. 성공한 세 exact pin은 Canonical Test Data revision
+로컬 파일을 Modeling의 exact Test Run 문맥에서 저장할 때 application adapter는
+`TestRun ID → Specimen ID → Material State ID → Material information revision (where applicable)`을
+Catalog/Testing service를 통해 검증한다. 성공한 explicit association은 Canonical Test Data
 content의 `governed_source`가 된다. Canonical Test Data JSON 과학 artifact에는 이 UI/업무
 문맥을 주입하지 않으므로 기존 exchange schema와 bytes는 변하지 않는다.
 
-직접 등록한 JSON과 과거 revision의 `governed_source`는 `null`이다. 이를 current Material이나
+직접 등록한 JSON의 `governed_source`는 `null`일 수 있다. 이를 current Material이나
 이름/grade 비교로 추론하거나 backfill하지 않는다. Common Processing Output은 입력한 exact
-Test Data revision의 이 값을 `export_provenance`로 그대로 복사한다. 이후 head 변경은 과거
-revision을 수정하지 않고 새 Test Data/Output revision과 downstream current-pointer 무효화로
-표현한다.
+Test Data object's explicit association and this value를 `export_provenance`로 그대로 복사한다.
+이후 definition/input 변경은 저장된 Test Data/Output bytes를 수정하지 않고 current eligibility
+변경으로 표현한다.
+
+Connected reader는 ordinary stable TestData objects that satisfy `DATASET_READ`를 검색·조회하고,
+명시적으로 associated된 stored Solver Card that satisfies `EXPORT_READ`를 열고 native bytes를
+다운로드한다. Catalog publication is not an implicit prerequisite; Catalog publication and card
+release remain separate lifecycle meanings.
 
 ### 3.5 Configurable catalog와 reusable execution
 
-| Aggregate/Entity | 의미 | Stable ID | Revision ID |
+| Aggregate/Entity | 의미 | Stable ID | 저장 데이터/결과 |
 | --- | --- | --- | --- |
-| Catalog Table | 관리자가 정의한 record type | O | O |
-| Attribute Definition | typed attribute와 unit/validation | O | O |
-| Catalog Folder | Table 안의 탐색 계층 | O | O |
-| Catalog Record | 자유 schema record | O | O |
-| Typed Attribute Value | Record Revision이 소유한 type별 값 | X | owner revision으로 고정 |
-| Layout / Subset | datasheet와 saved query | O | O |
-| Link Type | 관계 endpoint/cardinality 계약 | O | O |
-| Record Link | exact revision 사이의 방향 관계 | O | O |
-| Mapping Profile | 계산 quantity binding | O | O |
-| Processing Recipe | ordered method pipeline | O | O |
-| Processing Batch | 여러 exact Dataset 실행 | O | attempt/member 기록 |
+| Catalog Table | 관리자가 정의한 record type | O | saved definition |
+| Attribute Definition | typed attribute와 unit/validation | O | saved definition |
+| Catalog Folder | Table 안의 탐색 계층 | O | saved hierarchy |
+| Catalog Record | 자유 schema record | O | saved content |
+| Typed Attribute Value | Catalog Record이 소유한 type별 값 | X | owner saved object로 고정 |
+| Layout / Subset | datasheet와 saved query | O | saved definition |
+| Link Type | 관계 endpoint/cardinality 계약 | O | saved definition |
+| Record Link | stable saved object 사이의 방향 관계 | O | saved relation |
+| Mapping Profile | 계산 quantity binding | O | saved profile/input snapshot |
+| Processing Recipe | ordered method pipeline | O | saved recipe |
+| Processing Batch | 여러 Dataset 실행 | O | attempt/member 및 actual input 기록 |
 
-## 4. ERD — 재료·공정·시편·시험
+## 4. Legacy compatibility ERD — 재료·공정·시편·시험
+
+The following physical revision tables document the current implementation compatibility shape only.
+They are not the accepted target for independent State, TestRun, TestData or other nonmaterial
+domain histories; the later RD migration maps them to stable saved objects and preserves concrete
+input/result data.
 
 ```mermaid
 erDiagram
@@ -195,7 +227,7 @@ erDiagram
 표시한다. 별도 physical MaterialBatch와 multi-lot material balance는 후속 설계·구현 전까지
 current aggregate로 표시하지 않는다.
 
-## 5. ERD — 원본·dataset·분석
+## 5. Legacy compatibility ERD — 원본·dataset·분석
 
 ```mermaid
 erDiagram
@@ -219,7 +251,7 @@ erDiagram
     QC_OBSERVATION ||--o{ OUTLIER_ASSESSMENT : adjudicated_by
 ```
 
-## 6. ERD — 보정·IR·card·검증·발행
+## 6. Legacy compatibility ERD — 보정·IR·card·검증·발행
 
 ```mermaid
 erDiagram
@@ -247,25 +279,27 @@ erDiagram
     EXPORT_BUNDLE ||--|| ARTIFACT : archives
 ```
 
-## 7. Revision 공통 필드
+## 7. Material information revision and saved-object fields
 
-각 typed revision table은 다음 공통 필드를 갖는다.
+Material information revision tables retain the following domain fields. Other saved objects may use
+the applicable subset as ordinary storage metadata, but do not acquire a domain revision chain from
+this table.
 
 | 필드 | 의미 |
 | --- | --- |
-| `id UUID` | revision identity |
-| `<aggregate>_id UUID` | 안정 aggregate identity |
-| `revision_no BIGINT` | aggregate 내 단조 증가 번호 |
-| `based_on_revision_id UUID?` | 편집 기반 revision |
-| `schema_id`, `schema_version` | content validator |
-| `content JSONB` 또는 typed columns | domain content |
-| `content_hash CHAR(64)` | canonical serialization digest |
-| `created_at`, `created_by` | 생성 시간·agent |
-| `change_reason` | 변경 이유 |
-| `lifecycle_state` | draft/submitted/approved 등 projection |
-| `organization_id`, `project_id`, `classification` | 소유·접근 경계 |
+| `id UUID` | Material information revision identity, or saved-object identity when used outside this history |
+| `material_id UUID` | Material stable identity (Material information history only) |
+| `revision_no BIGINT` | Material information history sequence only |
+| `based_on_revision_id UUID?` | Material information edit basis only |
+| `schema_id`, `schema_version` | content validator metadata |
+| `content JSONB` 또는 typed columns | Material information or saved result content |
+| `content_hash CHAR(64)` | canonical serialization/integrity metadata, not domain history |
+| `created_at`, `created_by` | creation metadata |
+| `organization_id`, `project_id`, `classification` | ownership/access boundary |
 
-모든 공통 필드를 하나의 generic revision/EAV table에 몰아넣지 않는다. typed table과 foreign key가 domain integrity를 지키며, JSONB는 plugin-owned extension payload에 제한한다.
+`change_reason` is not a universal save requirement; a concrete review/release/security contract may
+record the reason it needs. Do not collect all fields in a generic revision/EAV table. Typed tables and
+foreign keys protect domain integrity, while JSONB is limited to plugin-owned extension payloads.
 
 ## 8. Artifact Manifest
 
@@ -287,11 +321,11 @@ erDiagram
 
 `storage_key`는 사용자 API에 직접 노출하지 않는다. 다운로드는 권한 검사 후 짧은 수명의 transfer token 또는 streaming endpoint로 제공한다.
 
-## 9. Dataset Revision Manifest
+## 9. Dataset/output Manifest
 
 ```json
 {
-  "dataset_revision_id": "uuid",
+  "dataset_id": "uuid",
   "dataset_kind": "curve_set",
   "representation": "normalized",
   "rows_or_points": 150000,
@@ -322,18 +356,25 @@ erDiagram
 
 `engineering_strain`과 `true_strain`은 둘 다 dimensionless라도 다른 `quantity_kind`다. 단위 라이브러리만으로 의미 변환을 처리하지 않는다.
 
-## 10. 주요 불변조건
+## 10. 주요 불변조건 — accepted target
 
-1. raw asset의 byte digest는 생성 후 변경되지 않는다.
-2. released revision은 수정할 수 없고 새 revision 또는 lifecycle event만 허용한다.
-3. run은 aggregate head가 아니라 구체 revision ID만 참조한다.
-4. result artifact는 성공한 activity 없이 생성될 수 없다.
-5. 모든 normalized channel은 original unit text 또는 `not_provided` 상태와 normalized unit을 가진다.
-6. selection revision의 membership은 변경되지 않는다.
-7. outlier assessment는 dataset membership을 수정하지 않는다.
-8. Material Model IR revision 없이 production solver card를 생성할 수 없다.
-9. release manifest의 모든 구성요소 digest는 생성 시 고정된다.
-10. organization/project 격리 key는 모든 소유 domain row와 provenance projection에 존재한다.
+1. raw, input and released artifact byte digests do not change after creation.
+2. Material information revisions are immutable and contain the Material information fields and
+   associated material-state/manufacturing/heat-treatment/direct properties they govern.
+3. State/PropertySet, Specimen, TestRun, TestData, Dataset, Selection, Profile, Process, Model,
+   Solver Card and Link objects use stable IDs and separate saved data; ordinary renames preserve links.
+4. A run/result uses the exact saved object IDs, typed input data, options/settings and applicable
+   Material information revision captured for that result; it does not follow a mutable `latest` alias.
+5. Every normalized channel keeps original unit text or `not_provided`, normalized unit and quantity
+   semantics.
+6. Selection membership and saved result input snapshots do not change in place; eligibility changes
+   affect current use only.
+7. Outlier assessment does not mutate Dataset membership or input artifacts.
+8. Production solver cards require the applicable saved Material Model IR/result contract, mapping
+   status and authorization; IR/model/card identity edits do not create independent domain histories.
+9. Release manifests and concrete result artifacts pin their required component IDs and digests.
+10. Organization/project authorization keys are enforced on all owned domain rows and concrete evidence;
+    a universal provenance projection is not required.
 
 ## 11. 아직 결정하지 않은 domain detail
 

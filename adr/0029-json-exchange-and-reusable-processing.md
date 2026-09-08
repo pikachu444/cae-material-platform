@@ -1,5 +1,10 @@
 # ADR-0029: JSON exchange, mapping profiles and reusable processing recipes
 
+> **ADR-0036 target notice (partial supersession):** JSON exchange schemas, mapping boundaries, recipe
+> execution, raw bytes and exact input/output semantics remain preserved. The accepted target supersedes
+> universal mapping-profile and recipe revision history; stable saved objects and concrete result data
+> retain the actual settings used.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** `cmp.test-data`를 사람과 도구가 교환할 표준 JSON으로 두고, exact Mapping Profile과

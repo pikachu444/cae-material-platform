@@ -1,5 +1,14 @@
 # Issue #195 polymer viscoelastic Fit implementation and acceptance packet
 
+## D0-v3 target notice
+
+This planning packet remains the bounded polymer science scope and does not authorize implementation in
+the D0 documentation tranche. Preserve its equations, units, method applicability, validation and
+actual typed inputs/outputs. Material information edits alone have domain revision history; TestRun,
+TestData, Dataset, Selection, Profile, Process, Model and Card data use stable IDs, and saved results
+retain the inputs/settings they used. Its historical nonmaterial “revision/provenance” terms are
+compatibility language until the real DB/API migration; the redesign program is the current priority.
+
 ## 1. Packet status and decision
 
 | Item | Decision |

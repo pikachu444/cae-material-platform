@@ -1,5 +1,19 @@
 # 위험요소, 미결정 사항, 의사결정 로그
 
+## D0-v3 accepted target boundary
+
+The redesign target changes frontend topology and the domain-history boundary while preserving scientific
+and security meaning. Only Material information edits create domain revisions containing associated
+state/manufacturing/heat-treatment and direct properties. State/PropertySet, TestRun, TestData, Dataset,
+Selection, Profile, Process, Model, Solver Card and Link data are stable-ID saved objects; saved results
+retain actual inputs/settings. Raw/input/output bytes, units, authorization, validation and release
+meaning remain protected. Catalog publication and card release stay separate, and ordinary TestData/Card
+reader access uses `DATASET_READ`/`EXPORT_READ`.
+
+The prior universal revision/provenance proposal below is historical risk/decision evidence. It is
+superseded for current target work by the canonical policy and ADR-0036; audits remain evidence, not
+authority. Concrete result/release/security contracts retain only the facts they require.
+
 ## 1. 현재 사실·결정·가정 분리
 
 ### 1.1 확정 요구사항 `CONFIRMED`
@@ -10,7 +24,7 @@
 - fitting input/code/config provenance
 - solver-neutral Material Model IR
 - 7종 plugin extension point
-- 완전한 provenance와 revision history
+- Material information revision과 concrete result/release evidence; universal provenance/history는 요구하지 않음
 - 대표 MVP raw tensile→release 흐름
 - 구체 시험/model/solver/card 미결정
 
@@ -114,22 +128,24 @@
 - `OQ-OPS-002`: production 환경의 live KMS/WORM과 HSM/keyless identity, external receiver,
   credential rotation·outage, multi-node failover와 overnight endurance 수용 기준
 
-## 6. Architecture Decision Log
+## 6. 초기 기획의 결정 개요 — 역사적 번호
 
-| ADR | 결정 | 상태 | 이유 | 재검토 trigger |
+이 표의 번호는 실제 `adr/0001-...` 파일 번호와 다른 초기 기획 표식이다. 현행 결정은 [ADR 색인](../../adr/README.md)에서 찾는다. 개요 04·05의 보편적 revision/출처 요구는 ADR-0036과 데이터 정책의 범위로 대체됐다. 다른 행은 개별 결정의 실제 범위를 확인한다.
+
+| 초기 번호 | 결정 | 작성 당시 상태 | 이유 | 재검토 trigger |
 | --- | --- | --- | --- | --- |
-| `ADR-001` | 모듈형 모놀리스 + isolated execution plane | Accepted | domain 변화·transaction 일관성과 운영 단순성 | 독립 팀/scale/security boundary |
-| `ADR-002` | PostgreSQL authoritative metadata/provenance | Accepted | FK/ACID/RLS/recursive query | graph SLO/analytics trigger |
-| `ADR-003` | object storage + content addressing + Parquet | Accepted | immutable large artifact와 typed columnar data | workload benchmark가 부적합 증명 |
-| `ADR-004` | identity와 immutable typed revision 분리 | Accepted | history/reproducibility/lost update 방지 | 없음; core invariant |
-| `ADR-005` | typed W3C-PROV-inspired relations | Accepted | relation integrity와 interoperable meaning | provenance standard requirement 변화 |
-| `ADR-006` | plugin은 out-of-process Job Spec/Result Manifest | Accepted | dependency/security/reproducibility | trusted embedded-only product로 축소될 때도 유지 권고 |
-| `ADR-007` | IR common envelope + plugin payload | Accepted | 공통 governance와 model extensibility 균형 | 3개 model instance 검증 실패 |
-| `ADR-008` | exporter preflight + no silent approximation | Accepted | solver semantic loss 통제 | 없음; safety invariant |
-| `ADR-009` | PostgreSQL durable job/outbox first | Proposed/Accepted for MVP | 운영 구성 최소화 | throughput/workflow complexity SLO 실패 |
-| `ADR-010` | single-enterprise first | Assumed | 현재 요구와 보안 비용 | 사용자 답변/SaaS 사업 결정 |
-| `ADR-011` | reviewed plugins only | Assumed | MVP 위험·범위 통제 | marketplace 사업 결정 |
-| `ADR-012` | solver runner + manual attach | Assumed | virtual validation provenance 완성 | 사용자가 input/output-only 선택 |
+| 초기 개요 01 (`ADR-001`) | 모듈형 모놀리스 + isolated execution plane | Accepted | domain 변화·transaction 일관성과 운영 단순성 | 독립 팀/scale/security boundary |
+| 초기 개요 02 (`ADR-002`) | PostgreSQL authoritative metadata/provenance | Accepted | FK/ACID/RLS/recursive query | graph SLO/analytics trigger |
+| 초기 개요 03 (`ADR-003`) | object storage + content addressing + Parquet | Accepted | immutable large artifact와 typed columnar data | workload benchmark가 부적합 증명 |
+| 초기 개요 04 (`ADR-004`) | identity와 immutable typed revision 분리 | Accepted | history/reproducibility/lost update 방지 | 없음; core invariant |
+| 초기 개요 05 (`ADR-005`) | typed W3C-PROV-inspired relations | Accepted | relation integrity와 interoperable meaning | provenance standard requirement 변화 |
+| 초기 개요 06 (`ADR-006`) | plugin은 out-of-process Job Spec/Result Manifest | Accepted | dependency/security/reproducibility | trusted embedded-only product로 축소될 때도 유지 권고 |
+| 초기 개요 07 (`ADR-007`) | IR common envelope + plugin payload | Accepted | 공통 governance와 model extensibility 균형 | 3개 model instance 검증 실패 |
+| 초기 개요 08 (`ADR-008`) | exporter preflight + no silent approximation | Accepted | solver semantic loss 통제 | 없음; safety invariant |
+| 초기 개요 09 (`ADR-009`) | PostgreSQL durable job/outbox first | Proposed/Accepted for MVP | 운영 구성 최소화 | throughput/workflow complexity SLO 실패 |
+| 초기 개요 10 (`ADR-010`) | single-enterprise first | Assumed | 현재 요구와 보안 비용 | 사용자 답변/SaaS 사업 결정 |
+| 초기 개요 11 (`ADR-011`) | reviewed plugins only | Assumed | MVP 위험·범위 통제 | marketplace 사업 결정 |
+| 초기 개요 12 (`ADR-012`) | solver runner + manual attach | Assumed | virtual validation provenance 완성 | 사용자가 input/output-only 선택 |
 
 ## 7. Decision 변경 절차
 
@@ -146,4 +162,3 @@
 - 그 제품들이 이 문서의 PostgreSQL schema, W3C mapping, plugin contract, IR 구조를 사용한다는 주장은 하지 않는다.
 - 이 패키지의 architecture/domain model은 공개 기능과 사용자 요구를 바탕으로 독립적으로 도출한 `DECISION`이다.
 - AI-powered 기능이 경쟁 제품에 있다는 사실은 확인되지만 MVP에 AI가 필요하다는 결론으로 연결하지 않는다.
-

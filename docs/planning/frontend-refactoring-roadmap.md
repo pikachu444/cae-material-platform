@@ -1,9 +1,15 @@
 # 프론트엔드 아키텍처 및 UI 체계 재정비 로드맵
 
-상태: active program plan
+상태: legacy FE-00~FE-08 compatibility roadmap; RD target is defined by the accepted redesign program
 상위 이슈: [#249 프론트엔드 아키텍처 및 UI 체계 재정비](https://github.com/pikachu444/cae-material-platform/issues/249)
 분석 기준선: `main@3e642e8`
-방식: 전면 재작성·전면 재디자인 없이 점진적으로 개선
+방식: historical incremental characterization; the accepted RD program may use an isolated foundation
+
+## 현재 사용 범위
+
+이 문서는 과거 FE 작업의 책임 이동·검증·전달 이력이다. 현재 개편은 [개편 계획](frontend-redesign-program.md), [데이터 정책](../product/data-management-policy.md), ADR-0036/0037/0038을 따른다.
+아래 본문의 no rewrite, A/B 추천, 보편적 revision/PROV, 고정 추출 순서는 당시 범위의 기록이며 새 기반의 선행 의무가 아니다.
+해당 legacy 코드를 옮길 때 필요한 계약·검사만 찾아 사용한다. 이 문서 전체를 매 작업에 다시 읽지 않는다.
 
 ## 1. 왜 지금 정비하는가
 
@@ -30,7 +36,10 @@ Material/Test Data 선택
 → 생성 결과를 Materials에서 다시 조회·다운로드
 ```
 
-## 2. 유지할 것과 바꿀 것
+## 2. Legacy baseline characterization: 유지할 것과 바꿀 것
+
+The following lists describe the current application and the incremental roadmap history. They do not
+override the RD target above.
 
 유지한다.
 
@@ -53,7 +62,9 @@ Material/Test Data 선택
 ## 3. 작업 원칙
 
 - production behavior를 characterization한 뒤 구조를 옮긴다.
-- 구조 분리와 broad visual normalization은 별도 PR로 한다.
+- Legacy issue work separates structural refactoring and broad visual normalization by PR. An accepted
+  RD unit may combine them when one foundation reader surface owns both topology and semantic visual
+  rules, with its scope and Q-axis evidence recorded in the packet.
 - 기존 debt를 한 번에 fail시키지 않고 baseline을 만든 뒤 새 위반부터 막는다.
 - 숫자만 보고 파일을 쪼개지 않는다.
 - feature 개발을 전면 중단하지 않는다. 다만 등록된 hotspot에 새 책임을 추가하는 frontend-heavy

@@ -1,5 +1,9 @@
 # ADR-0014: Reference Validation Result interpretation is explicit, immutable, and non-production
 
+> **ADR-0036 target notice (partial supersession):** Separate validation interpretations, immutable
+> evidence and the non-production boundary remain preserved. The accepted target supersedes a universal
+> activity writer for interpretation edits; the concrete result contract remains explicit and typed.
+
 ## 먼저 읽기
 
 - **무엇을 정했나요?** 실행 응답 추출, 수치 건강 상태, 시험 곡선 비교를 서로 다른 불변 기록으로

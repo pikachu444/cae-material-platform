@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>소재·데이터 작업공간 — 검토 시안</title>
+  <link rel="stylesheet" href="workspace.css">
+  <script src="workspace.js" defer></script>
+</head>
+<body>
+  <div class="reviewbar"><span>설계 검토 01 <span class="muted">/ 합성 자료 · 실제 서버 연결 없음</span></span><label>검토 상태 <select id="scenario"><option value="normal">정상</option><option value="empty">빈 결과</option><option value="error">조회 오류</option></select></label></div>
+  <header class="topbar"><a class="brand" href="index.html"><b>CAE</b><span>Material Platform</span></a><span class="top-context">소재 데이터 작업공간</span><span class="workspace-name">연구 데이터베이스 <span class="dot"></span> 검토용</span></header>
+  <div class="shell">
+    <nav class="taskrail" aria-label="주요 업무">
+      <div class="nav-group">데이터</div>
+      <button class="active" data-task="browse"><span aria-hidden="true">▦</span> 소재·데이터</button>
+      <button data-task="intake"><span aria-hidden="true">＋</span> 데이터 등록</button>
+      <div class="nav-group">분석</div>
+      <button data-task="process"><span aria-hidden="true">⌁</span> 처리·통계</button>
+      <div class="rail-bottom">물성·곡선·해석 자료</div>
+    </nav>
+    <main id="main">
+      <section id="browse" aria-label="소재와 데이터 탐색">
+        <div class="scopebar" aria-label="조회 대상">
+          <button data-scope="materials" class="active">소재</button><button data-scope="tests">실험 데이터</button><button data-scope="results">처리 데이터·모델</button><button data-scope="cards">솔버 카드</button>
+        </div>
+        <div class="explore-layout">
+          <aside class="explorer" aria-label="분류 트리와 필터">
+            <div class="explorer-title">소재 분류 <button id="reset" class="link-button">초기화</button></div>
+            <div id="tree" class="tree"></div>
+            <form id="filters">
+              <h2>조건 필터</h2>
+              <label>시험 온도 <select id="temperature"><option value="">전체</option><option value="23">23 °C</option><option value="80">80 °C</option></select></label>
+              <label>변형률 속도 <select id="rate"><option value="">전체</option><option value="0.001">0.001 s⁻¹</option><option value="0.01">0.01 s⁻¹</option></select></label>
+              <label>데이터 상태 <select id="availability"><option value="">전체</option><option value="available">다운로드 가능</option></select></label>
+              <button class="secondary" type="submit">필터 적용</button>
+              <p id="filter-note" class="muted small">시험 조건은 실험 데이터 조회에 적용됩니다.</p>
+            </form>
+          </aside>
+          <div class="reader" id="reader">
+            <section class="results" aria-label="검색 결과">
+              <header class="results-heading"><div><div id="breadcrumb" class="breadcrumb">전체 소재</div><h1 id="page-title">소재</h1></div><span id="total" class="count"></span></header>
+              <form id="search-form" class="searchbar"><label class="sr-only" for="search">이름 또는 식별자 검색</label><input id="search" type="search" placeholder="소재명 또는 식별자로 검색"><button type="submit" class="primary">검색</button></form>
+              <div class="result-tools"><div id="view-switch" role="group" aria-label="목록 보기"><button data-view="tiles" aria-pressed="true">▦ 카드</button><button data-view="table" aria-pressed="false">☷ 표</button></div><label>정렬 <select id="sort"><option value="name">이름순</option><option value="id">식별자순</option></select></label><button id="process-selected" hidden class="primary">선택한 실험 처리</button></div>
+              <div id="result-scroll" class="result-scroll" tabindex="-1"><div id="result-content"></div></div>
+              <footer class="pagination"><span id="range"></span><div><button id="previous" aria-label="이전 페이지">‹</button><span id="page-count"></span><button id="next" aria-label="다음 페이지">›</button></div></footer>
+            </section>
+            <aside id="preview" class="preview" aria-label="선택 항목 미리보기" hidden>
+              <header class="preview-actions"><span id="preview-mode">미리보기</span><div><button id="expand" class="link-button">확대 상세 ↗</button><button id="collapse" aria-label="미리보기 접기">×</button><button id="return" hidden>‹ 목록 보기</button></div></header>
+              <div id="preview-content" class="preview-content"></div>
+            </aside>
+          </div>
+        </div>
+      </section>
+      <section id="process" class="process-page" hidden aria-label="반복 실험 처리 시안"></section>
+      <section id="intake" class="intake-page" hidden aria-label="데이터 등록 흐름 시안">
+        <div class="breadcrumb">데이터 등록</div><h1>실험 데이터 등록</h1>
+        <p class="intro">원본 파일 또는 지정 양식에서 실험 데이터를 등록합니다.</p>
+        <form id="intake-form" class="intake-form"><label>파일 종류<select id="file-kind"><option>raw 파일</option><option>지정 양식</option></select></label><label>실험 파일<input type="file" id="input-file"></label><output id="file-name">선택된 파일 없음</output><button class="primary" type="submit">검증 단계 확인</button></form>
+        <div id="intake-next" hidden class="notice">파일 → 형식·채널·단위 확인 → 소재·시편 연결 → 등록 결과 확인<br><span class="muted">흐름 검토용입니다. 파일은 서버로 전송하거나 저장하지 않습니다. 형식 지원과 구조 검증은 기존 API 연결 시 확인합니다.</span></div>
+      </section>
+    </main>
+  </div>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+</body>
+</html>

@@ -1,12 +1,14 @@
 version: 3
 policy:
   current: "현재 코드·경로·화면·운영 절차와 함께 갱신하는 문서"
-  authoritative: "구현과 검수의 규범; 변경 전에 관련 요구사항·ADR·작업 근거를 확인"
+  authoritative: "현재 기준의 위치를 나타내는 분류; 본문의 Proposed/Accepted/Superseded 및 대체 범위를 우선하며 과거 제안을 현재 의무로 승격하지 않음"
   reference: "외부 조사·비교 입력과 #351 재집계 뒤 작업 트리에 유지 승인된 이슈 증거; 제품 계약은 current·authoritative 문서와 활성 이슈에서 확인"
 rules:
   - status: reference
     include:
       - "docs/00-research/**/*.md"
+      - "docs/planning/frontend-refactoring-roadmap.md"
+      - "design/frontend-reader-proposals/**/*.md"
       - "docs/product/desktop-engineering-ui-program-brief.md"
       - "docs/17-evidence/issue-184-high-dpi-global-implementation.md"
       - "docs/17-evidence/issue-184-to-223-windows-4k-handoff.md"
@@ -59,6 +61,7 @@ rules:
       - "docs/repository/**/*.md"
     exclude:
       - "docs/product/desktop-engineering-ui-program-brief.md"
+      - "docs/planning/frontend-refactoring-roadmap.md"
 
 visual_evidence:
   raster_extensions:

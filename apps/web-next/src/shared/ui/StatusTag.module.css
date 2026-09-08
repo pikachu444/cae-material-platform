@@ -1,0 +1,18 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border: 1px solid var(--cmp-line);
+  border-radius: 999px;
+  padding: 0 8px;
+  color: var(--cmp-muted);
+  font-size: 0.84em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.success { border-color: #a9d9bf; background: #effaf3; color: var(--cmp-green); }
+.warning { border-color: #e8cb8c; background: #fff9e8; color: var(--cmp-amber); }
+.error { border-color: #e8aaa4; background: #fff4f2; color: var(--cmp-red); }
+.info { border-color: #a9cfe8; background: var(--cmp-blue-soft); color: var(--cmp-blue-strong); }
+.neutral { background: var(--cmp-surface-alt); }

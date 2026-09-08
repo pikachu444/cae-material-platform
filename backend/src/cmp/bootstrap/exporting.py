@@ -29,6 +29,9 @@ from cmp.modules.exporting.adapters.persistence.neutral_hyperelastic_repository 
 from cmp.modules.exporting.adapters.persistence.ogden_prony_repository import (
     SqlAlchemyOgdenPronyExportingRepository,
 )
+from cmp.modules.exporting.adapters.persistence.project_card_index import (
+    SqlAlchemyProjectCardIndexRepository,
+)
 from cmp.modules.exporting.adapters.persistence.repository import SqlAlchemyExportingRepository
 from cmp.modules.exporting.adapters.persistence.target_delivery_receipts import (
     SqlTargetDeliveryReceiptRecorder,
@@ -44,6 +47,7 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
     NeutralHyperelasticSolverCardService,
 )
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
+from cmp.modules.exporting.application.project_card_index import ProjectCardIndexService
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.exporting.application.target_delivery import DeliveryReceiptRecorder
 from cmp.modules.jobs.adapters.persistence.events import SqlAlchemyOutboxWriter
@@ -115,6 +119,20 @@ def build_solver_card_service(identity: IdentityServices) -> SolverCardService |
                 SqlAlchemyRevisionAuditHook(),
                 make_catalog_ownership_projection_hook(),
             ),
+        )
+    )
+
+
+def build_project_card_index_service(identity: IdentityServices) -> ProjectCardIndexService | None:
+    """Compose the read-only project index without requiring a Material/Catalog lookup."""
+
+    if identity.engine is None or identity.rls_context is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ProjectCardIndexService(
+        repository=SqlAlchemyProjectCardIndexRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
         )
     )
 
