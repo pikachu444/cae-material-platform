@@ -1,5 +1,8 @@
 # 서비스 실행과 연결
 
+새 조회 앱은 [개편 중인 조회 화면](#개편-중인-조회-화면)과 [외부 접속 주소](../../README.md#접속-주소와-시안-원본)를 따릅니다.
+아래 준비·자동 로그인·Material 생성은 기존 앱(5173)의 절차입니다.
+
 ## 준비물
 
 - 실행 중인 Docker Desktop
@@ -41,7 +44,7 @@ Demo access token은 짧게 유지되지만 브라우저가 만료 전에 같은
 
 ![Demo session 갱신 실패 후 다시 시도 화면](images/current/demo-session-recovery-1440x900.png)
 
-![Search-first Materials 기본 화면](images/current/materials-search-1440x900.png)
+![기존 앱의 Search-first Materials 기본 화면](images/current/materials-search-1440x900.png)
 
 ## 개편 중인 조회 화면
 
@@ -97,7 +100,7 @@ API 주소가 기본값과 다르면 [조회 앱 실행 설정](../../apps/web-n
 | 실험 상세 | [1366](images/current/rd02-test-data-expanded-1366x768.png) | [1440](images/current/rd02-test-data-expanded-1440x900.png) | [1920](images/current/rd02-test-data-expanded-1920x1080.png) | [2560](images/current/rd02-test-data-expanded-2560x1440.png) | [3840](images/current/rd02-test-data-expanded-3840x2160.png) |
 | 솔버 카드 상세 | [1366](images/current/rd02-solver-card-detail-1366x768.png) | [1440](images/current/rd02-solver-card-detail-1440x900.png) | [1920](images/current/rd02-solver-card-detail-1920x1080.png) | [2560](images/current/rd02-solver-card-detail-2560x1440.png) | [3840](images/current/rd02-solver-card-detail-3840x2160.png) |
 
-## 첫 Material 만들기
+## 기존 앱에서 첫 Material 만들기
 
 1. 일반 탐색은 **Materials → Browse Tree**, 생성·schema 관리는 우측 workspace menu의
    **Administration**을 엽니다.

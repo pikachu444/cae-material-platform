@@ -1,52 +1,80 @@
-# Connected reader
+# 새 조회 앱 실행과 개발
 
-`@cmp/web-next` contains the RD-02 connected reader for the project-scoped Materials, Test Data, Processing Outputs, Models and Solver Cards routes. The ordinary live app reads the configured API through feature-owned adapters; it does not fall back to fixture data when the API is unavailable.
+`apps/web-next`는 실제 API에 연결된 RD-02 조회 앱입니다. 소재·실험·저장 처리 결과·모델·솔버 카드를 조회하고
+기존 파일을 내려받습니다. API 연결 실패를 합성 시안으로 숨기지 않습니다.
+등록·처리 실행·평균화·모델/카드 생성의 새 화면과 기존 앱의 일괄 전환은 아직 남아 있습니다.
 
-The feature boundaries are intentional:
+[실제 앱과 시안 접속 주소](../../README.md#접속-주소와-시안-원본),
+[현재 구현 화면](../../README.md#현재-화면--새-조회-앱),
+[현재 작업과 남은 범위](../../docs/planning/frontend-redesign-status.md)를 참고합니다.
 
-- `features/materials` owns Material and Material State reads.
-- `features/test-data` owns exact document, curve and JSON artifact reads.
-- `features/processing-output` owns saved output, stage and provenance reads.
-- `features/models` owns Material State model and canonical IR reads.
-- `features/cards` owns the complete Solver Card index, 12-row display paging, family/material filters and exact card artifact reads.
-- The `/neutral-materials` reader composes the Models adapter and Cards index to validate one exact Neutral Material document and follow its stored Processing Output, Test Data and native-card relations.
-- `shared/api/http-client.ts` owns bearer transport, explicit local-demo sign-in, authorization-scoped query keys, error mapping and SHA-256 verification for downloads. It does not create an identity implicitly and keeps an authorized token after a 403.
+## 실행
 
-Every detail request carries the selected revision pin. Card detail also carries the family route and validates aggregate ID, revision ID, content hash and native artifact hash before showing the result. Artifact downloads require and verify the server-provided `X-Content-SHA256` or `X-CMP-Card-SHA256` header before the browser saves bytes. Relations are displayed from stored IDs and revision pins, never inferred from a name, first row or latest result. Preview, expanded detail and return are URL states, so query, filter, page, selected identity, scroll position and focus can be recovered without regenerating a saved result.
+저장소 루트에서 실행합니다. 기존 API가 준비되어 있어야 합니다.
 
-Neutral Material JSON uses `X-Content-SHA256` as the canonical document semantic digest. Its adapter validates that digest and the `X-Neutral-Material-ID`/revision headers against the typed document; it does not compare raw HTTP response bytes to the semantic hash. The Material explorer shows only the current server page and expands stored Material → Material State → specimen/Test Data relations. A denied optional relation remains local to that reader and does not replace an authorized source or native artifact with a fallback.
+```powershell
+npm ci --workspaces --include-workspace-root
+$env:CMP_API_PROXY_TARGET = 'http://127.0.0.1:18000'
+npm run dev --workspace @cmp/web-next
+```
 
-The Solver Card index returns the complete authorized project scope; the connected reader applies title/family/material filters to that complete response and displays a stable 12-row page. The displayed count is the post-filter local scope, not a server facet. Unknown card schemas remain visible as unsupported rows with an explicit reason. Known neutral hyperelastic, generalized-Maxwell and tabulated-plasticity variants retain their typed family labels.
+이 예시의 `18000`은 현재 RD-02 검토 환경입니다. 기본 Compose API라면 `8000`으로 바꿉니다.
+같은 PC에서 <http://127.0.0.1:5174/materials>를 열고 **로컬 데모 연결**을 누릅니다.
+원격 기기에서는 localhost 대신 root README의 외부 HTTPS 주소를 사용합니다.
 
-The connected workspace uses the package versions already installed in this repository: React Router 8.3.1 for URL-backed reader state, TanStack Query 5.102.8 for abortable reads and authorization-scoped caches, and Lucide 1.41.0 for the task rail. The existing Radix Dialog/Tooltip, React Hook Form, Zod and TanStack Table packages remain available for their owned future workflows; the current 12-row reader tables do not force a table abstraction, and the read-only processing surface does not prebuild a write form. No package or version was added for this correction pass.
-
-Processing write controls are deliberately outside this reader. A future processing workflow should hand off typed, revision-pinned values in this order: selected Test Data revision → mapping profile revision → settings/solver pins → execution request → comparison/validation → saved Processing Output revision. The reader only consumes saved output and exposes its exact source and settings pins; adding a write form here would allow an unvalidated partial request to look like a saved engineering result.
-
-## Running
-
-From the repository root:
-
-| Command | Scope |
+| 명령 | 대상 |
 | --- | --- |
-| `npm run dev --workspace @cmp/web-next` | Live reader on `127.0.0.1:5174` |
-| `npm run typecheck --workspace @cmp/web-next` | TypeScript check |
-| `npm run build --workspace @cmp/web-next` | TypeScript check and live Vite build |
-| `npm run test --workspace @cmp/web-next` | Unit/component tests |
-| `npm run check:web-next` | Existing prototype checks |
+| `npm run build --workspace @cmp/web-next` | TypeScript 검사와 실제 연결 앱 빌드, `dist` 출력 |
+| `npm run test --workspace @cmp/web-next` | 새 앱 단위·component 검사 |
+| `npm run typecheck --workspace @cmp/web-next` | TypeScript 검사만 실행 |
+| `npm run check:web-next` | 별도 prototype 모드 검사; 실제 API 검증은 아님 |
 
-The Vite `/api` proxy defaults to `http://127.0.0.1:8000`. Set `CMP_API_PROXY_TARGET`, for example `CMP_API_PROXY_TARGET=http://127.0.0.1:18000`, when running against another local API. Use **로컬 데모 연결** to request a demo bearer explicitly; normal reads use the existing session/bearer and otherwise surface the API's authorization state.
+Docker 터널로 빌드 결과를 공유할 때는 위 build 후 다음 서버를 실행합니다.
 
-The September 8 correction keeps one shared preview header across the five connected readers. The
-toolbar stays visible while identity, properties and curves scroll below it. Experiment JSON and
-solver-card downloads are also available directly from the preview. Engineering labels remain in
-their feature/display adapters; the header owns no server state. The plot changes axis ticks and
-labels only: it neither smooths nor resamples saved points.
+```powershell
+$env:CMP_API_PROXY_TARGET = 'http://127.0.0.1:18000'
+npm exec --workspace @cmp/web-next -- vite preview --host 0.0.0.0 --port 4174 --strictPort
+```
+
+`/api`도 이 preview의 proxy를 거칩니다. 화면을 수정했다면 공유 전에 다시 빌드합니다.
+기존 앱은 `5173`, 새 개발 앱은 `5174`, 공유용 빌드는 `4174`, 독립 시안은 `8767`로 구분합니다.
+
+## 코드 책임과 데이터 처리
+
+| 위치 | 책임 |
+| --- | --- |
+| `app` | 경로·앱 구성·provider |
+| `features/materials` | 소재·소재 상태 조회와 물성 표시 |
+| `features/test-data` | 저장 실험·조건·곡선·실험 파일 |
+| `features/processing-output` | 저장 처리 결과와 사용한 설정·입력 연결 |
+| `features/models` | 저장 소재 모델과 연결 자료 조회 |
+| `features/cards` | 저장 카드 목록·상세·물성·솔버 파일 다운로드 |
+| `shared` | 실제 재사용하는 통신·UI primitive·공학 표시 component |
+
+서버 객체는 TanStack Query, 검색·필터·페이지·선택·상세는 URL, 일시적인 열림과 초점은 지역 UI가 관리합니다.
+미리보기·확대 상세·목록 복귀에서 검색조건과 선택을 이어갑니다. 조건과 물성값을 제목에 합치지 않습니다.
+
+기존 backend가 요구하는 정확한 ID와 저장본 pin은 adapter가 검증합니다. 이름이나 첫 행으로 연결을 추측하지 않습니다.
+다운로드는 서버의 파일 해시를 확인하고 저장된 bytes를 보존합니다. 교환용 모델 문서는 문서의 의미 해시를 검증하며,
+HTTP 응답 bytes 해시와 혼동하지 않습니다. 이런 검증용 ID·해시를 사용자 상세 정보로 나열하지 않습니다.
+
+처리 설정·Prony 계수·적용 범위·변환·근사·미지원은 읽을 수 있는 항목과 표로 표시합니다.
+실제 솔버 파일 미리보기의 내용은 변경하지 않습니다. 소재만 리비전 관리한다는 목표 정책은
+[데이터 정책](../../docs/product/data-management-policy.md)을 따르며, 기존 DB/API 이관은 후속 작업입니다.
+
+카드 API는 권한이 허용하는 프로젝트 목록 전체를 반환합니다. 현재 reader는 이 응답을 대상으로
+필터·정렬하고 12개씩 표시합니다. 건수는 필터 후의 목록 크기이며 서버 facet 또는 대규모 성능 보장이 아닙니다.
+미지원 카드 계열은 이유를 표시하고, 접근이 거절된 관련 자료 때문에 허용된 원본 다운로드까지 대체하지 않습니다.
+
+React Router·TanStack Query·Lucide를 현재 reader에서 사용합니다. Radix Dialog/Tooltip, React Hook Form,
+Zod, TanStack Table은 설치된 기반이며 실제 업무가 요구하는 곳에 적용합니다. 처리 입력 화면을 reader에 미리 만들거나
+공통 framework부터 늘리지 않습니다. 상태·API·CSS의 소유권은 [frontend architecture](../../docs/architecture/frontend-architecture.md)를 따릅니다.
 
 ## 외부 테스트: Cloudflare
 
 현재 임시 주소의 발급 상태는 [root README의 접속 주소 표](../../README.md#접속-주소와-시안-원본)에 기록합니다.
 2026-09-08 기존 Docker 이미지로 시안과 실제 앱의 별도 외부 주소를 발급했습니다.
-현재 사용 중인 Docker 실행·재시작·주소 확인 명령은 위 root README에 있습니다.
+현재 사용 중인 Docker 실행·재시작·주소 확인 명령은 [임시 주소 다시 열기](../../README.md#임시-주소-다시-열기)에 있습니다.
 Docker 방식은 HTTP Host Header를 `localhost:4174`로 전달하므로 새 주소마다 Vite 설정을 바꿀 필요가 없습니다.
 아래는 Docker 없이 네이티브 cloudflared를 쓰는 대안입니다. 이 방식은 새 호스트를 환경변수에 넣어 preview를 재시작합니다.
 

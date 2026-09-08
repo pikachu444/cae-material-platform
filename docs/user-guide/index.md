@@ -1,5 +1,11 @@
 # CAE Material Platform 사용자 가이드
 
+**새 조회 앱을 확인하려면 [현재 화면과 접속 주소](../../README.md#접속-주소와-시안-원본),
+[조회·미리보기·다운로드 사용법](01-getting-started.md#개편-중인-조회-화면)을 먼저 봅니다.**
+아래 기존 Materials·Modeling 이미지와 생성·관리 절차는 `apps/web`(5173) 기준입니다.
+새 앱 `apps/web-next`(5174/공유 4174)으로 모두 이관된 기능이나 최신 디자인으로 해석하지 않습니다.
+
+
 이 가이드는 재료시험·재료모델·CAE 사용자가 synthetic demo에서 Material을 찾고 검토하거나 시험
 데이터로 새 solver card를 만드는 절차를 설명합니다. 모든 결과는 `reference/non-production`이며
 회사의 승인된 재료값이나 solver qualification을 대신하지 않습니다.

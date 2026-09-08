@@ -275,7 +275,7 @@ def test_sql_repository_constructs_both_scope_bound_queries_and_binds_rls() -> N
     session = _Session()
     rls = _Rls()
     repository = SqlAlchemyProjectCardIndexRepository(
-        session_factory=lambda: session,
+        session_factory=lambda: session,  # type: ignore[arg-type]
         rls_context=rls,  # type: ignore[arg-type]
     )
     assert repository.list_current_cards(context=context, decision=decision) == ()
